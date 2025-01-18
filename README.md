@@ -1,4 +1,5 @@
 # Automated Farming Systems - afs_fastapi
+![Automated Farming Systems logo](resources/static/images/afs_fastapi-logo.jpg)
 
 ## Project Outline
 
