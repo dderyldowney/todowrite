@@ -17,4 +17,3 @@ dependencies:
   - flake8
   - isort
   - pip
-

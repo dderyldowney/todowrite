@@ -118,11 +118,11 @@ For testing/development the project adds the following packages. Uninstall them,
 
 While most folks won't put it directly there, the worldview is from a user's ``$HOME`` directory.
 
-It is recommended that you use a Python virtual environment for this project, which can be set up as follows. The 2 most popular ways are Python 3.x's ``-m venv`` and miniconda's ``conda``. Use only *one* of them! The project is actively developed using miniconda to control the environment. 
+It is recommended that you use a Python virtual environment for this project, which can be set up as follows. The 2 most popular ways are Python 3.x's ``-m venv`` and miniconda's ``conda``. Use only *one* of them! The project is actively developed using miniconda to control the environment.
 
-However, the second way of using ``python -m venv`` is included for those not using miniconda, but instead are using ``python3`` and ``pip``. 
+However, the second way of using ``python -m venv`` is included for those not using miniconda, but instead are using ``python3`` and ``pip``.
 
-Both share use of the ``deactivate`` command to exit the respective virtual environment, so don't forget to call it when done. 
+Both share use of the ``deactivate`` command to exit the respective virtual environment, so don't forget to call it when done.
 
 Please note, the listing of installed packages for both approaches is shown simply for a baseline.
 
@@ -242,7 +242,7 @@ wheel                     0.45.1             pyhd8ed1ab_1    conda-forge
 yaml                      0.2.5                h0d85af4_2    conda-forge
 
 (afs_fastapi)
-user@machine ~/afs_fastapi % 
+user@machine ~/afs_fastapi %
 ```
 
 #### Python 3.x venv module way
@@ -251,7 +251,7 @@ user@machine ~ % git clone https://github.com/dderyldowney/afs_fastapi.git
 <git output will display as it clones repo>
 
 user@machine ~ % cd afs_fastapi
- 
+
 user@machine ~ % python -V
 Python 3.12.8
 
@@ -341,9 +341,9 @@ websockets         14.1
 wheel              0.45.1
 
 (afs_fastapi)
-user@machine ~/afs_fastapi % 
+user@machine ~/afs_fastapi %
 ```
 Your output should be exactly like the list above. When you're done working with the project, don't forget to do a ``deactivate`` to unload the virtual environment.
 
 Reloading the environment again is as simple as changing to the project directory and executing: ``source ./venv/bin/activate``
-> 
+>
