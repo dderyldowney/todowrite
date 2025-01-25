@@ -5,7 +5,9 @@ repos:
     -   id: trailing-whitespace
     -   id: end-of-file-fixer
     -   id: check-yaml
-    -   id: pretty-format-json
+    - id: pretty-format-json
+      args: ["--autofix"]  # Automatically fix JSON formatting issues
+      additional_dependencies: []
 -   repo: https://github.com/psf/black
     rev: 24.10.0
     hooks:
