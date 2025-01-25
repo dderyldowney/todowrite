@@ -2,6 +2,8 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=node,ruby,rails,linux,macos
 
 .idea/
+venv/
+
 ### Linux ###
 *~
 
@@ -26,9 +28,6 @@
 # Icon must end with two \r
 Icon
 
-# Python
-.venv
-__pycache__
 
 # Thumbnails
 ._*
