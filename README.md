@@ -416,4 +416,3 @@ Your output should be exactly like the list above. When you're done working with
 
 Reloading the environment again is as simple as changing to the project directory and executing:
 ``source ./venv/bin/activate``
->
