@@ -1,4 +1,4 @@
-from afs_fastapi.services.equipment.tractors.farm_tractors import FarmTractor
+from afs_fastapi.models.equipment.tractors.farm_tractors import FarmTractor
 
 # Example usage:
 tractor: FarmTractor = FarmTractor("John Deere", "9RX", 2023)
