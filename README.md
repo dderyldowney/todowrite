@@ -35,6 +35,22 @@ system.
 - `year` (int): The year of manufacture.
 - `manual_url` (str | None): URL to the manual.
 
+**Methods:**
+
+The `FarmTractor` class provides several methods to interact with and control the tractor.
+Below is a list of the available methods:
+
+- `start_engine()` -> str: Starts the engine of the tractor.
+- `stop_engine()` -> str: Stops the engine of the tractor.
+- `change_gear(gear: str)` -> str: Changes the gear of the tractor.
+- `accelerate(increment: int)` -> str: Accelerates the tractor.
+- `brake(decrement: int)` -> str: Brakes the tractor.
+- `engage_power_takeoff()` -> str: Engages the power takeoff.
+- `disengage_power_takeoff()` -> str: Disengages the power takeoff.
+- `activate_hydraulics()` -> str: Activates the hydraulics.
+- `deactivate_hydraulics()` -> str: Deactivates the hydraulics.
+- `__str__()` -> str: Returns the string representation of the tractor.
+
 **Example Usage:**
 
 ```python
