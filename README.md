@@ -1,20 +1,52 @@
 # Automated Farming System API - afs_fastapi
+
 ![Automated Farming System API logo](resources/static/images/afs_fastapi-logo.jpg)
 
 ## Project Outline
 
 ### 1. Project Purpose
-This project aims to harness Machine Learning (ML) and robotics to automate essential farming processes, including operating farm equipment, maintaining soil health, and managing water quality. By integrating data-driven insights with advanced automation, the project seeks to enhance farming efficiency, sustainability, and productivity.
 
-The system provides a robust set of API interfaces, using [FastAPI](https://fastapi.tiangolo.com), to support diverse use cases, ranging from controlling robotic devices and physical farm equipment to monitoring environmental factors such as soil, water, and air quality. The APIs are designed to serve a wide range of consumers, including AI agents managing autonomous operations and humans overseeing the overall system or specific subsystems.
+This project aims to harness Machine Learning (ML) and robotics to automate essential farming processes, including
+operating farm equipment, maintaining soil health, and managing water quality. By integrating data-driven insights with
+advanced automation, the project seeks to enhance farming efficiency, sustainability, and productivity.
+
+The system provides a robust set of API interfaces, using [FastAPI](https://fastapi.tiangolo.com), to support diverse
+use cases, ranging from controlling robotic devices and physical farm equipment to monitoring environmental factors such
+as soil, water, and air quality. The APIs are designed to serve a wide range of consumers, including AI agents managing
+autonomous operations and humans overseeing the overall system or specific subsystems.
 
 ---
 
 ### 2. Locating Operational Manuals for Farm Equipment
 
-**Objective:** Identify and utilize online resources that provide operational manuals for farm equipment. These manuals will guide the adaptation of current robotics to operate agricultural machines for automation purposes.
+**Objective:** Identify and utilize online resources that provide operational manuals for farm equipment. These manuals
+will guide the adaptation of current robotics to operate agricultural machines for automation purposes.
+
+**FarmTractor Model:**
+The `FarmTractor` model is a Pydantic model used in the project to represent a farm tractor. It includes fields such as
+`make`, `model`, `year`, and `manual_url` to store the URL of the operational manual for the tractor. This model is used
+to demonstrate the use of Pydantic models in FastAPI and to provide a structured way to manage tractor data within the
+system.
+
+**Attributes:**
+
+- `make` (str): The make of the tractor.
+- `model` (str): The model of the tractor.
+- `year` (int): The year of manufacture.
+- `manual_url` (str | None): URL to the manual.
+
+**Example Usage:**
+
+```python
+from afs_fastapi.models.equipment.tractors.farm_tractors import FarmTractor
+
+# Example usage:
+tractor = FarmTractor(make="John Deere", model="9RX", year=2023, manual_url="https://example.com/manual")
+print(f"Make: {tractor.make}, Model: {tractor.model}, Year: {tractor.year}, Manual URL: {tractor.manual_url}")
+```
 
 **Sources:**
+
 1. [AgManuals](https://agmanuals.com)
 2. [Case IH Operator Manuals](https://www.caseih.com/en-us/unitedstates/service-support/operators-manuals)
 3. [Farm Manuals Fast](https://farmmanualsfast.com)
@@ -25,14 +57,18 @@ The system provides a robust set of API interfaces, using [FastAPI](https://fast
 8. [Yesterday's Tractors Forums](https://forums.yesterdaystractors.com)
 9. [Tractor Tools Direct](https://tractortoolsdirect.com/manuals)
 10. [General Implement Distributors](https://www.generalimp.com/manuals)
+11. [TractorData](https://www.tractordata.com)
+12. [Tractor Manuals Downunder](https://www.tractor-manuals-downunder.com)
 
 ---
 
 ### 3. Monitoring and Maintaining Soil Conditions
 
-**Objective:** Research and utilize tools, sensors, and platforms to monitor soil composition, mineral content, and pH balance, ensuring optimal crop health.
+**Objective:** Research and utilize tools, sensors, and platforms to monitor soil composition, mineral content, and pH
+balance, ensuring optimal crop health.
 
 **Resources:**
+
 1. [Soil Scout](https://soilscout.com)
 2. [Renke 4-in-1 Soil Nutrient Sensor](https://www.renkeer.com/product/soil-nutrient-sensor/)
 3. [Murata Soil Sensors](https://www.murata.com/en-us/products/sensor/soil)
@@ -48,9 +84,11 @@ The system provides a robust set of API interfaces, using [FastAPI](https://fast
 
 ### 4. Monitoring and Maintaining Water Conditions
 
-**Objective:** Identify and deploy tools to assess and maintain water composition, mineral levels, and pH balance, ensuring water quality is optimized for agricultural use.
+**Objective:** Identify and deploy tools to assess and maintain water composition, mineral levels, and pH balance,
+ensuring water quality is optimized for agricultural use.
 
 **Resources:**
+
 1. [Renke Water Quality Sensors](https://www.renkeer.com/top-7-water-quality-sensors/)
 2. [In-Situ Agriculture Water Monitoring](https://in-situ.com/us/agriculture)
 3. [Xylem Analytics Water Quality Monitoring](https://www.xylemanalytics.com/en/products/water-quality-monitoring)
@@ -66,9 +104,11 @@ The system provides a robust set of API interfaces, using [FastAPI](https://fast
 
 ### 5. Utilizing Publicly Available Water Sampling Datasets
 
-**Objective:** Access and analyze publicly available water quality datasets to inform ML models for monitoring water conditions suitable for farming.
+**Objective:** Access and analyze publicly available water quality datasets to inform ML models for monitoring water
+conditions suitable for farming.
 
 **Sources:**
+
 1. [Water Quality Portal (WQP)](https://www.waterqualitydata.us/)
 2. [USGS National Water Information System (NWIS)](https://catalog.data.gov/dataset)
 3. [EPA Water Quality Data](https://www.epa.gov/waterdata/water-quality-data)
@@ -80,12 +120,15 @@ The system provides a robust set of API interfaces, using [FastAPI](https://fast
 
 ### 6. Project Integration and Machine Learning Goals
 
-**Objective:** Synthesize the research and datasets into ML models and robotics systems capable of automating farm operations, improving efficiency, and ensuring sustainability. Models will address:
+**Objective:** Synthesize the research and datasets into ML models and robotics systems capable of automating farm
+operations, improving efficiency, and ensuring sustainability. Models will address:
+
 - Autonomous machine operation (leveraging operational manuals).
 - Soil condition predictions and adjustments.
 - Water quality monitoring and real-time management.
 
 **Tools and Techniques:**
+
 - ML libraries like TensorFlow and PyTorch.
 - IoT-enabled sensors for real-time data collection.
 - Integration with cloud platforms for data storage and analysis.
@@ -93,9 +136,12 @@ The system provides a robust set of API interfaces, using [FastAPI](https://fast
 ---
 
 ### Conclusion
-This project will employ cutting-edge ML and robotics solutions to automate farming processes, ensuring optimized resource utilization and sustainable agricultural practices.
+
+This project will employ cutting-edge ML and robotics solutions to automate farming processes, ensuring optimized
+resource utilization and sustainable agricultural practices.
 
 ## Project Setup
+
 The project uses the following:
 
 - Python 3.11 or 3.12. The project has _not_ been tested with Python 3.13
@@ -118,11 +164,15 @@ For testing/development the project adds the following packages. Uninstall them,
 
 While most folks won't put it directly there, the worldview is from a user's ``$HOME`` directory.
 
-It is recommended that you use a Python virtual environment for this project, which can be set up as follows. The 2 most popular ways are Python 3.x's ``-m venv`` and miniconda's ``conda``. Use only *one* of them! The project is actively developed using miniconda to control the environment.
+It is recommended that you use a Python virtual environment for this project, which can be set up as follows. The 2 most
+popular ways are Python 3.x's ``-m venv`` and miniconda's ``conda``. Use only *one* of them! The project is actively
+developed using miniconda to control the environment.
 
-However, the second way of using ``python -m venv`` is included for those not using miniconda, but instead are using ``python3`` and ``pip``.
+However, the second way of using ``python -m venv`` is included for those not using miniconda, but instead are using
+``python3`` and ``pip``.
 
-Both share use of the ``deactivate`` command to exit the respective virtual environment, so don't forget to call it when done.
+Both share use of the ``deactivate`` command to exit the respective virtual environment, so don't forget to call it when
+done.
 
 Please note, the listing of installed packages for both approaches is shown simply for a baseline.
 
@@ -246,6 +296,7 @@ user@machine ~/afs_fastapi %
 ```
 
 #### Python 3.x venv module way
+
 ```zsh
 user@machine ~ % git clone https://github.com/dderyldowney/afs_fastapi.git
 <git output will display as it clones repo>
@@ -343,7 +394,10 @@ wheel              0.45.1
 (afs_fastapi)
 user@machine ~/afs_fastapi %
 ```
-Your output should be exactly like the list above. When you're done working with the project, don't forget to do a ``deactivate`` to unload the virtual environment.
 
-Reloading the environment again is as simple as changing to the project directory and executing: ``source ./venv/bin/activate``
+Your output should be exactly like the list above. When you're done working with the project, don't forget to do a
+``deactivate`` to unload the virtual environment.
+
+Reloading the environment again is as simple as changing to the project directory and executing:
+``source ./venv/bin/activate``
 >
