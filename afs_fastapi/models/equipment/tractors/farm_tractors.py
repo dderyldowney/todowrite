@@ -11,6 +11,7 @@ class FarmTractor:
     gear (str): Current gear of the tractor.
     power_takeoff (bool): Power takeoff status.
     hydraulics (bool): Hydraulics status.
+    manual_url (str): URL to the manual.
     """
 
     def __init__(self, make: str, model: str, year: int) -> None:
@@ -21,10 +22,12 @@ class FarmTractor:
         make (str): The make of the tractor.
         model (str): The model of the tractor.
         year (int): The year of manufacture.
+        manual_url (str) | None: URL to the manual.
         """
         self.make: str = make
         self.model: str = model
         self.year: int = year
+        self.manual_url: str | None = None
         self.engine_on: bool = False
         self.speed: int = 0
         self.gear: str = "Neutral"
