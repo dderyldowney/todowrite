@@ -61,20 +61,6 @@ tractor = FarmTractor(make="John Deere", model="9RX", year=2023, manual_url="htt
 print(f"Make: {tractor.make}, Model: {tractor.model}, Year: {tractor.year}, Manual URL: {tractor.manual_url}")
 ```
 
-**Build Process:**
-
-To build the project, follow these steps:
-
-1. Clone the repository: `git clone https://github.com/dderyldowney/afs_fastapi.git`
-2. Change to the project directory: `cd afs_fastapi`
-3. Create a virtual environment: `python -m venv .venv`
-4. Activate the virtual environment: `source .venv/bin/activate`
-5. Install the project dependencies: `pip install -r requirements.txt`
-6. Install build tools: `pip install build`
-7. Build the project: `python -m build`
-8. Install the generated wheel file: `pip install dist/afs_fastapi-0.1.0-py3-none-any.whl`
-9. Run the FastAPI application: `uvicorn afs_fastapi.main:app --reload`
-
 **Sources:**
 
 1. [AgManuals](https://agmanuals.com)
@@ -89,6 +75,22 @@ To build the project, follow these steps:
 10. [General Implement Distributors](https://www.generalimp.com/manuals)
 11. [TractorData](https://www.tractordata.com)
 12. [Tractor Manuals Downunder](https://www.tractor-manuals-downunder.com)
+
+---
+
+**Build Process:**
+
+To build the project, follow these steps:
+
+1. Clone the repository: `git clone https://github.com/dderyldowney/afs_fastapi.git`
+2. Change to the project directory: `cd afs_fastapi`
+3. Create a virtual environment: `python -m venv .venv`
+4. Activate the virtual environment: `source .venv/bin/activate`
+5. Install the project dependencies: `pip install -r requirements.txt`
+6. Install build tools: `pip install build`
+7. Build the project: `python -m build`
+8. Install the generated wheel file: `pip install dist/afs_fastapi-0.1.0-py3-none-any.whl`
+9. Run the FastAPI application: `uvicorn afs_fastapi.main:app --reload`
 
 ---
 
