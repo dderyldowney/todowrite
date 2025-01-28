@@ -1,5 +1,5 @@
 from unittest.mock import MagicMock
-from equipment.farm_tractors import FarmTractor
+from afs_fastapi.equipment.farm_tractors import FarmTractor
 
 
 def get_mock_farm_tractor():
