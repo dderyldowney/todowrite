@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="afs_fastapi",
-    version="0.0.1",
+    version="0.0.1-alpha",
     packages=find_packages(),
     install_requires=[
         # List dependencies here, e.g., "fastapi", "pydantic"
