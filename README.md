@@ -54,7 +54,7 @@ Below is a list of the available methods:
 **Example Usage:**
 
 ```python
-from afs_fastapi.models.equipment.tractors.farm_tractors import FarmTractor
+from afs_fastapi.equipment.farm_tractors import FarmTractor
 
 # Example usage:
 tractor = FarmTractor(make="John Deere", model="9RX", year=2023, manual_url="https://example.com/manual")
