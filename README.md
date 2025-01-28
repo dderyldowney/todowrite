@@ -90,7 +90,7 @@ To build the project, follow these steps:
 6. Install build tools: `pip install build`
 7. Build the project: `python -m build`
 8. Install the generated wheel file: `pip install dist/afs_fastapi-0.1.0-py3-none-any.whl`
-9. Run the FastAPI application: `uvicorn afs_fastapi.main:app --reload`
+9. Import afs_fastapi into your project: `import afs_fastapi`
 
 ---
 
