@@ -61,7 +61,8 @@ tractor = FarmTractor(make="John Deere", model="9RX", year=2023, manual_url="htt
 print(f"Make: {tractor.make}, Model: {tractor.model}, Year: {tractor.year}, Manual URL: {tractor.manual_url}")
 ```
 
-** Build Process:**
+**Build Process:**
+
 To build the project, follow these steps:
 
 1. Clone the repository: `git clone https://github.com/dderyldowney/afs_fastapi.git`
