@@ -3,6 +3,7 @@
 
 .idea/
 venv/
+.venv/
 __pycache__
 build/
 
@@ -311,5 +312,12 @@ build-iPhoneSimulator/
 
 # Used by RuboCop. Remote config files pulled in from inherit_from directive.
 # .rubocop-https?--*
+
+# Python testing
+.pytest_cache/
+pytest.xml
+
+# Do NOT ignore .github directory as it contains workflow configurations
+# .github/
 
 # End of https://www.toptal.com/developers/gitignore/api/node,ruby,rails,linux,macos
