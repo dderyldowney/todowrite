@@ -1,8 +1,12 @@
-from equipment.farm_tractors import FarmTractor
+from afs_fastapi.equipment.farm_tractors import FarmTractor
 
 # Example usage:
-tractor: FarmTractor = FarmTractor("John Deere", "9RX", 2023)
-print(f"Make: {tractor.make}, Model: {tractor.model}, Year: {tractor.year}")
+tractor: FarmTractor = FarmTractor(
+    "John Deere", "9RX", 2023, manual_url="https://www.example.com/manual"
+)
+print(
+    f"Make: {tractor.make}, Model: {tractor.model}, Year: {tractor.year}, Manual: {tractor.manual_url}"
+)
 print(tractor.start_engine())
 print(tractor.change_gear("1"))
 print(tractor.accelerate(10))
