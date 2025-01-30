@@ -48,13 +48,28 @@ class FarmTractor:
         self.hydraulics = False  # Deactivate hydraulics.
         return "Engine stopped. Tractor is now reset."
 
-    def change_gear(self, gear: int) -> str:
+    def change_gear(self, gear):
+        """
+        Change the tractor's gear.
+        Args:
+            gear: The gear to change to (int or string)
+        Returns:
+            str: Status message
+        Raises:
+            ValueError: If engine is off or invalid gear
+        """
         if not self.engine_on:
             raise ValueError("Cannot change gears while the engine is off.")
-        if gear < self.MIN_GEAR or gear > self.MAX_GEAR:
-            raise ValueError(
-                f"Gear must be between {self.MIN_GEAR} and {self.MAX_GEAR}."
-            )
+        
+        # Convert gear to int if it's a string
+        try:
+            gear = int(gear)
+        except ValueError:
+            raise ValueError("Invalid gear value")
+
+        if not 0 <= gear <= 10:
+            raise ValueError("Gear must be between 0 and 10.")
+
         self.gear = gear
         return f"Gear changed to {gear}."
 
