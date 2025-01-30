@@ -6,8 +6,9 @@ venv/
 .venv/
 __pycache__
 build/
-_site
+_site/
 Gemfile.lock
+afs_fastapi.egg-info/
 
 ### Linux ###
 *~
