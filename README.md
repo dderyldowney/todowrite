@@ -7,7 +7,7 @@
 
 ### 1. Project Purpose
 
-This project aims to harness Machine Learning (ML) and robotics to automate essential farming processes, including
+The [AFS-FastAPI Project](https://github.com/dderyldowney/afs_fastapi) aims to harness Machine Learning (ML) and robotics to automate essential farming processes, including
 operating farm equipment, maintaining soil health, and managing water quality. By integrating data-driven insights with
 advanced automation, the project seeks to enhance farming efficiency, sustainability, and productivity.
 
