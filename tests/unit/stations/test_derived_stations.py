@@ -1,6 +1,5 @@
 import unittest
 from afs_fastapi.stations.station_types import (
-    StationType,
     DiagnosticsStation,
     DroidDispatchStation,
     ServiceDispatchStation,
