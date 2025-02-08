@@ -87,3 +87,4 @@ uvicorn==0.34.0
 virtualenv==20.29.1
 wheel==0.43.0
 zipp==3.19.2
+graphviz~=0.20.3
