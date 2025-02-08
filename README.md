@@ -1,4 +1,5 @@
 # Automated Farming System API
+
 [![AFS Testing](https://github.com/dderyldowney/afs_fastapi/actions/workflows/afs-testing.yml/badge.svg)](https://github.com/dderyldowney/afs_fastapi/actions/workflows/afs-testing.yml)
 
 ![Automated Farming System API logo](resources/static/images/afs_fastapi-logo.jpg)
