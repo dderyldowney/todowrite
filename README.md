@@ -24,11 +24,12 @@ autonomous operations and humans overseeing the overall system or specific subsy
 **Objective:** Identify and utilize online resources that provide operational manuals for farm equipment. These manuals
 will guide the adaptation of current robotics to operate agricultural machines for automation purposes.
 
-**FarmTractor Model:**
-The `FarmTractor` model is a Pydantic model used in the project to represent a farm tractor. It includes fields such as
-`make`, `model`, `year`, and `manual_url` to store the URL of the operational manual for the tractor. This model is used
-to demonstrate the use of Pydantic models in FastAPI and to provide a structured way to manage tractor data within the
-system.
+**FarmTractor Class:**
+The `FarmTractor` is a plain Python class used in the project to represent a farm tractor. It includes attributes such as
+`make`, `model`, `year`, and `manual_url` to store the URL of the operational manual for the tractor. This class is used
+to demonstrate core equipment behaviors and to provide a structured way to manage tractor data within the system.
+
+API responses that expose tractor state use a dedicated Pydantic model (`FarmTractorResponse`) to provide a stable, JSON-serializable schema without mixing API concerns into the core class.
 
 **Attributes:**
 
@@ -93,6 +94,55 @@ To build the project, follow these steps:
 7. Build the project: `python -m build`
 8. Install the generated wheel file: `pip install dist/afs_fastapi-0.1.0-py3-none-any.whl`
 9. Import afs_fastapi into your project: `import afs_fastapi`
+
+Note on extras: The project uses `fastapi[all]` and `starlette[full]` in development to enable optional features commonly exercised in tests and local runs (e.g., test client utilities, templating, multipart/form-data handling, and uvicorn’s standard extras). This keeps “pip install -r requirements.txt” sufficient for running tests and docs locally.
+
+---
+
+**Run the API locally:**
+
+- Quick start (defaults to 127.0.0.1:8000):
+  - `python -m afs_fastapi`
+  - or `afs-api` (installed console script)
+- Environment overrides:
+  - `AFS_API_HOST` (default: 127.0.0.1)
+  - `AFS_API_PORT` (default: 8000)
+  - `AFS_API_RELOAD` (true/false, default: false)
+  - `AFS_API_LOG_LEVEL` (debug/info/warning/error, default: info)
+
+---
+
+**Sensor backend interfaces:**
+
+Monitoring classes accept pluggable backends so you can swap real sensors without changing API code.
+
+Example (Soil):
+
+```python
+from afs_fastapi.monitoring.interfaces import SoilSensorBackend
+from afs_fastapi.monitoring.soil_monitor import SoilMonitor
+
+class MySoilBackend(SoilSensorBackend):
+    def read(self, sensor_id: str):
+        return {"ph": 6.7, "moisture": 0.33, "nitrogen": 1.2, "phosphorus": 0.5, "potassium": 0.7}
+
+monitor = SoilMonitor("SOIL001", backend=MySoilBackend())
+print(monitor.get_soil_composition())
+```
+
+Example (Water):
+
+```python
+from afs_fastapi.monitoring.interfaces import WaterSensorBackend
+from afs_fastapi.monitoring.water_monitor import WaterMonitor
+
+class MyWaterBackend(WaterSensorBackend):
+    def read(self, sensor_id: str):
+        return {"ph": 7.2, "turbidity": 1.1, "temperature": 18.0, "conductivity": 0.23, "dissolved_oxygen": 8.0}
+
+monitor = WaterMonitor("WTR001", backend=MyWaterBackend())
+print(monitor.get_water_quality())
+```
 
 ---
 
@@ -175,3 +225,7 @@ This project will employ cutting-edge ML and robotics solutions to automate farm
 resource utilization and sustainable agricultural practices.
 
 ---
+
+## Contributing
+
+See `CONTRIBUTING.md` for the Quick Verification Checklist and contribution guidelines.

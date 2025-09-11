@@ -1,14 +1,58 @@
+from typing import ClassVar
+
+from pydantic import BaseModel
+
+
+class FarmTractorResponse(BaseModel):
+    """
+    Representation of a tractor state suitable for API responses.
+
+    Parameters
+    ----------
+    make : str
+        Manufacturer name.
+    model : str
+        Model name.
+    year : int
+        Year of manufacture.
+    manual_url : str | None, optional
+        URL to the operator's manual, by default None.
+    engine_on : bool
+        Whether the engine is currently running.
+    speed : int
+        Current speed in mph.
+    gear : int
+        Current gear (0–10).
+    power_takeoff : bool
+        Whether the PTO is engaged.
+    hydraulics : bool
+        Whether hydraulics are activated.
+    """
+
+    tractor_id: str | None = None
+    make: str
+    model: str
+    year: int
+    manual_url: str | None = None
+    engine_on: bool
+    speed: int
+    gear: int
+    power_takeoff: bool
+    hydraulics: bool
+    status: str
+
+
 class FarmTractor:
     """
     A class representing a farm tractor with various functionalities,
     such as engine control, gear changes, and hydraulic systems.
     """
 
-    MAX_SPEED = 40  # Maximum speed limit for the tractor.
-    MIN_GEAR = (
+    MAX_SPEED: ClassVar[int] = 40  # Maximum speed limit for the tractor.
+    MIN_GEAR: ClassVar[int] = (
         0  # Minimum gear value (e.g., reverse support can be added here).
     )
-    MAX_GEAR = 10  # Maximum gear value.
+    MAX_GEAR: ClassVar[int] = 10  # Maximum gear value.
 
     def __init__(
         self, make: str, model: str, year: int, manual_url: str | None = None
@@ -48,7 +92,7 @@ class FarmTractor:
         self.hydraulics = False  # Deactivate hydraulics.
         return "Engine stopped. Tractor is now reset."
 
-    def change_gear(self, gear):
+    def change_gear(self, gear: int | str) -> str:
         """
         Change the tractor's gear.
         Args:
@@ -60,7 +104,7 @@ class FarmTractor:
         """
         if not self.engine_on:
             raise ValueError("Cannot change gears while the engine is off.")
-        
+
         # Convert gear to int if it's a string
         try:
             gear = int(gear)
@@ -142,4 +186,29 @@ class FarmTractor:
             f"PTO: {'Engaged' if self.power_takeoff else 'Disengaged'}\n"
             f"Hydraulics: {'Activated' if self.hydraulics else 'Deactivated'}\n"
             f"Manual URL: {manual_info}"
+        )
+
+    def to_response(
+        self, tractor_id: str | None = None
+    ) -> FarmTractorResponse:
+        """
+        Convert the current tractor state to a Pydantic response model.
+
+        Returns
+        -------
+        FarmTractorResponse
+            A serializable snapshot of the tractor's current state.
+        """
+        return FarmTractorResponse(
+            tractor_id=tractor_id,
+            make=self.make,
+            model=self.model,
+            year=self.year,
+            manual_url=self.manual_url,
+            engine_on=self.engine_on,
+            speed=self.speed,
+            gear=self.gear,
+            power_takeoff=self.power_takeoff,
+            hydraulics=self.hydraulics,
+            status=str(self),
         )

@@ -2,9 +2,14 @@ from platform import python_version
 
 from setuptools import setup, find_packages
 
+# Single source the version without importing the package
+version_ns = {}
+with open("afs_fastapi/version.py", "r", encoding="utf-8") as _vf:
+    exec(_vf.read(), version_ns)
+
 setup(
     name="afs_fastapi",
-    version="0.0.1-alpha",
+    version=version_ns.get("__version__", "0.1.0"),
     packages=find_packages(),
     install_requires=[
         # List dependencies here, e.g., "fastapi", "pydantic"
@@ -12,7 +17,7 @@ setup(
         "pydantic",
         "uvicorn",
     ],
-    python_requires=">=3.8, <3.13",
+    python_requires=">=3.10, <3.13",
     author="D Deryl Downey",
     author_email="ddd@davidderyldowney.com",
     description="Automated Farming System API",
@@ -30,4 +35,9 @@ setup(
         "Programming Language :: Python :: " + python_version(),
         "Operating System :: OS Independent",
     ],
+    entry_points={
+        "console_scripts": [
+            "afs-api=afs_fastapi.__main__:main",
+        ]
+    },
 )
