@@ -1,25 +1,24 @@
 from typing import Dict, Any
 from datetime import datetime
 
+from .interfaces import WaterSensorBackend, DummyWaterSensorBackend
+
+
 class WaterMonitor:
-    def __init__(self, sensor_id: str):
+    def __init__(
+        self, sensor_id: str, backend: WaterSensorBackend | None = None
+    ):
         self.sensor_id = sensor_id
+        self.backend: WaterSensorBackend = backend or DummyWaterSensorBackend()
         self.last_reading: Dict[str, Any] = {}
-        
+
     def get_water_quality(self) -> Dict[str, float]:
-        """Get water quality readings."""
-        # Implementation would connect to actual sensors
-        return {
-            "ph": 7.0,
-            "dissolved_oxygen": 0.0,
-            "temperature": 0.0,
-            "conductivity": 0.0,
-            "turbidity": 0.0
-        }
-        
+        """Get water quality readings via the configured backend."""
+        return self.backend.read(self.sensor_id)
+
     def log_reading(self) -> None:
         """Log current water quality readings with timestamp."""
         self.last_reading = {
             "timestamp": datetime.now(),
-            "readings": self.get_water_quality()
+            "readings": self.get_water_quality(),
         }
