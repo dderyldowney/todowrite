@@ -228,4 +228,4 @@ resource utilization and sustainable agricultural practices.
 
 ## Contributing
 
-See `CONTRIBUTING.md` for the Quick Verification Checklist and contribution guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the Quick Verification Checklist and contribution guidelines.
