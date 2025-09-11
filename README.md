@@ -229,3 +229,24 @@ resource utilization and sustainable agricultural practices.
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the Quick Verification Checklist and contribution guidelines.
+
+---
+
+## Security Notes
+
+This project enables automated checks (Dependabot + pip-audit) for dependency vulnerabilities. Two current advisories are known and monitored:
+
+- Starlette 0.41.3: GHSA-2c2j-9gv5-cj73 (CVE-2025-54121)
+  - Summary: Large multipart form uploads may block the event loop while rolling files to disk.
+  - Project impact: This API does not use multipart uploads; risk is low in our deployment.
+  - Remediation: Fixed in Starlette >= 0.47.2. We will upgrade alongside a compatible FastAPI release.
+
+- h11 0.14.0: GHSA-vqfr-h8mv-ghfj (CVE-2025-43859)
+  - Summary: Lenient chunked-encoding parsing could enable request smuggling in specific proxy mismatch scenarios.
+  - Project impact: h11 is pulled in via HTTP client tooling (httpx/httpcore) for development; the server stack uses Uvicorn/Starlette. Risk is low in typical deployments, especially behind well-configured reverse proxies.
+  - Remediation: Fixed in h11 >= 0.16.0, which currently conflicts with pinned httpcore. We will bump httpcore/httpx and FastAPI in a coordinated upgrade once compatible.
+
+Mitigations in place:
+- No multipart endpoints are exposed.
+- CI flags vulnerabilities and proposes updates automatically.
+- We will track upstream compatibility windows and upgrade as they align.

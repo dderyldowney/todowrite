@@ -42,12 +42,12 @@ Below is a list of the available methods:</p>
 <li><code>__str__()</code> -&gt; str: Returns the string representation of the tractor.</li>
 </ul>
 <p><strong>Example Usage:</strong></p>
-<pre class="codehilite"><code class="language-python">from afs_fastapi.equipment.farm_tractors import FarmTractor
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">afs_fastapi.equipment.farm_tractors</span><span class="w"> </span><span class="kn">import</span> <span class="n">FarmTractor</span>
 
-# Example usage:
-tractor = FarmTractor(make=&quot;John Deere&quot;, model=&quot;9RX&quot;, year=2023, manual_url=&quot;https://example.com/manual&quot;)
-print(f&quot;Make: {tractor.make}, Model: {tractor.model}, Year: {tractor.year}, Manual URL: {tractor.manual_url}&quot;)
-</code></pre>
+<span class="c1"># Example usage:</span>
+<span class="n">tractor</span> <span class="o">=</span> <span class="n">FarmTractor</span><span class="p">(</span><span class="n">make</span><span class="o">=</span><span class="s2">&quot;John Deere&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;9RX&quot;</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2023</span><span class="p">,</span> <span class="n">manual_url</span><span class="o">=</span><span class="s2">&quot;https://example.com/manual&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Make: </span><span class="si">{</span><span class="n">tractor</span><span class="o">.</span><span class="n">make</span><span class="si">}</span><span class="s2">, Model: </span><span class="si">{</span><span class="n">tractor</span><span class="o">.</span><span class="n">model</span><span class="si">}</span><span class="s2">, Year: </span><span class="si">{</span><span class="n">tractor</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">, Manual URL: </span><span class="si">{</span><span class="n">tractor</span><span class="o">.</span><span class="n">manual_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
 
 <p><strong>Sources:</strong></p>
 <ol>
@@ -95,28 +95,28 @@ print(f&quot;Make: {tractor.make}, Model: {tractor.model}, Year: {tractor.year},
 <p><strong>Sensor backend interfaces:</strong></p>
 <p>Monitoring classes accept pluggable backends so you can swap real sensors without changing API code.</p>
 <p>Example (Soil):</p>
-<pre class="codehilite"><code class="language-python">from afs_fastapi.monitoring.interfaces import SoilSensorBackend
-from afs_fastapi.monitoring.soil_monitor import SoilMonitor
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">afs_fastapi.monitoring.interfaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">SoilSensorBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">afs_fastapi.monitoring.soil_monitor</span><span class="w"> </span><span class="kn">import</span> <span class="n">SoilMonitor</span>
 
-class MySoilBackend(SoilSensorBackend):
-    def read(self, sensor_id: str):
-        return {&quot;ph&quot;: 6.7, &quot;moisture&quot;: 0.33, &quot;nitrogen&quot;: 1.2, &quot;phosphorus&quot;: 0.5, &quot;potassium&quot;: 0.7}
+<span class="k">class</span><span class="w"> </span><span class="nc">MySoilBackend</span><span class="p">(</span><span class="n">SoilSensorBackend</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;ph&quot;</span><span class="p">:</span> <span class="mf">6.7</span><span class="p">,</span> <span class="s2">&quot;moisture&quot;</span><span class="p">:</span> <span class="mf">0.33</span><span class="p">,</span> <span class="s2">&quot;nitrogen&quot;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span> <span class="s2">&quot;phosphorus&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;potassium&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">}</span>
 
-monitor = SoilMonitor(&quot;SOIL001&quot;, backend=MySoilBackend())
-print(monitor.get_soil_composition())
-</code></pre>
+<span class="n">monitor</span> <span class="o">=</span> <span class="n">SoilMonitor</span><span class="p">(</span><span class="s2">&quot;SOIL001&quot;</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">MySoilBackend</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">monitor</span><span class="o">.</span><span class="n">get_soil_composition</span><span class="p">())</span>
+</code></pre></div>
 
 <p>Example (Water):</p>
-<pre class="codehilite"><code class="language-python">from afs_fastapi.monitoring.interfaces import WaterSensorBackend
-from afs_fastapi.monitoring.water_monitor import WaterMonitor
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">afs_fastapi.monitoring.interfaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">WaterSensorBackend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">afs_fastapi.monitoring.water_monitor</span><span class="w"> </span><span class="kn">import</span> <span class="n">WaterMonitor</span>
 
-class MyWaterBackend(WaterSensorBackend):
-    def read(self, sensor_id: str):
-        return {&quot;ph&quot;: 7.2, &quot;turbidity&quot;: 1.1, &quot;temperature&quot;: 18.0, &quot;conductivity&quot;: 0.23, &quot;dissolved_oxygen&quot;: 8.0}
+<span class="k">class</span><span class="w"> </span><span class="nc">MyWaterBackend</span><span class="p">(</span><span class="n">WaterSensorBackend</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;ph&quot;</span><span class="p">:</span> <span class="mf">7.2</span><span class="p">,</span> <span class="s2">&quot;turbidity&quot;</span><span class="p">:</span> <span class="mf">1.1</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">18.0</span><span class="p">,</span> <span class="s2">&quot;conductivity&quot;</span><span class="p">:</span> <span class="mf">0.23</span><span class="p">,</span> <span class="s2">&quot;dissolved_oxygen&quot;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">}</span>
 
-monitor = WaterMonitor(&quot;WTR001&quot;, backend=MyWaterBackend())
-print(monitor.get_water_quality())
-</code></pre>
+<span class="n">monitor</span> <span class="o">=</span> <span class="n">WaterMonitor</span><span class="p">(</span><span class="s2">&quot;WTR001&quot;</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">MyWaterBackend</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">monitor</span><span class="o">.</span><span class="n">get_water_quality</span><span class="p">())</span>
+</code></pre></div>
 
 <hr />
 <h3>3. Monitoring and Maintaining Soil Conditions</h3>
@@ -187,3 +187,24 @@ resource utilization and sustainable agricultural practices.</p>
 <hr />
 <h2>Contributing</h2>
 <p>See <a href="CONTRIBUTING.md">CONTRIBUTING.md</a> for the Quick Verification Checklist and contribution guidelines.</p>
+<hr />
+<h2>Security Notes</h2>
+<p>This project enables automated checks (Dependabot + pip-audit) for dependency vulnerabilities. Two current advisories are known and monitored:</p>
+<ul>
+<li>Starlette 0.41.3: GHSA-2c2j-9gv5-cj73 (CVE-2025-54121)</li>
+<li>Summary: Large multipart form uploads may block the event loop while rolling files to disk.</li>
+<li>Project impact: This API does not use multipart uploads; risk is low in our deployment.</li>
+<li>
+<p>Remediation: Fixed in Starlette &gt;= 0.47.2. We will upgrade alongside a compatible FastAPI release.</p>
+</li>
+<li>
+<p>h11 0.14.0: GHSA-vqfr-h8mv-ghfj (CVE-2025-43859)</p>
+</li>
+<li>Summary: Lenient chunked-encoding parsing could enable request smuggling in specific proxy mismatch scenarios.</li>
+<li>Project impact: h11 is pulled in via HTTP client tooling (httpx/httpcore) for development; the server stack uses Uvicorn/Starlette. Risk is low in typical deployments, especially behind well-configured reverse proxies.</li>
+<li>Remediation: Fixed in h11 &gt;= 0.16.0, which currently conflicts with pinned httpcore. We will bump httpcore/httpx and FastAPI in a coordinated upgrade once compatible.</li>
+</ul>
+<p>Mitigations in place:
+- No multipart endpoints are exposed.
+- CI flags vulnerabilities and proposes updates automatically.
+- We will track upstream compatibility windows and upgrade as they align.</p>
