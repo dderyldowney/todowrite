@@ -1,4 +1,5 @@
 {
-  "typeCheckingMode": "basic",
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "strict",
   "useLibraryCodeForTypes": true
 }
