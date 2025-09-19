@@ -1,4 +1,5 @@
 import unittest
+
 from afs_fastapi.equipment.farm_tractors import FarmTractor
 
 
@@ -7,9 +8,7 @@ class TestFarmTractor(unittest.TestCase):
         """
         Creates a new FarmTractor instance for each test.
         """
-        self.tractor = FarmTractor(
-            "John Deere", "Model X", 2023, "https://manual.johndeere.com"
-        )
+        self.tractor = FarmTractor("John Deere", "Model X", 2023, "https://manual.johndeere.com")
 
     def test_initialization(self):
         """
@@ -18,9 +17,7 @@ class TestFarmTractor(unittest.TestCase):
         self.assertEqual(self.tractor.make, "John Deere")
         self.assertEqual(self.tractor.model, "Model X")
         self.assertEqual(self.tractor.year, 2023)
-        self.assertEqual(
-            self.tractor.manual_url, "https://manual.johndeere.com"
-        )
+        self.assertEqual(self.tractor.manual_url, "https://manual.johndeere.com")
         self.assertFalse(self.tractor.engine_on)
         self.assertEqual(self.tractor.speed, 0)
         self.assertEqual(self.tractor.gear, 0)
@@ -48,9 +45,7 @@ class TestFarmTractor(unittest.TestCase):
         self.tractor.engage_power_takeoff()
         self.tractor.activate_hydraulics()
 
-        self.assertEqual(
-            self.tractor.stop_engine(), "Engine stopped. Tractor is now reset."
-        )
+        self.assertEqual(self.tractor.stop_engine(), "Engine stopped. Tractor is now reset.")
         self.assertFalse(self.tractor.engine_on)
         self.assertEqual(self.tractor.speed, 0)
         self.assertEqual(self.tractor.gear, 0)
@@ -72,15 +67,11 @@ class TestFarmTractor(unittest.TestCase):
 
         with self.assertRaises(ValueError) as context:
             self.tractor.change_gear(11)
-        self.assertEqual(
-            str(context.exception), "Gear must be between 0 and 10."
-        )
+        self.assertEqual(str(context.exception), "Gear must be between 0 and 10.")
 
         with self.assertRaises(ValueError) as context:
             self.tractor.change_gear(-1)
-        self.assertEqual(
-            str(context.exception), "Gear must be between 0 and 10."
-        )
+        self.assertEqual(str(context.exception), "Gear must be between 0 and 10.")
 
         self.tractor.stop_engine()
 
@@ -97,21 +88,15 @@ class TestFarmTractor(unittest.TestCase):
         """
         self.tractor.start_engine()
 
-        self.assertEqual(
-            self.tractor.accelerate(10), "Speed increased to 10 mph."
-        )
+        self.assertEqual(self.tractor.accelerate(10), "Speed increased to 10 mph.")
         self.assertEqual(self.tractor.speed, 10)
 
-        self.assertEqual(
-            self.tractor.accelerate(35), "Speed increased to 40 mph."
-        )
+        self.assertEqual(self.tractor.accelerate(35), "Speed increased to 40 mph.")
         self.assertEqual(self.tractor.speed, self.tractor.MAX_SPEED)
 
         with self.assertRaises(ValueError) as context:
             self.tractor.accelerate(-5)
-        self.assertEqual(
-            str(context.exception), "Acceleration must be a positive value."
-        )
+        self.assertEqual(str(context.exception), "Acceleration must be a positive value.")
 
         self.tractor.stop_engine()
 
@@ -137,17 +122,13 @@ class TestFarmTractor(unittest.TestCase):
 
         with self.assertRaises(ValueError) as context:
             self.tractor.brake(-5)
-        self.assertEqual(
-            str(context.exception), "Brake reduction must be a positive value."
-        )
+        self.assertEqual(str(context.exception), "Brake reduction must be a positive value.")
 
         self.tractor.stop_engine()
 
         with self.assertRaises(ValueError) as context:
             self.tractor.brake(10)
-        self.assertEqual(
-            str(context.exception), "Cannot brake while the engine is off."
-        )
+        self.assertEqual(str(context.exception), "Cannot brake while the engine is off.")
 
     def test_engage_power_takeoff(self):
         """
@@ -197,16 +178,12 @@ class TestFarmTractor(unittest.TestCase):
         """
         self.tractor.start_engine()
 
-        self.assertEqual(
-            self.tractor.activate_hydraulics(), "Hydraulics activated."
-        )
+        self.assertEqual(self.tractor.activate_hydraulics(), "Hydraulics activated.")
         self.assertTrue(self.tractor.hydraulics)
 
         with self.assertRaises(ValueError) as context:
             self.tractor.activate_hydraulics()
-        self.assertEqual(
-            str(context.exception), "Hydraulics are already activated."
-        )
+        self.assertEqual(str(context.exception), "Hydraulics are already activated.")
 
         self.tractor.stop_engine()
 
@@ -224,16 +201,12 @@ class TestFarmTractor(unittest.TestCase):
         self.tractor.start_engine()
         self.tractor.activate_hydraulics()
 
-        self.assertEqual(
-            self.tractor.deactivate_hydraulics(), "Hydraulics deactivated."
-        )
+        self.assertEqual(self.tractor.deactivate_hydraulics(), "Hydraulics deactivated.")
         self.assertFalse(self.tractor.hydraulics)
 
         with self.assertRaises(ValueError) as context:
             self.tractor.deactivate_hydraulics()
-        self.assertEqual(
-            str(context.exception), "Hydraulics are already deactivated."
-        )
+        self.assertEqual(str(context.exception), "Hydraulics are already deactivated.")
 
     def test_str_representation(self):
         """

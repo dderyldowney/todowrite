@@ -31,9 +31,7 @@ def main() -> None:
     host = os.getenv("AFS_API_HOST", "127.0.0.1")
     port_str = os.getenv("AFS_API_PORT", "8000")
     reload = _env_bool("AFS_API_RELOAD", False)
-    log_level: Literal[
-        "critical", "error", "warning", "info", "debug", "trace"
-    ] = os.getenv(
+    log_level: Literal["critical", "error", "warning", "info", "debug", "trace"] = os.getenv(
         "AFS_API_LOG_LEVEL", "info"
     ).lower()  # type: ignore[assignment]
     try:

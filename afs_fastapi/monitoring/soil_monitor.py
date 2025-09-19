@@ -1,13 +1,11 @@
-from typing import Dict, Any
 from datetime import datetime
+from typing import Any, Dict
 
-from .interfaces import SoilSensorBackend, DummySoilSensorBackend
+from .interfaces import DummySoilSensorBackend, SoilSensorBackend
 
 
 class SoilMonitor:
-    def __init__(
-        self, sensor_id: str, backend: SoilSensorBackend | None = None
-    ):
+    def __init__(self, sensor_id: str, backend: SoilSensorBackend | None = None):
         self.sensor_id = sensor_id
         self.backend: SoilSensorBackend = backend or DummySoilSensorBackend()
         self.last_reading: Dict[str, Any] = {}

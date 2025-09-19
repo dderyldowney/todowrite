@@ -35,9 +35,7 @@ class DiagnosticsStation(MasterStation):
     A diagnostics station responsible for system diagnostics and reporting.
     """
 
-    def __init__(
-        self, station_id: int, system: str, diagnostic_tools: list[str]
-    ):
+    def __init__(self, station_id: int, system: str, diagnostic_tools: list[str]):
         super().__init__(station_id, system)
         self.station_type = StationType.DIAGNOSTIC
         self.diagnostic_tools: list[str] = diagnostic_tools

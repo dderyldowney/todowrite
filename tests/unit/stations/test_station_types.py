@@ -1,9 +1,6 @@
 import pytest
-from afs_fastapi.stations.station_types import (
-    StationType,
-    get_station_type,
-    MasterStation,
-)
+
+from afs_fastapi.stations.station_types import MasterStation, StationType, get_station_type
 
 
 def test_station_type_enum():

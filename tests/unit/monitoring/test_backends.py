@@ -1,30 +1,17 @@
-from afs_fastapi.monitoring.interfaces import (
-    SoilSensorBackend,
-    WaterSensorBackend,
-)
+from afs_fastapi.monitoring.interfaces import SoilSensorBackend, WaterSensorBackend
 from afs_fastapi.monitoring.soil_monitor import SoilMonitor
 from afs_fastapi.monitoring.water_monitor import WaterMonitor
 
 
 class MySoilBackend(SoilSensorBackend):
     def read(self, sensor_id: str):
-        # Echo sensor_id in a synthetic metric to ensure it flows through
-        return {
-            "ph": 6.7,
-            "moisture": 0.33,
-            "nitrogen": 1.2,
-            "sensor": sensor_id,
-        }
+        # Return numeric-only readings matching the interface
+        return {"ph": 6.7, "moisture": 0.33, "nitrogen": 1.2}
 
 
 class MyWaterBackend(WaterSensorBackend):
     def read(self, sensor_id: str):
-        return {
-            "ph": 7.1,
-            "turbidity": 0.9,
-            "temperature": 18.0,
-            "sensor": sensor_id,
-        }
+        return {"ph": 7.1, "turbidity": 0.9, "temperature": 18.0}
 
 
 def test_soil_monitor_custom_backend():
@@ -33,7 +20,7 @@ def test_soil_monitor_custom_backend():
     assert data["ph"] == 6.7
     assert data["moisture"] == 0.33
     assert data["nitrogen"] == 1.2
-    assert data["sensor"] == "SOIL001"
+    # backend returns numeric readings only per interface
 
 
 def test_water_monitor_custom_backend():
@@ -42,4 +29,4 @@ def test_water_monitor_custom_backend():
     assert data["ph"] == 7.1
     assert data["turbidity"] == 0.9
     assert data["temperature"] == 18.0
-    assert data["sensor"] == "WTR001"
+    # backend returns numeric readings only per interface

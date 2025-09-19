@@ -49,14 +49,10 @@ class FarmTractor:
     """
 
     MAX_SPEED: ClassVar[int] = 40  # Maximum speed limit for the tractor.
-    MIN_GEAR: ClassVar[int] = (
-        0  # Minimum gear value (e.g., reverse support can be added here).
-    )
+    MIN_GEAR: ClassVar[int] = 0  # Minimum gear value (e.g., reverse support can be added here).
     MAX_GEAR: ClassVar[int] = 10  # Maximum gear value.
 
-    def __init__(
-        self, make: str, model: str, year: int, manual_url: str | None = None
-    ) -> None:
+    def __init__(self, make: str, model: str, year: int, manual_url: str | None = None) -> None:
         """
         Initializes a FarmTractor instance.
 
@@ -122,9 +118,7 @@ class FarmTractor:
             raise ValueError("Cannot accelerate while the engine is off.")
         if increase < 0:
             raise ValueError("Acceleration must be a positive value.")
-        self.speed = min(
-            self.speed + increase, self.MAX_SPEED
-        )  # Limit speed to MAX_SPEED.
+        self.speed = min(self.speed + increase, self.MAX_SPEED)  # Limit speed to MAX_SPEED.
         return f"Speed increased to {self.speed} mph."
 
     def brake(self, decrease: int) -> str:
@@ -132,9 +126,7 @@ class FarmTractor:
             raise ValueError("Cannot brake while the engine is off.")
         if decrease < 0:
             raise ValueError("Brake reduction must be a positive value.")
-        self.speed = max(
-            0, self.speed - decrease
-        )  # Ensure speed is not negative.
+        self.speed = max(0, self.speed - decrease)  # Ensure speed is not negative.
         return f"Speed decreased to {self.speed} mph."
 
     def engage_power_takeoff(self) -> str:
@@ -153,9 +145,7 @@ class FarmTractor:
 
     def activate_hydraulics(self) -> str:
         if not self.engine_on:
-            raise ValueError(
-                "Cannot activate hydraulics while the engine is off."
-            )
+            raise ValueError("Cannot activate hydraulics while the engine is off.")
         if self.hydraulics:
             raise ValueError("Hydraulics are already activated.")
         self.hydraulics = True
@@ -175,9 +165,7 @@ class FarmTractor:
             str: A string summarizing the tractor's details.
         """
         engine_status = "On" if self.engine_on else "Off"
-        manual_info = (
-            self.manual_url if self.manual_url else "No manual available"
-        )
+        manual_info = self.manual_url if self.manual_url else "No manual available"
         return (
             f"Tractor {self.make} {self.model} ({self.year})\n"
             f"Engine: {engine_status}\n"
@@ -188,9 +176,7 @@ class FarmTractor:
             f"Manual URL: {manual_info}"
         )
 
-    def to_response(
-        self, tractor_id: str | None = None
-    ) -> FarmTractorResponse:
+    def to_response(self, tractor_id: str | None = None) -> FarmTractorResponse:
         """
         Convert the current tractor state to a Pydantic response model.
 

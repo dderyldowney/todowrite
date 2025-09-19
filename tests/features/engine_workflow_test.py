@@ -1,18 +1,17 @@
 import pytest
+
 from afs_fastapi.equipment.farm_tractors import FarmTractor
 
 
 @pytest.fixture
-def tractor():
+def tractor() -> FarmTractor:
     """
     Pytest fixture to create a fresh instance of FarmTractor for each test.
     """
-    return FarmTractor(
-        "John Deere", "Model X", 2023, "https://manual.johndeere.com"
-    )
+    return FarmTractor("John Deere", "Model X", 2023, "https://manual.johndeere.com")
 
 
-def test_engine_start(tractor):
+def test_engine_start(tractor: FarmTractor):
     """
     Test starting the engine.
     """
@@ -28,7 +27,7 @@ def test_engine_start(tractor):
         tractor.start_engine()
 
 
-def test_engine_stop(tractor):
+def test_engine_stop(tractor: FarmTractor):
     """
     Test stopping the engine and the system reset.
     """
@@ -52,7 +51,7 @@ def test_engine_stop(tractor):
     assert not tractor.hydraulics  # Hydraulics should be deactivated
 
 
-def test_engine_dependency_for_operations(tractor):
+def test_engine_dependency_for_operations(tractor: FarmTractor):
     """
     Test that engine-dependent operations cannot proceed unless the engine is running.
     """
@@ -60,33 +59,23 @@ def test_engine_dependency_for_operations(tractor):
     assert not tractor.engine_on
 
     # Attempt to change gears with the engine off
-    with pytest.raises(
-        ValueError, match="Cannot change gears while the engine is off."
-    ):
+    with pytest.raises(ValueError, match="Cannot change gears while the engine is off."):
         tractor.change_gear(2)
 
     # Attempt to accelerate with the engine off
-    with pytest.raises(
-        ValueError, match="Cannot accelerate while the engine is off."
-    ):
+    with pytest.raises(ValueError, match="Cannot accelerate while the engine is off."):
         tractor.accelerate(10)
 
     # Attempt to brake with the engine off
-    with pytest.raises(
-        ValueError, match="Cannot brake while the engine is off."
-    ):
+    with pytest.raises(ValueError, match="Cannot brake while the engine is off."):
         tractor.brake(5)
 
     # Attempt to activate PTO with the engine off
-    with pytest.raises(
-        ValueError, match="Cannot engage PTO while the engine is off."
-    ):
+    with pytest.raises(ValueError, match="Cannot engage PTO while the engine is off."):
         tractor.engage_power_takeoff()
 
     # Attempt to activate hydraulics with the engine off
-    with pytest.raises(
-        ValueError, match="Cannot activate hydraulics while the engine is off."
-    ):
+    with pytest.raises(ValueError, match="Cannot activate hydraulics while the engine is off."):
         tractor.activate_hydraulics()
 
     # Start the engine
@@ -101,7 +90,7 @@ def test_engine_dependency_for_operations(tractor):
     assert tractor.activate_hydraulics() == "Hydraulics activated."
 
 
-def test_engine_state_after_reset(tractor):
+def test_engine_state_after_reset(tractor: FarmTractor):
     """
     Test that stopping the engine resets the tractor's state.
     """
@@ -126,7 +115,7 @@ def test_engine_state_after_reset(tractor):
     assert not tractor.hydraulics  # Hydraulics should be deactivated
 
 
-def test_restart_engine_after_stopping(tractor):
+def test_restart_engine_after_stopping(tractor: FarmTractor):
     """
     Test that the engine can be restarted after it has been stopped.
     """
