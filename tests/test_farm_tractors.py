@@ -1,4 +1,5 @@
 import pytest
+
 from afs_fastapi.equipment.farm_tractors import FarmTractor
 
 
@@ -38,9 +39,7 @@ def test_acceleration_edge_cases():
     tractor.accelerate(50)  # Should cap at MAX_SPEED (40)
     assert tractor.speed == 40
 
-    with pytest.raises(
-        ValueError, match="Acceleration must be a positive value"
-    ):
+    with pytest.raises(ValueError, match="Acceleration must be a positive value"):
         tractor.accelerate(-1)
 
 
@@ -53,9 +52,7 @@ def test_brake_edge_cases():
     tractor.brake(50)  # Should stop at 0
     assert tractor.speed == 0
 
-    with pytest.raises(
-        ValueError, match="Brake reduction must be a positive value"
-    ):
+    with pytest.raises(ValueError, match="Brake reduction must be a positive value"):
         tractor.brake(-1)
 
 
@@ -81,9 +78,7 @@ def test_pto_edge_cases():
     tractor = FarmTractor("John", "Deere", 2020)
 
     # Test PTO with engine off
-    with pytest.raises(
-        ValueError, match="Cannot engage PTO while the engine is off"
-    ):
+    with pytest.raises(ValueError, match="Cannot engage PTO while the engine is off"):
         tractor.engage_power_takeoff()
 
     tractor.start_engine()
@@ -104,9 +99,7 @@ def test_hydraulics_edge_cases():
     tractor = FarmTractor("John", "Deere", 2020)
 
     # Test hydraulics with engine off
-    with pytest.raises(
-        ValueError, match="Cannot activate hydraulics while the engine is off"
-    ):
+    with pytest.raises(ValueError, match="Cannot activate hydraulics while the engine is off"):
         tractor.activate_hydraulics()
 
     tractor.start_engine()

@@ -1,15 +1,19 @@
 from platform import python_version
 
 from setuptools import setup, find_packages
+from typing import Any
 
 # Single source the version without importing the package
-version_ns = {}
+version_ns: dict[str, Any] = {}
 with open("afs_fastapi/version.py", "r", encoding="utf-8") as _vf:
     exec(_vf.read(), version_ns)
 
+# Ensure `version` is a plain str for setup() and satisfy static type-checkers
+version: str = str(version_ns.get("__version__", "0.1.0"))
+
 setup(
     name="afs_fastapi",
-    version=version_ns.get("__version__", "0.1.0"),
+    version=version,
     packages=find_packages(),
     install_requires=[
         # List dependencies here, e.g., "fastapi", "pydantic"

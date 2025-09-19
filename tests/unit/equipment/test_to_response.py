@@ -1,5 +1,3 @@
-import pytest
-
 from afs_fastapi.equipment.farm_tractors import FarmTractor
 
 
@@ -20,9 +18,7 @@ def test_farm_tractor_to_response_defaults():
 
 
 def test_farm_tractor_to_response_after_state_changes():
-    tractor = FarmTractor(
-        "John Deere", "9RX", 2023, manual_url="https://example.com/manual"
-    )
+    tractor = FarmTractor("John Deere", "9RX", 2023, manual_url="https://example.com/manual")
     tractor.start_engine()
     tractor.change_gear(3)
     tractor.accelerate(15)

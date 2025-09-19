@@ -1,18 +1,17 @@
 import pytest
+
 from afs_fastapi.equipment.farm_tractors import FarmTractor
 
 
 @pytest.fixture
-def tractor():
+def tractor() -> FarmTractor:
     """
     Pytest fixture to create a fresh instance of FarmTractor for each test.
     """
-    return FarmTractor(
-        "John Deere", "Model X", 2023, "https://manual.johndeere.com"
-    )
+    return FarmTractor("John Deere", "Model X", 2023, "https://manual.johndeere.com")
 
 
-def test_start_stop_engine_workflow(tractor):
+def test_start_stop_engine_workflow(tractor: FarmTractor):
     """
     Test the end-to-end workflow of starting and stopping the engine, ensuring all systems reset.
     """
@@ -39,7 +38,7 @@ def test_start_stop_engine_workflow(tractor):
         tractor.stop_engine()
 
 
-def test_complete_gear_and_speed_workflow(tractor):
+def test_complete_gear_and_speed_workflow(tractor: FarmTractor):
     """
     Test transitioning through gears and adjusting speed under valid and invalid conditions.
     """
@@ -56,9 +55,7 @@ def test_complete_gear_and_speed_workflow(tractor):
     # Attempt invalid operations
     with pytest.raises(ValueError, match="Gear must be between 0 and 10."):
         tractor.change_gear(11)
-    with pytest.raises(
-        ValueError, match="Acceleration must be a positive value."
-    ):
+    with pytest.raises(ValueError, match="Acceleration must be a positive value."):
         tractor.accelerate(-5)
 
     # Brake to reduce speed
@@ -72,7 +69,7 @@ def test_complete_gear_and_speed_workflow(tractor):
     assert tractor.speed == 0
 
 
-def test_power_takeoff_and_hydraulics_full_workflow(tractor):
+def test_power_takeoff_and_hydraulics_full_workflow(tractor: FarmTractor):
     """
     Test a full workflow of using PTO and hydraulics.
     """
@@ -85,9 +82,7 @@ def test_power_takeoff_and_hydraulics_full_workflow(tractor):
     assert tractor.power_takeoff
 
     # Deactivate PTO
-    assert (
-        tractor.disengage_power_takeoff() == "Power Take-Off (PTO) disengaged."
-    )
+    assert tractor.disengage_power_takeoff() == "Power Take-Off (PTO) disengaged."
     assert not tractor.power_takeoff
 
     # Activate and deactivate hydraulics
@@ -101,9 +96,7 @@ def test_power_takeoff_and_hydraulics_full_workflow(tractor):
         tractor.disengage_power_takeoff()
 
     # Attempt invalid operations when hydraulics are already deactivated
-    with pytest.raises(
-        ValueError, match="Hydraulics are already deactivated."
-    ):
+    with pytest.raises(ValueError, match="Hydraulics are already deactivated."):
         tractor.deactivate_hydraulics()
 
     # Stop the engine
@@ -113,7 +106,7 @@ def test_power_takeoff_and_hydraulics_full_workflow(tractor):
     assert not tractor.hydraulics
 
 
-def test_end_to_end_combined_workflow(tractor):
+def test_end_to_end_combined_workflow(tractor: FarmTractor):
     """
     Test a combined end-to-end workflow that involves starting the engine,
     accelerating, changing gears, activating hydraulics and PTO, and stopping the tractor.
@@ -147,17 +140,13 @@ def test_end_to_end_combined_workflow(tractor):
     assert not tractor.hydraulics
 
     # Attempt invalid operations after engine is off
-    with pytest.raises(
-        ValueError, match="Cannot change gears while the engine is off."
-    ):
+    with pytest.raises(ValueError, match="Cannot change gears while the engine is off."):
         tractor.change_gear(1)
-    with pytest.raises(
-        ValueError, match="Cannot accelerate while the engine is off."
-    ):
+    with pytest.raises(ValueError, match="Cannot accelerate while the engine is off."):
         tractor.accelerate(5)
 
 
-def test_string_representation(tractor):
+def test_string_representation(tractor: FarmTractor):
     """
     Test the string representation of the tractor during various states.
     """

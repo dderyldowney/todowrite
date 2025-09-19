@@ -1,11 +1,12 @@
-from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
 import os
 
+from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
+
 from ..equipment.farm_tractors import FarmTractor, FarmTractorResponse
+from ..monitoring.schemas import SoilReadingResponse, WaterQualityResponse
 from ..monitoring.soil_monitor import SoilMonitor
 from ..monitoring.water_monitor import WaterMonitor
-from ..monitoring.schemas import SoilReadingResponse, WaterQualityResponse
 from ..version import __version__
 
 app = FastAPI(
@@ -74,9 +75,7 @@ async def get_tractor_status(tractor_id: str) -> FarmTractorResponse:
 async def get_soil_status(sensor_id: str) -> SoilReadingResponse:
     """Get soil monitoring data from a specific sensor."""
     monitor = SoilMonitor(sensor_id)
-    return SoilReadingResponse(
-        sensor_id=sensor_id, readings=monitor.get_soil_composition()
-    )
+    return SoilReadingResponse(sensor_id=sensor_id, readings=monitor.get_soil_composition())
 
 
 @app.get(
@@ -89,6 +88,4 @@ async def get_soil_status(sensor_id: str) -> SoilReadingResponse:
 async def get_water_status(sensor_id: str) -> WaterQualityResponse:
     """Get water quality data from a specific sensor."""
     monitor = WaterMonitor(sensor_id)
-    return WaterQualityResponse(
-        sensor_id=sensor_id, readings=monitor.get_water_quality()
-    )
+    return WaterQualityResponse(sensor_id=sensor_id, readings=monitor.get_water_quality())

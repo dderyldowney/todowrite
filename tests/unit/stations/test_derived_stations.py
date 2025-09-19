@@ -1,9 +1,10 @@
 import unittest
+
 from afs_fastapi.stations.station_types import (
     DiagnosticsStation,
     DroidDispatchStation,
-    ServiceDispatchStation,
     RepairStation,
+    ServiceDispatchStation,
 )
 
 
@@ -12,9 +13,7 @@ class TestDiagnosticsStation(unittest.TestCase):
 
     def setUp(self):
         """Initialize a DiagnosticsStation instance for testing."""
-        self.station = DiagnosticsStation(
-            1, "PowerGrid", ["Voltage Tester", "Thermal Scanner"]
-        )
+        self.station = DiagnosticsStation(1, "PowerGrid", ["Voltage Tester", "Thermal Scanner"])
 
     def test_run_diagnostics(self):
         """Test that diagnostics run correctly and return expected output."""

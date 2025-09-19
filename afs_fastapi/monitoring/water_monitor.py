@@ -1,13 +1,11 @@
-from typing import Dict, Any
 from datetime import datetime
+from typing import Any, Dict
 
-from .interfaces import WaterSensorBackend, DummyWaterSensorBackend
+from .interfaces import DummyWaterSensorBackend, WaterSensorBackend
 
 
 class WaterMonitor:
-    def __init__(
-        self, sensor_id: str, backend: WaterSensorBackend | None = None
-    ):
+    def __init__(self, sensor_id: str, backend: WaterSensorBackend | None = None):
         self.sensor_id = sensor_id
         self.backend: WaterSensorBackend = backend or DummyWaterSensorBackend()
         self.last_reading: Dict[str, Any] = {}
