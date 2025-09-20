@@ -38,3 +38,42 @@ jobs:
           else
             echo "No doc changes to commit."
           fi
+
+  publish-gh-pages:
+    name: Publish to gh-pages
+    needs: build-docs
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Configure git for push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Ensure gh-pages branch exists
+        run: |
+          # Create an orphan gh-pages branch locally if it doesn't exist remotely
+          if git ls-remote --exit-code origin gh-pages; then
+            git fetch origin gh-pages:gh-pages
+          else
+            git checkout --orphan gh-pages
+            git rm -rf . || true
+            git commit --allow-empty -m "chore: create gh-pages branch"
+            git push origin gh-pages
+            git checkout main
+          fi
+      - name: Copy docs to gh-pages
+        run: |
+          git checkout gh-pages
+          mkdir -p .
+          cp -a docs/index.html .
+          # Only commit if different
+          if [[ -n "$(git status --porcelain index.html)" ]]; then
+            git add index.html
+            git commit -m "chore(gh-pages): update index.html from main README"
+            git push origin gh-pages
+          else
+            echo "gh-pages is already up-to-date."
+          fi
