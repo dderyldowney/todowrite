@@ -31,28 +31,131 @@ to demonstrate core equipment behaviors and to provide a structured way to manag
 
 API responses that expose tractor state use a dedicated Pydantic model (`FarmTractorResponse`) to provide a stable, JSON-serializable schema without mixing API concerns into the core class.
 
-**Attributes:**
+**FarmTractor Class Attributes:**
 
-- `make` (str): The make of the tractor.
+**Core Identification:**
+- `make` (str): The manufacturer of the tractor.
 - `model` (str): The model of the tractor.
 - `year` (int): The year of manufacture.
-- `manual_url` (str | None): URL to the manual.
+- `manual_url` (str | None): URL to the operational manual.
+
+**Engine and Basic Controls:**
+- `engine_on` (bool): Whether the engine is currently running.
+- `speed` (int): Current speed in mph.
+- `gear` (int): Current gear (0-10).
+- `power_takeoff` (bool): Whether the PTO is engaged.
+- `hydraulics` (bool): Whether hydraulics are activated.
+
+**GPS and Navigation:**
+- `gps_latitude` (float | None): Current GPS latitude coordinate.
+- `gps_longitude` (float | None): Current GPS longitude coordinate.
+- `auto_steer_enabled` (bool): Whether auto-steer is active.
+- `waypoints` (List[Tuple[float, float]]): Navigation waypoints.
+- `current_heading` (float): Current heading in degrees.
+
+**Implement Controls:**
+- `implement_position` (ImplementPosition): Current implement position (raised/lowered/transport).
+- `implement_depth` (float): Working depth in inches.
+- `implement_width` (float): Working width in feet.
+
+**Field Operations:**
+- `field_mode` (FieldMode): Current field operation mode.
+- `work_rate` (float): Work rate in acres/hour.
+- `area_covered` (float): Total area covered in acres.
+
+**Engine and Fuel:**
+- `fuel_level` (float): Fuel level percentage.
+- `engine_rpm` (int): Engine RPM.
+- `engine_temp` (float): Engine temperature in Fahrenheit.
+
+**Hydraulics:**
+- `hydraulic_pressure` (float): Hydraulic pressure in PSI.
+- `hydraulic_flow` (float): Hydraulic flow in GPM.
+
+**Sensors:**
+- `wheel_slip` (float): Wheel slip percentage.
+- `ground_speed` (float): Ground speed in mph.
+- `draft_load` (float): Draft load in pounds.
+
+**Autonomous Features:**
+- `autonomous_mode` (bool): Whether autonomous mode is enabled.
+- `obstacle_detection` (bool): Whether obstacle detection is active.
+- `emergency_stop_active` (bool): Whether emergency stop is active.
 
 **Methods:**
 
-The `FarmTractor` class provides several methods to interact with and control the tractor.
-Below is a list of the available methods:
+**Engine Controls:**
+- `start_engine()` -> str: Starts the engine.
+- `stop_engine()` -> str: Stops the engine and resets all systems.
 
-- `start_engine()` -> str: Starts the engine of the tractor.
-- `stop_engine()` -> str: Stops the engine of the tractor.
-- `change_gear(gear: str)` -> str: Changes the gear of the tractor.
-- `accelerate(increment: int)` -> str: Accelerates the tractor.
-- `brake(decrement: int)` -> str: Brakes the tractor.
+**Basic Operation:**
+- `change_gear(gear: int | str)` -> str: Changes the gear (0-10).
+- `accelerate(increase: int)` -> str: Increases speed by the specified amount.
+- `brake(decrease: int)` -> str: Decreases speed by the specified amount.
+
+**Power Systems:**
 - `engage_power_takeoff()` -> str: Engages the power takeoff.
 - `disengage_power_takeoff()` -> str: Disengages the power takeoff.
-- `activate_hydraulics()` -> str: Activates the hydraulics.
-- `deactivate_hydraulics()` -> str: Deactivates the hydraulics.
-- `__str__()` -> str: Returns the string representation of the tractor.
+- `activate_hydraulics()` -> str: Activates hydraulic systems.
+- `deactivate_hydraulics()` -> str: Deactivates hydraulic systems.
+
+**GPS and Navigation:**
+- `set_gps_position(latitude: float, longitude: float)` -> str: Sets GPS coordinates.
+- `enable_auto_steer()` -> str: Enables GPS auto-steer system.
+- `disable_auto_steer()` -> str: Disables GPS auto-steer system.
+- `add_waypoint(latitude: float, longitude: float)` -> str: Adds navigation waypoint.
+- `clear_waypoints()` -> str: Clears all waypoints.
+- `set_heading(heading: float)` -> str: Sets current heading (0-359 degrees).
+
+**Implement Controls:**
+- `raise_implement()` -> str: Raises the attached implement.
+- `lower_implement(depth: float = 6.0)` -> str: Lowers implement to working depth.
+- `set_transport_position()` -> str: Sets implement to transport position.
+- `set_implement_width(width: float)` -> str: Sets working width (0-80 feet).
+
+**Field Operations:**
+- `set_field_mode(mode: FieldMode)` -> str: Sets field operation mode.
+- `start_field_work()` -> str: Begins field work operations.
+- `update_work_progress(distance: float)` -> str: Updates work progress tracking.
+
+**Autonomous Operations:**
+- `enable_autonomous_mode()` -> str: Enables autonomous operation mode.
+- `disable_autonomous_mode()` -> str: Disables autonomous operation mode.
+- `emergency_stop()` -> str: Triggers emergency stop - halts all operations.
+- `reset_emergency_stop()` -> str: Resets emergency stop condition.
+
+**Diagnostic Methods:**
+- `get_engine_diagnostics()` -> Dict[str, float]: Returns engine diagnostic data.
+- `get_hydraulic_status()` -> Dict[str, float]: Returns hydraulic system status.
+- `get_ground_conditions()` -> Dict[str, float]: Returns ground and traction data.
+
+**Utility Methods:**
+- `__str__()` -> str: Returns comprehensive string representation.
+- `to_response(tractor_id: str | None = None)` -> FarmTractorResponse: Converts to API response model.
+
+**FarmTractorResponse Class Attributes:**
+
+The `FarmTractorResponse` is a Pydantic model used for API responses, containing:
+
+- `tractor_id` (str | None): Optional tractor identifier.
+- `make` (str): Manufacturer name.
+- `model` (str): Model name.
+- `year` (int): Year of manufacture.
+- `manual_url` (str | None): URL to operator's manual.
+- `engine_on` (bool): Engine running status.
+- `speed` (int): Current speed in mph.
+- `gear` (int): Current gear (0-10).
+- `power_takeoff` (bool): PTO engagement status.
+- `hydraulics` (bool): Hydraulics activation status.
+- `gps_latitude` (float | None): GPS latitude coordinate.
+- `gps_longitude` (float | None): GPS longitude coordinate.
+- `auto_steer_enabled` (bool): Auto-steer status.
+- `implement_position` (Literal["raised", "lowered", "transport"]): Implement position state.
+- `field_mode` (Literal["transport", "tillage", "planting", "spraying", "harvesting", "maintenance"]): Current field operation mode.
+- `fuel_level` (float): Fuel level percentage.
+- `engine_rpm` (int): Engine RPM.
+- `hydraulic_pressure` (float): Hydraulic pressure in PSI.
+- `status` (str): Complete tractor status string.
 
 **Example Usage:**
 

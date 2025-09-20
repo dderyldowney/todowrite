@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import ClassVar, Dict, List, Optional, Tuple
+from typing import ClassVar, Dict, List, Literal, Optional, Tuple
 
 from pydantic import BaseModel
 
@@ -73,8 +73,10 @@ class FarmTractorResponse(BaseModel):
     gps_latitude: float | None = None
     gps_longitude: float | None = None
     auto_steer_enabled: bool = False
-    implement_position: str = "raised"
-    field_mode: str = "transport"
+    implement_position: Literal["raised", "lowered", "transport"] = "raised"
+    field_mode: Literal[
+        "transport", "tillage", "planting", "spraying", "harvesting", "maintenance"
+    ] = "transport"
     fuel_level: float = 100.0
     engine_rpm: int = 0
     hydraulic_pressure: float = 0.0
