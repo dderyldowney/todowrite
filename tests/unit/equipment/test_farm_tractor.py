@@ -219,6 +219,11 @@ class TestFarmTractor(unittest.TestCase):
             "Gear: 0\n"
             "PTO: Disengaged\n"
             "Hydraulics: Deactivated\n"
+            "GPS: Not Set\n"
+            "Auto-Steer: Disabled\n"
+            "Field Mode: transport\n"
+            "Implement: raised\n"
+            "Autonomous: Inactive\n"
             "Manual URL: https://manual.johndeere.com"
         )
         self.assertEqual(str(self.tractor), expected_str)
@@ -236,6 +241,11 @@ class TestFarmTractor(unittest.TestCase):
             "Gear: 3\n"
             "PTO: Engaged\n"
             "Hydraulics: Activated\n"
+            "GPS: Not Set\n"
+            "Auto-Steer: Disabled\n"
+            "Field Mode: transport\n"
+            "Implement: raised\n"
+            "Autonomous: Inactive\n"
             "Manual URL: https://manual.johndeere.com"
         )
         self.assertEqual(str(self.tractor), expected_str)
