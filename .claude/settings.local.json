@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pytest:*)",
+      "Bash(python:*)",
+      "Bash(mypy:*)",
+      "Bash(black:*)",
+      "Bash(flake8:*)",
+      "Bash(isort:*)",
+      "Bash(git:*)",
+      "Bash(ruff:*)"
+    ],
+    "ask": [],
+    "deny": []
+  }
+}
