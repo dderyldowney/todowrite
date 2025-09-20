@@ -19,34 +19,197 @@ The <code>FarmTractor</code> is a plain Python class used in the project to repr
 <code>make</code>, <code>model</code>, <code>year</code>, and <code>manual_url</code> to store the URL of the operational manual for the tractor. This class is used
 to demonstrate core equipment behaviors and to provide a structured way to manage tractor data within the system.</p>
 <p>API responses that expose tractor state use a dedicated Pydantic model (<code>FarmTractorResponse</code>) to provide a stable, JSON-serializable schema without mixing API concerns into the core class.</p>
-<p><strong>Attributes:</strong></p>
-<ul>
-<li><code>make</code> (str): The make of the tractor.</li>
-<li><code>model</code> (str): The model of the tractor.</li>
-<li><code>year</code> (int): The year of manufacture.</li>
-<li><code>manual_url</code> (str | None): URL to the manual.</li>
-</ul>
+<p><strong>FarmTractor Class Attributes:</strong></p>
+<p><strong>Core Identification:</strong>
+- <code>make</code> (str): The manufacturer of the tractor.
+- <code>model</code> (str): The model of the tractor.
+- <code>year</code> (int): The year of manufacture.
+- <code>manual_url</code> (str | None): URL to the operational manual.</p>
+<p><strong>Engine and Basic Controls:</strong>
+- <code>engine_on</code> (bool): Whether the engine is currently running.
+- <code>speed</code> (int): Current speed in mph.
+- <code>gear</code> (int): Current gear (0-10).
+- <code>power_takeoff</code> (bool): Whether the PTO is engaged.
+- <code>hydraulics</code> (bool): Whether hydraulics are activated.</p>
+<p><strong>GPS and Navigation:</strong>
+- <code>gps_latitude</code> (float | None): Current GPS latitude coordinate.
+- <code>gps_longitude</code> (float | None): Current GPS longitude coordinate.
+- <code>auto_steer_enabled</code> (bool): Whether auto-steer is active.
+- <code>waypoints</code> (List[Tuple[float, float]]): Navigation waypoints.
+- <code>current_heading</code> (float): Current heading in degrees.</p>
+<p><strong>Implement Controls:</strong>
+- <code>implement_position</code> (ImplementPosition): Current implement position (raised/lowered/transport).
+- <code>implement_depth</code> (float): Working depth in inches.
+- <code>implement_width</code> (float): Working width in feet.</p>
+<p><strong>Field Operations:</strong>
+- <code>field_mode</code> (FieldMode): Current field operation mode.
+- <code>work_rate</code> (float): Work rate in acres/hour.
+- <code>area_covered</code> (float): Total area covered in acres.</p>
+<p><strong>Engine and Fuel:</strong>
+- <code>fuel_level</code> (float): Fuel level percentage.
+- <code>engine_rpm</code> (int): Engine RPM.
+- <code>engine_temp</code> (float): Engine temperature in Fahrenheit.</p>
+<p><strong>Hydraulics:</strong>
+- <code>hydraulic_pressure</code> (float): Hydraulic pressure in PSI.
+- <code>hydraulic_flow</code> (float): Hydraulic flow in GPM.</p>
+<p><strong>Sensors:</strong>
+- <code>wheel_slip</code> (float): Wheel slip percentage.
+- <code>ground_speed</code> (float): Ground speed in mph.
+- <code>draft_load</code> (float): Draft load in pounds.</p>
+<p><strong>Autonomous Features:</strong>
+- <code>autonomous_mode</code> (bool): Whether autonomous mode is enabled.
+- <code>obstacle_detection</code> (bool): Whether obstacle detection is active.
+- <code>emergency_stop_active</code> (bool): Whether emergency stop is active.</p>
 <p><strong>Methods:</strong></p>
-<p>The <code>FarmTractor</code> class provides several methods to interact with and control the tractor.
-Below is a list of the available methods:</p>
+<p><strong>Engine Controls:</strong>
+- <code>start_engine()</code> -&gt; str: Starts the engine.
+- <code>stop_engine()</code> -&gt; str: Stops the engine and resets all systems.</p>
+<p><strong>Basic Operation:</strong>
+- <code>change_gear(gear: int | str)</code> -&gt; str: Changes the gear (0-10).
+- <code>accelerate(increase: int)</code> -&gt; str: Increases speed by the specified amount.
+- <code>brake(decrease: int)</code> -&gt; str: Decreases speed by the specified amount.</p>
+<p><strong>Power Systems:</strong>
+- <code>engage_power_takeoff()</code> -&gt; str: Engages the power takeoff.
+- <code>disengage_power_takeoff()</code> -&gt; str: Disengages the power takeoff.
+- <code>activate_hydraulics()</code> -&gt; str: Activates hydraulic systems.
+- <code>deactivate_hydraulics()</code> -&gt; str: Deactivates hydraulic systems.</p>
+<p><strong>GPS and Navigation:</strong>
+- <code>set_gps_position(latitude: float, longitude: float)</code> -&gt; str: Sets GPS coordinates.
+- <code>enable_auto_steer()</code> -&gt; str: Enables GPS auto-steer system.
+- <code>disable_auto_steer()</code> -&gt; str: Disables GPS auto-steer system.
+- <code>add_waypoint(latitude: float, longitude: float)</code> -&gt; str: Adds navigation waypoint.
+- <code>clear_waypoints()</code> -&gt; str: Clears all waypoints.
+- <code>set_heading(heading: float)</code> -&gt; str: Sets current heading (0-359 degrees).</p>
+<p><strong>Implement Controls:</strong>
+- <code>raise_implement()</code> -&gt; str: Raises the attached implement.
+- <code>lower_implement(depth: float = 6.0)</code> -&gt; str: Lowers implement to working depth.
+- <code>set_transport_position()</code> -&gt; str: Sets implement to transport position.
+- <code>set_implement_width(width: float)</code> -&gt; str: Sets working width (0-80 feet).</p>
+<p><strong>Field Operations:</strong>
+- <code>set_field_mode(mode: FieldMode)</code> -&gt; str: Sets field operation mode.
+- <code>start_field_work()</code> -&gt; str: Begins field work operations.
+- <code>update_work_progress(distance: float)</code> -&gt; str: Updates work progress tracking.</p>
+<p><strong>Autonomous Operations:</strong>
+- <code>enable_autonomous_mode()</code> -&gt; str: Enables autonomous operation mode.
+- <code>disable_autonomous_mode()</code> -&gt; str: Disables autonomous operation mode.
+- <code>emergency_stop()</code> -&gt; str: Triggers emergency stop - halts all operations.
+- <code>reset_emergency_stop()</code> -&gt; str: Resets emergency stop condition.</p>
+<p><strong>Diagnostic Methods:</strong>
+- <code>get_engine_diagnostics()</code> -&gt; Dict[str, float]: Returns engine diagnostic data.
+- <code>get_hydraulic_status()</code> -&gt; Dict[str, float]: Returns hydraulic system status.
+- <code>get_ground_conditions()</code> -&gt; Dict[str, float]: Returns ground and traction data.</p>
+<p><strong>Utility Methods:</strong>
+- <code>__str__()</code> -&gt; str: Returns comprehensive string representation.
+- <code>to_response(tractor_id: str | None = None)</code> -&gt; FarmTractorResponse: Converts to API response model.</p>
+<p><strong>FarmTractorResponse Class Attributes:</strong></p>
+<p>The <code>FarmTractorResponse</code> is a Pydantic model used for API responses, containing:</p>
 <ul>
-<li><code>start_engine()</code> -&gt; str: Starts the engine of the tractor.</li>
-<li><code>stop_engine()</code> -&gt; str: Stops the engine of the tractor.</li>
-<li><code>change_gear(gear: str)</code> -&gt; str: Changes the gear of the tractor.</li>
-<li><code>accelerate(increment: int)</code> -&gt; str: Accelerates the tractor.</li>
-<li><code>brake(decrement: int)</code> -&gt; str: Brakes the tractor.</li>
-<li><code>engage_power_takeoff()</code> -&gt; str: Engages the power takeoff.</li>
-<li><code>disengage_power_takeoff()</code> -&gt; str: Disengages the power takeoff.</li>
-<li><code>activate_hydraulics()</code> -&gt; str: Activates the hydraulics.</li>
-<li><code>deactivate_hydraulics()</code> -&gt; str: Deactivates the hydraulics.</li>
-<li><code>__str__()</code> -&gt; str: Returns the string representation of the tractor.</li>
+<li><code>tractor_id</code> (str | None): Optional tractor identifier.</li>
+<li><code>make</code> (str): Manufacturer name.</li>
+<li><code>model</code> (str): Model name.</li>
+<li><code>year</code> (int): Year of manufacture.</li>
+<li><code>manual_url</code> (str | None): URL to operator's manual.</li>
+<li><code>engine_on</code> (bool): Engine running status.</li>
+<li><code>speed</code> (int): Current speed in mph.</li>
+<li><code>gear</code> (int): Current gear (0-10).</li>
+<li><code>power_takeoff</code> (bool): PTO engagement status.</li>
+<li><code>hydraulics</code> (bool): Hydraulics activation status.</li>
+<li><code>gps_latitude</code> (float | None): GPS latitude coordinate.</li>
+<li><code>gps_longitude</code> (float | None): GPS longitude coordinate.</li>
+<li><code>auto_steer_enabled</code> (bool): Auto-steer status.</li>
+<li><code>implement_position</code> (Literal["raised", "lowered", "transport"]): Implement position state.</li>
+<li><code>field_mode</code> (Literal["transport", "tillage", "planting", "spraying", "harvesting", "maintenance"]): Current field operation mode.</li>
+<li><code>fuel_level</code> (float): Fuel level percentage.</li>
+<li><code>engine_rpm</code> (int): Engine RPM.</li>
+<li><code>hydraulic_pressure</code> (float): Hydraulic pressure in PSI.</li>
+<li><code>status</code> (str): Complete tractor status string.</li>
 </ul>
 <p><strong>Example Usage:</strong></p>
-<pre class="codehilite"><code class="language-python">from afs_fastapi.equipment.farm_tractors import FarmTractor
+<pre class="codehilite"><code class="language-python">from afs_fastapi.equipment.farm_tractors import FarmTractor, FieldMode
 
-# Example usage:
-tractor = FarmTractor(make=&quot;John Deere&quot;, model=&quot;9RX&quot;, year=2023, manual_url=&quot;https://example.com/manual&quot;)
-print(f&quot;Make: {tractor.make}, Model: {tractor.model}, Year: {tractor.year}, Manual URL: {tractor.manual_url}&quot;)
+# Create a new tractor instance
+tractor = FarmTractor(
+    make=&quot;John Deere&quot;,
+    model=&quot;9RX&quot;,
+    year=2023,
+    manual_url=&quot;https://www.deere.com/en/parts-and-service/manuals-and-training&quot;
+)
+
+# Basic tractor information
+print(f&quot;Tractor: {tractor.make} {tractor.model} ({tractor.year})&quot;)
+print(f&quot;Manual: {tractor.manual_url}&quot;)
+print(f&quot;Current status:\n{tractor}&quot;)
+
+# Start the engine and begin operations
+tractor.start_engine()
+print(&quot;\n--- Engine Started ---&quot;)
+
+# Set up GPS and navigation
+tractor.set_gps_position(40.123456, -85.654321)
+tractor.enable_auto_steer()
+tractor.add_waypoint(40.125000, -85.650000)
+tractor.add_waypoint(40.127000, -85.648000)
+print(&quot;GPS and auto-steer configured&quot;)
+
+# Configure for field work
+tractor.change_gear(3)
+tractor.accelerate(12)  # 12 mph working speed
+tractor.activate_hydraulics()
+tractor.set_implement_width(32.0)  # 32-foot implement
+tractor.lower_implement(8.0)  # 8 inches deep
+tractor.set_field_mode(FieldMode.TILLAGE)
+print(&quot;Configured for tillage operations&quot;)
+
+# Start field work
+tractor.start_field_work()
+print(f&quot;Work rate: {tractor.work_rate:.1f} acres/hour&quot;)
+
+# Simulate work progress
+tractor.update_work_progress(1320)  # Covered 1/4 mile
+print(f&quot;Area covered: {tractor.area_covered:.2f} acres&quot;)
+
+# Enable autonomous mode for precision farming
+tractor.enable_autonomous_mode()
+print(&quot;Autonomous mode active&quot;)
+
+# Get diagnostic information
+engine_diagnostics = tractor.get_engine_diagnostics()
+hydraulic_status = tractor.get_hydraulic_status()
+ground_conditions = tractor.get_ground_conditions()
+
+print(f&quot;\n--- Diagnostics ---&quot;)
+print(f&quot;Engine RPM: {engine_diagnostics['rpm']}&quot;)
+print(f&quot;Fuel level: {engine_diagnostics['fuel_level']:.1f}%&quot;)
+print(f&quot;Hydraulic pressure: {hydraulic_status['pressure']:.0f} PSI&quot;)
+print(f&quot;Ground speed: {ground_conditions['ground_speed']:.1f} mph&quot;)
+print(f&quot;Wheel slip: {ground_conditions['wheel_slip']:.1f}%&quot;)
+
+# Convert to API response format
+response = tractor.to_response(&quot;tractor-001&quot;)
+print(f&quot;\n--- API Response ---&quot;)
+print(f&quot;Tractor ID: {response.tractor_id}&quot;)
+print(f&quot;Field mode: {response.field_mode}&quot;)
+print(f&quot;Implement position: {response.implement_position}&quot;)
+print(f&quot;Auto-steer enabled: {response.auto_steer_enabled}&quot;)
+
+# Emergency stop if needed
+# tractor.emergency_stop()
+# print(&quot;Emergency stop activated!&quot;)
+
+# End of field work - transport mode
+tractor.raise_implement()
+tractor.set_transport_position()
+tractor.set_field_mode(FieldMode.TRANSPORT)
+tractor.disable_autonomous_mode()
+tractor.accelerate(8)  # Increase speed for transport
+print(&quot;\n--- Configured for transport ---&quot;)
+
+# Final status
+print(f&quot;\nFinal status:\n{tractor}&quot;)
+
+# Stop engine when done
+tractor.stop_engine()
+print(&quot;Engine stopped - all systems reset&quot;)
 </code></pre>
 
 <p><strong>Sources:</strong></p>
