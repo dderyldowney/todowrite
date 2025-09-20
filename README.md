@@ -160,11 +160,91 @@ The `FarmTractorResponse` is a Pydantic model used for API responses, containing
 **Example Usage:**
 
 ```python
-from afs_fastapi.equipment.farm_tractors import FarmTractor
+from afs_fastapi.equipment.farm_tractors import FarmTractor, FieldMode
 
-# Example usage:
-tractor = FarmTractor(make="John Deere", model="9RX", year=2023, manual_url="https://example.com/manual")
-print(f"Make: {tractor.make}, Model: {tractor.model}, Year: {tractor.year}, Manual URL: {tractor.manual_url}")
+# Create a new tractor instance
+tractor = FarmTractor(
+    make="John Deere",
+    model="9RX",
+    year=2023,
+    manual_url="https://www.deere.com/en/parts-and-service/manuals-and-training"
+)
+
+# Basic tractor information
+print(f"Tractor: {tractor.make} {tractor.model} ({tractor.year})")
+print(f"Manual: {tractor.manual_url}")
+print(f"Current status:\n{tractor}")
+
+# Start the engine and begin operations
+tractor.start_engine()
+print("\n--- Engine Started ---")
+
+# Set up GPS and navigation
+tractor.set_gps_position(40.123456, -85.654321)
+tractor.enable_auto_steer()
+tractor.add_waypoint(40.125000, -85.650000)
+tractor.add_waypoint(40.127000, -85.648000)
+print("GPS and auto-steer configured")
+
+# Configure for field work
+tractor.change_gear(3)
+tractor.accelerate(12)  # 12 mph working speed
+tractor.activate_hydraulics()
+tractor.set_implement_width(32.0)  # 32-foot implement
+tractor.lower_implement(8.0)  # 8 inches deep
+tractor.set_field_mode(FieldMode.TILLAGE)
+print("Configured for tillage operations")
+
+# Start field work
+tractor.start_field_work()
+print(f"Work rate: {tractor.work_rate:.1f} acres/hour")
+
+# Simulate work progress
+tractor.update_work_progress(1320)  # Covered 1/4 mile
+print(f"Area covered: {tractor.area_covered:.2f} acres")
+
+# Enable autonomous mode for precision farming
+tractor.enable_autonomous_mode()
+print("Autonomous mode active")
+
+# Get diagnostic information
+engine_diagnostics = tractor.get_engine_diagnostics()
+hydraulic_status = tractor.get_hydraulic_status()
+ground_conditions = tractor.get_ground_conditions()
+
+print(f"\n--- Diagnostics ---")
+print(f"Engine RPM: {engine_diagnostics['rpm']}")
+print(f"Fuel level: {engine_diagnostics['fuel_level']:.1f}%")
+print(f"Hydraulic pressure: {hydraulic_status['pressure']:.0f} PSI")
+print(f"Ground speed: {ground_conditions['ground_speed']:.1f} mph")
+print(f"Wheel slip: {ground_conditions['wheel_slip']:.1f}%")
+
+# Convert to API response format
+response = tractor.to_response("tractor-001")
+print(f"\n--- API Response ---")
+print(f"Tractor ID: {response.tractor_id}")
+print(f"Field mode: {response.field_mode}")
+print(f"Implement position: {response.implement_position}")
+print(f"Auto-steer enabled: {response.auto_steer_enabled}")
+
+# Emergency stop if needed
+# tractor.emergency_stop()
+# print("Emergency stop activated!")
+
+# End of field work - transport mode
+tractor.raise_implement()
+tractor.set_transport_position()
+tractor.set_field_mode(FieldMode.TRANSPORT)
+tractor.disable_autonomous_mode()
+tractor.accelerate(8)  # Increase speed for transport
+print("\n--- Configured for transport ---")
+
+# Final status
+print(f"\nFinal status:\n{tractor}")
+
+# Stop engine when done
+tractor.stop_engine()
+print("Engine stopped - all systems reset")
 ```
 
 **Sources:**

@@ -24,9 +24,7 @@ def convert_md_to_html(md_file_path: str, output_html_path: str) -> None:
     with open(md_file_path, "r", encoding="utf-8") as md_file:
         md_content = md_file.read()
 
-    html_content = markdown.markdown(
-        md_content, extensions=["fenced_code", "codehilite"]
-    )
+    html_content = markdown.markdown(md_content, extensions=["fenced_code", "codehilite"])
 
     out_path = Path(output_html_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
