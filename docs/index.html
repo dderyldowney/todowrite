@@ -125,92 +125,92 @@ to demonstrate core equipment behaviors and to provide a structured way to manag
 <li><code>status</code> (str): Complete tractor status string.</li>
 </ul>
 <p><strong>Example Usage:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">afs_fastapi.equipment.farm_tractors</span><span class="w"> </span><span class="kn">import</span> <span class="n">FarmTractor</span><span class="p">,</span> <span class="n">FieldMode</span>
+<pre class="codehilite"><code class="language-python">from afs_fastapi.equipment.farm_tractors import FarmTractor, FieldMode
 
-<span class="c1"># Create a new tractor instance</span>
-<span class="n">tractor</span> <span class="o">=</span> <span class="n">FarmTractor</span><span class="p">(</span>
-    <span class="n">make</span><span class="o">=</span><span class="s2">&quot;John Deere&quot;</span><span class="p">,</span>
-    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;9RX&quot;</span><span class="p">,</span>
-    <span class="n">year</span><span class="o">=</span><span class="mi">2023</span><span class="p">,</span>
-    <span class="n">manual_url</span><span class="o">=</span><span class="s2">&quot;https://www.deere.com/en/parts-and-service/manuals-and-training&quot;</span>
-<span class="p">)</span>
+# Create a new tractor instance
+tractor = FarmTractor(
+    make=&quot;John Deere&quot;,
+    model=&quot;9RX&quot;,
+    year=2023,
+    manual_url=&quot;https://www.deere.com/en/parts-and-service/manuals-and-training&quot;
+)
 
-<span class="c1"># Basic tractor information</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tractor: </span><span class="si">{</span><span class="n">tractor</span><span class="o">.</span><span class="n">make</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">tractor</span><span class="o">.</span><span class="n">model</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">tractor</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Manual: </span><span class="si">{</span><span class="n">tractor</span><span class="o">.</span><span class="n">manual_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current status:</span><span class="se">\n</span><span class="si">{</span><span class="n">tractor</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+# Basic tractor information
+print(f&quot;Tractor: {tractor.make} {tractor.model} ({tractor.year})&quot;)
+print(f&quot;Manual: {tractor.manual_url}&quot;)
+print(f&quot;Current status:\n{tractor}&quot;)
 
-<span class="c1"># Start the engine and begin operations</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">start_engine</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">--- Engine Started ---&quot;</span><span class="p">)</span>
+# Start the engine and begin operations
+tractor.start_engine()
+print(&quot;\n--- Engine Started ---&quot;)
 
-<span class="c1"># Set up GPS and navigation</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">set_gps_position</span><span class="p">(</span><span class="mf">40.123456</span><span class="p">,</span> <span class="o">-</span><span class="mf">85.654321</span><span class="p">)</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">enable_auto_steer</span><span class="p">()</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">add_waypoint</span><span class="p">(</span><span class="mf">40.125000</span><span class="p">,</span> <span class="o">-</span><span class="mf">85.650000</span><span class="p">)</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">add_waypoint</span><span class="p">(</span><span class="mf">40.127000</span><span class="p">,</span> <span class="o">-</span><span class="mf">85.648000</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;GPS and auto-steer configured&quot;</span><span class="p">)</span>
+# Set up GPS and navigation
+tractor.set_gps_position(40.123456, -85.654321)
+tractor.enable_auto_steer()
+tractor.add_waypoint(40.125000, -85.650000)
+tractor.add_waypoint(40.127000, -85.648000)
+print(&quot;GPS and auto-steer configured&quot;)
 
-<span class="c1"># Configure for field work</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">change_gear</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">accelerate</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>  <span class="c1"># 12 mph working speed</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">activate_hydraulics</span><span class="p">()</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">set_implement_width</span><span class="p">(</span><span class="mf">32.0</span><span class="p">)</span>  <span class="c1"># 32-foot implement</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">lower_implement</span><span class="p">(</span><span class="mf">8.0</span><span class="p">)</span>  <span class="c1"># 8 inches deep</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">set_field_mode</span><span class="p">(</span><span class="n">FieldMode</span><span class="o">.</span><span class="n">TILLAGE</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Configured for tillage operations&quot;</span><span class="p">)</span>
+# Configure for field work
+tractor.change_gear(3)
+tractor.accelerate(12)  # 12 mph working speed
+tractor.activate_hydraulics()
+tractor.set_implement_width(32.0)  # 32-foot implement
+tractor.lower_implement(8.0)  # 8 inches deep
+tractor.set_field_mode(FieldMode.TILLAGE)
+print(&quot;Configured for tillage operations&quot;)
 
-<span class="c1"># Start field work</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">start_field_work</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Work rate: </span><span class="si">{</span><span class="n">tractor</span><span class="o">.</span><span class="n">work_rate</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> acres/hour&quot;</span><span class="p">)</span>
+# Start field work
+tractor.start_field_work()
+print(f&quot;Work rate: {tractor.work_rate:.1f} acres/hour&quot;)
 
-<span class="c1"># Simulate work progress</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">update_work_progress</span><span class="p">(</span><span class="mi">1320</span><span class="p">)</span>  <span class="c1"># Covered 1/4 mile</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Area covered: </span><span class="si">{</span><span class="n">tractor</span><span class="o">.</span><span class="n">area_covered</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> acres&quot;</span><span class="p">)</span>
+# Simulate work progress
+tractor.update_work_progress(1320)  # Covered 1/4 mile
+print(f&quot;Area covered: {tractor.area_covered:.2f} acres&quot;)
 
-<span class="c1"># Enable autonomous mode for precision farming</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">enable_autonomous_mode</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Autonomous mode active&quot;</span><span class="p">)</span>
+# Enable autonomous mode for precision farming
+tractor.enable_autonomous_mode()
+print(&quot;Autonomous mode active&quot;)
 
-<span class="c1"># Get diagnostic information</span>
-<span class="n">engine_diagnostics</span> <span class="o">=</span> <span class="n">tractor</span><span class="o">.</span><span class="n">get_engine_diagnostics</span><span class="p">()</span>
-<span class="n">hydraulic_status</span> <span class="o">=</span> <span class="n">tractor</span><span class="o">.</span><span class="n">get_hydraulic_status</span><span class="p">()</span>
-<span class="n">ground_conditions</span> <span class="o">=</span> <span class="n">tractor</span><span class="o">.</span><span class="n">get_ground_conditions</span><span class="p">()</span>
+# Get diagnostic information
+engine_diagnostics = tractor.get_engine_diagnostics()
+hydraulic_status = tractor.get_hydraulic_status()
+ground_conditions = tractor.get_ground_conditions()
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">--- Diagnostics ---&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Engine RPM: </span><span class="si">{</span><span class="n">engine_diagnostics</span><span class="p">[</span><span class="s1">&#39;rpm&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fuel level: </span><span class="si">{</span><span class="n">engine_diagnostics</span><span class="p">[</span><span class="s1">&#39;fuel_level&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hydraulic pressure: </span><span class="si">{</span><span class="n">hydraulic_status</span><span class="p">[</span><span class="s1">&#39;pressure&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> PSI&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ground speed: </span><span class="si">{</span><span class="n">ground_conditions</span><span class="p">[</span><span class="s1">&#39;ground_speed&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> mph&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wheel slip: </span><span class="si">{</span><span class="n">ground_conditions</span><span class="p">[</span><span class="s1">&#39;wheel_slip&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+print(f&quot;\n--- Diagnostics ---&quot;)
+print(f&quot;Engine RPM: {engine_diagnostics['rpm']}&quot;)
+print(f&quot;Fuel level: {engine_diagnostics['fuel_level']:.1f}%&quot;)
+print(f&quot;Hydraulic pressure: {hydraulic_status['pressure']:.0f} PSI&quot;)
+print(f&quot;Ground speed: {ground_conditions['ground_speed']:.1f} mph&quot;)
+print(f&quot;Wheel slip: {ground_conditions['wheel_slip']:.1f}%&quot;)
 
-<span class="c1"># Convert to API response format</span>
-<span class="n">response</span> <span class="o">=</span> <span class="n">tractor</span><span class="o">.</span><span class="n">to_response</span><span class="p">(</span><span class="s2">&quot;tractor-001&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">--- API Response ---&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tractor ID: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">tractor_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Field mode: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">field_mode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Implement position: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">implement_position</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Auto-steer enabled: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">auto_steer_enabled</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+# Convert to API response format
+response = tractor.to_response(&quot;tractor-001&quot;)
+print(f&quot;\n--- API Response ---&quot;)
+print(f&quot;Tractor ID: {response.tractor_id}&quot;)
+print(f&quot;Field mode: {response.field_mode}&quot;)
+print(f&quot;Implement position: {response.implement_position}&quot;)
+print(f&quot;Auto-steer enabled: {response.auto_steer_enabled}&quot;)
 
-<span class="c1"># Emergency stop if needed</span>
-<span class="c1"># tractor.emergency_stop()</span>
-<span class="c1"># print(&quot;Emergency stop activated!&quot;)</span>
+# Emergency stop if needed
+# tractor.emergency_stop()
+# print(&quot;Emergency stop activated!&quot;)
 
-<span class="c1"># End of field work - transport mode</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">raise_implement</span><span class="p">()</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">set_transport_position</span><span class="p">()</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">set_field_mode</span><span class="p">(</span><span class="n">FieldMode</span><span class="o">.</span><span class="n">TRANSPORT</span><span class="p">)</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">disable_autonomous_mode</span><span class="p">()</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">accelerate</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>  <span class="c1"># Increase speed for transport</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">--- Configured for transport ---&quot;</span><span class="p">)</span>
+# End of field work - transport mode
+tractor.raise_implement()
+tractor.set_transport_position()
+tractor.set_field_mode(FieldMode.TRANSPORT)
+tractor.disable_autonomous_mode()
+tractor.accelerate(8)  # Increase speed for transport
+print(&quot;\n--- Configured for transport ---&quot;)
 
-<span class="c1"># Final status</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Final status:</span><span class="se">\n</span><span class="si">{</span><span class="n">tractor</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+# Final status
+print(f&quot;\nFinal status:\n{tractor}&quot;)
 
-<span class="c1"># Stop engine when done</span>
-<span class="n">tractor</span><span class="o">.</span><span class="n">stop_engine</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Engine stopped - all systems reset&quot;</span><span class="p">)</span>
-</code></pre></div>
+# Stop engine when done
+tractor.stop_engine()
+print(&quot;Engine stopped - all systems reset&quot;)
+</code></pre>
 
 <p><strong>Sources:</strong></p>
 <ol>
@@ -258,28 +258,28 @@ to demonstrate core equipment behaviors and to provide a structured way to manag
 <p><strong>Sensor backend interfaces:</strong></p>
 <p>Monitoring classes accept pluggable backends so you can swap real sensors without changing API code.</p>
 <p>Example (Soil):</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">afs_fastapi.monitoring.interfaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">SoilSensorBackend</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">afs_fastapi.monitoring.soil_monitor</span><span class="w"> </span><span class="kn">import</span> <span class="n">SoilMonitor</span>
+<pre class="codehilite"><code class="language-python">from afs_fastapi.monitoring.interfaces import SoilSensorBackend
+from afs_fastapi.monitoring.soil_monitor import SoilMonitor
 
-<span class="k">class</span><span class="w"> </span><span class="nc">MySoilBackend</span><span class="p">(</span><span class="n">SoilSensorBackend</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;ph&quot;</span><span class="p">:</span> <span class="mf">6.7</span><span class="p">,</span> <span class="s2">&quot;moisture&quot;</span><span class="p">:</span> <span class="mf">0.33</span><span class="p">,</span> <span class="s2">&quot;nitrogen&quot;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span> <span class="s2">&quot;phosphorus&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;potassium&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">}</span>
+class MySoilBackend(SoilSensorBackend):
+    def read(self, sensor_id: str):
+        return {&quot;ph&quot;: 6.7, &quot;moisture&quot;: 0.33, &quot;nitrogen&quot;: 1.2, &quot;phosphorus&quot;: 0.5, &quot;potassium&quot;: 0.7}
 
-<span class="n">monitor</span> <span class="o">=</span> <span class="n">SoilMonitor</span><span class="p">(</span><span class="s2">&quot;SOIL001&quot;</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">MySoilBackend</span><span class="p">())</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">monitor</span><span class="o">.</span><span class="n">get_soil_composition</span><span class="p">())</span>
-</code></pre></div>
+monitor = SoilMonitor(&quot;SOIL001&quot;, backend=MySoilBackend())
+print(monitor.get_soil_composition())
+</code></pre>
 
 <p>Example (Water):</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">afs_fastapi.monitoring.interfaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">WaterSensorBackend</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">afs_fastapi.monitoring.water_monitor</span><span class="w"> </span><span class="kn">import</span> <span class="n">WaterMonitor</span>
+<pre class="codehilite"><code class="language-python">from afs_fastapi.monitoring.interfaces import WaterSensorBackend
+from afs_fastapi.monitoring.water_monitor import WaterMonitor
 
-<span class="k">class</span><span class="w"> </span><span class="nc">MyWaterBackend</span><span class="p">(</span><span class="n">WaterSensorBackend</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sensor_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;ph&quot;</span><span class="p">:</span> <span class="mf">7.2</span><span class="p">,</span> <span class="s2">&quot;turbidity&quot;</span><span class="p">:</span> <span class="mf">1.1</span><span class="p">,</span> <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">18.0</span><span class="p">,</span> <span class="s2">&quot;conductivity&quot;</span><span class="p">:</span> <span class="mf">0.23</span><span class="p">,</span> <span class="s2">&quot;dissolved_oxygen&quot;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">}</span>
+class MyWaterBackend(WaterSensorBackend):
+    def read(self, sensor_id: str):
+        return {&quot;ph&quot;: 7.2, &quot;turbidity&quot;: 1.1, &quot;temperature&quot;: 18.0, &quot;conductivity&quot;: 0.23, &quot;dissolved_oxygen&quot;: 8.0}
 
-<span class="n">monitor</span> <span class="o">=</span> <span class="n">WaterMonitor</span><span class="p">(</span><span class="s2">&quot;WTR001&quot;</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">MyWaterBackend</span><span class="p">())</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">monitor</span><span class="o">.</span><span class="n">get_water_quality</span><span class="p">())</span>
-</code></pre></div>
+monitor = WaterMonitor(&quot;WTR001&quot;, backend=MyWaterBackend())
+print(monitor.get_water_quality())
+</code></pre>
 
 <hr />
 <h3>3. Monitoring and Maintaining Soil Conditions</h3>
