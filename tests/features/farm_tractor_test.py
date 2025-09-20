@@ -185,3 +185,18 @@ def test_string_representation(tractor: FarmTractor):
     assert "PTO: Engaged" in active_str
     assert "Hydraulics: Activated" in active_str
     assert "https://manual.johndeere.com" in active_str
+
+    # Test GPS functionality in string representation
+    # Initially GPS should show "Not Set"
+    assert "GPS: Not Set" in active_str
+
+    # Set GPS coordinates and verify they appear in string representation
+    tractor.set_gps_position(40.123456, -85.654321)
+    gps_str = str(tractor)
+    assert "GPS: 40.123456, -85.654321" in gps_str
+
+    # Enable auto-steer and verify it's reflected
+    tractor.enable_auto_steer()
+    autosteer_str = str(tractor)
+    assert "Auto-Steer: Enabled" in autosteer_str
+    assert "GPS: 40.123456, -85.654321" in autosteer_str
