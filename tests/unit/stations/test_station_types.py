@@ -1,5 +1,4 @@
 import pytest
-
 from afs_fastapi.stations.station_types import MasterStation, StationType, get_station_type
 
 

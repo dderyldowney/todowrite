@@ -14,8 +14,8 @@ class StationType(Enum):
 def get_station_type(station_type_str: str) -> StationType:
     try:
         return StationType(station_type_str.lower())
-    except ValueError:
-        raise ValueError(f"Invalid station type: {station_type_str}")
+    except ValueError as e:
+        raise ValueError(f"Invalid station type: {station_type_str}") from e
 
 
 class MasterStation:

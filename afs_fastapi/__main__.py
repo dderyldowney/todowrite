@@ -36,8 +36,8 @@ def main() -> None:
     ).lower()  # type: ignore[assignment]
     try:
         port = int(port_str)
-    except ValueError:
-        raise SystemExit(f"Invalid AFS_API_PORT value: {port_str!r}")
+    except ValueError as e:
+        raise SystemExit(f"Invalid AFS_API_PORT value: {port_str!r}") from e
 
     uvicorn.run(
         "afs_fastapi.api.main:app",

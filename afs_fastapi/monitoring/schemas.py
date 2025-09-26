@@ -8,7 +8,7 @@ backend integrations and domain monitors.
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -27,7 +27,7 @@ class SoilReadingResponse(BaseModel):
     """
 
     sensor_id: str
-    readings: Dict[str, Any]
+    readings: dict[str, Any]
 
 
 class WaterQualityResponse(BaseModel):
@@ -44,4 +44,4 @@ class WaterQualityResponse(BaseModel):
     """
 
     sensor_id: str
-    readings: Dict[str, Any]
+    readings: dict[str, Any]
