@@ -419,17 +419,27 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the Quick Verification Checklist and 
 
 This project enables automated checks (Dependabot + pip-audit) for dependency vulnerabilities. Two current advisories are known and monitored:
 
-- Starlette 0.41.3: GHSA-2c2j-9gv5-cj73 (CVE-2025-54121)
+- **Starlette 0.41.3: GHSA-2c2j-9gv5-cj73 (CVE-2025-54121)** - **UNRESOLVED**
   - Summary: Large multipart form uploads may block the event loop while rolling files to disk.
+  - Current version: **0.41.3** (vulnerable)
+  - Fixed in: Starlette >= 0.47.2
   - Project impact: This API does not use multipart uploads; risk is low in our deployment.
-  - Remediation: Fixed in Starlette >= 0.47.2. We will upgrade alongside a compatible FastAPI release.
+  - Status: Awaiting compatible FastAPI release that supports Starlette >= 0.47.2.
 
-- h11 0.14.0: GHSA-vqfr-h8mv-ghfj (CVE-2025-43859)
-  - Summary: Lenient chunked-encoding parsing could enable request smuggling in specific proxy mismatch scenarios.
-  - Project impact: h11 is pulled in via HTTP client tooling (httpx/httpcore) for development; the server stack uses Uvicorn/Starlette. Risk is low in typical deployments, especially behind well-configured reverse proxies.
-  - Remediation: Fixed in h11 >= 0.16.0, which currently conflicts with pinned httpcore. We will bump httpcore/httpx and FastAPI in a coordinated upgrade once compatible.
+- **h11 0.14.0: GHSA-vqfr-h8mv-ghfj (CVE-2025-43859)** - **UNRESOLVED**
+  - Summary: Lenient chunked-encoding parsing could enable request smuggling in specific proxy scenarios.
+  - Current version: **0.14.0** (vulnerable)
+  - Fixed in: h11 >= 0.16.0
+  - Project impact: h11 is used via httpx/httpcore for HTTP client operations. Server stack uses Uvicorn/Starlette. Risk is low in typical deployments with proper reverse proxy configuration.
+  - Status: Upgrade blocked by httpcore compatibility. Requires httpcore >= 1.0.9 which conflicts with current httpx pinning.
 
-Mitigations in place:
-- No multipart endpoints are exposed.
-- CI flags vulnerabilities and proposes updates automatically.
-- We will track upstream compatibility windows and upgrade as they align.
+**Recent Security Improvements (January 2025):**
+- ✅ **requests**: Upgraded to 2.32.5 (latest) - includes URI parsing security improvements
+- ✅ **urllib3**: Upgraded to 2.5.0 (latest) - fixes redirect vulnerability (security patch)
+- ✅ **setuptools**: Upgraded to 80.9.0 (latest) - stability and security updates
+
+**Mitigations in place:**
+- No multipart form endpoints are exposed in the API.
+- HTTP client usage is limited to development/testing scenarios.
+- CI automatically flags vulnerabilities and proposes coordinated updates.
+- Reverse proxy configurations should include proper request validation.
