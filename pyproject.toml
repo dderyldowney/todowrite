@@ -68,6 +68,16 @@ src = ["afs_fastapi", "tests"]
 line-length = 100
 target-version = ["py312"]
 include = "\\.pyi?$"
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | \.claude
+  | __pycache__
+  | build
+  | dist
+)/
+'''
 
 [tool.mypy]
 python_version = "3.12"
