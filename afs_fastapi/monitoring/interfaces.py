@@ -9,7 +9,6 @@ without changing API surfaces.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Dict
 
 
 class SoilSensorBackend(ABC):
@@ -21,7 +20,7 @@ class SoilSensorBackend(ABC):
     """
 
     @abstractmethod
-    def read(self, sensor_id: str) -> Dict[str, float]:
+    def read(self, sensor_id: str) -> dict[str, float]:
         """Return current soil composition metrics for the given sensor."""
 
 
@@ -34,14 +33,14 @@ class WaterSensorBackend(ABC):
     """
 
     @abstractmethod
-    def read(self, sensor_id: str) -> Dict[str, float]:
+    def read(self, sensor_id: str) -> dict[str, float]:
         """Return current water quality metrics for the given sensor."""
 
 
 class DummySoilSensorBackend(SoilSensorBackend):
     """Default no-op soil backend returning neutral placeholder values."""
 
-    def read(self, sensor_id: str) -> Dict[str, float]:
+    def read(self, sensor_id: str) -> dict[str, float]:
         return {
             "nitrogen": 0.0,
             "phosphorus": 0.0,
@@ -54,7 +53,7 @@ class DummySoilSensorBackend(SoilSensorBackend):
 class DummyWaterSensorBackend(WaterSensorBackend):
     """Default no-op water backend returning neutral placeholder values."""
 
-    def read(self, sensor_id: str) -> Dict[str, float]:
+    def read(self, sensor_id: str) -> dict[str, float]:
         return {
             "ph": 7.0,
             "dissolved_oxygen": 0.0,

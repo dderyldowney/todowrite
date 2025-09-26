@@ -1,11 +1,11 @@
 from platform import python_version
-
-from setuptools import setup, find_packages
 from typing import Any
+
+from setuptools import find_packages, setup  # type: ignore[import-untyped]
 
 # Single source the version without importing the package
 version_ns: dict[str, Any] = {}
-with open("afs_fastapi/version.py", "r", encoding="utf-8") as _vf:
+with open("afs_fastapi/version.py", encoding="utf-8") as _vf:
     exec(_vf.read(), version_ns)
 
 # Ensure `version` is a plain str for setup() and satisfy static type-checkers

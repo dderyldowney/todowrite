@@ -1,8 +1,7 @@
 from unittest.mock import Mock, patch
 
-from fastapi.testclient import TestClient
-
 from afs_fastapi.api.main import app
+from fastapi.testclient import TestClient
 
 client = TestClient(app)
 

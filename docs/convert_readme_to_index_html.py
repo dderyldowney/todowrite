@@ -21,7 +21,7 @@ def convert_md_to_html(md_file_path: str, output_html_path: str) -> None:
     if not os.path.isfile(md_file_path):
         raise FileNotFoundError(f"The file {md_file_path} does not exist.")
 
-    with open(md_file_path, "r", encoding="utf-8") as md_file:
+    with open(md_file_path, encoding="utf-8") as md_file:
         md_content = md_file.read()
 
     html_content = markdown.markdown(md_content, extensions=["fenced_code", "codehilite"])

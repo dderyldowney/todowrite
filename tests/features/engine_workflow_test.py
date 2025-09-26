@@ -1,5 +1,4 @@
 import pytest
-
 from afs_fastapi.equipment.farm_tractors import FarmTractor
 
 

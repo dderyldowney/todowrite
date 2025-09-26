@@ -1,6 +1,5 @@
-from datetime import datetime
 from enum import Enum
-from typing import ClassVar, Dict, List, Literal, Optional, Tuple
+from typing import ClassVar, Literal
 
 from pydantic import BaseModel
 
@@ -117,7 +116,7 @@ class FarmTractor:
         self.gps_latitude: float | None = None
         self.gps_longitude: float | None = None
         self.auto_steer_enabled: bool = False
-        self.waypoints: List[Tuple[float, float]] = []
+        self.waypoints: list[tuple[float, float]] = []
         self.current_heading: float = 0.0  # degrees
 
         # Implement Controls
@@ -181,8 +180,8 @@ class FarmTractor:
         # Convert gear to int if it's a string
         try:
             gear = int(gear)
-        except ValueError:
-            raise ValueError("Invalid gear value")
+        except ValueError as e:
+            raise ValueError("Invalid gear value") from e
 
         if not 0 <= gear <= 10:
             raise ValueError("Gear must be between 0 and 10.")
@@ -407,7 +406,7 @@ class FarmTractor:
         return "Emergency stop reset - Manual control restored"
 
     # Sensor Reading Methods
-    def get_engine_diagnostics(self) -> Dict[str, float]:
+    def get_engine_diagnostics(self) -> dict[str, float]:
         """Get current engine diagnostic readings."""
         if self.engine_on:
             self.engine_rpm = 1800 + (self.speed * 25)  # simulate RPM based on speed
@@ -422,7 +421,7 @@ class FarmTractor:
             "oil_pressure": 45.0 if self.engine_on else 0.0,
         }
 
-    def get_hydraulic_status(self) -> Dict[str, float]:
+    def get_hydraulic_status(self) -> dict[str, float]:
         """Get current hydraulic system status."""
         if self.hydraulics and self.engine_on:
             self.hydraulic_pressure = 2500.0
@@ -437,7 +436,7 @@ class FarmTractor:
             "temperature": 140.0 if self.hydraulics else 80.0,
         }
 
-    def get_ground_conditions(self) -> Dict[str, float]:
+    def get_ground_conditions(self) -> dict[str, float]:
         """Get current ground and traction conditions."""
         # Simulate realistic values based on current state
         if self.engine_on and self.speed > 0:
