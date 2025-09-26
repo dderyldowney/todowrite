@@ -330,4 +330,7 @@ pytest.xml
 # Do NOT ignore .github directory as it contains workflow configurations
 # .github/
 
+# Claude Code local settings
+.claude/settings.local.json
+
 # End of https://www.toptal.com/developers/gitignore/api/node,ruby,rails,linux,macos
