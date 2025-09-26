@@ -9,7 +9,8 @@
       "Bash(isort:*)",
       "Bash(git:*)",
       "Bash(ruff:*)",
-      "Bash(code:*)"
+      "Bash(code:*)",
+      "Bash(tree:*)"
     ],
     "ask": [],
     "deny": []
