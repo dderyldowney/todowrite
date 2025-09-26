@@ -5,17 +5,17 @@ name: AFS Testing
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  build:
-
+  test:
+    name: Test, Lint, and Type Check
     runs-on: ubuntu-latest
 
     steps:
@@ -27,16 +27,18 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         # Ensure FastAPI optional deps and Starlette extras for testing are present
         pip install "fastapi[all]" "starlette[full]"
-    - name: Lint with flake8
+    - name: Lint with ruff
       run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 afs_fastapi --count --select=E9,F63,F7,F82 --show-source --statistics --max-line-length=127 -v
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 afs_fastapi --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics -v
+        ruff check .
+    - name: Check formatting with black
+      run: |
+        black --check .
+    - name: Type check with mypy
+      run: |
+        mypy .
     - name: Test with pytest
       run: |
-        pytest
+        pytest -v
