@@ -47,6 +47,91 @@ afs_fastapi/
 - `GET /monitoring/soil/{sensor_id}` - Get soil readings
 - `GET /monitoring/water/{sensor_id}` - Get water quality data
 
+## Version Management and Tagging Strategy
+
+**CRITICAL: This tagging strategy must be enforced in all future sessions**
+
+### Current Version State
+- **Latest Release**: `v0.1.1` (main branch)
+- **Development**: `v0.1.2a0` (develop branch)
+- **Branch Strategy**: Git Flow with `main` (stable) and `develop` (active development)
+
+### Tagging Rules - MUST FOLLOW
+
+#### 1. Release Tags (Production)
+- **Format**: `v{major}.{minor}.{patch}` (e.g., `v0.1.1`)
+- **Branch**: Only tag on `main` branch
+- **When**: After merging `develop` → `main` for stable releases
+- **Examples**: `v0.1.1`, `v0.1.2`, `v0.2.0`
+
+#### 2. Alpha Tags (Development)
+- **Format**: `v{major}.{minor}.{patch}a{n}` (e.g., `v0.1.2a0`)
+- **Branch**: Only tag on `develop` branch
+- **When**: After significant development milestones
+- **Sequence**: `v0.1.2a0` → `v0.1.2a1` → `v0.1.2a2` → `v0.1.2`
+- **First Alpha**: Created when starting work on next version
+
+#### 3. Version Progression Rules
+```
+Current: v0.1.1 (stable on main)
+Next:    v0.1.2a0 → v0.1.2a1 → ... → v0.1.2 (patch)
+Or:      v0.2.0a0 → v0.2.0a1 → ... → v0.2.0 (minor)
+Or:      v1.0.0a0 → v1.0.0a1 → ... → v1.0.0 (major)
+```
+
+#### 4. Branching Workflow - MANDATORY
+```
+main branch (stable):
+├── v0.1.0 → v0.1.1 → v0.1.2 (release tags only)
+
+develop branch (development):
+├── v0.1.2a0 → v0.1.2a1 → v0.1.2a2 (alpha tags)
+└── merge to main → v0.1.2 release tag
+```
+
+#### 5. Version File Synchronization
+When creating tags, ensure these files match:
+- `afs_fastapi/version.py` - Contains `__version__`
+- `pyproject.toml` - Contains `version`
+- Both must match tag version (without 'v' prefix)
+
+#### 6. Tag Creation Commands
+```bash
+# For alpha releases (on develop branch):
+git checkout develop
+git tag -a v0.1.2a1 -m "Alpha release v0.1.2a1 - [description]"
+git push origin v0.1.2a1
+
+# For stable releases (on main branch):
+git checkout main
+git tag -a v0.1.2 -m "Release v0.1.2 - [changes]"
+git push origin v0.1.2
+```
+
+#### 7. Enforcement Rules
+- **NEVER** tag the same commit with both release and alpha tags
+- **NEVER** create release tags on develop branch
+- **NEVER** create alpha tags on main branch
+- **ALWAYS** verify version file consistency before tagging
+- **ALWAYS** use annotated tags (`-a`) with descriptive messages
+
+#### 8. Claude Code Monitoring Requirements
+In every session, Claude Code must:
+1. Check current tag status before creating new tags
+2. Verify branch alignment with tagging rules
+3. Ensure version files match intended tag version
+4. Follow proper alpha sequence (no gaps: a0→a1→a2, not a0→a3)
+5. Validate branch context before any tag operations
+
+### Example Tag History (Correct)
+```
+v0.1.1     (main branch - stable release)
+v0.1.2a0   (develop branch - start development)
+v0.1.2a1   (develop branch - development milestone)
+v0.1.2     (main branch - next stable release)
+v0.1.3a0   (develop branch - start next development)
+```
+
 ## Architecture
 
 - FastAPI with Pydantic models for API schemas
