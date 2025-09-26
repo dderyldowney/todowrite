@@ -8,7 +8,8 @@
       "Bash(flake8:*)",
       "Bash(isort:*)",
       "Bash(git:*)",
-      "Bash(ruff:*)"
+      "Bash(ruff:*)",
+      "Bash(code:*)"
     ],
     "ask": [],
     "deny": []
