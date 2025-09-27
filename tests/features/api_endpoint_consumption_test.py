@@ -9,8 +9,9 @@ properly exposed and consumable via HTTP API.
 import json
 
 import pytest
-from afs_fastapi.api.main import app
 from fastapi.testclient import TestClient
+
+from afs_fastapi.api.main import app
 
 
 @pytest.fixture
@@ -104,12 +105,12 @@ def test_tractor_endpoint_field_types_validation(client: TestClient):
     assert isinstance(data["year"], int)
 
     # Float fields
-    assert isinstance(data["current_heading"], (int, float))
-    assert isinstance(data["implement_depth"], (int, float))
-    assert isinstance(data["implement_width"], (int, float))
-    assert isinstance(data["work_rate"], (int, float))
-    assert isinstance(data["area_covered"], (int, float))
-    assert isinstance(data["engine_temp"], (int, float))
+    assert isinstance(data["current_heading"], int | float)
+    assert isinstance(data["implement_depth"], int | float)
+    assert isinstance(data["implement_width"], int | float)
+    assert isinstance(data["work_rate"], int | float)
+    assert isinstance(data["area_covered"], int | float)
+    assert isinstance(data["engine_temp"], int | float)
 
     # Boolean fields
     assert isinstance(data["autonomous_mode"], bool)
@@ -263,7 +264,7 @@ def test_tractor_endpoint_enhanced_navigation_data(client: TestClient):
 
     # Heading information
     assert "current_heading" in data
-    assert isinstance(data["current_heading"], (int, float))
+    assert isinstance(data["current_heading"], int | float)
     assert 0.0 <= data["current_heading"] < 360.0
 
 
@@ -289,11 +290,11 @@ def test_tractor_endpoint_field_operations_data(client: TestClient):
 
     # Work tracking fields
     assert "work_rate" in data
-    assert isinstance(data["work_rate"], (int, float))
+    assert isinstance(data["work_rate"], int | float)
     assert data["work_rate"] >= 0.0
 
     assert "area_covered" in data
-    assert isinstance(data["area_covered"], (int, float))
+    assert isinstance(data["area_covered"], int | float)
     assert data["area_covered"] >= 0.0
 
     # Implement status
@@ -301,11 +302,11 @@ def test_tractor_endpoint_field_operations_data(client: TestClient):
     assert data["implement_position"] in ["raised", "lowered", "transport"]
 
     assert "implement_depth" in data
-    assert isinstance(data["implement_depth"], (int, float))
+    assert isinstance(data["implement_depth"], int | float)
     assert data["implement_depth"] >= 0.0
 
     assert "implement_width" in data
-    assert isinstance(data["implement_width"], (int, float))
+    assert isinstance(data["implement_width"], int | float)
     assert data["implement_width"] >= 0.0
 
 
