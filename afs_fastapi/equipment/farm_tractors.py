@@ -1,11 +1,10 @@
-from enum import Enum
-from typing import ClassVar, Literal, Dict, List, Optional, Tuple
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
+from typing import ClassVar, Literal
 
 from pydantic import BaseModel
-
 
 # ==============================================================================
 # ISOBUS Communication Interfaces (ISO 11783 Compliance)
@@ -37,7 +36,7 @@ class ISOBUSDevice(ABC):
         pass
 
     @abstractmethod
-    def receive_message(self) -> Optional[ISOBUSMessage]:
+    def receive_message(self) -> ISOBUSMessage | None:
         """Receive ISOBUS message."""
         pass
 
@@ -51,7 +50,7 @@ class ISOBUSDevice(ABC):
 class CameraConfig:
     """Camera system configuration."""
 
-    resolution: Tuple[int, int]  # width, height
+    resolution: tuple[int, int]  # width, height
     frame_rate: int
     field_of_view: float  # degrees
     exposure_mode: str
@@ -73,17 +72,17 @@ class VisionSensorInterface(ABC):
     """Abstract interface for vision sensors."""
 
     @abstractmethod
-    def capture_frame(self) -> Optional[bytes]:
+    def capture_frame(self) -> bytes | None:
         """Capture a single frame."""
         pass
 
     @abstractmethod
-    def get_point_cloud(self) -> List[LiDARPoint]:
+    def get_point_cloud(self) -> list[LiDARPoint]:
         """Get LiDAR point cloud data."""
         pass
 
     @abstractmethod
-    def detect_obstacles(self, max_distance: float) -> List[Tuple[float, float, float]]:
+    def detect_obstacles(self, max_distance: float) -> list[tuple[float, float, float]]:
         """Detect obstacles within specified distance."""
         pass
 
@@ -106,7 +105,7 @@ class SafetyZone:
     """Defined safety zone around equipment."""
 
     zone_id: str
-    boundary_points: List[Tuple[float, float]]  # GPS coordinates
+    boundary_points: list[tuple[float, float]]  # GPS coordinates
     safety_level: SafetyLevel
     max_speed: float  # mph
     detection_required: bool
@@ -121,12 +120,12 @@ class SafetySystemInterface(ABC):
         pass
 
     @abstractmethod
-    def validate_safety_zone(self, position: Tuple[float, float]) -> bool:
+    def validate_safety_zone(self, position: tuple[float, float]) -> bool:
         """Validate position is within safe operating zone."""
         pass
 
     @abstractmethod
-    def get_safety_status(self) -> Dict[str, bool]:
+    def get_safety_status(self) -> dict[str, bool]:
         """Get comprehensive safety system status."""
         pass
 
@@ -153,8 +152,8 @@ class MotorCommand:
     motor_id: str
     command_type: str  # position, velocity, torque
     target_value: float
-    max_velocity: Optional[float] = None
-    max_acceleration: Optional[float] = None
+    max_velocity: float | None = None
+    max_acceleration: float | None = None
 
 
 class MotorControlInterface(ABC):
@@ -166,7 +165,7 @@ class MotorControlInterface(ABC):
         pass
 
     @abstractmethod
-    def get_motor_status(self, motor_id: str) -> Dict[str, float]:
+    def get_motor_status(self, motor_id: str) -> dict[str, float]:
         """Get current motor status and position."""
         pass
 
@@ -188,9 +187,9 @@ class TaskData:
     task_id: str
     field_id: str
     operation_type: str
-    prescription_map: Optional[Dict[str, float]]
+    prescription_map: dict[str, float] | None
     start_time: datetime
-    end_time: Optional[datetime] = None
+    end_time: datetime | None = None
 
 
 class DataManagementInterface(ABC):
@@ -202,12 +201,12 @@ class DataManagementInterface(ABC):
         pass
 
     @abstractmethod
-    def import_prescription_map(self, map_data: bytes) -> Dict[str, float]:
+    def import_prescription_map(self, map_data: bytes) -> dict[str, float]:
         """Import variable rate prescription map."""
         pass
 
     @abstractmethod
-    def log_operation_data(self, data_point: Dict[str, float]) -> bool:
+    def log_operation_data(self, data_point: dict[str, float]) -> bool:
         """Log operational data point."""
         pass
 
@@ -231,12 +230,12 @@ class PowerManagementInterface(ABC):
     """Abstract interface for power system management."""
 
     @abstractmethod
-    def get_power_status(self) -> Dict[str, float]:
+    def get_power_status(self) -> dict[str, float]:
         """Get comprehensive power system status."""
         pass
 
     @abstractmethod
-    def set_power_priority(self, device_priorities: Dict[str, int]) -> bool:
+    def set_power_priority(self, device_priorities: dict[str, int]) -> bool:
         """Set power allocation priorities."""
         pass
 
@@ -465,35 +464,35 @@ class FarmTractor(
         # ISOBUS Communication
         self.isobus_address: int = 0x80  # Default address
         self.device_name: str = f"{make}_{model}_{year}"
-        self.message_queue: List[ISOBUSMessage] = []
+        self.message_queue: list[ISOBUSMessage] = []
 
         # Vision & Sensor Systems
-        self.camera_config: Optional[CameraConfig] = None
+        self.camera_config: CameraConfig | None = None
         self.lidar_enabled: bool = False
-        self.obstacle_list: List[Tuple[float, float, float]] = []
+        self.obstacle_list: list[tuple[float, float, float]] = []
 
         # Safety Systems (ISO 18497)
-        self.safety_zones: List[SafetyZone] = []
+        self.safety_zones: list[SafetyZone] = []
         self.safety_level: SafetyLevel = SafetyLevel.PERFORMANCE_LEVEL_C
         self.safety_system_active: bool = True
 
         # Motor Control Systems
-        self.motors: Dict[str, Dict[str, float]] = {
+        self.motors: dict[str, dict[str, float]] = {
             "steer_motor": {"position": 0.0, "velocity": 0.0, "torque": 0.0},
             "throttle_motor": {"position": 0.0, "velocity": 0.0, "torque": 0.0},
             "implement_lift": {"position": 0.0, "velocity": 0.0, "torque": 0.0},
         }
 
         # Data Management
-        self.operation_log: List[Dict[str, float]] = []
-        self.current_task: Optional[TaskData] = None
+        self.operation_log: list[dict[str, float]] = []
+        self.current_task: TaskData | None = None
 
         # Power Management
-        self.power_sources: List[PowerSource] = [
+        self.power_sources: list[PowerSource] = [
             PowerSource("diesel_engine", 12.0, 200.0, 0.85),
             PowerSource("alternator", 12.0, 100.0, 0.90),
         ]
-        self.power_consumption: Dict[str, float] = {}
+        self.power_consumption: dict[str, float] = {}
         self.regenerative_mode: bool = False
 
     def start_engine(self) -> str:
@@ -735,16 +734,6 @@ class FarmTractor(
         self.autonomous_mode = False
         return "Autonomous mode disabled"
 
-    def emergency_stop(self) -> str:
-        """Trigger emergency stop - halt all operations."""
-        self.emergency_stop_active = True
-        self.speed = 0
-        self.autonomous_mode = False
-        self.auto_steer_enabled = False
-        if self.implement_position == ImplementPosition.LOWERED:
-            self.implement_position = ImplementPosition.RAISED
-        return "EMERGENCY STOP ACTIVATED - All operations halted"
-
     def reset_emergency_stop(self) -> str:
         """Reset emergency stop condition."""
         if not self.emergency_stop_active:
@@ -821,7 +810,7 @@ class FarmTractor(
         print(f"ISOBUS TX: PGN={message.pgn:04X} from {message.source_address:02X}")
         return True
 
-    def receive_message(self) -> Optional[ISOBUSMessage]:
+    def receive_message(self) -> ISOBUSMessage | None:
         """Receive ISOBUS message from network."""
         # TODO: Implement actual ISOBUS CAN reception
         if self.message_queue:
@@ -865,10 +854,10 @@ class FarmTractor(
         if self.implement_position == ImplementPosition.LOWERED:
             self.implement_position = ImplementPosition.RAISED
 
-        # Log safety event
+        # Log safety event (using numeric codes: 999 = emergency_stop)
         self.log_operation_data(
             {
-                "event_type": "emergency_stop",
+                "event_code": 999.0,  # Emergency stop event code
                 "timestamp": datetime.now().timestamp(),
                 "position_lat": self.gps_latitude or 0.0,
                 "position_lon": self.gps_longitude or 0.0,
@@ -878,7 +867,7 @@ class FarmTractor(
         print("ISO 18497 EMERGENCY STOP ACTIVATED")
         return True
 
-    def validate_safety_zone(self, position: Tuple[float, float]) -> bool:
+    def validate_safety_zone(self, position: tuple[float, float]) -> bool:
         """Validate position is within defined safety zones."""
         if not self.safety_zones:
             return True  # No zones defined = unrestricted
@@ -892,13 +881,13 @@ class FarmTractor(
         return False
 
     def _point_in_polygon(
-        self, point: Tuple[float, float], polygon: List[Tuple[float, float]]
+        self, point: tuple[float, float], polygon: list[tuple[float, float]]
     ) -> bool:
         """Helper method for point-in-polygon calculation."""
         # Simplified implementation - would use proper geospatial library
         return True  # TODO: Implement proper geospatial checking
 
-    def get_safety_status(self) -> Dict[str, bool]:
+    def get_safety_status(self) -> dict[str, bool]:
         """Get comprehensive ISO 18497 safety status."""
         current_position = (self.gps_latitude or 0.0, self.gps_longitude or 0.0)
 
@@ -939,7 +928,7 @@ class FarmTractor(
         print(f"Motor {command.motor_id} {command.command_type} set to {command.target_value}")
         return True
 
-    def get_motor_status(self, motor_id: str) -> Dict[str, float]:
+    def get_motor_status(self, motor_id: str) -> dict[str, float]:
         """Get current motor status and position."""
         if motor_id not in self.motors:
             return {"error": -1.0}
@@ -977,7 +966,7 @@ class FarmTractor(
 </ISO11783_TaskData>"""
         return xml_data
 
-    def import_prescription_map(self, map_data: bytes) -> Dict[str, float]:
+    def import_prescription_map(self, map_data: bytes) -> dict[str, float]:
         """Import variable rate prescription map."""
         # TODO: Implement proper map parsing
         # For now, return simulated prescription data
@@ -987,7 +976,7 @@ class FarmTractor(
             "spray_rate": 20.0,  # gallons per acre
         }
 
-    def log_operation_data(self, data_point: Dict[str, float]) -> bool:
+    def log_operation_data(self, data_point: dict[str, float]) -> bool:
         """Log operational data point for analysis."""
         enhanced_data = data_point.copy()
         enhanced_data.update(
@@ -1026,7 +1015,7 @@ class FarmTractor(
     # Power Management Interface Implementation
     # ==============================================================================
 
-    def get_power_status(self) -> Dict[str, float]:
+    def get_power_status(self) -> dict[str, float]:
         """Get comprehensive power system status."""
         total_available = sum(
             ps.voltage * ps.max_current * ps.efficiency for ps in self.power_sources
@@ -1046,7 +1035,7 @@ class FarmTractor(
             "diesel_engine_load": float(self.engine_rpm / 2500.0) if self.engine_on else 0.0,
         }
 
-    def set_power_priority(self, device_priorities: Dict[str, int]) -> bool:
+    def set_power_priority(self, device_priorities: dict[str, int]) -> bool:
         """Set power allocation priorities for different systems."""
         # TODO: Implement actual power management logic
         print(f"Power priorities set: {device_priorities}")

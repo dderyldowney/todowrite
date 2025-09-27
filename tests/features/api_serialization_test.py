@@ -7,6 +7,7 @@ properly serialized and formatted for API consumption.
 """
 
 import json
+
 import pytest
 from afs_fastapi.equipment.farm_tractors import FarmTractor, FieldMode
 

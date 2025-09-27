@@ -7,9 +7,10 @@ properly exposed and consumable via HTTP API.
 """
 
 import json
+
 import pytest
-from fastapi.testclient import TestClient
 from afs_fastapi.api.main import app
+from fastapi.testclient import TestClient
 
 
 @pytest.fixture
@@ -250,7 +251,6 @@ def test_tractor_endpoint_enhanced_navigation_data(client: TestClient):
 
     # GPS coordinate fields (may be excluded if None due to response_model_exclude_none=True)
     # These fields will only be present if GPS is set
-    gps_fields_present = "gps_latitude" in data and "gps_longitude" in data
     # Either both should be present or both should be absent
 
     # Navigation status fields
