@@ -3,6 +3,9 @@
 # Ignore VS Code settings (unless project-specific configs are needed)
 .vscode/
 
+# Ignore Zed editor settings
+.zed/
+
 # Ignore coverage reports
 .coverage
 htmlcov/
