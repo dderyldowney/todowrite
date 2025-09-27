@@ -1,43 +1,77 @@
 # Claude Code Configuration for AFS FastAPI
 
-This file contains project-specific instructions for Claude Code sessions working on the AFS FastAPI robotic agriculture platform.
+This file contains project-specific instructions for Claude Code sessions working on the **AFS FastAPI robotic agriculture platform**.
 
 ## Code Documentation Requirements
 
-**Educational Code Explanations**: All code generated must be explained both overall and individually. Explanations should be concise with the dual purpose of teaching while building this real-world professional project.
+**Educational Code Explanations**: All code generated must be explained both **overall** and **individually**. Explanations should be concise with the dual purpose of teaching while building this real-world professional project.
 
 ### Explanation Structure
-- **Architecture Level**: Explain design patterns, system integration, and why specific approaches were chosen
-- **Implementation Level**: Detail how individual components work, function purposes, and technical specifics
-- **Professional Context**: Cover industry best practices, domain-specific concepts (ISOBUS, ISO 18497 safety, agricultural robotics), and enterprise development standards
+
+1. **Architecture Level**
+   - Explain design patterns, system integration, and why specific approaches were chosen
+   - Cover how components fit into the broader agricultural robotics ecosystem
+
+2. **Implementation Level**
+   - Detail how individual components work, function purposes, and technical specifics
+   - Include code-level explanations for complex algorithms or business logic
+
+3. **Professional Context**
+   - Cover industry best practices and enterprise development standards
+   - Explain domain-specific concepts (ISOBUS, ISO 18497 safety, agricultural robotics)
 
 ### Educational Focus Areas
-- Modern Python patterns (type hints, dataclasses, ABC inheritance)
-- Agricultural technology standards (ISOBUS communication, safety compliance)
-- Distributed systems concepts (CRDTs, vector clocks, fleet coordination)
-- API design and serialization best practices
-- Enterprise testing strategies and code quality
+
+- **Modern Python Patterns**
+  - Type hints, dataclasses, ABC inheritance
+  - Python 3.12+ features (union types, pattern matching)
+
+- **Agricultural Technology Standards**
+  - ISOBUS communication protocols (ISO 11783)
+  - Safety compliance systems (ISO 18497)
+  - Professional agricultural equipment interfaces
+
+- **Distributed Systems Concepts**
+  - Conflict-Free Replicated Data Types (CRDTs)
+  - Vector clocks for operation ordering
+  - Multi-tractor fleet coordination and synchronization
+
+- **Enterprise Development Practices**
+  - API design and serialization best practices
+  - Comprehensive testing strategies (unit, integration, feature)
+  - Code quality automation and CI/CD workflows
 
 ## Project Context
 
-AFS FastAPI is an enterprise-grade robotic agriculture platform implementing:
-- Multi-tractor fleet coordination and synchronization
-- Professional agricultural interface compliance (ISO 11783, ISO 18497)
-- Enhanced robotic interfaces (6 major categories: ISOBUS, Safety, Motor Control, Data Management, Power Management, Vision/Sensors)
-- Modern Python development practices with comprehensive testing
+**AFS FastAPI** is an enterprise-grade robotic agriculture platform implementing:
+
+- **Fleet Coordination**: Multi-tractor synchronization with conflict resolution
+- **Industry Compliance**: Professional agricultural interface compliance (ISO 11783, ISO 18497)
+- **Robotic Interfaces**: Six major categories of enhanced interfaces:
+  - ISOBUS Communication
+  - Safety & Compliance Systems
+  - Motor Control Interfaces
+  - Data Management Systems
+  - Power Management
+  - Vision & Sensor Systems
+- **Modern Development**: Python 3.12+ with comprehensive testing and code quality standards
 
 ## Code Quality Standards
 
-- All formatting tools aligned: Black, ruff, isort with consistent configuration
-- Comprehensive testing: unit, integration, and feature tests
-- Zero linting warnings maintained
-- Modern Python syntax (3.12+, union types, proper type annotations)
+- **Formatting Tools**: Black, ruff, isort aligned with consistent configuration
+- **Testing Coverage**: Comprehensive unit, integration, and feature tests
+- **Code Quality**: Zero linting warnings maintained across all modules
+- **Modern Syntax**: Python 3.12+ features, union types, proper type annotations
+- **Documentation**: Inline documentation for complex agricultural domain logic
 
 ## Development Workflow
 
-- Work on `develop` branch for new features
-- Use semantic versioning and proper Git workflow
-- Document technical decisions and architectural changes
-- Maintain comprehensive test coverage for all new functionality
+- **Branch Strategy**: Work on `develop` branch for new features
+- **Version Control**: Use semantic versioning and proper Git workflow
+- **Documentation**: Document technical decisions and architectural changes
+- **Testing**: Maintain comprehensive test coverage for all new functionality
+- **Code Review**: All changes reviewed for educational value and professional standards
 
-This ensures knowledge transfer alongside deliverable code, making the codebase both functional and instructional for professional agricultural technology development.
+---
+
+**Purpose**: This ensures knowledge transfer alongside deliverable code, making the codebase both functional and instructional for professional agricultural technology development.
