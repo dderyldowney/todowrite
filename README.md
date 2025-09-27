@@ -147,24 +147,72 @@ API responses that expose tractor state use a dedicated Pydantic model (`FarmTra
 
 The `FarmTractorResponse` is a Pydantic model used for API responses, containing:
 
+**Core Identification:**
 - `tractor_id` (str | None): Optional tractor identifier.
 - `make` (str): Manufacturer name.
 - `model` (str): Model name.
 - `year` (int): Year of manufacture.
 - `manual_url` (str | None): URL to operator's manual.
+
+**Engine and Basic Controls:**
 - `engine_on` (bool): Engine running status.
 - `speed` (int): Current speed in mph.
 - `gear` (int): Current gear (0-10).
 - `power_takeoff` (bool): PTO engagement status.
 - `hydraulics` (bool): Hydraulics activation status.
+
+**GPS and Navigation:**
 - `gps_latitude` (float | None): GPS latitude coordinate.
 - `gps_longitude` (float | None): GPS longitude coordinate.
 - `auto_steer_enabled` (bool): Auto-steer status.
+- `waypoint_count` (int): Number of navigation waypoints.
+- `current_heading` (float): Current heading in degrees.
+
+**Implement Controls:**
 - `implement_position` (Literal["raised", "lowered", "transport"]): Implement position state.
+- `implement_depth` (float): Working depth in inches.
+- `implement_width` (float): Working width in feet.
+
+**Field Operations:**
 - `field_mode` (Literal["transport", "tillage", "planting", "spraying", "harvesting", "maintenance"]): Current field operation mode.
+- `work_rate` (float): Work rate in acres/hour.
+- `area_covered` (float): Total area covered in acres.
+
+**Engine and Fuel:**
 - `fuel_level` (float): Fuel level percentage.
 - `engine_rpm` (int): Engine RPM.
+- `engine_temp` (float): Engine temperature in Fahrenheit.
+
+**Hydraulics:**
 - `hydraulic_pressure` (float): Hydraulic pressure in PSI.
+- `hydraulic_flow` (float): Hydraulic flow in GPM.
+
+**Sensors:**
+- `wheel_slip` (float): Wheel slip percentage.
+- `ground_speed` (float): Ground speed in mph.
+- `draft_load` (float): Draft load in pounds.
+
+**Autonomous Features:**
+- `autonomous_mode` (bool): Whether autonomous mode is enabled.
+- `obstacle_detection` (bool): Whether obstacle detection is active.
+- `emergency_stop_active` (bool): Whether emergency stop is active.
+
+**ISOBUS Communication:**
+- `isobus_address` (int): ISOBUS device address.
+- `device_name` (str): ISOBUS device name.
+
+**Safety Systems:**
+- `safety_system_active` (bool): Whether safety system is active.
+- `safety_level` (Literal["PLc", "PLd", "PLe"]): Current safety performance level.
+
+**Vision & Sensor Systems:**
+- `lidar_enabled` (bool): Whether LiDAR sensors are enabled.
+- `obstacle_count` (int): Number of detected obstacles.
+
+**Power Management:**
+- `regenerative_mode` (bool): Whether regenerative power mode is enabled.
+
+**System Status:**
 - `status` (str): Complete tractor status string.
 
 **Example Usage:**
@@ -236,6 +284,19 @@ print(f"Tractor ID: {response.tractor_id}")
 print(f"Field mode: {response.field_mode}")
 print(f"Implement position: {response.implement_position}")
 print(f"Auto-steer enabled: {response.auto_steer_enabled}")
+
+# Enhanced robotic interface fields
+print(f"Waypoints: {response.waypoint_count}")
+print(f"Heading: {response.current_heading}°")
+print(f"Implement depth: {response.implement_depth} inches")
+print(f"Implement width: {response.implement_width} feet")
+print(f"Work rate: {response.work_rate:.1f} acres/hour")
+print(f"Area covered: {response.area_covered:.2f} acres")
+print(f"Autonomous mode: {response.autonomous_mode}")
+print(f"Safety level: {response.safety_level}")
+print(f"ISOBUS device: {response.device_name}")
+print(f"Obstacle detection: {response.obstacle_detection}")
+print(f"Emergency stop: {response.emergency_stop_active}")
 
 # Emergency stop if needed
 # tractor.emergency_stop()
