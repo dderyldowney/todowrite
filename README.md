@@ -12,6 +12,7 @@ The [AFS-FastAPI Project](https://github.com/dderyldowney/afs_fastapi) aims to h
 operating farm equipment, maintaining soil health, and managing water quality. By integrating data-driven insights with
 advanced automation, the project seeks to enhance farming efficiency, sustainability, and productivity.
 
+
 The system provides a robust set of API interfaces, using [FastAPI](https://fastapi.tiangolo.com), to support diverse
 use cases, ranging from controlling robotic devices and physical farm equipment to monitoring environmental factors such
 as soil, water, and air quality. The APIs are designed to serve a wide range of consumers, including AI agents managing
@@ -28,6 +29,8 @@ will guide the adaptation of current robotics to operate agricultural machines f
 The `FarmTractor` is a plain Python class used in the project to represent a farm tractor. It includes attributes such as
 `make`, `model`, `year`, and `manual_url` to store the URL of the operational manual for the tractor. This class is used
 to demonstrate core equipment behaviors and to provide a structured way to manage tractor data within the system.
+
+The `FarmTractor` fully implements professional agricultural robotics standards while maintaining complete backwards compatibility with existing code.
 
 API responses that expose tractor state use a dedicated Pydantic model (`FarmTractorResponse`) to provide a stable, JSON-serializable schema without mixing API concerns into the core class.
 
