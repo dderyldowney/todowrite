@@ -1,6 +1,6 @@
 # Automated Farming System API
 
-[![AFS Testing](https://github.com/dderyldowney/afs_fastapi/actions/workflows/afs-testing.yml/badge.svg)](https://github.com/dderyldowney/afs_fastapi/actions/workflows/afs-testing.yml)
+[![AFS Testing](https://github.com/dderyldowney/afs_fastapi/actions/workflows/afs-testing.yml/badge.svg)](https://github.com/dderyldowney/afs_fastapi/actions/workflows/afs-testing.yml) - [![Security Review](https://github.com/dderyldowney/afs_fastapi/actions/workflows/security.yml/badge.svg)](https://github.com/dderyldowney/afs_fastapi/actions/workflows/security.yml)
 
 ![Automated Farming System API logo](resources/static/images/afs_fastapi-logo.jpg)
 
