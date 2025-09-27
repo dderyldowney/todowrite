@@ -12,6 +12,7 @@ The [AFS-FastAPI Project](https://github.com/dderyldowney/afs_fastapi) aims to h
 operating farm equipment, maintaining soil health, and managing water quality. By integrating data-driven insights with
 advanced automation, the project seeks to enhance farming efficiency, sustainability, and productivity.
 
+
 The system provides a robust set of API interfaces, using [FastAPI](https://fastapi.tiangolo.com), to support diverse
 use cases, ranging from controlling robotic devices and physical farm equipment to monitoring environmental factors such
 as soil, water, and air quality. The APIs are designed to serve a wide range of consumers, including AI agents managing
@@ -19,15 +20,24 @@ autonomous operations and humans overseeing the overall system or specific subsy
 
 ---
 
-### 2. Locating Operational Manuals for Farm Equipment
-
-**Objective:** Identify and utilize online resources that provide operational manuals for farm equipment. These manuals
-will guide the adaptation of current robotics to operate agricultural machines for automation purposes.
+### 2. API and Core Classes
 
 **FarmTractor Class:**
 The `FarmTractor` is a plain Python class used in the project to represent a farm tractor. It includes attributes such as
 `make`, `model`, `year`, and `manual_url` to store the URL of the operational manual for the tractor. This class is used
 to demonstrate core equipment behaviors and to provide a structured way to manage tractor data within the system.
+
+The `FarmTractor` fully implements professional agricultural robotics standards while maintaining complete backwards compatibility with existing code.
+
+**Test Coverage Summary:**
+
+- **Original Farm Tractor Tests (26-44)**: Basic functionality like engine control, hydraulics, and gear changes
+- **Advanced Farm Tractor Tests (37-44)**: GPS, autonomous mode, implement controls, and field operations
+- **Robotic Interface Tests (45-77)**: All new industrial interfaces including ISOBUS, safety systems, motor control, data management, and power systems
+- **API & Integration Tests (20-25)**: FastAPI endpoints and system integration
+- **Monitoring Systems (80-89)**: Soil and water monitoring capabilities
+- **Station Management (90-100)**: Command and control station functionality
+
 
 API responses that expose tractor state use a dedicated Pydantic model (`FarmTractorResponse`) to provide a stable, JSON-serializable schema without mixing API concerns into the core class.
 
@@ -137,24 +147,72 @@ API responses that expose tractor state use a dedicated Pydantic model (`FarmTra
 
 The `FarmTractorResponse` is a Pydantic model used for API responses, containing:
 
+**Core Identification:**
 - `tractor_id` (str | None): Optional tractor identifier.
 - `make` (str): Manufacturer name.
 - `model` (str): Model name.
 - `year` (int): Year of manufacture.
 - `manual_url` (str | None): URL to operator's manual.
+
+**Engine and Basic Controls:**
 - `engine_on` (bool): Engine running status.
 - `speed` (int): Current speed in mph.
 - `gear` (int): Current gear (0-10).
 - `power_takeoff` (bool): PTO engagement status.
 - `hydraulics` (bool): Hydraulics activation status.
+
+**GPS and Navigation:**
 - `gps_latitude` (float | None): GPS latitude coordinate.
 - `gps_longitude` (float | None): GPS longitude coordinate.
 - `auto_steer_enabled` (bool): Auto-steer status.
+- `waypoint_count` (int): Number of navigation waypoints.
+- `current_heading` (float): Current heading in degrees.
+
+**Implement Controls:**
 - `implement_position` (Literal["raised", "lowered", "transport"]): Implement position state.
+- `implement_depth` (float): Working depth in inches.
+- `implement_width` (float): Working width in feet.
+
+**Field Operations:**
 - `field_mode` (Literal["transport", "tillage", "planting", "spraying", "harvesting", "maintenance"]): Current field operation mode.
+- `work_rate` (float): Work rate in acres/hour.
+- `area_covered` (float): Total area covered in acres.
+
+**Engine and Fuel:**
 - `fuel_level` (float): Fuel level percentage.
 - `engine_rpm` (int): Engine RPM.
+- `engine_temp` (float): Engine temperature in Fahrenheit.
+
+**Hydraulics:**
 - `hydraulic_pressure` (float): Hydraulic pressure in PSI.
+- `hydraulic_flow` (float): Hydraulic flow in GPM.
+
+**Sensors:**
+- `wheel_slip` (float): Wheel slip percentage.
+- `ground_speed` (float): Ground speed in mph.
+- `draft_load` (float): Draft load in pounds.
+
+**Autonomous Features:**
+- `autonomous_mode` (bool): Whether autonomous mode is enabled.
+- `obstacle_detection` (bool): Whether obstacle detection is active.
+- `emergency_stop_active` (bool): Whether emergency stop is active.
+
+**ISOBUS Communication:**
+- `isobus_address` (int): ISOBUS device address.
+- `device_name` (str): ISOBUS device name.
+
+**Safety Systems:**
+- `safety_system_active` (bool): Whether safety system is active.
+- `safety_level` (Literal["PLc", "PLd", "PLe"]): Current safety performance level.
+
+**Vision & Sensor Systems:**
+- `lidar_enabled` (bool): Whether LiDAR sensors are enabled.
+- `obstacle_count` (int): Number of detected obstacles.
+
+**Power Management:**
+- `regenerative_mode` (bool): Whether regenerative power mode is enabled.
+
+**System Status:**
 - `status` (str): Complete tractor status string.
 
 **Example Usage:**
@@ -227,6 +285,19 @@ print(f"Field mode: {response.field_mode}")
 print(f"Implement position: {response.implement_position}")
 print(f"Auto-steer enabled: {response.auto_steer_enabled}")
 
+# Enhanced robotic interface fields
+print(f"Waypoints: {response.waypoint_count}")
+print(f"Heading: {response.current_heading}°")
+print(f"Implement depth: {response.implement_depth} inches")
+print(f"Implement width: {response.implement_width} feet")
+print(f"Work rate: {response.work_rate:.1f} acres/hour")
+print(f"Area covered: {response.area_covered:.2f} acres")
+print(f"Autonomous mode: {response.autonomous_mode}")
+print(f"Safety level: {response.safety_level}")
+print(f"ISOBUS device: {response.device_name}")
+print(f"Obstacle detection: {response.obstacle_detection}")
+print(f"Emergency stop: {response.emergency_stop_active}")
+
 # Emergency stop if needed
 # tractor.emergency_stop()
 # print("Emergency stop activated!")
@@ -247,6 +318,11 @@ tractor.stop_engine()
 print("Engine stopped - all systems reset")
 ```
 
+### 3. Locating Operational Manuals for Farm Equipment
+
+**Objective:** Identify and utilize online resources that provide operational manuals for farm equipment. These manuals
+will guide the adaptation of current robotics to operate agricultural machines for automation purposes.
+
 **Sources:**
 
 1. [AgManuals](https://agmanuals.com)
@@ -264,7 +340,7 @@ print("Engine stopped - all systems reset")
 
 ---
 
-**Build Process:**
+## Build Process
 
 To build the project, follow these steps:
 
@@ -282,7 +358,7 @@ Note on extras: The project uses `fastapi[all]` and `starlette[full]` in develop
 
 ---
 
-**Run the API locally:**
+## Run the API locally
 
 - Quick start (defaults to 127.0.0.1:8000):
   - `python -m afs_fastapi`
@@ -295,7 +371,7 @@ Note on extras: The project uses `fastapi[all]` and `starlette[full]` in develop
 
 ---
 
-**Sensor backend interfaces:**
+## Sensor backend interfaces
 
 Monitoring classes accept pluggable backends so you can swap real sensors without changing API code.
 
@@ -329,7 +405,7 @@ print(monitor.get_water_quality())
 
 ---
 
-### 3. Monitoring and Maintaining Soil Conditions
+### 4. Monitoring and Maintaining Soil Conditions
 
 **Objective:** Research and utilize tools, sensors, and platforms to monitor soil composition, mineral content, and pH
 balance, ensuring optimal crop health.
@@ -349,7 +425,7 @@ balance, ensuring optimal crop health.
 
 ---
 
-### 4. Monitoring and Maintaining Water Conditions
+### 5. Monitoring and Maintaining Water Conditions
 
 **Objective:** Identify and deploy tools to assess and maintain water composition, mineral levels, and pH balance,
 ensuring water quality is optimized for agricultural use.
@@ -369,7 +445,7 @@ ensuring water quality is optimized for agricultural use.
 
 ---
 
-### 5. Utilizing Publicly Available Water Sampling Datasets
+### 6. Utilizing Publicly Available Water Sampling Datasets
 
 **Objective:** Access and analyze publicly available water quality datasets to inform ML models for monitoring water
 conditions suitable for farming.
@@ -385,7 +461,7 @@ conditions suitable for farming.
 
 ---
 
-### 6. Project Integration and Machine Learning Goals
+### 7. Project Integration and Machine Learning Goals
 
 **Objective:** Synthesize the research and datasets into ML models and robotics systems capable of automating farm
 operations, improving efficiency, and ensuring sustainability. Models will address:
