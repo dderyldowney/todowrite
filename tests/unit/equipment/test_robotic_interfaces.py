@@ -7,19 +7,17 @@ safety systems, motor control, data management, and power management.
 
 import unittest
 from datetime import datetime
-from unittest.mock import patch, MagicMock
 
 from afs_fastapi.equipment.farm_tractors import (
+    CameraConfig,
     FarmTractor,
     ISOBUSMessage,
-    MotorCommand,
-    MotorType,
-    SafetyZone,
-    SafetyLevel,
-    TaskData,
-    PowerSource,
-    CameraConfig,
     LiDARPoint,
+    MotorCommand,
+    PowerSource,
+    SafetyLevel,
+    SafetyZone,
+    TaskData,
 )
 
 
@@ -440,7 +438,7 @@ class TestFarmTractorEnhancedInitialization(unittest.TestCase):
         self.assertIn("throttle_motor", tractor.motors)
         self.assertIn("implement_lift", tractor.motors)
 
-        for motor_id, status in tractor.motors.items():
+        for _motor_id, status in tractor.motors.items():
             self.assertEqual(status["position"], 0.0)
             self.assertEqual(status["velocity"], 0.0)
             self.assertEqual(status["torque"], 0.0)
@@ -537,7 +535,7 @@ class TestIntegratedRoboticOperations(unittest.TestCase):
         # Verify data logging occurred
         self.assertGreater(len(self.tractor.operation_log), 0)
         last_log = self.tractor.operation_log[-1]
-        self.assertEqual(last_log["event_type"], "emergency_stop")
+        self.assertEqual(last_log["event_code"], 999.0)  # Emergency stop event code
 
 
 if __name__ == "__main__":
