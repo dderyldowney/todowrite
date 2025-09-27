@@ -8,7 +8,18 @@ repos:
     - id: pretty-format-json
       args: ["--autofix"]  # Automatically fix JSON formatting issues
       additional_dependencies: []
+-   repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+    -   id: isort
+        args: ["--profile", "black", "--line-length", "100"]
 -   repo: https://github.com/psf/black
     rev: 25.9.0
     hooks:
     -   id: black
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+    -   id: ruff
+        args: [--fix, --unsafe-fixes]
+    -   id: ruff-format
