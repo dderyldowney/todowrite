@@ -127,7 +127,7 @@ class TestFarmTractorAdvanced(unittest.TestCase):
 
         # Trigger emergency stop
         result = self.tractor.emergency_stop()
-        self.assertEqual(result, "EMERGENCY STOP ACTIVATED - All operations halted")
+        self.assertTrue(result)  # ISO 18497 interface returns boolean
         self.assertTrue(self.tractor.emergency_stop_active)
         self.assertEqual(self.tractor.speed, 0)
         self.assertFalse(self.tractor.autonomous_mode)
