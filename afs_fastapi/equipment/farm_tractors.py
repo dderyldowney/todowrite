@@ -299,6 +299,48 @@ class FarmTractorResponse(BaseModel):
         Current implement position (raised/lowered/transport).
     field_mode : str
         Current field operation mode.
+    waypoint_count : int
+        Number of navigation waypoints.
+    current_heading : float
+        Current heading in degrees.
+    implement_depth : float
+        Working depth in inches.
+    implement_width : float
+        Working width in feet.
+    work_rate : float
+        Work rate in acres/hour.
+    area_covered : float
+        Total area covered in acres.
+    engine_temp : float
+        Engine temperature in Fahrenheit.
+    hydraulic_flow : float
+        Hydraulic flow in GPM.
+    wheel_slip : float
+        Wheel slip percentage.
+    ground_speed : float
+        Ground speed in mph.
+    draft_load : float
+        Draft load in pounds.
+    autonomous_mode : bool
+        Whether autonomous mode is enabled.
+    obstacle_detection : bool
+        Whether obstacle detection is active.
+    emergency_stop_active : bool
+        Whether emergency stop is active.
+    isobus_address : int
+        ISOBUS device address.
+    device_name : str
+        ISOBUS device name.
+    safety_system_active : bool
+        Whether safety system is active.
+    safety_level : str
+        Current safety performance level.
+    regenerative_mode : bool
+        Whether regenerative power mode is enabled.
+    lidar_enabled : bool
+        Whether LiDAR sensors are enabled.
+    obstacle_count : int
+        Number of detected obstacles.
     """
 
     tractor_id: str | None = None
@@ -321,6 +363,30 @@ class FarmTractorResponse(BaseModel):
     fuel_level: float = 100.0
     engine_rpm: int = 0
     hydraulic_pressure: float = 0.0
+
+    # Enhanced fields for robotic interfaces
+    waypoint_count: int = 0
+    current_heading: float = 0.0
+    implement_depth: float = 0.0
+    implement_width: float = 0.0
+    work_rate: float = 0.0
+    area_covered: float = 0.0
+    engine_temp: float = 180.0
+    hydraulic_flow: float = 0.0
+    wheel_slip: float = 0.0
+    ground_speed: float = 0.0
+    draft_load: float = 0.0
+    autonomous_mode: bool = False
+    obstacle_detection: bool = True
+    emergency_stop_active: bool = False
+    isobus_address: int = 0x80
+    device_name: str = ""
+    safety_system_active: bool = True
+    safety_level: Literal["PLc", "PLd", "PLe"] = "PLc"
+    regenerative_mode: bool = False
+    lidar_enabled: bool = False
+    obstacle_count: int = 0
+
     status: str
 
 
@@ -1057,5 +1123,27 @@ class FarmTractor(
             fuel_level=self.fuel_level,
             engine_rpm=self.engine_rpm,
             hydraulic_pressure=self.hydraulic_pressure,
+            # Enhanced robotic interface fields
+            waypoint_count=len(self.waypoints),
+            current_heading=self.current_heading,
+            implement_depth=self.implement_depth,
+            implement_width=self.implement_width,
+            work_rate=self.work_rate,
+            area_covered=self.area_covered,
+            engine_temp=self.engine_temp,
+            hydraulic_flow=self.hydraulic_flow,
+            wheel_slip=self.wheel_slip,
+            ground_speed=self.ground_speed,
+            draft_load=self.draft_load,
+            autonomous_mode=self.autonomous_mode,
+            obstacle_detection=self.obstacle_detection,
+            emergency_stop_active=self.emergency_stop_active,
+            isobus_address=self.isobus_address,
+            device_name=self.device_name,
+            safety_system_active=self.safety_system_active,
+            safety_level=self.safety_level.value,
+            regenerative_mode=self.regenerative_mode,
+            lidar_enabled=self.lidar_enabled,
+            obstacle_count=len(self.obstacle_list),
             status=str(self),
         )
