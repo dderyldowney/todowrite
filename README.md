@@ -32,6 +32,16 @@ to demonstrate core equipment behaviors and to provide a structured way to manag
 
 The `FarmTractor` fully implements professional agricultural robotics standards while maintaining complete backwards compatibility with existing code.
 
+**Test Coverage Summary:**
+
+- **Original Farm Tractor Tests (26-44)**: Basic functionality like engine control, hydraulics, and gear changes
+- **Advanced Farm Tractor Tests (37-44)**: GPS, autonomous mode, implement controls, and field operations
+- **Robotic Interface Tests (45-77)**: All new industrial interfaces including ISOBUS, safety systems, motor control, data management, and power systems
+- **API & Integration Tests (20-25)**: FastAPI endpoints and system integration
+- **Monitoring Systems (80-89)**: Soil and water monitoring capabilities
+- **Station Management (90-100)**: Command and control station functionality
+
+
 API responses that expose tractor state use a dedicated Pydantic model (`FarmTractorResponse`) to provide a stable, JSON-serializable schema without mixing API concerns into the core class.
 
 **FarmTractor Class Attributes:**
@@ -267,7 +277,7 @@ print("Engine stopped - all systems reset")
 
 ---
 
-**Build Process:**
+## Build Process
 
 To build the project, follow these steps:
 
@@ -285,7 +295,7 @@ Note on extras: The project uses `fastapi[all]` and `starlette[full]` in develop
 
 ---
 
-**Run the API locally:**
+## Run the API locally
 
 - Quick start (defaults to 127.0.0.1:8000):
   - `python -m afs_fastapi`
@@ -298,7 +308,7 @@ Note on extras: The project uses `fastapi[all]` and `starlette[full]` in develop
 
 ---
 
-**Sensor backend interfaces:**
+## Sensor backend interfaces
 
 Monitoring classes accept pluggable backends so you can swap real sensors without changing API code.
 
