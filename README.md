@@ -20,10 +20,7 @@ autonomous operations and humans overseeing the overall system or specific subsy
 
 ---
 
-### 2. Locating Operational Manuals for Farm Equipment
-
-**Objective:** Identify and utilize online resources that provide operational manuals for farm equipment. These manuals
-will guide the adaptation of current robotics to operate agricultural machines for automation purposes.
+### 2. API and Core Classes
 
 **FarmTractor Class:**
 The `FarmTractor` is a plain Python class used in the project to represent a farm tractor. It includes attributes such as
@@ -260,6 +257,11 @@ tractor.stop_engine()
 print("Engine stopped - all systems reset")
 ```
 
+### 3. Locating Operational Manuals for Farm Equipment
+
+**Objective:** Identify and utilize online resources that provide operational manuals for farm equipment. These manuals
+will guide the adaptation of current robotics to operate agricultural machines for automation purposes.
+
 **Sources:**
 
 1. [AgManuals](https://agmanuals.com)
@@ -342,7 +344,7 @@ print(monitor.get_water_quality())
 
 ---
 
-### 3. Monitoring and Maintaining Soil Conditions
+### 4. Monitoring and Maintaining Soil Conditions
 
 **Objective:** Research and utilize tools, sensors, and platforms to monitor soil composition, mineral content, and pH
 balance, ensuring optimal crop health.
@@ -362,7 +364,7 @@ balance, ensuring optimal crop health.
 
 ---
 
-### 4. Monitoring and Maintaining Water Conditions
+### 5. Monitoring and Maintaining Water Conditions
 
 **Objective:** Identify and deploy tools to assess and maintain water composition, mineral levels, and pH balance,
 ensuring water quality is optimized for agricultural use.
@@ -382,7 +384,7 @@ ensuring water quality is optimized for agricultural use.
 
 ---
 
-### 5. Utilizing Publicly Available Water Sampling Datasets
+### 6. Utilizing Publicly Available Water Sampling Datasets
 
 **Objective:** Access and analyze publicly available water quality datasets to inform ML models for monitoring water
 conditions suitable for farming.
@@ -398,7 +400,7 @@ conditions suitable for farming.
 
 ---
 
-### 6. Project Integration and Machine Learning Goals
+### 7. Project Integration and Machine Learning Goals
 
 **Objective:** Synthesize the research and datasets into ML models and robotics systems capable of automating farm
 operations, improving efficiency, and ensuring sustainability. Models will address:
