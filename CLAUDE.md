@@ -99,6 +99,30 @@ This file contains project-specific instructions for Claude Code sessions workin
 
 **Reference Documentation**: TDD_WORKFLOW.md provides complete Test-First development guide with agricultural domain examples.
 
+## Claude Command Integration
+
+### Command Trigger Framework
+
+The project includes a **.claude/commands/** directory containing reusable command triggers for consistent documentation and workflow execution:
+
+**Available Commands**:
+- **whereweare**: Generates comprehensive WHERE_WE_ARE.md project state assessment
+  - Creates 475-line strategic documentation from overarching vision to implementation details
+  - Captures live metrics (tests, code quality, release status)
+  - Provides enterprise-grade stakeholder communication documentation
+
+**Command Usage**:
+- Commands are documented with complete specifications including purpose, expected output, and usage context
+- Professional standards maintained across all command triggers
+- Version-controlled for team collaboration and consistency
+- Educational integration preserves dual-purpose functional and instructional mission
+
+**Integration Benefits**:
+- **Consistent Documentation**: Repeatable processes for strategic assessment generation
+- **Quality Assurance**: Standardized documentation structure and professional formatting
+- **Team Enablement**: Clear specifications for collaborative documentation creation
+- **Workflow Enhancement**: Structured approach to maintaining current project documentation
+
 ---
 
 **Purpose**: This ensures knowledge transfer alongside deliverable code, making the codebase both functional and instructional for professional agricultural technology development.
