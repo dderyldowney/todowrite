@@ -89,6 +89,33 @@ This file contains project-specific instructions for Claude Code sessions workin
 - **Testing**: Maintain comprehensive test coverage (see WORKFLOW.md for complete reference)
 - **Code Review**: All changes reviewed for educational value and professional standards
 
+### Documentation and Commit Message Standards
+
+**Professional Tone Requirements**:
+- Use clear, factual language without marketing superlatives
+- Avoid excessive capitalization, emojis, or promotional rhetoric
+- Focus on what was accomplished rather than subjective assessments
+- Write commit messages using standard conventions (type(scope): description)
+
+**Commit Message Format**:
+```
+type(scope): brief description of change
+
+Optional detailed explanation focusing on:
+- What was changed and why
+- Technical implementation details
+- Impact on system functionality
+
+Avoid: "PERFECT", "AMAZING", "REVOLUTIONARY", "PREMIER"
+Use: "Add", "Fix", "Update", "Implement", "Refactor"
+```
+
+**Documentation Style**:
+- Technical accuracy over promotional language
+- Measured descriptions of capabilities and status
+- Professional terminology appropriate for engineering teams
+- Educational content without excessive emphasis
+
 ### Test-First Methodology for Synchronization Infrastructure
 
 **Strategic Priority**: All distributed systems components (vector clocks, CRDTs, ISOBUS message queuing) must follow Test-Driven Development:
