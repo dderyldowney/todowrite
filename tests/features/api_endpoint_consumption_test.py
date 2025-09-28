@@ -7,6 +7,7 @@ properly exposed and consumable via HTTP API.
 """
 
 import json
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -182,12 +183,13 @@ def test_tractor_endpoint_multiple_requests_consistency(client: TestClient):
     Test that multiple requests to the tractor endpoint return consistent structure.
     """
     tractor_ids = ["consistency-1", "consistency-2", "consistency-3"]
-    responses = []
+    responses: list[dict[str, Any]] = []
 
     for tractor_id in tractor_ids:
         response = client.get(f"/equipment/tractor/{tractor_id}")
         assert response.status_code == 200
-        responses.append(response.json())
+        response_data: dict[str, Any] = response.json()
+        responses.append(response_data)
 
     # Verify all responses have the same structure
     first_response_keys = set(responses[0].keys())
