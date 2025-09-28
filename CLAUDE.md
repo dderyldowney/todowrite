@@ -22,24 +22,28 @@ This file contains project-specific instructions for Claude Code sessions workin
 
 ### Educational Focus Areas
 
-- **Modern Python Patterns**
-  - Type hints, dataclasses, ABC inheritance
-  - Python 3.12+ features (union types, pattern matching)
+#### Modern Python Patterns
 
-- **Agricultural Technology Standards**
-  - ISOBUS communication protocols (ISO 11783)
-  - Safety compliance systems (ISO 18497)
-  - Professional agricultural equipment interfaces
+- Type hints, dataclasses, ABC inheritance
+- Python 3.12+ features (union types, pattern matching)
 
-- **Distributed Systems Concepts**
-  - Conflict-Free Replicated Data Types (CRDTs)
-  - Vector clocks for operation ordering
-  - Multi-tractor fleet coordination and synchronization
+#### Agricultural Technology Standards
 
-- **Enterprise Development Practices**
-  - API design and serialization best practices
-  - Comprehensive testing strategies (unit, integration, feature)
-  - Code quality automation and CI/CD workflows
+- ISOBUS communication protocols (ISO 11783)
+- Safety compliance systems (ISO 18497)
+- Professional agricultural equipment interfaces
+
+#### Distributed Systems Concepts
+
+- Conflict-Free Replicated Data Types (CRDTs)
+- Vector clocks for operation ordering
+- Multi-tractor fleet coordination and synchronization
+
+#### Enterprise Development Practices
+
+- API design and serialization best practices
+- Comprehensive testing strategies (unit, integration, feature)
+- Code quality automation and CI/CD workflows
 
 ## Project Context
 
@@ -74,7 +78,7 @@ This file contains project-specific instructions for Claude Code sessions workin
 - **Domain coverage analysis** for Equipment, Monitoring, API, and Infrastructure
 - **Performance metrics** and quality assurance framework
 
-**Important**: Always reference WORKFLOW.md when working with tests, understanding test patterns, or explaining the testing strategy. This document captures the sophisticated testing approach used in this enterprise-grade agricultural robotics platform.
+> **Important**: Always reference WORKFLOW.md when working with tests, understanding test patterns, or explaining the testing strategy. This document captures the sophisticated testing approach used in this enterprise-grade agricultural robotics platform.
 
 ## Development Workflow
 
