@@ -1,0 +1,32 @@
+# pytest-watch configuration for AFS FastAPI
+# Optimized for Test-First Development (TDD) workflow
+#
+# This configuration supports the Red-Green-Refactor methodology established
+# in TDD_WORKFLOW.md for distributed agricultural robotics development.
+
+[pytest-watch]
+# Core test execution settings
+runner = pytest
+patterns = *.py
+ignore_patterns = __pycache__/*,*.pyc,*.pyo,.git/*,.venv/*,build/*,dist/*,.claude/*
+
+# Test directories to monitor
+monitor_paths = afs_fastapi,tests
+
+# Pytest arguments optimized for TDD workflow
+pytest_args = -v --tb=short --strict-markers --import-mode=importlib
+
+# Performance settings for agricultural robotics development
+poll_interval = 0.5
+clear_screen = true
+wait_on_error = 2.0
+
+# TDD-specific configurations
+auto_clear = true
+beep_on_failure = false
+beep_on_success = false
+
+# Integration with existing project tooling
+# Uses pytest.ini settings: python_files = test_*.py *_test.py
+# Compatible with pyproject.toml [tool.pytest.ini_options]
+# Supports agricultural domain test patterns (equipment, monitoring, features)
