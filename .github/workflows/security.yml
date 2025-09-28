@@ -21,3 +21,6 @@ jobs:
         with:
           comment-pr: true
           claude-api-key: ${{ secrets.CLAUDE_API_KEY }}
+          # Ensure that the secret CLAUDE_API_KEY is set in your repository's GitHub Actions secrets.
+          # To set the secret, go to your repository on GitHub > Settings > Secrets and variables > Actions > New repository secret.
+            # If the secret is missing, add it with your Claude API key value.

@@ -19,7 +19,7 @@ The Automated Farming System API (AFS-FastAPI) is a FastAPI-based system designe
 
 ## Project Structure
 
-```
+```text
 afs_fastapi/
 ├── api/           # FastAPI application and routes
 ├── equipment/     # Farm equipment classes (tractors, etc.)
@@ -49,9 +49,12 @@ afs_fastapi/
 
 ## Version Management and Tagging Strategy
 
-**CRITICAL: This tagging strategy must be enforced in all future sessions**
+### Critical Implementation Requirement
+
+This tagging strategy must be enforced in all future sessions
 
 ### Current Version State
+
 - **Latest Release**: `v0.1.1` (main branch)
 - **Development**: `v0.1.2a0` (develop branch)
 - **Branch Strategy**: Git Flow with `main` (stable) and `develop` (active development)
@@ -59,12 +62,14 @@ afs_fastapi/
 ### Tagging Rules - MUST FOLLOW
 
 #### 1. Release Tags (Production)
+
 - **Format**: `v{major}.{minor}.{patch}` (e.g., `v0.1.1`)
 - **Branch**: Only tag on `main` branch
 - **When**: After merging `develop` → `main` for stable releases
 - **Examples**: `v0.1.1`, `v0.1.2`, `v0.2.0`
 
 #### 2. Alpha Tags (Development)
+
 - **Format**: `v{major}.{minor}.{patch}a{n}` (e.g., `v0.1.2a0`)
 - **Branch**: Only tag on `develop` branch
 - **When**: After significant development milestones
@@ -72,7 +77,8 @@ afs_fastapi/
 - **First Alpha**: Created when starting work on next version
 
 #### 3. Version Progression Rules
-```
+
+```text
 Current: v0.1.1 (stable on main)
 Next:    v0.1.2a0 → v0.1.2a1 → ... → v0.1.2 (patch)
 Or:      v0.2.0a0 → v0.2.0a1 → ... → v0.2.0 (minor)
@@ -80,7 +86,8 @@ Or:      v1.0.0a0 → v1.0.0a1 → ... → v1.0.0 (major)
 ```
 
 #### 4. Branching Workflow - MANDATORY
-```
+
+```text
 main branch (stable):
 ├── v0.1.0 → v0.1.1 → v0.1.2 (release tags only)
 
@@ -90,12 +97,15 @@ develop branch (development):
 ```
 
 #### 5. Version File Synchronization
+
 When creating tags, ensure these files match:
+
 - `afs_fastapi/version.py` - Contains `__version__`
 - `pyproject.toml` - Contains `version`
 - Both must match tag version (without 'v' prefix)
 
 #### 6. Tag Creation Commands
+
 ```bash
 # For alpha releases (on develop branch):
 git checkout develop
@@ -109,6 +119,7 @@ git push origin v0.1.2
 ```
 
 #### 7. Enforcement Rules
+
 - **NEVER** tag the same commit with both release and alpha tags
 - **NEVER** create release tags on develop branch
 - **NEVER** create alpha tags on main branch
@@ -116,7 +127,9 @@ git push origin v0.1.2
 - **ALWAYS** use annotated tags (`-a`) with descriptive messages
 
 #### 8. Claude Code Monitoring Requirements
+
 In every session, Claude Code must:
+
 1. Check current tag status before creating new tags
 2. Verify branch alignment with tagging rules
 3. Ensure version files match intended tag version
@@ -124,7 +137,8 @@ In every session, Claude Code must:
 5. Validate branch context before any tag operations
 
 ### Example Tag History (Correct)
-```
+
+```text
 v0.1.1     (main branch - stable release)
 v0.1.2a0   (develop branch - start development)
 v0.1.2a1   (develop branch - development milestone)
@@ -143,15 +157,28 @@ v0.1.3a0   (develop branch - start next development)
 
 ## Development Tools
 
-- **Testing**: pytest with asyncio support
+- **Testing**: pytest with asyncio support (see `WORKFLOW.md` for complete test architecture)
 - **Type Checking**: mypy (strict mode) and pyright
 - **Code Formatting**: black and ruff
 - **Dependencies**: FastAPI, Pydantic v2, Uvicorn
 - **Python Version**: 3.12 (strict requirement)
 
+## Testing Documentation
+
+**Complete Reference**: `WORKFLOW.md` - Comprehensive test suite workflow analysis covering:
+
+- **Test Architecture**: 118 tests across 3 layers (Feature, Unit, Root-level)
+- **Agricultural Domain Coverage**: Equipment, Monitoring, API, Infrastructure testing
+- **Professional Standards**: ISOBUS (ISO 11783) and Safety (ISO 18497) compliance
+- **Flow Patterns**: End-to-end workflow explanations and execution commands
+- **Quality Metrics**: Performance characteristics and domain expertise validation
+
+This document serves as the authoritative guide to understanding the sophisticated testing strategy employed in the AFS FastAPI agricultural robotics platform.
+
 ## Key Features
 
 ### FarmTractor Class
+
 - Engine and gear controls
 - GPS navigation with waypoints
 - Implement position management
@@ -162,6 +189,7 @@ v0.1.3a0   (develop branch - start next development)
 - Comprehensive diagnostics
 
 ### Monitoring System
+
 - Pluggable sensor backends
 - Soil composition tracking (pH, moisture, nutrients)
 - Water quality monitoring (pH, turbidity, dissolved oxygen)
@@ -170,6 +198,7 @@ v0.1.3a0   (develop branch - start next development)
 ## Use Cases
 
 The system is designed as a foundation for ML-driven precision agriculture, supporting:
+
 - Autonomous tractor operations
 - Real-time soil and water quality management
 - Integration with AI agents for farm automation

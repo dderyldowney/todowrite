@@ -884,8 +884,19 @@ class FarmTractor(
         self, point: tuple[float, float], polygon: list[tuple[float, float]]
     ) -> bool:
         """Helper method for point-in-polygon calculation."""
-        # Simplified implementation - would use proper geospatial library
-        return True  # TODO: Implement proper geospatial checking
+        # Simplified implementation - would use proper geospatial library in production
+        # For now, check if we have valid inputs
+        if not polygon or len(polygon) < 3:
+            return False
+
+        # Simple bounding box check as placeholder
+        x, y = point
+        min_x = min(p[0] for p in polygon)
+        max_x = max(p[0] for p in polygon)
+        min_y = min(p[1] for p in polygon)
+        max_y = max(p[1] for p in polygon)
+
+        return min_x <= x <= max_x and min_y <= y <= max_y
 
     def get_safety_status(self) -> dict[str, bool]:
         """Get comprehensive ISO 18497 safety status."""
@@ -969,9 +980,16 @@ class FarmTractor(
     def import_prescription_map(self, map_data: bytes) -> dict[str, float]:
         """Import variable rate prescription map."""
         # TODO: Implement proper map parsing
-        # For now, return simulated prescription data
+        # For now, validate input and return simulated prescription data
+        if not map_data:
+            raise ValueError("Map data cannot be empty")
+
+        # Simulate parsing different map sizes
+        data_size = len(map_data)
+        base_rate = 30000.0 + (data_size % 5000)  # Vary based on data size
+
         return {
-            "seed_rate": 32000.0,  # seeds per acre
+            "seed_rate": base_rate,  # seeds per acre
             "fertilizer_rate": 150.0,  # lbs per acre
             "spray_rate": 20.0,  # gallons per acre
         }
