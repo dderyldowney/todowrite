@@ -1,3 +1,3 @@
 """Project version constant used across packaging and API."""
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
