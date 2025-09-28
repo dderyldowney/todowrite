@@ -9,9 +9,18 @@ from __future__ import annotations
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any
+from typing import TypedDict
 
 from .config import get_viewer_config
+
+
+class ViewerConfig(TypedDict):
+    """Type definition for viewer configuration entries."""
+
+    name: str
+    command: str | list[str]
+    platforms: list[str]
+    description: str
 
 
 class ExternalViewerError(Exception):
@@ -34,7 +43,7 @@ class MarkdownViewer:
     """
 
     # Pre-configured viewers with their command patterns
-    CONFIGURED_VIEWERS: dict[str, dict[str, Any]] = {
+    CONFIGURED_VIEWERS: dict[str, ViewerConfig] = {
         "macdown": {
             "name": "MacDown",
             "command": ["open", "-a", "MacDown"],
@@ -111,12 +120,18 @@ class MarkdownViewer:
                     available.append(viewer_key)
             # For command-line tools, check if they're in PATH
             elif viewer_key not in ["macdown", "typora", "mark_text"]:
-                command = (
-                    config["command"][0]
-                    if isinstance(config["command"], list)
-                    else config["command"]
-                )
-                if self._check_command_exists(command):
+                command_config = config["command"]
+
+                # Extract the first command element for existence check
+                if isinstance(command_config, list):
+                    if len(command_config) > 0:
+                        command_str = str(command_config[0])
+                    else:
+                        continue  # Skip empty command list
+                else:
+                    command_str = str(command_config)
+
+                if self._check_command_exists(command_str):
                     available.append(viewer_key)
             else:
                 # Default system viewer is always available
@@ -209,9 +224,15 @@ class MarkdownViewer:
             raise ExternalViewerError(f"Unknown viewer: {target_viewer}")
 
         config = self.CONFIGURED_VIEWERS[target_viewer]
-        command = (
-            config["command"].copy() if isinstance(config["command"], list) else [config["command"]]
-        )
+        command_template = config["command"]
+
+        # Build command list ensuring all elements are strings
+        command: list[str] = []
+        if isinstance(command_template, list):
+            command = [str(item) for item in command_template]
+        else:
+            command = [str(command_template)]
+
         command.append(str(file_path))
 
         try:
@@ -223,18 +244,18 @@ class MarkdownViewer:
         except subprocess.SubprocessError as e:
             raise ExternalViewerError(f"Failed to open file with {config['name']}: {e}") from e
 
-    def list_available_viewers(self) -> dict[str, dict[str, str]]:
+    def list_available_viewers(self) -> dict[str, dict[str, str | bool]]:
         """List all available viewers with their descriptions.
 
         Returns:
             Dictionary mapping viewer keys to their configuration info.
         """
-        available_info = {}
+        available_info: dict[str, dict[str, str | bool]] = {}
         for viewer_key in self.available_viewers:
             config = self.CONFIGURED_VIEWERS[viewer_key]
             available_info[viewer_key] = {
-                "name": config["name"],
-                "description": config["description"],
+                "name": str(config["name"]),
+                "description": str(config["description"]),
                 "is_preferred": viewer_key == self.preferred_viewer,
             }
         return available_info
@@ -282,7 +303,7 @@ def open_markdown_file(file_path: str | Path, viewer: str | None = None) -> bool
         return False
 
 
-def list_markdown_viewers() -> dict[str, dict[str, str]]:
+def list_markdown_viewers() -> dict[str, dict[str, str | bool]]:
     """List all available Markdown viewers on the current system.
 
     Returns:
