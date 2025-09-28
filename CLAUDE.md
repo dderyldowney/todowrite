@@ -82,11 +82,22 @@ This file contains project-specific instructions for Claude Code sessions workin
 
 ## Development Workflow
 
+- **Test-First Development**: Use Red-Green-Refactor methodology for all synchronization infrastructure (see TDD_WORKFLOW.md)
 - **Branch Strategy**: Work on `develop` branch for new features
 - **Version Control**: Use semantic versioning and proper Git workflow
 - **Documentation**: Document technical decisions and architectural changes
 - **Testing**: Maintain comprehensive test coverage (see WORKFLOW.md for complete reference)
 - **Code Review**: All changes reviewed for educational value and professional standards
+
+### Test-First Methodology for Synchronization Infrastructure
+
+**Strategic Priority**: All distributed systems components (vector clocks, CRDTs, ISOBUS message queuing) must follow Test-Driven Development:
+
+1. **RED Phase**: Write failing test describing agricultural robotics behavior
+2. **GREEN Phase**: Implement minimal code meeting performance and safety requirements
+3. **REFACTOR Phase**: Enhance code quality while maintaining enterprise standards
+
+**Reference Documentation**: TDD_WORKFLOW.md provides complete Test-First development guide with agricultural domain examples.
 
 ---
 
