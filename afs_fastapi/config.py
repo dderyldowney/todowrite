@@ -87,7 +87,7 @@ class ViewerConfig:
 
     def _ensure_config_keys(self) -> None:
         """Ensure all required configuration keys exist."""
-        required_keys = {
+        required_keys: dict[str, Any] = {
             "preferred_viewer": self._get_platform_default(),
             "auto_detect_viewers": True,
             "fallback_to_system": True,

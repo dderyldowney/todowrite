@@ -14,17 +14,9 @@ Agricultural Context:
 """
 
 import unittest
-from typing import TYPE_CHECKING
 
-# Import will fail initially (Red Phase) - this is expected in TDD
-try:
-    from afs_fastapi.services.synchronization import VectorClock
-except ImportError:
-    # This import error is expected during Red phase of TDD
-    VectorClock = None  # type: ignore[assignment,misc]
-
-if TYPE_CHECKING:
-    from afs_fastapi.services.synchronization import VectorClock
+# Import VectorClock - now available after TDD Green phase completion
+from afs_fastapi.services.synchronization import VectorClock
 
 
 class TestVectorClock(unittest.TestCase):
@@ -44,9 +36,7 @@ class TestVectorClock(unittest.TestCase):
         Agricultural Context: Simulates a field with three tractors
         that need to coordinate their operations.
         """
-        # Skip tests if VectorClock not implemented yet (Red phase)
-        if VectorClock is None:
-            self.skipTest("VectorClock not implemented yet - Red phase of TDD")
+        # VectorClock is now implemented (Green phase completed)
 
         self.tractor_ids = ["tractor_001", "tractor_002", "tractor_003"]
         self.clock = VectorClock(self.tractor_ids)
@@ -249,8 +239,7 @@ class TestVectorClockEdgeCases(unittest.TestCase):
     """
 
     def setUp(self):
-        if VectorClock is None:
-            self.skipTest("VectorClock not implemented yet - Red phase of TDD")
+        # VectorClock is now implemented (Green phase completed)
 
         self.tractor_ids = ["tractor_001", "tractor_002"]
 
