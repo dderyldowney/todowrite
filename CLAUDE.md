@@ -106,6 +106,11 @@ This file contains project-specific instructions for Claude Code sessions workin
 The project includes a **.claude/commands/** directory containing reusable command triggers for consistent documentation and workflow execution:
 
 **Available Commands**:
+- **loadsession**: Loads and applies SESSION_SUMMARY.md for complete project context restoration
+  - **CRITICAL**: Must be executed immediately after `/new` completes for all AFS FastAPI sessions
+  - Restores v0.1.3 platform state, enterprise foundation, and strategic development priorities
+  - Ensures continuity of Test-First Development methodology and synchronization infrastructure focus
+  - Maintains dual-purpose educational and functional mission across sessions
 - **whereweare**: Generates comprehensive WHERE_WE_ARE.md project state assessment
   - Creates 475-line strategic documentation from overarching vision to implementation details
   - Captures live metrics (tests, code quality, release status)
