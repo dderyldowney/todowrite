@@ -1,11 +1,11 @@
 Contributing Guide
 ==================
 
-Thanks for considering a contribution to AFS FastAPI! This guide ensures changes align with our **enterprise-grade agricultural robotics standards** and **Test-First development methodology**.
+Thanks for considering a contribution to AFS FastAPI! This guide ensures changes align with our **agricultural robotics standards** and **Test-First development methodology**.
 
 ## Development Methodology Overview
 
-AFS FastAPI employs **Test-Driven Development (TDD)** for all synchronization infrastructure and maintains **enterprise-grade quality standards** across the entire codebase.
+AFS FastAPI employs **Test-Driven Development (TDD)** for all synchronization infrastructure and maintains **professional quality standards** across the entire codebase.
 
 **Key Principles:**
 - **Test-First approach**: Write failing tests before implementation
