@@ -14,13 +14,17 @@ Agricultural Context:
 """
 
 import unittest
+from typing import TYPE_CHECKING
 
 # Import will fail initially (Red Phase) - this is expected in TDD
 try:
     from afs_fastapi.services.synchronization import VectorClock
 except ImportError:
     # This import error is expected during Red phase of TDD
-    VectorClock = None
+    VectorClock = None  # type: ignore[assignment,misc]
+
+if TYPE_CHECKING:
+    from afs_fastapi.services.synchronization import VectorClock
 
 
 class TestVectorClock(unittest.TestCase):
