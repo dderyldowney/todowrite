@@ -30,11 +30,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SESSION_SUMMARY.md with comprehensive error patterns and solutions
 - CLAUDE.md with format-first templates and error prevention protocols
 - Project configuration with CHANGELOG.md enforcement requirements
+- loadsession: Auto-detect `SESSION_SUMMARY.md` in repo root or `docs/monitoring/` for robust execution from any cwd
+- test_loadsession.sh: Updated tests to cover fallback behavior and corrupted-file scenario reliably
 
 ### Fixed
 - Agent context access issues across different Claude Code session patterns
 - Cross-session state persistence for multi-agent coordination scenarios
 - Session detection reliability through multi-strategy approach
+- Duplicate shebang removed in `bin/loadsession`
 
 [0.1.3-post] - 2025-09-28
 --------------------------

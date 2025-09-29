@@ -1,5 +1,11 @@
 # Agricultural Robotics Fleet Coordination Primitives: Synchronization Infrastructure Analysis
 
+> **Navigation**: [📚 DOCS Index](../README.md) | [🏠 Project Root](../../) | [⚙️ Technical Architecture](../technical/) | [📋 Strategic](../strategic/) | [🔧 Implementation](../implementation/)
+>
+> **Reading Order**: [Synchronization Infrastructure](SYNCHRONIZATION_INFRASTRUCTURE.md) → **Current Document** → [Robotic Interfaces Farm Tractors](ROBOTIC_INTERFACES_FARM_TRACTORS.md) → [Robotics](ROBOTICS.md)
+
+---
+
 ## Overview
 
 Agricultural robotics fleet coordination represents a sophisticated distributed system challenge where multiple autonomous agents must work together to accomplish complex farming tasks efficiently. The synchronization infrastructure forms the backbone of these multi-robot systems, enabling coordinated operations across diverse agricultural environments.

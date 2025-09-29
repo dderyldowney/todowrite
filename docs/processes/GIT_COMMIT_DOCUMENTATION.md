@@ -1,5 +1,11 @@
 # Git Commit Documentation: Enterprise Infrastructure Implementation
 
+> **Navigation**: [📚 DOCS Index](../README.md) | [🏠 Project Root](../../) | [🔄 Development Processes](../processes/) | [📋 Strategic](../strategic/) | [🔧 Implementation](../implementation/)
+>
+> **Reading Order**: [Git Commit Separation Mandatory](GIT_COMMIT_SEPARATION_MANDATORY.md) → **Current Document** → [Bin Directory Reorganization](BIN_DIRECTORY_REORGANIZATION.md) → [Changelog Generation](CHANGELOG_GENERATION.md)
+
+---
+
 ## 📋 Commit Summary
 
 **Date**: 2025-09-28

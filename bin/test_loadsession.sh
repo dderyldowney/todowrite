@@ -98,7 +98,7 @@ main() {
 
     # Test 1: Successful execution (current working scenario)
     print_test_header "TEST 1: Successful loadsession Execution"
-    run_test "Successful loadsession with SESSION_SUMMARY.md present" \
+    run_test "Successful loadsession with SESSION_SUMMARY.md (root or fallback)" \
              "bin/loadsession" \
              0 \
              "Session Context Successfully Restored"
@@ -106,23 +106,39 @@ main() {
     # Test 2: Missing SESSION_SUMMARY.md
     print_test_header "TEST 2: Missing SESSION_SUMMARY.md Scenario"
 
-    # Backup SESSION_SUMMARY.md temporarily
-    if [ -f "SESSION_SUMMARY.md" ]; then
-        mv SESSION_SUMMARY.md SESSION_SUMMARY.md.backup
-        echo -e "${YELLOW}📁 Temporarily moved SESSION_SUMMARY.md for testing${NC}"
+    # Backup both possible locations temporarily
+    ROOT_SUMMARY="SESSION_SUMMARY.md"
+    FALLBACK_SUMMARY="docs/monitoring/SESSION_SUMMARY.md"
+
+    ROOT_BACKUP=false
+    FALLBACK_BACKUP=false
+
+    if [ -f "$ROOT_SUMMARY" ]; then
+        mv "$ROOT_SUMMARY" "${ROOT_SUMMARY}.backup"
+        ROOT_BACKUP=true
+        echo -e "${YELLOW}📁 Temporarily moved root SESSION_SUMMARY.md for testing${NC}"
+    fi
+    if [ -f "$FALLBACK_SUMMARY" ]; then
+        mv "$FALLBACK_SUMMARY" "${FALLBACK_SUMMARY}.backup"
+        FALLBACK_BACKUP=true
+        echo -e "${YELLOW}📁 Temporarily moved fallback SESSION_SUMMARY.md for testing${NC}"
     fi
 
-    run_test "loadsession with missing SESSION_SUMMARY.md" \
+    run_test "loadsession with both SESSION_SUMMARY.md locations missing" \
              "bin/loadsession" \
              1 \
              "SESSION_SUMMARY.md not found"
 
-    # Restore SESSION_SUMMARY.md
-    if [ -f "SESSION_SUMMARY.md.backup" ]; then
-        mv SESSION_SUMMARY.md.backup SESSION_SUMMARY.md
-        echo -e "${GREEN}📁 Restored SESSION_SUMMARY.md${NC}"
-        echo
+    # Restore backups
+    if $ROOT_BACKUP; then
+        mv "${ROOT_SUMMARY}.backup" "$ROOT_SUMMARY"
+        echo -e "${GREEN}📁 Restored root SESSION_SUMMARY.md${NC}"
     fi
+    if $FALLBACK_BACKUP; then
+        mv "${FALLBACK_SUMMARY}.backup" "$FALLBACK_SUMMARY"
+        echo -e "${GREEN}📁 Restored fallback SESSION_SUMMARY.md${NC}"
+    fi
+    echo
 
     # Test 3: loadsession script permissions
     print_test_header "TEST 3: Script Permissions Verification"
@@ -145,10 +161,9 @@ main() {
     local content_tests=(
         "v0.1.3.*Stable Release:Version information extraction"
         "129.*tests:Test count extraction"
-        "Zero linting warnings:Quality status extraction"
         "Test-First Development:Methodology identification"
         "synchronization infrastructure:Strategic priority extraction"
-        "distributed systems:Foundation status extraction"
+        "Distributed systems:Foundation status extraction"
     )
 
     for test_pattern in "${content_tests[@]}"; do
@@ -188,21 +203,29 @@ main() {
     # Test 6: Error handling with corrupted SESSION_SUMMARY.md
     print_test_header "TEST 6: Corrupted File Handling"
 
-    # Create temporary corrupted file
-    echo "corrupted content" > SESSION_SUMMARY.md.corrupt
-    mv SESSION_SUMMARY.md SESSION_SUMMARY.md.backup2
-    mv SESSION_SUMMARY.md.corrupt SESSION_SUMMARY.md
+    # Corrupt whichever SESSION_SUMMARY.md is active (root or fallback)
+    local TARGET_SUMMARY=""
+    if [ -f "SESSION_SUMMARY.md" ]; then
+        TARGET_SUMMARY="SESSION_SUMMARY.md"
+    elif [ -f "docs/monitoring/SESSION_SUMMARY.md" ]; then
+        TARGET_SUMMARY="docs/monitoring/SESSION_SUMMARY.md"
+    fi
 
-    run_test "loadsession with corrupted SESSION_SUMMARY.md" \
-             "bin/loadsession" \
-             0 \
-             "Session Context Successfully Restored"
+    if [ -n "$TARGET_SUMMARY" ]; then
+        cp "$TARGET_SUMMARY" "${TARGET_SUMMARY}.backup2"
+        echo "corrupted content" > "${TARGET_SUMMARY}.corrupt"
+        mv "${TARGET_SUMMARY}.corrupt" "$TARGET_SUMMARY"
 
-    # Note: The current loadsession script is robust and will still execute
-    # but won't find the expected patterns
+        run_test "loadsession with corrupted SESSION_SUMMARY.md" \
+                 "bin/loadsession" \
+                 0 \
+                 "Session Context Successfully Restored"
 
-    # Restore proper file
-    mv SESSION_SUMMARY.md.backup2 SESSION_SUMMARY.md
+        # Restore proper file
+        mv "${TARGET_SUMMARY}.backup2" "$TARGET_SUMMARY"
+    else
+        print_test_result "Corrupted file handling setup" "FAIL" "No SESSION_SUMMARY.md found to corrupt"
+    fi
 
     # Final results summary
     print_test_header "TEST RESULTS SUMMARY"

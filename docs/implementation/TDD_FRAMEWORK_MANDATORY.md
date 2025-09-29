@@ -1,5 +1,11 @@
 # Mandatory Test-Driven Development Framework for AFS FastAPI
 
+> **Navigation**: [📚 DOCS Index](../README.md) | [🏠 Project Root](../../) | [🔧 Implementation Standards](../implementation/) | [📋 Strategic](../strategic/) | [⚙️ Technical](../technical/)
+>
+> **Reading Order**: **Current Document** → [TDD Implementation Rationale](TDD_IMPLEMENTATION_RATIONALE.md) → [TDD Integration](TDD_INTEGRATION.md) → [Testing Methodology Guide](TESTING_METHODOLOGY_GUIDE.md) → [Type Annotations](TYPE_ANNOTATIONS.md)
+
+---
+
 ## 🎯 Executive Summary
 
 **POLICY**: All future development on the AFS FastAPI agricultural robotics platform MUST follow Test-Driven Development (TDD) methodology. This framework establishes mandatory Red-Green-Refactor practices to ensure bulletproof reliability for safety-critical agricultural systems.

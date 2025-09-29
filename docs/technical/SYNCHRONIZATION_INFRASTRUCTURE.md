@@ -1,5 +1,11 @@
 # Synchronization Infrastructure for Agricultural Robotics
 
+> **Navigation**: [📚 DOCS Index](../README.md) | [🏠 Project Root](../../) | [⚙️ Technical Architecture](../technical/) | [📋 Strategic](../strategic/) | [🔧 Implementation](../implementation/)
+>
+> **Reading Order**: **Current Document** → [Fleet Coordination Primitives](FLEET_COORDINATION_PRIMITIVES.md) → [Robotic Interfaces Farm Tractors](ROBOTIC_INTERFACES_FARM_TRACTORS.md) → [Robotics](ROBOTICS.md)
+
+---
+
 ## 🌾 Executive Summary
 
 **Strategic Context**: Multi-tractor fleet coordination for the AFS FastAPI platform requires distributed systems infrastructure. This document analyzes synchronization primitives, coordination mechanisms, and implementation strategies for agricultural robotics deployments.

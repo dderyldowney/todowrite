@@ -1,5 +1,11 @@
 # STATE OF AFFAIRS: AFS FastAPI Agricultural Robotics Platform
 
+> **Navigation**: [📚 DOCS Index](../README.md) | [🏠 Project Root](../../) | [📋 Strategic Documents](../strategic/) | [⚙️ Implementation](../implementation/) | [🔧 Technical](../technical/)
+>
+> **Reading Order**: [Project Strategy](PROJECT_STRATEGY.md) → **Current Document** → [Where We Are](WHERE_WE_ARE.md) → [Project Context](PROJECT_CONTEXT.md) → [Next Steps](NEXT_STEPS.md)
+
+---
+
 ## Executive Summary
 
 The AFS FastAPI agricultural robotics platform has achieved a **transformational milestone** through the implementation of comprehensive mandatory Test-Driven Development (TDD) enforcement. This implementation establishes the platform as the industry leader in agricultural robotics development standards, combining bulletproof reliability with educational excellence.
