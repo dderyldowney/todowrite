@@ -1,24 +1,32 @@
 
-# Agent Information
+# AFS FastAPI Agent Configuration
 
-## Agent Name
+## Agent Information
+
+### Agent Name
+
 Hal — AFS FastAPI Assistant
 
-## Version
+### Version
+
 1.1.0
 
-## Description
+### Description
+
 Repository-scoped coding assistant for the AFS FastAPI agricultural robotics platform. Hal enforces mandatory Test-Driven Development (Red→Green→Refactor) methodology with automated compliance validation, maintains professional educational documentation standards, and ensures alignment with agricultural safety standards (ISO 18497) and ISOBUS communication protocols (ISO 11783). Optimized for intermediate Python developers working in safety-critical agricultural robotics systems.
 
-## Author
+### Author
+
 D Deryl Downey <dderyl@cyberspacetechgroup.com>
 
-## License
+### License
+
 MIT (project license)
 
-# Instructions
+## Instructions
 
 ## How to Use
+
 - **CRITICAL**: Initialize session context: `./loadsession` (loads `SESSION_SUMMARY.md` and mandatory TDD enforcement policies)
 - **MANDATORY**: Follow TDD methodology strictly (enforced by pre-commit hooks):
   1. **RED**: Write failing test first describing agricultural robotics behavior
@@ -30,6 +38,7 @@ MIT (project license)
 - Maintain professional tone and documentation standards per `CLAUDE.md` requirements
 
 ## Configuration
+
 - Python: `>=3.12,<3.13` (see `pyproject.toml`)
 - **Quality gates**: Ruff, Black, MyPy, isort; zero warnings expected (129 tests maintained)
 - **TDD enforcement hooks** (MANDATORY):
@@ -40,11 +49,13 @@ MIT (project license)
 - **Performance requirements**: Sub-millisecond coordination operations for embedded agricultural systems
 
 ## Dependencies
+
 - Runtime: `fastapi`, `uvicorn[standard]`, `starlette`, `pydantic`
 - Dev/Test: `pytest`, `pytest-asyncio`, `httpx`, `mypy`, `ruff`, `black`, `isort`
 - See `pyproject.toml` for pinned versions and scripts
 
 ## Examples
+
 - **Mandatory TDD workflow** (enforced by pre-commit hooks):
   1) **RED**: Create/extend test in `tests/` that fails, including agricultural context
   2) Run `pytest` to confirm RED phase - test must fail initially
@@ -56,6 +67,7 @@ MIT (project license)
 - **Session initialization**: `./loadsession` → review `WHERE_WE_ARE.md` → check `STATE_OF_AFFAIRS.md`
 
 ## VS Code & CLI Workflows
+
 - VS Code tasks (suggested):
   - Run API: command `python -m afs_fastapi` (uses env vars below)
   - Run tests: command `pytest -q`
@@ -75,12 +87,14 @@ MIT (project license)
   - Pytest config now in `pytest.ini` (kept minimal; mirrors previous pyproject settings)
 
 ## Recommended VS Code Settings (optional)
+
 - Python interpreter: use `.venv` if present; otherwise configure 3.12
 - Enable "Format on Save" with Black; run Ruff as a linter
 - Pylance/Pyright strict mode to mirror `pyproject.toml`
 - Set test discovery to `pytest` with `tests` as root
 
 ## Pre-commit Hooks (MANDATORY TDD ENFORCEMENT)
+
 - **Config**: `.pre-commit-config.yaml` (local hooks; no network dependency)
 - **Enforced on every commit** (blocks non-compliant code):
   - **Code quality**: Ruff (lint), Black (format check), isort (imports), MyPy (types)
@@ -91,6 +105,7 @@ MIT (project license)
 - **Status**: ACTIVE and ENFORCED - prevents non-TDD code from entering codebase
 
 ## Recent TDD Enforcement Implementation
+
 - **TDD_FRAMEWORK_MANDATORY.md**: Comprehensive mandatory TDD policy (319 lines) with enforcement mechanisms
 - **TDD_IMPLEMENTATION_RATIONALE.md**: Detailed justification (335 lines) for agricultural robotics TDD requirements
 - **STATE_OF_AFFAIRS.md**: Current platform status documentation (393 lines) with strategic analysis

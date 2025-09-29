@@ -83,7 +83,12 @@ class ViewerConfig:
         """Get default viewer for current platform."""
         if sys.platform == "darwin":
             return "macdown"
-        return "default_system"
+        elif sys.platform in ("linux", "linux2"):
+            return "default_system"
+        elif sys.platform == "win32":
+            return "default_system"
+        else:
+            return "default_system"
 
     def _ensure_config_keys(self) -> None:
         """Ensure all required configuration keys exist."""
