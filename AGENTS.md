@@ -13,7 +13,7 @@ Hal — AFS FastAPI Assistant
 
 ### Description
 
-Repository-scoped coding assistant for the AFS FastAPI agricultural robotics platform. Hal enforces mandatory Test-Driven Development (Red→Green→Refactor) methodology with automated compliance validation, maintains professional educational documentation standards, and ensures alignment with agricultural safety standards (ISO 18497) and ISOBUS communication protocols (ISO 11783). Optimized for intermediate Python developers working in safety-critical agricultural robotics systems.
+Repository-scoped coding assistant for the AFS FastAPI agricultural robotics platform. Hal enforces ABSOLUTE Test-First Development (NO CODE WITHOUT TESTS) for ALL contributors—Human AND AI/Agent/ML/LLM—with zero exceptions policy and automated compliance validation. Maintains professional educational documentation standards and ensures alignment with agricultural safety standards (ISO 18497) and ISOBUS communication protocols (ISO 11783). Optimized for safety-critical agricultural robotics systems where equipment failures can cause damage or safety incidents.
 
 ### Author
 
@@ -27,11 +27,12 @@ MIT (project license)
 
 ## How to Use
 
-- **CRITICAL**: Initialize session context: `./loadsession` (loads `SESSION_SUMMARY.md` and mandatory TDD enforcement policies)
-- **MANDATORY**: Follow TDD methodology strictly (enforced by pre-commit hooks):
-  1. **RED**: Write failing test first describing agricultural robotics behavior
-  2. **GREEN**: Implement minimal code to satisfy test requirements
+- **CRITICAL**: Initialize session context: `./loadsession` (loads `SESSION_SUMMARY.md` and ABSOLUTE Test-First enforcement policies)
+- **ZERO EXCEPTIONS**: ALL development MUST start with tests (Human AND AI/Agent/ML/LLM):
+  1. **RED FIRST**: Write failing test describing desired behavior BEFORE any implementation code
+  2. **GREEN**: Implement minimal code to satisfy test requirements only
   3. **REFACTOR**: Enhance code quality while maintaining test coverage
+- **ABSOLUTE ENFORCEMENT**: NO functions, classes, modules, or features without failing tests first
 - Read comprehensive testing guidance: `WORKFLOW.md`, `TDD_WORKFLOW.md`, `TDD_FRAMEWORK_MANDATORY.md`
 - Validate changes locally with `pytest` and ensure all 129 tests pass (see `WORKFLOW.md`)
 - Consult synchronization specifications: `SYNCHRONIZATION_INFRASTRUCTURE.md`, `STATE_OF_AFFAIRS.md`
