@@ -135,11 +135,30 @@ challenges while maintaining ISO 18497 safety requirements
 
 This is NOT optional - test output must be displayed to demonstrate Test-Driven Development progression and domain problem solving.
 
-### Git Commit Separation Protocol (NEW)
+### Git Commit Separation Protocol
 
 1. **Single Concern Rule**: Each commit addresses exactly one concern (feat, fix, docs, refactor, test, config, perf, security)
 2. **Conventional Format**: Use `type(scope): description` with agricultural context
 3. **Automated Enforcement**: Pre-commit hooks validate separation compliance
+
+### MANDATORY CHANGELOG.md Maintenance Protocol
+
+**ABSOLUTE REQUIREMENT**: CHANGELOG.md must be regenerated, formatted, and included in every git commit.
+
+**Before Every Commit Protocol**:
+1. **Regenerate CHANGELOG.md**: Use `updatechangelog` command to include all changes
+2. **Format according to standards**: Keep a Changelog format with agricultural context
+3. **Add to git staging**: Include CHANGELOG.md alongside other changes
+4. **Commit with complete changelog**: Ensure changelog reflects all changes up to and including that commit
+
+**Cross-Session Enforcement**:
+- CHANGELOG.md updates mandatory before all commits
+- Agricultural context required for safety-critical entries
+- Keep a Changelog formatting standards applied
+- Version history completeness validated
+- Living document permanently tracked in repository
+
+**Rationale**: Complete version history essential for agricultural robotics platform. ISO 18497/11783 compliance auditing requires documented change tracking. Equipment operators, safety engineers, and compliance auditors rely on CHANGELOG.md as authoritative record of all platform modifications affecting multi-tractor coordination systems.
 
 ### ABSOLUTE Enforcement Mechanisms Active
 
