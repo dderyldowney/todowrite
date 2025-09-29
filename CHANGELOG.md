@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cross-session state persistence for multi-agent coordination scenarios
 - Session detection reliability through multi-strategy approach
 - Duplicate shebang removed in `bin/loadsession`
+ - Added root-level `loadsession` wrapper delegating to `bin/loadsession` to match documentation (`./loadsession`)
 
 [0.1.3-post] - 2025-09-28
 --------------------------
