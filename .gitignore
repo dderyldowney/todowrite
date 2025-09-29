@@ -333,8 +333,12 @@ pytest.xml
 # Do NOT ignore .github directory as it contains workflow configurations
 # .github/
 
-# Claude Code local settings
+# Claude Code local settings and session state
 .claude/settings.local.json
+.claude/.agent_registry.json
+.claude/.session_initialized
+.claude/.global_session_state
+.claude/.universal_access_enabled
 
 # End of https://www.toptal.com/developers/gitignore/api/node,ruby,rails,linux,macos
 .chatgpt-history.txt
