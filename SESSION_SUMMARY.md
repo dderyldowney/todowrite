@@ -11,9 +11,9 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 - **Code Quality**: Zero warnings across all tools (Ruff, MyPy, Black, isort)
 - **Industry Compliance**: Complete ISO 11783 (ISOBUS) and ISO 18497 (Safety) implementation
 - **Distributed Systems**: Vector Clock implementation operational for multi-tractor coordination
-- **Development Methodology**: **MANDATORY** Test-First Development (TDD) with automated enforcement
+- **Development Methodology**: **ABSOLUTE MANDATORY** Test-First Development (NO CODE WITHOUT TESTS)
 - **Git Commit Management**: **MANDATORY** Separation of concerns with single-concern validation
-- **Claude Code Compliance**: **CRITICAL** - AI code generation MUST follow Red-Green-Refactor and commit separation methodology
+- **Universal Compliance**: **CRITICAL** - ALL contributors (Human AND AI/Agent/ML/LLM) MUST follow Test-First and commit separation
 
 ### Current Capabilities
 
@@ -22,15 +22,19 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 - **Educational Framework**: Dual-purpose instructional and functional codebase for professional development
 - **Production Readiness**: Comprehensive test coverage and enterprise-grade quality standards
 
-## 🚨 CRITICAL: Mandatory TDD and Commit Separation Enforcement
+## 🚨 CRITICAL: ABSOLUTE Test-First and Commit Separation Enforcement
 
-**ABSOLUTE REQUIREMENTS**: Claude Code sessions MUST follow both Test-Driven Development methodology AND Git Commit Separation of Concerns:
+**ZERO EXCEPTIONS POLICY**: ALL development—Human AND AI/Agent/ML/LLM—MUST start with tests. Testing drives ALL implementation.
 
-### TDD Protocol for All Future Sessions
+### MANDATORY Test-First Protocol for ALL Contributors
 
-1. **RED Phase Required**: Write failing tests BEFORE generating any code
-2. **GREEN Phase Implementation**: Generate minimal code to satisfy test requirements
-3. **REFACTOR Phase Enhancement**: Improve code quality while maintaining coverage
+**NO CODE WITHOUT TESTS - UNIVERSAL REQUIREMENT**:
+
+1. **RED Phase FIRST**: Write failing test describing desired behavior BEFORE any implementation code
+2. **GREEN Phase Implementation**: Write minimal code to satisfy test requirements only
+3. **REFACTOR Phase Enhancement**: Improve code quality while maintaining test coverage
+
+**ABSOLUTE ENFORCEMENT**: No functions, classes, modules, or features implemented without failing tests first
 
 ### Git Commit Separation Protocol (NEW)
 
@@ -38,15 +42,16 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 2. **Conventional Format**: Use `type(scope): description` with agricultural context
 3. **Automated Enforcement**: Pre-commit hooks validate separation compliance
 
-### Enforcement Mechanisms Active
+### ABSOLUTE Enforcement Mechanisms Active
 
-- **TDD compliance validation** - `.claude/hooks/tdd_enforcement.py`
+- **MANDATORY Test-First validation** - `.claude/hooks/tdd_enforcement.py` (ZERO EXCEPTIONS)
 - **Safety standards validation** - `.claude/hooks/safety_validation.py`
 - **Commit separation enforcement** - `.claude/hooks/commit_separation_enforcement.py`
-- **Automated quality gates prevent non-compliant code and commits** from entering codebase
-- **Agricultural context mandatory** in all generated tests and relevant commits
+- **AUTOMATED BLOCKING** prevents ALL non-test-first code from entering codebase
+- **Agricultural context mandatory** in all tests and safety-critical commits
+- **Universal application** to Human developers, AI assistants, and automated systems
 
-**RATIONALE**: Agricultural robotics demands bulletproof reliability. AI-generated code must meet the same rigorous standards as human-developed components for safety-critical multi-tractor coordination. Commit separation ensures precise change tracking essential for regulatory compliance and debugging.
+**RATIONALE**: Agricultural robotics demands bulletproof reliability. Equipment failures can cause damage or safety incidents. ALL code—human or AI-generated—must meet identical rigorous standards through Test-First Development for safety-critical multi-tractor coordination systems. Commit separation ensures precise change tracking essential for ISO compliance and emergency debugging.
 
 ## Recent Major Implementation: TDD and Git Commit Separation Enforcement
 

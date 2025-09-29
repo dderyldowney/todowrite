@@ -2,30 +2,47 @@
 
 This file contains project-specific instructions for Claude Code sessions working on the **AFS FastAPI robotic agriculture platform**.
 
-## MANDATORY: Claude Code Generation TDD Compliance
+## MANDATORY: Test-First Development for ALL Code Generation
 
-**CRITICAL REQUIREMENT**: Claude Code MUST follow Test-Driven Development methodology for ALL code generation:
+**ABSOLUTE REQUIREMENT**: ALL development—Human AND AI/Agent/ML/LLM—MUST start with tests. Testing drives ALL implementation.
 
-### TDD Compliance for AI Code Generation
+### Universal Test-First Protocol
 
-1. **RED Phase First**: Before generating any new code, Claude MUST first write or request creation of failing tests that describe the desired agricultural robotics behavior
-2. **GREEN Phase Implementation**: Generate minimal code that satisfies the test requirements while meeting agricultural safety and performance standards
-3. **REFACTOR Phase Enhancement**: Improve code quality while maintaining test coverage and agricultural domain requirements
+**EVERY code implementation session MUST begin with:**
 
-### Enforcement for Claude Sessions
+1. **RED Phase FIRST**: Write failing test that describes desired behavior BEFORE any implementation code
+2. **GREEN Phase Implementation**: Write minimal code to satisfy test requirements only
+3. **REFACTOR Phase Enhancement**: Improve code quality while maintaining test coverage
 
-- **No Code Without Tests**: Claude SHALL NOT generate new functions, classes, or modules without corresponding test coverage
-- **Agricultural Context Required**: All generated tests MUST include agricultural robotics context and safety considerations
-- **Performance Validation**: Generated code MUST meet embedded agricultural equipment constraints
-- **Safety Standards**: All equipment and synchronization code MUST comply with ISO 18497 and ISO 11783 standards
+### Zero Exceptions Policy
 
-### Session Continuity Requirements
+- **NO CODE WITHOUT TESTS**: No functions, classes, modules, or features implemented without failing tests first
+- **Human Developers**: Must follow Red-Green-Refactor methodology for all implementation
+- **AI/Agent/ML/LLM**: Cannot generate implementation code without corresponding test coverage
+- **Documentation Exception**: Tests not required for documentation, comments, HEREDOCs, code examples in docs
 
-- **Cross-Session Enforcement**: TDD methodology applies to ALL future Claude Code sessions on this project
-- **Persistent Compliance**: This requirement persists across session boundaries and must be applied immediately upon session start
-- **Quality Assurance**: Claude-generated code is subject to the same pre-commit hook validation as human-generated code
+### Enforcement Mechanisms
 
-**RATIONALE**: Agricultural robotics requires bulletproof reliability. Test-First Development ensures that AI-generated code meets the same rigorous standards as human-developed components for safety-critical multi-tractor coordination systems.
+- **Pre-commit hooks**: Validate test-first compliance for all code changes
+- **Cross-session persistence**: Requirement embedded permanently in project configuration
+- **Automated rejection**: Non-test-first code blocked from entering codebase
+- **Agricultural context**: All tests must include relevant agricultural robotics scenarios
+
+### Claude Code Specific Requirements
+
+- **Session Start**: Must acknowledge test-first requirement immediately
+- **Code Generation**: MUST write failing tests before generating any implementation
+- **Agricultural Context**: Tests must include safety-critical agricultural scenarios
+- **Performance Constraints**: Tests must validate embedded equipment limitations
+
+### Universal Application
+
+- **All Contributors**: Human developers, AI assistants, and automated systems
+- **All Code Types**: Equipment control, API endpoints, coordination systems, monitoring
+- **All Sessions**: Requirement persists across all development sessions
+- **Safety Critical**: Essential for ISO 18497 and ISO 11783 compliance
+
+**RATIONALE**: Agricultural robotics demands bulletproof reliability. Test-First Development ensures ALL code—human or AI-generated—meets rigorous standards for safety-critical multi-tractor coordination systems where failures can cause equipment damage or safety incidents.
 
 ## Code Documentation Requirements
 
@@ -122,18 +139,41 @@ This file contains project-specific instructions for Claude Code sessions workin
 - Focus on what was accomplished rather than subjective assessments
 - Write commit messages using standard conventions (type(scope): description)
 
-**Commit Message Format**:
+**MANDATORY: Git Commit Separation of Concerns**:
+- **CRITICAL REQUIREMENT**: All commits must follow strict separation of concerns methodology
+- **Single Concern Rule**: Each commit addresses exactly one logical concern (feat, fix, docs, refactor, test, config, perf, security)
+- **Automated Enforcement**: Pre-commit hooks validate separation compliance and reject non-compliant commits
+- **Cross-Session Persistence**: Requirements embedded permanently in project configuration
+
+**Commit Message Format (ENFORCED)**:
 ```
 type(scope): brief description of change
 
 Optional detailed explanation focusing on:
-- What was changed and why
+- What was changed and why (single concern only)
 - Technical implementation details
-- Impact on system functionality
+- Agricultural robotics context when applicable
 
-Avoid: "PERFECT", "AMAZING", "REVOLUTIONARY", "PREMIER"
-Use: "Add", "Fix", "Update", "Implement", "Refactor"
+Valid types: feat, fix, refactor, docs, test, config, perf, security
+Required scope: equipment, coordination, api, monitoring, safety, etc.
+Agricultural context: Required for feat, fix, refactor, perf, security types
 ```
+
+**Examples of Proper Separation**:
+```
+feat(equipment): add multi-tractor synchronization capability
+fix(coordination): resolve vector clock synchronization race condition
+refactor(api): consolidate equipment status endpoints
+docs(safety): add comprehensive emergency stop procedures
+test(integration): enhance multi-field operation validation
+config(hooks): add commit separation enforcement
+```
+
+**Separation Enforcement**:
+- **Pre-commit validation**: `.claude/hooks/commit_separation_enforcement.py`
+- **Documentation reference**: `GIT_COMMIT_SEPARATION_MANDATORY.md`
+- **Quality gates**: Prevents commits addressing multiple concerns
+- **Agricultural context**: Required for safety-critical agricultural robotics development
 
 **Documentation Style**:
 - Technical accuracy over promotional language
