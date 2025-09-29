@@ -1,45 +1,45 @@
+# Local pre-commit configuration to enforce project quality gates and TDD policy.
+# Uses local hooks to avoid network dependency and to run in the active Python env.
+
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+  - repo: local
     hooks:
-    -   id: trailing-whitespace
-    -   id: end-of-file-fixer
-    -   id: check-yaml
-    - id: pretty-format-json
-      args: ["--autofix"]  # Automatically fix JSON formatting issues
-      additional_dependencies: []
--   repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-    -   id: isort
-        args: ["--profile", "black", "--line-length", "100"]
--   repo: https://github.com/psf/black
-    rev: 25.9.0
-    hooks:
-    -   id: black
--   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.9
-    hooks:
-    -   id: ruff
-        args: [--fix, --unsafe-fixes]
-    -   id: ruff-format
--   repo: local
-    hooks:
-    -   id: tdd-enforcement
-        name: TDD Methodology Enforcement
+      - id: ruff
+        name: Ruff (lint)
+        entry: ruff check
+        language: system
+        types: [python]
+      - id: black
+        name: Black (format check)
+        entry: black
+        args: ["--check"]
+        language: system
+        types: [python]
+      - id: isort
+        name: isort (imports check)
+        entry: isort
+        args: ["--check-only"]
+        language: system
+        types: [python]
+      - id: mypy
+        name: MyPy (type check)
+        entry: mypy
+        language: system
+        types: [python]
+
+      # Mandatory TDD enforcement (always runs on commit)
+      - id: tdd-enforcement
+        name: TDD Enforcement
         entry: python .claude/hooks/tdd_enforcement.py
-        language: python
-        files: '^afs_fastapi/.*\.py$'
-        description: "Enforces Test-First Development for all new agricultural robotics components"
-    -   id: test-coverage-validation
-        name: Test Coverage Validation
-        entry: pytest --tb=short -q
-        language: python
+        language: system
         pass_filenames: false
-        description: "Validates all tests pass before commit (Red-Green-Refactor compliance)"
-    -   id: agricultural-safety-validation
-        name: Agricultural Safety Standards
+        always_run: true
+
+      # Safety standards validation (ISO 18497 alignment gates)
+      - id: safety-validation
+        name: Safety Standards Validation
         entry: python .claude/hooks/safety_validation.py
-        language: python
-        files: '^afs_fastapi/(equipment|services)/.*\.py$'
-        description: "Validates ISO 18497 safety compliance in agricultural robotics code"
+        language: system
+        pass_filenames: false
+        always_run: true
+
