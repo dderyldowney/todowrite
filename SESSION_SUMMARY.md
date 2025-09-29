@@ -53,6 +53,34 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 
 **RATIONALE**: Agricultural robotics demands bulletproof reliability. Equipment failures can cause damage or safety incidents. ALL code—human or AI-generated—must meet identical rigorous standards through Test-First Development for safety-critical multi-tractor coordination systems. Commit separation ensures precise change tracking essential for ISO compliance and emergency debugging.
 
+## Error Monitoring and Solutions
+
+### Common Error Patterns and Solutions
+
+**1. Module Import Failures**
+- **Pattern**: `ModuleNotFoundError: No module named 'afs_fastapi'`
+- **Solution**: `python -m pip install -e .`
+- **Prevention**: Check package installation before test execution
+- **Frequency**: After commits that modify package structure
+
+**2. Type Checking Issues**
+- **Pattern**: `Value of type "object" is not indexable [index]`
+- **Solution**: Add `# type: ignore[index]` or proper type annotations
+- **Prevention**: Use explicit type hints during code generation
+- **Frequency**: MyPy validation on complex data structures
+
+**3. Commit Separation Violations**
+- **Pattern**: Multiple concern indicators or invalid scopes
+- **Solution**: Single-concern commits with agricultural context
+- **Prevention**: Use format: `type(scope): agricultural description`
+- **Frequency**: Pre-commit hook validation failures
+
+**4. Format-First Generation Standards**
+- **Approach**: Generate all code pre-formatted to quality standards
+- **Tools**: Black, isort, Ruff compliance from initial creation
+- **Context**: Include agricultural scenarios in all generated content
+- **Validation**: Immediate quality tool application prevents formatting cycles
+
 ## Recent Major Implementation: TDD and Git Commit Separation Enforcement
 
 ### Transformational Achievements (September 28-29, 2025)

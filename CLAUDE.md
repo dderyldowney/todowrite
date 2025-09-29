@@ -44,6 +44,81 @@ This file contains project-specific instructions for Claude Code sessions workin
 
 **RATIONALE**: Agricultural robotics demands bulletproof reliability. Test-First Development ensures ALL code—human or AI-generated—meets rigorous standards for safety-critical multi-tractor coordination systems where failures can cause equipment damage or safety incidents.
 
+## MANDATORY: Format-First Generation Standards
+
+**ABSOLUTE REQUIREMENT**: ALL generated content must emerge in final quality-controlled form.
+
+### Format-First Protocol
+
+**NO FORMATTING CYCLES**: Generate all code, tests, and documentation pre-formatted to quality standards.
+
+1. **Code Generation**: Apply Black, isort, Ruff compliance during creation
+2. **Type Safety**: Include proper type annotations from initial generation
+3. **Agricultural Context**: Embed domain-specific examples and scenarios
+4. **Quality Standards**: Meet enterprise-grade requirements immediately
+
+### Pre-Formatted Generation Templates
+
+**Python Code Template**:
+```python
+from __future__ import annotations
+
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+class AgriculturalComponent:
+    """Agricultural robotics component for tractor coordination.
+
+    Provides functionality for multi-tractor field operations with
+    safety compliance and performance optimization.
+    """
+
+    def __init__(self, equipment_id: str) -> None:
+        """Initialize agricultural equipment interface."""
+        self.equipment_id = equipment_id
+        self.operational_status = "ready"
+
+    def coordinate_field_operation(self, operation_data: Dict[str, Any]) -> bool:
+        """Execute coordinated field operation with fleet synchronization."""
+        return True
+```
+
+**Test Generation Template**:
+```python
+import pytest
+from afs_fastapi.equipment.farm_tractors import FarmTractor
+
+class TestAgriculturalOperation:
+    """Test agricultural equipment operations for field coordination."""
+
+    def test_tractor_field_coordination(self) -> None:
+        """Test multi-tractor coordination during field cultivation."""
+        # RED: Describe desired agricultural behavior
+        tractor = FarmTractor(equipment_id="FIELD_CULTIVATOR_01")
+
+        # Test agricultural operation
+        result = tractor.execute_cultivation_pattern()
+
+        assert result is True
+        assert tractor.field_status == "cultivation_complete"
+```
+
+### Error Monitoring Integration
+
+**Common Error Solutions**:
+- **Module Imports**: Use `fixmodules` command for package installation
+- **Type Issues**: Apply proper annotations during generation
+- **Formatting**: Pre-format all content to prevent cycles
+- **Commit Violations**: Follow `committemplate` for separation compliance
+
+**Error Prevention**:
+- Monitor patterns across sessions
+- Store solutions in SESSION_SUMMARY.md
+- Create reusable commands for common fixes
+- Apply quality standards from initial generation
+
 ## Code Documentation Requirements
 
 **Educational Code Explanations**: All code generated must be explained both **overall** and **individually**. Explanations should be concise with the dual purpose of teaching while building this real-world professional project.
