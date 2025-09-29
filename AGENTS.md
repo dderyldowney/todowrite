@@ -64,6 +64,12 @@ MIT (project license)
   5) **REFACTOR**: Enhance code quality while maintaining test coverage
   6) Ensure all quality gates pass: `ruff`, `black`, `mypy`, `isort` (zero warnings)
   7) Pre-commit hooks validate TDD compliance and agricultural safety standards
+- **MANDATORY: Git Commit Separation of Concerns** (enforced by pre-commit hooks):
+  1) Each commit addresses exactly one concern: `feat`, `fix`, `docs`, `refactor`, `test`, `config`, `perf`, `security`
+  2) Use conventional format: `type(scope): description` with agricultural context
+  3) Examples: `feat(equipment): add tractor synchronization`, `fix(safety): resolve emergency stop timing`
+  4) Pre-commit validation prevents commits addressing multiple concerns
+  5) See `GIT_COMMIT_SEPARATION_MANDATORY.md` for complete guidelines
 - **Session initialization**: `./loadsession` → review `WHERE_WE_ARE.md` → check `STATE_OF_AFFAIRS.md`
 
 ## VS Code & CLI Workflows
@@ -93,16 +99,17 @@ MIT (project license)
 - Pylance/Pyright strict mode to mirror `pyproject.toml`
 - Set test discovery to `pytest` with `tests` as root
 
-## Pre-commit Hooks (MANDATORY TDD ENFORCEMENT)
+## Pre-commit Hooks (MANDATORY ENFORCEMENT)
 
 - **Config**: `.pre-commit-config.yaml` (local hooks; no network dependency)
 - **Enforced on every commit** (blocks non-compliant code):
   - **Code quality**: Ruff (lint), Black (format check), isort (imports), MyPy (types)
   - **TDD enforcement**: `.claude/hooks/tdd_enforcement.py` - Validates Test-First Development
   - **Safety validation**: `.claude/hooks/safety_validation.py` - Ensures ISO 18497 compliance
+  - **Commit separation**: `.claude/hooks/commit_separation_enforcement.py` - Enforces single concern per commit
 - **Installation**: `make precommit-install` (installs pre-commit and registers hooks)
 - **Manual execution**: `make precommit-run` (run all hooks without committing)
-- **Status**: ACTIVE and ENFORCED - prevents non-TDD code from entering codebase
+- **Status**: ACTIVE and ENFORCED - prevents non-compliant code and commits from entering codebase
 
 ## Recent TDD Enforcement Implementation
 
