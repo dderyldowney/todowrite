@@ -8,6 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Comprehensive test suite for session initialization hook (10 tests, 350+ lines)
+  - Tests for new session detection (missing markers and stale markers >5 minutes)
+  - Tests for active session recognition (fresh markers <5 minutes)
+  - Boundary condition tests (299 seconds precision testing)
+  - Marker creation validation (session, global, universal access markers)
+  - Agent registry tracking tests (multi-agent coordination)
+  - Script execution tests (success and failure scenarios)
+  - Strategy redundancy validation (ANY stale strategy triggers reinitialization)
+  - Agricultural robotics safety context in all test documentation
+- Test output display requirements in SESSION_SUMMARY.md
+  - Domain-descriptive test naming conventions for agricultural robotics communication
+  - RED/GREEN/REFACTOR phase output display requirements
+  - Example outputs showing domain problem → solution progression
+  - Purpose documentation: stakeholder communication, compliance evidence, educational value
+- Claude Code session state markers added to .gitignore
+  - `.claude/.agent_registry.json` (session-specific agent tracking)
+  - `.claude/.session_initialized` (primary session marker)
+  - `.claude/.global_session_state` (cross-session persistence)
+  - `.claude/.universal_access_enabled` (universal access indicator)
 - Universal Agent Access System with automatic loadsession execution for ALL Claude Code agents
 - Enhanced session initialization hook with multi-strategy session detection
 - Agent registry system with persistent multi-agent coordination and JSON-based tracking
@@ -22,6 +41,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cross-session error prevention with persistent solution storage
 
 ### Enhanced
+- SESSION_SUMMARY.md with explicit RED-GREEN-REFACTOR protocol documentation
+  - "TESTS DRIVE IMPLEMENTATION" emphasis clarifying tests define what gets built
+  - RED Phase: Write failing test BEFORE any implementation code
+  - GREEN Phase: Minimal code driven by test requirements
+  - REFACTOR Phase: Improve quality while maintaining test coverage
+  - "CRITICAL FOR CLAUDE CODE" requirement that ALL code generation starts with RED phase
+  - Test output display requirements for domain communication at each phase
+  - Updated test count from 129 to 139 tests
+  - Session initialization 5-minute staleness detection documented
+  - Current session achievements documenting TDD policy violation and remediation
+- Session initialization hook with 5-minute staleness detection (changed from 24-hour)
+  - Detects /new restarts reliably by treating markers older than 5 minutes as stale
+  - Uses file modification timestamps for precise aging detection
+  - Three-strategy validation: session marker, global marker, agent registry
+  - Boundary condition handling at 299 seconds to avoid floating-point precision issues
 - Session initialization hook system for universal agent coverage and agricultural robotics context preservation
 - Claude Code settings configuration with multi-hook support and universal access permissions
 - Project organization with bin directory structure following Unix conventions
@@ -34,11 +68,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - test_loadsession.sh: Updated tests to cover fallback behavior and corrupted-file scenario reliably
 
 ### Fixed
+- Session initialization hook staleness detection (24-hour → 5-minute expiration)
+  - Resolves issue where sessions after /new restart incorrectly appeared as active
+  - Claude Code memory wiped but filesystem markers persisted, causing detection failure
+  - 5-minute window reliably catches /new restarts while preventing duplicate initialization
+  - Boundary condition at exactly 300 seconds handled via 299-second test to avoid timing precision issues
 - Agent context access issues across different Claude Code session patterns
 - Cross-session state persistence for multi-agent coordination scenarios
 - Session detection reliability through multi-strategy approach
 - Duplicate shebang removed in `bin/loadsession`
- - Added root-level `loadsession` wrapper delegating to `bin/loadsession` to match documentation (`./loadsession`)
+- Added root-level `loadsession` wrapper delegating to `bin/loadsession` to match documentation (`./loadsession`)
+
+### Changed
+- Test suite expanded from 129 to 139 tests (+10 session initialization hook tests)
+- All tests passing in <1.5 seconds (was 1.27s for 129 tests)
+
+### Rationale
+This session enforced the ABSOLUTE MANDATORY Test-First Development policy after identifying a violation where session initialization hook was modified without prior failing tests. The comprehensive test suite (10 tests) was created retroactively to validate the 5-minute staleness detection fix and ensure reliable automatic context restoration after /new restarts. Enhanced SESSION_SUMMARY.md documentation ensures future sessions maintain strict RED-GREEN-REFACTOR discipline with test output display requirements for agricultural robotics domain communication. Session state markers excluded from git tracking to prevent repository pollution with operational data.
 
 [0.1.3-post] - 2025-09-28
 --------------------------
