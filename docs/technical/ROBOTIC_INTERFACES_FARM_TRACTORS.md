@@ -1,5 +1,11 @@
 # Robotic Interfaces for Farm Tractors
 
+> **Navigation**: [📚 DOCS Index](../README.md) | [🏠 Project Root](../../) | [⚙️ Technical Architecture](../technical/) | [📋 Strategic](../strategic/) | [🔧 Implementation](../implementation/)
+>
+> **Reading Order**: [Synchronization Infrastructure](SYNCHRONIZATION_INFRASTRUCTURE.md) → [Fleet Coordination Primitives](FLEET_COORDINATION_PRIMITIVES.md) → **Current Document** → [Robotics](ROBOTICS.md)
+
+---
+
 ## Overview
 
 This document explains the architectural patterns and Python concepts used to enhance the FarmTractor class with professional-grade agricultural system interfaces. The additions transform a basic tractor simulation into a comprehensive robotic agricultural platform.

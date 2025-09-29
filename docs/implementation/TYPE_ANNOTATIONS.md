@@ -1,5 +1,11 @@
 # Type Annotation Improvements in AFS FastAPI
 
+> **Navigation**: [📚 DOCS Index](../README.md) | [🏠 Project Root](../../) | [🔧 Implementation Standards](../implementation/) | [📋 Strategic](../strategic/) | [⚙️ Technical](../technical/)
+>
+> **Reading Order**: [TDD Framework Mandatory](TDD_FRAMEWORK_MANDATORY.md) → [TDD Implementation Rationale](TDD_IMPLEMENTATION_RATIONALE.md) → [TDD Integration](TDD_INTEGRATION.md) → [Testing Methodology Guide](TESTING_METHODOLOGY_GUIDE.md) → **Current Document**
+
+---
+
 ## Overview
 
 This document provides comprehensive documentation of the type annotation improvements implemented to resolve diagnostic issues and enhance code quality in the AFS FastAPI agricultural robotics platform.

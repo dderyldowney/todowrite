@@ -1,5 +1,11 @@
 # AFS-FastAPI Project Context
 
+> **Navigation**: [📚 DOCS Index](../README.md) | [🏠 Project Root](../../) | [📋 Strategic Documents](../strategic/) | [⚙️ Implementation](../implementation/) | [🔧 Technical](../technical/)
+>
+> **Reading Order**: [Project Strategy](PROJECT_STRATEGY.md) → [State of Affairs](STATE_OF_AFFAIRS.md) → [Where We Are](WHERE_WE_ARE.md) → **Current Document** → [Next Steps](NEXT_STEPS.md)
+
+---
+
 This file contains project analysis for Claude Code to reference across sessions.
 
 ## Repository Purpose

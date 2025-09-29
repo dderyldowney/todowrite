@@ -1,5 +1,11 @@
 # Git Commit Separation of Concerns - MANDATORY Policy
 
+> **Navigation**: [📚 DOCS Index](../README.md) | [🏠 Project Root](../../) | [🔄 Development Processes](../processes/) | [📋 Strategic](../strategic/) | [🔧 Implementation](../implementation/)
+>
+> **Reading Order**: **Current Document** → [Git Commit Documentation](GIT_COMMIT_DOCUMENTATION.md) → [Bin Directory Reorganization](BIN_DIRECTORY_REORGANIZATION.md) → [Changelog Generation](CHANGELOG_GENERATION.md)
+
+---
+
 ## Overview
 
 **MANDATORY REQUIREMENT**: All git commits in the AFS FastAPI agricultural robotics platform must follow strict separation of concerns methodology. Each commit must address exactly one logical concern, enabling precise change tracking, efficient code reviews, and reliable rollback capabilities essential for safety-critical agricultural systems.

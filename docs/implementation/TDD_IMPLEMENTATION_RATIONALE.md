@@ -1,5 +1,11 @@
 # Comprehensive Rationale: Mandatory TDD Implementation for AFS FastAPI
 
+> **Navigation**: [📚 DOCS Index](../README.md) | [🏠 Project Root](../../) | [🔧 Implementation Standards](../implementation/) | [📋 Strategic](../strategic/) | [⚙️ Technical](../technical/)
+>
+> **Reading Order**: [TDD Framework Mandatory](TDD_FRAMEWORK_MANDATORY.md) → **Current Document** → [TDD Integration](TDD_INTEGRATION.md) → [Testing Methodology Guide](TESTING_METHODOLOGY_GUIDE.md) → [Type Annotations](TYPE_ANNOTATIONS.md)
+
+---
+
 ## Executive Summary
 
 This document provides the comprehensive rationale for implementing mandatory Test-Driven Development (TDD) methodology across the AFS FastAPI agricultural robotics platform, including automated enforcement mechanisms and cross-session compliance requirements for AI-assisted development.

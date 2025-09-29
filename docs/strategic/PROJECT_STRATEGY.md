@@ -1,5 +1,11 @@
 # Project Strategy: AFS FastAPI Educational Development
 
+> **Navigation**: [📚 DOCS Index](../README.md) | [🏠 Project Root](../../) | [📋 Strategic Documents](../strategic/) | [⚙️ Implementation](../implementation/) | [🔧 Technical](../technical/)
+>
+> **Reading Order**: **Current Document** → [State of Affairs](STATE_OF_AFFAIRS.md) → [Where We Are](WHERE_WE_ARE.md) → [Project Context](PROJECT_CONTEXT.md) → [Next Steps](NEXT_STEPS.md)
+
+---
+
 This document outlines the integrated development strategy for the AFS FastAPI robotic agriculture platform, combining comprehensive project documentation with educational development standards.
 
 ## Dual Documentation Framework

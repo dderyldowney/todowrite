@@ -1,5 +1,11 @@
 # CHANGELOG.md Generation System
 
+> **Navigation**: [📚 DOCS Index](../README.md) | [🏠 Project Root](../../) | [🔄 Development Processes](../processes/) | [📋 Strategic](../strategic/) | [🔧 Implementation](../implementation/)
+>
+> **Reading Order**: [Git Commit Separation Mandatory](GIT_COMMIT_SEPARATION_MANDATORY.md) → [Git Commit Documentation](GIT_COMMIT_DOCUMENTATION.md) → [Bin Directory Reorganization](BIN_DIRECTORY_REORGANIZATION.md) → **Current Document**
+
+---
+
 ## Overview
 
 **MANDATORY REQUIREMENT**: CHANGELOG.md must be regenerated, formatted, and included in every git commit to maintain comprehensive version history for the AFS FastAPI agricultural robotics platform.

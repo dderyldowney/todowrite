@@ -15,11 +15,25 @@ echo -e "${BLUE}🚀 AFS FastAPI Session Context Loader${NC}"
 echo -e "${BLUE}=====================================${NC}"
 echo
 
-# Check if SESSION_SUMMARY.md exists
-if [ ! -f "SESSION_SUMMARY.md" ]; then
-    echo -e "${YELLOW}⚠️  SESSION_SUMMARY.md not found in project root${NC}"
-    echo "   Expected location: $(pwd)/SESSION_SUMMARY.md"
-    exit 1
+# Determine project root relative to this script for robust pathing
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# Resolve SESSION_SUMMARY.md location with fallback
+SESSION_FILE="${PROJECT_ROOT}/SESSION_SUMMARY.md"
+if [ ! -f "${SESSION_FILE}" ]; then
+    ALT_SESSION_FILE="${PROJECT_ROOT}/docs/monitoring/SESSION_SUMMARY.md"
+    if [ -f "${ALT_SESSION_FILE}" ]; then
+        SESSION_FILE="${ALT_SESSION_FILE}"
+        echo -e "${YELLOW}⚠️  SESSION_SUMMARY.md not found at project root; using fallback${NC}"
+        echo "   Fallback location: ${SESSION_FILE}"
+    else
+        echo -e "${YELLOW}⚠️  SESSION_SUMMARY.md not found${NC}"
+        echo "   Checked locations:"
+        echo "     - ${PROJECT_ROOT}/SESSION_SUMMARY.md"
+        echo "     - ${PROJECT_ROOT}/docs/monitoring/SESSION_SUMMARY.md"
+        exit 1
+    fi
 fi
 
 echo -e "${GREEN}✅ SESSION_SUMMARY.md found${NC}"
@@ -30,30 +44,30 @@ echo
 
 # Extract key information from SESSION_SUMMARY.md
 echo -e "${GREEN}📊 Current Platform Status:${NC}"
-if grep -q "v0.1.3" SESSION_SUMMARY.md; then
+if grep -q "v0.1.3" "${SESSION_FILE}"; then
     echo "   • Version: v0.1.3 (Stable Release)"
 fi
 
-if grep -q "129 tests" SESSION_SUMMARY.md; then
+if grep -q "129 tests" "${SESSION_FILE}"; then
     echo "   • Testing: 129 comprehensive tests"
 fi
 
-if grep -q "Zero linting warnings" SESSION_SUMMARY.md; then
+if grep -q "Zero linting warnings" "${SESSION_FILE}"; then
     echo "   • Quality: Zero linting warnings maintained"
 fi
 
-if grep -q "Test-First Development" SESSION_SUMMARY.md; then
+if grep -q "Test-First Development" "${SESSION_FILE}"; then
     echo "   • Methodology: Test-First Development operational"
 fi
 
 echo
 
 echo -e "${GREEN}🎯 Strategic Priority:${NC}"
-if grep -q "synchronization infrastructure" SESSION_SUMMARY.md; then
+if grep -q "synchronization infrastructure" "${SESSION_FILE}"; then
     echo "   • Focus: Synchronization infrastructure development"
 fi
 
-if grep -q "distributed systems" SESSION_SUMMARY.md; then
+if grep -q "distributed systems" "${SESSION_FILE}"; then
     echo "   • Foundation: Distributed systems (Vector Clock implemented)"
 fi
 
@@ -75,8 +89,8 @@ echo "   • Architecture: Dual-purpose educational/functional"
 echo
 
 echo -e "${BLUE}📖 Session Summary Content Loaded${NC}"
-echo "   File size: $(wc -l < SESSION_SUMMARY.md) lines"
-echo "   Last modified: $(stat -f "%Sm" -t "%Y-%m-%d %H:%M" SESSION_SUMMARY.md)"
+echo "   File size: $(wc -l < "${SESSION_FILE}") lines"
+echo "   Last modified: $(stat -f "%Sm" -t "%Y-%m-%d %H:%M" "${SESSION_FILE}")"
 
 echo
 

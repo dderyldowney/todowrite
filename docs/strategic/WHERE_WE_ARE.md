@@ -1,5 +1,11 @@
 # WHERE WE ARE: AFS FastAPI State Assessment
 
+> **Navigation**: [📚 DOCS Index](../README.md) | [🏠 Project Root](../../) | [📋 Strategic Documents](../strategic/) | [⚙️ Implementation](../implementation/) | [🔧 Technical](../technical/)
+>
+> **Reading Order**: [Project Strategy](PROJECT_STRATEGY.md) → [State of Affairs](STATE_OF_AFFAIRS.md) → **Current Document** → [Project Context](PROJECT_CONTEXT.md) → [Next Steps](NEXT_STEPS.md)
+
+---
+
 ## Executive Summary
 
 **AFS FastAPI** has evolved from a basic agricultural API prototype into a **multi-tractor coordination platform** with distributed systems capabilities, comprehensive testing architecture, and professional documentation standards. As of v0.1.3 (September 2025), the platform represents a functional open-source agricultural robotics system with both production capabilities and comprehensive educational value.

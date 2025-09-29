@@ -1,5 +1,11 @@
 # ROBOTICS.md
 
+> **Navigation**: [📚 DOCS Index](../README.md) | [🏠 Project Root](../../) | [⚙️ Technical Architecture](../technical/) | [📋 Strategic](../strategic/) | [🔧 Implementation](../implementation/)
+>
+> **Reading Order**: [Synchronization Infrastructure](SYNCHRONIZATION_INFRASTRUCTURE.md) → [Fleet Coordination Primitives](FLEET_COORDINATION_PRIMITIVES.md) → [Robotic Interfaces Farm Tractors](ROBOTIC_INTERFACES_FARM_TRACTORS.md) → **Current Document**
+
+---
+
 ## Standardized Robotic Farm Equipment Interfaces
 
 ### Overview

@@ -1,5 +1,11 @@
 # AFS FastAPI Testing Methodology Guide
 
+> **Navigation**: [📚 DOCS Index](../README.md) | [🏠 Project Root](../../) | [🔧 Implementation Standards](../implementation/) | [📋 Strategic](../strategic/) | [⚙️ Technical](../technical/)
+>
+> **Reading Order**: [TDD Framework Mandatory](TDD_FRAMEWORK_MANDATORY.md) → [TDD Implementation Rationale](TDD_IMPLEMENTATION_RATIONALE.md) → [TDD Integration](TDD_INTEGRATION.md) → **Current Document** → [Type Annotations](TYPE_ANNOTATIONS.md)
+
+---
+
 ## 🎯 How and Why to Generate FULL_TEST_SUITE_REPORT.md
 
 This guide documents the critical knowledge for generating comprehensive test suite reports and the strategic importance of this process for the AFS FastAPI agricultural robotics platform.

@@ -1,5 +1,11 @@
 # Bin Directory Reorganization for AFS FastAPI Agricultural Platform
 
+> **Navigation**: [📚 DOCS Index](../README.md) | [🏠 Project Root](../../) | [🔄 Development Processes](../processes/) | [📋 Strategic](../strategic/) | [🔧 Implementation](../implementation/)
+>
+> **Reading Order**: [Git Commit Separation Mandatory](GIT_COMMIT_SEPARATION_MANDATORY.md) → [Git Commit Documentation](GIT_COMMIT_DOCUMENTATION.md) → **Current Document** → [Changelog Generation](CHANGELOG_GENERATION.md)
+
+---
+
 ## Overview
 
 The AFS FastAPI agricultural robotics platform has been reorganized to follow standard Unix/Linux software engineering practices by moving all user-facing executable scripts to a dedicated `bin/` directory. This architectural improvement enhances maintainability, clarity, and professional software organization standards.

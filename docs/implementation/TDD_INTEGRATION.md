@@ -1,5 +1,11 @@
 # TDD Integration with AFS FastAPI Testing Architecture
 
+> **Navigation**: [📚 DOCS Index](../README.md) | [🏠 Project Root](../../) | [🔧 Implementation Standards](../implementation/) | [📋 Strategic](../strategic/) | [⚙️ Technical](../technical/)
+>
+> **Reading Order**: [TDD Framework Mandatory](TDD_FRAMEWORK_MANDATORY.md) → [TDD Implementation Rationale](TDD_IMPLEMENTATION_RATIONALE.md) → **Current Document** → [Testing Methodology Guide](TESTING_METHODOLOGY_GUIDE.md) → [Type Annotations](TYPE_ANNOTATIONS.md)
+
+---
+
 ## Test-First Development Integration Analysis
 
 **Integration Status**: ✅ **Complete Success** - TDD methodology seamlessly integrates with existing 118-test enterprise-grade architecture.

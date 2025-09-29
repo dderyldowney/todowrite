@@ -1,5 +1,11 @@
 # Next Steps: Synchronization Infrastructure Development
 
+> **Navigation**: [📚 DOCS Index](../README.md) | [🏠 Project Root](../../) | [📋 Strategic Documents](../strategic/) | [⚙️ Implementation](../implementation/) | [🔧 Technical](../technical/)
+>
+> **Reading Order**: [Project Strategy](PROJECT_STRATEGY.md) → [State of Affairs](STATE_OF_AFFAIRS.md) → [Where We Are](WHERE_WE_ARE.md) → [Project Context](PROJECT_CONTEXT.md) → **Current Document**
+
+---
+
 ## Overview
 
 The AFS FastAPI platform has reached a strong foundation with enterprise-grade code quality and comprehensive robotic agriculture interfaces. The next logical step is implementing **underlying synchronization mechanisms** rather than just adding more API features.
