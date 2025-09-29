@@ -10,7 +10,8 @@ AFS FastAPI is a robotic agriculture platform implementing distributed systems c
 - **Code Quality**: Zero warnings across all tools (Ruff, MyPy, Black, isort)
 - **Industry Compliance**: Complete ISO 11783 (ISOBUS) and ISO 18497 (Safety) implementation
 - **Distributed Systems**: Vector Clock implementation operational
-- **Development Methodology**: Test-First Development (TDD) fully integrated
+- **Development Methodology**: **MANDATORY** Test-First Development (TDD) fully integrated with automated enforcement
+- **Claude Code TDD Compliance**: **CRITICAL** - Claude Code generation MUST follow Red-Green-Refactor methodology
 
 ### Current Capabilities
 - **Multi-tractor Coordination**: Distributed systems implementation for fleet management
@@ -195,11 +196,28 @@ The platform maintains its unique **dual-purpose architecture** serving both fun
 - **Command Infrastructure**: Professional session management and validation tools
 - **Documentation Excellence**: Enterprise-grade knowledge preservation and team guidance
 
+## 🚨 CRITICAL: Mandatory TDD Enforcement for Claude Code Generation
+
+**ABSOLUTE REQUIREMENT**: Claude Code sessions MUST follow Test-Driven Development methodology:
+
+### TDD Protocol for All Future Sessions
+1. **RED Phase Required**: Write failing tests BEFORE generating any code
+2. **GREEN Phase Implementation**: Generate minimal code to satisfy test requirements
+3. **REFACTOR Phase Enhancement**: Improve code quality while maintaining coverage
+
+### Enforcement Mechanisms Active
+- **Pre-commit hooks validate TDD compliance** - `.claude/hooks/tdd_enforcement.py`
+- **Safety standards validation** - `.claude/hooks/safety_validation.py`
+- **Automated quality gates prevent non-TDD code** from entering codebase
+- **Agricultural context mandatory** in all generated tests
+
+**RATIONALE**: Agricultural robotics demands bulletproof reliability. AI-generated code must meet the same rigorous standards as human-developed components for safety-critical multi-tractor coordination.
+
 ---
 
 **Platform Status**: 🏆 **ENTERPRISE-GRADE AGRICULTURAL ROBOTICS PLATFORM**
 **Development Readiness**: 🚀 **ADVANCED SYNCHRONIZATION INFRASTRUCTURE**
-**Quality Assurance**: ✅ **ZERO TECHNICAL DEBT WITH COMPREHENSIVE VALIDATION**
-**Strategic Position**: Open-source agricultural robotics platform
+**Quality Assurance**: ✅ **MANDATORY TDD WITH AUTOMATED ENFORCEMENT**
+**Strategic Position**: Open-source agricultural robotics platform with bulletproof development standards
 
 The AFS FastAPI platform has successfully evolved from a basic agricultural API to a sophisticated, enterprise-grade multi-tractor coordination platform with comprehensive educational framework, ready for advanced distributed systems development while maintaining professional quality standards throughout.

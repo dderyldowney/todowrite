@@ -23,3 +23,23 @@ repos:
     -   id: ruff
         args: [--fix, --unsafe-fixes]
     -   id: ruff-format
+-   repo: local
+    hooks:
+    -   id: tdd-enforcement
+        name: TDD Methodology Enforcement
+        entry: python .claude/hooks/tdd_enforcement.py
+        language: python
+        files: '^afs_fastapi/.*\.py$'
+        description: "Enforces Test-First Development for all new agricultural robotics components"
+    -   id: test-coverage-validation
+        name: Test Coverage Validation
+        entry: pytest --tb=short -q
+        language: python
+        pass_filenames: false
+        description: "Validates all tests pass before commit (Red-Green-Refactor compliance)"
+    -   id: agricultural-safety-validation
+        name: Agricultural Safety Standards
+        entry: python .claude/hooks/safety_validation.py
+        language: python
+        files: '^afs_fastapi/(equipment|services)/.*\.py$'
+        description: "Validates ISO 18497 safety compliance in agricultural robotics code"
