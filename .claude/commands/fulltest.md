@@ -17,7 +17,7 @@ black --check .
 isort --check-only .
 
 # 3. Execute loadsession command tests
-./test_loadsession.sh
+bin/test_loadsession.sh
 
 # 4. Generate comprehensive test report
 # Create FULL_TEST_SUITE_REPORT.md with complete analysis

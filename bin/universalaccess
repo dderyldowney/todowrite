@@ -25,7 +25,7 @@ readonly SESSION_MARKER="${CLAUDE_DIR}/.session_initialized"
 readonly GLOBAL_SESSION="${CLAUDE_DIR}/.global_session_state"
 readonly AGENT_REGISTRY="${CLAUDE_DIR}/.agent_registry.json"
 readonly UNIVERSAL_MARKER="${CLAUDE_DIR}/.universal_access_enabled"
-readonly LOADSESSION_SCRIPT="${PROJECT_ROOT}/loadsession"
+readonly LOADSESSION_SCRIPT="${PROJECT_ROOT}/bin/loadsession"
 
 # Agent identification
 readonly AGENT_ID="${CLAUDE_AGENT_ID:-agent_$(openssl rand -hex 4)_$(date +%s)}"

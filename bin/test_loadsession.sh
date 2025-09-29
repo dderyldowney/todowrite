@@ -99,7 +99,7 @@ main() {
     # Test 1: Successful execution (current working scenario)
     print_test_header "TEST 1: Successful loadsession Execution"
     run_test "Successful loadsession with SESSION_SUMMARY.md present" \
-             "./loadsession" \
+             "bin/loadsession" \
              0 \
              "Session Context Successfully Restored"
 
@@ -113,7 +113,7 @@ main() {
     fi
 
     run_test "loadsession with missing SESSION_SUMMARY.md" \
-             "./loadsession" \
+             "bin/loadsession" \
              1 \
              "SESSION_SUMMARY.md not found"
 
@@ -128,7 +128,7 @@ main() {
     print_test_header "TEST 3: Script Permissions Verification"
 
     # Check if script is executable
-    if [ -x "./loadsession" ]; then
+    if [ -x "bin/loadsession" ]; then
         print_test_result "loadsession executable permissions" "PASS" "Script has executable permissions"
     else
         print_test_result "loadsession executable permissions" "FAIL" "Script lacks executable permissions"
@@ -139,7 +139,7 @@ main() {
 
     # Capture loadsession output for content analysis
     local loadsession_output
-    loadsession_output=$(./loadsession 2>&1)
+    loadsession_output=$(bin/loadsession 2>&1)
 
     # Check for key content indicators
     local content_tests=(
@@ -194,7 +194,7 @@ main() {
     mv SESSION_SUMMARY.md.corrupt SESSION_SUMMARY.md
 
     run_test "loadsession with corrupted SESSION_SUMMARY.md" \
-             "./loadsession" \
+             "bin/loadsession" \
              0 \
              "Session Context Successfully Restored"
 

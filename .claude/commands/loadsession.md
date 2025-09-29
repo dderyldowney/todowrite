@@ -7,7 +7,7 @@ Loads and applies the SESSION_SUMMARY.md to restore complete project context and
 ## Command Sequence
 
 ```
-Load and apply SESSION_SUMMARY.md
+bin/loadsession
 ```
 
 ## Expected Output
@@ -46,7 +46,7 @@ The command response should include:
 
 ### Input Format
 ```
-loadsession
+bin/loadsession
 ```
 
 ### Output Requirements
@@ -61,7 +61,7 @@ loadsession
 ### Session Initialization Sequence
 
 1. Execute `/new` to start Claude Code session
-2. **Execute `loadsession`** (this command)
+2. **Execute `bin/loadsession`** (this command)
 3. Proceed with session-specific development objectives
 
 ### Quality Assurance
