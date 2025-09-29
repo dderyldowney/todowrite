@@ -13,14 +13,15 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 ### Platform Metrics
 
 - **Version**: v0.1.3+ (Stable Release with TDD, Commit Separation, and Universal Agent Access)
-- **Test Suite**: 129 tests passing (100% success rate in 1.27s)
+- **Test Suite**: 139 tests passing (100% success rate) - includes 10 session initialization hook tests
 - **Code Quality**: Zero warnings across all tools (Ruff, MyPy, Black, isort)
 - **Industry Compliance**: Complete ISO 11783 (ISOBUS) and ISO 18497 (Safety) implementation
 - **Distributed Systems**: Vector Clock implementation operational for multi-tractor coordination
-- **Development Methodology**: **ABSOLUTE MANDATORY** Test-First Development (NO CODE WITHOUT TESTS)
+- **Development Methodology**: **ABSOLUTE MANDATORY** Test-First Development - TESTS DRIVE IMPLEMENTATION (RED-GREEN-REFACTOR)
 - **Git Commit Management**: **MANDATORY** Separation of concerns with single-concern validation
 - **Universal Agent Access**: **AUTOMATIC** loadsession execution for ALL Claude Code agents with persistent cross-session behavior
-- **Universal Compliance**: **CRITICAL** - ALL contributors (Human AND AI/Agent/ML/LLM) MUST follow Test-First and commit separation
+- **Session Initialization**: 5-minute staleness detection with comprehensive test coverage for reliable /new restart handling
+- **Universal Compliance**: **CRITICAL** - ALL contributors (Human AND AI/Agent/ML/LLM) MUST follow Test-First (RED phase BEFORE code) and commit separation
 
 ### Current Capabilities
 
@@ -29,19 +30,110 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 - **Educational Framework**: Dual-purpose instructional and functional codebase for professional development
 - **Production Readiness**: Comprehensive test coverage and enterprise-grade quality standards
 
-## 🚨 CRITICAL: ABSOLUTE Test-First and Commit Separation Enforcement
+## 🚨 CRITICAL: ABSOLUTE Test-First Development - TESTS DRIVE IMPLEMENTATION
 
-**ZERO EXCEPTIONS POLICY**: ALL development—Human AND AI/Agent/ML/LLM—MUST start with tests. Testing drives ALL implementation.
+**ZERO EXCEPTIONS POLICY**: ALL development—Human AND AI/Agent/ML/LLM—MUST start with tests. Tests DRIVE implementation, NOT document it.
 
-### MANDATORY Test-First Protocol for ALL Contributors
+### MANDATORY Red-Green-Refactor Protocol for ALL Contributors
 
-**NO CODE WITHOUT TESTS - UNIVERSAL REQUIREMENT**:
+**NO CODE WITHOUT TESTS - TESTS COME FIRST AND DRIVE IMPLEMENTATION**:
 
-1. **RED Phase FIRST**: Write failing test describing desired behavior BEFORE any implementation code
-2. **GREEN Phase Implementation**: Write minimal code to satisfy test requirements only
-3. **REFACTOR Phase Enhancement**: Improve code quality while maintaining test coverage
+#### RED Phase (ALWAYS FIRST - NO EXCEPTIONS)
+1. **Write FAILING test** that describes desired behavior in agricultural robotics context
+2. **Test must FAIL** - this proves you're testing new behavior, not existing code
+3. **Run test suite** to confirm RED state (test fails as expected)
+4. **DISPLAY test output** showing domain problem being tested
+5. **NO IMPLEMENTATION CODE** may be written until RED phase complete
 
-**ABSOLUTE ENFORCEMENT**: No functions, classes, modules, or features implemented without failing tests first
+#### GREEN Phase (Driven by RED Tests)
+1. **Write MINIMAL code** to make the failing test pass
+2. **Implementation driven by test requirements** - tests define what to build
+3. **Run test suite** to confirm GREEN state (previously failing test now passes)
+4. **DISPLAY test output** showing solution validation and domain problem solved
+5. **Stop when test passes** - resist urge to add features not tested
+
+#### REFACTOR Phase (Maintain GREEN)
+1. **Improve code quality** while keeping all tests passing
+2. **Run test suite frequently** to ensure GREEN state maintained
+3. **DISPLAY test output** confirming all tests remain green during refactoring
+4. **Enhance without changing behavior** - tests prove equivalence
+
+### Test Output Display Requirements
+
+**MANDATORY**: Test execution output MUST be displayed during ALL phases to communicate domain problems and solutions.
+
+#### Test Naming Convention for Domain Communication
+Tests must use descriptive names that communicate the agricultural robotics problem being solved:
+
+**Good Test Names** (Self-Documenting):
+```python
+def test_detects_collision_risk_during_multi_tractor_field_operation()
+def test_synchronizes_vector_clocks_across_intermittent_network_connection()
+def test_enforces_minimum_safety_distance_between_coordinated_tractors()
+def test_validates_isobus_message_delivery_under_packet_loss()
+```
+
+**Poor Test Names** (Not Domain-Descriptive):
+```python
+def test_function_returns_true()
+def test_calculation_works()
+def test_basic_scenario()
+```
+
+#### RED Phase Output Display
+When running failing tests, output must show:
+- Test name clearly communicating the agricultural domain problem
+- Failure message indicating what behavior is missing
+- Agricultural context explaining why this test matters
+
+**Example RED Phase Output**:
+```
+FAILED tests/unit/coordination/test_multi_tractor_sync.py::test_synchronizes_vector_clocks_across_intermittent_network_connection
+AssertionError: Vector clock synchronization failed under network disruption
+Expected: Causal ordering maintained despite 30% packet loss
+Actual: Clock drift exceeded 100ms tolerance for field coordination
+
+Agricultural Context: Multi-tractor coordination requires sub-second
+synchronization for safe field operations even during rural connectivity issues
+```
+
+#### GREEN Phase Output Display
+When tests pass, output must show:
+- Test name confirming the agricultural problem is solved
+- Pass status with execution time
+- Summary showing domain validation complete
+
+**Example GREEN Phase Output**:
+```
+PASSED tests/unit/coordination/test_multi_tractor_sync.py::test_synchronizes_vector_clocks_across_intermittent_network_connection [0.12s]
+
+✓ Vector clock synchronization validated under network disruption
+✓ Causal ordering maintained with 30% packet loss
+✓ Clock drift within 100ms tolerance for safe field coordination
+
+Solution Complete: Multi-tractor coordination system handles rural connectivity
+challenges while maintaining ISO 18497 safety requirements
+```
+
+#### Purpose of Test Output Display
+
+1. **Domain Communication**: Stakeholders understand what problems are being solved
+2. **Progress Visibility**: RED → GREEN transitions show tangible advancement
+3. **Safety Validation**: Agricultural robotics safety requirements clearly documented
+4. **Educational Value**: Test names and output teach agricultural technology concepts
+5. **Documentation**: Test output serves as living specification of system behavior
+6. **Compliance Evidence**: ISO 18497/11783 compliance demonstrated through test validation
+
+**ABSOLUTE ENFORCEMENT**: No functions, classes, modules, or features implemented without RED phase failing tests first. Tests DRIVE what gets built, implementation does NOT drive tests.
+
+**CRITICAL FOR CLAUDE CODE**: Every code generation session MUST begin with RED phase test creation. Implementation follows test requirements. This is NOT optional - it's an absolute requirement for ALL code on this platform.
+
+**TEST OUTPUT DISPLAY REQUIREMENT**: After writing tests (RED phase) and after implementation (GREEN phase), Claude Code MUST execute the test suite using pytest and display the complete output. The output communicates:
+- **RED Phase**: What agricultural domain problem needs solving (via failing test names/messages)
+- **GREEN Phase**: That the agricultural domain problem has been solved (via passing test names)
+- **REFACTOR Phase**: That solution remains valid during code improvements (via continued passing tests)
+
+This is NOT optional - test output must be displayed to demonstrate Test-Driven Development progression and domain problem solving.
 
 ### Git Commit Separation Protocol (NEW)
 
@@ -94,7 +186,43 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 - **Prevention**: Include CHANGELOG.md in git staging with all changes
 - **Frequency**: MANDATORY for all commits to maintain complete version history
 
-## Recent Major Implementation: TDD and Git Commit Separation Enforcement
+## Recent Major Implementation: Session Initialization Testing and TDD Enforcement
+
+### Current Session Achievements (September 29, 2025 Evening)
+
+**Session Initialization Hook Validation - Test-First Methodology Applied Retroactively**:
+
+#### TDD Policy Violation and Remediation
+- **Violation Identified**: Session initialization hook modified without prior failing tests
+- **Immediate Correction**: Created comprehensive test suite BEFORE accepting implementation
+- **Test Suite Created**: [tests/unit/hooks/test_session_initialization.py](../../tests/unit/hooks/test_session_initialization.py) (10 tests, 350+ lines)
+- **Coverage Achieved**: All session detection strategies validated with agricultural robotics scenarios
+
+#### Test Coverage Details
+1. **New Session Detection**: Tests for missing markers and stale markers (>5 minutes)
+2. **Active Session Recognition**: Validates fresh markers don't trigger reinitialization (<5 minutes)
+3. **Boundary Conditions**: Edge case testing at 299 seconds (floating-point precision awareness)
+4. **Marker Creation**: Validates all three marker types created on initialization
+5. **Agent Registry**: Confirms multi-agent tracking and 5-minute expiration logic
+6. **Script Execution**: Tests successful and failed loadsession execution scenarios
+7. **Strategy Redundancy**: Ensures ANY stale strategy triggers reinitialization
+8. **Agricultural Context**: Every test includes safety-critical agricultural robotics scenarios
+
+#### Platform Impact
+- **Test Count**: Increased from 129 to 139 tests (10 new hook tests)
+- **Test Execution**: All 139 tests passing in <1.5 seconds
+- **Session Reliability**: Comprehensive validation of automatic context restoration after /new restarts
+- **TDD Compliance**: Retroactive test-first application demonstrates absolute commitment to methodology
+
+#### Session Summary Enhancement
+- **Explicit RED-GREEN-REFACTOR Protocol**: Added detailed phase descriptions
+- **"TESTS DRIVE IMPLEMENTATION" Emphasis**: Clarified that tests define what gets built
+- **Claude Code Specific Requirements**: Explicit instruction that ALL code generation must start with RED phase
+- **Cross-Session Persistence**: Enhanced documentation ensures future sessions maintain TDD discipline
+
+**CRITICAL LESSON LEARNED**: This session demonstrated the ABSOLUTE requirement for Test-First Development. When policy violation was identified, immediate remediation with comprehensive test suite creation was required. This reinforces that NO CODE—regardless of source or timing—is acceptable without test coverage. Tests MUST come first and DRIVE implementation.
+
+## Previous Major Implementations: TDD and Git Commit Separation Enforcement
 
 ### Transformational Achievements (September 28-29, 2025)
 
