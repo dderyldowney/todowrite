@@ -97,7 +97,12 @@ class MarkdownViewer:
         """Get the default viewer for the current platform."""
         if sys.platform == "darwin":
             return "macdown"
-        return "default_system"
+        elif sys.platform in ("linux", "linux2"):
+            return "default_system"
+        elif sys.platform == "win32":
+            return "default_system"
+        else:
+            return "default_system"
 
     def _detect_available_viewers(self) -> list[str]:
         """Detect which configured viewers are available on the system.
