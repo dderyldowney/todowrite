@@ -40,6 +40,7 @@ dev = [
   "ruff>=0.5",
   "black>=24.0",
   "types-setuptools",  # example type stubs; trim as needed
+  "types-Markdown",    # stubs for docs/convert_readme_to_index_html.py
 ]
 
 [project.scripts]
@@ -102,15 +103,6 @@ venv = ".venv"
 reportMissingTypeStubs = "warning"
 reportUnknownMemberType = "warning"
 stubPath = "typings"
-
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = [
-  "-ra",
-  "--strict-markers",
-  "--import-mode=importlib",
-]
-testpaths = ["tests"]
 
 [tool.coverage.run]
 branch = true
