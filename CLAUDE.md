@@ -119,6 +119,22 @@ class TestAgriculturalOperation:
 - Create reusable commands for common fixes
 - Apply quality standards from initial generation
 
+### MANDATORY: CHANGELOG.md Maintenance
+
+**ABSOLUTE REQUIREMENT**: CHANGELOG.md must be regenerated, formatted, and included in every git commit.
+
+**Before Every Commit Protocol**:
+1. **Regenerate CHANGELOG.md**: Use `updatechangelog` command to include all changes
+2. **Format according to standards**: Keep a Changelog format with agricultural context
+3. **Add to git staging**: Include CHANGELOG.md alongside other changes
+4. **Commit with complete changelog**: Ensure changelog reflects all changes up to and including that commit
+
+**Cross-Session Enforcement**:
+- CHANGELOG.md updates mandatory before all commits
+- Agricultural context required for safety-critical entries
+- Keep a Changelog formatting standards applied
+- Version history completeness validated
+
 ## Code Documentation Requirements
 
 **Educational Code Explanations**: All code generated must be explained both **overall** and **individually**. Explanations should be concise with the dual purpose of teaching while building this real-world professional project.

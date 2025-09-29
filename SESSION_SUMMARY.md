@@ -81,6 +81,12 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 - **Context**: Include agricultural scenarios in all generated content
 - **Validation**: Immediate quality tool application prevents formatting cycles
 
+**5. CHANGELOG.md Maintenance Protocol**
+- **Pattern**: CHANGELOG.md must be updated before every commit
+- **Solution**: Use `updatechangelog` command with Keep a Changelog formatting
+- **Prevention**: Include CHANGELOG.md in git staging with all changes
+- **Frequency**: MANDATORY for all commits to maintain complete version history
+
 ## Recent Major Implementation: TDD and Git Commit Separation Enforcement
 
 ### Transformational Achievements (September 28-29, 2025)
