@@ -60,7 +60,7 @@ class UniversalSessionInitializationHook:
         self.global_session_marker = self.project_root / ".claude" / ".global_session_state"
 
         # Universal loadsession access
-        self.loadsession_script = self.project_root / "loadsession"
+        self.loadsession_script = self.project_root / "bin" / "loadsession"
 
         # Agent identification for tracking
         self.current_agent_id = self._generate_agent_id()

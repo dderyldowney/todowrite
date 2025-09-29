@@ -7,9 +7,7 @@ Enables universal access to the `loadsession` command for ALL Claude Code agents
 ## Command Sequence
 
 ```
-Execute loadsession with universal agent access
-Verify cross-agent context availability
-Establish persistent session management
+bin/universalaccess
 ```
 
 ## Expected Output
@@ -35,7 +33,7 @@ The command will:
 
 **Direct Command Access**:
 ```bash
-./loadsession  # Primary access method
+bin/loadsession  # Primary access method
 ```
 
 **Hook-Based Access**:
@@ -150,6 +148,9 @@ cat .claude/.agent_registry.json
 
 # Confirm global session state
 ls .claude/.global_session_state
+
+# Execute universal access verification
+bin/universalaccess
 ```
 
 **Context Validation**:
