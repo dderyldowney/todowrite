@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# Thin wrapper to ensure `./loadsession` works from repo root.
+# Delegates to the canonical implementation in `bin/loadsession`.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="${SCRIPT_DIR}"
+
+if [[ ! -x "${PROJECT_ROOT}/bin/loadsession" ]]; then
+  echo "Error: bin/loadsession not found or not executable." >&2
+  echo "Expected at: ${PROJECT_ROOT}/bin/loadsession" >&2
+  exit 1
+fi
+
+exec "${PROJECT_ROOT}/bin/loadsession" "$@"
+
