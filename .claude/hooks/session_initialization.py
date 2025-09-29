@@ -103,29 +103,42 @@ class UniversalSessionInitializationHook:
         """Check if this is a new session requiring initialization.
 
         Uses multiple detection strategies for robust session identification:
-        1. Primary session marker (per-session)
+        1. Primary session marker (per-session with short expiration)
         2. Global session state (cross-session persistence)
-        3. Agent registry (multi-agent tracking)
+        3. Agent registry (multi-agent tracking with short expiration)
+
+        CRITICAL: Uses short expiration (5 minutes) to handle /new restarts
+        where Claude Code memory is cleared but filesystem markers persist.
         """
-        # Strategy 1: Check primary session marker
-        if not self.session_marker.exists():
-            return True
+        current_time = time.time()
 
-        # Strategy 2: Check global session state for persistence
-        if not self.global_session_marker.exists():
-            return True
+        # Strategy 1: Check primary session marker with SHORT expiration
+        # If marker is older than 5 minutes, treat as stale from previous session
+        if self.session_marker.exists():
+            marker_age = current_time - self.session_marker.stat().st_mtime
+            if marker_age > 300:  # 5 minutes = 300 seconds
+                return True  # Marker too old, likely from pre-/new session
+        else:
+            return True  # No marker at all
 
-        # Strategy 3: Check agent registry for cross-agent initialization
+        # Strategy 2: Check global session state with SHORT expiration
+        if self.global_session_marker.exists():
+            global_marker_age = current_time - self.global_session_marker.stat().st_mtime
+            if global_marker_age > 300:  # 5 minutes
+                return True  # Global marker too old
+        else:
+            return True  # No global marker
+
+        # Strategy 3: Check agent registry for RECENT agent activity (5 minutes)
         registry = self._load_agent_registry()
         if not registry:  # Empty registry indicates fresh start
             return True
 
-        # Verify recent agent activity (within last 24 hours)
-        current_time = time.time()
+        # Verify RECENT agent activity (within last 5 minutes, not 24 hours)
         recent_agents = [
             agent_id
             for agent_id, data in registry.items()
-            if current_time - data.get("initialized_at", 0) < 86400  # 24 hours
+            if current_time - data.get("initialized_at", 0) < 300  # 5 minutes
         ]
 
         # If no recent agents, treat as new session
