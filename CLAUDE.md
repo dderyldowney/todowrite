@@ -2,6 +2,31 @@
 
 This file contains project-specific instructions for Claude Code sessions working on the **AFS FastAPI robotic agriculture platform**.
 
+## MANDATORY: Claude Code Generation TDD Compliance
+
+**CRITICAL REQUIREMENT**: Claude Code MUST follow Test-Driven Development methodology for ALL code generation:
+
+### TDD Compliance for AI Code Generation
+
+1. **RED Phase First**: Before generating any new code, Claude MUST first write or request creation of failing tests that describe the desired agricultural robotics behavior
+2. **GREEN Phase Implementation**: Generate minimal code that satisfies the test requirements while meeting agricultural safety and performance standards
+3. **REFACTOR Phase Enhancement**: Improve code quality while maintaining test coverage and agricultural domain requirements
+
+### Enforcement for Claude Sessions
+
+- **No Code Without Tests**: Claude SHALL NOT generate new functions, classes, or modules without corresponding test coverage
+- **Agricultural Context Required**: All generated tests MUST include agricultural robotics context and safety considerations
+- **Performance Validation**: Generated code MUST meet embedded agricultural equipment constraints
+- **Safety Standards**: All equipment and synchronization code MUST comply with ISO 18497 and ISO 11783 standards
+
+### Session Continuity Requirements
+
+- **Cross-Session Enforcement**: TDD methodology applies to ALL future Claude Code sessions on this project
+- **Persistent Compliance**: This requirement persists across session boundaries and must be applied immediately upon session start
+- **Quality Assurance**: Claude-generated code is subject to the same pre-commit hook validation as human-generated code
+
+**RATIONALE**: Agricultural robotics requires bulletproof reliability. Test-First Development ensures that AI-generated code meets the same rigorous standards as human-developed components for safety-critical multi-tractor coordination systems.
+
 ## Code Documentation Requirements
 
 **Educational Code Explanations**: All code generated must be explained both **overall** and **individually**. Explanations should be concise with the dual purpose of teaching while building this real-world professional project.
@@ -116,15 +141,19 @@ Use: "Add", "Fix", "Update", "Implement", "Refactor"
 - Professional terminology appropriate for engineering teams
 - Educational content without excessive emphasis
 
-### Test-First Methodology for Synchronization Infrastructure
+### Mandatory Test-Driven Development for All Components
 
-**Strategic Priority**: All distributed systems components (vector clocks, CRDTs, ISOBUS message queuing) must follow Test-Driven Development:
+**POLICY**: ALL future development on AFS FastAPI MUST follow Test-Driven Development methodology:
 
 1. **RED Phase**: Write failing test describing agricultural robotics behavior
 2. **GREEN Phase**: Implement minimal code meeting performance and safety requirements
 3. **REFACTOR Phase**: Enhance code quality while maintaining enterprise standards
 
-**Reference Documentation**: TDD_WORKFLOW.md provides complete Test-First development guide with agricultural domain examples.
+**ENFORCEMENT**: Automated pre-commit hooks validate TDD compliance before any code changes are accepted.
+
+**Reference Documentation**:
+- TDD_WORKFLOW.md: Complete Test-First development guide with agricultural domain examples
+- TDD_FRAMEWORK_MANDATORY.md: Comprehensive mandatory TDD framework and enforcement policies
 
 ## Claude Command Integration
 

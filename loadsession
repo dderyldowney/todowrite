@@ -80,6 +80,17 @@ echo "   Last modified: $(stat -f "%Sm" -t "%Y-%m-%d %H:%M" SESSION_SUMMARY.md)"
 
 echo
 
+# 🚨 CRITICAL TDD ENFORCEMENT REMINDER
+echo -e "\033[1;31m🚨 CRITICAL: MANDATORY TDD ENFORCEMENT ACTIVE${NC}"
+echo -e "\033[1;31m================================================${NC}"
+echo -e "${YELLOW}Claude Code MUST follow Test-Driven Development methodology:${NC}"
+echo -e "   • RED Phase: Write failing tests FIRST"
+echo -e "   • GREEN Phase: Generate minimal code to pass tests"
+echo -e "   • REFACTOR Phase: Enhance quality while maintaining coverage"
+echo -e "${YELLOW}Automated pre-commit hooks validate TDD compliance.${NC}"
+echo -e "${YELLOW}Reference: .claude/TDD_MANDATORY_REMINDER.md${NC}"
+echo
+
 echo -e "${GREEN}🎉 Session Context Successfully Restored!${NC}"
 echo
 echo -e "${BLUE}Ready for sophisticated agricultural robotics development.${NC}"
