@@ -1,21 +1,26 @@
 #!/usr/bin/env python3
 """
-TDD Methodology Enforcement Hook for AFS FastAPI Agricultural Robotics Platform
+ABSOLUTE Test-First Development Enforcement Hook
 
-This pre-commit hook enforces Test-First Development methodology by validating
-that new agricultural robotics components follow the Red-Green-Refactor pattern.
+This pre-commit hook enforces MANDATORY Test-First Development for ALL code
+implementation in the AFS FastAPI Agricultural Robotics Platform.
+
+ZERO EXCEPTIONS POLICY:
+ALL development—Human AND AI/Agent/ML/LLM—MUST start with tests.
+Testing drives ALL implementation. NO CODE WITHOUT TESTS.
 
 Agricultural Context:
-- Multi-tractor coordination requires bulletproof reliability
-- Safety-critical systems must be thoroughly tested before implementation
-- Distributed systems components need comprehensive validation
-- Performance constraints of embedded agricultural equipment must be validated
+- Safety-critical multi-tractor coordination demands bulletproof reliability
+- Equipment failures can cause damage or safety incidents
+- ISO 18497 and ISO 11783 compliance requires comprehensive validation
+- Embedded agricultural equipment has strict performance constraints
 
-TDD Enforcement Rules:
-1. New source files must have corresponding test files
-2. Modified source files must have recent test activity
-3. Critical components (synchronization, safety) require comprehensive test coverage
-4. Performance tests required for real-time agricultural operations
+ABSOLUTE TDD Requirements:
+1. EVERY function/class/module MUST have failing tests written FIRST
+2. NO implementation code without corresponding test coverage
+3. RED-GREEN-REFACTOR methodology mandatory for ALL contributors
+4. Agricultural context required in ALL test scenarios
+5. Performance validation required for equipment constraints
 """
 
 import os
@@ -27,10 +32,13 @@ from pathlib import Path
 
 class TDDEnforcementValidator:
     """
-    Validates Test-First Development compliance for agricultural robotics components.
+    MANDATORY Test-First Development Enforcement Validator
 
-    Ensures that all new and modified code follows the Red-Green-Refactor methodology
-    with special emphasis on agricultural safety and performance requirements.
+    ABSOLUTE ENFORCEMENT: ALL code implementation MUST start with tests.
+    ZERO EXCEPTIONS for Human or AI/Agent/ML/LLM contributors.
+
+    Blocks ALL non-test-first development from entering the agricultural robotics codebase.
+    Safety-critical systems require bulletproof reliability through comprehensive testing.
     """
 
     def __init__(self):
