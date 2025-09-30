@@ -164,8 +164,9 @@ This is NOT optional - test output must be displayed to demonstrate Test-Driven 
 
 - **MANDATORY Test-First validation** - `.claude/hooks/tdd_enforcement.py` (ZERO EXCEPTIONS)
 - **Safety standards validation** - `.claude/hooks/safety_validation.py`
+- **CHANGELOG.md enforcement** - `.claude/hooks/changelog_enforcement.py` (ALL COMMITS)
 - **Commit separation enforcement** - `.claude/hooks/commit_separation_enforcement.py`
-- **AUTOMATED BLOCKING** prevents ALL non-test-first code from entering codebase
+- **AUTOMATED BLOCKING** prevents ALL non-test-first code and undocumented commits from entering codebase
 - **Agricultural context mandatory** in all tests and safety-critical commits
 - **Universal application** to Human developers, AI assistants, and automated systems
 
