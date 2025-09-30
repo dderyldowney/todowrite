@@ -44,6 +44,33 @@ This file contains project-specific instructions for Claude Code sessions workin
 
 **RATIONALE**: Agricultural robotics demands bulletproof reliability. Test-First Development ensures ALL code—human or AI-generated—meets rigorous standards for safety-critical multi-tractor coordination systems where failures can cause equipment damage or safety incidents.
 
+## MANDATORY: Structured Investigation Pattern for ALL AI Agent Responses
+
+**ABSOLUTE REQUIREMENT**: ALL AI agent responses (Claude, GPT, Gemini, Copilot, etc.) must follow a structured investigation pattern providing complete transparency into analysis methodology.
+
+### Universal Investigation Protocol
+
+**EVERY substantive response MUST include:**
+
+1. **Investigation Steps**: Numbered list documenting systematic methodology
+2. **Files Examined**: Bulleted list with file paths and examination rationale
+3. **Evidence Collected**: Factual findings grouped by category with pass/fail indicators
+4. **Final Analysis**: Root cause identification, mechanism explanation, and solution options
+
+### Enforcement and Scope
+
+- **Universal Application**: Applies to ALL AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini, etc.)
+- **Cross-Session Persistence**: Requirement embedded permanently in project configuration
+- **Agent Agnostic**: Pattern applies regardless of AI platform or implementation
+- **Quality Assurance**: Enables verification, auditing, and knowledge transfer
+- **Agricultural Context**: Essential for safety-critical system transparency
+
+### Complete Specification
+
+**Reference**: [.claude/INVESTIGATION_PATTERN_MANDATORY.md](.claude/INVESTIGATION_PATTERN_MANDATORY.md)
+
+**RATIONALE**: Safety-critical agricultural robotics demands verifiable reasoning from ALL development assistants (human or AI). Structured investigation patterns enable safety validation, decision auditing, reproducible analysis, and educational knowledge transfer—essential for ISO compliance and bulletproof multi-tractor coordination systems.
+
 ## MANDATORY: Format-First Generation Standards
 
 **ABSOLUTE REQUIREMENT**: ALL generated content must emerge in final quality-controlled form.

@@ -94,6 +94,17 @@ echo "   Last modified: $(stat -f "%Sm" -t "%Y-%m-%d %H:%M" "${SESSION_FILE}")"
 
 echo
 
+# 🚨 CRITICAL INVESTIGATION PATTERN REQUIREMENT
+echo -e "\033[1;31m🚨 CRITICAL: MANDATORY INVESTIGATION PATTERN ACTIVE${NC}"
+echo -e "\033[1;31m====================================================${NC}"
+echo -e "${YELLOW}ALL responses MUST follow structured investigation pattern:${NC}"
+echo -e "   • Investigation Steps: Numbered methodology"
+echo -e "   • Files Examined: File paths with rationale"
+echo -e "   • Evidence Collected: Factual findings with indicators"
+echo -e "   • Final Analysis: Root cause and solutions"
+echo -e "${YELLOW}Reference: .claude/INVESTIGATION_PATTERN_MANDATORY.md${NC}"
+echo
+
 # 🚨 CRITICAL TDD ENFORCEMENT REMINDER
 echo -e "\033[1;31m🚨 CRITICAL: MANDATORY TDD ENFORCEMENT ACTIVE${NC}"
 echo -e "\033[1;31m================================================${NC}"

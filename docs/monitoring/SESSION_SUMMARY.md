@@ -12,7 +12,7 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 
 ### Platform Metrics
 
-- **Version**: v0.1.3+ (Stable Release with TDD, Commit Separation, CHANGELOG Enforcement, Universal Agent Access)
+- **Version**: v0.1.3+ (Stable Release with TDD, Commit Separation, CHANGELOG Enforcement, Universal AI Agent Investigation Pattern)
 - **Test Suite**: 148 tests passing (100% success rate in <3s) - includes 10 session initialization + 9 CHANGELOG enforcement tests
 - **Code Quality**: Zero warnings across all tools (Ruff, MyPy, Black, isort)
 - **Industry Compliance**: Complete ISO 11783 (ISOBUS) and ISO 18497 (Safety) implementation
@@ -20,9 +20,10 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 - **Development Methodology**: **ABSOLUTE MANDATORY** Test-First Development - TESTS DRIVE IMPLEMENTATION (RED-GREEN-REFACTOR)
 - **Git Commit Management**: **MANDATORY** Separation of concerns with single-concern validation
 - **CHANGELOG Management**: **MANDATORY** Automated enforcement via pre-commit hook validates documentation in every commit
+- **Investigation Pattern**: **MANDATORY** Structured investigation pattern for ALL AI agents (Claude, GPT, Gemini, Copilot, etc.) with universal enforcement
 - **Universal Agent Access**: **AUTOMATIC** loadsession execution for ALL Claude Code agents with persistent cross-session behavior
 - **Session Initialization**: 5-minute staleness detection with comprehensive test coverage for reliable /new restart handling
-- **Universal Compliance**: **CRITICAL** - ALL contributors (Human AND AI/Agent/ML/LLM) MUST follow Test-First (RED phase BEFORE code), commit separation, and CHANGELOG documentation
+- **Universal AI Compliance**: **CRITICAL** - ALL AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer) MUST follow Test-First (RED phase BEFORE code), commit separation, CHANGELOG documentation, and structured investigation pattern
 
 ### Current Capabilities
 
@@ -30,6 +31,55 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 - **Industry Compliance**: Professional agricultural standards (ISO 11783 ISOBUS, ISO 18497 Safety)
 - **Educational Framework**: Dual-purpose instructional and functional codebase for professional development
 - **Production Readiness**: Comprehensive test coverage and enterprise-grade quality standards
+
+## 🚨 CRITICAL: MANDATORY Structured Investigation Pattern for ALL AI Agents
+
+**ABSOLUTE REQUIREMENT**: ALL AI agent responses (Claude, GPT, Gemini, Copilot, etc.) MUST follow structured investigation pattern providing complete transparency into analysis methodology.
+
+### Universal Investigation Protocol
+
+**EVERY substantive response MUST include:**
+
+1. **Investigation Steps**: Numbered list documenting systematic methodology used
+2. **Files Examined**: Bulleted list with file paths and examination rationale
+3. **Evidence Collected**: Factual findings grouped by category with pass/fail indicators
+4. **Final Analysis**: Root cause, mechanism explanation, impact assessment, solution options
+
+### Why This Pattern Is Mandatory
+
+**Safety-Critical Transparency**:
+- **Verifiable reasoning**: Agricultural robotics demands traceable decision-making from ALL assistants
+- **ISO compliance auditing**: Safety standards require documented analysis processes
+- **Knowledge transfer**: Educational framework benefits from visible methodology
+- **Reproducible analysis**: Others can follow same investigation approach
+
+**Universal Agent Enforcement**:
+- **Agent Agnostic**: Applies to Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, CodeWhisperer
+- **Cross-Session Persistence**: Requirement embedded permanently in project configuration
+- **ALL Contributors**: Human developers, Claude, GPT, Gemini, Copilot, and all future AI agents
+- **Automated Validation**: Investigation pattern validator hook for universal compliance
+- **Complete Specification**: `.claude/INVESTIGATION_PATTERN_MANDATORY.md`
+
+### Example Investigation Structure
+
+```markdown
+## Investigation Steps
+1. **Check configuration**: Examined settings.local.json
+2. **Verify executables**: Confirmed hook scripts exist
+3. **Analyze markers**: Inspected session state files
+
+## Files Examined
+- .claude/settings.local.json: Verify hook registration
+- .claude/hooks/session_initialization.py: Analyze detection logic
+
+## Evidence Collected
+**Hook Configuration**: Registration valid ✅
+**Session State**: Markers within 5-minute window ❌
+
+## Final Analysis
+**Root Cause**: Expiration window too aggressive
+**Solutions**: Manual deletion, extended window, explicit call
+```
 
 ## 🚨 CRITICAL: ABSOLUTE Test-First Development - TESTS DRIVE IMPLEMENTATION
 

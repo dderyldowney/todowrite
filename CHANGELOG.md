@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Universal AI agent investigation pattern enforcement for ALL development assistants
+  - Extended mandatory structured investigation pattern from Claude-only to ALL AI agents
+  - Agent-agnostic compliance: Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, CodeWhisperer
+  - Investigation pattern validator hook for universal agent response validation
+  - INVESTIGATION_PATTERN_MANDATORY.md specification with agent-agnostic enforcement
+  - Four-section requirement: Investigation Steps, Files Examined, Evidence Collected, Final Analysis
+  - Agricultural context: Safety-critical multi-tractor coordination demands verifiable reasoning from ALL assistants
+  - ISO compliance: Transparent decision auditing and reproducible analysis across AI platforms
+  - Cross-session persistence: Embedded in CLAUDE.md, SESSION_SUMMARY.md, and loadsession initialization
 - CHANGELOG.md mandatory enforcement hook with comprehensive test suite (9 tests, 315+ lines)
   - Pre-commit hook validates CHANGELOG.md included in all commits
   - Tests for commit rejection without CHANGELOG.md (agricultural equipment changes)
