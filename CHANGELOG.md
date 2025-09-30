@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- SESSION_SUMMARY.md dual-location architecture for session management infrastructure
+  - Primary location: project root (SESSION_SUMMARY.md) for immediate discoverability
+  - Documentation copy: docs/monitoring/SESSION_SUMMARY.md for organized documentation structure
+  - Automatic synchronization: bin/savesession maintains both locations using timestamp-based sync
+  - bin/loadsession prioritizes root location with fallback to docs location
+  - Agricultural context: Session state accessibility critical for safety-critical multi-tractor coordination development
+  - Cross-agent infrastructure: Ensures ALL AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer) can reliably access session context
+  - ISO compliance: Documented session state location essential for audit trails and regulatory validation
+
 ### Added
 - Session state compaction into SESSION_SUMMARY.md following savesession protocol
   - Compacted SESSION_STATE_2025_09_30.md achievements into authoritative SESSION_SUMMARY.md
