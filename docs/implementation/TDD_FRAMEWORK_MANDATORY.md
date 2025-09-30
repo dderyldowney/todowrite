@@ -10,7 +10,11 @@
 
 **POLICY**: All future development on the AFS FastAPI agricultural robotics platform MUST follow Test-Driven Development (TDD) methodology. This framework establishes mandatory Red-Green-Refactor practices to ensure bulletproof reliability for safety-critical agricultural systems.
 
+**UNIVERSAL APPLICATION**: This requirement applies to ALL contributors—human developers AND all AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer, and any future AI development assistant).
+
 **ENFORCEMENT**: Automated pre-commit hooks validate TDD compliance before any code changes are accepted.
+
+**INVESTIGATION PATTERN**: All substantive responses explaining code behavior, debugging issues, or analyzing system architecture MUST follow structured investigation pattern (see [INVESTIGATION_PATTERN_MANDATORY.md](../../.claude/INVESTIGATION_PATTERN_MANDATORY.md)).
 
 ---
 
@@ -23,6 +27,19 @@
 1. **RED Phase**: Write failing test describing desired agricultural behavior
 2. **GREEN Phase**: Implement minimal code to satisfy test requirements
 3. **REFACTOR Phase**: Improve code quality while maintaining test coverage
+
+### Universal AI Agent Compliance
+
+**ALL AI development assistants** generating code for this platform MUST follow TDD methodology:
+
+- **Claude Code** (Anthropic): Must write tests before implementation code
+- **GitHub Copilot** (Microsoft/OpenAI): Must generate test-driven code patterns
+- **ChatGPT Code Interpreter** (OpenAI): Must follow RED-GREEN-REFACTOR workflow
+- **Gemini Code Assist** (Google): Must validate test coverage before code generation
+- **Amazon CodeWhisperer** (AWS): Must adhere to test-first development practices
+- **Any Future AI Agent**: Must comply with mandatory TDD framework
+
+**Rationale for Universal AI Compliance**: Safety-critical agricultural robotics cannot differentiate code quality by generation method—whether written by human developers or AI assistants, ALL code must meet identical verification standards to ensure ISO 18497/11783 compliance.
 
 ### Justification for Mandatory TDD
 

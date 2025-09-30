@@ -232,7 +232,7 @@ class TestAgriculturalOperation:
 
 **WORKFLOW.md** is the **complete authoritative reference** for the AFS FastAPI testing architecture:
 
-- **118 tests** across 3-layer architecture (Feature, Unit, Root-level tests)
+- **148 tests** across 3-layer architecture (Feature, Unit, Root-level tests, plus enforcement hooks)
 - **Professional agricultural standards** compliance (ISOBUS ISO 11783, Safety ISO 18497)
 - **Complete test flow patterns** and execution commands
 - **Domain coverage analysis** for Equipment, Monitoring, API, and Infrastructure

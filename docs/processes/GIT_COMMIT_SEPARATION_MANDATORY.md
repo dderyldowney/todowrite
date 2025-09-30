@@ -10,6 +10,10 @@
 
 **MANDATORY REQUIREMENT**: All git commits in the AFS FastAPI agricultural robotics platform must follow strict separation of concerns methodology. Each commit must address exactly one logical concern, enabling precise change tracking, efficient code reviews, and reliable rollback capabilities essential for safety-critical agricultural systems.
 
+**UNIVERSAL APPLICATION**: This requirement applies to ALL contributors—human developers AND all AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer, and any future AI development assistant).
+
+**INVESTIGATION PATTERN**: All commit messages explaining complex changes SHOULD reference structured investigation pattern when applicable (see [INVESTIGATION_PATTERN_MANDATORY.md](../../.claude/INVESTIGATION_PATTERN_MANDATORY.md)).
+
 ## Separation Categories
 
 ### 1. Feature Implementation (`feat`)
@@ -199,17 +203,31 @@ config(hooks): add commit separation enforcement
 
 ## Implementation Requirements
 
-### For AI Code Generation (Claude Code)
-- **MANDATORY**: All generated commits must follow separation of concerns
+### For ALL AI Code Generation (Universal Agent Compliance)
+
+**MANDATORY**: All AI development assistants generating commits for this platform MUST follow separation of concerns:
+
+- **Claude Code** (Anthropic): Must separate feat/fix/refactor/docs/test/config commits
+- **GitHub Copilot** (Microsoft/OpenAI): Must generate single-concern commit messages
+- **ChatGPT Code Interpreter** (OpenAI): Must follow conventional commit format with separation
+- **Gemini Code Assist** (Google): Must validate single logical concern per commit
+- **Amazon CodeWhisperer** (AWS): Must adhere to commit separation methodology
+- **Any Future AI Agent**: Must comply with mandatory separation of concerns framework
+
+**AI-Specific Requirements**:
 - **RED-GREEN-REFACTOR**: TDD commits must be properly separated by phase
 - **Agricultural Context**: All commit messages must include domain-specific context
 - **Professional Standards**: Commit quality reflects enterprise development practices
+- **Investigation Pattern**: Complex changes should reference structured investigation when debugging or analyzing
+
+**Rationale for Universal AI Compliance**: Safety-critical agricultural robotics requires traceable change management—commit separation enables precise rollback, targeted testing, and ISO compliance auditing regardless of code generation method.
 
 ### For Human Developers
 - **Training Required**: All team members must understand separation methodology
 - **Review Standards**: Code reviews must enforce separation requirements
 - **Documentation**: Commit messages serve as living project documentation
 - **Compliance**: Pre-commit hooks ensure consistent application
+- **AI Oversight**: Developers using AI assistants must verify commit separation compliance
 
 ## Cross-Session Persistence
 
