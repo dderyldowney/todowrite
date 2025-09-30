@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Universal savesession command for all humans and AI agents (bin/savesession)
+  - Captures complete session state: conceptual (requirements), contextual (metrics), functional (architecture)
+  - CRITICAL REQUIREMENT: Session state MUST be compacted into SESSION_SUMMARY.md before applying changes
+  - Creates dated snapshots: docs/monitoring/SESSION_STATE_YYYY_MM_DD.md
+  - Universal access: ALL AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer) can execute
+  - Cross-session memory: Command documented in CLAUDE.md, AGENTS.md, SESSION_SUMMARY.md for all sessions
+  - Compaction protocol: Prevents knowledge fragmentation, ensures SESSION_SUMMARY.md remains authoritative
+  - Visual reminders: bin/loadsession displays savesession command at end of context loading
+  - Complete specification: .claude/commands/savesession.md (comprehensive documentation and rationale)
+  - Agricultural context: ISO compliance auditing requires documented session state for safety-critical systems
 - Session state snapshot documentation (docs/monitoring/SESSION_STATE_2025_09_30.md)
   - Complete conceptual, contextual, and functional state capture
   - Session achievements: Universal AI enforcement, 8 consistency issues resolved, EXECUTION_ORDER.md created

@@ -346,6 +346,14 @@ The project includes a **.claude/commands/** directory containing reusable comma
   - Ensures continuity of Test-First Development methodology and synchronization infrastructure focus
   - Maintains dual-purpose educational and functional mission across sessions
   - **Architecture**: See [docs/EXECUTION_ORDER.md](docs/EXECUTION_ORDER.md) for complete execution flow
+- **savesession**: Saves complete session state (conceptual, contextual, functional) with mandatory compaction
+  - **CRITICAL**: Session state MUST be compacted into SESSION_SUMMARY.md before applying new changes
+  - Creates dated snapshot: `docs/monitoring/SESSION_STATE_YYYY_MM_DD.md`
+  - Captures: Platform metrics, git status, mandatory requirements, enforcement mechanisms
+  - **Universal Access**: ALL humans and AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer)
+  - **Compaction Protocol**: Prevents knowledge fragmentation, ensures SESSION_SUMMARY.md remains authoritative
+  - **Cross-Session Memory**: Command MUST be remembered by all agents across all sessions
+  - **Complete Specification**: See [.claude/commands/savesession.md](.claude/commands/savesession.md)
 - **whereweare**: Generates comprehensive WHERE_WE_ARE.md project state assessment
   - Creates 475-line strategic documentation from overarching vision to implementation details
   - Captures live metrics (tests, code quality, release status)

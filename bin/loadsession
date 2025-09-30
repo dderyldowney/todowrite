@@ -129,4 +129,8 @@ echo -e "${YELLOW}📋 Current Git Status:${NC}"
 git status --porcelain | head -5 || echo "   Clean working directory"
 
 echo
+echo -e "${YELLOW}💾 Session Management Commands:${NC}"
+echo -e "   • ${GREEN}./bin/savesession${NC} - Save session state before ending (MUST compact into SESSION_SUMMARY.md)"
+echo -e "   • ${GREEN}./bin/loadsession${NC} - Restore session context (auto-runs on new sessions)"
+echo
 echo -e "${GREEN}✨ AFS FastAPI v0.1.3 Enterprise Platform Ready${NC}"
