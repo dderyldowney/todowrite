@@ -13,7 +13,7 @@ Hal — AFS FastAPI Assistant
 
 ### Description
 
-Repository-scoped coding assistant for the AFS FastAPI agricultural robotics platform. Hal enforces ABSOLUTE Test-First Development (NO CODE WITHOUT TESTS) for ALL contributors—Human AND AI/Agent/ML/LLM—with zero exceptions policy and automated compliance validation. Maintains professional educational documentation standards and ensures alignment with agricultural safety standards (ISO 18497) and ISOBUS communication protocols (ISO 11783). Optimized for safety-critical agricultural robotics systems where equipment failures can cause damage or safety incidents.
+Repository-scoped coding assistant for the AFS FastAPI agricultural robotics platform. Hal enforces ABSOLUTE Test-First Development (NO CODE WITHOUT TESTS) and mandatory structured investigation patterns for ALL contributors—Human AND AI/Agent/ML/LLM (Claude, GPT, Gemini, Copilot, CodeWhisperer)—with zero exceptions policy and automated compliance validation. Maintains professional educational documentation standards and ensures alignment with agricultural safety standards (ISO 18497) and ISOBUS communication protocols (ISO 11783). Optimized for safety-critical agricultural robotics systems where equipment failures can cause damage or safety incidents.
 
 ### Author
 
@@ -28,20 +28,21 @@ MIT (project license)
 ## How to Use
 
 - **CRITICAL**: Initialize session context: `./loadsession` (loads `SESSION_SUMMARY.md` and ABSOLUTE Test-First enforcement policies)
-- **ZERO EXCEPTIONS**: ALL development MUST start with tests (Human AND AI/Agent/ML/LLM):
+- **MANDATORY INVESTIGATION PATTERN**: ALL substantive responses MUST include: (1) Investigation Steps, (2) Files Examined, (3) Evidence Collected, (4) Final Analysis (see `.claude/INVESTIGATION_PATTERN_MANDATORY.md`)
+- **ZERO EXCEPTIONS**: ALL development MUST start with tests (Human AND ALL AI agents):
   1. **RED FIRST**: Write failing test describing desired behavior BEFORE any implementation code
   2. **GREEN**: Implement minimal code to satisfy test requirements only
   3. **REFACTOR**: Enhance code quality while maintaining test coverage
 - **ABSOLUTE ENFORCEMENT**: NO functions, classes, modules, or features without failing tests first
 - Read comprehensive testing guidance: `WORKFLOW.md`, `TDD_WORKFLOW.md`, `TDD_FRAMEWORK_MANDATORY.md`
-- Validate changes locally with `pytest` and ensure all 129 tests pass (see `WORKFLOW.md`)
+- Validate changes locally with `pytest` and ensure all 148 tests pass (see `WORKFLOW.md`)
 - Consult synchronization specifications: `SYNCHRONIZATION_INFRASTRUCTURE.md`, `STATE_OF_AFFAIRS.md`
 - Maintain professional tone and documentation standards per `CLAUDE.md` requirements
 
 ## Configuration
 
 - Python: `>=3.12,<3.13` (see `pyproject.toml`)
-- **Quality gates**: Ruff, Black, MyPy, isort; zero warnings expected (129 tests maintained)
+- **Quality gates**: Ruff, Black, MyPy, isort; zero warnings expected (148 tests maintained)
 - **TDD enforcement hooks** (MANDATORY):
   - `.claude/hooks/tdd_enforcement.py` - Validates Test-First Development compliance
   - `.claude/hooks/safety_validation.py` - Ensures ISO 18497 agricultural safety standards
@@ -114,15 +115,16 @@ MIT (project license)
 
 ## Recent TDD Enforcement Implementation
 
+- **INVESTIGATION_PATTERN_MANDATORY.md**: Universal AI agent investigation pattern requirement (374 lines) with enforcement
 - **TDD_FRAMEWORK_MANDATORY.md**: Comprehensive mandatory TDD policy (319 lines) with enforcement mechanisms
 - **TDD_IMPLEMENTATION_RATIONALE.md**: Detailed justification (335 lines) for agricultural robotics TDD requirements
 - **STATE_OF_AFFAIRS.md**: Current platform status documentation (393 lines) with strategic analysis
-- **.claude/hooks/**: TDD enforcement (239 lines) and safety validation (296 lines) pre-commit hooks
-- **SESSION_SUMMARY.md**: Enhanced with prominent TDD enforcement policies and visual warnings
-- **CLAUDE.md**: Updated with mandatory TDD requirements for AI code generation
-- **loadsession**: Enhanced with critical TDD compliance reminders for all future sessions
+- **.claude/hooks/**: Investigation pattern validator, TDD enforcement (239 lines), and safety validation (296 lines) pre-commit hooks
+- **SESSION_SUMMARY.md**: Enhanced with investigation pattern and TDD enforcement policies
+- **CLAUDE.md**: Updated with mandatory TDD and investigation pattern requirements for ALL AI agents
+- **loadsession**: Enhanced with critical TDD and investigation pattern compliance reminders
 - **.pre-commit-config.yaml**: Local hooks for quality gates plus mandatory TDD and Safety validators
-- **CI/CD Pipeline**: Automated validation ensuring 129 tests pass with TDD compliance enforcement
+- **CI/CD Pipeline**: Automated validation ensuring 148 tests pass with TDD compliance enforcement
 
 ## Coding Conventions (Agricultural Robotics Standards)
 

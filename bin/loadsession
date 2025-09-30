@@ -48,8 +48,8 @@ if grep -q "v0.1.3" "${SESSION_FILE}"; then
     echo "   • Version: v0.1.3 (Stable Release)"
 fi
 
-if grep -q "129 tests" "${SESSION_FILE}"; then
-    echo "   • Testing: 129 comprehensive tests"
+if grep -q "148 tests" "${SESSION_FILE}"; then
+    echo "   • Testing: 148 comprehensive tests"
 fi
 
 if grep -q "Zero linting warnings" "${SESSION_FILE}"; then
@@ -97,21 +97,23 @@ echo
 # 🚨 CRITICAL INVESTIGATION PATTERN REQUIREMENT
 echo -e "\033[1;31m🚨 CRITICAL: MANDATORY INVESTIGATION PATTERN ACTIVE${NC}"
 echo -e "\033[1;31m====================================================${NC}"
-echo -e "${YELLOW}ALL responses MUST follow structured investigation pattern:${NC}"
+echo -e "${YELLOW}ALL AI agent responses MUST follow structured investigation pattern:${NC}"
 echo -e "   • Investigation Steps: Numbered methodology"
 echo -e "   • Files Examined: File paths with rationale"
 echo -e "   • Evidence Collected: Factual findings with indicators"
 echo -e "   • Final Analysis: Root cause and solutions"
+echo -e "${YELLOW}Applies to: Claude, GPT, Gemini, Copilot, CodeWhisperer, all AI agents${NC}"
 echo -e "${YELLOW}Reference: .claude/INVESTIGATION_PATTERN_MANDATORY.md${NC}"
 echo
 
 # 🚨 CRITICAL TDD ENFORCEMENT REMINDER
 echo -e "\033[1;31m🚨 CRITICAL: MANDATORY TDD ENFORCEMENT ACTIVE${NC}"
 echo -e "\033[1;31m================================================${NC}"
-echo -e "${YELLOW}Claude Code MUST follow Test-Driven Development methodology:${NC}"
+echo -e "${YELLOW}ALL AI agents MUST follow Test-Driven Development methodology:${NC}"
 echo -e "   • RED Phase: Write failing tests FIRST"
 echo -e "   • GREEN Phase: Generate minimal code to pass tests"
 echo -e "   • REFACTOR Phase: Enhance quality while maintaining coverage"
+echo -e "${YELLOW}Applies to: Claude, GPT, Gemini, Copilot, CodeWhisperer, all AI agents${NC}"
 echo -e "${YELLOW}Automated pre-commit hooks validate TDD compliance.${NC}"
 echo -e "${YELLOW}Reference: .claude/TDD_MANDATORY_REMINDER.md${NC}"
 echo
