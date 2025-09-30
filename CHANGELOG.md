@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **workflow**: Automated CHANGELOG.md generation command (updatechangelog)
+  - Complete Test-Driven Development: 13 comprehensive tests written FIRST (RED phase)
+  - Python implementation: afs_fastapi/scripts/updatechangelog.py with git log parsing
+  - Bash wrapper: bin/updatechangelog for easy command-line execution
+  - Conventional commit parsing: Categorizes feat, fix, refactor, docs, config, security
+  - Keep a Changelog formatting: Proper [Unreleased] section and category organization
+  - Agricultural context: Safety-critical change tracking for ISO 18497/11783 compliance
+  - Git integration: Extracts commits since last CHANGELOG.md modification
+  - Merge commit filtering: Excludes merge commits from changelog entries
+  - Backup creation: Automatic .bak file before modification for safety
+  - Test suite expanded: 148 → 161 tests (+13 for updatechangelog functionality)
+  - Universal AI agent support: Command usable by ALL development assistants
+
+### Configuration
+- **workflow**: Establish SESSION_SUMMARY.md dual-location architecture
+
 ### Changed
 - SESSION_SUMMARY.md dual-location architecture for session management infrastructure
   - Primary location: project root (SESSION_SUMMARY.md) for immediate discoverability
