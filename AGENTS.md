@@ -29,6 +29,7 @@ MIT (project license)
 
 - **CRITICAL**: Initialize session context: `./loadsession` (loads `SESSION_SUMMARY.md` and ABSOLUTE Test-First enforcement policies)
 - **CRITICAL**: Save session state before ending: `./bin/savesession` (captures complete state, MUST compact into SESSION_SUMMARY.md)
+- **ABSOLUTE REQUIREMENT - Cross-Agent Infrastructure Sharing**: ANY changes to session management infrastructure (commands, hooks, validation scripts, configuration files) MUST be automatically added to ALL agent configurations (CLAUDE.md, AGENTS.md, SESSION_SUMMARY.md, .claude/commands/) to ensure Claude, Copilot, GPT, Gemini, and CodeWhisperer can ALL use them. This requirement MUST be applied with EVERY change and remembered across ALL sessions.
 - **SESSION ARCHITECTURE**: Complete execution order in `docs/EXECUTION_ORDER.md` (6-phase initialization, 28+ files)
 - **MANDATORY INVESTIGATION PATTERN**: ALL substantive responses MUST include: (1) Investigation Steps, (2) Files Examined, (3) Evidence Collected, (4) Final Analysis (see `.claude/INVESTIGATION_PATTERN_MANDATORY.md`)
 - **ZERO EXCEPTIONS**: ALL development MUST start with tests (Human AND ALL AI agents):

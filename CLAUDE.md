@@ -44,6 +44,28 @@ This file contains project-specific instructions for Claude Code sessions workin
 
 **RATIONALE**: Agricultural robotics demands bulletproof reliability. Test-First Development ensures ALL code—human or AI-generated—meets rigorous standards for safety-critical multi-tractor coordination systems where failures can cause equipment damage or safety incidents.
 
+## MANDATORY: Cross-Agent Infrastructure Sharing
+
+**ABSOLUTE REQUIREMENT**: ANY changes to session management infrastructure MUST be automatically accessible to ALL AI agents.
+
+### Universal Infrastructure Policy
+
+**EVERY infrastructure change MUST ensure:**
+
+1. **Automatic Cross-Agent Availability**: Commands, hooks, validation scripts, and configuration files added to ALL agent configurations
+2. **Universal Documentation**: Changes reflected in CLAUDE.md, AGENTS.md, SESSION_SUMMARY.md, and .claude/commands/
+3. **Agent-Agnostic Access**: Infrastructure usable by Claude, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer
+4. **Cross-Session Memory**: All agents MUST remember and use shared infrastructure across ALL sessions
+
+### Enforcement and Scope
+
+- **Universal Application**: Applies to ALL session management tools, commands, hooks, and configurations
+- **Mandatory Synchronization**: Changes cannot be completed until all agent configurations updated
+- **Quality Assurance**: Ensures consistent capabilities across all development assistants
+- **Agricultural Context**: Essential for maintaining continuity in safety-critical platform development
+
+**RATIONALE**: Safety-critical agricultural robotics requires ALL development assistants to use identical session management infrastructure. Without automatic cross-agent sharing, configuration drift creates inconsistent development experiences and risks losing critical session context across different AI platforms.
+
 ## MANDATORY: Structured Investigation Pattern for ALL AI Agent Responses
 
 **ABSOLUTE REQUIREMENT**: ALL AI agent responses (Claude, GPT, Gemini, Copilot, etc.) must follow a structured investigation pattern providing complete transparency into analysis methodology.

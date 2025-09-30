@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Cross-agent infrastructure sharing requirement for ALL session management changes
+  - ABSOLUTE REQUIREMENT: ANY changes to session infrastructure MUST be added to ALL agent configurations
+  - Ensures Claude, GitHub Copilot, ChatGPT, Gemini Code Assist, and CodeWhisperer can ALL use shared infrastructure
+  - Automatic synchronization: CLAUDE.md, AGENTS.md, SESSION_SUMMARY.md, .claude/commands/ updated together
+  - Cross-session memory: All agents remember and use shared commands, hooks, validation scripts
+  - Prevents configuration drift: Maintains consistent capabilities across all AI development assistants
+  - Agricultural context: Safety-critical platform requires ALL assistants to use identical session management
+  - Documented in CLAUDE.md (new MANDATORY section), AGENTS.md (critical requirement), SESSION_SUMMARY.md (platform metric)
 - Universal savesession command for all humans and AI agents (bin/savesession)
   - Captures complete session state: conceptual (requirements), contextual (metrics), functional (architecture)
   - CRITICAL REQUIREMENT: Session state MUST be compacted into SESSION_SUMMARY.md before applying changes
