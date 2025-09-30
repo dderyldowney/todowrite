@@ -21,6 +21,7 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 - **Git Commit Management**: **MANDATORY** Separation of concerns with single-concern validation
 - **CHANGELOG Management**: **MANDATORY** Automated enforcement via pre-commit hook validates documentation in every commit
 - **Investigation Pattern**: **MANDATORY** Structured investigation pattern for ALL AI agents (Claude, GPT, Gemini, Copilot, etc.) with universal enforcement
+- **Session State Management**: **CRITICAL** - `savesession` command captures complete state (conceptual, contextual, functional), MUST compact into SESSION_SUMMARY.md before changes
 - **Universal Agent Access**: **AUTOMATIC** loadsession execution for ALL Claude Code agents with persistent cross-session behavior
 - **Session Initialization**: 5-minute staleness detection with comprehensive test coverage for reliable /new restart handling
 - **Universal AI Compliance**: **CRITICAL** - ALL AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer) MUST follow Test-First (RED phase BEFORE code), commit separation, CHANGELOG documentation, and structured investigation pattern
