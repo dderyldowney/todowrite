@@ -12,7 +12,7 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 
 ### Platform Metrics
 
-- **Version**: v0.1.3+ (Stable Release with TDD, Commit Separation, CHANGELOG Enforcement, Universal AI Agent Investigation Pattern, Automated CHANGELOG Generation)
+- **Version**: v0.1.3+ (Stable Release with TDD, Commit Separation, CHANGELOG Enforcement, Universal AI Agent Investigation Pattern, Automated CHANGELOG Generation, Standardized Test Reporting)
 - **Test Suite**: 161 tests passing (100% success rate in <3s) - includes 10 session initialization + 9 CHANGELOG enforcement + 13 updatechangelog tests
 - **Code Quality**: Zero warnings across all tools (Ruff, MyPy, Black, isort)
 - **Industry Compliance**: Complete ISO 11783 (ISOBUS) and ISO 18497 (Safety) implementation
@@ -21,11 +21,12 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 - **Git Commit Management**: **MANDATORY** Separation of concerns with single-concern validation
 - **CHANGELOG Management**: **MANDATORY** Automated enforcement via pre-commit hook validates documentation in every commit
 - **Investigation Pattern**: **MANDATORY** Structured investigation pattern for ALL AI agents (Claude, GPT, Gemini, Copilot, etc.) with universal enforcement
+- **Test Reporting**: **MANDATORY** Standardized test reporting format for ALL AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer, etc.) with comprehensive analysis
 - **Session State Management**: **CRITICAL** - `savesession` command captures complete state (conceptual, contextual, functional), MUST compact into SESSION_SUMMARY.md before changes
 - **Cross-Agent Infrastructure Sharing**: **ABSOLUTE REQUIREMENT** - ANY changes to session management infrastructure (commands, hooks, configurations) MUST be automatically added to ALL agent configurations ensuring Claude, Copilot, GPT, Gemini, and CodeWhisperer can ALL use them
 - **Universal Agent Access**: **AUTOMATIC** loadsession execution for ALL Claude Code agents with persistent cross-session behavior
 - **Session Initialization**: 5-minute staleness detection with comprehensive test coverage for reliable /new restart handling
-- **Universal AI Compliance**: **CRITICAL** - ALL AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer) MUST follow Test-First (RED phase BEFORE code), commit separation, CHANGELOG documentation, and structured investigation pattern
+- **Universal AI Compliance**: **CRITICAL** - ALL AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer) MUST follow Test-First (RED phase BEFORE code), commit separation, CHANGELOG documentation, structured investigation pattern, and standardized test reporting
 
 ### Current Capabilities
 
@@ -81,6 +82,53 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 ## Final Analysis
 **Root Cause**: Expiration window too aggressive
 **Solutions**: Manual deletion, extended window, explicit call
+```
+
+## 🚨 CRITICAL: MANDATORY Standardized Test Reporting for ALL AI Agents
+
+**ABSOLUTE REQUIREMENT**: ALL AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer, etc.) MUST use standardized test reporting format when executing test suites.
+
+### Universal Test Reporting Protocol
+
+**EVERY test execution response MUST include:**
+
+1. **Executive Summary Block**: High-level results with pass/fail status and key metrics
+2. **Insight Block**: Educational analysis of test suite architecture (required when Explanatory style active)
+3. **Test Distribution Analysis**: Breakdown by category and domain coverage with file references
+4. **Platform Health Indicators**: Checklist of key quality metrics (✓/✗ format)
+5. **Agricultural Context**: Safety-critical and ISO compliance highlights
+6. **Advisory Notes**: Warnings, deprecations, or recommended improvements
+
+### Why This Pattern Is Mandatory
+
+**Consistent Quality Assessment**:
+- **Uniform evaluation**: All AI agents provide identical analysis depth and structure
+- **Safety assurance**: Consistent highlighting of ISO compliance and safety-critical tests
+- **Educational value**: Clear explanations of test architecture significance
+- **Decision support**: Actionable insights for development prioritization
+
+**Universal Agent Enforcement**:
+- **Agent Agnostic**: Applies to Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, CodeWhisperer
+- **Cross-Session Persistence**: Requirement embedded permanently in project configuration
+- **Test Command Coverage**: Applies to `pytest`, `pytest -v`, `pytest --cov`, and all test variations
+- **Complete Specification**: `.claude/TEST_REPORTING_MANDATORY.md`
+- **Reusable Command**: `.claude/commands/runtests.md` for standardized execution
+
+### Example Test Report Structure
+
+```markdown
+## Test Suite Execution Complete: All Tests Passing ✓
+
+### Test Results Summary
+**Total Tests**: 161 passed (100% success rate)
+**Execution Time**: 3.26 seconds
+**Platform**: Python 3.12.8 on macOS
+
+### Platform Health Indicators
+✓ **Zero Test Failures**: All 161 tests passing
+✓ **Fast Execution**: Sub-4-second runtime
+✓ **Agricultural Compliance**: ISOBUS and safety systems validated
+✓ **Vector Clock Synchronization**: Distributed systems operational (11 tests)
 ```
 
 ## 🚨 CRITICAL: ABSOLUTE Test-First Development - TESTS DRIVE IMPLEMENTATION
@@ -347,7 +395,7 @@ This is NOT optional - test output must be displayed to demonstrate Test-Driven 
 - Test Suite: 161 tests (100% passing, +13 updatechangelog tests)
 - Code Quality: Zero warnings across all tools
 - Git Status: All commits pushed to origin/develop, working tree clean
-- Commands: loadsession, savesession, updatechangelog all operational
+- Commands: loadsession, savesession, runtests, updatechangelog all operational
 - Universal AI Support: Complete enforcement and infrastructure sharing across Claude, Copilot, GPT, Gemini, CodeWhisperer
 
 ### Previous Session Achievements (September 29, 2025 Evening)

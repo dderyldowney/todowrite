@@ -93,6 +93,35 @@ This file contains project-specific instructions for Claude Code sessions workin
 
 **RATIONALE**: Safety-critical agricultural robotics demands verifiable reasoning from ALL development assistants (human or AI). Structured investigation patterns enable safety validation, decision auditing, reproducible analysis, and educational knowledge transfer—essential for ISO compliance and bulletproof multi-tractor coordination systems.
 
+## MANDATORY: Standardized Test Reporting for ALL AI Agents
+
+**ABSOLUTE REQUIREMENT**: ALL AI agents must use standardized test reporting format when executing test suites.
+
+### Universal Test Reporting Protocol
+
+**EVERY test execution response MUST include:**
+
+1. **Executive Summary Block**: High-level results with pass/fail status
+2. **Insight Block**: Educational analysis of test suite architecture (required when Explanatory style active)
+3. **Test Distribution Analysis**: Breakdown by category and domain coverage
+4. **Platform Health Indicators**: Checklist of key quality metrics
+5. **Agricultural Context**: Safety-critical and ISO compliance highlights
+6. **Advisory Notes**: Warnings, deprecations, or recommended improvements
+
+### Enforcement and Scope
+
+- **Universal Application**: Applies to ALL AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini, CodeWhisperer, etc.)
+- **Cross-Session Persistence**: Requirement embedded permanently in project configuration
+- **Agent Agnostic**: Pattern applies regardless of AI platform or implementation
+- **Test Commands**: Applies to `pytest`, `pytest -v`, `pytest --cov`, and all testing variations
+- **Educational Integration**: Enhanced insights when Explanatory output style active
+
+### Complete Specification
+
+**Reference**: [.claude/TEST_REPORTING_MANDATORY.md](.claude/TEST_REPORTING_MANDATORY.md)
+
+**RATIONALE**: Safety-critical agricultural robotics demands consistent, comprehensive test analysis from ALL development assistants (human or AI). Standardized test reporting enables quality validation, safety assurance, educational value, decision support, and cross-session continuity—essential for maintaining enterprise-grade reliability in multi-tractor coordination systems.
+
 ## MANDATORY: Format-First Generation Standards
 
 **ABSOLUTE REQUIREMENT**: ALL generated content must emerge in final quality-controlled form.
@@ -376,6 +405,13 @@ The project includes a **.claude/commands/** directory containing reusable comma
   - **Compaction Protocol**: Prevents knowledge fragmentation, ensures SESSION_SUMMARY.md remains authoritative
   - **Cross-Session Memory**: Command MUST be remembered by all agents across all sessions
   - **Complete Specification**: See [.claude/commands/savesession.md](.claude/commands/savesession.md)
+- **runtests**: Executes comprehensive test suite with standardized reporting format
+  - **MANDATORY**: ALL AI agents must provide standardized test analysis (Executive Summary, Insight Block, Test Distribution, Platform Health Indicators, Agricultural Context, Advisory Notes)
+  - Colored output with platform health assessment and reporting reminders
+  - Command variations: `./bin/runtests`, `./bin/runtests --coverage`, `./bin/runtests -q`, `./bin/runtests tests/unit/equipment/`
+  - **Universal Access**: ALL humans and AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer)
+  - **Cross-Session Memory**: Command MUST be remembered by all agents across all sessions
+  - **Complete Specification**: See [.claude/commands/runtests.md](.claude/commands/runtests.md)
 - **whereweare**: Generates comprehensive WHERE_WE_ARE.md project state assessment
   - Creates 475-line strategic documentation from overarching vision to implementation details
   - Captures live metrics (tests, code quality, release status)
