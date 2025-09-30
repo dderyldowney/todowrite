@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- CHANGELOG.md mandatory enforcement hook with comprehensive test suite (9 tests, 315+ lines)
+  - Pre-commit hook validates CHANGELOG.md included in all commits
+  - Tests for commit rejection without CHANGELOG.md (agricultural equipment changes)
+  - Tests for commit acceptance with CHANGELOG.md (proper documentation protocol)
+  - Agricultural context error messages explaining ISO 18497/11783 compliance requirements
+  - CHANGELOG.md-only commit acceptance (documentation consolidation)
+  - Multi-file commit rejection without CHANGELOG.md (coordination system changes)
+  - Git workflow integration validation
+  - Remediation instructions (how to add CHANGELOG.md and complete commit)
+  - Repository file existence validation
+  - Merge commit exception handling (already documented in individual commits)
 - Comprehensive test suite for session initialization hook (10 tests, 350+ lines)
   - Tests for new session detection (missing markers and stale markers >5 minutes)
   - Tests for active session recognition (fresh markers <5 minutes)
@@ -41,6 +52,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cross-session error prevention with persistent solution storage
 
 ### Enhanced
+- Pre-commit configuration with CHANGELOG.md enforcement hook integration
+  - Added `.claude/hooks/changelog_enforcement.py` to pre-commit workflow
+  - Runs automatically on all commits to validate CHANGELOG.md presence
+  - Positioned before commit-msg hooks for early validation
+  - Pass filenames enabled for staged file inspection
+  - Prevents commits without CHANGELOG.md from entering repository
 - SESSION_SUMMARY.md with MANDATORY CHANGELOG.md Maintenance Protocol
   - Added comprehensive CHANGELOG.md maintenance to CRITICAL enforcement section
   - ABSOLUTE REQUIREMENT status matching TDD and Commit Separation protocols
@@ -48,6 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Cross-Session Enforcement: mandatory updates, agricultural context, version history
   - Rationale: ISO 18497/11783 compliance auditing requires documented change tracking
   - Living document permanently tracked in repository (NOT gitignored)
+  - Automated enforcement via pre-commit hook validates compliance
 - SESSION_SUMMARY.md with explicit RED-GREEN-REFACTOR protocol documentation
   - "TESTS DRIVE IMPLEMENTATION" emphasis clarifying tests define what gets built
   - RED Phase: Write failing test BEFORE any implementation code
@@ -87,11 +105,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added root-level `loadsession` wrapper delegating to `bin/loadsession` to match documentation (`./loadsession`)
 
 ### Changed
-- Test suite expanded from 129 to 139 tests (+10 session initialization hook tests)
-- All tests passing in <1.5 seconds (was 1.27s for 129 tests)
+- Test suite expanded from 139 to 148 tests (+9 CHANGELOG.md enforcement hook tests)
+- All tests passing in <2.7 seconds (was <1.5s for 139 tests)
+- Pre-commit hooks now include CHANGELOG.md enforcement alongside TDD, Safety, Commit Separation
 
 ### Rationale
-This session enforced the ABSOLUTE MANDATORY Test-First Development policy after identifying a violation where session initialization hook was modified without prior failing tests. The comprehensive test suite (10 tests) was created retroactively to validate the 5-minute staleness detection fix and ensure reliable automatic context restoration after /new restarts. Enhanced SESSION_SUMMARY.md documentation ensures future sessions maintain strict RED-GREEN-REFACTOR discipline with test output display requirements for agricultural robotics domain communication. Session state markers excluded from git tracking to prevent repository pollution with operational data.
+This session implemented automated CHANGELOG.md enforcement following Test-First Development methodology. After documenting CHANGELOG.md as MANDATORY in SESSION_SUMMARY.md, the requirement needed active enforcement via pre-commit hook to ensure compliance. The 9-test comprehensive suite validates all scenarios: rejection without CHANGELOG.md, acceptance with CHANGELOG.md, agricultural context error messages, merge commit exceptions, and git workflow integration. Automated enforcement ensures complete version history tracking essential for ISO 18497/11783 compliance auditing and safety-critical agricultural robotics platform documentation.
 
 [0.1.3-post] - 2025-09-28
 --------------------------
