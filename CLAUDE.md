@@ -313,6 +313,26 @@ config(hooks): add commit separation enforcement
 - TDD_WORKFLOW.md: Complete Test-First development guide with agricultural domain examples
 - TDD_FRAMEWORK_MANDATORY.md: Comprehensive mandatory TDD framework and enforcement policies
 
+## Session Initialization Architecture
+
+**Complete Execution Order**: [docs/EXECUTION_ORDER.md](docs/EXECUTION_ORDER.md)
+
+The platform uses a sophisticated 6-phase session initialization architecture with 28+ files working together to establish conceptual, contextual, and functional session state for ALL AI agents.
+
+**Key Phases**:
+1. **Automatic Hook-Based Initialization** - Claude Code hooks detect new sessions
+2. **Manual Session Loading** - `bin/loadsession` provides fallback context restoration
+3. **Conceptual Context Loading** - CLAUDE.md, SESSION_SUMMARY.md, AGENTS.md define requirements
+4. **Enforcement & Validation** - Hooks validate compliance with mandatory requirements
+5. **Mandatory Requirement References** - Complete specifications for universal AI agents
+6. **Helper Commands & Utilities** - Additional session-related documentation and tools
+
+**Session Initialization Execution**:
+- **Automatic**: [.claude/hooks/session_initialization.py](.claude/hooks/session_initialization.py) detects new sessions via 5-minute staleness detection
+- **Manual**: `bin/loadsession` command explicitly loads context
+- **Documentation**: SESSION_SUMMARY.md provides primary session state (578 lines)
+- **Test Coverage**: 10 tests validate automatic initialization logic
+
 ## Claude Command Integration
 
 ### Command Trigger Framework
@@ -325,6 +345,7 @@ The project includes a **.claude/commands/** directory containing reusable comma
   - Restores v0.1.3 platform state, enterprise foundation, and strategic development priorities
   - Ensures continuity of Test-First Development methodology and synchronization infrastructure focus
   - Maintains dual-purpose educational and functional mission across sessions
+  - **Architecture**: See [docs/EXECUTION_ORDER.md](docs/EXECUTION_ORDER.md) for complete execution flow
 - **whereweare**: Generates comprehensive WHERE_WE_ARE.md project state assessment
   - Creates 475-line strategic documentation from overarching vision to implementation details
   - Captures live metrics (tests, code quality, release status)
