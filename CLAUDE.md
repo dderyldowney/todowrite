@@ -314,6 +314,19 @@ The platform includes authoritative ISO 11783 technical specifications that MUST
 - **Testing**: Maintain comprehensive test coverage (see WORKFLOW.md for complete reference)
 - **Code Review**: All changes reviewed for educational value and professional standards
 
+### Environment Sanity (pyenv)
+
+- Verify pyenv is healthy before development:
+  - `pyenv --version` prints a version with no errors
+  - `pyenv rehash` runs clean (no “shims isn’t writable”)
+- If you see the shims error, run: `chmod u+rwx ~/.pyenv/shims && pyenv rehash`.
+- Keep zsh init in `~/.zshrc`; ensure `~/.bash_profile` is bash-safe, for example:
+  - `export PYENV_ROOT="$HOME/.pyenv"`
+  - `[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"`
+  - `eval "$(pyenv init -)"`
+  - Optionally: `eval "$(pyenv virtualenv-init -)"` if plugin installed
+- See the Quick Verification Checklist in `CONTRIBUTING.md` for full details.
+
 ### Documentation and Commit Message Standards
 
 **Professional Tone Requirements**:
