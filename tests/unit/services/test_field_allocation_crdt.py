@@ -14,13 +14,22 @@ Notes
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 
+# Treat FieldAllocationCRDT as a runtime variable for tests.
+# If the import is unavailable (pending implementation), fallback to None.
+FieldAllocationCRDT: Any
 try:
     # Planned API location
-    from afs_fastapi.services.field_allocation import FieldAllocationCRDT  # type: ignore
+    from afs_fastapi.services.field_allocation import (  # type: ignore
+        FieldAllocationCRDT as _FieldAllocationCRDT,
+    )
+
+    FieldAllocationCRDT = _FieldAllocationCRDT
 except Exception:  # pragma: no cover - pending implementation
-    FieldAllocationCRDT = None  # type: ignore[assignment]
+    FieldAllocationCRDT = None
 
 
 @pytest.mark.xfail(reason="CRDT not implemented yet (issue #6)", strict=False)
