@@ -17,6 +17,19 @@ AFS FastAPI employs **Test-Driven Development (TDD)** for all synchronization in
 
 Before opening a PR, please run through this comprehensive checklist:
 
+### 0. Environment Sanity (pyenv)
+
+- ✅ pyenv healthy: `pyenv --version` prints a version without errors
+- ✅ Rehash clean: `pyenv rehash` runs with no warnings
+- 🛠 If you see "shims isn't writable":
+  - Run: `chmod u+rwx ~/.pyenv/shims && pyenv rehash`
+  - Ensure `.bash_profile` contains only bash-safe init (no zsh-specific constructs):
+    - `export PYENV_ROOT="$HOME/.pyenv"`
+    - `[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"`
+    - `eval "$(pyenv init -)"`
+    - Optionally, if the plugin is installed: `eval "$(pyenv virtualenv-init -)"`
+  - Keep zsh-specific initialization in `~/.zshrc`/`~/.zprofile`, not in bash files.
+
 ### 1. Test-First Development Requirements
 
 **For Synchronization Infrastructure** (vector clocks, CRDTs, message queuing):
@@ -27,7 +40,7 @@ Before opening a PR, please run through this comprehensive checklist:
 
 **For General Development**:
 - **✅ Add tests**: New behavior or edge cases must have test coverage
-- **✅ Run full suite**: `python -m pytest tests/` (expect **129 tests** passing in ~1.4s)
+- **✅ Run full suite**: `python -m pytest tests/` (expect **161 tests** passing in ~3s)
 - **✅ Zero regression**: All existing tests must continue passing
 
 ### 2. Code Quality Standards
@@ -142,7 +155,7 @@ Before opening a PR, please run through this comprehensive checklist:
   - Educational framework preservation
 
 - **WORKFLOW.md**: Authoritative testing reference and architecture guide
-  - Complete test suite analysis (129 tests)
+  - Complete test suite analysis (161 tests)
   - Professional agricultural testing patterns
   - Domain coverage and execution commands
 
@@ -154,7 +167,7 @@ Before opening a PR, please run through this comprehensive checklist:
 **Quick Reference Commands:**
 
 ```bash
-# Run complete test suite (129 tests)
+# Run complete test suite (161 tests)
 python -m pytest tests/ -v
 
 # Check code quality (expect zero warnings)
