@@ -7,6 +7,7 @@
 #
 # Usage:
 #   ./bin/whereweare              # Display WHERE_WE_ARE.md document
+#   ./bin/whereweare --generate   # Generate/update WHERE_WE_ARE.md from sources
 #   ./bin/whereweare --help       # Show usage information
 #   ./bin/whereweare --root=PATH  # Set custom project root (test mode)
 #
@@ -14,6 +15,7 @@
 # Strategic documentation essential for stakeholder communication in agricultural
 # robotics platform. Provides comprehensive view of platform capabilities, testing
 # architecture, and development roadmap critical for ISO compliance planning.
+# Generation mode ensures document stays synchronized with actual platform state.
 
 set -euo pipefail
 
@@ -28,36 +30,48 @@ readonly NC='\033[0m' # No Color
 # Configuration
 PROJECT_ROOT="${PROJECT_ROOT:-.}"
 DOCUMENT_PATH="docs/strategic/WHERE_WE_ARE.md"
+GENERATOR_SCRIPT="docs/generate_where_we_are.py"
 
-# Test mode support
+# Modes
+GENERATE_MODE=false
 CUSTOM_ROOT=""
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
         --help|-h)
-            echo "whereweare - Display WHERE_WE_ARE.md strategic assessment"
+            echo "whereweare - Display/Generate WHERE_WE_ARE.md strategic assessment"
             echo ""
             echo "Usage:"
             echo "  ./bin/whereweare              Display complete strategic assessment"
+            echo "  ./bin/whereweare --generate   Generate/update document from sources"
             echo "  ./bin/whereweare --help       Show this help message"
             echo "  ./bin/whereweare --root=PATH  Set custom project root (test mode)"
             echo ""
             echo "Document Contents:"
             echo "  • Executive Summary: Platform evolution and current status"
             echo "  • Strategic Positioning: Dual-purpose architecture and market leadership"
-            echo "  • Current Release Status: v0.1.3 metrics and capabilities"
+            echo "  • Current Release Status: Current version metrics and capabilities"
             echo "  • Architectural Overview: 3-layer enterprise architecture"
-            echo "  • Implementation Details: Core systems and capabilities"
-            echo "  • Testing Architecture Excellence: 161-test suite with TDD"
-            echo "  • Quality Standards: Enterprise-grade code quality"
-            echo "  • Documentation Framework: Comprehensive guides and AI integration"
+            echo "  • Testing Architecture Excellence: Complete test suite with TDD"
             echo "  • Strategic Roadmap: Next evolution phases and priorities"
+            echo ""
+            echo "Generation Mode:"
+            echo "  Synthesizes current platform state from:"
+            echo "  • README.md - Project overview and capabilities"
+            echo "  • SESSION_SUMMARY.md - Platform status and evolution"
+            echo "  • Git metrics - Version tags and branch information"
+            echo "  • Test metrics - Current test suite statistics"
             echo ""
             echo "Agricultural Context:"
             echo "  Strategic assessment provides stakeholders with comprehensive platform"
             echo "  visibility essential for development planning and ISO compliance."
+            echo "  Generation mode ensures document stays synchronized with actual state."
             exit 0
+            ;;
+        --generate|-g)
+            GENERATE_MODE=true
+            shift
             ;;
         --root=*)
             CUSTOM_ROOT="${1#*=}"
@@ -75,6 +89,55 @@ done
 if [[ -n "$CUSTOM_ROOT" ]]; then
     PROJECT_ROOT="$CUSTOM_ROOT"
     DOCUMENT_PATH="$CUSTOM_ROOT/docs/strategic/WHERE_WE_ARE.md"
+    GENERATOR_SCRIPT="$(pwd)/docs/generate_where_we_are.py"
+fi
+
+# Handle generation mode
+if [[ "$GENERATE_MODE" == "true" ]]; then
+    echo -e "${BLUE}🔄 AFS FastAPI Strategic Assessment Generator${NC}"
+    echo -e "${BLUE}==============================================${NC}"
+    echo ""
+
+    # Verify generator script exists
+    if [[ ! -f "$GENERATOR_SCRIPT" ]]; then
+        echo -e "${RED}❌ ERROR: Generator script not found${NC}" >&2
+        echo -e "${RED}   Expected location: $GENERATOR_SCRIPT${NC}" >&2
+        exit 1
+    fi
+
+    # Verify source files exist
+    if [[ ! -f "$PROJECT_ROOT/README.md" ]]; then
+        echo -e "${RED}❌ ERROR: README.md not found${NC}" >&2
+        echo -e "${RED}   Required for document generation${NC}" >&2
+        exit 1
+    fi
+
+    if [[ ! -f "$PROJECT_ROOT/SESSION_SUMMARY.md" ]]; then
+        echo -e "${YELLOW}⚠️  WARNING: SESSION_SUMMARY.md not found${NC}" >&2
+        echo -e "${YELLOW}   Document will be generated with limited context${NC}" >&2
+    fi
+
+    echo -e "${CYAN}📝 Generating WHERE_WE_ARE.md from current platform state...${NC}"
+    echo -e "${CYAN}   Sources: README.md, SESSION_SUMMARY.md, git metrics, test counts${NC}"
+    echo ""
+
+    # Run generator
+    python3 "$GENERATOR_SCRIPT" "$PROJECT_ROOT"
+
+    if [[ $? -eq 0 ]]; then
+        echo ""
+        echo -e "${GREEN}✅ WHERE_WE_ARE.md generated successfully${NC}"
+        echo -e "${GREEN}   Location: $DOCUMENT_PATH${NC}"
+        echo ""
+        echo -e "${YELLOW}💡 Next steps:${NC}"
+        echo -e "   1. Review generated document: $DOCUMENT_PATH"
+        echo -e "   2. Display with: ${CYAN}./bin/whereweare${NC}"
+        echo -e "   3. Commit if changes needed: ${CYAN}git add $DOCUMENT_PATH${NC}"
+        exit 0
+    else
+        echo -e "${RED}❌ ERROR: Generation failed${NC}" >&2
+        exit 1
+    fi
 fi
 
 # Header
@@ -86,6 +149,9 @@ echo ""
 if [[ ! -f "$DOCUMENT_PATH" ]]; then
     echo -e "${RED}❌ ERROR: WHERE_WE_ARE.md not found${NC}" >&2
     echo -e "${RED}   Expected location: $DOCUMENT_PATH${NC}" >&2
+    echo ""
+    echo -e "${YELLOW}💡 Generate document with:${NC}" >&2
+    echo -e "   ${CYAN}./bin/whereweare --generate${NC}" >&2
     echo ""
     echo -e "${YELLOW}💡 Document should contain:${NC}" >&2
     echo -e "   • Comprehensive platform state assessment" >&2

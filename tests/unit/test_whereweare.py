@@ -143,3 +143,120 @@ class TestWhereWeAreCommand:
         # Color codes start with \033[ or \x1b[
         has_colors = "\033[" in result.stdout or "\x1b[" in result.stdout
         assert has_colors, "Should include colored output for terminal"
+
+
+class TestWhereWeAreGeneration:
+    """Test whereweare document generation functionality."""
+
+    def test_whereweare_generate_flag_creates_document(self) -> None:
+        """Test that whereweare --generate creates WHERE_WE_ARE.md."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create test environment with source files
+            test_root = Path(tmpdir)
+            docs_dir = test_root / "docs" / "strategic"
+            docs_dir.mkdir(parents=True)
+
+            # Create minimal README.md
+            readme_path = test_root / "README.md"
+            readme_path.write_text("# AFS FastAPI\nAgricultural robotics platform")
+
+            # Create minimal SESSION_SUMMARY.md
+            session_path = test_root / "SESSION_SUMMARY.md"
+            session_path.write_text("# Session Summary\nPlatform status")
+
+            # Run generation
+            result = subprocess.run(
+                ["./bin/whereweare", "--generate", f"--root={test_root}"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+
+            assert result.returncode == 0, "Generation should succeed"
+
+            # Verify document was created
+            where_path = docs_dir / "WHERE_WE_ARE.md"
+            assert where_path.exists(), "WHERE_WE_ARE.md should be created"
+
+            # Verify content
+            content = where_path.read_text()
+            assert "WHERE WE ARE" in content, "Should include title"
+            assert "AFS FastAPI" in content, "Should include project name"
+
+    def test_whereweare_generate_includes_current_metrics(self) -> None:
+        """Test that generated document includes current platform metrics."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_root = Path(tmpdir)
+            docs_dir = test_root / "docs" / "strategic"
+            docs_dir.mkdir(parents=True)
+
+            # Create source files
+            (test_root / "README.md").write_text("# AFS FastAPI\nPlatform")
+            (test_root / "SESSION_SUMMARY.md").write_text("# Session\nv0.1.3")
+
+            # Generate document
+            subprocess.run(
+                ["./bin/whereweare", "--generate", f"--root={test_root}"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+
+            # Check generated content
+            content = (docs_dir / "WHERE_WE_ARE.md").read_text()
+
+            # Should include metrics sections
+            assert (
+                "Executive Summary" in content or "Platform" in content
+            ), "Should include strategic content"
+
+    def test_whereweare_generate_updates_existing_document(self) -> None:
+        """Test that --generate updates existing WHERE_WE_ARE.md."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_root = Path(tmpdir)
+            docs_dir = test_root / "docs" / "strategic"
+            docs_dir.mkdir(parents=True)
+
+            # Create existing document
+            where_path = docs_dir / "WHERE_WE_ARE.md"
+            where_path.write_text("# OLD CONTENT\nOutdated information")
+
+            # Create source files
+            (test_root / "README.md").write_text("# AFS FastAPI\nNew features")
+            (test_root / "SESSION_SUMMARY.md").write_text("# Session\nv0.1.4")
+
+            # Generate (should update)
+            result = subprocess.run(
+                ["./bin/whereweare", "--generate", f"--root={test_root}"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+
+            assert result.returncode == 0
+
+            # Verify content was updated
+            content = where_path.read_text()
+            assert "OLD CONTENT" not in content, "Should replace old content"
+            assert "WHERE WE ARE" in content, "Should have new structure"
+
+    def test_whereweare_generate_requires_source_files(self) -> None:
+        """Test that generation fails gracefully without source files."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_root = Path(tmpdir)
+            docs_dir = test_root / "docs" / "strategic"
+            docs_dir.mkdir(parents=True)
+
+            # No README.md or SESSION_SUMMARY.md
+
+            result = subprocess.run(
+                ["./bin/whereweare", "--generate", f"--root={test_root}"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+
+            # Should fail or warn about missing sources
+            assert (
+                result.returncode != 0 or "WARNING" in result.stderr or "WARNING" in result.stdout
+            )
