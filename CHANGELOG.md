@@ -13,11 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - cross-agent: Propagate pyenv environment sanity note to CLAUDE.md and AGENTS.md
 - templates: Add GitHub issue template to normalize test count mentions across docs
 - normalize: Update suite counts to 161 and timings to ~3s across docs
+- monitoring: Update SESSION_SUMMARY current metrics to 161 for audit consistency
 
 ### Documentation
 - **isobus**: Add ISO 11783 technical specification reference materials
 
 ### Configuration
+- workflow: Remove hard-coded test counts from session scripts; derive dynamically
 - **test**: Add standardized reporting infrastructure for all AI agents
 
 ### Documentation
