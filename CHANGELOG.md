@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - tests: Make CRDT scaffold import mypy-safe (declare runtime Any and safe fallback)
 
+### Monitoring
+- session: Save session snapshot (2025-09-30) and sync summary
+
 ### Changed
 - synchronization: VectorClock now supports dynamic team composition
   - Auto-adopts unknown processes during `update_with_received_message()` and `from_dict()`
