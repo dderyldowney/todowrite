@@ -319,3 +319,46 @@ class TestUpdateChangelogCommandExecution:
         backup_path = tmp_path / "CHANGELOG.md.bak"
         assert backup_path.exists()
         assert backup_path.read_text() == "# Changelog\n\nOriginal content"
+
+    def test_command_removes_backup_after_successful_update(self, tmp_path: Path) -> None:
+        """Test that backup file is removed after successful CHANGELOG.md update.
+
+        Agricultural Context: Backup artifacts should not accumulate in safety-
+        critical agricultural platform repositories. Cleanup ensures git working
+        directory remains clean for ISO compliance audit trails.
+        """
+        # RED: This will fail - backup cleanup not implemented
+        changelog_path = tmp_path / "CHANGELOG.md"
+        changelog_path.write_text(
+            """# Changelog
+
+## [Unreleased]
+
+## [0.1.3] - 2025-09-15
+"""
+        )
+
+        from afs_fastapi.scripts import updatechangelog
+
+        # Mock git commits to trigger update
+        original_func = updatechangelog.get_commits_since_last_changelog
+
+        def mock_commits() -> list[str]:
+            return ["abc123|feat(equipment): add tractor GPS sync|Dev|2025-09-30"]
+
+        updatechangelog.get_commits_since_last_changelog = mock_commits
+
+        try:
+            # Execute main function
+            result = updatechangelog.main(str(changelog_path))
+
+            # Verify successful execution
+            assert result == 0
+
+            # Verify backup was created and then removed
+            backup_path = tmp_path / "CHANGELOG.md.bak"
+            assert not backup_path.exists(), "Backup file should be removed after successful update"
+
+        finally:
+            # Restore original function
+            updatechangelog.get_commits_since_last_changelog = original_func
