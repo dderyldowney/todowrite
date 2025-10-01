@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+# updatewebdocs - Automated README.md to HTML conversion for AFS FastAPI
+#
+# This command automatically converts README.md to docs/index.html with proper
+# formatting and git integration, ensuring web documentation stays synchronized
+# with markdown source.
+#
+# Usage:
+#   ./bin/updatewebdocs              # Convert README.md to docs/index.html
+#   ./bin/updatewebdocs --help       # Show usage information
+#   ./bin/updatewebdocs --test-mode  # Test mode for unit testing
+#
+# Agricultural Context:
+# Web documentation essential for stakeholder communication in agricultural
+# robotics platform. Automated conversion prevents documentation drift between
+# README.md and HTML, critical for ISO compliance presentation.
+
+set -euo pipefail
+
+# Color codes for output
+readonly BLUE='\033[0;34m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly RED='\033[0;31m'
+readonly NC='\033[0m' # No Color
+
+# Configuration
+PROJECT_ROOT="${PROJECT_ROOT:-.}"
+README_PATH="README.md"
+HTML_OUTPUT="docs/index.html"
+CONVERTER_SCRIPT="docs/convert_readme_to_index_html.py"
+
+# Test mode support
+TEST_MODE=false
+CUSTOM_ROOT=""
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --help|-h)
+            echo "updatewebdocs - Convert README.md to HTML documentation"
+            echo ""
+            echo "Usage:"
+            echo "  ./bin/updatewebdocs              Convert README.md to docs/index.html"
+            echo "  ./bin/updatewebdocs --help       Show this help message"
+            echo "  ./bin/updatewebdocs --test-mode  Run in test mode"
+            echo "  ./bin/updatewebdocs --root=PATH  Set custom project root (test mode)"
+            echo ""
+            echo "Agricultural Context:"
+            echo "  Automated HTML generation ensures web documentation stays synchronized"
+            echo "  with README.md, critical for stakeholder communication and ISO compliance."
+            exit 0
+            ;;
+        --test-mode)
+            TEST_MODE=true
+            shift
+            ;;
+        --root=*)
+            CUSTOM_ROOT="${1#*=}"
+            shift
+            ;;
+        *)
+            echo -e "${RED}Error: Unknown option $1${NC}" >&2
+            exit 1
+            ;;
+    esac
+done
+
+# Set project root for test mode
+if [[ "$TEST_MODE" == "true" && -n "$CUSTOM_ROOT" ]]; then
+    PROJECT_ROOT="$CUSTOM_ROOT"
+    README_PATH="$CUSTOM_ROOT/README.md"
+    HTML_OUTPUT="$CUSTOM_ROOT/docs/index.html"
+    # Use absolute path to converter script
+    CONVERTER_SCRIPT="$(pwd)/docs/convert_readme_to_index_html.py"
+fi
+
+# Header
+echo -e "${BLUE}📝 AFS FastAPI Web Documentation Generator${NC}"
+echo -e "${BLUE}===========================================${NC}"
+echo ""
+
+# Verify README.md exists
+if [[ ! -f "$README_PATH" ]]; then
+    echo -e "${RED}❌ ERROR: README.md not found${NC}" >&2
+    echo -e "${RED}   Expected location: $README_PATH${NC}" >&2
+    exit 1
+fi
+
+# Verify converter script exists
+if [[ ! -f "$CONVERTER_SCRIPT" ]]; then
+    echo -e "${RED}❌ ERROR: Converter script not found${NC}" >&2
+    echo -e "${RED}   Expected location: $CONVERTER_SCRIPT${NC}" >&2
+    exit 1
+fi
+
+# Create output directory if needed
+HTML_DIR="$(dirname "$HTML_OUTPUT")"
+if [[ ! -d "$HTML_DIR" ]]; then
+    echo -e "${BLUE}📁 Creating output directory: $HTML_DIR${NC}"
+    mkdir -p "$HTML_DIR"
+fi
+
+# Convert README.md to HTML
+echo -e "${BLUE}🔄 Converting README.md to HTML...${NC}"
+python "$CONVERTER_SCRIPT" --in "$README_PATH" --out "$HTML_OUTPUT"
+
+if [[ $? -ne 0 ]]; then
+    echo -e "${RED}❌ ERROR: HTML conversion failed${NC}" >&2
+    exit 1
+fi
+
+echo -e "${GREEN}✅ HTML generated successfully${NC}"
+echo -e "${GREEN}   Output: $HTML_OUTPUT${NC}"
+
+# Add to git staging if not in test mode and git repo exists
+if [[ "$TEST_MODE" == "false" ]] && git rev-parse --git-dir > /dev/null 2>&1; then
+    echo ""
+    echo -e "${BLUE}📋 Adding to git staging area...${NC}"
+    git add "$HTML_OUTPUT"
+    echo -e "${GREEN}✅ index.html added to git staging${NC}"
+
+    echo ""
+    echo -e "${YELLOW}💡 Next steps:${NC}"
+    echo -e "   1. Review generated HTML: $HTML_OUTPUT"
+    echo -e "   2. Commit changes with README.md:"
+    echo -e "      ${BLUE}git commit -m \"docs(docs): Update documentation\"${NC}"
+fi
+
+echo ""
+echo -e "${GREEN}📋 Web Documentation Update Complete!${NC}"

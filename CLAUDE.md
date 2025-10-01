@@ -213,6 +213,38 @@ class TestAgriculturalOperation:
 - Keep a Changelog formatting standards applied
 - Version history completeness validated
 
+### MANDATORY: Web Documentation Synchronization
+
+**ABSOLUTE REQUIREMENT**: When README.md changes, docs/index.html must be regenerated and included in the same commit.
+
+**README.md Update Protocol**:
+1. **Edit README.md**: Make documentation changes to markdown source
+2. **Regenerate HTML**: Use `updatewebdocs` command to convert README.md → docs/index.html
+3. **Validate output**: Verify docs/index.html generated correctly
+4. **Stage both files**: Include both README.md and docs/index.html in git staging
+5. **Commit together**: Ensure web documentation stays synchronized with markdown
+
+**Command Usage**:
+```bash
+# After editing README.md
+./bin/updatewebdocs
+
+# Command automatically:
+# - Converts README.md to HTML with professional styling
+# - Creates docs/ directory if missing
+# - Adds docs/index.html to git staging
+# - Preserves agricultural terminology and technical specs
+```
+
+**Cross-Session Enforcement**:
+- HTML updates mandatory when README.md changes
+- Prevents documentation drift between markdown and web formats
+- Professional presentation critical for stakeholder communication
+- ISO compliance auditing requires synchronized documentation
+- Command documented in .claude/commands/updatewebdocs.md
+
+**Agricultural Context**: Web documentation essential for equipment operators, safety engineers, and compliance auditors who access project information via browsers. Automated HTML generation ensures stakeholders see current documentation without viewing raw markdown.
+
 ## Code Documentation Requirements
 
 **Educational Code Explanations**: All code generated must be explained both **overall** and **individually**. Explanations should be concise with the dual purpose of teaching while building this real-world professional project.
