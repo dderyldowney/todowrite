@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+- **isobus**: Add ISO 11783 technical specification reference materials
+
 ### Configuration
 - **test**: Add standardized reporting infrastructure for all AI agents
 

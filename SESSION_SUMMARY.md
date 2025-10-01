@@ -35,6 +35,34 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 - **Educational Framework**: Dual-purpose instructional and functional codebase for professional development
 - **Production Readiness**: Comprehensive test coverage and enterprise-grade quality standards
 
+### Authoritative Technical Reference Documentation
+
+**ISO 11783 ISOBUS Specification Materials** (Added: 2025-09-30)
+
+The platform includes authoritative ISO 11783 technical specifications that MUST be referenced for all ISOBUS-related development, analysis, and decision-making:
+
+- **[docs/iso11783-11-online_data_base.pdf](docs/iso11783-11-online_data_base.pdf)**: Complete ISO 11783-11 technical specifications
+  - Authoritative source for ISOBUS communication protocols
+  - Required reference for implementing tractor-implement communication
+  - Contains complete protocol definitions, message structures, and compliance requirements
+
+- **[docs/isoExport_csv.zip](docs/isoExport_csv.zip)**: Machine-readable ISOBUS protocol definitions
+  - CSV export of ISO 11783 database for programmatic access
+  - Enables automated validation and code generation from official specifications
+  - Reference for message IDs, parameter groups, and data field definitions
+
+- **[docs/isobus-osi-model-layer-iso-11783.svg](docs/isobus-osi-model-layer-iso-11783.svg)**: Visual OSI model architecture
+  - Seven-layer communication stack visualization
+  - Required reference for understanding protocol architecture
+  - Educational resource for ISOBUS system design
+
+**Mandatory Usage Policy**:
+- **ALL AI agents** (Claude, GPT, Gemini, Copilot, CodeWhisperer) MUST reference these materials when discussing ISOBUS
+- **Implementation decisions** related to ISO 11783 must cite specific sections from authoritative documentation
+- **Compliance validation** requires verification against official specifications
+- **Educational explanations** should reference these materials for accurate technical context
+- **Code generation** for ISOBUS features must align with specification requirements
+
 ## 🚨 CRITICAL: MANDATORY Structured Investigation Pattern for ALL AI Agents
 
 **ABSOLUTE REQUIREMENT**: ALL AI agent responses (Claude, GPT, Gemini, Copilot, etc.) MUST follow structured investigation pattern providing complete transparency into analysis methodology.

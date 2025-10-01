@@ -244,6 +244,20 @@ class TestAgriculturalOperation:
 - Safety compliance systems (ISO 18497)
 - Professional agricultural equipment interfaces
 
+**Authoritative ISO 11783 Reference Documentation**:
+
+The platform includes authoritative ISO 11783 technical specifications that MUST be referenced for all ISOBUS-related work:
+
+- **[docs/iso11783-11-online_data_base.pdf](docs/iso11783-11-online_data_base.pdf)**: Complete ISO 11783-11 specifications
+- **[docs/isoExport_csv.zip](docs/isoExport_csv.zip)**: Machine-readable protocol definitions
+- **[docs/isobus-osi-model-layer-iso-11783.svg](docs/isobus-osi-model-layer-iso-11783.svg)**: OSI model architecture diagram
+
+**Mandatory Reference Requirements**:
+- ALL ISOBUS implementation decisions must cite specific sections from authoritative documentation
+- Educational explanations about ISOBUS must reference official specifications
+- Compliance validation requires verification against ISO 11783 standards
+- Code generation for ISOBUS features must align with specification requirements
+
 #### Distributed Systems Concepts
 
 - Conflict-Free Replicated Data Types (CRDTs)
