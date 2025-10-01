@@ -444,6 +444,18 @@ This is NOT optional - test output must be displayed to demonstrate Test-Driven 
 - Automated git staging integration
 - Essential for browser-based documentation access
 
+**updatedocs**: Update all 6 core documentation files
+```bash
+./bin/updatedocs                  # Update all core documents
+./bin/updatedocs --dry-run        # Preview what would be updated
+./bin/updatedocs --only=whereweare,changelog  # Selective updates
+```
+- **META-COMMAND**: Orchestrates comprehensive documentation regeneration
+- **6 Core Documents**: WHERE_WE_ARE.md, docs/index.html, CHANGELOG.md, test reports, session state, documentation stats
+- **Unified Synchronization**: Ensures all platform documentation reflects current state
+- **Agricultural Context**: ISO compliance auditing (ISO 11783, ISO 18497), stakeholder communication, fleet management status
+- **Universal Access**: ALL AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer)
+
 ## 🚨 CRITICAL: Automatic Command Sharing - Grouped Atomic Operation
 
 **ABSOLUTE REQUIREMENT**: Command creation and cross-agent infrastructure sharing MUST occur as SINGLE GROUPED ATOMIC OPERATION.

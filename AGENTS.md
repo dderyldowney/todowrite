@@ -30,6 +30,7 @@ MIT (project license)
 - **CRITICAL**: Initialize session context: `./bin/loadsession` (loads `SESSION_SUMMARY.md` and ABSOLUTE Test-First enforcement policies)
 - **CRITICAL**: Save session state before ending: `./bin/savesession` (captures complete state, MUST compact into SESSION_SUMMARY.md)
 - **UNIVERSAL**: Strategic assessment access: `./bin/whereweare` (display mode) or `./bin/whereweare --generate` (regenerate from current state) - Available to ALL AI agents for ISO compliance planning and stakeholder communication
+- **UNIVERSAL**: Documentation synchronization: `./bin/updatedocs` (updates all 6 core documents) - Meta-command orchestrating WHERE_WE_ARE.md, docs/index.html, CHANGELOG.md, test reports, session state, and documentation stats for ISO compliance and stakeholder communication
 - **ABSOLUTE REQUIREMENT - Automatic Command Sharing**: Command creation and cross-agent infrastructure sharing MUST occur as SINGLE GROUPED ATOMIC OPERATION with ZERO manual intervention - Session management commands automatically trigger universal updates to SESSION_SUMMARY.md, AGENTS.md, CLAUDE.md, .claude/commands/, universal specifications, and test validation ensuring Claude, Copilot, GPT, Gemini, and CodeWhisperer ALL have immediate access
 - **ABSOLUTE REQUIREMENT - Cross-Agent Infrastructure Sharing**: ANY changes to session management infrastructure (commands, hooks, validation scripts, configuration files) MUST be automatically added to ALL agent configurations (CLAUDE.md, AGENTS.md, SESSION_SUMMARY.md, .claude/commands/) to ensure Claude, Copilot, GPT, Gemini, and CodeWhisperer can ALL use them. This requirement MUST be applied with EVERY change and remembered across ALL sessions.
 - **SESSION ARCHITECTURE**: Complete execution order in `docs/EXECUTION_ORDER.md` (6-phase initialization, 28+ files)
@@ -93,6 +94,7 @@ MIT (project license)
   5) See `GIT_COMMIT_SEPARATION_MANDATORY.md` for complete guidelines
 - **Session initialization**: `./bin/loadsession` → `./bin/whereweare` (view strategic assessment) → review `STATE_OF_AFFAIRS.md`
 - **Strategic assessment generation**: `./bin/whereweare --generate` creates WHERE_WE_ARE.md from README.md, SESSION_SUMMARY.md, git metrics, and live test counts
+- **Documentation synchronization**: `./bin/updatedocs` updates all 6 core documents (WHERE_WE_ARE.md, docs/index.html, CHANGELOG.md, test reports, session state, documentation stats) with selective update mode `--only=whereweare,changelog` and dry-run preview `--dry-run`
 
 ## VS Code & CLI Workflows
 
@@ -146,6 +148,7 @@ MIT (project license)
 - **.pre-commit-config.yaml**: Local hooks for quality gates plus mandatory TDD and Safety validators
 - **CI/CD Pipeline**: Automated validation ensuring 195 tests pass with TDD compliance enforcement
 - **whereweare command**: Strategic assessment display (`bin/whereweare`) and generation (`bin/whereweare --generate`) for universal AI agent access
+- **updatedocs command**: Meta-command for unified documentation regeneration (`bin/updatedocs`) updating all 6 core documents with dry-run and selective update modes for universal AI agent access
 
 ## Coding Conventions (Agricultural Robotics Standards)
 
