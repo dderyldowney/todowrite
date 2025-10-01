@@ -39,8 +39,12 @@ dev = [
   "mypy>=1.10",
   "ruff>=0.5",
   "black>=24.0",
-  "types-setuptools",  # example type stubs; trim as needed
-  "types-Markdown",    # stubs for docs/convert_readme_to_index_html.py
+  "markdown-it-py>=3.0",      # Tier 1: CommonMark-compliant markdown parser
+  "mdit-py-plugins>=0.4",     # GFM extensions for markdown-it-py
+  "markdown2>=2.4",           # Tier 2: Fallback markdown parser with extras
+  "markdown>=3.5",            # Tier 3: Python-Markdown final fallback
+  "types-setuptools",         # example type stubs; trim as needed
+  "types-Markdown",           # stubs for docs/convert_readme_to_index_html.py
 ]
 
 [project.scripts]
