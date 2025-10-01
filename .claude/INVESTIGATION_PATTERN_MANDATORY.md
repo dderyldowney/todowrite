@@ -2,12 +2,14 @@
 
 ## Overview
 
-ALL AI agent responses in the AFS FastAPI project MUST follow a structured investigation pattern that provides complete transparency into the analysis process. This requirement applies universally across ALL sessions, ALL agents (Claude, GPT, Gemini, Copilot, etc.), and ALL response types.
+ALL AI agent responses in the AFS FastAPI project MUST follow a structured investigation pattern that provides complete transparency into the analysis process. This requirement applies universally across ALL sessions, ALL agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer), and ALL response types.
 
 **Enforcement Level**: MUST (RFC 2119)
 **Scope**: Universal - applies to every AI agent interaction (human or machine)
 **Persistence**: Cross-session requirement embedded in project configuration
-**Agent Agnostic**: Requirements apply to Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, and any AI development assistant
+**Agent Scope**: Requirements apply to ALL compatible agents
+**Active Development**: Claude Code (primary), GitHub Copilot (secondary)
+**Compatible but Inactive**: ChatGPT, Gemini Code Assist, Amazon CodeWhisperer
 
 ## Required Response Structure
 
@@ -184,13 +186,12 @@ Every substantive Claude Code response MUST include:
 
 ### Universal Agent Application
 
-**Agent-Agnostic Enforcement**: This pattern applies to ALL AI development assistants:
-- **Claude Code**: Anthropic's Claude agent for software development
-- **GitHub Copilot**: GitHub's AI pair programming assistant
-- **ChatGPT Code Interpreter**: OpenAI's conversational coding assistant
-- **Gemini Code Assist**: Google's AI-powered development tool
-- **Amazon CodeWhisperer**: AWS machine learning code generator
-- **Any Future AI Agent**: Universal requirement for all AI-assisted development
+**Agent Enforcement**: This pattern applies to the following AI development assistants:
+- **Claude Code**: Anthropic's Claude agent for software development (ACTIVE - PRIMARY)
+- **GitHub Copilot**: GitHub's AI pair programming assistant (ACTIVE - SECONDARY)
+- **ChatGPT Code Interpreter**: OpenAI's conversational coding assistant (COMPATIBLE - INACTIVE)
+- **Gemini Code Assist**: Google's AI-powered development tool (COMPATIBLE - INACTIVE)
+- **Amazon CodeWhisperer**: AWS machine learning code generator (COMPATIBLE - INACTIVE)
 
 ### Cross-Session Consistency
 
@@ -276,7 +277,7 @@ Reference: .claude/INVESTIGATION_PATTERN_MANDATORY.md
 
 ### Self-Enforcement
 
-ALL AI agents (Claude, GPT, Gemini, Copilot, etc.) MUST:
+ALL AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer) MUST:
 - Follow pattern for all substantive responses
 - Verify response includes all required sections
 - Check that evidence supports conclusions
@@ -369,6 +370,8 @@ The hook didn't run because the markers were too recent. You should delete the m
 
 **Effective Date**: 2025-09-30
 **Enforcement Level**: MUST (Universal Requirement)
-**Applies To**: ALL AI agents (Claude, GPT, Gemini, Copilot, etc.), ALL sessions, ALL response types
+**Applies To**: ALL AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer), ALL sessions, ALL response types
 **Platform**: AFS FastAPI Agricultural Robotics Platform v0.1.3
-**Agent Scope**: Universal - Human developers, Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer, and any future AI development assistant
+**Agent Scope**: Human developers and all compatible AI agents
+**Active Development**: Claude Code (primary), GitHub Copilot (secondary)
+**Compatible but Inactive**: ChatGPT, Gemini Code Assist, Amazon CodeWhisperer

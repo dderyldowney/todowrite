@@ -1,6 +1,9 @@
 # MANDATORY: Automatic Command Creation and Cross-Agent Infrastructure Sharing
 
-> **ABSOLUTE REQUIREMENT**: ANY new session management command MUST automatically trigger universal cross-agent infrastructure sharing across ALL AI agents (Claude, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer) with ZERO manual intervention required.
+> **ABSOLUTE REQUIREMENT**: ANY new session management command MUST automatically trigger universal cross-agent infrastructure sharing across ALL AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer) with ZERO manual intervention required.
+>
+> **Active Development**: Claude Code (primary), GitHub Copilot (secondary)
+> **Compatible but Inactive**: ChatGPT, Gemini Code Assist, Amazon CodeWhisperer
 
 ---
 
@@ -91,12 +94,11 @@ ALL AI AGENTS HAVE IMMEDIATE ACCESS
 - **Persist** command knowledge across sessions
 
 **Applies To**:
-- Claude Code (primary development assistant)
-- GitHub Copilot (code completion and suggestions)
-- ChatGPT (chatgpt4-cli package integration)
-- Gemini Code Assist (Google AI development assistant)
-- Amazon CodeWhisperer (AWS AI coding companion)
-- ALL future AI development assistants
+- Claude Code (primary development assistant) **[ACTIVE]**
+- GitHub Copilot (code completion and suggestions) **[ACTIVE]**
+- ChatGPT (conversational AI assistant) **[COMPATIBLE - INACTIVE]**
+- Gemini Code Assist (Google AI development assistant) **[COMPATIBLE - INACTIVE]**
+- Amazon CodeWhisperer (AWS AI coding companion) **[COMPATIBLE - INACTIVE]**
 
 ### Session Memory and Persistence
 
@@ -123,7 +125,9 @@ ALL AI AGENTS HAVE IMMEDIATE ACCESS
 ```markdown
 ### {COMMAND_NAME} Command - {BRIEF_DESCRIPTION}
 
-**UNIVERSAL ACCESS**: Available to ALL AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer) across ALL sessions
+**UNIVERSAL ACCESS**: Available to ALL AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer) across ALL sessions
+
+**Active Agents**: Claude Code (primary), GitHub Copilot (secondary)
 
 **Purpose**: {DETAILED_PURPOSE_WITH_AGRICULTURAL_CONTEXT}
 
@@ -203,7 +207,8 @@ ALL AI AGENTS HAVE IMMEDIATE ACCESS
   - {Key feature 1}
   - {Key feature 2}
   - **Command variations**: `./bin/{command_name}`, `./bin/{command_name} --{flag}`, `/{command_name}` (Claude Code)
-  - **Universal Access**: ALL humans and AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer)
+  - **Universal Access**: ALL humans and AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer)
+  - **Active Agents**: Claude Code (primary), GitHub Copilot (secondary)
   - **Cross-Session Memory**: Command MUST be remembered by all agents across all sessions
   - **Complete Specification**: See [.claude/commands/{command_name}.md](.claude/commands/{command_name}.md)
 ```
@@ -383,11 +388,11 @@ def trigger_automatic_sharing(command_name):
 - [ ] CHANGELOG.md updated (AUTOMATIC)
 
 ✅ **Cross-Agent Accessibility**:
-- [ ] Claude Code can discover command
-- [ ] GitHub Copilot has access via AGENTS.md
-- [ ] ChatGPT integration documented
-- [ ] Gemini Code Assist can utilize
-- [ ] CodeWhisperer has specifications
+- [ ] Claude Code can discover command (ACTIVE)
+- [ ] GitHub Copilot has access via AGENTS.md (ACTIVE)
+- [ ] ChatGPT integration documented (COMPATIBLE - INACTIVE)
+- [ ] Gemini Code Assist can utilize (COMPATIBLE - INACTIVE)
+- [ ] CodeWhisperer has specifications (COMPATIBLE - INACTIVE)
 
 ✅ **Agricultural Context**:
 - [ ] ISO compliance use case documented
@@ -447,7 +452,10 @@ def trigger_automatic_sharing(command_name):
 
 **GROUPED AUTOMATION MANDATE**: Command creation and cross-agent infrastructure sharing MUST occur as a single atomic operation with ZERO manual intervention.
 
-**Universal Application**: ALL AI agents (Claude, Copilot, GPT, Gemini, CodeWhisperer) MUST automatically execute grouped sharing workflow when detecting new commands.
+**Universal Application**: ALL AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer) MUST automatically execute grouped sharing workflow when detecting new commands.
+
+**Active Development**: Claude Code (primary), GitHub Copilot (secondary) actively use this workflow
+**Compatible but Inactive**: ChatGPT, Gemini Code Assist, Amazon CodeWhisperer have configurations maintained but are not actively enabled
 
 **Cross-Session Persistence**: This requirement is embedded permanently in SESSION_SUMMARY.md, AGENTS.md, and CLAUDE.md ensuring ALL future sessions comply automatically.
 
@@ -457,8 +465,10 @@ def trigger_automatic_sharing(command_name):
 
 ---
 
-**Document Version**: 1.0.0
+**Document Version**: 1.1.0
 **Last Updated**: October 1, 2025
-**Applies To**: ALL AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer, future assistants)
+**Applies To**: ALL AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer)
+**Active Development**: Claude Code (primary), GitHub Copilot (secondary)
+**Compatible but Inactive**: ChatGPT, Gemini Code Assist, Amazon CodeWhisperer
 **Status**: MANDATORY - Automatic grouped command sharing required universally
 **Rationale**: Safety-critical agricultural robotics demands consistent AI agent capabilities across all platforms

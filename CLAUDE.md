@@ -54,7 +54,9 @@ This file contains project-specific instructions for Claude Code sessions workin
 
 1. **Automatic Cross-Agent Availability**: Commands, hooks, validation scripts, and configuration files added to ALL agent configurations
 2. **Universal Documentation**: Changes reflected in CLAUDE.md, AGENTS.md, SESSION_SUMMARY.md, and .claude/commands/
-3. **Agent-Agnostic Access**: Infrastructure usable by Claude, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer
+3. **Agent-Agnostic Access**: Infrastructure usable by Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer
+   - **Active Agents**: Claude Code (primary), GitHub Copilot (secondary)
+   - **Compatible Agents**: ChatGPT, Gemini Code Assist, CodeWhisperer (configuration maintained but not actively enabled)
 4. **Cross-Session Memory**: All agents MUST remember and use shared infrastructure across ALL sessions
 
 ### Enforcement and Scope
@@ -98,7 +100,10 @@ ALL AI AGENTS HAVE IMMEDIATE ACCESS
 - **Verify** cross-agent accessibility achieved
 - **Persist** command knowledge across ALL sessions
 
-**Applies To**: Claude, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer, ALL future AI assistants
+**Applies To**: Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer, and all future AI assistants
+
+**Active Development**: Claude Code (primary), GitHub Copilot (secondary)
+**Compatible but Inactive**: ChatGPT, Gemini Code Assist, Amazon CodeWhisperer
 
 ### Required Documentation Updates (AUTOMATIC)
 
@@ -133,13 +138,16 @@ ALL AI AGENTS HAVE IMMEDIATE ACCESS
 - NO inconsistent AI agent capabilities
 - NO agricultural context omissions
 
-**RATIONALE**: Safety-critical agricultural robotics demands instantaneous universal AI agent access to ALL session management tools. Manual multi-file updates introduce human error, documentation drift, and inconsistent capabilities across AI platforms. Grouped automatic sharing ensures EVERY new command is immediately available to Claude, Copilot, GPT, Gemini, and CodeWhisperer with ZERO manual intervention.
+**RATIONALE**: Safety-critical agricultural robotics demands instantaneous universal AI agent access to ALL session management tools. Manual multi-file updates introduce human error, documentation drift, and inconsistent capabilities across AI platforms. Grouped automatic sharing ensures EVERY new command is immediately available to all compatible AI agents (active and inactive) with ZERO manual intervention.
 
 **Complete Specification**: [.claude/AUTOMATIC_COMMAND_SHARING_MANDATORY.md](.claude/AUTOMATIC_COMMAND_SHARING_MANDATORY.md)
 
 ## MANDATORY: Structured Investigation Pattern for ALL AI Agent Responses
 
-**ABSOLUTE REQUIREMENT**: ALL AI agent responses (Claude, GPT, Gemini, Copilot, etc.) must follow a structured investigation pattern providing complete transparency into analysis methodology.
+**ABSOLUTE REQUIREMENT**: ALL AI agent responses (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer) must follow a structured investigation pattern providing complete transparency into analysis methodology.
+
+**Active Development**: Claude Code (primary), GitHub Copilot (secondary)
+**Compatible but Inactive**: ChatGPT, Gemini Code Assist, Amazon CodeWhisperer
 
 ### Universal Investigation Protocol
 
@@ -152,7 +160,9 @@ ALL AI AGENTS HAVE IMMEDIATE ACCESS
 
 ### Enforcement and Scope
 
-- **Universal Application**: Applies to ALL AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini, etc.)
+- **Universal Application**: Applies to ALL AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer)
+- **Active Development**: Claude Code (primary), GitHub Copilot (secondary)
+- **Compatible but Inactive**: ChatGPT, Gemini Code Assist, Amazon CodeWhisperer
 - **Cross-Session Persistence**: Requirement embedded permanently in project configuration
 - **Agent Agnostic**: Pattern applies regardless of AI platform or implementation
 - **Quality Assurance**: Enables verification, auditing, and knowledge transfer
@@ -181,7 +191,9 @@ ALL AI AGENTS HAVE IMMEDIATE ACCESS
 
 ### Enforcement and Scope
 
-- **Universal Application**: Applies to ALL AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini, CodeWhisperer, etc.)
+- **Universal Application**: Applies to ALL AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer)
+- **Active Development**: Claude Code (primary), GitHub Copilot (secondary)
+- **Compatible but Inactive**: ChatGPT, Gemini Code Assist, Amazon CodeWhisperer
 - **Cross-Session Persistence**: Requirement embedded permanently in project configuration
 - **Agent Agnostic**: Pattern applies regardless of AI platform or implementation
 - **Test Commands**: Applies to `pytest`, `pytest -v`, `pytest --cov`, and all testing variations
@@ -531,7 +543,8 @@ The project includes a **.claude/commands/** directory containing reusable comma
   - **CRITICAL**: Session state MUST be compacted into SESSION_SUMMARY.md before applying new changes
   - Creates dated snapshot: `docs/monitoring/SESSION_STATE_YYYY_MM_DD.md`
   - Captures: Platform metrics, git status, mandatory requirements, enforcement mechanisms
-  - **Universal Access**: ALL humans and AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer)
+  - **Universal Access**: ALL humans and AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer)
+  - **Active Agents**: Claude Code (primary), GitHub Copilot (secondary)
   - **Compaction Protocol**: Prevents knowledge fragmentation, ensures SESSION_SUMMARY.md remains authoritative
   - **Cross-Session Memory**: Command MUST be remembered by all agents across all sessions
   - **Complete Specification**: See [.claude/commands/savesession.md](.claude/commands/savesession.md)
@@ -539,7 +552,8 @@ The project includes a **.claude/commands/** directory containing reusable comma
   - **MANDATORY**: ALL AI agents must provide standardized test analysis (Executive Summary, Insight Block, Test Distribution, Platform Health Indicators, Agricultural Context, Advisory Notes)
   - Colored output with platform health assessment and reporting reminders
   - Command variations: `./bin/runtests`, `./bin/runtests --coverage`, `./bin/runtests -q`, `./bin/runtests tests/unit/equipment/`
-  - **Universal Access**: ALL humans and AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer)
+  - **Universal Access**: ALL humans and AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer)
+  - **Active Agents**: Claude Code (primary), GitHub Copilot (secondary)
   - **Cross-Session Memory**: Command MUST be remembered by all agents across all sessions
   - **Complete Specification**: See [.claude/commands/runtests.md](.claude/commands/runtests.md)
 - **whereweare**: Display or generate comprehensive WHERE_WE_ARE.md strategic assessment
@@ -548,7 +562,8 @@ The project includes a **.claude/commands/** directory containing reusable comma
   - Extracts live metrics (git tags, test counts, README.md, SESSION_SUMMARY.md)
   - Essential for ISO compliance planning and stakeholder communication
   - **Command variations**: `./bin/whereweare`, `./bin/whereweare --generate`, `/whereweare` (Claude Code)
-  - **Universal Access**: ALL humans and AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer)
+  - **Universal Access**: ALL humans and AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer)
+  - **Active Agents**: Claude Code (primary), GitHub Copilot (secondary)
   - **Cross-Session Memory**: Command MUST be remembered by all agents across all sessions
   - **Complete Specification**: See [.claude/commands/whereweare.md](.claude/commands/whereweare.md)
 - **updatedocs**: Meta-command for unified regeneration of all 6 core documentation files
@@ -559,7 +574,8 @@ The project includes a **.claude/commands/** directory containing reusable comma
   - **Orchestrates Commands**: whereweare --generate, updatewebdocs, updatechangelog, runtests -q
   - Essential for ISO compliance auditing (ISO 11783, ISO 18497), stakeholder communication, and synchronized platform state
   - **Command variations**: `./bin/updatedocs`, `./bin/updatedocs --dry-run`, `./bin/updatedocs --only=doc1,doc2`, `/updatedocs` (Claude Code)
-  - **Universal Access**: ALL humans and AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer)
+  - **Universal Access**: ALL humans and AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer)
+  - **Active Agents**: Claude Code (primary), GitHub Copilot (secondary)
   - **Cross-Session Memory**: Command MUST be remembered by all agents across all sessions
   - **Complete Specification**: See [.claude/commands/updatedocs.md](.claude/commands/updatedocs.md)
 
