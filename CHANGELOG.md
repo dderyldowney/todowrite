@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - normalize: Update suite counts to 161 and timings to ~3s across docs
 - monitoring: Update SESSION_SUMMARY current metrics to 161 for audit consistency
 
+### Monitoring
+- session: Saved session snapshot for agricultural audit continuity
+
 ### Documentation
 - **isobus**: Add ISO 11783 technical specification reference materials
 

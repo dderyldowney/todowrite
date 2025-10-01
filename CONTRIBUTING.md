@@ -320,7 +320,7 @@ When submitting PRs:
 **Essential for All Contributors:**
 
 1. **✅ Follow Test-First Development** for synchronization infrastructure
-2. **✅ Maintain 129-test suite** with 100% pass rate and zero regression
+2. **✅ Maintain 161-test suite** with 100% pass rate and zero regression
 3. **✅ Achieve zero linting warnings** across entire codebase
 4. **✅ Include agricultural context** in all code and tests
 5. **✅ Meet performance requirements** (sub-millisecond for distributed systems)
@@ -334,7 +334,7 @@ When submitting PRs:
 - **Educational value** alongside functional implementation
 
 **Quality Gates:**
-- All 129 tests passing in ~1.4 seconds
+- All 161 tests passing in ~3 seconds
 - Zero warnings from `ruff check .`
 - Type safety with `mypy .`
 - Performance validation for critical components
