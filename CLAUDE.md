@@ -471,10 +471,15 @@ The project includes a **.claude/commands/** directory containing reusable comma
   - **Universal Access**: ALL humans and AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer)
   - **Cross-Session Memory**: Command MUST be remembered by all agents across all sessions
   - **Complete Specification**: See [.claude/commands/runtests.md](.claude/commands/runtests.md)
-- **whereweare**: Generates comprehensive WHERE_WE_ARE.md project state assessment
-  - Creates 475-line strategic documentation from overarching vision to implementation details
-  - Captures live metrics (tests, code quality, release status)
-  - Provides enterprise-grade stakeholder communication documentation
+- **whereweare**: Display or generate comprehensive WHERE_WE_ARE.md strategic assessment
+  - **Display Mode**: `./bin/whereweare` shows existing 480+ line strategic documentation
+  - **Generation Mode**: `./bin/whereweare --generate` synthesizes from current platform state
+  - Extracts live metrics (git tags, test counts, README.md, SESSION_SUMMARY.md)
+  - Essential for ISO compliance planning and stakeholder communication
+  - **Command variations**: `./bin/whereweare`, `./bin/whereweare --generate`, `/whereweare` (Claude Code)
+  - **Universal Access**: ALL humans and AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer)
+  - **Cross-Session Memory**: Command MUST be remembered by all agents across all sessions
+  - **Complete Specification**: See [.claude/commands/whereweare.md](.claude/commands/whereweare.md)
 
 **Command Usage**:
 - Commands are documented with complete specifications including purpose, expected output, and usage context

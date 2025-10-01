@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **workflow**: Add strategic assessment generation for agricultural platform
+
+### Added
 - **workflow**: Add whereweare command for agricultural platform strategic assessment
 
 ### Added
