@@ -1,6 +1,9 @@
 
 
 ## [Unreleased]
+### Added
+- **workflow**: Add unified regeneration meta-command for agricultural platform
+
 ### Configuration
 - **workflow**: Mandate grouped automatic command sharing for agricultural platform
 
