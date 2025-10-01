@@ -53,6 +53,19 @@ MIT (project license)
 - **Safety & standards**: Mandatory ISO 11783 (ISOBUS) and ISO 18497 compliance for agricultural equipment
 - **Performance requirements**: Sub-millisecond coordination operations for embedded agricultural systems
 
+### Environment Sanity (pyenv)
+
+- Verify pyenv before development:
+  - `pyenv --version` prints a version with no errors
+  - `pyenv rehash` runs clean (no “shims isn’t writable”)
+- If shims warning appears: `chmod u+rwx ~/.pyenv/shims && pyenv rehash`.
+- Keep zsh init in `~/.zshrc`; ensure `~/.bash_profile` is bash-safe, for example:
+  - `export PYENV_ROOT="$HOME/.pyenv"`
+  - `[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"`
+  - `eval "$(pyenv init -)"`
+  - Optionally: `eval "$(pyenv virtualenv-init -)"` if plugin installed
+- See the Quick Verification Checklist in `CONTRIBUTING.md` for the full procedure.
+
 ## Dependencies
 
 - Runtime: `fastapi`, `uvicorn[standard]`, `starlette`, `pydantic`

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Docs
 - environment: Document pyenv bash-safe init and shims fix in CONTRIBUTING.md
 - qa: Update expected test count to 161 across docs
+- cross-agent: Propagate pyenv environment sanity note to CLAUDE.md and AGENTS.md
 
 ### Documentation
 - **isobus**: Add ISO 11783 technical specification reference materials
