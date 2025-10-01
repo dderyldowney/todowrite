@@ -1,6 +1,8 @@
 # MANDATORY: Standardized Test Reporting Pattern
 
-**ABSOLUTE REQUIREMENT**: ALL AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer, etc.) MUST use the standardized test reporting format when executing test suites on the AFS FastAPI agricultural robotics platform.
+**ABSOLUTE REQUIREMENT**: ALL AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer) MUST use the standardized test reporting format when executing test suites on the AFS FastAPI agricultural robotics platform.
+**Active Development**: Claude Code (primary), GitHub Copilot (secondary)
+**Compatible but Inactive**: ChatGPT, Gemini Code Assist, Amazon CodeWhisperer
 
 ## Universal Test Reporting Protocol
 
