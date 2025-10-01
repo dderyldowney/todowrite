@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Configuration
+- **ci**: Install package in editable mode for agricultural platform testing
+
 ### Documentation
 - **monitoring**: Correct agricultural platform metrics after optimization
 
