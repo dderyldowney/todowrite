@@ -27,8 +27,9 @@ MIT (project license)
 
 ## How to Use
 
-- **CRITICAL**: Initialize session context: `./loadsession` (loads `SESSION_SUMMARY.md` and ABSOLUTE Test-First enforcement policies)
+- **CRITICAL**: Initialize session context: `./bin/loadsession` (loads `SESSION_SUMMARY.md` and ABSOLUTE Test-First enforcement policies)
 - **CRITICAL**: Save session state before ending: `./bin/savesession` (captures complete state, MUST compact into SESSION_SUMMARY.md)
+- **UNIVERSAL**: Strategic assessment access: `./bin/whereweare` (display mode) or `./bin/whereweare --generate` (regenerate from current state) - Available to ALL AI agents for ISO compliance planning and stakeholder communication
 - **ABSOLUTE REQUIREMENT - Cross-Agent Infrastructure Sharing**: ANY changes to session management infrastructure (commands, hooks, validation scripts, configuration files) MUST be automatically added to ALL agent configurations (CLAUDE.md, AGENTS.md, SESSION_SUMMARY.md, .claude/commands/) to ensure Claude, Copilot, GPT, Gemini, and CodeWhisperer can ALL use them. This requirement MUST be applied with EVERY change and remembered across ALL sessions.
 - **SESSION ARCHITECTURE**: Complete execution order in `docs/EXECUTION_ORDER.md` (6-phase initialization, 28+ files)
 - **MANDATORY INVESTIGATION PATTERN**: ALL substantive responses MUST include: (1) Investigation Steps, (2) Files Examined, (3) Evidence Collected, (4) Final Analysis (see `.claude/INVESTIGATION_PATTERN_MANDATORY.md`)
@@ -38,14 +39,15 @@ MIT (project license)
   3. **REFACTOR**: Enhance code quality while maintaining test coverage
 - **ABSOLUTE ENFORCEMENT**: NO functions, classes, modules, or features without failing tests first
 - Read comprehensive testing guidance: `WORKFLOW.md`, `TDD_WORKFLOW.md`, `TDD_FRAMEWORK_MANDATORY.md`
-- Validate changes locally with `pytest` and ensure all 161 tests pass (see `WORKFLOW.md`)
+- View strategic platform assessment: `./bin/whereweare` or regenerate with current metrics: `./bin/whereweare --generate`
+- Validate changes locally with `pytest` and ensure all 195 tests pass (see `WORKFLOW.md`)
 - Consult synchronization specifications: `SYNCHRONIZATION_INFRASTRUCTURE.md`, `STATE_OF_AFFAIRS.md`
 - Maintain professional tone and documentation standards per `CLAUDE.md` requirements
 
 ## Configuration
 
 - Python: `>=3.12,<3.13` (see `pyproject.toml`)
-- **Quality gates**: Ruff, Black, MyPy, isort; zero warnings expected (161 tests maintained)
+- **Quality gates**: Ruff, Black, MyPy, isort; zero warnings expected (195 tests maintained)
 - **TDD enforcement hooks** (MANDATORY):
   - `.claude/hooks/tdd_enforcement.py` - Validates Test-First Development compliance
   - `.claude/hooks/safety_validation.py` - Ensures ISO 18497 agricultural safety standards
@@ -88,7 +90,8 @@ MIT (project license)
   3) Examples: `feat(equipment): add tractor synchronization`, `fix(safety): resolve emergency stop timing`
   4) Pre-commit validation prevents commits addressing multiple concerns
   5) See `GIT_COMMIT_SEPARATION_MANDATORY.md` for complete guidelines
-- **Session initialization**: `./loadsession` → review `WHERE_WE_ARE.md` → check `STATE_OF_AFFAIRS.md`
+- **Session initialization**: `./bin/loadsession` → `./bin/whereweare` (view strategic assessment) → review `STATE_OF_AFFAIRS.md`
+- **Strategic assessment generation**: `./bin/whereweare --generate` creates WHERE_WE_ARE.md from README.md, SESSION_SUMMARY.md, git metrics, and live test counts
 
 ## VS Code & CLI Workflows
 
@@ -140,7 +143,8 @@ MIT (project license)
 - **CLAUDE.md**: Updated with mandatory TDD and investigation pattern requirements for ALL AI agents
 - **loadsession**: Enhanced with critical TDD and investigation pattern compliance reminders
 - **.pre-commit-config.yaml**: Local hooks for quality gates plus mandatory TDD and Safety validators
-- **CI/CD Pipeline**: Automated validation ensuring 161 tests pass with TDD compliance enforcement
+- **CI/CD Pipeline**: Automated validation ensuring 195 tests pass with TDD compliance enforcement
+- **whereweare command**: Strategic assessment display (`bin/whereweare`) and generation (`bin/whereweare --generate`) for universal AI agent access
 
 ## Coding Conventions (Agricultural Robotics Standards)
 

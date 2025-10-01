@@ -12,8 +12,8 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 
 ### Platform Metrics
 
-- **Version**: v0.1.3+ (Stable Release with TDD, Commit Separation, CHANGELOG Enforcement, Universal AI Agent Investigation Pattern, Automated CHANGELOG Generation, Standardized Test Reporting)
-- **Test Suite**: 161 tests passing (100% success rate in <3s) - includes 10 session initialization + 9 CHANGELOG enforcement + 13 updatechangelog tests
+- **Version**: v0.1.3+ (Stable Release with TDD, Commit Separation, CHANGELOG Enforcement, Universal AI Agent Investigation Pattern, Automated CHANGELOG Generation, Standardized Test Reporting, Strategic Assessment Command)
+- **Test Suite**: 195 tests passing (100% success rate in <10s) - includes 10 session initialization + 9 CHANGELOG enforcement + 13 updatechangelog tests + 13 whereweare command tests
 - **Code Quality**: Zero warnings across all tools (Ruff, MyPy, Black, isort)
 - **Industry Compliance**: Complete ISO 11783 (ISOBUS) and ISO 18497 (Safety) implementation
 - **Distributed Systems**: Vector Clock implementation operational for multi-tractor coordination
@@ -23,6 +23,7 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 - **Investigation Pattern**: **MANDATORY** Structured investigation pattern for ALL AI agents (Claude, GPT, Gemini, Copilot, etc.) with universal enforcement
 - **Test Reporting**: **MANDATORY** Standardized test reporting format for ALL AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer, etc.) with comprehensive analysis
 - **Session State Management**: **CRITICAL** - `savesession` command captures complete state (conceptual, contextual, functional), MUST compact into SESSION_SUMMARY.md before changes
+- **Strategic Assessment Command**: **UNIVERSAL ACCESS** - `whereweare` command provides comprehensive platform state assessment with dual-mode operation (display/generate) for ALL AI agents
 - **Cross-Agent Infrastructure Sharing**: **ABSOLUTE REQUIREMENT** - ANY changes to session management infrastructure (commands, hooks, configurations) MUST be automatically added to ALL agent configurations ensuring Claude, Copilot, GPT, Gemini, and CodeWhisperer can ALL use them
 - **Universal Agent Access**: **AUTOMATIC** loadsession execution for ALL Claude Code agents with persistent cross-session behavior
 - **Session Initialization**: 5-minute staleness detection with comprehensive test coverage for reliable /new restart handling
@@ -334,6 +335,113 @@ This is NOT optional - test output must be displayed to demonstrate Test-Driven 
 - **Solution**: Use `updatechangelog` command with Keep a Changelog formatting
 - **Prevention**: Include CHANGELOG.md in git staging with all changes
 - **Frequency**: MANDATORY for all commits to maintain complete version history
+
+## 🎯 Universal Session Management Commands - ALL AI Agents
+
+### whereweare Command - Strategic Assessment Display and Generation
+
+**UNIVERSAL ACCESS**: Available to ALL AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer) across ALL sessions
+
+**Purpose**: Provides comprehensive platform state assessment for ISO compliance planning, stakeholder communication, and agricultural equipment development visibility.
+
+**Dual-Mode Operation**:
+
+1. **Display Mode** (default):
+   ```bash
+   ./bin/whereweare              # Show existing WHERE_WE_ARE.md
+   /whereweare                   # Claude Code slash command
+   ```
+   - Professional colored terminal output
+   - Complete strategic assessment (480+ lines)
+   - Agricultural robotics context throughout
+   - Related documentation links
+
+2. **Generation Mode**:
+   ```bash
+   ./bin/whereweare --generate   # Regenerate from current platform state
+   ```
+   - Synthesizes WHERE_WE_ARE.md from authoritative sources
+   - Extracts current git metrics (version tags, branch)
+   - Collects live test counts via pytest
+   - Pulls platform status from README.md and SESSION_SUMMARY.md
+   - Ensures documentation stays synchronized with actual state
+
+**Sources for Generation**:
+- **README.md**: Project overview and current capabilities
+- **SESSION_SUMMARY.md**: Platform evolution and development status
+- **Git Metrics**: Version tags (`git describe`), current branch
+- **Test Metrics**: Live test counts (`pytest --collect-only`)
+
+**Agricultural Context Essentials**:
+- **ISO Compliance**: Always-current documentation for ISO 11783 and ISO 18497 audits
+- **Safety Engineering**: Accurate multi-tractor coordination status
+- **Stakeholder Communication**: Professional platform assessment for procurement
+- **Development Planning**: Real-time visibility into fleet coordination readiness
+
+**Implementation Files**:
+- **bin/whereweare**: Bash script with colored output and dual-mode support
+- **.claude/commands/whereweare**: Claude Code slash command integration
+- **docs/generate_where_we_are.py**: Python document generator
+- **tests/unit/test_whereweare.py**: 13 comprehensive validation tests
+
+**Test Coverage**: 13 tests (100% passing)
+- 9 display tests: existence, permissions, output, sections, error handling, help text, version info, agricultural context, colored output
+- 4 generation tests: document creation, metrics inclusion, updates, error handling
+
+**Cross-Agent Requirements**:
+- **ALL AI agents** MUST remember this command across sessions
+- **Universal availability** through session initialization (loadsession)
+- **Persistent documentation** in SESSION_SUMMARY.md and AGENTS.md
+- **Slash command** integration for Claude Code workflows
+
+### Other Universal Commands
+
+**loadsession**: Restore complete session context
+```bash
+./bin/loadsession                 # Manual context restoration
+```
+- Loads SESSION_SUMMARY.md (primary session state)
+- Displays mandatory requirement reminders
+- Shows current platform metrics and status
+- Automatically executed on new Claude Code sessions
+
+**savesession**: Capture complete session state
+```bash
+./bin/savesession                 # Save session state
+```
+- **CRITICAL**: MUST compact into SESSION_SUMMARY.md before applying changes
+- Creates dated snapshot in docs/monitoring/
+- Captures conceptual, contextual, and functional state
+- Universal access for ALL AI agents
+
+**runtests**: Execute comprehensive test suite
+```bash
+./bin/runtests                    # Standard verbose run
+./bin/runtests -q                 # Quiet mode
+./bin/runtests --coverage         # With HTML coverage report
+```
+- **MANDATORY**: Standardized test reporting required from ALL AI agents
+- Colored output with platform health assessment
+- 195 tests across equipment, monitoring, coordination, and session management
+- Professional test analysis with agricultural context
+
+**updatechangelog**: Regenerate CHANGELOG.md
+```bash
+./bin/updatechangelog             # Generate from git history
+```
+- **MANDATORY**: CHANGELOG.md must be updated before every commit
+- Keep a Changelog formatting with agricultural context
+- Automated git history analysis
+- Pre-commit hook enforcement
+
+**updatewebdocs**: Synchronize README.md → docs/index.html
+```bash
+./bin/updatewebdocs               # Convert README to HTML
+```
+- **MANDATORY**: When README.md changes, HTML must be regenerated
+- Professional styling for stakeholder access
+- Automated git staging integration
+- Essential for browser-based documentation access
 
 ## Recent Major Implementation: Universal AI Agent Infrastructure and Cross-Agent Sharing
 
