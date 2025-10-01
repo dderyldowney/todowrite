@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - synchronization: Public APIs `add_process(process_id)` and `remove_process(process_id)` for runtime join/leave
   - Agricultural context: tractors can enter/exit operation zones or rejoin after outages
 - tests: Three unit tests covering join, leave, and auto-adopt-on-update behaviors
+ - tests: CRDT field allocation scaffold (xfail) documenting intended API and behavior
 
 ### Docs
 - environment: Document pyenv bash-safe init and shims fix in CONTRIBUTING.md
