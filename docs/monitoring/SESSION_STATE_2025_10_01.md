@@ -45,7 +45,7 @@ MANDATORY_REQUIREMENTS_PLACEHOLDER
 ### Platform Metrics
 
 **Version**: v0.1.3+
-**Test Count**: 174 tests
+**Test Count**: 211 tests
 **Branch**: develop (0 commits ahead)
 **Working Directory**: 1 uncommitted changes
 
