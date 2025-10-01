@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Configuration
+- **deps**: Add markdown parser dependencies for agricultural platform
+
+### Configuration
 - **ci**: Install package in editable mode for agricultural platform testing
 
 ### Documentation
