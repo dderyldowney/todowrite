@@ -68,8 +68,12 @@ GIT_STATUS=$(git status --porcelain)
 COMMITS_AHEAD=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo "0")
 RECENT_COMMITS=$(git log --oneline -5)
 
-# Get test count
-TEST_COUNT=$(pytest --collect-only -q 2>/dev/null | tail -1 | grep -oE '[0-9]+ tests?' || echo "148 tests")
+# Get test count without hard-coded fallback
+if TESTS_RAW=$(pytest --collect-only -q 2>/dev/null | tail -1); then
+    TEST_COUNT=$(echo "$TESTS_RAW" | grep -oE '[0-9]+ tests?')
+else
+    TEST_COUNT="unknown tests"
+fi
 
 # Get platform version from SESSION_SUMMARY.md (try root first, then docs fallback)
 if [ -f "${SESSION_SUMMARY_ROOT}" ]; then
