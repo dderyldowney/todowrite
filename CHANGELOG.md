@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Documentation
+- **docs**: Add CommonMark-compliant converter for agricultural docs
+
+### Documentation
 - **monitoring**: Update changelog from commits for agricultural platform
 
 ### Changed

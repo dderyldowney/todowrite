@@ -296,34 +296,52 @@ def main(changelog_path: str | None = None) -> int:
         return 1
 
     # Create backup
+    backup_path = path.parent / f"{path.name}.bak"
     create_backup(path)
 
-    # Get commits since last changelog update
-    commit_strings = get_commits_since_last_changelog()
+    try:
+        # Get commits since last changelog update
+        commit_strings = get_commits_since_last_changelog()
 
-    if not commit_strings or (len(commit_strings) == 1 and not commit_strings[0]):
-        print("No new commits to add to CHANGELOG.md")
+        if not commit_strings or (len(commit_strings) == 1 and not commit_strings[0]):
+            print("No new commits to add to CHANGELOG.md")
+            # Remove backup since no changes made
+            if backup_path.exists():
+                backup_path.unlink()
+            return 0
+
+        # Parse and categorize commits
+        parsed = parse_git_commits(commit_strings)
+        categorized = categorize_commits(parsed)
+
+        if not categorized:
+            print("No categorized commits to add to CHANGELOG.md")
+            # Remove backup since no changes made
+            if backup_path.exists():
+                backup_path.unlink()
+            return 0
+
+        # Update CHANGELOG.md
+        existing_content = path.read_text()
+        updated_content = update_changelog(existing_content, categorized)
+
+        # Write updated content
+        path.write_text(updated_content)
+
+        # Remove backup after successful update
+        if backup_path.exists():
+            backup_path.unlink()
+
+        print("✅ CHANGELOG.md updated successfully")
+        print(f"   Added {len(parsed)} commits across {len(categorized)} categories")
+
         return 0
 
-    # Parse and categorize commits
-    parsed = parse_git_commits(commit_strings)
-    categorized = categorize_commits(parsed)
-
-    if not categorized:
-        print("No categorized commits to add to CHANGELOG.md")
-        return 0
-
-    # Update CHANGELOG.md
-    existing_content = path.read_text()
-    updated_content = update_changelog(existing_content, categorized)
-
-    # Write updated content
-    path.write_text(updated_content)
-
-    print("✅ CHANGELOG.md updated successfully")
-    print(f"   Added {len(parsed)} commits across {len(categorized)} categories")
-
-    return 0
+    except Exception as e:
+        # Keep backup on error for recovery
+        print(f"❌ Error updating CHANGELOG.md: {e}")
+        print(f"   Backup preserved at: {backup_path}")
+        return 1
 
 
 if __name__ == "__main__":
