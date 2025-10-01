@@ -551,6 +551,17 @@ The project includes a **.claude/commands/** directory containing reusable comma
   - **Universal Access**: ALL humans and AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer)
   - **Cross-Session Memory**: Command MUST be remembered by all agents across all sessions
   - **Complete Specification**: See [.claude/commands/whereweare.md](.claude/commands/whereweare.md)
+- **updatedocs**: Meta-command for unified regeneration of all 6 core documentation files
+  - **Update All Mode**: `./bin/updatedocs` regenerates all 6 core documents
+  - **Dry-Run Mode**: `./bin/updatedocs --dry-run` previews what would be updated without executing
+  - **Selective Update Mode**: `./bin/updatedocs --only=whereweare,changelog` updates specific documents only
+  - **6 Core Documents**: WHERE_WE_ARE.md (strategic assessment), docs/index.html (web docs), CHANGELOG.md (version history), test reports (platform health), session state (development metrics), documentation stats (status dashboard)
+  - **Orchestrates Commands**: whereweare --generate, updatewebdocs, updatechangelog, runtests -q
+  - Essential for ISO compliance auditing (ISO 11783, ISO 18497), stakeholder communication, and synchronized platform state
+  - **Command variations**: `./bin/updatedocs`, `./bin/updatedocs --dry-run`, `./bin/updatedocs --only=doc1,doc2`, `/updatedocs` (Claude Code)
+  - **Universal Access**: ALL humans and AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer)
+  - **Cross-Session Memory**: Command MUST be remembered by all agents across all sessions
+  - **Complete Specification**: See [.claude/commands/updatedocs.md](.claude/commands/updatedocs.md)
 
 **Command Usage**:
 - Commands are documented with complete specifications including purpose, expected output, and usage context
