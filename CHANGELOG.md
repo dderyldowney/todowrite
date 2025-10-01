@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- synchronization: VectorClock now supports dynamic team composition
+  - Auto-adopts unknown processes during `update_with_received_message()` and `from_dict()`
+  - Deterministic internal ordering for stable serialization/debug output
+
+### Added
+- synchronization: Public APIs `add_process(process_id)` and `remove_process(process_id)` for runtime join/leave
+  - Agricultural context: tractors can enter/exit operation zones or rejoin after outages
+- tests: Three unit tests covering join, leave, and auto-adopt-on-update behaviors
+
 ### Docs
 - environment: Document pyenv bash-safe init and shims fix in CONTRIBUTING.md
 - qa: Update expected test count to 161 across docs
