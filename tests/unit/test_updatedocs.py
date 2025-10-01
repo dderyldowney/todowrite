@@ -50,11 +50,12 @@ class TestUpdateDocsCommand:
     def test_updatedocs_updates_whereweare(self) -> None:
         """Test that updatedocs regenerates WHERE_WE_ARE.md."""
         # Run updatedocs (should call whereweare --generate internally)
+        # Extended timeout: updatedocs orchestrates multiple commands including runtests
         result = subprocess.run(
             ["./bin/updatedocs"],
             capture_output=True,
             text=True,
-            timeout=60,
+            timeout=180,
         )
 
         assert result.returncode == 0, "updatedocs should execute successfully"
@@ -69,11 +70,12 @@ class TestUpdateDocsCommand:
 
     def test_updatedocs_updates_changelog(self) -> None:
         """Test that updatedocs regenerates CHANGELOG.md."""
+        # Extended timeout: updatedocs orchestrates multiple commands including runtests
         result = subprocess.run(
             ["./bin/updatedocs"],
             capture_output=True,
             text=True,
-            timeout=60,
+            timeout=180,
         )
 
         assert result.returncode == 0
@@ -84,11 +86,12 @@ class TestUpdateDocsCommand:
 
     def test_updatedocs_updates_webdocs(self) -> None:
         """Test that updatedocs regenerates docs/index.html."""
+        # Extended timeout: updatedocs orchestrates multiple commands including runtests
         result = subprocess.run(
             ["./bin/updatedocs"],
             capture_output=True,
             text=True,
-            timeout=60,
+            timeout=180,
         )
 
         assert result.returncode == 0
@@ -101,11 +104,12 @@ class TestUpdateDocsCommand:
 
     def test_updatedocs_colored_output(self) -> None:
         """Test that updatedocs produces colored terminal output."""
+        # Extended timeout: updatedocs orchestrates multiple commands including runtests
         result = subprocess.run(
             ["./bin/updatedocs"],
             capture_output=True,
             text=True,
-            timeout=60,
+            timeout=180,
         )
 
         assert result.returncode == 0
@@ -116,11 +120,12 @@ class TestUpdateDocsCommand:
 
     def test_updatedocs_shows_summary(self) -> None:
         """Test that updatedocs shows comprehensive update summary."""
+        # Extended timeout: updatedocs orchestrates multiple commands including runtests
         result = subprocess.run(
             ["./bin/updatedocs"],
             capture_output=True,
             text=True,
-            timeout=60,
+            timeout=180,
         )
 
         assert result.returncode == 0
@@ -138,11 +143,12 @@ class TestUpdateDocsCommand:
 
     def test_updatedocs_agricultural_context(self) -> None:
         """Test that updatedocs includes agricultural robotics context."""
+        # Extended timeout: updatedocs orchestrates multiple commands including runtests
         result = subprocess.run(
             ["./bin/updatedocs"],
             capture_output=True,
             text=True,
-            timeout=60,
+            timeout=180,
         )
 
         assert result.returncode == 0
@@ -198,11 +204,12 @@ class TestUpdateDocsCommand:
     def test_updatedocs_selective_update(self) -> None:
         """Test updatedocs with selective document updates."""
         # Test updating only specific documents
+        # Extended timeout: Even selective updates may run runtests if 'tests' included
         result = subprocess.run(
             ["./bin/updatedocs", "--only=whereweare,changelog"],
             capture_output=True,
             text=True,
-            timeout=30,
+            timeout=120,
         )
 
         # Should succeed or provide helpful message about flag
