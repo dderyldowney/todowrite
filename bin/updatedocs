@@ -140,19 +140,28 @@ run_update() {
     echo -e "${CYAN}📝 Updating: $doc_description${NC}"
 
     if [[ "$DRY_RUN" == "true" ]]; then
-        echo -e "${YELLOW}   Would run: $update_command${NC}"
-        ((UPDATED_DOCS++))
+        echo -e "${YELLOW}   Would run: $update_command 2>&1${NC}"
+        UPDATED_DOCS=$((UPDATED_DOCS + 1))
         return 0
     fi
 
-    # Execute update command
-    if eval "$update_command" > /dev/null 2>&1; then
+    # Execute update command (capture output to temp file for error reporting)
+    local temp_output
+    temp_output=$(mktemp)
+    if eval "$update_command" > "$temp_output" 2>&1; then
         echo -e "${GREEN}   ✅ Success: $doc_description updated${NC}"
         ((UPDATED_DOCS++))
+        rm -f "$temp_output"
         return 0
     else
-        echo -e "${RED}   ❌ Failed: $doc_description update failed${NC}"
+        local exit_code=$?
+        echo -e "${RED}   ❌ Failed: $doc_description update failed (exit code: $exit_code)${NC}"
+        if [[ -s "$temp_output" ]]; then
+            echo -e "${YELLOW}   Error output:${NC}"
+            head -10 "$temp_output" | sed 's/^/   /'
+        fi
         ((FAILED_DOCS++))
+        rm -f "$temp_output"
         return 1
     fi
 }
@@ -160,42 +169,42 @@ run_update() {
 # Document 1: WHERE_WE_ARE.md - Strategic Assessment
 run_update "whereweare" \
     "WHERE_WE_ARE.md (Strategic Assessment)" \
-    "./bin/whereweare --generate 2>&1"
+    "./bin/whereweare --generate" || true
 
 echo ""
 
 # Document 2: docs/index.html - Web Documentation
 run_update "webdocs" \
     "docs/index.html (Web Documentation)" \
-    "./bin/updatewebdocs 2>&1"
+    "./bin/updatewebdocs" || true
 
 echo ""
 
 # Document 3: CHANGELOG.md - Version History
 run_update "changelog" \
     "CHANGELOG.md (Version History)" \
-    "./bin/updatechangelog 2>&1"
+    "./bin/updatechangelog" || true
 
 echo ""
 
 # Document 4: Test Reports - Platform Health
 run_update "tests" \
     "Test Reports (Platform Health)" \
-    "./bin/runtests -q 2>&1"
+    "./bin/runtests -q" || true
 
 echo ""
 
 # Document 5: Session State - Development Metrics
 run_update "session" \
     "Session State (Development Metrics)" \
-    "echo 'Session state tracked via savesession command' 2>&1"
+    "echo 'Session state tracked via savesession command'" || true
 
 echo ""
 
 # Document 6: Documentation Statistics
 run_update "stats" \
     "Documentation Statistics (Status Dashboard)" \
-    "echo '6 core documents synchronized' 2>&1"
+    "echo '6 core documents synchronized'" || true
 
 echo ""
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
