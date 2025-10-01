@@ -52,14 +52,15 @@ class VectorClock:
             msg = "Process IDs list cannot be empty"
             raise ValueError(msg)
 
-        # Remove duplicates and validate
-        unique_ids = list(set(process_ids))
+        # Remove duplicates while preserving order, then validate
+        unique_ids = list(dict.fromkeys(process_ids))
         if len(unique_ids) != len(process_ids):
             msg = "Process IDs list contains duplicates"
             raise ValueError(msg)
 
         self._process_ids: set[str] = set(unique_ids)
-        self._clocks: dict[str, int] = dict.fromkeys(unique_ids, 0)
+        # Preserve insertion order for deterministic serialization/debugging
+        self._clocks: dict[str, int] = {pid: 0 for pid in unique_ids}
 
     def get_time(self, process_id: str) -> int:
         """Get logical timestamp for specified process.
@@ -132,13 +133,18 @@ class VectorClock:
             msg = f"Process ID '{receiving_process}' not found in clock"
             raise ValueError(msg)
 
-        # Update rule: take max of current and received time for each process
+        # Ensure we are aware of any processes present in sender but unknown locally
+        for process_id in sender_clock._clocks.keys():
+            if process_id not in self._process_ids:
+                # Adopt unknown processes with their observed timestamp
+                self._process_ids.add(process_id)
+                self._clocks[process_id] = 0
+
+        # Update rule: take max of current and received time for each known process
         for process_id in self._process_ids:
-            if process_id in sender_clock._clocks:
-                self._clocks[process_id] = max(
-                    self._clocks[process_id],
-                    sender_clock._clocks[process_id],
-                )
+            received_time = sender_clock._clocks.get(process_id, 0)
+            current_time = self._clocks.get(process_id, 0)
+            self._clocks[process_id] = max(current_time, received_time)
 
         # Increment receiving process's clock (local event)
         self._clocks[receiving_process] += 1
@@ -224,9 +230,11 @@ class VectorClock:
 
         """
         clock = cls(process_ids)
+        # Adopt any provided processes that are not in the initial list
         for process_id, timestamp in clock_dict.items():
-            if process_id in clock._process_ids:
-                clock._clocks[process_id] = timestamp
+            if process_id not in clock._process_ids:
+                clock._process_ids.add(process_id)
+            clock._clocks[process_id] = int(timestamp)
         return clock
 
     def __str__(self) -> str:
@@ -236,3 +244,56 @@ class VectorClock:
     def __repr__(self) -> str:
         """Detailed string representation for debugging."""
         return f"VectorClock(process_ids={sorted(self._process_ids)}, clocks={self._clocks})"
+
+    # Dynamic composition API
+    def add_process(self, process_id: str) -> None:
+        """Add a new process to the vector clock.
+
+        Parameters
+        ----------
+        process_id : str
+            Identifier of the process (tractor) joining the fleet.
+
+        Raises
+        ------
+        ValueError
+            If the process ID already exists or is empty.
+
+        Notes
+        -----
+        - New processes start with logical time 0.
+        - Useful when tractors join mid-operation or recover from outages.
+        """
+        if not process_id:
+            msg = "Process ID cannot be empty"
+            raise ValueError(msg)
+        if process_id in self._process_ids:
+            msg = f"Process ID '{process_id}' already exists"
+            raise ValueError(msg)
+        self._process_ids.add(process_id)
+        self._clocks[process_id] = 0
+
+    def remove_process(self, process_id: str) -> None:
+        """Remove a process from the vector clock.
+
+        Parameters
+        ----------
+        process_id : str
+            Identifier of the process (tractor) leaving the fleet.
+
+        Raises
+        ------
+        ValueError
+            If the process ID is unknown.
+
+        Notes
+        -----
+        - Removes the process from tracked IDs and serialization output.
+        - Lookups for removed IDs will raise ValueError.
+        """
+        if process_id not in self._process_ids:
+            msg = f"Process ID '{process_id}' not found in clock"
+            raise ValueError(msg)
+        self._process_ids.remove(process_id)
+        if process_id in self._clocks:
+            del self._clocks[process_id]
