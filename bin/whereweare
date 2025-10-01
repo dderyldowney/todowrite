@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+# whereweare - Display comprehensive WHERE_WE_ARE.md strategic assessment
+#
+# This command displays the complete state assessment document for the AFS FastAPI
+# agricultural robotics platform, providing stakeholders with strategic visibility
+# from overarching vision to specific implementations.
+#
+# Usage:
+#   ./bin/whereweare              # Display WHERE_WE_ARE.md document
+#   ./bin/whereweare --help       # Show usage information
+#   ./bin/whereweare --root=PATH  # Set custom project root (test mode)
+#
+# Agricultural Context:
+# Strategic documentation essential for stakeholder communication in agricultural
+# robotics platform. Provides comprehensive view of platform capabilities, testing
+# architecture, and development roadmap critical for ISO compliance planning.
+
+set -euo pipefail
+
+# Color codes for output
+readonly BLUE='\033[0;34m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly RED='\033[0;31m'
+readonly CYAN='\033[0;36m'
+readonly NC='\033[0m' # No Color
+
+# Configuration
+PROJECT_ROOT="${PROJECT_ROOT:-.}"
+DOCUMENT_PATH="docs/strategic/WHERE_WE_ARE.md"
+
+# Test mode support
+CUSTOM_ROOT=""
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --help|-h)
+            echo "whereweare - Display WHERE_WE_ARE.md strategic assessment"
+            echo ""
+            echo "Usage:"
+            echo "  ./bin/whereweare              Display complete strategic assessment"
+            echo "  ./bin/whereweare --help       Show this help message"
+            echo "  ./bin/whereweare --root=PATH  Set custom project root (test mode)"
+            echo ""
+            echo "Document Contents:"
+            echo "  • Executive Summary: Platform evolution and current status"
+            echo "  • Strategic Positioning: Dual-purpose architecture and market leadership"
+            echo "  • Current Release Status: v0.1.3 metrics and capabilities"
+            echo "  • Architectural Overview: 3-layer enterprise architecture"
+            echo "  • Implementation Details: Core systems and capabilities"
+            echo "  • Testing Architecture Excellence: 161-test suite with TDD"
+            echo "  • Quality Standards: Enterprise-grade code quality"
+            echo "  • Documentation Framework: Comprehensive guides and AI integration"
+            echo "  • Strategic Roadmap: Next evolution phases and priorities"
+            echo ""
+            echo "Agricultural Context:"
+            echo "  Strategic assessment provides stakeholders with comprehensive platform"
+            echo "  visibility essential for development planning and ISO compliance."
+            exit 0
+            ;;
+        --root=*)
+            CUSTOM_ROOT="${1#*=}"
+            shift
+            ;;
+        *)
+            echo -e "${RED}Error: Unknown option $1${NC}" >&2
+            echo "Use --help for usage information" >&2
+            exit 1
+            ;;
+    esac
+done
+
+# Set project root for test mode
+if [[ -n "$CUSTOM_ROOT" ]]; then
+    PROJECT_ROOT="$CUSTOM_ROOT"
+    DOCUMENT_PATH="$CUSTOM_ROOT/docs/strategic/WHERE_WE_ARE.md"
+fi
+
+# Header
+echo -e "${BLUE}📊 AFS FastAPI Strategic Assessment${NC}"
+echo -e "${BLUE}====================================${NC}"
+echo ""
+
+# Verify document exists
+if [[ ! -f "$DOCUMENT_PATH" ]]; then
+    echo -e "${RED}❌ ERROR: WHERE_WE_ARE.md not found${NC}" >&2
+    echo -e "${RED}   Expected location: $DOCUMENT_PATH${NC}" >&2
+    echo ""
+    echo -e "${YELLOW}💡 Document should contain:${NC}" >&2
+    echo -e "   • Comprehensive platform state assessment" >&2
+    echo -e "   • Strategic positioning and capabilities" >&2
+    echo -e "   • Development roadmap and priorities" >&2
+    exit 1
+fi
+
+# Display document with colored sections
+echo -e "${GREEN}📋 Displaying Strategic Assessment Document${NC}"
+echo -e "${CYAN}   Location: $DOCUMENT_PATH${NC}"
+echo ""
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+# Display the document with enhanced formatting
+cat "$DOCUMENT_PATH"
+
+echo ""
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+echo -e "${GREEN}✅ Strategic Assessment Complete${NC}"
+echo ""
+echo -e "${CYAN}📚 Related Documentation:${NC}"
+echo -e "   • ${YELLOW}SESSION_SUMMARY.md${NC} - Project evolution tracking"
+echo -e "   • ${YELLOW}README.md${NC} - Project overview and capabilities"
+echo -e "   • ${YELLOW}WORKFLOW.md${NC} - Authoritative testing reference"
+echo -e "   • ${YELLOW}TDD_WORKFLOW.md${NC} - Test-First development methodology"
+echo ""
+echo -e "${CYAN}🎯 Strategic Status:${NC}"
+echo -e "   ${GREEN}Ready for Next Evolution${NC} - Advanced Synchronization Infrastructure"
+echo ""

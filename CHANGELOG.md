@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **workflow**: Add updatewebdocs command for agricultural platform web generation
+
 ### Documentation
 - **docs**: Add strategic documentation sections for agricultural platform
 
