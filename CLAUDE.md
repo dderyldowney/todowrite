@@ -66,6 +66,77 @@ This file contains project-specific instructions for Claude Code sessions workin
 
 **RATIONALE**: Safety-critical agricultural robotics requires ALL development assistants to use identical session management infrastructure. Without automatic cross-agent sharing, configuration drift creates inconsistent development experiences and risks losing critical session context across different AI platforms.
 
+## MANDATORY: Automatic Command Creation with Grouped Cross-Agent Sharing
+
+**ABSOLUTE REQUIREMENT**: Command creation and cross-agent infrastructure sharing MUST occur as a SINGLE GROUPED ATOMIC OPERATION with ZERO manual intervention.
+
+### Grouped Automation Mandate
+
+**WHENEVER** a new session management command is created:
+
+```
+NEW COMMAND DETECTED
+        ↓
+AUTOMATIC GROUPED SHARING (MANDATORY)
+        ↓
+├─ SESSION_SUMMARY.md update (AUTOMATIC)
+├─ AGENTS.md update (AUTOMATIC)
+├─ CLAUDE.md update (AUTOMATIC)
+├─ .claude/commands/ integration (AUTOMATIC)
+├─ Universal specification creation (AUTOMATIC)
+└─ Test coverage validation (AUTOMATIC)
+        ↓
+ALL AI AGENTS HAVE IMMEDIATE ACCESS
+```
+
+### Universal AI Agent Enforcement
+
+**ALL AI agents MUST**:
+- **Detect** new command creation automatically
+- **Execute** entire grouped sharing workflow atomically
+- **Validate** all documentation updates completed
+- **Verify** cross-agent accessibility achieved
+- **Persist** command knowledge across ALL sessions
+
+**Applies To**: Claude, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer, ALL future AI assistants
+
+### Required Documentation Updates (AUTOMATIC)
+
+**Session Management Commands**:
+1. **SESSION_SUMMARY.md**: Add to "Universal Session Management Commands" section with template
+2. **AGENTS.md**: Update "How to Use", "Configuration", and "Examples" sections
+3. **CLAUDE.md**: Add to "Claude Command Integration" section with specifications
+4. **.claude/COMMANDNAME_COMMAND_UNIVERSAL.md**: Create comprehensive universal spec (380+ lines template)
+5. **.claude/commands/commandname**: Create slash command integration
+6. **tests/unit/test_commandname.py**: Validate comprehensive test coverage exists
+
+### Agricultural Context Requirements
+
+**ALL commands MUST include** (AUTOMATIC validation):
+- ISO compliance application (ISO 11783 or ISO 18497)
+- Safety engineering use (multi-tractor coordination)
+- Stakeholder communication value (procurement/planning)
+- Development visibility enablement (technical decisions)
+- Agricultural terminology (2+ mandatory keywords)
+
+### Enforcement Mechanisms
+
+**Pre-Commit Hook** (Future Implementation):
+- **Detection**: Scans `bin/` for new executable commands
+- **Validation**: Verifies all 6 documentation updates completed
+- **Rejection**: Blocks commit if cross-agent sharing incomplete
+- **Message**: Provides specific missing updates with templates
+
+**Zero Tolerance Policy**:
+- NO commands without automatic cross-agent sharing
+- NO manual-only documentation updates
+- NO inconsistent AI agent capabilities
+- NO agricultural context omissions
+
+**RATIONALE**: Safety-critical agricultural robotics demands instantaneous universal AI agent access to ALL session management tools. Manual multi-file updates introduce human error, documentation drift, and inconsistent capabilities across AI platforms. Grouped automatic sharing ensures EVERY new command is immediately available to Claude, Copilot, GPT, Gemini, and CodeWhisperer with ZERO manual intervention.
+
+**Complete Specification**: [.claude/AUTOMATIC_COMMAND_SHARING_MANDATORY.md](.claude/AUTOMATIC_COMMAND_SHARING_MANDATORY.md)
+
 ## MANDATORY: Structured Investigation Pattern for ALL AI Agent Responses
 
 **ABSOLUTE REQUIREMENT**: ALL AI agent responses (Claude, GPT, Gemini, Copilot, etc.) must follow a structured investigation pattern providing complete transparency into analysis methodology.

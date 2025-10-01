@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+- **workflow**: Document whereweare for universal agricultural platform access
+
 ### Added
 - **workflow**: Add strategic assessment generation for agricultural platform
 
