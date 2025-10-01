@@ -23,7 +23,7 @@ This guide documents the critical knowledge for generating comprehensive test su
 **1. Execute Core Test Suite**:
 ```bash
 python -m pytest tests/ -v --tb=short
-# Expected: 129/129 tests passing in ~1.08s
+# Expected: 161/161 tests passing in ~3s
 ```
 
 **2. Validate Code Quality** (Execute in parallel):
@@ -74,7 +74,7 @@ ruff check . > quality_results.log
 - **Documentation Excellence**: Maintains AFS FastAPI's dual-purpose instructional and functional mission
 
 **Technical Documentation Benefits**:
-- **Comprehensive Coverage**: Validates all 129 tests across equipment, monitoring, API, and infrastructure domains
+- **Comprehensive Coverage**: Validates all 161 tests across equipment, monitoring, API, and infrastructure domains
 - **Quality Metrics**: Zero-warning validation across Ruff, MyPy, Black, and isort quality tools
 - **Performance Analysis**: Runtime characteristics and resource utilization for embedded agricultural systems
 - **Standards Compliance**: ISO 11783 (ISOBUS) and ISO 18497 (Safety) validation documentation
@@ -89,7 +89,7 @@ ruff check . > quality_results.log
 - Quality confirmation
 
 **Detailed Test Analysis**:
-- **Main Test Suite**: 129 tests with domain breakdown and performance metrics
+- **Main Test Suite**: 161 tests with domain breakdown and performance metrics
 - **Code Quality Assessment**: Multi-tool validation with zero-warning confirmation
 - **Command Infrastructure**: loadsession and other command testing validation
 - **Performance Characteristics**: Runtime analysis and resource utilization
@@ -111,7 +111,7 @@ ruff check . > quality_results.log
 ### Platform Quality Framework
 
 **Zero Technical Debt Maintenance**:
-- **Complete Test Coverage**: All 129 tests must pass for report generation
+- **Complete Test Coverage**: All 161 tests must pass for report generation
 - **Quality Tool Excellence**: Ruff, MyPy, Black, isort must report zero issues
 - **Command Infrastructure**: loadsession and related commands must be operational
 - **Documentation Standards**: Professional formatting and comprehensive coverage required

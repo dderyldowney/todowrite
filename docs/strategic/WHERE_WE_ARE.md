@@ -44,7 +44,7 @@ AFS FastAPI serves a **dual-purpose architecture**:
 ### Release Metrics
 
 - **Release Date**: September 28, 2025
-- **Test Suite**: 129 tests (100% passing in 1.04 seconds)
+- **Test Suite**: 161 tests (100% passing in ~3 seconds)
 - **Code Quality**: Minimal linting warnings maintained
 - **Codebase Scale**: 4,582+ Python source files
 - **GitHub Release**: https://github.com/dderyldowney/afs_fastapi/releases/tag/v0.1.3
@@ -237,7 +237,7 @@ monitor = SoilMonitor("SOIL001", backend=ProductionSoilBackend())
 
 ## Testing Architecture Excellence
 
-### Test Suite: 129 Tests (100% Passing)
+### Test Suite: 161 Tests (100% Passing)
 
 **Test Distribution by Domain**:
 

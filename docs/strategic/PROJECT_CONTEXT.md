@@ -173,7 +173,7 @@ v0.1.3a0   (develop branch - start next development)
 
 **Complete Reference**: `WORKFLOW.md` - Comprehensive test suite workflow analysis covering:
 
-- **Test Architecture**: 118 tests across 3 layers (Feature, Unit, Root-level)
+- **Test Architecture**: 161 tests across 3 layers (Feature, Unit, Root-level)
 - **Agricultural Domain Coverage**: Equipment, Monitoring, API, Infrastructure testing
 - **Professional Standards**: ISOBUS (ISO 11783) and Safety (ISO 18497) compliance
 - **Flow Patterns**: End-to-end workflow explanations and execution commands
