@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+- **monitoring**: Add session snapshot for agricultural platform state
+
 ### Fixed
 - **workflow**: Remove backup artifacts after agricultural changelog updates
 
