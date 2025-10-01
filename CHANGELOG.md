@@ -8,6 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Documentation
+- **monitoring**: Update changelog from commits for agricultural platform
+
+### Changed
+- docs: Replace `docs/convert_readme_to_index_html.py` with deterministic Markdown→HTML converter
+  - Maps headings, paragraphs, links, images, emphasis, lists, code blocks, blockquotes, and rules
+  - Wraps content in house-styled full HTML page matching docs visual style
+  - Adds tests in `tests/unit/test_convert_readme_to_index_html.py`
+
+### Configuration
+- deps: Add `mdit-py-plugins` to guarantee CommonMark tables, footnotes, and task lists support in docs conversion
+
+### Added
+- tests: Add nested list rendering and table cell escaping tests for docs converter (`tests/unit/test_convert_readme_to_index_html.py`)
+
+### Documentation
 - **monitoring**: Add session snapshot 2025-09-30 for agricultural platform; sync summary
 
 ### Changed

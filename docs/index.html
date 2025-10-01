@@ -13,7 +13,6 @@
             background-color: #f8f9fa;
             color: #333;
         }
-
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -22,457 +21,321 @@
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-
-        h1 {
-            color: #2c5530;
-            border-bottom: 3px solid #4a7c59;
-            padding-bottom: 10px;
-            margin-bottom: 30px;
-        }
-
-        h2 {
-            color: #4a7c59;
-            border-bottom: 2px solid #6fa777;
-            padding-bottom: 8px;
-            margin-top: 40px;
-        }
-
-        h3 {
-            color: #5d8a6b;
-            margin-top: 30px;
-        }
-
-        .badges {
-            margin: 20px 0;
-        }
-
-        .badges img {
-            margin-right: 10px;
-        }
-
-        .logo {
-            text-align: center;
-            margin: 30px 0;
-        }
-
-        .logo img {
-            max-width: 400px;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .code-block {
-            background-color: #f8f8f8;
-            border: 1px solid #e1e1e1;
-            border-radius: 4px;
-            padding: 15px;
-            overflow-x: auto;
-            margin: 20px 0;
-        }
-
-        code {
-            background-color: #f0f0f0;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: 'Courier New', monospace;
-        }
-
-        .codehilite {
-            background-color: #f8f8f8;
-            border: 1px solid #e1e1e1;
-            border-radius: 4px;
-            padding: 15px;
-            overflow-x: auto;
-            margin: 20px 0;
-        }
-
-        .codehilite pre {
-            margin: 0;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-        }
-
-        ul, ol {
-            margin: 15px 0;
-            padding-left: 30px;
-        }
-
-        li {
-            margin: 8px 0;
-        }
-
-        a {
-            color: #4a7c59;
-            text-decoration: none;
-        }
-
-        a:hover {
-            color: #2c5530;
-            text-decoration: underline;
-        }
-
-        hr {
-            border: none;
-            height: 2px;
-            background: linear-gradient(90deg, #4a7c59, #6fa777, #4a7c59);
-            margin: 40px 0;
-        }
-
-        .section {
-            margin-bottom: 40px;
-        }
-
-        .highlight-box {
-            background-color: #f0f7f0;
-            border-left: 4px solid #4a7c59;
-            padding: 15px;
-            margin: 20px 0;
-        }
-
-        .toc {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-
-        .toc h3 {
-            margin-top: 0;
-            color: #4a7c59;
-        }
-
-        .toc ul {
-            list-style-type: none;
-            padding-left: 0;
-        }
-
-        .toc ul li {
-            margin: 5px 0;
-        }
-
-        .toc ul li a {
-            display: block;
-            padding: 5px 10px;
-            border-radius: 3px;
-        }
-
-        .toc ul li a:hover {
-            background-color: #e9ecef;
-            text-decoration: none;
-        }
+        h1 { color: #2c5530; border-bottom: 3px solid #4a7c59; padding-bottom: 10px; margin-bottom: 30px; }
+        h2 { color: #4a7c59; border-bottom: 2px solid #6fa777; padding-bottom: 8px; margin-top: 40px; }
+        h3 { color: #5d8a6b; margin-top: 30px; }
+        .codehilite { background-color: #f8f8f8; border: 1px solid #e1e1e1; border-radius: 4px; padding: 15px; overflow-x: auto; margin: 20px 0; }
+        .codehilite pre { margin: 0; font-family: 'Courier New', monospace; font-size: 14px; }
+        ul, ol { margin: 15px 0; padding-left: 30px; }
+        li { margin: 8px 0; }
+        a { color: #4a7c59; text-decoration: none; }
+        a:hover { color: #2c5530; text-decoration: underline; }
+        hr { border: none; height: 2px; background: linear-gradient(90deg, #4a7c59, #6fa777, #4a7c59); margin: 40px 0; }
     </style>
+    
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Automated Farming System API</h1>
+        <h1>Automated Farming System API</h1>
 
-            <div class="badges">
-                <a href="https://github.com/dderyldowney/afs_fastapi/actions/workflows/afs-testing.yml">
-                    <img alt="AFS Testing" src="https://github.com/dderyldowney/afs_fastapi/actions/workflows/afs-testing.yml/badge.svg" />
-                </a>
-                <a href="https://github.com/dderyldowney/afs_fastapi/actions/workflows/security.yml">
-                    <img alt="Security Review" src="https://github.com/dderyldowney/afs_fastapi/actions/workflows/security.yml/badge.svg" />
-                </a>
-            </div>
+<p><a href="https://github.com/dderyldowney/afs_fastapi/actions/workflows/afs-testing.yml"><img src="https://github.com/dderyldowney/afs_fastapi/actions/workflows/afs-testing.yml/badge.svg" alt="AFS Testing" /></a> <a href="https://github.com/dderyldowney/afs_fastapi/actions/workflows/security.yml"><img src="https://github.com/dderyldowney/afs_fastapi/actions/workflows/security.yml/badge.svg" alt="Security Review" /></a></p>
 
-            <div class="logo">
-                <img alt="Automated Farming System API logo" src="resources/static/images/afs_fastapi-logo.jpg" />
-            </div>
-        </header>
+<p><img src="resources/static/images/afs_fastapi-logo.jpg" alt="Automated Farming System API logo" /></p>
 
-        <nav class="toc">
-            <h3>Table of Contents</h3>
-            <ul>
-                <li><a href="#project-outline">Project Outline</a></li>
-                <li><a href="#api-core-classes">API and Core Classes</a></li>
-                <li><a href="#build-process">Build Process</a></li>
-                <li><a href="#run-locally">Run the API Locally</a></li>
-                <li><a href="#sensor-backends">Sensor Backend Interfaces</a></li>
-                <li><a href="#operational-manuals">Locating Operational Manuals</a></li>
-                <li><a href="#soil-monitoring">Monitoring Soil Conditions</a></li>
-                <li><a href="#water-monitoring">Monitoring Water Conditions</a></li>
-                <li><a href="#datasets">Publicly Available Datasets</a></li>
-                <li><a href="#integration-goals">Project Integration and ML Goals</a></li>
-                <li><a href="#contributing">Contributing</a></li>
-                <li><a href="#security">Security Notes</a></li>
-            </ul>
-        </nav>
+<h2>Current Status &amp; Recent Developments</h2>
 
-        <main>
-            <section id="project-outline" class="section">
-                <h2>Project Outline</h2>
+<p><strong>🎯 Agricultural Robotics Platform</strong></p>
 
-                <h3>1. Project Purpose</h3>
-                <p>The <a href="https://github.com/dderyldowney/afs_fastapi">AFS-FastAPI Project</a> aims to harness Machine Learning (ML) and robotics to automate essential farming processes, including operating farm equipment, maintaining soil health, and managing water quality. By integrating data-driven insights with advanced automation, the project seeks to enhance farming efficiency, sustainability, and productivity.</p>
+<p>AFS FastAPI has evolved into a <strong>multi-tractor coordination system</strong> with comprehensive reliability and comprehensive educational value.</p>
 
-                <p>The system provides a robust set of API interfaces, using <a href="https://fastapi.tiangolo.com">FastAPI</a>, to support diverse use cases, ranging from controlling robotic devices and physical farm equipment to monitoring environmental factors such as soil, water, and air quality. The APIs are designed to serve a wide range of consumers, including AI agents managing autonomous operations and humans overseeing the overall system or specific subsystems.</p>
-            </section>
+<p><strong>Recent Major Enhancements:</strong>
+- <strong>✅ Test-First Development</strong>: Complete TDD methodology implementation with Red-Green-Refactor workflow
+- <strong>✅ Distributed Systems</strong>: Vector Clock implementation for multi-tractor fleet coordination
+- <strong>✅ Enhanced Testing</strong>: Test suite expanded to <strong>161 tests</strong> (100% passing)
+- <strong>✅ Professional Documentation</strong>: Professional markdown formatting and comprehensive guides
+- <strong>✅ Zero Technical Debt</strong>: No linting warnings across entire codebase</p>
 
-            <section id="api-core-classes" class="section">
-                <h2>API and Core Classes</h2>
+<p><strong>Strategic Capabilities:</strong>
+- <strong>Multi-tractor coordination</strong>: Conflict-free field operations with real-time synchronization
+- <strong>ISOBUS compliance</strong>: Full ISO 11783 and ISO 18497 (Safety) implementation
+- <strong>Network resilience</strong>: Handles intermittent rural connectivity scenarios
+- <strong>Educational framework</strong>: Dual-purpose code serving functional and instructional objectives</p>
 
-                <div class="highlight-box">
-                    <h3>FarmTractor Class</h3>
-                    <p>The <code>FarmTractor</code> is a plain Python class used in the project to represent a farm tractor. It includes attributes such as <code>make</code>, <code>model</code>, <code>year</code>, and <code>manual_url</code> to store the URL of the operational manual for the tractor. This class is used to demonstrate core equipment behaviors and to provide a structured way to manage tractor data within the system.</p>
+<hr />
 
-                    <p>The <code>FarmTractor</code> fully implements professional agricultural robotics standards while maintaining complete backwards compatibility with existing code.</p>
-                </div>
+<h2>Project Outline</h2>
 
-                <h3>Test Coverage Summary</h3>
-                <ul>
-                    <li><strong>Original Farm Tractor Tests (26-44)</strong>: Basic functionality like engine control, hydraulics, and gear changes</li>
-                    <li><strong>Advanced Farm Tractor Tests (37-44)</strong>: GPS, autonomous mode, implement controls, and field operations</li>
-                    <li><strong>Robotic Interface Tests (45-77)</strong>: All new industrial interfaces including ISOBUS, safety systems, motor control, data management, and power systems</li>
-                    <li><strong>API &amp; Integration Tests (20-25)</strong>: FastAPI endpoints and system integration</li>
-                    <li><strong>Monitoring Systems (80-89)</strong>: Soil and water monitoring capabilities</li>
-                    <li><strong>Station Management (90-100)</strong>: Command and control station functionality</li>
-                </ul>
+<h3>1. Project Purpose</h3>
 
-                <p>API responses that expose tractor state use a dedicated Pydantic model (<code>FarmTractorResponse</code>) to provide a stable, JSON-serializable schema without mixing API concerns into the core class.</p>
+<p>The <a href="https://github.com/dderyldowney/afs_fastapi">AFS-FastAPI Project</a> aims to harness Machine Learning (ML) and robotics to automate essential farming processes, including
+operating farm equipment, maintaining soil health, and managing water quality. By integrating data-driven insights with
+advanced automation, the project seeks to enhance farming efficiency, sustainability, and productivity.</p>
 
-                <h3>FarmTractor Class Attributes</h3>
+<p>The system provides a robust set of API interfaces, using <a href="https://fastapi.tiangolo.com">FastAPI</a>, to support diverse
+use cases, ranging from controlling robotic devices and physical farm equipment to monitoring environmental factors such
+as soil, water, and air quality. The APIs are designed to serve a wide range of consumers, including AI agents managing
+autonomous operations and humans overseeing the overall system or specific subsystems.</p>
 
-                <h4>Core Identification</h4>
-                <ul>
-                    <li><code>make</code> (str): The manufacturer of the tractor.</li>
-                    <li><code>model</code> (str): The model of the tractor.</li>
-                    <li><code>year</code> (int): The year of manufacture.</li>
-                    <li><code>manual_url</code> (str | None): URL to the operational manual.</li>
-                </ul>
+<hr />
 
-                <h4>Engine and Basic Controls</h4>
-                <ul>
-                    <li><code>engine_on</code> (bool): Whether the engine is currently running.</li>
-                    <li><code>speed</code> (int): Current speed in mph.</li>
-                    <li><code>gear</code> (int): Current gear (0-10).</li>
-                    <li><code>power_takeoff</code> (bool): Whether the PTO is engaged.</li>
-                    <li><code>hydraulics</code> (bool): Whether hydraulics are activated.</li>
-                </ul>
+<h3>2. Test-First Development &amp; Distributed Systems</h3>
 
-                <h4>GPS and Navigation</h4>
-                <ul>
-                    <li><code>gps_latitude</code> (float | None): Current GPS latitude coordinate.</li>
-                    <li><code>gps_longitude</code> (float | None): Current GPS longitude coordinate.</li>
-                    <li><code>auto_steer_enabled</code> (bool): Whether auto-steer is active.</li>
-                    <li><code>waypoints</code> (List[Tuple[float, float]]): Navigation waypoints.</li>
-                    <li><code>current_heading</code> (float): Current heading in degrees.</li>
-                </ul>
+<p><strong>Test-Driven Development (TDD) Implementation:</strong></p>
 
-                <h4>Implement Controls</h4>
-                <ul>
-                    <li><code>implement_position</code> (ImplementPosition): Current implement position (raised/lowered/transport).</li>
-                    <li><code>implement_depth</code> (float): Working depth in inches.</li>
-                    <li><code>implement_width</code> (float): Working width in feet.</li>
-                </ul>
+<p>AFS FastAPI employs <strong>Red-Green-Refactor methodology</strong> for all synchronization infrastructure development, ensuring bulletproof reliability for distributed agricultural robotics systems.</p>
 
-                <h4>Field Operations</h4>
-                <ul>
-                    <li><code>field_mode</code> (FieldMode): Current field operation mode.</li>
-                    <li><code>work_rate</code> (float): Work rate in acres/hour.</li>
-                    <li><code>area_covered</code> (float): Total area covered in acres.</li>
-                </ul>
+<p><strong>Key TDD Features:</strong>
+- <strong>Complete TDD workflow</strong>: Red-Green-Refactor cycle demonstrated with Vector Clock implementation
+- <strong>Agricultural domain testing</strong>: Performance validation for embedded tractor computers
+- <strong>Distributed systems focus</strong>: Multi-tractor coordination with conflict resolution
+- <strong>Safety compliance</strong>: Emergency scenarios and equipment failures tested systematically</p>
 
-                <h4>Engine and Fuel</h4>
-                <ul>
-                    <li><code>fuel_level</code> (float): Fuel level percentage.</li>
-                    <li><code>engine_rpm</code> (int): Engine RPM.</li>
-                    <li><code>engine_temp</code> (float): Engine temperature in Fahrenheit.</li>
-                </ul>
+<p><strong>Distributed Systems Components:</strong></p>
 
-                <h4>Hydraulics</h4>
-                <ul>
-                    <li><code>hydraulic_pressure</code> (float): Hydraulic pressure in PSI.</li>
-                    <li><code>hydraulic_flow</code> (float): Hydraulic flow in GPM.</li>
-                </ul>
+<p><strong>Vector Clock Implementation:</strong>
+- <strong>Production-ready</strong>: Sub-millisecond operations for real-time agricultural coordination
+- <strong>ISOBUS compliance</strong>: Serialization compatible with ISO 11783 message constraints
+- <strong>Multi-tractor support</strong>: Causal ordering of events across distributed tractors
+- <strong>Network resilience</strong>: Handles intermittent rural connectivity scenarios</p>
 
-                <h4>Sensors</h4>
-                <ul>
-                    <li><code>wheel_slip</code> (float): Wheel slip percentage.</li>
-                    <li><code>ground_speed</code> (float): Ground speed in mph.</li>
-                    <li><code>draft_load</code> (float): Draft load in pounds.</li>
-                </ul>
+<div class="codehilite">
+<pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">afs_fastapi.services.synchronization</span><span class="w"> </span><span class="kn">import</span> <span class="n">VectorClock</span>
 
-                <h4>Autonomous Features</h4>
-                <ul>
-                    <li><code>autonomous_mode</code> (bool): Whether autonomous mode is enabled.</li>
-                    <li><code>obstacle_detection</code> (bool): Whether obstacle detection is active.</li>
-                    <li><code>emergency_stop_active</code> (bool): Whether emergency stop is active.</li>
-                </ul>
+<span class="c1"># Create vector clock for 3-tractor fleet</span>
+<span class="n">tractors</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tractor_001&quot;</span><span class="p">,</span> <span class="s2">&quot;tractor_002&quot;</span><span class="p">,</span> <span class="s2">&quot;tractor_003&quot;</span><span class="p">]</span>
+<span class="n">clock</span> <span class="o">=</span> <span class="n">VectorClock</span><span class="p">(</span><span class="n">tractors</span><span class="p">)</span>
 
-                <h3>Methods</h3>
+<span class="c1"># Tractor performs local operation (planting section)</span>
+<span class="n">clock</span><span class="o">.</span><span class="n">increment</span><span class="p">(</span><span class="s2">&quot;tractor_001&quot;</span><span class="p">)</span>
 
-                <h4>Engine Controls</h4>
-                <ul>
-                    <li><code>start_engine()</code> → str: Starts the engine.</li>
-                    <li><code>stop_engine()</code> → str: Stops the engine and resets all systems.</li>
-                </ul>
+<span class="c1"># Receive coordination message from another tractor</span>
+<span class="n">other_clock</span> <span class="o">=</span> <span class="n">VectorClock</span><span class="p">(</span><span class="n">tractors</span><span class="p">)</span>
+<span class="n">other_clock</span><span class="o">.</span><span class="n">increment</span><span class="p">(</span><span class="s2">&quot;tractor_002&quot;</span><span class="p">)</span>
+<span class="n">clock</span><span class="o">.</span><span class="n">update_with_received_message</span><span class="p">(</span><span class="s2">&quot;tractor_001&quot;</span><span class="p">,</span> <span class="n">other_clock</span><span class="p">)</span>
 
-                <h4>Basic Operation</h4>
-                <ul>
-                    <li><code>change_gear(gear: int | str)</code> → str: Changes the gear (0-10).</li>
-                    <li><code>accelerate(increase: int)</code> → str: Increases speed by the specified amount.</li>
-                    <li><code>brake(decrease: int)</code> → str: Decreases speed by the specified amount.</li>
-                </ul>
+<span class="c1"># Check event ordering for coordination</span>
+<span class="k">if</span> <span class="n">clock</span><span class="o">.</span><span class="n">happens_before</span><span class="p">(</span><span class="n">other_clock</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Safe to proceed with dependent operation&quot;</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">clock</span><span class="o">.</span><span class="n">is_concurrent_with</span><span class="p">(</span><span class="n">other_clock</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Independent operations - no coordination needed&quot;</span><span class="p">)</span>
+</code></pre>
+</div>
 
-                <h4>Power Systems</h4>
-                <ul>
-                    <li><code>engage_power_takeoff()</code> → str: Engages the power takeoff.</li>
-                    <li><code>disengage_power_takeoff()</code> → str: Disengages the power takeoff.</li>
-                    <li><code>activate_hydraulics()</code> → str: Activates hydraulic systems.</li>
-                    <li><code>deactivate_hydraulics()</code> → str: Deactivates hydraulic systems.</li>
-                </ul>
+<p><strong>Documentation References:</strong>
+- <strong>TDD_WORKFLOW.md</strong>: Complete Test-First development guide (200+ lines)
+- <strong>TDD_INTEGRATION.md</strong>: Methodology integration analysis
+- <strong>WORKFLOW.md</strong>: Authoritative testing reference with TDD patterns</p>
 
-                <h4>GPS and Navigation</h4>
-                <ul>
-                    <li><code>set_gps_position(latitude: float, longitude: float)</code> → str: Sets GPS coordinates.</li>
-                    <li><code>enable_auto_steer()</code> → str: Enables GPS auto-steer system.</li>
-                    <li><code>disable_auto_steer()</code> → str: Disables GPS auto-steer system.</li>
-                    <li><code>add_waypoint(latitude: float, longitude: float)</code> → str: Adds navigation waypoint.</li>
-                    <li><code>clear_waypoints()</code> → str: Clears all waypoints.</li>
-                    <li><code>set_heading(heading: float)</code> → str: Sets current heading (0-359 degrees).</li>
-                </ul>
+<hr />
 
-                <h4>Implement Controls</h4>
-                <ul>
-                    <li><code>raise_implement()</code> → str: Raises the attached implement.</li>
-                    <li><code>lower_implement(depth: float = 6.0)</code> → str: Lowers implement to working depth.</li>
-                    <li><code>set_transport_position()</code> → str: Sets implement to transport position.</li>
-                    <li><code>set_implement_width(width: float)</code> → str: Sets working width (0-80 feet).</li>
-                </ul>
+<h3>3. API and Core Classes</h3>
 
-                <h4>Field Operations</h4>
-                <ul>
-                    <li><code>set_field_mode(mode: FieldMode)</code> → str: Sets field operation mode.</li>
-                    <li><code>start_field_work()</code> → str: Begins field work operations.</li>
-                    <li><code>update_work_progress(distance: float)</code> → str: Updates work progress tracking.</li>
-                </ul>
+<p><strong>FarmTractor Class:</strong>
+The <code>FarmTractor</code> is a plain Python class used in the project to represent a farm tractor. It includes attributes such as
+<code>make</code>, <code>model</code>, <code>year</code>, and <code>manual_url</code> to store the URL of the operational manual for the tractor. This class is used
+to demonstrate core equipment behaviors and to provide a structured way to manage tractor data within the system.</p>
 
-                <h4>Autonomous Operations</h4>
-                <ul>
-                    <li><code>enable_autonomous_mode()</code> → str: Enables autonomous operation mode.</li>
-                    <li><code>disable_autonomous_mode()</code> → str: Disables autonomous operation mode.</li>
-                    <li><code>emergency_stop()</code> → str: Triggers emergency stop - halts all operations.</li>
-                    <li><code>reset_emergency_stop()</code> → str: Resets emergency stop condition.</li>
-                </ul>
+<p>The <code>FarmTractor</code> fully implements professional agricultural robotics standards while maintaining complete backwards compatibility with existing code.</p>
 
-                <h4>Diagnostic Methods</h4>
-                <ul>
-                    <li><code>get_engine_diagnostics()</code> → Dict[str, float]: Returns engine diagnostic data.</li>
-                    <li><code>get_hydraulic_status()</code> → Dict[str, float]: Returns hydraulic system status.</li>
-                    <li><code>get_ground_conditions()</code> → Dict[str, float]: Returns ground and traction data.</li>
-                </ul>
+<p><strong>Test Coverage Summary:</strong></p>
 
-                <h4>Utility Methods</h4>
-                <ul>
-                    <li><code>__str__()</code> → str: Returns comprehensive string representation.</li>
-                    <li><code>to_response(tractor_id: str | None = None)</code> → FarmTractorResponse: Converts to API response model.</li>
-                </ul>
+<p><strong>Current Test Suite: 161 Tests</strong> (100% passing in ~3 seconds)</p>
 
-                <h3>FarmTractorResponse Class Attributes</h3>
-                <p>The <code>FarmTractorResponse</code> is a Pydantic model used for API responses, containing:</p>
+<ul>
+<li><strong>Equipment Domain (54 tests)</strong>: Core tractor operations, advanced features, and robotic interfaces
+<ul>
+<li>Basic Operations (11 tests): Engine control, hydraulics, gear changes</li>
+<li>Advanced Features (8 tests): GPS, autonomous mode, implement controls</li>
+<li><strong>Robotic Interfaces (33 tests)</strong>: ISOBUS, safety systems, motor control, data management, power systems</li>
+</ul></li>
+<li><strong>Monitoring Systems (10 tests)</strong>: Soil and water monitoring capabilities</li>
+<li><strong>API &amp; Infrastructure (17 tests)</strong>: FastAPI endpoints and system integration</li>
+<li><strong>Station Management (18 tests)</strong>: Command and control station functionality</li>
+<li><strong>Features Integration (28 tests)</strong>: End-to-end agricultural workflow validation</li>
+<li><strong>Distributed Systems (11 tests)</strong>: <strong>NEW</strong> - Vector clocks, multi-tractor coordination, TDD implementation</li>
+<li><strong>Root-level Edge Cases (9 tests)</strong>: System resilience and error handling</li>
+</ul>
 
-                <h4>Core Identification</h4>
-                <ul>
-                    <li><code>tractor_id</code> (str | None): Optional tractor identifier.</li>
-                    <li><code>make</code> (str): Manufacturer name.</li>
-                    <li><code>model</code> (str): Model name.</li>
-                    <li><code>year</code> (int): Year of manufacture.</li>
-                    <li><code>manual_url</code> (str | None): URL to operator's manual.</li>
-                </ul>
+<p>API responses that expose tractor state use a dedicated Pydantic model (<code>FarmTractorResponse</code>) to provide a stable, JSON-serializable schema without mixing API concerns into the core class.</p>
 
-                <h4>Engine and Basic Controls</h4>
-                <ul>
-                    <li><code>engine_on</code> (bool): Engine running status.</li>
-                    <li><code>speed</code> (int): Current speed in mph.</li>
-                    <li><code>gear</code> (int): Current gear (0-10).</li>
-                    <li><code>power_takeoff</code> (bool): PTO engagement status.</li>
-                    <li><code>hydraulics</code> (bool): Hydraulics activation status.</li>
-                </ul>
+<p><strong>FarmTractor Class Attributes:</strong></p>
 
-                <h4>GPS and Navigation</h4>
-                <ul>
-                    <li><code>gps_latitude</code> (float | None): GPS latitude coordinate.</li>
-                    <li><code>gps_longitude</code> (float | None): GPS longitude coordinate.</li>
-                    <li><code>auto_steer_enabled</code> (bool): Auto-steer status.</li>
-                    <li><code>waypoint_count</code> (int): Number of navigation waypoints.</li>
-                    <li><code>current_heading</code> (float): Current heading in degrees.</li>
-                </ul>
+<p><strong>Core Identification:</strong>
+- <code>make</code> (str): The manufacturer of the tractor.
+- <code>model</code> (str): The model of the tractor.
+- <code>year</code> (int): The year of manufacture.
+- <code>manual_url</code> (str | None): URL to the operational manual.</p>
 
-                <h4>Implement Controls</h4>
-                <ul>
-                    <li><code>implement_position</code> (Literal["raised", "lowered", "transport"]): Implement position state.</li>
-                    <li><code>implement_depth</code> (float): Working depth in inches.</li>
-                    <li><code>implement_width</code> (float): Working width in feet.</li>
-                </ul>
+<p><strong>Engine and Basic Controls:</strong>
+- <code>engine_on</code> (bool): Whether the engine is currently running.
+- <code>speed</code> (int): Current speed in mph.
+- <code>gear</code> (int): Current gear (0-10).
+- <code>power_takeoff</code> (bool): Whether the PTO is engaged.
+- <code>hydraulics</code> (bool): Whether hydraulics are activated.</p>
 
-                <h4>Field Operations</h4>
-                <ul>
-                    <li><code>field_mode</code> (Literal["transport", "tillage", "planting", "spraying", "harvesting", "maintenance"]): Current field operation mode.</li>
-                    <li><code>work_rate</code> (float): Work rate in acres/hour.</li>
-                    <li><code>area_covered</code> (float): Total area covered in acres.</li>
-                </ul>
+<p><strong>GPS and Navigation:</strong>
+- <code>gps_latitude</code> (float | None): Current GPS latitude coordinate.
+- <code>gps_longitude</code> (float | None): Current GPS longitude coordinate.
+- <code>auto_steer_enabled</code> (bool): Whether auto-steer is active.
+- <code>waypoints</code> (List[Tuple[float, float]]): Navigation waypoints.
+- <code>current_heading</code> (float): Current heading in degrees.</p>
 
-                <h4>Engine and Fuel</h4>
-                <ul>
-                    <li><code>fuel_level</code> (float): Fuel level percentage.</li>
-                    <li><code>engine_rpm</code> (int): Engine RPM.</li>
-                    <li><code>engine_temp</code> (float): Engine temperature in Fahrenheit.</li>
-                </ul>
+<p><strong>Implement Controls:</strong>
+- <code>implement_position</code> (ImplementPosition): Current implement position (raised/lowered/transport).
+- <code>implement_depth</code> (float): Working depth in inches.
+- <code>implement_width</code> (float): Working width in feet.</p>
 
-                <h4>Hydraulics</h4>
-                <ul>
-                    <li><code>hydraulic_pressure</code> (float): Hydraulic pressure in PSI.</li>
-                    <li><code>hydraulic_flow</code> (float): Hydraulic flow in GPM.</li>
-                </ul>
+<p><strong>Field Operations:</strong>
+- <code>field_mode</code> (FieldMode): Current field operation mode.
+- <code>work_rate</code> (float): Work rate in acres/hour.
+- <code>area_covered</code> (float): Total area covered in acres.</p>
 
-                <h4>Sensors</h4>
-                <ul>
-                    <li><code>wheel_slip</code> (float): Wheel slip percentage.</li>
-                    <li><code>ground_speed</code> (float): Ground speed in mph.</li>
-                    <li><code>draft_load</code> (float): Draft load in pounds.</li>
-                </ul>
+<p><strong>Engine and Fuel:</strong>
+- <code>fuel_level</code> (float): Fuel level percentage.
+- <code>engine_rpm</code> (int): Engine RPM.
+- <code>engine_temp</code> (float): Engine temperature in Fahrenheit.</p>
 
-                <h4>Autonomous Features</h4>
-                <ul>
-                    <li><code>autonomous_mode</code> (bool): Whether autonomous mode is enabled.</li>
-                    <li><code>obstacle_detection</code> (bool): Whether obstacle detection is active.</li>
-                    <li><code>emergency_stop_active</code> (bool): Whether emergency stop is active.</li>
-                </ul>
+<p><strong>Hydraulics:</strong>
+- <code>hydraulic_pressure</code> (float): Hydraulic pressure in PSI.
+- <code>hydraulic_flow</code> (float): Hydraulic flow in GPM.</p>
 
-                <h4>ISOBUS Communication</h4>
-                <ul>
-                    <li><code>isobus_address</code> (int): ISOBUS device address.</li>
-                    <li><code>device_name</code> (str): ISOBUS device name.</li>
-                </ul>
+<p><strong>Sensors:</strong>
+- <code>wheel_slip</code> (float): Wheel slip percentage.
+- <code>ground_speed</code> (float): Ground speed in mph.
+- <code>draft_load</code> (float): Draft load in pounds.</p>
 
-                <h4>Safety Systems</h4>
-                <ul>
-                    <li><code>safety_system_active</code> (bool): Whether safety system is active.</li>
-                    <li><code>safety_level</code> (Literal["PLc", "PLd", "PLe"]): Current safety performance level.</li>
-                </ul>
+<p><strong>Autonomous Features:</strong>
+- <code>autonomous_mode</code> (bool): Whether autonomous mode is enabled.
+- <code>obstacle_detection</code> (bool): Whether obstacle detection is active.
+- <code>emergency_stop_active</code> (bool): Whether emergency stop is active.</p>
 
-                <h4>Vision &amp; Sensor Systems</h4>
-                <ul>
-                    <li><code>lidar_enabled</code> (bool): Whether LiDAR sensors are enabled.</li>
-                    <li><code>obstacle_count</code> (int): Number of detected obstacles.</li>
-                </ul>
+<p><strong>Methods:</strong></p>
 
-                <h4>Power Management</h4>
-                <ul>
-                    <li><code>regenerative_mode</code> (bool): Whether regenerative power mode is enabled.</li>
-                </ul>
+<p><strong>Engine Controls:</strong>
+- <code>start_engine()</code> -> str: Starts the engine.
+- <code>stop_engine()</code> -> str: Stops the engine and resets all systems.</p>
 
-                <h4>System Status</h4>
-                <ul>
-                    <li><code>status</code> (str): Complete tractor status string.</li>
-                </ul>
+<p><strong>Basic Operation:</strong>
+- <code>change_gear(gear: int | str)</code> -> str: Changes the gear (0-10).
+- <code>accelerate(increase: int)</code> -> str: Increases speed by the specified amount.
+- <code>brake(decrease: int)</code> -> str: Decreases speed by the specified amount.</p>
 
-                <h3>Example Usage</h3>
-                <div class="codehilite">
-                    <pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">afs_fastapi.equipment.farm_tractors</span><span class="w"> </span><span class="kn">import</span> <span class="n">FarmTractor</span><span class="p">,</span> <span class="n">FieldMode</span>
+<p><strong>Power Systems:</strong>
+- <code>engage_power_takeoff()</code> -> str: Engages the power takeoff.
+- <code>disengage_power_takeoff()</code> -> str: Disengages the power takeoff.
+- <code>activate_hydraulics()</code> -> str: Activates hydraulic systems.
+- <code>deactivate_hydraulics()</code> -> str: Deactivates hydraulic systems.</p>
+
+<p><strong>GPS and Navigation:</strong>
+- <code>set_gps_position(latitude: float, longitude: float)</code> -> str: Sets GPS coordinates.
+- <code>enable_auto_steer()</code> -> str: Enables GPS auto-steer system.
+- <code>disable_auto_steer()</code> -> str: Disables GPS auto-steer system.
+- <code>add_waypoint(latitude: float, longitude: float)</code> -> str: Adds navigation waypoint.
+- <code>clear_waypoints()</code> -> str: Clears all waypoints.
+- <code>set_heading(heading: float)</code> -> str: Sets current heading (0-359 degrees).</p>
+
+<p><strong>Implement Controls:</strong>
+- <code>raise_implement()</code> -> str: Raises the attached implement.
+- <code>lower_implement(depth: float = 6.0)</code> -> str: Lowers implement to working depth.
+- <code>set_transport_position()</code> -> str: Sets implement to transport position.
+- <code>set_implement_width(width: float)</code> -> str: Sets working width (0-80 feet).</p>
+
+<p><strong>Field Operations:</strong>
+- <code>set_field_mode(mode: FieldMode)</code> -> str: Sets field operation mode.
+- <code>start_field_work()</code> -> str: Begins field work operations.
+- <code>update_work_progress(distance: float)</code> -> str: Updates work progress tracking.</p>
+
+<p><strong>Autonomous Operations:</strong>
+- <code>enable_autonomous_mode()</code> -> str: Enables autonomous operation mode.
+- <code>disable_autonomous_mode()</code> -> str: Disables autonomous operation mode.
+- <code>emergency_stop()</code> -> str: Triggers emergency stop - halts all operations.
+- <code>reset_emergency_stop()</code> -> str: Resets emergency stop condition.</p>
+
+<p><strong>Diagnostic Methods:</strong>
+- <code>get_engine_diagnostics()</code> -> Dict[str, float]: Returns engine diagnostic data.
+- <code>get_hydraulic_status()</code> -> Dict[str, float]: Returns hydraulic system status.
+- <code>get_ground_conditions()</code> -> Dict[str, float]: Returns ground and traction data.</p>
+
+<p><strong>Utility Methods:</strong>
+- <code>__str__()</code> -> str: Returns comprehensive string representation.
+- <code>to_response(tractor_id: str | None = None)</code> -> FarmTractorResponse: Converts to API response model.</p>
+
+<p><strong>FarmTractorResponse Class Attributes:</strong></p>
+
+<p>The <code>FarmTractorResponse</code> is a Pydantic model used for API responses, containing:</p>
+
+<p><strong>Core Identification:</strong>
+- <code>tractor_id</code> (str | None): Optional tractor identifier.
+- <code>make</code> (str): Manufacturer name.
+- <code>model</code> (str): Model name.
+- <code>year</code> (int): Year of manufacture.
+- <code>manual_url</code> (str | None): URL to operator's manual.</p>
+
+<p><strong>Engine and Basic Controls:</strong>
+- <code>engine_on</code> (bool): Engine running status.
+- <code>speed</code> (int): Current speed in mph.
+- <code>gear</code> (int): Current gear (0-10).
+- <code>power_takeoff</code> (bool): PTO engagement status.
+- <code>hydraulics</code> (bool): Hydraulics activation status.</p>
+
+<p><strong>GPS and Navigation:</strong>
+- <code>gps_latitude</code> (float | None): GPS latitude coordinate.
+- <code>gps_longitude</code> (float | None): GPS longitude coordinate.
+- <code>auto_steer_enabled</code> (bool): Auto-steer status.
+- <code>waypoint_count</code> (int): Number of navigation waypoints.
+- <code>current_heading</code> (float): Current heading in degrees.</p>
+
+<p><strong>Implement Controls:</strong>
+- <code>implement_position</code> (Literal["raised", "lowered", "transport"]): Implement position state.
+- <code>implement_depth</code> (float): Working depth in inches.
+- <code>implement_width</code> (float): Working width in feet.</p>
+
+<p><strong>Field Operations:</strong>
+- <code>field_mode</code> (Literal["transport", "tillage", "planting", "spraying", "harvesting", "maintenance"]): Current field operation mode.
+- <code>work_rate</code> (float): Work rate in acres/hour.
+- <code>area_covered</code> (float): Total area covered in acres.</p>
+
+<p><strong>Engine and Fuel:</strong>
+- <code>fuel_level</code> (float): Fuel level percentage.
+- <code>engine_rpm</code> (int): Engine RPM.
+- <code>engine_temp</code> (float): Engine temperature in Fahrenheit.</p>
+
+<p><strong>Hydraulics:</strong>
+- <code>hydraulic_pressure</code> (float): Hydraulic pressure in PSI.
+- <code>hydraulic_flow</code> (float): Hydraulic flow in GPM.</p>
+
+<p><strong>Sensors:</strong>
+- <code>wheel_slip</code> (float): Wheel slip percentage.
+- <code>ground_speed</code> (float): Ground speed in mph.
+- <code>draft_load</code> (float): Draft load in pounds.</p>
+
+<p><strong>Autonomous Features:</strong>
+- <code>autonomous_mode</code> (bool): Whether autonomous mode is enabled.
+- <code>obstacle_detection</code> (bool): Whether obstacle detection is active.
+- <code>emergency_stop_active</code> (bool): Whether emergency stop is active.</p>
+
+<p><strong>ISOBUS Communication:</strong>
+- <code>isobus_address</code> (int): ISOBUS device address.
+- <code>device_name</code> (str): ISOBUS device name.</p>
+
+<p><strong>Safety Systems:</strong>
+- <code>safety_system_active</code> (bool): Whether safety system is active.
+- <code>safety_level</code> (Literal["PLc", "PLd", "PLe"]): Current safety performance level.</p>
+
+<p><strong>Vision &amp; Sensor Systems:</strong>
+- <code>lidar_enabled</code> (bool): Whether LiDAR sensors are enabled.
+- <code>obstacle_count</code> (int): Number of detected obstacles.</p>
+
+<p><strong>Power Management:</strong>
+- <code>regenerative_mode</code> (bool): Whether regenerative power mode is enabled.</p>
+
+<p><strong>System Status:</strong>
+- <code>status</code> (str): Complete tractor status string.</p>
+
+<p><strong>Example Usage:</strong></p>
+
+<div class="codehilite">
+<pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">afs_fastapi.equipment.farm_tractors</span><span class="w"> </span><span class="kn">import</span> <span class="n">FarmTractor</span><span class="p">,</span> <span class="n">FieldMode</span>
 
 <span class="c1"># Create a new tractor instance</span>
 <span class="n">tractor</span> <span class="o">=</span> <span class="n">FarmTractor</span><span class="p">(</span>
@@ -571,77 +434,108 @@
 <span class="n">tractor</span><span class="o">.</span><span class="n">stop_engine</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Engine stopped - all systems reset&quot;</span><span class="p">)</span>
 </code></pre>
-                </div>
-            </section>
+</div>
 
-            <section id="operational-manuals" class="section">
-                <h2>3. Locating Operational Manuals for Farm Equipment</h2>
-                <p><strong>Objective:</strong> Identify and utilize online resources that provide operational manuals for farm equipment. These manuals will guide the adaptation of current robotics to operate agricultural machines for automation purposes.</p>
+<h3>3. Locating Operational Manuals for Farm Equipment</h3>
 
-                <h3>Sources</h3>
-                <ol>
-                    <li><a href="https://agmanuals.com">AgManuals</a></li>
-                    <li><a href="https://www.caseih.com/en-us/unitedstates/service-support/operators-manuals">Case IH Operator Manuals</a></li>
-                    <li><a href="https://farmmanualsfast.com">Farm Manuals Fast</a></li>
-                    <li><a href="https://www.agcopubs.com">AGCO Technical Publications</a></li>
-                    <li><a href="https://www.deere.com/en/parts-and-service/manuals-and-training">John Deere Manuals and Training</a></li>
-                    <li><a href="https://farming-constructionmanuals.com">Farming and Construction Manuals</a></li>
-                    <li><a href="https://solano-horizonte.com/download-catalogs-and-manuals-of-agricultural-machinery">Solano Horizonte</a></li>
-                    <li><a href="https://forums.yesterdaystractors.com">Yesterday's Tractors Forums</a></li>
-                    <li><a href="https://tractortoolsdirect.com/manuals">Tractor Tools Direct</a></li>
-                    <li><a href="https://www.generalimp.com/manuals">General Implement Distributors</a></li>
-                    <li><a href="https://www.tractordata.com">TractorData</a></li>
-                    <li><a href="https://www.tractor-manuals-downunder.com">Tractor Manuals Downunder</a></li>
-                </ol>
-            </section>
+<p><strong>Objective:</strong> Identify and utilize online resources that provide operational manuals for farm equipment. These manuals
+will guide the adaptation of current robotics to operate agricultural machines for automation purposes.</p>
 
-            <section id="build-process" class="section">
-                <h2>Build Process</h2>
-                <p>To build the project, follow these steps:</p>
-                <ol>
-                    <li>Clone the repository: <code>git clone https://github.com/dderyldowney/afs_fastapi.git</code></li>
-                    <li>Change to the project directory: <code>cd afs_fastapi</code></li>
-                    <li>Create a virtual environment: <code>python -m venv .venv</code></li>
-                    <li>Activate the virtual environment: <code>source .venv/bin/activate</code></li>
-                    <li>Install the project dependencies: <code>pip install -r requirements.txt</code></li>
-                    <li>Install build tools: <code>pip install build</code></li>
-                    <li>Build the project: <code>python -m build</code></li>
-                    <li>Install the generated wheel file: <code>pip install dist/afs_fastapi-0.1.0-py3-none-any.whl</code></li>
-                    <li>Import afs_fastapi into your project: <code>import afs_fastapi</code></li>
-                </ol>
+<p><strong>Sources:</strong></p>
 
-                <div class="highlight-box">
-                    <p><strong>Note on extras:</strong> The project uses <code>fastapi[all]</code> and <code>starlette[full]</code> in development to enable optional features commonly exercised in tests and local runs (e.g., test client utilities, templating, multipart/form-data handling, and uvicorn's standard extras). This keeps "pip install -r requirements.txt" sufficient for running tests and docs locally.</p>
-                </div>
-            </section>
+<ol>
+<li><a href="https://agmanuals.com">AgManuals</a></li>
+<li><a href="https://www.caseih.com/en-us/unitedstates/service-support/operators-manuals">Case IH Operator Manuals</a></li>
+<li><a href="https://farmmanualsfast.com">Farm Manuals Fast</a></li>
+<li><a href="https://www.agcopubs.com">AGCO Technical Publications</a></li>
+<li><a href="https://www.deere.com/en/parts-and-service/manuals-and-training">John Deere Manuals and Training</a></li>
+<li><a href="https://farming-constructionmanuals.com">Farming and Construction Manuals</a></li>
+<li><a href="https://solano-horizonte.com/download-catalogs-and-manuals-of-agricultural-machinery">Solano Horizonte</a></li>
+<li><a href="https://forums.yesterdaystractors.com">Yesterday's Tractors Forums</a></li>
+<li><a href="https://tractortoolsdirect.com/manuals">Tractor Tools Direct</a></li>
+<li><a href="https://www.generalimp.com/manuals">General Implement Distributors</a></li>
+<li><a href="https://www.tractordata.com">TractorData</a></li>
+<li><a href="https://www.tractor-manuals-downunder.com">Tractor Manuals Downunder</a></li>
+</ol>
 
-            <section id="run-locally" class="section">
-                <h2>Run the API locally</h2>
-                <ul>
-                    <li><strong>Quick start</strong> (defaults to 127.0.0.1:8000):
-                        <ul>
-                            <li><code>python -m afs_fastapi</code></li>
-                            <li>or <code>afs-api</code> (installed console script)</li>
-                        </ul>
-                    </li>
-                    <li><strong>Environment overrides:</strong>
-                        <ul>
-                            <li><code>AFS_API_HOST</code> (default: 127.0.0.1)</li>
-                            <li><code>AFS_API_PORT</code> (default: 8000)</li>
-                            <li><code>AFS_API_RELOAD</code> (true/false, default: false)</li>
-                            <li><code>AFS_API_LOG_LEVEL</code> (debug/info/warning/error, default: info)</li>
-                        </ul>
-                    </li>
-                </ul>
-            </section>
+<hr />
 
-            <section id="sensor-backends" class="section">
-                <h2>Sensor backend interfaces</h2>
-                <p>Monitoring classes accept pluggable backends so you can swap real sensors without changing API code.</p>
+<h2>Build Process</h2>
 
-                <h3>Example (Soil)</h3>
-                <div class="codehilite">
-                    <pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">afs_fastapi.monitoring.interfaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">SoilSensorBackend</span>
+<p>To build the project, follow these steps:</p>
+
+<ol>
+<li>Clone the repository: <code>git clone https://github.com/dderyldowney/afs_fastapi.git</code></li>
+<li>Change to the project directory: <code>cd afs_fastapi</code></li>
+<li>Create a virtual environment: <code>python -m venv .venv</code></li>
+<li>Activate the virtual environment: <code>source .venv/bin/activate</code></li>
+<li>Install the project dependencies: <code>pip install -r requirements.txt</code></li>
+<li><strong>Verify installation with test suite</strong>: <code>python -m pytest tests/ -v</code>
+<ul>
+<li><strong>Expected result</strong>: 161 tests passing in ~3 seconds</li>
+<li>Includes distributed systems, TDD implementation, and agricultural robotics validation</li>
+</ul></li>
+<li>Install build tools: <code>pip install build</code></li>
+<li>Build the project: <code>python -m build</code></li>
+<li>Install the generated wheel file: <code>pip install dist/afs_fastapi-0.1.0-py3-none-any.whl</code></li>
+<li>Import afs_fastapi into your project: <code>import afs_fastapi</code></li>
+</ol>
+
+<p><strong>Development and Testing:</strong>
+- <strong>TDD workflow</strong>: See <code>TDD_WORKFLOW.md</code> for Test-First development guide
+- <strong>Testing reference</strong>: See <code>WORKFLOW.md</code> for complete testing architecture documentation
+- <strong>Quality standards</strong>: Zero linting warnings maintained (run <code>ruff check .</code> to verify)</p>
+
+<p>Note on extras: The project uses <code>fastapi[all]</code> and <code>starlette[full]</code> in development to enable optional features commonly exercised in tests and local runs (e.g., test client utilities, templating, multipart/form-data handling, and uvicorn's standard extras). This keeps "pip install -r requirements.txt" sufficient for running tests and docs locally.</p>
+
+<hr />
+
+<h2>Run the API locally</h2>
+
+<ul>
+<li>Quick start (defaults to 127.0.0.1:8000):
+<ul>
+<li><code>python -m afs_fastapi</code></li>
+<li>or <code>afs-api</code> (installed console script)</li>
+</ul></li>
+<li>Environment overrides:
+<ul>
+<li><code>AFS_API_HOST</code> (default: 127.0.0.1)</li>
+<li><code>AFS_API_PORT</code> (default: 8000)</li>
+<li><code>AFS_API_RELOAD</code> (true/false, default: false)</li>
+<li><code>AFS_API_LOG_LEVEL</code> (debug/info/warning/error, default: info)</li>
+</ul></li>
+</ul>
+
+<hr />
+
+<h2>Architecture Overview</h2>
+
+<p><strong>Enterprise-Grade Agricultural Robotics Platform</strong></p>
+
+<p>AFS FastAPI implements a sophisticated <strong>3-layer architecture</strong> supporting both individual equipment control and <strong>distributed fleet coordination</strong>:</p>
+
+<p><strong>Core Architecture Layers:</strong>
+1. <strong>Equipment Layer</strong>: Individual tractor control with full ISOBUS compliance
+2. <strong>Coordination Layer</strong>: <strong>NEW</strong> - Multi-tractor synchronization with conflict-free operations
+3. <strong>API Layer</strong>: RESTful interfaces for external systems and human operators</p>
+
+<p><strong>Multi-Tractor Fleet Coordination:</strong>
+- <strong>Vector Clock synchronization</strong>: Ensures proper event ordering across tractors
+- <strong>Conflict-free operations</strong>: Multiple tractors can work the same field safely
+- <strong>Network resilience</strong>: Handles intermittent rural connectivity
+- <strong>Real-time coordination</strong>: Sub-millisecond performance for time-critical operations</p>
+
+<hr />
+
+<h2>Sensor Backend Interfaces</h2>
+
+<p>Monitoring classes accept pluggable backends so you can swap real sensors without changing API code. This architecture supports both development simulation and production hardware integration.</p>
+
+<p>Example (Soil):</p>
+
+<div class="codehilite">
+<pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">afs_fastapi.monitoring.interfaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">SoilSensorBackend</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">afs_fastapi.monitoring.soil_monitor</span><span class="w"> </span><span class="kn">import</span> <span class="n">SoilMonitor</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">MySoilBackend</span><span class="p">(</span><span class="n">SoilSensorBackend</span><span class="p">):</span>
@@ -651,11 +545,12 @@
 <span class="n">monitor</span> <span class="o">=</span> <span class="n">SoilMonitor</span><span class="p">(</span><span class="s2">&quot;SOIL001&quot;</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">MySoilBackend</span><span class="p">())</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">monitor</span><span class="o">.</span><span class="n">get_soil_composition</span><span class="p">())</span>
 </code></pre>
-                </div>
+</div>
 
-                <h3>Example (Water)</h3>
-                <div class="codehilite">
-                    <pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">afs_fastapi.monitoring.interfaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">WaterSensorBackend</span>
+<p>Example (Water):</p>
+
+<div class="codehilite">
+<pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">afs_fastapi.monitoring.interfaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">WaterSensorBackend</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">afs_fastapi.monitoring.water_monitor</span><span class="w"> </span><span class="kn">import</span> <span class="n">WaterMonitor</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">MyWaterBackend</span><span class="p">(</span><span class="n">WaterSensorBackend</span><span class="p">):</span>
@@ -665,138 +560,172 @@
 <span class="n">monitor</span> <span class="o">=</span> <span class="n">WaterMonitor</span><span class="p">(</span><span class="s2">&quot;WTR001&quot;</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">MyWaterBackend</span><span class="p">())</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">monitor</span><span class="o">.</span><span class="n">get_water_quality</span><span class="p">())</span>
 </code></pre>
-                </div>
-            </section>
+</div>
 
-            <section id="soil-monitoring" class="section">
-                <h2>4. Monitoring and Maintaining Soil Conditions</h2>
-                <p><strong>Objective:</strong> Research and utilize tools, sensors, and platforms to monitor soil composition, mineral content, and pH balance, ensuring optimal crop health.</p>
+<hr />
 
-                <h3>Resources</h3>
-                <ol>
-                    <li><a href="https://soilscout.com">Soil Scout</a></li>
-                    <li><a href="https://www.renkeer.com/product/soil-nutrient-sensor/">Renke 4-in-1 Soil Nutrient Sensor</a></li>
-                    <li><a href="https://www.murata.com/en-us/products/sensor/soil">Murata Soil Sensors</a></li>
-                    <li><a href="https://www.horiba.com/usa/water-quality/applications/agriculture-crop-science/soil-ph-and-nutrient-availability/">HORIBA LAQUAtwin pH Meters</a></li>
-                    <li><a href="https://www.sensoterra.com/soil-sensor-for-agriculture/">Sensoterra Soil Moisture Sensors</a></li>
-                    <li><a href="https://www.dfrobot.com/product-2830.html">DFRobot 4-in-1 Soil Sensor</a></li>
-                    <li><a href="https://www.earthscout.com/">EarthScout Agricultural Field Sensors</a></li>
-                    <li><a href="https://extension.umn.edu/irrigation/soil-moisture-sensors-irrigation-scheduling">University of Minnesota Extension: Soil Moisture Sensors</a></li>
-                    <li><a href="https://attra.ncat.org/publication/soil-moisture-monitoring-low-cost-tools-and-methods/">ATTRA: Soil Moisture Monitoring Tools</a></li>
-                    <li><a href="https://www.escatec.com/blog/electrochemical-sensors-soil-analysis-through-precision-agriculture">ESCATEC Electrochemical Sensors</a></li>
-                </ol>
-            </section>
+<h3>4. Monitoring and Maintaining Soil Conditions</h3>
 
-            <section id="water-monitoring" class="section">
-                <h2>5. Monitoring and Maintaining Water Conditions</h2>
-                <p><strong>Objective:</strong> Identify and deploy tools to assess and maintain water composition, mineral levels, and pH balance, ensuring water quality is optimized for agricultural use.</p>
+<p><strong>Objective:</strong> Research and utilize tools, sensors, and platforms to monitor soil composition, mineral content, and pH
+balance, ensuring optimal crop health.</p>
 
-                <h3>Resources</h3>
-                <ol>
-                    <li><a href="https://www.renkeer.com/top-7-water-quality-sensors/">Renke Water Quality Sensors</a></li>
-                    <li><a href="https://in-situ.com/us/agriculture">In-Situ Agriculture Water Monitoring</a></li>
-                    <li><a href="https://www.xylemanalytics.com/en/products/water-quality-monitoring">Xylem Analytics Water Quality Monitoring</a></li>
-                    <li><a href="https://ketos.co/">KETOS Automated Water Monitoring</a></li>
-                    <li><a href="https://www.ysi.com/products">YSI Water Quality Systems</a></li>
-                    <li><a href="https://www.sgs.com/en-us/services/agricultural-water-testing">SGS Agricultural Water Testing</a></li>
-                    <li><a href="https://www.boquinstrument.com/how-water-quality-sensors-are-used-in-agriculture-and-farming.html">Boqu Instrument Water Quality Sensors</a></li>
-                    <li><a href="https://sense.digitalmatter.com/blog/water-quality-monitoring">Digital Matter Remote Sensor Solutions</a></li>
-                    <li><a href="https://www.intuz.com/blog/iot-for-water-monitoring-in-crops">Intuz IoT Water Monitoring</a></li>
-                    <li><a href="https://www.rikasensor.com/blog-top-10-water-quality-sensors-for-water-treatments.html">Rika Sensor Water Quality Sensors</a></li>
-                </ol>
-            </section>
+<p><strong>Resources:</strong></p>
 
-            <section id="datasets" class="section">
-                <h2>6. Utilizing Publicly Available Water Sampling Datasets</h2>
-                <p><strong>Objective:</strong> Access and analyze publicly available water quality datasets to inform ML models for monitoring water conditions suitable for farming.</p>
+<ol>
+<li><a href="https://soilscout.com">Soil Scout</a></li>
+<li><a href="https://www.renkeer.com/product/soil-nutrient-sensor/">Renke 4-in-1 Soil Nutrient Sensor</a></li>
+<li><a href="https://www.murata.com/en-us/products/sensor/soil">Murata Soil Sensors</a></li>
+<li><a href="https://www.horiba.com/usa/water-quality/applications/agriculture-crop-science/soil-ph-and-nutrient-availability/">HORIBA LAQUAtwin pH Meters</a></li>
+<li><a href="https://www.sensoterra.com/soil-sensor-for-agriculture/">Sensoterra Soil Moisture Sensors</a></li>
+<li><a href="https://www.dfrobot.com/product-2830.html">DFRobot 4-in-1 Soil Sensor</a></li>
+<li><a href="https://www.earthscout.com/">EarthScout Agricultural Field Sensors</a></li>
+<li><a href="https://extension.umn.edu/irrigation/soil-moisture-sensors-irrigation-scheduling">University of Minnesota Extension: Soil Moisture Sensors</a></li>
+<li><a href="https://attra.ncat.org/publication/soil-moisture-monitoring-low-cost-tools-and-methods/">ATTRA: Soil Moisture Monitoring Tools</a></li>
+<li><a href="https://www.escatec.com/blog/electrochemical-sensors-soil-analysis-through-precision-agriculture">ESCATEC Electrochemical Sensors</a></li>
+</ol>
 
-                <h3>Sources</h3>
-                <ol>
-                    <li><a href="https://www.waterqualitydata.us/">Water Quality Portal (WQP)</a></li>
-                    <li><a href="https://catalog.data.gov/dataset">USGS National Water Information System (NWIS)</a></li>
-                    <li><a href="https://www.epa.gov/waterdata/water-quality-data">EPA Water Quality Data</a></li>
-                    <li><a href="https://www.kaggle.com/datasets/abhishekkhanna004/water-quality-dataset-for-crop">Kaggle: Water Quality Dataset for Crop</a></li>
-                    <li><a href="https://agdatacommons.nal.usda.gov/articles/dataset/Soil_and_Water_Hub_Modeling_Datasets/24852681">Ag Data Commons: Soil and Water Hub Modeling</a></li>
-                    <li><a href="https://www.earthdata.nasa.gov/topics/ocean/water-quality">NASA Earthdata: Water Quality</a></li>
-                </ol>
-            </section>
+<hr />
 
-            <section id="integration-goals" class="section">
-                <h2>7. Project Integration and Machine Learning Goals</h2>
-                <p><strong>Objective:</strong> Synthesize the research and datasets into ML models and robotics systems capable of automating farm operations, improving efficiency, and ensuring sustainability. Models will address:</p>
+<h3>5. Monitoring and Maintaining Water Conditions</h3>
 
-                <ul>
-                    <li>Autonomous machine operation (leveraging operational manuals).</li>
-                    <li>Soil condition predictions and adjustments.</li>
-                    <li>Water quality monitoring and real-time management.</li>
-                </ul>
+<p><strong>Objective:</strong> Identify and deploy tools to assess and maintain water composition, mineral levels, and pH balance,
+ensuring water quality is optimized for agricultural use.</p>
 
-                <h3>Tools and Techniques</h3>
-                <ul>
-                    <li>ML libraries like TensorFlow and PyTorch.</li>
-                    <li>IoT-enabled sensors for real-time data collection.</li>
-                    <li>Integration with cloud platforms for data storage and analysis.</li>
-                </ul>
+<p><strong>Resources:</strong></p>
 
-                <div class="highlight-box">
-                    <h4>Conclusion</h4>
-                    <p>This project will employ cutting-edge ML and robotics solutions to automate farming processes, ensuring optimized resource utilization and sustainable agricultural practices.</p>
-                </div>
-            </section>
+<ol>
+<li><a href="https://www.renkeer.com/top-7-water-quality-sensors/">Renke Water Quality Sensors</a></li>
+<li><a href="https://in-situ.com/us/agriculture">In-Situ Agriculture Water Monitoring</a></li>
+<li><a href="https://www.xylemanalytics.com/en/products/water-quality-monitoring">Xylem Analytics Water Quality Monitoring</a></li>
+<li><a href="https://ketos.co/">KETOS Automated Water Monitoring</a></li>
+<li><a href="https://www.ysi.com/products">YSI Water Quality Systems</a></li>
+<li><a href="https://www.sgs.com/en-us/services/agricultural-water-testing">SGS Agricultural Water Testing</a></li>
+<li><a href="https://www.boquinstrument.com/how-water-quality-sensors-are-used-in-agriculture-and-farming.html">Boqu Instrument Water Quality Sensors</a></li>
+<li><a href="https://sense.digitalmatter.com/blog/water-quality-monitoring">Digital Matter Remote Sensor Solutions</a></li>
+<li><a href="https://www.intuz.com/blog/iot-for-water-monitoring-in-crops">Intuz IoT Water Monitoring</a></li>
+<li><a href="https://www.rikasensor.com/blog-top-10-water-quality-sensors-for-water-treatments.html">Rika Sensor Water Quality Sensors</a></li>
+</ol>
 
-            <section id="contributing" class="section">
-                <h2>Contributing</h2>
-                <p>See <a href="CONTRIBUTING.md">CONTRIBUTING.md</a> for the Quick Verification Checklist and contribution guidelines.</p>
-            </section>
+<hr />
 
-            <section id="security" class="section">
-                <h2>Security Notes</h2>
-                <p>This project enables automated checks (Dependabot + pip-audit) for dependency vulnerabilities. Two current advisories are known and monitored:</p>
+<h3>6. Utilizing Publicly Available Water Sampling Datasets</h3>
 
-                <div class="highlight-box">
-                    <h3>Current Security Issues</h3>
-                    <ul>
-                        <li><strong>Starlette 0.41.3: GHSA-2c2j-9gv5-cj73 (CVE-2025-54121)</strong> - <strong>UNRESOLVED</strong>
-                            <ul>
-                                <li>Summary: Large multipart form uploads may block the event loop while rolling files to disk.</li>
-                                <li>Current version: <strong>0.41.3</strong> (vulnerable)</li>
-                                <li>Fixed in: Starlette &gt;= 0.47.2</li>
-                                <li>Project impact: This API does not use multipart uploads; risk is low in our deployment.</li>
-                                <li>Status: Awaiting compatible FastAPI release that supports Starlette &gt;= 0.47.2.</li>
-                            </ul>
-                        </li>
-                        <li><strong>h11 0.14.0: GHSA-vqfr-h8mv-ghfj (CVE-2025-43859)</strong> - <strong>UNRESOLVED</strong>
-                            <ul>
-                                <li>Summary: Lenient chunked-encoding parsing could enable request smuggling in specific proxy scenarios.</li>
-                                <li>Current version: <strong>0.14.0</strong> (vulnerable)</li>
-                                <li>Fixed in: h11 &gt;= 0.16.0</li>
-                                <li>Project impact: h11 is used via httpx/httpcore for HTTP client operations. Server stack uses Uvicorn/Starlette. Risk is low in typical deployments with proper reverse proxy configuration.</li>
-                                <li>Status: Upgrade blocked by httpcore compatibility. Requires httpcore &gt;= 1.0.9 which conflicts with current httpx pinning.</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
+<p><strong>Objective:</strong> Access and analyze publicly available water quality datasets to inform ML models for monitoring water
+conditions suitable for farming.</p>
 
-                <h3>Recent Security Improvements (January 2025)</h3>
-                <ul>
-                    <li>✅ <strong>requests</strong>: Upgraded to 2.32.5 (latest) - includes URI parsing security improvements</li>
-                    <li>✅ <strong>urllib3</strong>: Upgraded to 2.5.0 (latest) - fixes redirect vulnerability (security patch)</li>
-                    <li>✅ <strong>setuptools</strong>: Upgraded to 80.9.0 (latest) - stability and security updates</li>
-                </ul>
+<p><strong>Sources:</strong></p>
 
-                <h3>Mitigations in place</h3>
-                <ul>
-                    <li>No multipart form endpoints are exposed in the API.</li>
-                    <li>HTTP client usage is limited to development/testing scenarios.</li>
-                    <li>CI automatically flags vulnerabilities and proposes coordinated updates.</li>
-                    <li>Reverse proxy configurations should include proper request validation.</li>
-                </ul>
-            </section>
-        </main>
+<ol>
+<li><a href="https://www.waterqualitydata.us/">Water Quality Portal (WQP)</a></li>
+<li><a href="https://catalog.data.gov/dataset">USGS National Water Information System (NWIS)</a></li>
+<li><a href="https://www.epa.gov/waterdata/water-quality-data">EPA Water Quality Data</a></li>
+<li><a href="https://www.kaggle.com/datasets/abhishekkhanna004/water-quality-dataset-for-crop">Kaggle: Water Quality Dataset for Crop</a></li>
+<li><a href="https://agdatacommons.nal.usda.gov/articles/dataset/Soil_and_Water_Hub_Modeling_Datasets/24852681">Ag Data Commons: Soil and Water Hub Modeling</a></li>
+<li><a href="https://www.earthdata.nasa.gov/topics/ocean/water-quality">NASA Earthdata: Water Quality</a></li>
+</ol>
 
-        <footer style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #dee2e6; text-align: center; color: #6c757d;">
-            <p>&copy; 2024 AFS FastAPI Project. Professional Agricultural Robotics Platform.</p>
-        </footer>
+<hr />
+
+<h3>7. Project Integration and Machine Learning Goals</h3>
+
+<p><strong>Objective:</strong> Synthesize the research and datasets into ML models and robotics systems capable of automating farm
+operations, improving efficiency, and ensuring sustainability. Models will address:</p>
+
+<ul>
+<li>Autonomous machine operation (leveraging operational manuals).</li>
+<li>Soil condition predictions and adjustments.</li>
+<li>Water quality monitoring and real-time management.</li>
+</ul>
+
+<p><strong>Tools and Techniques:</strong></p>
+
+<ul>
+<li>ML libraries like TensorFlow and PyTorch.</li>
+<li>IoT-enabled sensors for real-time data collection.</li>
+<li>Integration with cloud platforms for data storage and analysis.</li>
+</ul>
+
+<hr />
+
+<h3>Conclusion</h3>
+
+<p>This project will employ cutting-edge ML and robotics solutions to automate farming processes, ensuring optimized
+resource utilization and sustainable agricultural practices.</p>
+
+<hr />
+
+<h2>Contributing</h2>
+
+<p><strong>Development Workflow:</strong></p>
+
+<p>AFS FastAPI uses <strong>Test-First Development (TDD)</strong> for all synchronization infrastructure development. Follow these guidelines:</p>
+
+<ol>
+<li><p><strong>For synchronization infrastructure</strong> (vector clocks, CRDTs, message queuing):</p>
+
+<ul>
+<li>Follow <strong>Red-Green-Refactor</strong> methodology outlined in <code>TDD_WORKFLOW.md</code></li>
+<li>Write failing tests first, then implement minimal code to pass</li>
+<li>Refactor for quality while maintaining test coverage</li>
+</ul></li>
+<li><p><strong>For general development</strong>:</p>
+
+<ul>
+<li>See <a href="CONTRIBUTING.md">CONTRIBUTING.md</a> for Quick Verification Checklist</li>
+<li>Run full test suite: <code>python -m pytest tests/</code> (expect 161 tests passing)</li>
+<li>Maintain zero linting warnings: <code>ruff check .</code></li>
+</ul></li>
+</ol>
+
+<p><strong>Key Documentation:</strong>
+- <strong>WORKFLOW.md</strong>: Authoritative testing reference and architecture guide
+- <strong>TDD_WORKFLOW.md</strong>: Complete Test-First development methodology
+- <strong>TDD_INTEGRATION.md</strong>: Integration analysis and best practices
+- <strong>SESSION_SUMMARY.md</strong>: Project evolution and strategic direction</p>
+
+<p><strong>Quality Standards:</strong>
+- <strong>Test coverage</strong>: All new distributed systems components require comprehensive tests
+- <strong>Performance</strong>: Sub-millisecond operations for real-time agricultural coordination
+- <strong>Documentation</strong>: Dual-purpose code serving both functional and educational objectives</p>
+
+<hr />
+
+<h2>Security Notes</h2>
+
+<p>This project enables automated checks (Dependabot + pip-audit) for dependency vulnerabilities. Two current advisories are known and monitored:</p>
+
+<ul>
+<li><p><strong>Starlette 0.41.3: GHSA-2c2j-9gv5-cj73 (CVE-2025-54121)</strong> - <strong>UNRESOLVED</strong></p>
+
+<ul>
+<li>Summary: Large multipart form uploads may block the event loop while rolling files to disk.</li>
+<li>Current version: <strong>0.41.3</strong> (vulnerable)</li>
+<li>Fixed in: Starlette &gt;= 0.47.2</li>
+<li>Project impact: This API does not use multipart uploads; risk is low in our deployment.</li>
+<li>Status: Awaiting compatible FastAPI release that supports Starlette &gt;= 0.47.2.</li>
+</ul></li>
+<li><p><strong>h11 0.14.0: GHSA-vqfr-h8mv-ghfj (CVE-2025-43859)</strong> - <strong>UNRESOLVED</strong></p>
+
+<ul>
+<li>Summary: Lenient chunked-encoding parsing could enable request smuggling in specific proxy scenarios.</li>
+<li>Current version: <strong>0.14.0</strong> (vulnerable)</li>
+<li>Fixed in: h11 &gt;= 0.16.0</li>
+<li>Project impact: h11 is used via httpx/httpcore for HTTP client operations. Server stack uses Uvicorn/Starlette. Risk is low in typical deployments with proper reverse proxy configuration.</li>
+<li>Status: Upgrade blocked by httpcore compatibility. Requires httpcore &gt;= 1.0.9 which conflicts with current httpx pinning.</li>
+</ul></li>
+</ul>
+
+<p><strong>Recent Security Improvements (January 2025):</strong>
+- ✅ <strong>requests</strong>: Upgraded to 2.32.5 (latest) - includes URI parsing security improvements
+- ✅ <strong>urllib3</strong>: Upgraded to 2.5.0 (latest) - fixes redirect vulnerability (security patch)
+- ✅ <strong>setuptools</strong>: Upgraded to 80.9.0 (latest) - stability and security updates</p>
+
+<p><strong>Mitigations in place:</strong>
+- No multipart form endpoints are exposed in the API.
+- HTTP client usage is limited to development/testing scenarios.
+- CI automatically flags vulnerabilities and proposes coordinated updates.
+- Reverse proxy configurations should include proper request validation.</p>
+
     </div>
 </body>
 </html>
