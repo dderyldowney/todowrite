@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Configuration
+- **test**: Add standardized reporting infrastructure for all AI agents
+
 ### Documentation
 - **monitoring**: Compact agricultural platform session state with new achievements
 
