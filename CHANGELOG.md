@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **monitoring**: Correct agricultural platform metrics after optimization
 
 ### Documentation
+- **monitoring**: Correct agricultural platform metrics after optimization
+
+### Documentation
 
 - **monitoring**: Correct agricultural platform metrics after optimization
 
