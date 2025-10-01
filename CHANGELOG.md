@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+- **monitoring**: Add session snapshot 2025-09-30 for agricultural platform; sync summary
+
 ### Changed
 - tests: Make CRDT scaffold import mypy-safe (declare runtime Any and safe fallback)
 
