@@ -1,0 +1,51 @@
+name: Normalize Test Count Mentions Across Docs
+description: Harmonize all documentation to reflect the current test count (161) for agricultural audit consistency
+title: "docs: Normalize test counts across docs to 161"
+labels: ["documentation", "quality", "agricultural"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        We need to normalize all documentation references to the current test count (161) to keep contributor guidance, audit artifacts, and CI hints consistent for agricultural robotics compliance.
+
+        Reference: CONTRIBUTING.md Quick Verification Checklist and CHANGELOG.md Unreleased notes.
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope to check and update
+      options:
+        - label: Root docs (README.md, CONTRIBUTING.md, CHANGELOG.md)
+        - label: Session and monitoring docs under docs/monitoring/
+        - label: Strategic docs (WHERE_WE_ARE.md, STATE_OF_AFFAIRS.md, NEXT_STEPS.md)
+        - label: Implementation/testing guides (WORKFLOW.md, TDD_* docs)
+        - label: Any scripts or hooks that embed expected test counts
+
+  - type: textarea
+    id: plan
+    attributes:
+      label: Plan
+      description: Briefly outline your steps (e.g., ripgrep search, targeted patches, verify with pytest).
+      placeholder: |
+        1) Search: rg -n "\b(118|129|148) tests\b" -S
+        2) Update to 161 with accurate timing notes (~3s)
+        3) Run tests and quality gates; update any examples
+        4) Add Unreleased CHANGELOG entry
+
+  - type: textarea
+    id: findings
+    attributes:
+      label: Files to update (paste rg output)
+      description: Paste the filenames/lines that reference older counts (118, 129, 148).
+
+  - type: checkboxes
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      options:
+        - label: All references updated to 161 tests with realistic timings (~3s)
+        - label: CHANGELOG updated under [Unreleased]
+        - label: Pre-commit hooks pass; CI expected to remain green
+        - label: Agricultural audit context preserved in affected docs
+

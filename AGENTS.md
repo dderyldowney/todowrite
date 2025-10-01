@@ -38,14 +38,14 @@ MIT (project license)
   3. **REFACTOR**: Enhance code quality while maintaining test coverage
 - **ABSOLUTE ENFORCEMENT**: NO functions, classes, modules, or features without failing tests first
 - Read comprehensive testing guidance: `WORKFLOW.md`, `TDD_WORKFLOW.md`, `TDD_FRAMEWORK_MANDATORY.md`
-- Validate changes locally with `pytest` and ensure all 148 tests pass (see `WORKFLOW.md`)
+- Validate changes locally with `pytest` and ensure all 161 tests pass (see `WORKFLOW.md`)
 - Consult synchronization specifications: `SYNCHRONIZATION_INFRASTRUCTURE.md`, `STATE_OF_AFFAIRS.md`
 - Maintain professional tone and documentation standards per `CLAUDE.md` requirements
 
 ## Configuration
 
 - Python: `>=3.12,<3.13` (see `pyproject.toml`)
-- **Quality gates**: Ruff, Black, MyPy, isort; zero warnings expected (148 tests maintained)
+- **Quality gates**: Ruff, Black, MyPy, isort; zero warnings expected (161 tests maintained)
 - **TDD enforcement hooks** (MANDATORY):
   - `.claude/hooks/tdd_enforcement.py` - Validates Test-First Development compliance
   - `.claude/hooks/safety_validation.py` - Ensures ISO 18497 agricultural safety standards
@@ -140,7 +140,7 @@ MIT (project license)
 - **CLAUDE.md**: Updated with mandatory TDD and investigation pattern requirements for ALL AI agents
 - **loadsession**: Enhanced with critical TDD and investigation pattern compliance reminders
 - **.pre-commit-config.yaml**: Local hooks for quality gates plus mandatory TDD and Safety validators
-- **CI/CD Pipeline**: Automated validation ensuring 148 tests pass with TDD compliance enforcement
+- **CI/CD Pipeline**: Automated validation ensuring 161 tests pass with TDD compliance enforcement
 
 ## Coding Conventions (Agricultural Robotics Standards)
 
