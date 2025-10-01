@@ -28,6 +28,7 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 - **Cross-Agent Infrastructure Sharing**: **ABSOLUTE REQUIREMENT** - ANY changes to session management infrastructure (commands, hooks, configurations) MUST be automatically added to ALL agent configurations ensuring Claude, Copilot, GPT, Gemini, and CodeWhisperer can ALL use them
 - **Universal Agent Access**: **AUTOMATIC** loadsession execution for ALL Claude Code agents with persistent cross-session behavior
 - **Session Initialization**: 5-minute staleness detection with comprehensive test coverage for reliable /new restart handling
+- **GitHub Workflow Access**: **PROGRAMMATIC CI DIAGNOSTICS** - Complete access to GitHub Actions logs via `gh run view <RUN_ID> --repo dderyldowney/afs_fastapi --log` enabling full CI pipeline analysis without character limits for safety-critical agricultural robotics validation
 - **Universal AI Compliance**: **CRITICAL** - ALL AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer) MUST follow Test-First (RED phase BEFORE code), commit separation, CHANGELOG documentation, structured investigation pattern, and standardized test reporting
 
 ### Current Capabilities
