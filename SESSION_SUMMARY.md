@@ -24,6 +24,7 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 - **Test Reporting**: **MANDATORY** Standardized test reporting format for ALL AI agents (Claude, GPT, Gemini, Copilot, CodeWhisperer, etc.) with comprehensive analysis
 - **Session State Management**: **CRITICAL** - `savesession` command captures complete state (conceptual, contextual, functional), MUST compact into SESSION_SUMMARY.md before changes
 - **Strategic Assessment Command**: **UNIVERSAL ACCESS** - `whereweare` command provides comprehensive platform state assessment with dual-mode operation (display/generate) for ALL AI agents
+- **Automatic Command Sharing**: **GROUPED ATOMIC OPERATION** - Command creation and cross-agent infrastructure sharing MUST occur automatically and atomically with ZERO manual intervention across SESSION_SUMMARY.md, AGENTS.md, CLAUDE.md, universal specs, slash commands, and tests
 - **Cross-Agent Infrastructure Sharing**: **ABSOLUTE REQUIREMENT** - ANY changes to session management infrastructure (commands, hooks, configurations) MUST be automatically added to ALL agent configurations ensuring Claude, Copilot, GPT, Gemini, and CodeWhisperer can ALL use them
 - **Universal Agent Access**: **AUTOMATIC** loadsession execution for ALL Claude Code agents with persistent cross-session behavior
 - **Session Initialization**: 5-minute staleness detection with comprehensive test coverage for reliable /new restart handling
@@ -442,6 +443,67 @@ This is NOT optional - test output must be displayed to demonstrate Test-Driven 
 - Professional styling for stakeholder access
 - Automated git staging integration
 - Essential for browser-based documentation access
+
+## 🚨 CRITICAL: Automatic Command Sharing - Grouped Atomic Operation
+
+**ABSOLUTE REQUIREMENT**: Command creation and cross-agent infrastructure sharing MUST occur as SINGLE GROUPED ATOMIC OPERATION.
+
+### Grouped Automation Workflow
+
+**WHENEVER** new session management command created:
+
+```
+NEW COMMAND: bin/commandname
+        ↓
+AUTOMATIC GROUPED SHARING (MANDATORY - ZERO MANUAL STEPS)
+        ↓
+├─ 1. SESSION_SUMMARY.md update (AUTOMATIC)
+│     └─ Add to "Universal Session Management Commands" section
+├─ 2. AGENTS.md update (AUTOMATIC)
+│     └─ Update "How to Use", "Configuration", "Examples" sections
+├─ 3. CLAUDE.md update (AUTOMATIC)
+│     └─ Add to "Claude Command Integration" section
+├─ 4. .claude/COMMANDNAME_COMMAND_UNIVERSAL.md creation (AUTOMATIC)
+│     └─ Generate 380+ line comprehensive universal specification
+├─ 5. .claude/commands/commandname integration (AUTOMATIC)
+│     └─ Create slash command trigger for Claude Code
+└─ 6. Test coverage validation (AUTOMATIC)
+      └─ Verify tests/unit/test_commandname.py exists (13+ tests)
+        ↓
+ALL AI AGENTS HAVE IMMEDIATE ACCESS
+(Claude, Copilot, GPT, Gemini, CodeWhisperer)
+```
+
+### Universal AI Agent Enforcement
+
+**ALL AI agents MUST**:
+- Detect new command creation automatically
+- Execute complete grouped sharing workflow atomically
+- Validate all 6 documentation updates completed
+- Verify cross-agent accessibility achieved
+- Persist command knowledge across ALL sessions
+
+### Agricultural Context Requirements (AUTOMATIC)
+
+**ALL commands MUST include**:
+- ISO compliance application (ISO 11783 or ISO 18497)
+- Safety engineering use (multi-tractor coordination)
+- Stakeholder communication value (procurement/planning)
+- Development visibility (technical decision-making)
+- Agricultural terminology (2+ mandatory keywords)
+
+### Zero Tolerance Policy
+
+**NOT ALLOWED**:
+- ❌ Manual command creation without automatic sharing
+- ❌ Partial documentation updates (must update ALL 6 files)
+- ❌ Missing agricultural context
+- ❌ Incomplete test coverage
+- ❌ Inconsistent AI agent capabilities
+
+**RATIONALE**: Safety-critical agricultural robotics demands instantaneous universal AI agent access to ALL session management tools. Manual multi-file updates introduce human error, documentation drift, and inconsistent capabilities. Grouped automatic sharing ensures EVERY command is immediately available to ALL AI agents with ZERO manual intervention.
+
+**Complete Specification**: [.claude/AUTOMATIC_COMMAND_SHARING_MANDATORY.md](.claude/AUTOMATIC_COMMAND_SHARING_MANDATORY.md)
 
 ## Recent Major Implementation: Universal AI Agent Infrastructure and Cross-Agent Sharing
 
