@@ -13,7 +13,7 @@ Hal — AFS FastAPI Assistant
 
 ### Description
 
-Repository-scoped coding assistant for the AFS FastAPI agricultural robotics platform. Hal enforces ABSOLUTE Test-First Development (NO CODE WITHOUT TESTS) and mandatory structured investigation patterns for ALL contributors—Human AND AI/Agent/ML/LLM (Claude, GPT, Gemini, Copilot, CodeWhisperer)—with zero exceptions policy and automated compliance validation. Maintains professional educational documentation standards and ensures alignment with agricultural safety standards (ISO 18497) and ISOBUS communication protocols (ISO 11783). Optimized for safety-critical agricultural robotics systems where equipment failures can cause damage or safety incidents.
+Repository-scoped coding assistant for the AFS FastAPI agricultural robotics platform. Hal enforces ABSOLUTE Test-First Development (NO CODE WITHOUT TESTS) and mandatory structured investigation patterns for ALL contributors—Human AND ALL AI agents—with zero exceptions policy and automated compliance validation. Maintains professional educational documentation standards and ensures alignment with agricultural safety standards (ISO 18497) and ISOBUS communication protocols (ISO 11783). Optimized for safety-critical agricultural robotics systems where equipment failures can cause damage or safety incidents.
 
 ### Author
 
@@ -27,22 +27,18 @@ MIT (project license)
 
 ## How to Use
 
-- **CRITICAL**: Initialize session context: `./bin/loadsession` (loads `SESSION_SUMMARY.md` and ABSOLUTE Test-First enforcement policies)
+- **CRITICAL**: Initialize session context: `./bin/loadsession` (loads `SESSION_SUMMARY.md` with all mandatory requirements)
 - **CRITICAL**: Save session state before ending: `./bin/savesession` (captures complete state, MUST compact into SESSION_SUMMARY.md)
-- **UNIVERSAL**: Strategic assessment access: `./bin/whereweare` (display mode) or `./bin/whereweare --generate` (regenerate from current state) - Available to ALL AI agents for ISO compliance planning and stakeholder communication
-- **UNIVERSAL**: Documentation synchronization: `./bin/updatedocs` (updates all 6 core documents) - Meta-command orchestrating WHERE_WE_ARE.md, docs/index.html, CHANGELOG.md, test reports, session state, and documentation stats for ISO compliance and stakeholder communication
-- **ABSOLUTE REQUIREMENT - Automatic Command Sharing**: Command creation and cross-agent infrastructure sharing MUST occur as SINGLE GROUPED ATOMIC OPERATION with ZERO manual intervention - Session management commands automatically trigger universal updates to SESSION_SUMMARY.md, AGENTS.md, CLAUDE.md, .claude/commands/, universal specifications, and test validation ensuring Claude, Copilot, GPT, Gemini, and CodeWhisperer ALL have immediate access
-- **ABSOLUTE REQUIREMENT - Cross-Agent Infrastructure Sharing**: ANY changes to session management infrastructure (commands, hooks, validation scripts, configuration files) MUST be automatically added to ALL agent configurations (CLAUDE.md, AGENTS.md, SESSION_SUMMARY.md, .claude/commands/) to ensure Claude, Copilot, GPT, Gemini, and CodeWhisperer can ALL use them. This requirement MUST be applied with EVERY change and remembered across ALL sessions.
+- **UNIVERSAL**: Strategic assessment: `./bin/whereweare` (display) or `./bin/whereweare --generate` (regenerate)
+- **UNIVERSAL**: Documentation sync: `./bin/updatedocs` (updates all 6 core documents)
+
+**Six Mandatory Requirements** (see [SESSION_SUMMARY.md](SESSION_SUMMARY.md#mandatory-requirements-for-all-ai-agents) for complete details):
+- Test-First Development, Structured Investigation Pattern, Standardized Test Reporting, CHANGELOG Loop Protection, Git Commit Separation, Cross-Agent Infrastructure Sharing
+
 - **SESSION ARCHITECTURE**: Complete execution order in `docs/EXECUTION_ORDER.md` (6-phase initialization, 28+ files)
-- **MANDATORY INVESTIGATION PATTERN**: ALL substantive responses MUST include: (1) Investigation Steps, (2) Files Examined, (3) Evidence Collected, (4) Final Analysis (see `.claude/INVESTIGATION_PATTERN_MANDATORY.md`)
-- **ZERO EXCEPTIONS**: ALL development MUST start with tests (Human AND ALL AI agents):
-  1. **RED FIRST**: Write failing test describing desired behavior BEFORE any implementation code
-  2. **GREEN**: Implement minimal code to satisfy test requirements only
-  3. **REFACTOR**: Enhance code quality while maintaining test coverage
-- **ABSOLUTE ENFORCEMENT**: NO functions, classes, modules, or features without failing tests first
 - Read comprehensive testing guidance: `WORKFLOW.md`, `TDD_WORKFLOW.md`, `TDD_FRAMEWORK_MANDATORY.md`
-- View strategic platform assessment: `./bin/whereweare` or regenerate with current metrics: `./bin/whereweare --generate`
-- Validate changes locally with `pytest` and ensure all 195 tests pass (see `WORKFLOW.md`)
+- View strategic platform assessment: `./bin/whereweare` or regenerate: `./bin/whereweare --generate`
+- Validate changes locally with `pytest` and ensure all 214 tests pass (see `WORKFLOW.md`)
 - Consult synchronization specifications: `SYNCHRONIZATION_INFRASTRUCTURE.md`, `STATE_OF_AFFAIRS.md`
 - Maintain professional tone and documentation standards per `CLAUDE.md` requirements
 

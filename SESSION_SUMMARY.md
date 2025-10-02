@@ -18,16 +18,15 @@
 
 ### Universal AI Agent Compliance
 
-**ALL compatible AI agents** (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer) **MUST** follow:
-- **Test-First Development**: RED phase BEFORE code, GREEN phase implementation, REFACTOR phase enhancement
+ALL AI agents must follow:
+- **Test-First Development**: RED phase before code, GREEN phase implementation, REFACTOR phase enhancement
 - **Structured Investigation Pattern**: Investigation steps, files examined, evidence collected, final analysis
 - **Standardized Test Reporting**: Executive summary, insight block, test distribution, health indicators, agricultural context
 - **Git Commit Separation**: Single concern per commit with agricultural context
 - **CHANGELOG Triple-Layer Loop Protection**: Hash ranges + auto-detection + [skip-changelog] marker
-- **Cross-Agent Infrastructure Sharing**: Any command/hook/config changes added to ALL agent configurations
+- **Cross-Agent Infrastructure Sharing**: Any command/hook/config changes added to all agent configurations
 
-**Active Development**: Claude Code (primary), GitHub Copilot (secondary)
-**Compatible but Inactive**: ChatGPT, Gemini Code Assist, Amazon CodeWhisperer
+**Complete requirements**: See [Mandatory Requirements](#mandatory-requirements-for-all-ai-agents) section below.
 
 ### Authoritative ISO 11783 References
 
@@ -38,36 +37,47 @@
 
 ---
 
-## 🚨 CRITICAL: Mandatory Requirements for ALL AI Agents
+## Universal AI Agents
 
-### 1. Test-First Development (ABSOLUTE)
+**Compatible AI Platforms**: Claude Code (primary), GitHub Copilot (secondary), ChatGPT, Gemini Code Assist, Amazon CodeWhisperer
 
-**RED-GREEN-REFACTOR Methodology** - Tests DRIVE implementation:
+Throughout this document, **"ALL AI agents"** refers to all five compatible platforms above.
 
-1. **RED Phase**: Write failing test describing agricultural behavior (BEFORE code)
+---
+
+## Mandatory Requirements for ALL AI Agents
+
+> **Canonical Source**: This section is the authoritative reference for all mandatory requirements.
+> **Cross-References**: CLAUDE.md and AGENTS.md reference this section to avoid duplication.
+
+All compatible AI agents must follow these requirements with no exceptions. Enforcement through pre-commit hooks and comprehensive test validation.
+
+### 1. Test-First Development
+
+**RED-GREEN-REFACTOR methodology** drives all implementation:
+
+1. **RED Phase**: Write failing test describing agricultural behavior before any code
 2. **GREEN Phase**: Implement minimal code meeting test requirements
 3. **REFACTOR Phase**: Enhance code quality while maintaining tests
 
-**ZERO EXCEPTIONS**: No functions, classes, modules, or features without RED phase first. Tests communicate domain problems via descriptive names.
+No functions, classes, modules, or features without RED phase first. Tests communicate domain problems via descriptive names.
 
-**Agricultural Context**: Safety-critical multi-tractor systems demand test-proven reliability. ISO 18497/11783 compliance requires documented validation.
+**Reference**: [TDD_FRAMEWORK_MANDATORY.md](TDD_FRAMEWORK_MANDATORY.md)
 
-### 2. Structured Investigation Pattern (MANDATORY)
+### 2. Structured Investigation Pattern
 
-**EVERY substantive response MUST include**:
+Every substantive response must include:
 
 1. **Investigation Steps**: Numbered methodology
 2. **Files Examined**: Paths with rationale
 3. **Evidence Collected**: Findings with pass/fail indicators
 4. **Final Analysis**: Root cause, mechanism, solutions
 
-**Rationale**: Agricultural robotics requires verifiable reasoning for safety validation, ISO auditing, and knowledge transfer.
-
 **Reference**: [.claude/INVESTIGATION_PATTERN_MANDATORY.md](.claude/INVESTIGATION_PATTERN_MANDATORY.md)
 
-### 3. Standardized Test Reporting (MANDATORY)
+### 3. Standardized Test Reporting
 
-**EVERY test execution MUST include**:
+Every test execution must include:
 
 1. **Executive Summary**: Pass/fail status with key metrics
 2. **Insight Block**: Educational analysis (when Explanatory style active)
@@ -80,46 +90,35 @@
 
 ### 4. CHANGELOG Triple-Layer Loop Protection
 
-**ABSOLUTE REQUIREMENT**: CHANGELOG.md in every commit with bulletproof loop protection.
+CHANGELOG.md must be included in every commit with bulletproof loop protection.
 
-**Triple-Layer Protection** (Deployed 2025-10-01):
-1. **Commit Hash Range**: `{last_commit}..HEAD` prevents re-processing
-2. **Auto CHANGELOG-Only Detection**: Excludes commits modifying ONLY CHANGELOG.md
-3. **[skip-changelog] Marker**: Explicit bypass for loop-breaking
+**Triple-layer protection** (deployed 2025-10-01):
+1. **Commit hash range**: `{last_commit}..HEAD` prevents re-processing
+2. **Auto CHANGELOG-only detection**: Excludes commits modifying only CHANGELOG.md
+3. **[skip-changelog] marker**: Explicit bypass for loop-breaking
 
-**Before Every Commit**:
+**Before every commit**:
 ```bash
 ./bin/updatechangelog  # Auto loop protection
 git add CHANGELOG.md <other-files>
 git commit -m "type(scope): description"
 ```
 
-**CHANGELOG-Only Commits**:
-```bash
-git commit -m "docs(changelog): Update CHANGELOG
-
-[skip-changelog]"
-```
-
-**Enforcement**: Pre-commit hook + 12 comprehensive tests validate mechanism.
-
 **Reference**: [.claude/hooks/changelog_enforcement.py](.claude/hooks/changelog_enforcement.py)
 
 ### 5. Git Commit Separation
 
-**Single Concern Rule**: Each commit = one concern (feat, fix, docs, refactor, test, config, perf, security)
+**Single concern rule**: Each commit addresses exactly one concern (feat, fix, docs, refactor, test, config, perf, security)
 
-**Format**: `type(scope): description` with agricultural context
-
-**Enforcement**: Pre-commit hook validates separation + agricultural terminology for safety-critical types.
+**Format**: `type(scope): description` with agricultural context for safety-critical types
 
 **Reference**: [GIT_COMMIT_SEPARATION_MANDATORY.md](GIT_COMMIT_SEPARATION_MANDATORY.md)
 
 ### 6. Cross-Agent Infrastructure Sharing
 
-**ABSOLUTE REQUIREMENT**: ANY changes to session management (commands, hooks, configs) MUST be added to ALL agent configurations automatically.
+Any changes to session management (commands, hooks, configs) must be added to ALL agent configurations automatically.
 
-**Automatic Grouped Sharing**:
+**Automatic grouped sharing**:
 ```
 NEW COMMAND → Automatic Updates:
 ├─ SESSION_SUMMARY.md
@@ -130,9 +129,23 @@ NEW COMMAND → Automatic Updates:
 └─ tests/unit/test_commandname.py
 ```
 
-**Zero Tolerance**: No manual-only updates, no inconsistent capabilities across agents.
-
 **Reference**: [.claude/AUTOMATIC_COMMAND_SHARING_MANDATORY.md](.claude/AUTOMATIC_COMMAND_SHARING_MANDATORY.md)
+
+---
+
+## Agricultural Robotics Context
+
+**Safety-critical multi-tractor coordination**: AFS FastAPI implements distributed systems for autonomous agricultural equipment operating in shared field environments. Failures can cause equipment damage, crop loss, or operator injury.
+
+**ISO compliance requirements**:
+- **ISO 18497**: Agricultural machinery safety standards for autonomous systems
+- **ISO 11783**: ISOBUS communication protocols for tractor-implement coordination
+
+**Test-First Development rationale**: Agricultural robotics demands bulletproof reliability. Every function must be validated against agricultural scenarios before deployment.
+
+**Documentation rationale**: Complete version history (CHANGELOG.md) and strategic assessments (WHERE_WE_ARE.md) essential for compliance auditing, stakeholder communication, and emergency incident investigation.
+
+**Universal AI agent support**: Consistent development capabilities across all AI platforms ensures knowledge continuity, reduces training overhead, and maintains quality standards regardless of which assistant is used.
 
 ---
 

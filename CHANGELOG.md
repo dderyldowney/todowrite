@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Documentation
+- **core**: Streamline documentation removing 178 lines of redundancy (Phases 1-2 consolidation)
+  - Establish SESSION_SUMMARY.md as single source of truth for mandatory requirements
+  - Replace CLAUDE.md 203 lines with 19-line cross-reference
+  - Standardize AI agent references using "ALL AI agents" terminology
+  - Preserve all 6 mandatory requirements with zero functionality loss
+  - Improve maintainability for ISO 18497/11783 compliance in safety-critical agricultural robotics
 - **monitoring**: Compact session state achievements for 2025-10-02 development session
 - **monitoring**: Update core metrics with cross-agent infrastructure sharing 100% compliance
 - **monitoring**: Document universal specifications (3,435 lines) and enhanced scope system (31 scopes)
