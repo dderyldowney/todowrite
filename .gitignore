@@ -340,5 +340,8 @@ pytest.xml
 .claude/.global_session_state
 .claude/.universal_access_enabled
 
+# AI Agent scratch files (not committed to repository)
+AGENT_TODOS.md
+
 # End of https://www.toptal.com/developers/gitignore/api/node,ruby,rails,linux,macos
 .chatgpt-history.txt
