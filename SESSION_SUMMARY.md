@@ -151,47 +151,134 @@ NEW COMMAND → Automatic Updates:
 
 ## Universal Session Management Commands
 
-**ALL AI agents** can execute these commands with persistent cross-session knowledge:
+**ALL AI agents** can execute these commands with persistent cross-session knowledge.
+
+**Command trigger files**: All commands documented in `.claude/commands/` directory with complete specifications.
 
 ### loadsession
-**Purpose**: Restore complete project context (conceptual, contextual, functional)
-**CRITICAL**: Execute immediately after `/new` for all AFS FastAPI sessions
-**Architecture**: 6-phase initialization (automatic hook + manual fallback)
+
+**Purpose**: Restore complete project context (conceptual, contextual, functional).
+
+**Usage**: `./bin/loadsession` or `/loadsession` (Claude Code)
+
+**When to use**: Execute immediately after `/new` completes for all AFS FastAPI sessions.
+
+**Functionality**:
+- Restores v0.1.3 platform state and strategic development priorities
+- Loads enterprise foundation and Test-First Development methodology
+- Maintains dual-purpose educational and functional mission
+- 6-phase initialization architecture (automatic hook + manual fallback)
+
 **Reference**: [docs/EXECUTION_ORDER.md](docs/EXECUTION_ORDER.md), [.claude/commands/loadsession.md](.claude/commands/loadsession.md)
 
 ### savesession
-**Purpose**: Capture complete session state with mandatory compaction
-**CRITICAL**: State MUST be compacted into SESSION_SUMMARY.md before changes
-**Creates**: `docs/monitoring/SESSION_STATE_YYYY_MM_DD.md` snapshots
+
+**Purpose**: Capture complete session state with mandatory compaction into SESSION_SUMMARY.md.
+
+**Usage**: `./bin/savesession`
+
+**When to use**: Before ending sessions or applying significant platform changes.
+
+**Functionality**:
+- Creates dated snapshots: `docs/monitoring/SESSION_STATE_YYYY_MM_DD.md`
+- Captures platform metrics, git status, mandatory requirements, enforcement mechanisms
+- Prevents knowledge fragmentation across sessions
+- Ensures SESSION_SUMMARY.md remains authoritative source
+
 **Reference**: [.claude/commands/savesession.md](.claude/commands/savesession.md)
 
 ### runtests
-**Purpose**: Execute comprehensive test suite with standardized reporting
-**MANDATORY**: ALL AI agents provide standardized analysis (6 required sections)
-**Variations**: `./bin/runtests`, `./bin/runtests --coverage`, `./bin/runtests -q`
+
+**Purpose**: Execute comprehensive test suite with standardized reporting format.
+
+**Usage**:
+- `./bin/runtests` - Full test suite
+- `./bin/runtests --coverage` - With coverage analysis
+- `./bin/runtests -q` - Quiet mode
+- `./bin/runtests tests/unit/equipment/` - Specific directory
+
+**Required AI agent analysis** (6 sections):
+1. Executive Summary
+2. Insight Block
+3. Test Distribution
+4. Platform Health Indicators
+5. Agricultural Context
+6. Advisory Notes
+
 **Reference**: [.claude/commands/runtests.md](.claude/commands/runtests.md)
 
 ### whereweare
-**Purpose**: Display/generate comprehensive WHERE_WE_ARE.md strategic assessment
-**Display**: `./bin/whereweare` (show existing 480+ line doc)
-**Generate**: `./bin/whereweare --generate` (synthesize from live metrics)
+
+**Purpose**: Display or generate comprehensive WHERE_WE_ARE.md strategic assessment.
+
+**Usage**:
+- `./bin/whereweare` - Display existing 480+ line strategic documentation
+- `./bin/whereweare --generate` - Generate from current platform state
+- `/whereweare` - Claude Code slash command
+
+**Functionality**:
+- Extracts live metrics (git tags, test counts, README.md, SESSION_SUMMARY.md)
+- Essential for ISO compliance planning and stakeholder communication
+- Synthesizes strategic assessment from distributed platform state
+
 **Reference**: [.claude/commands/whereweare.md](.claude/commands/whereweare.md)
 
 ### updatedocs
-**Purpose**: Meta-command for unified regeneration of all 6 core documentation files
-**Update All**: `./bin/updatedocs` (WHERE_WE_ARE, index.html, CHANGELOG, tests, session, stats)
-**Dry-Run**: `./bin/updatedocs --dry-run` (preview without execution)
-**Selective**: `./bin/updatedocs --only=whereweare,changelog`
+
+**Purpose**: Meta-command for unified regeneration of all 6 core documentation files.
+
+**Usage**:
+- `./bin/updatedocs` - Update all 6 core documents
+- `./bin/updatedocs --dry-run` - Preview without execution
+- `./bin/updatedocs --only=whereweare,changelog` - Selective updates
+- `/updatedocs` - Claude Code slash command
+
+**6 Core documents regenerated**:
+1. WHERE_WE_ARE.md (strategic assessment)
+2. docs/index.html (web documentation)
+3. CHANGELOG.md (version history)
+4. Test reports (platform health)
+5. Session state (development metrics)
+6. Documentation stats (status dashboard)
+
+**Orchestrates**: whereweare --generate, updatewebdocs, updatechangelog, runtests -q
+
+**Essential for**: ISO compliance auditing (ISO 11783, ISO 18497), stakeholder communication, synchronized platform state.
+
 **Reference**: [.claude/commands/updatedocs.md](.claude/commands/updatedocs.md)
 
 ### updatechangelog
-**Purpose**: Regenerate CHANGELOG.md from git history with loop protection
-**Automatic**: Triple-layer protection prevents infinite regeneration
+
+**Purpose**: Regenerate CHANGELOG.md from git history with triple-layer loop protection.
+
+**Usage**: `./bin/updatechangelog`
+
+**When to use**: Before every git commit (enforced by pre-commit hooks).
+
+**Functionality**:
+- Regenerates complete version history from git log
+- Applies Keep a Changelog format with agricultural context
+- Hash-range protection prevents infinite regeneration loops
+- Mandatory inclusion in all commits
+
 **Reference**: [.claude/commands/updatechangelog.md](.claude/commands/updatechangelog.md)
 
 ### updatewebdocs
-**Purpose**: Convert README.md → docs/index.html with professional styling
-**Synchronization**: MANDATORY when README.md changes
+
+**Purpose**: Convert README.md → docs/index.html with professional styling.
+
+**Usage**: `./bin/updatewebdocs`
+
+**When to use**: MANDATORY when README.md changes (must commit both files together).
+
+**Functionality**:
+- Converts markdown to HTML with professional presentation
+- Creates docs/ directory if missing
+- Auto-stages docs/index.html for git commit
+- Preserves agricultural terminology and technical specifications
+
+**Essential for**: Equipment operators, safety engineers, compliance auditors accessing documentation via browsers.
+
 **Reference**: [.claude/commands/updatewebdocs.md](.claude/commands/updatewebdocs.md)
 
 ---
