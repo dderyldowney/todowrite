@@ -18,7 +18,7 @@
 
 ### Universal AI Agent Compliance
 
-ALL AI agents must follow:
+All AI agents must follow:
 - **Test-First Development**: RED phase before code, GREEN phase implementation, REFACTOR phase enhancement
 - **Structured Investigation Pattern**: Investigation steps, files examined, evidence collected, final analysis
 - **Standardized Test Reporting**: Executive summary, insight block, test distribution, health indicators, agricultural context
@@ -30,7 +30,7 @@ ALL AI agents must follow:
 
 ### Authoritative ISO 11783 References
 
-**MANDATORY** for all ISOBUS work:
+**Required** for all ISOBUS work:
 - **[docs/iso11783-11-online_data_base.pdf](docs/iso11783-11-online_data_base.pdf)**: Complete ISO 11783-11 specifications
 - **[docs/isoExport_csv.zip](docs/isoExport_csv.zip)**: Machine-readable protocol definitions
 - **[docs/isobus-osi-model-layer-iso-11783.svg](docs/isobus-osi-model-layer-iso-11783.svg)**: OSI model architecture
@@ -41,11 +41,11 @@ ALL AI agents must follow:
 
 **Compatible AI Platforms**: Claude Code (primary), GitHub Copilot (secondary), ChatGPT, Gemini Code Assist, Amazon CodeWhisperer
 
-Throughout this document, **"ALL AI agents"** refers to all five compatible platforms above.
+Throughout this document, **"all AI agents"** refers to all five compatible platforms above.
 
 ---
 
-## Mandatory Requirements for ALL AI Agents
+## Mandatory Requirements for All AI Agents
 
 > **Canonical Source**: This section is the authoritative reference for all mandatory requirements.
 > **Cross-References**: CLAUDE.md and AGENTS.md reference this section to avoid duplication.
@@ -151,7 +151,7 @@ NEW COMMAND → Automatic Updates:
 
 ## Universal Session Management Commands
 
-**ALL AI agents** can execute these commands with persistent cross-session knowledge.
+**All AI agents** can execute these commands with persistent cross-session knowledge.
 
 **Command trigger files**: All commands documented in `.claude/commands/` directory with complete specifications.
 
@@ -269,7 +269,7 @@ NEW COMMAND → Automatic Updates:
 
 **Usage**: `./bin/updatewebdocs`
 
-**When to use**: MANDATORY when README.md changes (must commit both files together).
+**When to use**: Required when README.md changes (must commit both files together).
 
 **Functionality**:
 - Converts markdown to HTML with professional presentation

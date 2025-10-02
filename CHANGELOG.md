@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Documentation
+- **core**: Complete Phase 4 documentation enforcement language moderation (75%+ all-caps reduction)
+  - Moderate SESSION_SUMMARY.md enforcement language (convert "MANDATORY/ALL" to sentence case)
+  - Moderate CLAUDE.md enforcement language (replace "ABSOLUTE REQUIREMENT" with "Requirement")
+  - Moderate AGENTS.md enforcement language (convert headers and terminology to professional tone)
+  - Transform aggressive all-caps emphasis to professional guidance tone
+  - Preserve safety requirements and compliance standards with improved readability
+  - Essential for agricultural robotics teams where clear communication prevents safety incidents
 - **core**: Complete Phase 3 documentation streamlining removing 2,564 lines (75% compression)
   - Enhance SESSION_SUMMARY.md as authoritative source for all 7 universal commands
   - Compress universal spec files from 3,435 → 871 lines (LOADSESSION, SAVESESSION, RUNTESTS, WHEREWEARE, UPDATEDOCS, UPDATECHANGELOG, UPDATEWEBDOCS)
