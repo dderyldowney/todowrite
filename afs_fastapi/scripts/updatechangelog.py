@@ -193,26 +193,28 @@ def get_commits_since_last_changelog() -> list[str]:
         List of commit strings in format "hash|subject|author|date"
     """
     try:
-        # Get date of last CHANGELOG.md modification
+        # Get hash of last commit that modified CHANGELOG.md (more precise than date)
         result = subprocess.run(
-            ["git", "log", "-1", "--format=%ai", "--", "CHANGELOG.md"],
+            ["git", "log", "-1", "--format=%H", "--", "CHANGELOG.md"],
             capture_output=True,
             text=True,
             check=True,
         )
 
-        last_change_date = result.stdout.strip()
+        last_changelog_commit = result.stdout.strip()
 
         # If CHANGELOG.md never committed, get all commits
-        if not last_change_date:
+        if not last_changelog_commit:
             cmd = ["git", "log", "--pretty=format:%h|%s|%an|%ad", "--date=short"]
         else:
+            # Get commits AFTER the last CHANGELOG.md modification
+            # Using hash range ensures we don't re-process the CHANGELOG commit itself
             cmd = [
                 "git",
                 "log",
                 "--pretty=format:%h|%s|%an|%ad",
                 "--date=short",
-                f"--since={last_change_date}",
+                f"{last_changelog_commit}..HEAD",
             ]
 
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
@@ -225,6 +227,7 @@ def get_commits_since_last_changelog() -> list[str]:
         for commit in commits:
             if not commit or "|Merge " in commit:
                 continue
+
             # Check full commit message for [skip-changelog] marker
             commit_hash = commit.split("|")[0]
             msg_result = subprocess.run(
@@ -234,7 +237,20 @@ def get_commits_since_last_changelog() -> list[str]:
                 check=False,
             )
             if "[skip-changelog]" not in msg_result.stdout:
-                filtered.append(commit)
+                # Additional check: exclude commits that ONLY modify CHANGELOG.md
+                # This prevents loops when CHANGELOG-only commits don't have marker
+                files_result = subprocess.run(
+                    ["git", "diff-tree", "--no-commit-id", "--name-only", "-r", commit_hash],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                modified_files = files_result.stdout.strip().split("\n")
+                # Only include if commit modifies files OTHER than CHANGELOG.md
+                if len(modified_files) > 1 or (
+                    len(modified_files) == 1 and "CHANGELOG.md" not in modified_files[0]
+                ):
+                    filtered.append(commit)
 
         return filtered
 
