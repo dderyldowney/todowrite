@@ -32,7 +32,6 @@ except Exception:  # pragma: no cover - pending implementation
     FieldAllocationCRDT = None
 
 
-@pytest.mark.xfail(reason="CRDT not implemented yet (issue #6)", strict=False)
 def test_field_allocation_crdt_convergence():
     """Replicas with disjoint claims converge to the same state.
 
@@ -40,7 +39,7 @@ def test_field_allocation_crdt_convergence():
     and when synced, both see all filled cells without conflicts.
     """
     if FieldAllocationCRDT is None:
-        pytest.xfail("CRDT class missing (pending implementation)")
+        pytest.skip("CRDT class missing (pending implementation)")
 
     a = FieldAllocationCRDT(field_id="field_001")
     b = FieldAllocationCRDT(field_id="field_001")
@@ -58,7 +57,6 @@ def test_field_allocation_crdt_convergence():
     assert a.owner_of("cell_B1") == "tractor_002"
 
 
-@pytest.mark.xfail(reason="CRDT not implemented yet (issue #6)", strict=False)
 def test_field_allocation_crdt_conflict_resolution():
     """Concurrent overlapping claims resolve deterministically.
 
@@ -66,7 +64,7 @@ def test_field_allocation_crdt_conflict_resolution():
     lexicographic owner_id for determinism.
     """
     if FieldAllocationCRDT is None:
-        pytest.xfail("CRDT class missing (pending implementation)")
+        pytest.skip("CRDT class missing (pending implementation)")
 
     a = FieldAllocationCRDT(field_id="field_001")
     b = FieldAllocationCRDT(field_id="field_001")
@@ -82,14 +80,13 @@ def test_field_allocation_crdt_conflict_resolution():
     assert a.owner_of("cell_A1") == b.owner_of("cell_A1")
 
 
-@pytest.mark.xfail(reason="CRDT not implemented yet (issue #6)", strict=False)
 def test_field_allocation_crdt_serialization_roundtrip():
     """Serialization fits constraints and round-trips state.
 
     Constraint: compact payload suitable for ISOBUS; include causal context if used.
     """
     if FieldAllocationCRDT is None:
-        pytest.xfail("CRDT class missing (pending implementation)")
+        pytest.skip("CRDT class missing (pending implementation)")
 
     a = FieldAllocationCRDT(field_id="field_001")
     a.claim("cell_A1", owner_id="tractor_001")

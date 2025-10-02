@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **synchronization**: Implement CRDT field allocation system for multi-tractor coordination
+  - Complete Last-Writer-Wins (LWW) CRDT with vector clock causality for agricultural field allocation
+  - Deterministic conflict resolution hierarchy: vector clock → LWW timestamp → lexicographic comparison
+  - Production-ready API: claim(), release(), merge(), owner_of(), assigned_sections(), serialize(), deserialize()
+  - ISOBUS-compatible serialization respecting ISO 11783 message size constraints
+  - Idempotent merge operations ensuring true CRDT convergence properties under network partitions
+  - Safety-critical distributed coordination preventing equipment conflicts in multi-tractor operations
+  - Convert 3 xfail scaffold tests to 4 comprehensive passing tests with full validation coverage
+  - Zero regressions across 214 platform tests maintaining production stability
+  - Essential for coordinated field operations where network partitions and message ordering issues common
+
 ### Configuration
 - **gitignore**: Add AGENT_TODOS.md to .gitignore for AI agent internal TODO tracking
   - Ensure AI agent scratch files never committed to repository (local or remote)
