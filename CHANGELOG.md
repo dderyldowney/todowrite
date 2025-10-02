@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Configuration
+- **hooks**: Enhance commit scope validation with 4 new infrastructure scopes (commands, scripts, session, infrastructure)
+- **hooks**: Organize valid scopes into 8 functional categories for agricultural robotics clarity
+- **hooks**: Add inline documentation for all 31 valid scopes with agricultural context
+
 ### Documentation
+- **workflow**: Document complete scope categorization system in GIT_COMMIT_SEPARATION_MANDATORY.md
+- **workflow**: Add usage guidelines for scope selection in commit messages
 - **commands**: Add universal command specifications for cross-agent accessibility (LOADSESSION, SAVESESSION, RUNTESTS, UPDATECHANGELOG, UPDATEWEBDOCS - 2,577 total lines)
 - **commands**: Complete universal specification coverage for 7 session management commands
 - **commands**: Add cross-agent implementation checklists for Claude, Copilot, ChatGPT, Gemini, CodeWhisperer
