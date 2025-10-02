@@ -1,78 +1,50 @@
 # Universal AI Agent Access: loadsession Command
 
-> **ABSOLUTE REQUIREMENT**: The `loadsession` command MUST be available to ALL AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer) across ALL development sessions for the AFS FastAPI agricultural robotics platform.
+**Requirement**: The `loadsession` command must be available to ALL AI agents across all development sessions for the AFS FastAPI agricultural robotics platform.
 
 ---
 
 ## Command Overview
 
-**Purpose**: Restores complete project context (conceptual, contextual, functional) from SESSION_SUMMARY.md to ensure continuity of v0.1.3 platform state, enterprise foundation, and strategic development priorities.
+**Purpose**: Restores complete project context (conceptual, contextual, functional) from SESSION_SUMMARY.md.
 
-**Universal Access Level**: **CRITICAL** - MUST be executed immediately after `/new` for all AFS FastAPI sessions
+**Usage**: Execute immediately after `/new` for all AFS FastAPI sessions.
 
-**Cross-Session Persistence**: Embedded in SESSION_SUMMARY.md, AGENTS.md, and CLAUDE.md for automatic loading
+**Access**: Universal across all AI agents (see [SESSION_SUMMARY.md](../SESSION_SUMMARY.md#universal-ai-agents)).
 
 ---
 
-## Single-Mode Operation
+## Command Execution
 
-### Context Restoration Mode
-
-**Command Execution**:
 ```bash
 ./bin/loadsession              # Manual CLI execution
 bin/loadsession                # Direct execution
 ```
 
-**Purpose**: Load and apply SESSION_SUMMARY.md for complete project context restoration
+**Output Includes**:
+- Platform status (version, test metrics, quality status)
+- Strategic priority (synchronization infrastructure focus)
+- Documentation framework references
+- Development environment details
+- Mandatory requirements (6 universal frameworks)
+- Session management commands
 
-**Output**: Comprehensive context loading with:
-- Platform Status: Current v0.1.3+ version, test suite metrics (214 tests), code quality status
-- Strategic Priority: Synchronization infrastructure development focus
-- Documentation Framework: Key references (WORKFLOW.md, TDD_WORKFLOW.md, SYNCHRONIZATION_INFRASTRUCTURE.md)
-- Development Environment: Branch status, Python 3.12+ standards, dual-purpose architecture
-- Mandatory Requirements: 6 universal AI agent compliance frameworks
-- Session Management: Available commands and initialization architecture
-
-**Agricultural Context**:
-- ISO 11783 (ISOBUS) compliance status and authoritative references
-- ISO 18497 (Safety) implementation requirements
-- Multi-tractor coordination capabilities
-- Test-First Development methodology for safety-critical systems
+**Agricultural Context**: ISO 11783/18497 compliance, multi-tractor coordination, Test-First Development for safety-critical systems.
 
 ---
 
-## Universal AI Agent Requirements
+## AI Agent Requirements
 
-### Cross-Agent Accessibility
+**ALL AI agents must**:
+- Execute after `/new` session initialization
+- Understand platform state before development work
+- Recognize mandatory requirements
+- Apply agricultural context to all decisions
 
-**ALL AI agents MUST**:
-- Execute this command immediately after `/new` session initialization
-- Understand platform state completely before any development work
-- Recognize mandatory requirements (TDD, investigation pattern, test reporting, etc.)
-- Apply agricultural context to all development decisions
-
-**Applies To**:
-- Claude Code (primary development assistant) **[ACTIVE]**
-- GitHub Copilot (code completion and suggestions) **[ACTIVE]**
-- ChatGPT (conversational AI assistant) **[COMPATIBLE - INACTIVE]**
-- Gemini Code Assist (Google AI development assistant) **[COMPATIBLE - INACTIVE]**
-- Amazon CodeWhisperer (AWS AI coding companion) **[COMPATIBLE - INACTIVE]**
-- ALL future AI development assistants
-
-### Session Initialization Integration
-
-**Automatic Discovery**:
-1. **SessionStart hook**: [.claude/hooks/session_initialization.py](.claude/hooks/session_initialization.py) detects new sessions via 5-minute staleness detection
-2. **Manual execution**: `bin/loadsession` provides fallback context restoration
-3. **AGENTS.md** instructs all AI platforms about command availability
-4. **CLAUDE.md** provides complete command specifications
-5. **SESSION_SUMMARY.md** serves as authoritative source of truth (304 lines)
-
-**Persistent Memory**:
-- Command MUST be executed after `/new` session restarts
-- Universal access ensures all AI agents can restore context
-- Cross-session persistence through SESSION_SUMMARY.md
+**Session Initialization**:
+1. Automatic: [.claude/hooks/session_initialization.py](hooks/session_initialization.py) (5-min staleness detection)
+2. Manual fallback: `bin/loadsession`
+3. Documentation references: AGENTS.md, CLAUDE.md, SESSION_SUMMARY.md
 
 ---
 
@@ -116,208 +88,55 @@ bin/loadsession                # Direct execution
 
 ---
 
-## Agricultural Robotics Context
-
-### Safety-Critical Session Continuity
-
-**ISO Compliance Requirements**:
-- **ISO 18497**: Session state must preserve safety system implementation status
-- **ISO 11783**: ISOBUS compliance requirements must be understood across sessions
-- **Emergency Systems**: Multi-tractor coordination safety mechanisms remain in context
-- **Test-First Development**: TDD methodology enforcement continues across all sessions
-
-**Knowledge Continuity Critical**:
-- Lost context = potential safety violations in code generation
-- Incomplete understanding = risks bypassing mandatory TDD requirements
-- Missing agricultural context = incorrect equipment interface assumptions
-- Broken session continuity = inconsistent AI agent development standards
-
-### Stakeholder Communication
-
-**Development Planning**:
-- Real-time visibility into current platform evolution (v0.1.3+)
-- Test suite status for quality assurance (214 tests)
-- Strategic roadmap awareness (synchronization infrastructure focus)
-- Technical foundation understanding for deployment decisions
-
-**Procurement Support**:
-- Professional platform capabilities awareness
-- Industry standards compliance verification (ISO 11783, ISO 18497)
-- Educational framework value proposition maintained
-- Production readiness validation context
-
----
-
 ## Usage Examples
 
-### Scenario 1: New Session Initialization
+### New Session Initialization
 
-**Context**: Developer starts new Claude Code session with `/new` command
+Automatic hook execution or manual `./bin/loadsession` after `/new` command:
 
-**AI Agent Response**:
-```markdown
-Session context has been automatically restored via loadsession hook.
+- Loads SESSION_SUMMARY.md with platform status
+- Displays test suite metrics and strategic priorities
+- Shows mandatory requirements reminders
+- Presents documentation framework references
 
-**AFS FastAPI v0.1.3+ Platform Status**:
-- Test Suite: 214 tests (211 passing, 3 xfail)
-- Strategic Focus: Synchronization infrastructure development
-- Methodology: Test-First Development operational
+### Manual Context Restoration
 
-**Mandatory Requirements Active**:
-- ✅ Test-First Development (RED-GREEN-REFACTOR)
-- ✅ Structured Investigation Pattern
-- ✅ Standardized Test Reporting
-- ✅ CHANGELOG Triple-Layer Loop Protection
-- ✅ Git Commit Separation of Concerns
-- ✅ Cross-Agent Infrastructure Sharing
+Execute `./bin/loadsession` if automatic initialization fails. Confirms SESSION_SUMMARY.md loaded with platform status and mandatory requirements.
 
-I'm ready to assist with agricultural robotics development following all mandatory requirements.
-```
+### Cross-Agent Usage
 
-### Scenario 2: Manual Context Restoration
-
-**Context**: Automatic session initialization didn't trigger (rapid `/new` restart)
-
-**AI Agent Response**:
-```markdown
-I notice the session context may not have loaded automatically. Let me restore it manually:
-
-[Execute: ./bin/loadsession]
-
-✅ Session context successfully restored from SESSION_SUMMARY.md
-
-**Platform Understanding**:
-- Current version: v0.1.3+
-- Test suite: 214 comprehensive tests
-- Focus area: Distributed multi-tractor synchronization
-- Development standards: Enterprise-grade Python 3.12+
-
-**Mandatory Compliance Frameworks**:
-- Test-First Development enforcement active
-- Structured investigation pattern required for all responses
-- Commit separation of concerns validated by pre-commit hooks
-- CHANGELOG.md triple-layer loop protection operational
-
-Ready to continue sophisticated agricultural robotics development.
-```
-
-### Scenario 3: Cross-Agent Session Start (ChatGPT Example)
-
-**Context**: Developer switches from Claude Code to ChatGPT for code review
-
-**ChatGPT Response**:
-```markdown
-Starting AFS FastAPI session. I'll first load the project context:
-
-[Execute: ./bin/loadsession]
-
-**Session Context Loaded**:
-- Agricultural robotics platform for multi-tractor coordination
-- v0.1.3+ with 214 tests (211 passing)
-- Focus: Synchronization infrastructure (Vector Clock implemented, CRDT pending)
-- Standards: Test-First Development mandatory for ALL AI agents
-
-**My Role**:
-I'll follow all mandatory requirements (TDD, investigation pattern, test reporting)
-established for universal AI agent compliance. Ready to assist with code reviews,
-architectural analysis, or feature implementation following enterprise standards.
-```
-
----
-
-## Cross-Agent Implementation Checklist
-
-**For ALL AI development assistants**:
-
-- [ ] Command execution capability (`./bin/loadsession` or `bin/loadsession`)
-- [ ] SESSION_SUMMARY.md parsing and understanding
-- [ ] Platform state recognition (version, test count, strategic focus)
-- [ ] Mandatory requirements comprehension (6 frameworks)
-- [ ] Agricultural context application (ISO 11783, ISO 18497)
-- [ ] Test-First Development methodology adoption
-- [ ] Structured investigation pattern usage
-- [ ] Standardized test reporting format application
-- [ ] Cross-session memory persistence
-- [ ] Automatic execution after `/new` (where supported)
-
-**Validation Criteria**:
-- AI agent demonstrates complete platform understanding after loadsession
-- All mandatory requirements applied to subsequent code generation
-- Agricultural context included in explanations and implementations
-- Session continuity maintained across `/new` restarts
+ALL AI agents (Claude, Copilot, ChatGPT, Gemini, CodeWhisperer) execute command at session start to restore:
+- Platform version and test metrics
+- Strategic focus and mandatory requirements
+- Agricultural context and standards compliance
 
 ---
 
 ## Enforcement and Validation
 
-### Automatic Discovery
+**Automatic Discovery**: [.claude/hooks/session_initialization.py](hooks/session_initialization.py) with 5-minute staleness detection and manual fallback.
 
-**SessionStart Hook**:
-- [.claude/hooks/session_initialization.py](.claude/hooks/session_initialization.py) automatically runs loadsession
-- 5-minute staleness detection prevents false positives
-- Fallback: Manual execution if automatic trigger fails
+**Test Coverage**: 10 tests validate session initialization (see `tests/unit/hooks/test_session_initialization.py`).
 
 **Manual Verification**:
 ```bash
-# Verify loadsession executable
-./bin/loadsession
-
-# Check SESSION_SUMMARY.md exists
-cat docs/monitoring/SESSION_SUMMARY.md | head -20
-
-# Validate session state
-./bin/whereweare  # Strategic assessment
-```
-
-### Test Validation
-
-**Pre-Commit Hooks** ensure loadsession infrastructure remains operational:
-- Session initialization hook tests (10 tests)
-- SESSION_SUMMARY.md format validation
-- Mandatory requirements documentation checks
-
-**Manual Testing**:
-```bash
-# Test loadsession execution
-PYTHONPATH=. pytest tests/unit/hooks/test_session_initialization.py -v
-
-# Verify automatic session detection
-# (requires actual session restart simulation)
+./bin/loadsession                               # Execute command
+./bin/whereweare                                # Validate state
 ```
 
 ---
 
-## Integration with Session Architecture
+## Session Architecture Integration
 
-### 6-Phase Session Initialization
+**6-Phase Initialization** (see [docs/EXECUTION_ORDER.md](../docs/EXECUTION_ORDER.md)):
+1. Automatic hook-based initialization
+2. Manual session loading (loadsession role)
+3. Conceptual context loading
+4. Enforcement & validation
+5. Mandatory requirement references
+6. Helper commands & utilities
 
-**Complete Flow** ([docs/EXECUTION_ORDER.md](../docs/EXECUTION_ORDER.md)):
-
-1. **Automatic Hook-Based Initialization**: SessionStart hook detects new session
-2. **Manual Session Loading**: `bin/loadsession` fallback execution
-3. **Conceptual Context Loading**: CLAUDE.md, SESSION_SUMMARY.md, AGENTS.md
-4. **Enforcement & Validation**: Hooks validate compliance
-5. **Mandatory Requirement References**: Complete specifications loaded
-6. **Helper Commands & Utilities**: Additional session tools available
-
-**loadsession Role**: Phase 2 (Manual Session Loading) with Phase 1 (Automatic) integration
-
-### Related Commands
-
-**savesession** - Captures session state for compaction into SESSION_SUMMARY.md
-```bash
-./bin/savesession  # End-of-session state capture
-```
-
-**whereweare** - Displays strategic platform assessment
-```bash
-./bin/whereweare  # Current ISO compliance and roadmap
-```
-
-**runtests** - Executes comprehensive test suite
-```bash
-./bin/runtests  # Validate platform health
-```
+**Related Commands**: See [SESSION_SUMMARY.md - Universal Session Management Commands](../SESSION_SUMMARY.md#universal-session-management-commands) for savesession, whereweare, runtests, and others.
 
 ---
 

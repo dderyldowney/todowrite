@@ -347,62 +347,23 @@ The platform uses a sophisticated 6-phase session initialization architecture wi
 
 ### Command Trigger Framework
 
-The project includes a **.claude/commands/** directory containing reusable command triggers for consistent documentation and workflow execution:
+The platform provides 7 universal session management commands available to ALL AI agents:
 
-**Available Commands**:
-- **loadsession**: Loads and applies SESSION_SUMMARY.md for complete project context restoration
-  - **CRITICAL**: Must be executed immediately after `/new` completes for all AFS FastAPI sessions
-  - Restores v0.1.3 platform state, enterprise foundation, and strategic development priorities
-  - Ensures continuity of Test-First Development methodology and synchronization infrastructure focus
-  - Maintains dual-purpose educational and functional mission across sessions
-  - **Architecture**: See [docs/EXECUTION_ORDER.md](docs/EXECUTION_ORDER.md) for complete execution flow
-- **savesession**: Saves complete session state (conceptual, contextual, functional) with mandatory compaction
-  - **CRITICAL**: Session state MUST be compacted into SESSION_SUMMARY.md before applying new changes
-  - Creates dated snapshot: `docs/monitoring/SESSION_STATE_YYYY_MM_DD.md`
-  - Captures: Platform metrics, git status, mandatory requirements, enforcement mechanisms
-  - **Universal Access**: ALL AI agents (see [SESSION_SUMMARY.md](SESSION_SUMMARY.md#universal-ai-agents) for complete list)
-  - **Compaction Protocol**: Prevents knowledge fragmentation, ensures SESSION_SUMMARY.md remains authoritative
-  - **Cross-Session Memory**: Command MUST be remembered by all agents across all sessions
-  - **Complete Specification**: See [.claude/commands/savesession.md](.claude/commands/savesession.md)
-- **runtests**: Executes comprehensive test suite with standardized reporting format
-  - **MANDATORY**: ALL AI agents must provide standardized test analysis (Executive Summary, Insight Block, Test Distribution, Platform Health Indicators, Agricultural Context, Advisory Notes)
-  - Colored output with platform health assessment and reporting reminders
-  - Command variations: `./bin/runtests`, `./bin/runtests --coverage`, `./bin/runtests -q`, `./bin/runtests tests/unit/equipment/`
-  - **Universal Access**: ALL AI agents (see [SESSION_SUMMARY.md](SESSION_SUMMARY.md#universal-ai-agents) for complete list)
-  - **Cross-Session Memory**: Command MUST be remembered by all agents across all sessions
-  - **Complete Specification**: See [.claude/commands/runtests.md](.claude/commands/runtests.md)
-- **whereweare**: Display or generate comprehensive WHERE_WE_ARE.md strategic assessment
-  - **Display Mode**: `./bin/whereweare` shows existing 480+ line strategic documentation
-  - **Generation Mode**: `./bin/whereweare --generate` synthesizes from current platform state
-  - Extracts live metrics (git tags, test counts, README.md, SESSION_SUMMARY.md)
-  - Essential for ISO compliance planning and stakeholder communication
-  - **Command variations**: `./bin/whereweare`, `./bin/whereweare --generate`, `/whereweare` (Claude Code)
-  - **Universal Access**: ALL AI agents (see [SESSION_SUMMARY.md](SESSION_SUMMARY.md#universal-ai-agents) for complete list)
-  - **Cross-Session Memory**: Command MUST be remembered by all agents across all sessions
-  - **Complete Specification**: See [.claude/commands/whereweare.md](.claude/commands/whereweare.md)
-- **updatedocs**: Meta-command for unified regeneration of all 6 core documentation files
-  - **Update All Mode**: `./bin/updatedocs` regenerates all 6 core documents
-  - **Dry-Run Mode**: `./bin/updatedocs --dry-run` previews what would be updated without executing
-  - **Selective Update Mode**: `./bin/updatedocs --only=whereweare,changelog` updates specific documents only
-  - **6 Core Documents**: WHERE_WE_ARE.md (strategic assessment), docs/index.html (web docs), CHANGELOG.md (version history), test reports (platform health), session state (development metrics), documentation stats (status dashboard)
-  - **Orchestrates Commands**: whereweare --generate, updatewebdocs, updatechangelog, runtests -q
-  - Essential for ISO compliance auditing (ISO 11783, ISO 18497), stakeholder communication, and synchronized platform state
-  - **Command variations**: `./bin/updatedocs`, `./bin/updatedocs --dry-run`, `./bin/updatedocs --only=doc1,doc2`, `/updatedocs` (Claude Code)
-  - **Universal Access**: ALL AI agents (see [SESSION_SUMMARY.md](SESSION_SUMMARY.md#universal-ai-agents) for complete list)
-  - **Cross-Session Memory**: Command MUST be remembered by all agents across all sessions
-  - **Complete Specification**: See [.claude/commands/updatedocs.md](.claude/commands/updatedocs.md)
+**Available Commands** (complete specifications in [SESSION_SUMMARY.md](SESSION_SUMMARY.md#universal-session-management-commands)):
+- **loadsession** - Restore complete project context (execute after `/new`)
+- **savesession** - Capture session state with mandatory compaction
+- **runtests** - Execute test suite with standardized reporting
+- **whereweare** - Display/generate strategic assessment
+- **updatedocs** - Regenerate all 6 core documentation files
+- **updatechangelog** - Regenerate CHANGELOG.md with loop protection
+- **updatewebdocs** - Convert README.md → docs/index.html
 
-**Command Usage**:
-- Commands are documented with complete specifications including purpose, expected output, and usage context
-- Professional standards maintained across all command triggers
-- Version-controlled for team collaboration and consistency
-- Educational integration preserves dual-purpose functional and instructional mission
+**Detailed Documentation**: See [SESSION_SUMMARY.md - Universal Session Management Commands](SESSION_SUMMARY.md#universal-session-management-commands) for complete usage, functionality, and references.
 
-**Integration Benefits**:
-- **Consistent Documentation**: Repeatable processes for strategic assessment generation
-- **Quality Assurance**: Standardized documentation structure and professional formatting
-- **Team Enablement**: Clear specifications for collaborative documentation creation
-- **Workflow Enhancement**: Structured approach to maintaining current project documentation
+**Claude Code Integration**:
+- Commands executable via bash: `./bin/commandname`
+- Select commands available as slash commands: `/loadsession`, `/whereweare`, `/updatedocs`
+- Command triggers stored in `.claude/commands/` with complete specifications
 
 ---
 

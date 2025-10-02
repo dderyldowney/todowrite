@@ -27,20 +27,24 @@ MIT (project license)
 
 ## How to Use
 
-- **CRITICAL**: Initialize session context: `./bin/loadsession` (loads `SESSION_SUMMARY.md` with all mandatory requirements)
-- **CRITICAL**: Save session state before ending: `./bin/savesession` (captures complete state, MUST compact into SESSION_SUMMARY.md)
-- **UNIVERSAL**: Strategic assessment: `./bin/whereweare` (display) or `./bin/whereweare --generate` (regenerate)
-- **UNIVERSAL**: Documentation sync: `./bin/updatedocs` (updates all 6 core documents)
+**Universal Session Management Commands**: ALL AI agents have access to 7 session management commands (loadsession, savesession, runtests, whereweare, updatedocs, updatechangelog, updatewebdocs).
+
+**Complete command specifications**: See [SESSION_SUMMARY.md - Universal Session Management Commands](SESSION_SUMMARY.md#universal-session-management-commands) for usage, functionality, and references.
+
+**Critical commands**:
+- Initialize sessions: `./bin/loadsession` (execute after starting new sessions)
+- End sessions: `./bin/savesession` (capture state before ending)
+- Strategic assessment: `./bin/whereweare` (display) or `./bin/whereweare --generate` (regenerate)
 
 **Six Mandatory Requirements** (see [SESSION_SUMMARY.md](SESSION_SUMMARY.md#mandatory-requirements-for-all-ai-agents) for complete details):
 - Test-First Development, Structured Investigation Pattern, Standardized Test Reporting, CHANGELOG Loop Protection, Git Commit Separation, Cross-Agent Infrastructure Sharing
 
-- **SESSION ARCHITECTURE**: Complete execution order in `docs/EXECUTION_ORDER.md` (6-phase initialization, 28+ files)
-- Read comprehensive testing guidance: `WORKFLOW.md`, `TDD_WORKFLOW.md`, `TDD_FRAMEWORK_MANDATORY.md`
-- View strategic platform assessment: `./bin/whereweare` or regenerate: `./bin/whereweare --generate`
-- Validate changes locally with `pytest` and ensure all 214 tests pass (see `WORKFLOW.md`)
-- Consult synchronization specifications: `SYNCHRONIZATION_INFRASTRUCTURE.md`, `STATE_OF_AFFAIRS.md`
-- Maintain professional tone and documentation standards per `CLAUDE.md` requirements
+**Essential documentation**:
+- Session architecture: `docs/EXECUTION_ORDER.md` (6-phase initialization, 28+ files)
+- Testing guidance: `WORKFLOW.md`, `TDD_WORKFLOW.md`, `TDD_FRAMEWORK_MANDATORY.md`
+- Synchronization specs: `SYNCHRONIZATION_INFRASTRUCTURE.md`, `STATE_OF_AFFAIRS.md`
+- Platform standards: `CLAUDE.md` (professional tone and documentation requirements)
+- Test validation: Ensure all 214 tests pass (see `WORKFLOW.md`)
 
 ## Configuration
 
@@ -88,9 +92,8 @@ MIT (project license)
   3) Examples: `feat(equipment): add tractor synchronization`, `fix(safety): resolve emergency stop timing`
   4) Pre-commit validation prevents commits addressing multiple concerns
   5) See `GIT_COMMIT_SEPARATION_MANDATORY.md` for complete guidelines
-- **Session initialization**: `./bin/loadsession` → `./bin/whereweare` (view strategic assessment) → review `STATE_OF_AFFAIRS.md`
-- **Strategic assessment generation**: `./bin/whereweare --generate` creates WHERE_WE_ARE.md from README.md, SESSION_SUMMARY.md, git metrics, and live test counts
-- **Documentation synchronization**: `./bin/updatedocs` updates all 6 core documents (WHERE_WE_ARE.md, docs/index.html, CHANGELOG.md, test reports, session state, documentation stats) with selective update mode `--only=whereweare,changelog` and dry-run preview `--dry-run`
+- **Session workflow**: `./bin/loadsession` → `./bin/whereweare` → review project state → develop → `./bin/savesession` (before ending)
+- **Command details**: See [SESSION_SUMMARY.md - Universal Session Management Commands](SESSION_SUMMARY.md#universal-session-management-commands) for complete usage examples and functionality
 
 ## VS Code & CLI Workflows
 
