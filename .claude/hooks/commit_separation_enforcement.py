@@ -118,32 +118,46 @@ class CommitSeparationValidator:
     }
 
     # Valid scope areas for agricultural robotics platform
+    # Organized by category for clarity while maintaining comprehensive coverage
     VALID_SCOPES = {
-        "equipment",
-        "coordination",
-        "api",
-        "monitoring",
-        "safety",
-        "services",
-        "communication",
-        "isobus",
-        "sensors",
-        "vision",
-        "control",
-        "power",
-        "data",
-        "fleet",
-        "field",
-        "workflow",
-        "integration",
-        "performance",
-        "auth",
-        "config",
-        "docs",
-        "test",
-        "hooks",
-        "ci",
-        "deps",
+        # Agricultural Equipment & Operations
+        "equipment",  # Farm tractors, implements, robotic machinery
+        "coordination",  # Multi-tractor fleet coordination
+        "fleet",  # Fleet management and orchestration
+        "field",  # Field operations and management
+        # Communication & Protocols
+        "api",  # REST API endpoints and interfaces
+        "communication",  # Inter-equipment communication systems
+        "isobus",  # ISO 11783 (ISOBUS) protocol implementation
+        # Safety & Compliance
+        "safety",  # ISO 18497 safety systems
+        "security",  # Access control and authentication
+        # Sensors & Control
+        "sensors",  # Sensor interfaces and data acquisition
+        "vision",  # Computer vision and image processing
+        "control",  # Motor control and actuation systems
+        "power",  # Power management and distribution
+        # Data & Services
+        "data",  # Data management and storage
+        "services",  # Business logic and service layer
+        "monitoring",  # System monitoring and observability
+        # Development Infrastructure
+        "workflow",  # Development workflows and processes
+        "commands",  # Session management commands (bin/ scripts)
+        "scripts",  # Utility and automation scripts
+        "session",  # Session state management
+        "infrastructure",  # Cross-cutting platform infrastructure
+        # Integration & Testing
+        "integration",  # Integration between components
+        "test",  # Test infrastructure and utilities
+        "performance",  # Performance monitoring and optimization
+        # Configuration & Tooling
+        "config",  # Configuration files and settings
+        "hooks",  # Git hooks and pre-commit validation
+        "ci",  # Continuous integration pipelines
+        "deps",  # Dependency management
+        "auth",  # Authentication and authorization
+        "docs",  # Documentation and specifications
     }
 
     # Agricultural robotics keywords that should appear in relevant commits

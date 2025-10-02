@@ -164,6 +164,62 @@ config(hooks): add commit separation enforcement
 - Maintain professional development standards
 ```
 
+## Valid Scope Categories
+
+To maintain rigor while accommodating legitimate development needs, scopes are organized into functional categories. Each scope has clear agricultural robotics context and separates concerns effectively.
+
+### Agricultural Equipment & Operations
+- **equipment**: Farm tractors, implements, robotic machinery
+- **coordination**: Multi-tractor fleet coordination and synchronization
+- **fleet**: Fleet management and orchestration systems
+- **field**: Field operations, boundaries, and management
+
+### Communication & Protocols
+- **api**: REST API endpoints and external interfaces
+- **communication**: Inter-equipment communication systems
+- **isobus**: ISO 11783 (ISOBUS) protocol implementation and compliance
+
+### Safety & Compliance
+- **safety**: ISO 18497 safety systems and emergency protocols
+- **security**: Access control, authentication, and authorization
+
+### Sensors & Control
+- **sensors**: Sensor interfaces and data acquisition systems
+- **vision**: Computer vision and image processing
+- **control**: Motor control and actuation systems
+- **power**: Power management and distribution
+
+### Data & Services
+- **data**: Data management, storage, and persistence
+- **services**: Business logic and service layer components
+- **monitoring**: System monitoring, observability, and diagnostics
+
+### Development Infrastructure
+- **workflow**: Development workflows and session management
+- **commands**: Session management commands (bin/ directory scripts)
+- **scripts**: Utility and automation scripts
+- **session**: Session state management and initialization
+- **infrastructure**: Cross-cutting platform infrastructure
+
+### Integration & Testing
+- **integration**: Integration between components and systems
+- **test**: Test infrastructure, utilities, and frameworks
+- **performance**: Performance monitoring and optimization
+
+### Configuration & Tooling
+- **config**: Configuration files and application settings
+- **hooks**: Git hooks and pre-commit validation scripts
+- **ci**: Continuous integration pipelines and automation
+- **deps**: Dependency management and package updates
+- **auth**: Authentication and authorization infrastructure
+- **docs**: Documentation, specifications, and guides
+
+**Usage Guidelines**:
+- Choose the most specific scope that accurately describes the change area
+- Use agricultural equipment scopes (equipment, coordination, fleet, field) for domain logic
+- Use infrastructure scopes (workflow, commands, session) for development tooling
+- Maintain single concern per commit regardless of scope chosen
+
 ## Enforcement Mechanisms
 
 ### Pre-commit Hook Validation
