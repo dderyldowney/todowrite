@@ -2,7 +2,7 @@
 
 This file contains project-specific instructions for Claude Code sessions working on the **AFS FastAPI robotic agriculture platform**.
 
-## Mandatory Requirements for ALL AI Agents
+## Mandatory Requirements for All AI Agents
 
 > **See Authoritative Reference**: [SESSION_SUMMARY.md](SESSION_SUMMARY.md#mandatory-requirements-for-all-ai-agents)
 >
@@ -22,9 +22,9 @@ This file contains project-specific instructions for Claude Code sessions workin
 - Pre-commit hooks validate compliance automatically
 - Agricultural context required for safety-critical code (ISO 18497, ISO 11783)
 
-## MANDATORY: Format-First Generation Standards
+## Format-First Generation Standards
 
-**ABSOLUTE REQUIREMENT**: ALL generated content must emerge in final quality-controlled form.
+**Requirement**: All generated content must emerge in final quality-controlled form.
 
 ### Format-First Protocol
 
@@ -97,9 +97,9 @@ class TestAgriculturalOperation:
 - Create reusable commands for common fixes
 - Apply quality standards from initial generation
 
-### MANDATORY: CHANGELOG.md Maintenance
+### CHANGELOG.md Maintenance
 
-**ABSOLUTE REQUIREMENT**: CHANGELOG.md must be regenerated, formatted, and included in every git commit.
+**Requirement**: CHANGELOG.md must be regenerated, formatted, and included in every git commit.
 
 **Before Every Commit Protocol**:
 1. **Regenerate CHANGELOG.md**: Use `updatechangelog` command to include all changes
@@ -113,9 +113,9 @@ class TestAgriculturalOperation:
 - Keep a Changelog formatting standards applied
 - Version history completeness validated
 
-### MANDATORY: Web Documentation Synchronization
+### Web Documentation Synchronization
 
-**ABSOLUTE REQUIREMENT**: When README.md changes, docs/index.html must be regenerated and included in the same commit.
+**Requirement**: When README.md changes, docs/index.html must be regenerated and included in the same commit.
 
 **README.md Update Protocol**:
 1. **Edit README.md**: Make documentation changes to markdown source
@@ -178,14 +178,14 @@ class TestAgriculturalOperation:
 
 **Authoritative ISO 11783 Reference Documentation**:
 
-The platform includes authoritative ISO 11783 technical specifications that MUST be referenced for all ISOBUS-related work:
+The platform includes authoritative ISO 11783 technical specifications that must be referenced for all ISOBUS-related work:
 
 - **[docs/iso11783-11-online_data_base.pdf](docs/iso11783-11-online_data_base.pdf)**: Complete ISO 11783-11 specifications
 - **[docs/isoExport_csv.zip](docs/isoExport_csv.zip)**: Machine-readable protocol definitions
 - **[docs/isobus-osi-model-layer-iso-11783.svg](docs/isobus-osi-model-layer-iso-11783.svg)**: OSI model architecture diagram
 
 **Mandatory Reference Requirements**:
-- ALL ISOBUS implementation decisions must cite specific sections from authoritative documentation
+- All ISOBUS implementation decisions must cite specific sections from authoritative documentation
 - Educational explanations about ISOBUS must reference official specifications
 - Compliance validation requires verification against ISO 11783 standards
 - Code generation for ISOBUS features must align with specification requirements
@@ -267,8 +267,8 @@ The platform includes authoritative ISO 11783 technical specifications that MUST
 - Focus on what was accomplished rather than subjective assessments
 - Write commit messages using standard conventions (type(scope): description)
 
-**MANDATORY: Git Commit Separation of Concerns**:
-- **CRITICAL REQUIREMENT**: All commits must follow strict separation of concerns methodology
+**Git Commit Separation of Concerns**:
+- **Critical requirement**: All commits must follow strict separation of concerns methodology
 - **Single Concern Rule**: Each commit addresses exactly one logical concern (feat, fix, docs, refactor, test, config, perf, security)
 - **Automated Enforcement**: Pre-commit hooks validate separation compliance and reject non-compliant commits
 - **Cross-Session Persistence**: Requirements embedded permanently in project configuration
@@ -311,7 +311,7 @@ config(hooks): add commit separation enforcement
 
 ### Mandatory Test-Driven Development for All Components
 
-**POLICY**: ALL future development on AFS FastAPI MUST follow Test-Driven Development methodology:
+**Policy**: All future development on AFS FastAPI must follow Test-Driven Development methodology:
 
 1. **RED Phase**: Write failing test describing agricultural robotics behavior
 2. **GREEN Phase**: Implement minimal code meeting performance and safety requirements
@@ -327,7 +327,7 @@ config(hooks): add commit separation enforcement
 
 **Complete Execution Order**: [docs/EXECUTION_ORDER.md](docs/EXECUTION_ORDER.md)
 
-The platform uses a sophisticated 6-phase session initialization architecture with 28+ files working together to establish conceptual, contextual, and functional session state for ALL AI agents.
+The platform uses a sophisticated 6-phase session initialization architecture with 28+ files working together to establish conceptual, contextual, and functional session state for all AI agents.
 
 **Key Phases**:
 1. **Automatic Hook-Based Initialization** - Claude Code hooks detect new sessions
@@ -347,7 +347,7 @@ The platform uses a sophisticated 6-phase session initialization architecture wi
 
 ### Command Trigger Framework
 
-The platform provides 7 universal session management commands available to ALL AI agents:
+The platform provides 7 universal session management commands available to all AI agents:
 
 **Available Commands** (complete specifications in [SESSION_SUMMARY.md](SESSION_SUMMARY.md#universal-session-management-commands)):
 - **loadsession** - Restore complete project context (execute after `/new`)

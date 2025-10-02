@@ -13,7 +13,7 @@ Hal — AFS FastAPI Assistant
 
 ### Description
 
-Repository-scoped coding assistant for the AFS FastAPI agricultural robotics platform. Hal enforces ABSOLUTE Test-First Development (NO CODE WITHOUT TESTS) and mandatory structured investigation patterns for ALL contributors—Human AND ALL AI agents—with zero exceptions policy and automated compliance validation. Maintains professional educational documentation standards and ensures alignment with agricultural safety standards (ISO 18497) and ISOBUS communication protocols (ISO 11783). Optimized for safety-critical agricultural robotics systems where equipment failures can cause damage or safety incidents.
+Repository-scoped coding assistant for the AFS FastAPI agricultural robotics platform. Hal enforces strict Test-First Development (no code without tests) and mandatory structured investigation patterns for all contributors—human and all AI agents—with zero exceptions policy and automated compliance validation. Maintains professional educational documentation standards and ensures alignment with agricultural safety standards (ISO 18497) and ISOBUS communication protocols (ISO 11783). Optimized for safety-critical agricultural robotics systems where equipment failures can cause damage or safety incidents.
 
 ### Author
 
@@ -27,7 +27,7 @@ MIT (project license)
 
 ## How to Use
 
-**Universal Session Management Commands**: ALL AI agents have access to 7 session management commands (loadsession, savesession, runtests, whereweare, updatedocs, updatechangelog, updatewebdocs).
+**Universal Session Management Commands**: All AI agents have access to 7 session management commands (loadsession, savesession, runtests, whereweare, updatedocs, updatechangelog, updatewebdocs).
 
 **Complete command specifications**: See [SESSION_SUMMARY.md - Universal Session Management Commands](SESSION_SUMMARY.md#universal-session-management-commands) for usage, functionality, and references.
 
@@ -50,7 +50,7 @@ MIT (project license)
 
 - Python: `>=3.12,<3.13` (see `pyproject.toml`)
 - **Quality gates**: Ruff, Black, MyPy, isort; zero warnings expected (195 tests maintained)
-- **TDD enforcement hooks** (MANDATORY):
+- **TDD enforcement hooks** (required):
   - `.claude/hooks/tdd_enforcement.py` - Validates Test-First Development compliance
   - `.claude/hooks/safety_validation.py` - Ensures ISO 18497 agricultural safety standards
 - **Documentation style**: NumPy-style docstrings; dual audience (educational + professional)
@@ -86,7 +86,7 @@ MIT (project license)
   5) **REFACTOR**: Enhance code quality while maintaining test coverage
   6) Ensure all quality gates pass: `ruff`, `black`, `mypy`, `isort` (zero warnings)
   7) Pre-commit hooks validate TDD compliance and agricultural safety standards
-- **MANDATORY: Git Commit Separation of Concerns** (enforced by pre-commit hooks):
+- **Git Commit Separation of Concerns** (enforced by pre-commit hooks):
   1) Each commit addresses exactly one concern: `feat`, `fix`, `docs`, `refactor`, `test`, `config`, `perf`, `security`
   2) Use conventional format: `type(scope): description` with agricultural context
   3) Examples: `feat(equipment): add tractor synchronization`, `fix(safety): resolve emergency stop timing`
@@ -122,7 +122,7 @@ MIT (project license)
 - Pylance/Pyright strict mode to mirror `pyproject.toml`
 - Set test discovery to `pytest` with `tests` as root
 
-## Pre-commit Hooks (MANDATORY ENFORCEMENT)
+## Pre-commit Hooks (Required Enforcement)
 
 - **Config**: `.pre-commit-config.yaml` (local hooks; no network dependency)
 - **Enforced on every commit** (blocks non-compliant code):
@@ -142,7 +142,7 @@ MIT (project license)
 - **STATE_OF_AFFAIRS.md**: Current platform status documentation (393 lines) with strategic analysis
 - **.claude/hooks/**: Investigation pattern validator, TDD enforcement (239 lines), and safety validation (296 lines) pre-commit hooks
 - **SESSION_SUMMARY.md**: Enhanced with investigation pattern and TDD enforcement policies
-- **CLAUDE.md**: Updated with mandatory TDD and investigation pattern requirements for ALL AI agents
+- **CLAUDE.md**: Updated with mandatory TDD and investigation pattern requirements for all AI agents
 - **loadsession**: Enhanced with critical TDD and investigation pattern compliance reminders
 - **.pre-commit-config.yaml**: Local hooks for quality gates plus mandatory TDD and Safety validators
 - **CI/CD Pipeline**: Automated validation ensuring 195 tests pass with TDD compliance enforcement
