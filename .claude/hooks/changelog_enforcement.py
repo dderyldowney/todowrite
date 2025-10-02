@@ -67,6 +67,26 @@ class ChangelogEnforcementHook:
         # Check for GIT_MERGE_HEAD environment variable (set during merge)
         return "GIT_MERGE_HEAD" in os.environ
 
+    def has_skip_changelog_marker(self) -> bool:
+        """Check if commit message contains [skip-changelog] marker.
+
+        The [skip-changelog] marker allows commits that only update CHANGELOG.md
+        to bypass enforcement, preventing infinite regeneration loops when
+        updatechangelog creates commits with CHANGELOG but no other changes.
+
+        Returns:
+            True if [skip-changelog] marker detected, False otherwise
+        """
+        # Read commit message from COMMIT_EDITMSG if it exists
+        git_dir = Path.cwd() / ".git"
+        commit_msg_file = git_dir / "COMMIT_EDITMSG"
+
+        if commit_msg_file.exists():
+            commit_msg = commit_msg_file.read_text()
+            return "[skip-changelog]" in commit_msg
+
+        return False
+
     def validate_changelog_in_commit(self, staged_files: list[str]) -> bool:
         """Validate CHANGELOG.md is present in staged files.
 
@@ -74,7 +94,7 @@ class ChangelogEnforcementHook:
             staged_files: List of files staged for commit
 
         Returns:
-            True if CHANGELOG.md is in staged files or merge commit, False otherwise
+            True if CHANGELOG.md is in staged files, merge commit, or [skip-changelog], False otherwise
 
         Agricultural Context:
             Every platform modification must be documented in CHANGELOG.md for
@@ -82,6 +102,11 @@ class ChangelogEnforcementHook:
         """
         # Skip enforcement for merge commits
         if self.is_merge_commit():
+            return True
+
+        # Skip enforcement for commits with [skip-changelog] marker
+        # This prevents infinite loops when updatechangelog generates commits
+        if self.has_skip_changelog_marker():
             return True
 
         # Check if CHANGELOG.md is in staged files
@@ -110,6 +135,10 @@ compliance auditing.
 1. Update {self.changelog_filename} with your changes in the [Unreleased] section
 2. Stage the updated file: git add {self.changelog_filename}
 3. Complete your commit: git commit
+
+⚙️  Alternative (CHANGELOG-only commits):
+If this commit ONLY updates {self.changelog_filename} (e.g., regeneration), add
+[skip-changelog] to your commit message to prevent infinite regeneration loops.
 
 🌾 Agricultural Context:
 Equipment operators, safety engineers, and compliance auditors depend on

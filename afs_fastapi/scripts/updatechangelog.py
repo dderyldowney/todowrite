@@ -218,8 +218,25 @@ def get_commits_since_last_changelog() -> list[str]:
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
         commits = result.stdout.strip().split("\n")
 
-        # Filter out merge commits
-        return [c for c in commits if c and "|Merge " not in c]
+        # Filter out merge commits and [skip-changelog] commits
+        # [skip-changelog] marker prevents infinite regeneration loops when
+        # commits only update CHANGELOG.md without other changes
+        filtered = []
+        for commit in commits:
+            if not commit or "|Merge " in commit:
+                continue
+            # Check full commit message for [skip-changelog] marker
+            commit_hash = commit.split("|")[0]
+            msg_result = subprocess.run(
+                ["git", "log", "-1", "--format=%B", commit_hash],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if "[skip-changelog]" not in msg_result.stdout:
+                filtered.append(commit)
+
+        return filtered
 
     except subprocess.CalledProcessError:
         return []
