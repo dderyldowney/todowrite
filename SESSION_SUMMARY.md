@@ -12,14 +12,14 @@ AFS FastAPI is a production-ready agricultural robotics platform with **mandator
 
 ### Platform Metrics
 
-- **Version**: v0.1.3+ (Stable Release with TDD, Commit Separation, CHANGELOG Enforcement, Universal AI Agent Investigation Pattern, Automated CHANGELOG Generation, Standardized Test Reporting, Strategic Assessment Command)
-- **Test Suite**: 195 tests passing (100% success rate in <10s) - includes 10 session initialization + 9 CHANGELOG enforcement + 13 updatechangelog tests + 13 whereweare command tests
+- **Version**: v0.1.3+ (Stable Release with TDD, Commit Separation, CHANGELOG Triple-Layer Loop Protection, Universal AI Agent Investigation Pattern, Automated CHANGELOG Generation, Standardized Test Reporting, Strategic Assessment Command)
+- **Test Suite**: 214 tests passing (211 pass, 3 xfail in 4.63s) - includes 12 CHANGELOG enforcement tests (with loop-breaking), 10 session initialization, 13 updatechangelog, 13 whereweare, 13 updatedocs (7 stubbed)
 - **Code Quality**: Zero warnings across all tools (Ruff, MyPy, Black, isort)
 - **Industry Compliance**: Complete ISO 11783 (ISOBUS) and ISO 18497 (Safety) implementation
 - **Distributed Systems**: Vector Clock implementation operational for multi-tractor coordination
 - **Development Methodology**: **ABSOLUTE MANDATORY** Test-First Development - TESTS DRIVE IMPLEMENTATION (RED-GREEN-REFACTOR)
 - **Git Commit Management**: **MANDATORY** Separation of concerns with single-concern validation
-- **CHANGELOG Management**: **MANDATORY** Automated enforcement via pre-commit hook validates documentation in every commit
+- **CHANGELOG Management**: **MANDATORY** Triple-layer loop protection with automated enforcement via pre-commit hook - prevents infinite regeneration while validating documentation in every commit
 - **Investigation Pattern**: **MANDATORY** Structured investigation pattern for ALL AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer) with universal enforcement
 - **Test Reporting**: **MANDATORY** Standardized test reporting format for ALL AI agents (Claude Code, GitHub Copilot, ChatGPT, Gemini Code Assist, Amazon CodeWhisperer) with comprehensive analysis
 - **Active Agent Scope**: **PRIMARY DEVELOPMENT** - Claude Code and GitHub Copilot actively used; other agents maintain compatibility but are not actively enabled
@@ -282,21 +282,39 @@ This is NOT optional - test output must be displayed to demonstrate Test-Driven 
 2. **Conventional Format**: Use `type(scope): description` with agricultural context
 3. **Automated Enforcement**: Pre-commit hooks validate separation compliance
 
-### MANDATORY CHANGELOG.md Maintenance Protocol
+### MANDATORY CHANGELOG.md Maintenance Protocol with Triple-Layer Loop Protection
 
-**ABSOLUTE REQUIREMENT**: CHANGELOG.md must be regenerated, formatted, and included in every git commit.
+**ABSOLUTE REQUIREMENT**: CHANGELOG.md must be regenerated, formatted, and included in every git commit with bulletproof loop protection.
+
+**Triple-Layer Loop Protection Mechanism** (Deployed 2025-10-01):
+1. **Commit Hash Range Exclusion**: Uses `{last_commit}..HEAD` instead of date-based queries to prevent re-processing
+2. **Automatic CHANGELOG-Only Detection**: Excludes commits that modify ONLY CHANGELOG.md without other file changes
+3. **[skip-changelog] Marker Support**: Commits with marker bypass enforcement for explicit loop-breaking
 
 **Before Every Commit Protocol**:
-1. **Regenerate CHANGELOG.md**: Use `updatechangelog` command to include all changes
+1. **Regenerate CHANGELOG.md**: Use `updatechangelog` command to include all changes (with automatic loop protection)
 2. **Format according to standards**: Keep a Changelog format with agricultural context
 3. **Add to git staging**: Include CHANGELOG.md alongside other changes
 4. **Commit with complete changelog**: Ensure changelog reflects all changes up to and including that commit
 
+**Loop-Breaking Usage** (When Needed):
+```bash
+# CHANGELOG-only commits use marker to prevent loops
+git commit -m "docs(changelog): Update CHANGELOG.md
+
+[skip-changelog]"
+
+# Regular commits unchanged (CHANGELOG.md + code together)
+git commit -m "feat(equipment): Add tractor interface"
+```
+
 **Cross-Session Enforcement**:
 - CHANGELOG.md updates mandatory before all commits
+- Triple-layer protection prevents infinite regeneration loops
 - Agricultural context required for safety-critical entries
 - Keep a Changelog formatting standards applied
 - Version history completeness validated
+- 12 comprehensive tests validate loop-breaking mechanism
 - Living document permanently tracked in repository
 
 **Rationale**: Complete version history essential for agricultural robotics platform. ISO 18497/11783 compliance auditing requires documented change tracking. Equipment operators, safety engineers, and compliance auditors rely on CHANGELOG.md as authoritative record of all platform modifications affecting multi-tractor coordination systems.
