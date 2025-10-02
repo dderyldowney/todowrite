@@ -294,3 +294,74 @@ class TestChangelogEnforcementHook:
             # Merge commits should skip CHANGELOG.md enforcement
             result = validator.validate_changelog_in_commit(["equipment.py"])
             assert result is True, "Hook should skip CHANGELOG.md enforcement for merge commits"
+
+    def test_skips_changelog_with_skip_marker(self, temp_git_repo: Path, hook_module) -> None:
+        """Test RED: Should skip enforcement when [skip-changelog] marker present.
+
+        Agricultural scenario: CHANGELOG-only commits (e.g., from updatechangelog)
+        use [skip-changelog] marker to prevent infinite regeneration loops where
+        updatechangelog creates commits that trigger more changelog updates.
+        """
+        # Create a commit message file with [skip-changelog] marker
+        git_dir = temp_git_repo / ".git"
+        commit_msg_file = git_dir / "COMMIT_EDITMSG"
+        commit_msg_file.write_text(
+            "docs(changelog): Update CHANGELOG.md with recent commits\n\n[skip-changelog]"
+        )
+
+        # Create validator and validate it detects marker
+        validator = hook_module.ChangelogEnforcementHook()
+
+        # Mock the Path.cwd() to return our test repo
+        with patch("pathlib.Path.cwd", return_value=temp_git_repo):
+            has_marker = validator.has_skip_changelog_marker()
+            assert has_marker is True, "Hook should detect [skip-changelog] marker"
+
+            # Commits with marker should skip enforcement even without CHANGELOG.md
+            result = validator.validate_changelog_in_commit(["equipment.py"])
+            assert (
+                result is True
+            ), "Hook should skip CHANGELOG.md enforcement for [skip-changelog] commits"
+
+    def test_enforces_changelog_without_skip_marker(self, temp_git_repo: Path, hook_module) -> None:
+        """Test RED: Should enforce CHANGELOG.md when [skip-changelog] marker absent.
+
+        Agricultural scenario: Regular commits without [skip-changelog] marker
+        must include CHANGELOG.md to maintain complete version history for
+        safety-critical agricultural robotics platform.
+        """
+        # Create commit message file WITHOUT [skip-changelog] marker
+        git_dir = temp_git_repo / ".git"
+        commit_msg_file = git_dir / "COMMIT_EDITMSG"
+        commit_msg_file.write_text("feat(equipment): Add tractor control interface")
+
+        validator = hook_module.ChangelogEnforcementHook()
+
+        # Mock the Path.cwd() to return our test repo
+        with patch("pathlib.Path.cwd", return_value=temp_git_repo):
+            has_marker = validator.has_skip_changelog_marker()
+            assert has_marker is False, "Hook should not detect marker in regular commits"
+
+            # Regular commits without marker must include CHANGELOG.md
+            result = validator.validate_changelog_in_commit(["equipment.py"])
+            assert (
+                result is False
+            ), "Hook should enforce CHANGELOG.md for commits without [skip-changelog]"
+
+    def test_error_message_documents_skip_changelog_option(
+        self, temp_git_repo: Path, hook_module
+    ) -> None:
+        """Test RED: Error message should document [skip-changelog] option.
+
+        Agricultural scenario: Error message guides developers on using
+        [skip-changelog] marker for CHANGELOG-only commits to prevent
+        infinite regeneration loops in automated documentation workflows.
+        """
+        validator = hook_module.ChangelogEnforcementHook()
+        error_message = validator.get_error_message()
+
+        # Error message should mention [skip-changelog] option
+        assert "[skip-changelog]" in error_message, "Error should document [skip-changelog] option"
+        assert (
+            "CHANGELOG-only" in error_message or "regeneration" in error_message
+        ), "Error should explain when to use [skip-changelog]"
