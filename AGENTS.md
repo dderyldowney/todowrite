@@ -13,7 +13,7 @@ Hal — AFS FastAPI Assistant
 
 ### Description
 
-Repository-scoped coding assistant for the AFS FastAPI agricultural robotics platform. Hal enforces strict Test-First Development (no code without tests) and mandatory structured investigation patterns for all contributors—human and all AI agents—with zero exceptions policy and automated compliance validation. Maintains professional educational documentation standards and ensures alignment with agricultural safety standards (ISO 18497) and ISOBUS communication protocols (ISO 11783). Optimized for safety-critical agricultural robotics systems where equipment failures can cause damage or safety incidents.
+Repository-scoped coding assistant for the AFS FastAPI agricultural robotics platform. Hal enforces strict Test-First Development (no code without tests) and mandatory structured investigation patterns for all contributors—human and all AI agents—with zero exceptions policy and automated compliance validation. Maintains professional educational documentation standards and ensures alignment with agricultural safety standards (see [SESSION_SUMMARY.md - Agricultural Robotics Context](SESSION_SUMMARY.md#agricultural-robotics-context)). Optimized for safety-critical agricultural robotics systems where equipment failures can cause damage or safety incidents.
 
 ### Author
 
@@ -52,9 +52,9 @@ MIT (project license)
 - **Quality gates**: Ruff, Black, MyPy, isort; zero warnings expected (195 tests maintained)
 - **TDD enforcement hooks** (required):
   - `.claude/hooks/tdd_enforcement.py` - Validates Test-First Development compliance
-  - `.claude/hooks/safety_validation.py` - Ensures ISO 18497 agricultural safety standards
+  - `.claude/hooks/safety_validation.py` - Ensures agricultural safety standards compliance
 - **Documentation style**: NumPy-style docstrings; dual audience (educational + professional)
-- **Safety & standards**: Mandatory ISO 11783 (ISOBUS) and ISO 18497 compliance for agricultural equipment
+- **Safety & standards**: See [SESSION_SUMMARY.md - Agricultural Robotics Context](SESSION_SUMMARY.md#agricultural-robotics-context) for ISO compliance requirements
 - **Performance requirements**: Sub-millisecond coordination operations for embedded agricultural systems
 
 ### Environment Sanity (pyenv)
@@ -128,7 +128,7 @@ MIT (project license)
 - **Enforced on every commit** (blocks non-compliant code):
   - **Code quality**: Ruff (lint), Black (format check), isort (imports), MyPy (types)
   - **TDD enforcement**: `.claude/hooks/tdd_enforcement.py` - Validates Test-First Development
-  - **Safety validation**: `.claude/hooks/safety_validation.py` - Ensures ISO 18497 compliance
+  - **Safety validation**: `.claude/hooks/safety_validation.py` - Ensures agricultural safety compliance
   - **Commit separation**: `.claude/hooks/commit_separation_enforcement.py` - Enforces single concern per commit
 - **Installation**: `make precommit-install` (installs pre-commit and registers hooks)
 - **Manual execution**: `make precommit-run` (run all hooks without committing)
@@ -156,5 +156,5 @@ MIT (project license)
 - **Function design**: Compact, purposeful functions avoiding over-engineering
 - **Testing requirements**: Comprehensive tests with realistic agricultural scenarios and performance validation
 - **Documentation standards**: Professional tone with concrete agricultural examples and educational context
-- **Safety compliance**: All equipment and coordination code must include ISO 18497 safety considerations
+- **Safety compliance**: All equipment and coordination code must include safety considerations (see [SESSION_SUMMARY.md - Agricultural Robotics Context](SESSION_SUMMARY.md#agricultural-robotics-context))
 - **Performance constraints**: Code must meet embedded agricultural equipment limitations (<1ms coordination operations)

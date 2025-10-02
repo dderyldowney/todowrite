@@ -20,7 +20,7 @@ This file contains project-specific instructions for Claude Code sessions workin
 **Claude Code Specific Notes**:
 - Session initialization via `loadsession` command loads all mandatory requirements
 - Pre-commit hooks validate compliance automatically
-- Agricultural context required for safety-critical code (ISO 18497, ISO 11783)
+- Agricultural context required for safety-critical code (see [SESSION_SUMMARY.md - Agricultural Robotics Context](SESSION_SUMMARY.md#agricultural-robotics-context))
 
 ## Format-First Generation Standards
 
@@ -161,7 +161,7 @@ class TestAgriculturalOperation:
 
 3. **Professional Context**
    - Cover industry best practices and enterprise development standards
-   - Explain domain-specific concepts (ISOBUS, ISO 18497 safety, agricultural robotics)
+   - Explain domain-specific concepts (see [SESSION_SUMMARY.md - Agricultural Robotics Context](SESSION_SUMMARY.md#agricultural-robotics-context) for ISO standards)
 
 ### Educational Focus Areas
 
@@ -172,23 +172,9 @@ class TestAgriculturalOperation:
 
 #### Agricultural Technology Standards
 
-- ISOBUS communication protocols (ISO 11783)
-- Safety compliance systems (ISO 18497)
-- Professional agricultural equipment interfaces
+See [SESSION_SUMMARY.md - Agricultural Robotics Context](SESSION_SUMMARY.md#agricultural-robotics-context) for complete ISO compliance requirements and safety standards.
 
-**Authoritative ISO 11783 Reference Documentation**:
-
-The platform includes authoritative ISO 11783 technical specifications that must be referenced for all ISOBUS-related work:
-
-- **[docs/iso11783-11-online_data_base.pdf](docs/iso11783-11-online_data_base.pdf)**: Complete ISO 11783-11 specifications
-- **[docs/isoExport_csv.zip](docs/isoExport_csv.zip)**: Machine-readable protocol definitions
-- **[docs/isobus-osi-model-layer-iso-11783.svg](docs/isobus-osi-model-layer-iso-11783.svg)**: OSI model architecture diagram
-
-**Mandatory Reference Requirements**:
-- All ISOBUS implementation decisions must cite specific sections from authoritative documentation
-- Educational explanations about ISOBUS must reference official specifications
-- Compliance validation requires verification against ISO 11783 standards
-- Code generation for ISOBUS features must align with specification requirements
+**ISO Documentation References**: [SESSION_SUMMARY.md - Authoritative ISO 11783 References](SESSION_SUMMARY.md#authoritative-iso-11783-references)
 
 #### Distributed Systems Concepts
 
@@ -207,7 +193,7 @@ The platform includes authoritative ISO 11783 technical specifications that must
 **AFS FastAPI** is an enterprise-grade robotic agriculture platform implementing:
 
 - **Fleet Coordination**: Multi-tractor synchronization with conflict resolution
-- **Industry Compliance**: Professional agricultural interface compliance (ISO 11783, ISO 18497)
+- **Industry Compliance**: Professional agricultural interface compliance (see [SESSION_SUMMARY.md - Agricultural Robotics Context](SESSION_SUMMARY.md#agricultural-robotics-context))
 - **Robotic Interfaces**: Six major categories of enhanced interfaces:
   - ISOBUS Communication
   - Safety & Compliance Systems
@@ -230,7 +216,7 @@ The platform includes authoritative ISO 11783 technical specifications that must
 **WORKFLOW.md** is the **complete authoritative reference** for the AFS FastAPI testing architecture:
 
  - **161 tests** across 3-layer architecture (Feature, Unit, Root-level tests, plus enforcement hooks)
-- **Professional agricultural standards** compliance (ISOBUS ISO 11783, Safety ISO 18497)
+- **Professional agricultural standards** compliance (see [SESSION_SUMMARY.md - Agricultural Robotics Context](SESSION_SUMMARY.md#agricultural-robotics-context))
 - **Complete test flow patterns** and execution commands
 - **Domain coverage analysis** for Equipment, Monitoring, API, and Infrastructure
 - **Performance metrics** and quality assurance framework
