@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Documentation
+- **core**: Complete Phase 5 documentation streamlining centralizing agricultural context references
+  - Establish SESSION_SUMMARY.md Agricultural Robotics Context section as single source of truth
+  - Replace 6 scattered ISO 18497/11783 references in CLAUDE.md with centralized cross-references
+  - Replace 4 scattered ISO references in AGENTS.md with centralized cross-references
+  - Eliminate redundant agricultural context duplication while preserving 100% functionality
+  - Improve maintainability by creating single source for ISO compliance requirements
+  - Essential for safety-critical multi-tractor coordination where scattered documentation causes confusion
 - **core**: Complete Phase 4 documentation enforcement language moderation (75%+ all-caps reduction)
   - Moderate SESSION_SUMMARY.md enforcement language (convert "MANDATORY/ALL" to sentence case)
   - Moderate CLAUDE.md enforcement language (replace "ABSOLUTE REQUIREMENT" with "Requirement")
