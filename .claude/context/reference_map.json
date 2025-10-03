@@ -1,0 +1,63 @@
+{
+  "smart_references": {
+    "SESSION_SUMMARY.md": {
+      "essential_sections": [
+        "mandatory-requirements-for-all-ai-agents",
+        "platform-status",
+        "core-metrics"
+      ],
+      "on_demand_sections": [
+        "universal-session-management-commands",
+        "agricultural-robotics-context",
+        "authoritative-iso-11783-references"
+      ],
+      "line_count": 431,
+      "compression_ratio": 0.11
+    },
+    "WORKFLOW.md": {
+      "essential_sections": [
+        "test-execution-commands",
+        "tdd-framework"
+      ],
+      "on_demand_sections": [
+        "complete-test-architecture",
+        "domain-coverage-analysis"
+      ],
+      "line_count": 387,
+      "compression_ratio": 0.08
+    },
+    "CLAUDE.md": {
+      "essential_sections": [
+        "mandatory-requirements",
+        "format-first-generation"
+      ],
+      "on_demand_sections": [
+        "code-documentation-requirements",
+        "development-workflow"
+      ],
+      "line_count": 356,
+      "compression_ratio": 0.14
+    }
+  },
+  "cross_reference_resolution": {
+    "patterns": {
+      "[REQUIREMENTS]": "SESSION_SUMMARY.md#mandatory-requirements-for-all-ai-agents",
+      "[TDD]": "TDD_WORKFLOW.md#test-first-development",
+      "[ISO_11783]": "docs/iso11783-11-online_data_base.pdf",
+      "[TESTING]": "WORKFLOW.md#161-tests-across-3-layer-architecture"
+    }
+  },
+  "expansion_triggers": {
+    "user_requests": [
+      "full context",
+      "complete documentation",
+      "detailed explanation"
+    ],
+    "task_keywords": [
+      "ISO compliance",
+      "agricultural standards",
+      "testing methodology",
+      "architectural details"
+    ]
+  }
+}

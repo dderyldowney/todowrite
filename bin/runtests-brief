@@ -1,0 +1,119 @@
+#!/bin/bash
+
+# runtests-brief - Token-optimized test execution with compressed output
+# Provides essential test results without verbose details
+
+set -e
+
+# Colors for output
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+echo -e "${BLUE}🧪 AFS FastAPI Test Suite (Brief)${NC}"
+echo "================================="
+
+# Check if we should run tests or just show status
+RUN_TESTS=true
+if [[ "$1" == "--status-only" ]]; then
+    RUN_TESTS=false
+fi
+
+if [ "$RUN_TESTS" = true ]; then
+    echo -e "${YELLOW}Running tests...${NC}"
+
+    # Capture test output
+    cd "$PROJECT_ROOT"
+    if command -v pytest >/dev/null 2>&1; then
+        # Run tests and capture results
+        TEST_OUTPUT=$(python -m pytest --tb=no -q 2>&1 || true)
+
+        # Extract key metrics
+        PASSED=$(echo "$TEST_OUTPUT" | grep -o "[0-9]\+ passed" | grep -o "[0-9]\+" || echo "0")
+        FAILED=$(echo "$TEST_OUTPUT" | grep -o "[0-9]\+ failed" | grep -o "[0-9]\+" || echo "0")
+        ERRORS=$(echo "$TEST_OUTPUT" | grep -o "[0-9]\+ error" | grep -o "[0-9]\+" || echo "0")
+        SKIPPED=$(echo "$TEST_OUTPUT" | grep -o "[0-9]\+ skipped" | grep -o "[0-9]\+" || echo "0")
+        XFAIL=$(echo "$TEST_OUTPUT" | grep -o "[0-9]\+ xfailed" | grep -o "[0-9]\+" || echo "0")
+
+        echo
+        echo -e "${GREEN}📊 Test Results:${NC}"
+        echo "   • Passed: ${PASSED}"
+        if [ "$FAILED" -gt 0 ]; then
+            echo -e "   • ${RED}Failed: ${FAILED}${NC}"
+        fi
+        if [ "$ERRORS" -gt 0 ]; then
+            echo -e "   • ${RED}Errors: ${ERRORS}${NC}"
+        fi
+        if [ "$XFAIL" -gt 0 ]; then
+            echo -e "   • ${YELLOW}Expected failures: ${XFAIL}${NC}"
+        fi
+        if [ "$SKIPPED" -gt 0 ]; then
+            echo "   • Skipped: ${SKIPPED}"
+        fi
+
+        # Show only critical failures
+        if [ "$FAILED" -gt 0 ] || [ "$ERRORS" -gt 0 ]; then
+            echo
+            echo -e "${RED}🚨 Critical Issues:${NC}"
+            echo "$TEST_OUTPUT" | grep -E "FAILED|ERROR" | head -5 | sed 's/^/   /'
+            if [ "$(echo "$TEST_OUTPUT" | grep -c -E "FAILED|ERROR")" -gt 5 ]; then
+                echo "   ... and more (use full test output for details)"
+            fi
+        fi
+
+        # Agricultural safety check
+        SAFETY_TESTS=$(echo "$TEST_OUTPUT" | grep -i -E "(safety|agricultural|iso|emergency)" | wc -l | tr -d ' ')
+        if [ "$SAFETY_TESTS" -gt 0 ]; then
+            echo
+            echo -e "${GREEN}🛡️ Safety Systems:${NC}"
+            echo "   • ${SAFETY_TESTS} safety-related tests executed"
+        fi
+
+    else
+        echo -e "${RED}❌ pytest not available${NC}"
+        echo "   Install with: pip install pytest"
+    fi
+else
+    echo -e "${YELLOW}Status check only (not running tests)${NC}"
+fi
+
+# Quality indicators
+echo
+echo -e "${GREEN}🎯 Quality Status:${NC}"
+
+# Check for warnings
+if command -v ruff >/dev/null 2>&1; then
+    WARNINGS=$(ruff check . 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$WARNINGS" -eq 0 ]; then
+        echo "   • Code quality: ✅ Zero warnings"
+    else
+        echo -e "   • Code quality: ${YELLOW}${WARNINGS} warnings${NC}"
+    fi
+fi
+
+# Type checking
+if command -v mypy >/dev/null 2>&1; then
+    TYPE_ERRORS=$(mypy . 2>/dev/null | grep -c "error" 2>/dev/null || echo "0")
+    TYPE_ERRORS=$(echo "$TYPE_ERRORS" | tr -d '\n' | sed 's/[^0-9]//g')
+    TYPE_ERRORS=${TYPE_ERRORS:-0}
+    if [ "$TYPE_ERRORS" -eq 0 ]; then
+        echo "   • Type safety: ✅ No errors"
+    else
+        echo -e "   • Type safety: ${YELLOW}${TYPE_ERRORS} errors${NC}"
+    fi
+fi
+
+echo
+echo -e "${BLUE}💡 Use './bin/runtests' for detailed output${NC}"
+
+# Token optimization stats
+echo
+echo -e "${GREEN}📊 Output Optimization:${NC}"
+echo "   • Brief format: ~15 lines vs full test output"
+echo "   • Token reduction: ~85% estimated"
+echo "   • Agricultural context: Preserved in summary"
