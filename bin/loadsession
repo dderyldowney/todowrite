@@ -121,6 +121,15 @@ echo -e "${YELLOW}Automated pre-commit hooks validate TDD compliance.${NC}"
 echo -e "${YELLOW}Reference: .claude/TDD_MANDATORY_REMINDER.md${NC}"
 echo
 
+echo -e "${GREEN}📋 Dual TODO System Status:${NC}"
+# Load dual TODO context automatically
+if [ -f "${PROJECT_ROOT}/bin/todo-restore" ]; then
+    "${PROJECT_ROOT}/bin/todo-restore" | grep -E "(Strategic|Phase|SESSION PRIORITY|Ready to continue)" | head -10 | sed 's/^/   /'
+else
+    echo "   • TODO System: Available via ./bin/todo-status"
+fi
+echo
+
 echo -e "${GREEN}🎉 Session Context Successfully Restored!${NC}"
 echo
 echo -e "${BLUE}Ready for sophisticated agricultural robotics development.${NC}"
