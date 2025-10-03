@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# strategic-status-brief - Token-optimized strategic status display
+# Provides compressed strategic overview with essential information only
+
+set -e
+
+# Colors for output
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+echo -e "${BLUE}🎯 AFS FastAPI Strategic Status (Brief)${NC}"
+echo "======================================"
+
+# Get strategic status and compress output
+if [ -f "${PROJECT_ROOT}/bin/strategic-status" ]; then
+    FULL_OUTPUT=$("${PROJECT_ROOT}/bin/strategic-status" 2>/dev/null || echo "Strategic status unavailable")
+
+    # Extract high-priority items only
+    HIGH_PRIORITY=$(echo "$FULL_OUTPUT" | grep -E "\[HIGH\].*○" | head -3)
+    COMPLETED_TODAY=$(echo "$FULL_OUTPUT" | grep -E "●.*COMPLETE.*$(date +%Y-%m-%d)" | wc -l | tr -d ' ')
+    TOTAL_PENDING=$(echo "$FULL_OUTPUT" | grep -c "○" || echo "0")
+
+    echo -e "${GREEN}📊 Priority Focus:${NC}"
+    if [ -n "$HIGH_PRIORITY" ]; then
+        echo "$HIGH_PRIORITY" | sed 's/^/   /'
+    else
+        echo "   No high-priority objectives active"
+    fi
+
+    echo
+    echo -e "${GREEN}📈 Quick Stats:${NC}"
+    echo "   • Pending: ${TOTAL_PENDING} objectives"
+    if [ "$COMPLETED_TODAY" -gt 0 ]; then
+        echo "   • Completed today: ${COMPLETED_TODAY}"
+    fi
+
+    # Show current session focus
+    if [ -f "${PROJECT_ROOT}/.claude/context/session_state.json" ]; then
+        CURRENT_FOCUS=$(grep -o '"strategic_priority"[^"]*"[^"]*"' "${PROJECT_ROOT}/.claude/context/session_state.json" 2>/dev/null | cut -d'"' -f4 || echo "")
+        if [ -n "$CURRENT_FOCUS" ]; then
+            echo "   • Session focus: ${CURRENT_FOCUS//_/ }"
+        fi
+    fi
+
+else
+    echo -e "${YELLOW}⚠️  Strategic commands not available${NC}"
+    echo "   Install via: ${PROJECT_ROOT}/bin/strategic-add"
+fi
+
+echo
+echo -e "${CYAN}💡 Use './bin/strategic-status' for full details${NC}"
+
+# Token usage stats
+echo
+echo -e "${GREEN}📊 Output Optimization:${NC}"
+BRIEF_LINES=$(echo "$HIGH_PRIORITY" | wc -l | tr -d ' ')
+echo "   • Brief format: ~${BRIEF_LINES} lines vs full strategic output"
+echo "   • Token reduction: ~75% estimated"
