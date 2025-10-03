@@ -1,0 +1,141 @@
+#!/bin/bash
+
+# phase-add: Add implementation step to current development phase
+# Usage: ./bin/phase-add "Description of phase step"
+
+set -euo pipefail
+
+# Ensure we're in the project root
+if [[ ! -f ".claude/DUAL_TODO_SYSTEM.md" ]]; then
+    echo "Error: Must be run from AFS FastAPI project root directory"
+    exit 1
+fi
+
+# Check if description provided
+if [[ $# -eq 0 ]]; then
+    echo "Usage: $0 \"Description of phase step\""
+    echo ""
+    echo "TDD Methodology Examples:"
+    echo "  $0 \"Investigate existing fleet coordination patterns\""
+    echo "  $0 \"RED phase: Write failing tests for fleet coordination\""
+    echo "  $0 \"GREEN phase: Implement minimal fleet coordination functionality\""
+    echo "  $0 \"REFACTOR phase: Optimize fleet coordination performance\""
+    echo "  $0 \"Integration: Connect fleet coordination with ISOBUS system\""
+    echo "  $0 \"Validation: Test fleet coordination with comprehensive test suite\""
+    echo "  $0 \"Documentation: Document fleet coordination completion with safety compliance\""
+    echo ""
+    echo "Use './bin/phase-status' to check current phase."
+    exit 1
+fi
+
+STEP_DESCRIPTION="$1"
+PHASE_FILE=".claude/phase_todos.json"
+
+# Check if phase file exists and has active phase
+if [[ ! -f "$PHASE_FILE" ]]; then
+    echo "Error: No active development phase found."
+    echo "Use './bin/phase-start \"Phase Name\"' to start a new phase."
+    exit 1
+fi
+
+# Get current timestamp in ISO format
+ISO_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+# Generate unique ID for phase step
+TIMESTAMP=$(date -u +%Y%m%d_%H%M%S)
+RANDOM_ID=$(printf "%04d" $((RANDOM % 10000)))
+NEW_ID="phase-${TIMESTAMP}_${RANDOM_ID}"
+
+# Add step to current phase
+python3 -c "
+import json
+import sys
+from datetime import datetime
+
+# Read current phase data
+try:
+    with open('$PHASE_FILE', 'r') as f:
+        data = json.load(f)
+except FileNotFoundError:
+    print('Error: No phase file found. Use \"./bin/phase-start\" to start a new phase.')
+    sys.exit(1)
+
+# Check if there's an active phase
+current_phase = data.get('current_phase', {})
+if current_phase.get('status') != 'active':
+    print('Error: No active development phase found.')
+    print('Use \"./bin/phase-start\" to start a new phase.')
+    sys.exit(1)
+
+# Determine priority based on step description
+step_desc = '$STEP_DESCRIPTION'.lower()
+if any(keyword in step_desc for keyword in ['red phase', 'failing test', 'test']):
+    priority = 'high'
+elif any(keyword in step_desc for keyword in ['green phase', 'implement', 'minimal']):
+    priority = 'high'
+elif any(keyword in step_desc for keyword in ['investigate', 'analyze', 'design']):
+    priority = 'medium'
+elif any(keyword in step_desc for keyword in ['refactor', 'optimize', 'enhance']):
+    priority = 'medium'
+elif any(keyword in step_desc for keyword in ['document', 'validation', 'integration']):
+    priority = 'medium'
+else:
+    priority = 'medium'
+
+# Estimate time based on step type
+if any(keyword in step_desc for keyword in ['investigate', 'analyze']):
+    estimated_minutes = 30
+elif any(keyword in step_desc for keyword in ['red phase', 'test']):
+    estimated_minutes = 45
+elif any(keyword in step_desc for keyword in ['green phase', 'implement']):
+    estimated_minutes = 60
+elif any(keyword in step_desc for keyword in ['refactor', 'optimize']):
+    estimated_minutes = 45
+elif any(keyword in step_desc for keyword in ['integration', 'validation']):
+    estimated_minutes = 30
+elif any(keyword in step_desc for keyword in ['document']):
+    estimated_minutes = 20
+else:
+    estimated_minutes = 30
+
+# Create new phase step
+new_step = {
+    'id': '$NEW_ID',
+    'content': '$STEP_DESCRIPTION',
+    'status': 'pending',
+    'created_at': '$ISO_TIMESTAMP',
+    'priority': priority,
+    'estimated_minutes': estimated_minutes
+}
+
+# Add to phase todos
+data['todos'].append(new_step)
+
+# Update metadata
+todos = data['todos']
+data['metadata']['last_updated'] = '$ISO_TIMESTAMP'
+data['metadata']['total_phase_todos'] = len(todos)
+data['metadata']['pending_count'] = len([t for t in todos if t['status'] == 'pending'])
+data['metadata']['in_progress_count'] = len([t for t in todos if t['status'] == 'in_progress'])
+data['metadata']['completed_count'] = len([t for t in todos if t['status'] == 'completed'])
+
+# Write back to file
+with open('$PHASE_FILE', 'w') as f:
+    json.dump(data, f, indent=2)
+
+print('✓ Phase step added successfully!')
+print(f'  ID: {new_step[\"id\"]}')
+print(f'  Content: {new_step[\"content\"]}')
+print(f'  Priority: {new_step[\"priority\"]}')
+print(f'  Estimated time: {new_step[\"estimated_minutes\"]} minutes')
+print(f'  Status: {new_step[\"status\"]}')
+print()
+print(f'Phase: {current_phase[\"name\"]}')
+print(f'Total steps: {len(todos)} | Pending: {data[\"metadata\"][\"pending_count\"]} | Completed: {data[\"metadata\"][\"completed_count\"]}')
+"
+
+echo ""
+echo "Use './bin/phase-status' to view all phase steps."
+echo "Use './bin/phase-complete \"Step Description\"' to mark steps as completed."
+# Auto-sync TODO state for session persistence
+./bin/todo-sync --silent 2>/dev/null || true

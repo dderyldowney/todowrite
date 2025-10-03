@@ -1,0 +1,190 @@
+#!/bin/bash
+
+# phase-end: Complete and archive current development phase
+# Usage: ./bin/phase-end
+
+set -euo pipefail
+
+# Ensure we're in the project root
+if [[ ! -f ".claude/DUAL_TODO_SYSTEM.md" ]]; then
+    echo "Error: Must be run from AFS FastAPI project root directory"
+    exit 1
+fi
+
+PHASE_FILE=".claude/phase_todos.json"
+STRATEGIC_FILE=".claude/strategic_todos.json"
+
+# Check if phase file exists
+if [[ ! -f "$PHASE_FILE" ]]; then
+    echo "Error: No development phase found."
+    echo "Use './bin/phase-start \"Phase Name\"' to start a new phase."
+    exit 1
+fi
+
+echo "=== Completing Development Phase ==="
+echo ""
+
+# Get current timestamp in ISO format
+ISO_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+# Check phase status and complete if ready
+python3 -c "
+import json
+import sys
+from datetime import datetime
+
+# Read current phase data
+try:
+    with open('$PHASE_FILE', 'r') as f:
+        data = json.load(f)
+except FileNotFoundError:
+    print('Error: No phase file found.')
+    sys.exit(1)
+
+# Check if there's an active phase
+current_phase = data.get('current_phase', {})
+if current_phase.get('status') != 'active':
+    print('Error: No active development phase found.')
+    print('Use \"./bin/phase-start\" to start a new phase.')
+    sys.exit(1)
+
+todos = data.get('todos', [])
+metadata = data.get('metadata', {})
+
+# Check if all todos are completed
+pending_count = len([t for t in todos if t['status'] == 'pending'])
+in_progress_count = len([t for t in todos if t['status'] == 'in_progress'])
+completed_count = len([t for t in todos if t['status'] == 'completed'])
+total_count = len(todos)
+
+phase_name = current_phase.get('name', 'Unknown Phase')
+strategic_id = current_phase.get('strategic_todo_id')
+
+print(f'Phase: {phase_name}')
+print(f'Total steps: {total_count}')
+print(f'Completed: {completed_count}')
+print(f'Pending: {pending_count}')
+print(f'In Progress: {in_progress_count}')
+print()
+
+# Warn if not all todos are completed
+if pending_count > 0 or in_progress_count > 0:
+    print('⚠️  Warning: Phase has incomplete steps!')
+    print()
+
+    # Show incomplete items
+    incomplete_todos = [t for t in todos if t['status'] in ['pending', 'in_progress']]
+    print('Incomplete steps:')
+    for todo in incomplete_todos[:5]:  # Show first 5
+        status_icon = '◐' if todo['status'] == 'in_progress' else '○'
+        print(f'  {status_icon} {todo[\"content\"]}')
+
+    if len(incomplete_todos) > 5:
+        print(f'  ... and {len(incomplete_todos) - 5} more')
+    print()
+
+    print('Options:')
+    print('1. Complete remaining steps with \"./bin/phase-complete\"')
+    print('2. Force end phase anyway (type \"force\" below)')
+    print('3. Cancel and continue working on phase (press Enter)')
+    print()
+
+    choice = input('Enter choice: ').strip().lower()
+    if choice != 'force':
+        print('Phase ending cancelled. Continue working on remaining steps.')
+        sys.exit(0)
+
+    print('Force ending phase with incomplete steps...')
+    print()
+
+# Calculate phase duration
+started_at = current_phase.get('started_at', '$ISO_TIMESTAMP')
+if started_at and 'T' in started_at:
+    start_date = started_at[:10]
+    end_date = '$ISO_TIMESTAMP'[:10]
+    print(f'Phase duration: {start_date} to {end_date}')
+
+# Update strategic TODO if aligned
+strategic_updated = False
+if strategic_id:
+    try:
+        with open('$STRATEGIC_FILE', 'r') as f:
+            strategic_data = json.load(f)
+
+        strategic_todos = strategic_data.get('todos', [])
+        strategic_todo = next((t for t in strategic_todos if t['id'] == strategic_id), None)
+
+        if strategic_todo and strategic_todo['status'] == 'pending':
+            # Only mark strategic as completed if phase is fully completed
+            if pending_count == 0 and in_progress_count == 0:
+                strategic_todo['status'] = 'completed'
+                strategic_todo['completed_at'] = '$ISO_TIMESTAMP'
+
+                # Update strategic metadata
+                strategic_data['metadata']['last_updated'] = '$ISO_TIMESTAMP'
+                strategic_data['metadata']['pending_count'] = len([t for t in strategic_todos if t['status'] == 'pending'])
+                strategic_data['metadata']['completed_count'] = len([t for t in strategic_todos if t['status'] == 'completed'])
+
+                # Write strategic file
+                with open('$STRATEGIC_FILE', 'w') as f:
+                    json.dump(strategic_data, f, indent=2)
+
+                strategic_updated = True
+                print(f'✓ Strategic objective completed: {strategic_todo[\"content\"]}')
+            else:
+                print(f'ℹ️  Strategic objective \"{strategic_id}\" remains pending (phase had incomplete steps)')
+    except Exception as e:
+        print(f'Warning: Could not update strategic TODO: {e}')
+
+# Archive current phase
+archived_phase = current_phase.copy()
+archived_phase.update({
+    'status': 'completed',
+    'completed_at': '$ISO_TIMESTAMP',
+    'final_stats': {
+        'total_steps': total_count,
+        'completed_steps': completed_count,
+        'pending_steps': pending_count,
+        'in_progress_steps': in_progress_count,
+        'completion_percentage': (completed_count / total_count * 100) if total_count > 0 else 0
+    }
+})
+
+# Reset phase file for next phase
+reset_data = {
+    'current_phase': {
+        'status': 'none',
+        'last_completed_phase': archived_phase
+    },
+    'todos': [],
+    'metadata': {
+        'last_updated': '$ISO_TIMESTAMP',
+        'version': '1.0.0',
+        'total_phase_todos': 0,
+        'completed_count': 0,
+        'in_progress_count': 0,
+        'pending_count': 0
+    }
+}
+
+# Write reset phase file
+with open('$PHASE_FILE', 'w') as f:
+    json.dump(reset_data, f, indent=2)
+
+print()
+print('🎉 Phase completed and archived!')
+print(f'   Phase: {phase_name}')
+print(f'   Completion: {completed_count}/{total_count} steps ({archived_phase[\"final_stats\"][\"completion_percentage\"]:.1f}%)')
+print(f'   Completed at: $ISO_TIMESTAMP')
+
+if strategic_updated:
+    print(f'   Strategic objective marked as completed')
+
+print()
+print('Next steps:')
+print('1. Use \"./bin/strategic-list\" to see remaining strategic objectives')
+print('2. Use \"./bin/phase-start\" to begin next development phase')
+print('3. Use \"./bin/todo-status\" for overall development status')
+"
+# Auto-sync TODO state for session persistence
+./bin/todo-sync --silent 2>/dev/null || true

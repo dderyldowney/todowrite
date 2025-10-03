@@ -1,0 +1,94 @@
+#!/bin/bash
+
+# strategic-add: Add new strategic TODO item for agricultural robotics development
+# Usage: ./bin/strategic-add "Description of strategic objective"
+
+set -euo pipefail
+
+# Ensure we're in the project root
+if [[ ! -f ".claude/DUAL_TODO_SYSTEM.md" ]]; then
+    echo "Error: Must be run from AFS FastAPI project root directory"
+    exit 1
+fi
+
+# Check if description provided
+if [[ $# -eq 0 ]]; then
+    echo "Usage: $0 \"Description of strategic objective\""
+    echo ""
+    echo "Examples:"
+    echo "  $0 \"Implement precision agriculture variable rate application\""
+    echo "  $0 \"Add autonomous navigation with obstacle avoidance\""
+    echo "  $0 \"Develop real-time crop monitoring integration\""
+    exit 1
+fi
+
+DESCRIPTION="$1"
+STRATEGIC_FILE=".claude/strategic_todos.json"
+
+# Generate unique ID based on timestamp and random component
+TIMESTAMP=$(date -u +%Y%m%d_%H%M%S)
+RANDOM_ID=$(printf "%04d" $((RANDOM % 10000)))
+NEW_ID="strategic-${TIMESTAMP}_${RANDOM_ID}"
+
+# Get current timestamp in ISO format
+ISO_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+# Create strategic todos file if it doesn't exist
+if [[ ! -f "$STRATEGIC_FILE" ]]; then
+    cat > "$STRATEGIC_FILE" <<EOF
+{
+  "todos": [],
+  "metadata": {
+    "last_updated": "$ISO_TIMESTAMP",
+    "version": "1.0.0",
+    "total_strategic_todos": 0,
+    "completed_count": 0,
+    "pending_count": 0
+  }
+}
+EOF
+fi
+
+# Use Python to add the new strategic TODO
+python3 -c "
+import json
+import sys
+from datetime import datetime
+
+# Read current todos
+with open('$STRATEGIC_FILE', 'r') as f:
+    data = json.load(f)
+
+# Create new todo item
+new_todo = {
+    'id': '$NEW_ID',
+    'content': '$DESCRIPTION',
+    'status': 'pending',
+    'created_at': '$ISO_TIMESTAMP',
+    'priority': 'medium',
+    'category': 'general'
+}
+
+# Add to todos list
+data['todos'].append(new_todo)
+
+# Update metadata
+data['metadata']['last_updated'] = '$ISO_TIMESTAMP'
+data['metadata']['total_strategic_todos'] = len(data['todos'])
+data['metadata']['pending_count'] = len([t for t in data['todos'] if t['status'] == 'pending'])
+data['metadata']['completed_count'] = len([t for t in data['todos'] if t['status'] == 'completed'])
+
+# Write back to file
+with open('$STRATEGIC_FILE', 'w') as f:
+    json.dump(data, f, indent=2)
+
+print(f'✓ Strategic TODO added: {new_todo[\"id\"]}')
+print(f'  Content: {new_todo[\"content\"]}')
+print(f'  Status: {new_todo[\"status\"]}')
+print(f'  Priority: {new_todo[\"priority\"]}')
+"
+
+echo ""
+echo "Strategic TODO added successfully. Use './bin/strategic-list' to view all strategic objectives."
+# Auto-sync TODO state for session persistence
+./bin/todo-sync --silent 2>/dev/null || true

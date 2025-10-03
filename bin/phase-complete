@@ -1,0 +1,130 @@
+#!/bin/bash
+
+# phase-complete: Mark phase step as completed
+# Usage: ./bin/phase-complete "Description or ID of phase step"
+
+set -euo pipefail
+
+# Ensure we're in the project root
+if [[ ! -f ".claude/DUAL_TODO_SYSTEM.md" ]]; then
+    echo "Error: Must be run from AFS FastAPI project root directory"
+    exit 1
+fi
+
+# Check if description/ID provided
+if [[ $# -eq 0 ]]; then
+    echo "Usage: $0 \"Description or ID of phase step\""
+    echo ""
+    echo "Examples:"
+    echo "  $0 \"RED phase: Write failing tests for fleet coordination\""
+    echo "  $0 \"phase-20251003_070000_1234\""
+    echo ""
+    echo "Use './bin/phase-status' to see current phase steps."
+    exit 1
+fi
+
+SEARCH_TERM="$1"
+PHASE_FILE=".claude/phase_todos.json"
+
+# Check if phase file exists
+if [[ ! -f "$PHASE_FILE" ]]; then
+    echo "Error: No development phase found."
+    echo "Use './bin/phase-start \"Phase Name\"' to start a new phase."
+    exit 1
+fi
+
+# Get current timestamp in ISO format
+ISO_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+# Mark phase step as completed
+python3 -c "
+import json
+import sys
+from datetime import datetime
+
+# Read current phase data
+try:
+    with open('$PHASE_FILE', 'r') as f:
+        data = json.load(f)
+except FileNotFoundError:
+    print('Error: No phase file found.')
+    sys.exit(1)
+
+# Check if there's an active phase
+current_phase = data.get('current_phase', {})
+if current_phase.get('status') != 'active':
+    print('Error: No active development phase found.')
+    print('Use \"./bin/phase-start\" to start a new phase.')
+    sys.exit(1)
+
+search_term = '$SEARCH_TERM'
+todos = data.get('todos', [])
+
+# Find matching todo by ID or content
+matched_todo = None
+for todo in todos:
+    # Check if search term matches ID exactly
+    if todo['id'] == search_term:
+        matched_todo = todo
+        break
+    # Check if search term is contained in content (case insensitive)
+    elif search_term.lower() in todo['content'].lower():
+        matched_todo = todo
+        break
+
+if not matched_todo:
+    print(f'Error: No phase step found matching \"{search_term}\"')
+    print('Use \"./bin/phase-status\" to see current phase steps.')
+    sys.exit(1)
+
+# Check if already completed
+if matched_todo['status'] == 'completed':
+    print(f'Phase step already completed: {matched_todo[\"content\"]}')
+    print(f'Completed at: {matched_todo.get(\"completed_at\", \"Unknown\")}')
+    sys.exit(0)
+
+# Mark as completed
+matched_todo['status'] = 'completed'
+matched_todo['completed_at'] = '$ISO_TIMESTAMP'
+
+# Update metadata
+data['metadata']['last_updated'] = '$ISO_TIMESTAMP'
+data['metadata']['pending_count'] = len([t for t in todos if t['status'] == 'pending'])
+data['metadata']['in_progress_count'] = len([t for t in todos if t['status'] == 'in_progress'])
+data['metadata']['completed_count'] = len([t for t in todos if t['status'] == 'completed'])
+
+# Write back to file
+with open('$PHASE_FILE', 'w') as f:
+    json.dump(data, f, indent=2)
+
+print('✓ Phase step marked as completed!')
+print(f'  ID: {matched_todo[\"id\"]}')
+print(f'  Content: {matched_todo[\"content\"]}')
+print(f'  Completed at: {matched_todo[\"completed_at\"]}')
+print(f'  Priority: {matched_todo[\"priority\"]}')
+if 'estimated_minutes' in matched_todo:
+    print(f'  Estimated time: {matched_todo[\"estimated_minutes\"]} minutes')
+print()
+
+# Show phase progress
+phase_name = current_phase.get('name', 'Unknown Phase')
+total_todos = len(todos)
+completed_count = data['metadata']['completed_count']
+pending_count = data['metadata']['pending_count']
+progress_percentage = (completed_count / total_todos * 100) if total_todos > 0 else 0
+
+print(f'Phase: {phase_name}')
+print(f'Progress: {completed_count}/{total_todos} steps completed ({progress_percentage:.1f}%)')
+print(f'Remaining: {pending_count} pending steps')
+
+# Check if phase is complete
+if pending_count == 0 and data['metadata']['in_progress_count'] == 0:
+    print()
+    print('🎉 All phase steps completed!')
+    print('Consider using \"./bin/phase-end\" to archive this phase and update strategic progress.')
+"
+
+echo ""
+echo "Use './bin/phase-status' to view updated phase progress."
+# Auto-sync TODO state for session persistence
+./bin/todo-sync --silent 2>/dev/null || true

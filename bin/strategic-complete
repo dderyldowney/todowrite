@@ -1,0 +1,98 @@
+#!/bin/bash
+
+# strategic-complete: Mark strategic TODO item as completed
+# Usage: ./bin/strategic-complete "Description or ID of strategic objective"
+
+set -euo pipefail
+
+# Ensure we're in the project root
+if [[ ! -f ".claude/DUAL_TODO_SYSTEM.md" ]]; then
+    echo "Error: Must be run from AFS FastAPI project root directory"
+    exit 1
+fi
+
+# Check if description/ID provided
+if [[ $# -eq 0 ]]; then
+    echo "Usage: $0 \"Description or ID of strategic objective\""
+    echo ""
+    echo "Examples:"
+    echo "  $0 \"Phase 6 ISOBUS guaranteed delivery\""
+    echo "  $0 \"strategic-20251003_064500_1234\""
+    echo ""
+    echo "Use './bin/strategic-list' to see available strategic TODOs."
+    exit 1
+fi
+
+SEARCH_TERM="$1"
+STRATEGIC_FILE=".claude/strategic_todos.json"
+
+# Check if strategic todos file exists
+if [[ ! -f "$STRATEGIC_FILE" ]]; then
+    echo "Error: No strategic TODOs file found. Use './bin/strategic-add' to create strategic objectives."
+    exit 1
+fi
+
+# Get current timestamp in ISO format
+ISO_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+# Use Python to mark strategic TODO as completed
+python3 -c "
+import json
+import sys
+import re
+from datetime import datetime
+
+# Read current todos
+with open('$STRATEGIC_FILE', 'r') as f:
+    data = json.load(f)
+
+search_term = '$SEARCH_TERM'
+todos = data.get('todos', [])
+
+# Find matching todo by ID or content
+matched_todo = None
+for todo in todos:
+    # Check if search term matches ID exactly
+    if todo['id'] == search_term:
+        matched_todo = todo
+        break
+    # Check if search term is contained in content (case insensitive)
+    elif search_term.lower() in todo['content'].lower():
+        matched_todo = todo
+        break
+
+if not matched_todo:
+    print(f'Error: No strategic TODO found matching \"{search_term}\"')
+    print('Use \"./bin/strategic-list\" to see available strategic TODOs.')
+    sys.exit(1)
+
+# Check if already completed
+if matched_todo['status'] == 'completed':
+    print(f'Strategic TODO already completed: {matched_todo[\"content\"]}')
+    print(f'Completed at: {matched_todo.get(\"completed_at\", \"Unknown\")}')
+    sys.exit(0)
+
+# Mark as completed
+matched_todo['status'] = 'completed'
+matched_todo['completed_at'] = '$ISO_TIMESTAMP'
+
+# Update metadata
+data['metadata']['last_updated'] = '$ISO_TIMESTAMP'
+data['metadata']['pending_count'] = len([t for t in todos if t['status'] == 'pending'])
+data['metadata']['completed_count'] = len([t for t in todos if t['status'] == 'completed'])
+
+# Write back to file
+with open('$STRATEGIC_FILE', 'w') as f:
+    json.dump(data, f, indent=2)
+
+print('✓ Strategic TODO marked as completed!')
+print(f'  ID: {matched_todo[\"id\"]}')
+print(f'  Content: {matched_todo[\"content\"]}')
+print(f'  Completed at: {matched_todo[\"completed_at\"]}')
+print(f'  Category: {matched_todo.get(\"category\", \"general\")}')
+"
+
+echo ""
+echo "Strategic TODO completed successfully. Use './bin/strategic-list' to view updated strategic objectives."
+# Auto-sync TODO state for session persistence
+./bin/todo-sync --silent 2>/dev/null || true

@@ -1,0 +1,268 @@
+#!/bin/bash
+
+# todo-status: Display comprehensive overview of both strategic and phase TODOs
+# Usage: ./bin/todo-status
+
+set -euo pipefail
+
+# Ensure we're in the project root
+if [[ ! -f ".claude/DUAL_TODO_SYSTEM.md" ]]; then
+    echo "Error: Must be run from AFS FastAPI project root directory"
+    exit 1
+fi
+
+STRATEGIC_FILE=".claude/strategic_todos.json"
+PHASE_FILE=".claude/phase_todos.json"
+
+echo "=== AFS FastAPI Dual TODO System Status ==="
+echo ""
+
+# Use Python to display comprehensive TODO status
+python3 -c "
+import json
+import sys
+from datetime import datetime, timezone
+from collections import defaultdict
+
+# Read strategic todos
+strategic_data = {}
+strategic_todos = []
+try:
+    if open('$STRATEGIC_FILE', 'r'):
+        with open('$STRATEGIC_FILE', 'r') as f:
+            strategic_data = json.load(f)
+        strategic_todos = strategic_data.get('todos', [])
+except:
+    pass
+
+# Read phase todos
+phase_data = {}
+phase_todos = []
+current_phase = {}
+try:
+    if open('$PHASE_FILE', 'r'):
+        with open('$PHASE_FILE', 'r') as f:
+            phase_data = json.load(f)
+        phase_todos = phase_data.get('todos', [])
+        current_phase = phase_data.get('current_phase', {})
+except:
+    pass
+
+# Strategic overview
+print('🎯 STRATEGIC DEVELOPMENT MOMENTUM')
+print('='*50)
+
+if strategic_todos:
+    strategic_pending = len([t for t in strategic_todos if t['status'] == 'pending'])
+    strategic_completed = len([t for t in strategic_todos if t['status'] == 'completed'])
+    strategic_total = len(strategic_todos)
+    strategic_progress = (strategic_completed / strategic_total * 100) if strategic_total > 0 else 0
+
+    print(f'Total Strategic Objectives: {strategic_total}')
+    print(f'Completed: {strategic_completed} ({strategic_progress:.1f}%)')
+    print(f'Pending: {strategic_pending}')
+    print()
+
+    # Strategic progress bar
+    bar_width = 40
+    completed_bars = int(strategic_progress / 100 * bar_width)
+    pending_bars = bar_width - completed_bars
+    progress_bar = '█' * completed_bars + '░' * pending_bars
+    print(f'Progress: [{progress_bar}] {strategic_progress:.1f}%')
+    print()
+
+    # Show next 3 high-priority strategic objectives
+    high_priority_pending = [
+        t for t in strategic_todos
+        if t['status'] == 'pending' and t.get('priority') == 'high'
+    ]
+
+    if high_priority_pending:
+        print('Next High-Priority Strategic Objectives:')
+        for i, todo in enumerate(high_priority_pending[:3], 1):
+            category = todo.get('category', 'general')
+            print(f'  {i}. {todo[\"content\"]} ({category})')
+        print()
+
+    # Recent strategic completions
+    recent_strategic = [
+        t for t in strategic_todos
+        if t['status'] == 'completed' and 'completed_at' in t
+    ]
+    recent_strategic.sort(key=lambda x: x['completed_at'], reverse=True)
+
+    if recent_strategic:
+        print('Recent Strategic Completions:')
+        for todo in recent_strategic[:2]:
+            completed_date = todo['completed_at'][:10]
+            print(f'  ✓ {todo[\"content\"]} ({completed_date})')
+        print()
+else:
+    print('No strategic objectives found.')
+    print('Use \"./bin/strategic-add\" to create strategic development goals.')
+    print()
+
+# Phase overview
+print('🔄 CURRENT PHASE IMPLEMENTATION')
+print('='*50)
+
+if current_phase.get('status') == 'active':
+    phase_name = current_phase.get('name', 'Unknown Phase')
+    strategic_id = current_phase.get('strategic_todo_id')
+    started_at = current_phase.get('started_at', '')
+
+    print(f'Active Phase: {phase_name}')
+
+    # Show strategic alignment
+    if strategic_id:
+        aligned_strategic = next((t for t in strategic_todos if t['id'] == strategic_id), None)
+        if aligned_strategic:
+            print(f'Strategic Alignment: {aligned_strategic[\"content\"]}')
+
+    # Format start date
+    if started_at and 'T' in started_at:
+        start_date = started_at[:10]
+        start_time = started_at[11:16]
+        print(f'Started: {start_date} at {start_time} UTC')
+
+    print()
+
+    if phase_todos:
+        phase_pending = len([t for t in phase_todos if t['status'] == 'pending'])
+        phase_in_progress = len([t for t in phase_todos if t['status'] == 'in_progress'])
+        phase_completed = len([t for t in phase_todos if t['status'] == 'completed'])
+        phase_total = len(phase_todos)
+        phase_progress = (phase_completed / phase_total * 100) if phase_total > 0 else 0
+
+        print(f'Phase Steps: {phase_total} total')
+        print(f'Completed: {phase_completed} ({phase_progress:.1f}%)')
+        print(f'In Progress: {phase_in_progress}')
+        print(f'Pending: {phase_pending}')
+        print()
+
+        # Phase progress bar
+        completed_bars = int(phase_progress / 100 * bar_width)
+        pending_bars = bar_width - completed_bars
+        phase_bar = '█' * completed_bars + '░' * pending_bars
+        print(f'Progress: [{phase_bar}] {phase_progress:.1f}%')
+        print()
+
+        # Show current and next steps
+        in_progress_steps = [t for t in phase_todos if t['status'] == 'in_progress']
+        if in_progress_steps:
+            print('Currently Working On:')
+            for step in in_progress_steps:
+                time_info = f' (~{step[\"estimated_minutes\"]}min)' if 'estimated_minutes' in step else ''
+                print(f'  ◐ {step[\"content\"]}{time_info}')
+            print()
+
+        pending_steps = [t for t in phase_todos if t['status'] == 'pending']
+        if pending_steps:
+            # Sort by priority
+            priority_order = {'high': 0, 'medium': 1, 'low': 2}
+            pending_steps.sort(key=lambda x: priority_order.get(x.get('priority', 'medium'), 999))
+
+            print('Next Steps:')
+            for step in pending_steps[:3]:
+                priority_marker = {'high': '[HIGH]', 'medium': '[MED]', 'low': '[LOW]'}.get(step.get('priority', 'medium'), '')
+                time_info = f' (~{step[\"estimated_minutes\"]}min)' if 'estimated_minutes' in step else ''
+                print(f'  ○ {priority_marker} {step[\"content\"]}{time_info}')
+
+            if len(pending_steps) > 3:
+                print(f'  ... and {len(pending_steps) - 3} more pending steps')
+            print()
+
+        # Time estimates
+        remaining_steps = [t for t in phase_todos if t['status'] in ['pending', 'in_progress']]
+        if remaining_steps:
+            total_estimated_time = sum(t.get('estimated_minutes', 30) for t in remaining_steps)
+            hours = total_estimated_time // 60
+            minutes = total_estimated_time % 60
+
+            if hours > 0:
+                print(f'Estimated time remaining: {hours}h {minutes}m')
+            else:
+                print(f'Estimated time remaining: {minutes}m')
+            print()
+
+        # Phase completion status
+        if phase_pending == 0 and phase_in_progress == 0:
+            print('🎉 Phase ready for completion!')
+            print('Use \"./bin/phase-end\" to archive this phase.')
+    else:
+        print('No phase steps found.')
+        print('Use \"./bin/phase-add\" to add implementation steps.')
+else:
+    print('No active development phase.')
+    print('Use \"./bin/phase-start\" to begin new development phase.')
+    print()
+
+    # Show last completed phase if available
+    last_phase = current_phase.get('last_completed_phase')
+    if last_phase:
+        phase_name = last_phase.get('name', 'Unknown Phase')
+        completed_at = last_phase.get('completed_at', '')
+        final_stats = last_phase.get('final_stats', {})
+
+        if completed_at and 'T' in completed_at:
+            completed_date = completed_at[:10]
+            print(f'Last Completed Phase: {phase_name} ({completed_date})')
+
+            if final_stats:
+                completion_pct = final_stats.get('completion_percentage', 0)
+                total_steps = final_stats.get('total_steps', 0)
+                completed_steps = final_stats.get('completed_steps', 0)
+                print(f'Final Status: {completed_steps}/{total_steps} steps ({completion_pct:.1f}%)')
+            print()
+
+# Overall system status
+print('📊 DEVELOPMENT SYSTEM OVERVIEW')
+print('='*50)
+
+total_strategic = len(strategic_todos)
+total_phase = len(phase_todos)
+active_phase_count = 1 if current_phase.get('status') == 'active' else 0
+
+print(f'Strategic Objectives: {total_strategic}')
+print(f'Active Development Phases: {active_phase_count}')
+print(f'Current Phase Steps: {total_phase}')
+print()
+
+# Show command quick reference
+print('💡 QUICK COMMAND REFERENCE')
+print('='*50)
+print('Strategic Management:')
+print('  ./bin/strategic-list                    - View strategic objectives')
+print('  ./bin/strategic-add \"Objective\"         - Add strategic objective')
+print('  ./bin/strategic-status                  - Strategic overview')
+print()
+print('Phase Management:')
+print('  ./bin/phase-start \"Phase Name\"          - Start new phase')
+print('  ./bin/phase-status                      - Current phase details')
+print('  ./bin/phase-add \"Step\"                  - Add implementation step')
+print('  ./bin/phase-complete \"Step\"             - Mark step completed')
+print()
+print('Integrated Management:')
+print('  ./bin/todo-handoff                      - Prepare session handoff')
+print('  ./bin/todo-restore                      - Restore development context')
+print()
+
+# Last updated information
+strategic_updated = strategic_data.get('metadata', {}).get('last_updated', 'Unknown')
+phase_updated = phase_data.get('metadata', {}).get('last_updated', 'Unknown')
+
+latest_update = 'Unknown'
+if strategic_updated != 'Unknown' and phase_updated != 'Unknown':
+    latest_update = max(strategic_updated, phase_updated)
+elif strategic_updated != 'Unknown':
+    latest_update = strategic_updated
+elif phase_updated != 'Unknown':
+    latest_update = phase_updated
+
+if latest_update != 'Unknown' and 'T' in latest_update:
+    update_date = latest_update[:10]
+    update_time = latest_update[11:16]
+    print(f'System Last Updated: {update_date} {update_time} UTC')
+"
+# Auto-sync TODO state for session persistence
+./bin/todo-sync --silent 2>/dev/null || true

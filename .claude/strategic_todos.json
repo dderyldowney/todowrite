@@ -1,0 +1,68 @@
+{
+  "todos": [
+    {
+      "id": "strategic-001",
+      "content": "Phase 6 ISOBUS guaranteed delivery - COMPLETE (enterprise-grade reliability achieved)",
+      "status": "completed",
+      "created_at": "2025-10-03T06:00:00Z",
+      "completed_at": "2025-10-03T06:45:00Z",
+      "priority": "high",
+      "category": "equipment"
+    },
+    {
+      "id": "strategic-002",
+      "content": "Advance to Phase 7 agricultural robotics enhancement",
+      "status": "pending",
+      "created_at": "2025-10-03T06:45:00Z",
+      "priority": "high",
+      "category": "equipment"
+    },
+    {
+      "id": "strategic-003",
+      "content": "Implement cloud integration for agricultural data services",
+      "status": "pending",
+      "created_at": "2025-10-03T06:45:00Z",
+      "priority": "medium",
+      "category": "api"
+    },
+    {
+      "id": "strategic-004",
+      "content": "Add IoT sensor network integration with guaranteed delivery",
+      "status": "pending",
+      "created_at": "2025-10-03T06:45:00Z",
+      "priority": "medium",
+      "category": "monitoring"
+    },
+    {
+      "id": "strategic-005",
+      "content": "Develop advanced fleet coordination capabilities",
+      "status": "pending",
+      "created_at": "2025-10-03T06:45:00Z",
+      "priority": "high",
+      "category": "coordination"
+    },
+    {
+      "id": "strategic-006",
+      "content": "Create comprehensive user documentation for agricultural engineers",
+      "status": "pending",
+      "created_at": "2025-10-03T06:45:00Z",
+      "priority": "low",
+      "category": "docs"
+    },
+    {
+      "id": "strategic-20251003_110549_2237",
+      "content": "Test objective for dual TODO system validation",
+      "status": "pending",
+      "created_at": "2025-10-03T11:05:49Z",
+      "priority": "medium",
+      "category": "general"
+    }
+  ],
+  "metadata": {
+    "last_updated": "2025-10-03T11:05:49Z",
+    "version": "1.0.0",
+    "total_strategic_todos": 7,
+    "completed_count": 1,
+    "pending_count": 6
+  }
+}

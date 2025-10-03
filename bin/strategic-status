@@ -1,0 +1,151 @@
+#!/bin/bash
+
+# strategic-status: Display strategic TODO overview and progress summary
+# Usage: ./bin/strategic-status
+
+set -euo pipefail
+
+# Ensure we're in the project root
+if [[ ! -f ".claude/DUAL_TODO_SYSTEM.md" ]]; then
+    echo "Error: Must be run from AFS FastAPI project root directory"
+    exit 1
+fi
+
+STRATEGIC_FILE=".claude/strategic_todos.json"
+
+# Check if strategic todos file exists
+if [[ ! -f "$STRATEGIC_FILE" ]]; then
+    echo "=== AFS FastAPI Strategic Status ==="
+    echo ""
+    echo "No strategic TODOs found."
+    echo "Use './bin/strategic-add \"Description\"' to create strategic objectives."
+    exit 0
+fi
+
+echo "=== AFS FastAPI Strategic Development Status ==="
+echo ""
+
+# Use Python to generate strategic status overview
+python3 -c "
+import json
+import sys
+from datetime import datetime, timezone
+from collections import defaultdict
+
+# Read strategic todos
+with open('$STRATEGIC_FILE', 'r') as f:
+    data = json.load(f)
+
+todos = data.get('todos', [])
+metadata = data.get('metadata', {})
+
+if not todos:
+    print('No strategic TODOs found.')
+    print('Use \"./bin/strategic-add\" to create strategic objectives.')
+    sys.exit(0)
+
+# Calculate statistics
+total_todos = len(todos)
+pending_count = len([t for t in todos if t['status'] == 'pending'])
+completed_count = len([t for t in todos if t['status'] == 'completed'])
+in_progress_count = len([t for t in todos if t['status'] == 'in_progress'])
+
+# Calculate progress percentage
+progress_percentage = (completed_count / total_todos * 100) if total_todos > 0 else 0
+
+# Category breakdown
+category_stats = defaultdict(lambda: {'pending': 0, 'completed': 0, 'in_progress': 0})
+priority_stats = defaultdict(lambda: {'pending': 0, 'completed': 0, 'in_progress': 0})
+
+for todo in todos:
+    category = todo.get('category', 'general')
+    priority = todo.get('priority', 'medium')
+    status = todo['status']
+
+    category_stats[category][status] += 1
+    priority_stats[priority][status] += 1
+
+# Display overall progress
+print('📊 Overall Strategic Progress')
+print(f'   Total Strategic Objectives: {total_todos}')
+print(f'   Completed: {completed_count} ({progress_percentage:.1f}%)')
+print(f'   In Progress: {in_progress_count}')
+print(f'   Pending: {pending_count}')
+print()
+
+# Progress bar
+bar_width = 40
+completed_bars = int(progress_percentage / 100 * bar_width)
+pending_bars = bar_width - completed_bars
+
+progress_bar = '█' * completed_bars + '░' * pending_bars
+print(f'   Progress: [{progress_bar}] {progress_percentage:.1f}%')
+print()
+
+# Category breakdown
+if category_stats:
+    print('📁 Category Breakdown')
+    for category, stats in sorted(category_stats.items()):
+        total_cat = sum(stats.values())
+        completed_cat = stats['completed']
+        cat_progress = (completed_cat / total_cat * 100) if total_cat > 0 else 0
+
+        print(f'   {category.title():12} | Total: {total_cat:2} | Complete: {completed_cat:2} ({cat_progress:4.1f}%) | Pending: {stats[\"pending\"]:2}')
+    print()
+
+# Priority breakdown
+if priority_stats:
+    print('⚡ Priority Breakdown')
+    for priority in ['high', 'medium', 'low']:
+        if priority in priority_stats:
+            stats = priority_stats[priority]
+            total_pri = sum(stats.values())
+            completed_pri = stats['completed']
+            pri_progress = (completed_pri / total_pri * 100) if total_pri > 0 else 0
+
+            priority_icon = {'high': '🔴', 'medium': '🟡', 'low': '🟢'}.get(priority, '⚪')
+            print(f'   {priority_icon} {priority.title():6} | Total: {total_pri:2} | Complete: {completed_pri:2} ({pri_progress:4.1f}%) | Pending: {stats[\"pending\"]:2}')
+    print()
+
+# Recent completions (last 5)
+recent_completed = [
+    t for t in todos
+    if t['status'] == 'completed' and 'completed_at' in t
+]
+recent_completed.sort(key=lambda x: x['completed_at'], reverse=True)
+
+if recent_completed:
+    print('🎉 Recent Completions')
+    for todo in recent_completed[:5]:
+        completed_date = todo['completed_at'][:10]  # YYYY-MM-DD
+        priority_marker = {'high': '[HIGH]', 'medium': '[MED]', 'low': '[LOW]'}.get(todo['priority'], '[???]')
+        print(f'   {completed_date} {priority_marker} {todo[\"content\"]}')
+    print()
+
+# Next high-priority pending items
+high_priority_pending = [
+    t for t in todos
+    if t['status'] == 'pending' and t.get('priority') == 'high'
+]
+
+if high_priority_pending:
+    print('🎯 Next High-Priority Objectives')
+    for todo in high_priority_pending[:3]:
+        category = todo.get('category', 'general')
+        print(f'   • {todo[\"content\"]} ({category})')
+    print()
+
+# Metadata
+last_updated = metadata.get('last_updated', 'Unknown')
+if last_updated != 'Unknown' and 'T' in last_updated:
+    last_updated = last_updated[:10]  # Show just date
+
+print(f'📅 Last Updated: {last_updated}')
+print(f'🏗️  Platform Version: AFS FastAPI v{metadata.get(\"version\", \"1.0.0\")}')
+"
+
+echo ""
+echo "Use './bin/strategic-list' to view detailed strategic objectives."
+echo "Use './bin/strategic-add \"Description\"' to add new strategic objectives."
+# Auto-sync TODO state for session persistence
+./bin/todo-sync --silent 2>/dev/null || true
