@@ -35,6 +35,14 @@ import time
 import uuid
 from pathlib import Path
 
+# Import mandatory optimization enforcement
+try:
+    sys.path.insert(0, str(Path(__file__).parent))
+    from mandatory_optimization_enforcement import initialize_mandatory_optimization
+    OPTIMIZATION_ENFORCEMENT_AVAILABLE = True
+except ImportError:
+    OPTIMIZATION_ENFORCEMENT_AVAILABLE = False
+
 
 class UniversalSessionInitializationHook:
     """
@@ -203,13 +211,65 @@ class UniversalSessionInitializationHook:
             print(f"❌ loadsession execution error: {e}", file=sys.stderr)
             return False
 
+    def _initialize_mandatory_optimization(self) -> bool:
+        """Initialize mandatory token optimization enforcement."""
+        if not OPTIMIZATION_ENFORCEMENT_AVAILABLE:
+            return False
+
+        try:
+            success = initialize_mandatory_optimization()
+            return success
+        except Exception:
+            return False
+
+    def _display_optimization_status(self) -> None:
+        """Display current optimization enforcement status."""
+        if not OPTIMIZATION_ENFORCEMENT_AVAILABLE:
+            print("🚫 Token optimization enforcement not available", file=sys.stderr)
+            return
+
+        try:
+            # Import and check optimization status
+            from mandatory_optimization_enforcement import get_optimization_monitoring_report
+
+            report = get_optimization_monitoring_report()
+            enforcement = report["enforcement_status"]
+
+            if enforcement["enabled"]:
+                print("🛡️  Token optimization: 🟢 ENFORCED (mandatory for all agents)", file=sys.stderr)
+                print("💰 All AI interactions automatically optimized with agricultural compliance", file=sys.stderr)
+
+                # Show session info if available
+                current_session = report.get("current_session", {})
+                if current_session.get("interactions_this_session", 0) > 0:
+                    interactions = current_session["interactions_this_session"]
+                    tokens_saved = current_session["tokens_saved_this_session"]
+                    print(f"📊 Current session: {interactions} interactions, {tokens_saved} tokens saved", file=sys.stderr)
+            else:
+                print("🚫 Token optimization enforcement disabled", file=sys.stderr)
+
+        except Exception:
+            print("⚠️  Token optimization status check failed", file=sys.stderr)
+
     def run_session_initialization(self) -> None:
         """Run automatic session initialization if needed."""
         if self.is_new_session():
             print("🔄 New session detected - Auto-executing loadsession...", file=sys.stderr)
 
+            # Initialize mandatory optimization FIRST
+            optimization_success = self._initialize_mandatory_optimization()
+            if optimization_success:
+                print("🛡️  Mandatory token optimization enforcement enabled", file=sys.stderr)
+            else:
+                print("⚠️  Token optimization enforcement unavailable", file=sys.stderr)
+
             if self.execute_loadsession():
                 self.mark_session_initialized()
+
+                # Show optimization status after successful initialization
+                if optimization_success:
+                    self._display_optimization_status()
+
                 print("✨ Session initialization complete - Ready for development", file=sys.stderr)
             else:
                 print(

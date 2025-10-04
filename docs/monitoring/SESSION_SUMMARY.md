@@ -281,6 +281,33 @@ NEW COMMAND → Automatic Updates:
 
 **Reference**: [.claude/commands/updatewebdocs.md](.claude/commands/updatewebdocs.md)
 
+### saveandpush
+
+**Purpose**: Complete session state preservation and repository synchronization in a single command.
+
+**Usage**: `./bin/saveandpush [commit-message]`
+
+**When to use**: End of development sessions, after significant changes, before cross-agent handoff, or for programmatic automation.
+
+**Functionality**:
+- Saves TODO state via todo-sync command
+- Saves session state via savesession command
+- Stages all modified files automatically
+- Updates CHANGELOG.md with mandatory compliance
+- Creates intelligent git commit with agricultural context
+- Pushes to remote repository for cross-agent accessibility
+- Handles error cases with graceful degradation
+
+**8-Step Automated Workflow**:
+1. TODO state synchronization → 2. Session state capture → 3. Git status analysis → 4. File staging
+5. CHANGELOG.md updates → 6. Commit message generation → 7. Git commit creation → 8. Remote push
+
+**Cross-Agent Benefits**: Universal compatibility across Claude Code, GitHub Copilot, ChatGPT, Gemini, CodeWhisperer with complete state preservation for session continuity.
+
+**Essential for**: Cross-agent infrastructure sharing, ISO 11783/18497 compliance maintenance, automated session state preservation, and elimination of manual 8-step workflows.
+
+**Reference**: [.claude/commands/saveandpush.md](.claude/commands/saveandpush.md)
+
 ---
 
 ## Session Initialization Architecture

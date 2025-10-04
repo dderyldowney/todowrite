@@ -1,0 +1,431 @@
+#!/usr/bin/env python3
+"""
+Optimization Monitoring Tool for AFS FastAPI.
+
+Provides comprehensive monitoring and reporting of token optimization
+effectiveness across all sessions and AI agents.
+"""
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+# Add project to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+from afs_fastapi.core.conversation_manager import get_optimization_status
+
+# Import mandatory enforcement system
+sys.path.insert(0, str(project_root / ".claude" / "hooks"))
+try:
+    from mandatory_optimization_enforcement import (
+        get_enforcer,
+        get_optimization_monitoring_report,
+        initialize_mandatory_optimization
+    )
+    ENFORCEMENT_AVAILABLE = True
+except ImportError:
+    ENFORCEMENT_AVAILABLE = False
+
+
+def main():
+    """Main optimization monitoring tool."""
+    parser = argparse.ArgumentParser(
+        description="Monitor token optimization effectiveness across all sessions",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Show current optimization status
+  ./bin/optimization-monitor --status
+
+  # Show comprehensive monitoring report
+  ./bin/optimization-monitor --report
+
+  # Show effectiveness trends
+  ./bin/optimization-monitor --trends
+
+  # Export monitoring data
+  ./bin/optimization-monitor --export monitoring_data.json
+
+  # Initialize monitoring for current session
+  ./bin/optimization-monitor --initialize
+
+  # Show enforcement status
+  ./bin/optimization-monitor --enforcement
+        """
+    )
+
+    # Operation modes
+    parser.add_argument('--status', action='store_true',
+                        help='Show current optimization status')
+    parser.add_argument('--report', action='store_true',
+                        help='Show comprehensive monitoring report')
+    parser.add_argument('--trends', action='store_true',
+                        help='Show optimization effectiveness trends')
+    parser.add_argument('--enforcement', action='store_true',
+                        help='Show mandatory enforcement status')
+    parser.add_argument('--initialize', action='store_true',
+                        help='Initialize monitoring for current session')
+
+    # Data operations
+    parser.add_argument('--export', type=str, metavar='FILE',
+                        help='Export monitoring data to JSON file')
+    parser.add_argument('--reset', action='store_true',
+                        help='Reset monitoring data (use with caution)')
+
+    # Output options
+    parser.add_argument('--json', action='store_true',
+                        help='Output in JSON format')
+    parser.add_argument('--verbose', action='store_true',
+                        help='Show detailed information')
+
+    args = parser.parse_args()
+
+    # Handle initialization
+    if args.initialize:
+        initialize_monitoring()
+        return
+
+    # Handle enforcement status
+    if args.enforcement:
+        show_enforcement_status(args.json, args.verbose)
+        return
+
+    # Handle status display
+    if args.status:
+        show_current_status(args.json, args.verbose)
+        return
+
+    # Handle comprehensive report
+    if args.report:
+        show_monitoring_report(args.json, args.verbose)
+        return
+
+    # Handle trends display
+    if args.trends:
+        show_effectiveness_trends(args.json, args.verbose)
+        return
+
+    # Handle data export
+    if args.export:
+        export_monitoring_data(args.export, args.verbose)
+        return
+
+    # Handle data reset
+    if args.reset:
+        reset_monitoring_data(args.verbose)
+        return
+
+    # Default: show status
+    show_current_status(args.json, args.verbose)
+
+
+def initialize_monitoring():
+    """Initialize monitoring for current session."""
+    print("🔧 Initializing Token Optimization Monitoring...")
+
+    if not ENFORCEMENT_AVAILABLE:
+        print("❌ Mandatory optimization enforcement not available")
+        sys.exit(1)
+
+    success = initialize_mandatory_optimization()
+    if success:
+        print("✅ Monitoring initialized successfully")
+        print("🚀 All AI interactions will now be monitored and optimized")
+    else:
+        print("⚠️  Monitoring initialization encountered issues")
+
+
+def show_enforcement_status(json_output=False, verbose=False):
+    """Show mandatory enforcement status."""
+    if not ENFORCEMENT_AVAILABLE:
+        print("❌ Mandatory optimization enforcement not available")
+        sys.exit(1)
+
+    enforcer = get_enforcer()
+    report = get_optimization_monitoring_report()
+
+    if json_output:
+        print(json.dumps(report["enforcement_status"], indent=2))
+        return
+
+    enforcement = report["enforcement_status"]
+    print("🛡️  MANDATORY OPTIMIZATION ENFORCEMENT STATUS")
+    print("=" * 50)
+
+    status = "🟢 ENABLED" if enforcement["enabled"] else "🔴 DISABLED"
+    print(f"Enforcement: {status}")
+
+    mandatory = "🔒 MANDATORY" if enforcement["mandatory"] else "🔓 OPTIONAL"
+    print(f"Mode: {mandatory}")
+
+    print(f"Version: {enforcement['version']}")
+
+    if verbose:
+        # Show configuration details
+        config = enforcer.enforcement_config
+        print(f"\nConfiguration:")
+        print(f"  Agricultural compliance required: {config['agricultural_compliance_required']}")
+        print(f"  Minimum optimization level: {config['minimum_optimization_level']}")
+        print(f"  Cross-session persistence: {config['cross_session_persistence']}")
+        print(f"  Agent types enforced: {len(config['agent_types_enforced'])}")
+
+        if config['agent_types_enforced']:
+            print(f"  Supported agents: {', '.join(config['agent_types_enforced'])}")
+
+
+def show_current_status(json_output=False, verbose=False):
+    """Show current optimization status."""
+    # Get basic optimization status
+    basic_status = get_optimization_status()
+
+    # Get enforcement monitoring if available
+    enforcement_report = None
+    if ENFORCEMENT_AVAILABLE:
+        enforcement_report = get_optimization_monitoring_report()
+
+    if json_output:
+        combined_status = {
+            "basic_optimization": basic_status,
+            "enforcement_monitoring": enforcement_report
+        }
+        print(json.dumps(combined_status, indent=2))
+        return
+
+    print("📊 TOKEN OPTIMIZATION STATUS")
+    print("=" * 35)
+
+    # Basic status
+    enabled = basic_status.get('optimization_enabled', False)
+    print(f"Optimization: {'🟢 ENABLED' if enabled else '🔴 DISABLED'}")
+
+    # Current session stats
+    if enforcement_report:
+        current_session = enforcement_report["current_session"]
+        current_effectiveness = enforcement_report["current_session_effectiveness"]
+
+        print(f"Current session: {current_session['current_session_id']}")
+        print(f"Interactions this session: {current_session['interactions_this_session']}")
+        print(f"Tokens saved this session: {current_session['tokens_saved_this_session']}")
+        print(f"Session effectiveness: {current_effectiveness:.1f} tokens/interaction")
+
+        if current_session["agricultural_interactions"] > 0:
+            print(f"🚜 Agricultural interactions: {current_session['agricultural_interactions']}")
+        if current_session["safety_critical_interactions"] > 0:
+            print(f"⚠️  Safety-critical interactions: {current_session['safety_critical_interactions']}")
+
+    # All-time statistics
+    if enforcement_report:
+        all_time = enforcement_report["all_time_statistics"]
+        print(f"\nAll-time Statistics:")
+        print(f"  Total sessions monitored: {all_time['total_sessions']}")
+        print(f"  Total interactions optimized: {all_time['total_interactions']}")
+        print(f"  Total tokens saved: {all_time['total_tokens_saved']}")
+        print(f"  Overall effectiveness: {all_time['overall_effectiveness']:.1f} tokens/interaction")
+
+        if all_time['compliance_violations'] > 0:
+            print(f"  ⚠️  Compliance violations: {all_time['compliance_violations']}")
+        if all_time['enforcement_failures'] > 0:
+            print(f"  ❌ Enforcement failures: {all_time['enforcement_failures']}")
+
+    if verbose and enforcement_report:
+        show_recent_sessions(enforcement_report["recent_sessions"])
+
+
+def show_monitoring_report(json_output=False, verbose=False):
+    """Show comprehensive monitoring report."""
+    if not ENFORCEMENT_AVAILABLE:
+        print("❌ Monitoring report not available - enforcement system required")
+        sys.exit(1)
+
+    report = get_optimization_monitoring_report()
+
+    if json_output:
+        print(json.dumps(report, indent=2))
+        return
+
+    print("📋 COMPREHENSIVE OPTIMIZATION MONITORING REPORT")
+    print("=" * 55)
+
+    # Enforcement status
+    enforcement = report["enforcement_status"]
+    print(f"🛡️  Enforcement: {'ENABLED' if enforcement['enabled'] else 'DISABLED'}")
+    print(f"🔒 Mandatory: {'YES' if enforcement['mandatory'] else 'NO'}")
+
+    # Current session details
+    current = report["current_session"]
+    effectiveness = report["current_session_effectiveness"]
+
+    print(f"\n📊 Current Session Analysis:")
+    print(f"  Session ID: {current['current_session_id']}")
+    print(f"  Started: {current['session_start']}")
+    print(f"  Agent Type: {current['agent_type']}")
+    print(f"  Total interactions: {current['interactions_this_session']}")
+    print(f"  Optimizations applied: {current['optimization_applied_count']}")
+    print(f"  Tokens saved: {current['tokens_saved_this_session']}")
+    print(f"  Effectiveness: {effectiveness:.2f} tokens per interaction")
+
+    # Agricultural and safety analysis
+    if current['agricultural_interactions'] > 0 or current['safety_critical_interactions'] > 0:
+        print(f"\n🚜 Agricultural & Safety Analysis:")
+        print(f"  Agricultural interactions: {current['agricultural_interactions']}")
+        print(f"  Safety-critical interactions: {current['safety_critical_interactions']}")
+
+        agri_percentage = (current['agricultural_interactions'] / max(1, current['interactions_this_session'])) * 100
+        safety_percentage = (current['safety_critical_interactions'] / max(1, current['interactions_this_session'])) * 100
+
+        print(f"  Agricultural focus: {agri_percentage:.1f}%")
+        print(f"  Safety focus: {safety_percentage:.1f}%")
+
+    # All-time statistics
+    all_time = report["all_time_statistics"]
+    print(f"\n📈 All-Time Performance:")
+    print(f"  Sessions monitored: {all_time['total_sessions']}")
+    print(f"  Total interactions: {all_time['total_interactions']}")
+    print(f"  Total tokens saved: {all_time['total_tokens_saved']}")
+    print(f"  Average effectiveness: {all_time['overall_effectiveness']:.2f} tokens/interaction")
+
+    # Quality metrics
+    if all_time['total_interactions'] > 0:
+        optimization_rate = (current['optimization_applied_count'] / max(1, current['interactions_this_session'])) * 100
+        print(f"  Current optimization rate: {optimization_rate:.1f}%")
+
+    # Issues and violations
+    if all_time['compliance_violations'] > 0 or all_time['enforcement_failures'] > 0:
+        print(f"\n⚠️  Quality Issues:")
+        if all_time['compliance_violations'] > 0:
+            print(f"  Agricultural compliance violations: {all_time['compliance_violations']}")
+        if all_time['enforcement_failures'] > 0:
+            print(f"  Enforcement failures: {all_time['enforcement_failures']}")
+
+    # Recent sessions
+    if verbose:
+        show_recent_sessions(report["recent_sessions"])
+
+
+def show_effectiveness_trends(json_output=False, verbose=False):
+    """Show optimization effectiveness trends."""
+    if not ENFORCEMENT_AVAILABLE:
+        print("❌ Trends not available - enforcement system required")
+        sys.exit(1)
+
+    report = get_optimization_monitoring_report()
+    trends = report["effectiveness_trend"]
+
+    if json_output:
+        print(json.dumps(trends, indent=2))
+        return
+
+    if not trends:
+        print("📈 No effectiveness trend data available yet")
+        return
+
+    print("📈 OPTIMIZATION EFFECTIVENESS TRENDS")
+    print("=" * 40)
+
+    # Recent trend analysis
+    recent_trends = trends[-10:]  # Last 10 measurements
+    if len(recent_trends) >= 2:
+        first_effectiveness = recent_trends[0]["effectiveness"]
+        last_effectiveness = recent_trends[-1]["effectiveness"]
+        trend_direction = "📈" if last_effectiveness > first_effectiveness else "📉"
+
+        print(f"Recent trend: {trend_direction}")
+        print(f"Latest effectiveness: {last_effectiveness:.2f} tokens/interaction")
+
+        if len(recent_trends) >= 5:
+            avg_recent = sum(t["effectiveness"] for t in recent_trends[-5:]) / 5
+            print(f"Recent average: {avg_recent:.2f} tokens/interaction")
+
+    # Show detailed trend data
+    if verbose:
+        print(f"\n🔍 Detailed Trend Data (Last {min(10, len(trends))} measurements):")
+        for trend in trends[-10:]:
+            timestamp = trend["timestamp"][:19]  # Remove microseconds
+            effectiveness = trend["effectiveness"]
+            interactions = trend["interactions"]
+            print(f"  {timestamp}: {effectiveness:.2f} tokens/interaction ({interactions} interactions)")
+
+
+def show_recent_sessions(sessions):
+    """Show recent session summaries."""
+    if not sessions:
+        return
+
+    print(f"\n📋 Recent Sessions (Last {len(sessions)}):")
+    for session in sessions[-5:]:  # Show last 5 sessions
+        session_id = session["session_id"][:20]  # Truncate long IDs
+        total_interactions = session["total_interactions"]
+        total_tokens_saved = session["total_tokens_saved"]
+        agent_type = session.get("agent_type", "unknown")
+
+        effectiveness = total_tokens_saved / max(1, total_interactions)
+        print(f"  {session_id} ({agent_type}): {total_interactions} interactions, {total_tokens_saved} tokens saved ({effectiveness:.1f} avg)")
+
+
+def export_monitoring_data(filename, verbose=False):
+    """Export monitoring data to JSON file."""
+    if not ENFORCEMENT_AVAILABLE:
+        print("❌ Export not available - enforcement system required")
+        sys.exit(1)
+
+    try:
+        report = get_optimization_monitoring_report()
+
+        with open(filename, 'w') as f:
+            json.dump(report, f, indent=2)
+
+        if verbose:
+            print(f"✅ Monitoring data exported to {filename}")
+            print(f"📊 Exported {len(report['recent_sessions'])} sessions")
+            print(f"📈 Exported {len(report['effectiveness_trend'])} trend measurements")
+
+    except Exception as e:
+        print(f"❌ Export failed: {e}")
+        sys.exit(1)
+
+
+def reset_monitoring_data(verbose=False):
+    """Reset monitoring data (with confirmation)."""
+    if not ENFORCEMENT_AVAILABLE:
+        print("❌ Reset not available - enforcement system required")
+        sys.exit(1)
+
+    print("⚠️  WARNING: This will reset ALL monitoring data!")
+    confirmation = input("Type 'RESET' to confirm: ")
+
+    if confirmation != "RESET":
+        print("Reset cancelled")
+        return
+
+    try:
+        # Delete monitoring files
+        project_root = Path(__file__).parent.parent
+        monitoring_files = [
+            project_root / ".claude" / "optimization_monitoring.json",
+            project_root / ".claude" / "session_optimization_tracking.json"
+        ]
+
+        for file_path in monitoring_files:
+            if file_path.exists():
+                file_path.unlink()
+
+        if verbose:
+            print("✅ Monitoring data reset successfully")
+            print("🔄 Next optimization will start fresh monitoring")
+
+    except Exception as e:
+        print(f"❌ Reset failed: {e}")
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()

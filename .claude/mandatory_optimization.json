@@ -1,0 +1,24 @@
+{
+  "enforcement_enabled": true,
+  "mandatory_for_all_agents": true,
+  "agricultural_compliance_required": true,
+  "minimum_optimization_level": "standard",
+  "monitoring_enabled": true,
+  "cross_session_persistence": true,
+  "agent_types_enforced": [
+    "claude",
+    "gpt",
+    "gemini",
+    "copilot",
+    "codewhisperer",
+    "anthropic",
+    "openai",
+    "google",
+    "microsoft",
+    "amazon",
+    "unknown"
+  ],
+  "enforcement_version": "1.0.0",
+  "created": "2025-10-04T13:26:01.834538",
+  "last_updated": "2025-10-04T13:26:01.837287"
+}
