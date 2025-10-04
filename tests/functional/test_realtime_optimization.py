@@ -8,7 +8,6 @@ token optimization implementation. NO FAKE PASSES - all tests verify real behavi
 
 import json
 import subprocess
-import tempfile
 import time
 from pathlib import Path
 from unittest.mock import patch
@@ -17,17 +16,10 @@ import pytest
 
 from afs_fastapi.core.conversation_manager import (
     ConversationManager,
-    get_conversation_manager,
-    optimize_interaction,
     get_optimization_status,
-    configure_optimization
+    optimize_interaction,
 )
-from afs_fastapi.services.realtime_token_optimizer import (
-    RealTimeTokenOptimizer,
-    ConversationOptimizationMiddleware,
-    OptimizationLevel,
-    ConversationTurn
-)
+from afs_fastapi.services.realtime_token_optimizer import OptimizationLevel, RealTimeTokenOptimizer
 
 
 class TestRealTimeTokenOptimizer:
@@ -80,8 +72,7 @@ class TestRealTimeTokenOptimizer:
 
         # Process through optimization
         turn = optimizer.optimize_conversation_turn(
-            user_input=large_input,
-            ai_response=large_response
+            user_input=large_input, ai_response=large_response
         )
 
         # VERIFY ACTUAL TOKEN REDUCTION
@@ -92,7 +83,9 @@ class TestRealTimeTokenOptimizer:
         # For large inputs, we should see actual reduction
         if turn.original_tokens > 50:  # Only test reduction on substantial inputs
             reduction_ratio = turn.tokens_saved / turn.original_tokens
-            assert reduction_ratio >= 0, f"Should reduce tokens for large input, got ratio: {reduction_ratio}"
+            assert (
+                reduction_ratio >= 0
+            ), f"Should reduce tokens for large input, got ratio: {reduction_ratio}"
 
         # VERIFY AGRICULTURAL COMPLIANCE
         assert turn.agricultural_keywords, "Should detect agricultural keywords"
@@ -102,12 +95,16 @@ class TestRealTimeTokenOptimizer:
     def test_conversation_history_management(self, optimizer):
         """Test conversation history is properly managed."""
         # ACTUAL TEST: Add multiple turns and verify history management
-        initial_conversations = ["Help with tractor setup", "Configure safety systems", "Test fleet coordination"]
+        initial_conversations = [
+            "Help with tractor setup",
+            "Configure safety systems",
+            "Test fleet coordination",
+        ]
 
         for i, input_text in enumerate(initial_conversations):
             turn = optimizer.optimize_conversation_turn(
                 user_input=input_text,
-                ai_response=f"Response {i+1} about agricultural equipment configuration."
+                ai_response=f"Response {i+1} about agricultural equipment configuration.",
             )
 
             # Verify turn was added to history
@@ -129,34 +126,43 @@ class TestRealTimeTokenOptimizer:
             ("Emergency stop procedure for tractor collision", OptimizationLevel.CONSERVATIVE),
             ("Show git status", OptimizationLevel.AGGRESSIVE),
             ("ISO 11783 tractor implementation", OptimizationLevel.STANDARD),
-            ("Regular development task", OptimizationLevel.STANDARD)
+            ("Regular development task", OptimizationLevel.STANDARD),
         ]
 
         for input_text, expected_level in test_cases:
             detected_level = optimizer.detect_optimization_level(input_text)
-            assert detected_level == expected_level, f"Input '{input_text}' should detect {expected_level.value}, got {detected_level.value}"
+            assert (
+                detected_level == expected_level
+            ), f"Input '{input_text}' should detect {expected_level.value}, got {detected_level.value}"
 
     def test_agricultural_keyword_preservation(self, optimizer):
         """Test agricultural and safety keywords are preserved during optimization."""
         # ACTUAL TEST: Use content with critical agricultural keywords
         critical_input = "Emergency ISO 11783 tractor safety protocols for collision avoidance"
-        critical_response = "Critical agricultural equipment safety requires immediate emergency stop procedures"
+        critical_response = (
+            "Critical agricultural equipment safety requires immediate emergency stop procedures"
+        )
 
         turn = optimizer.optimize_conversation_turn(
-            user_input=critical_input,
-            ai_response=critical_response
+            user_input=critical_input, ai_response=critical_response
         )
 
         # VERIFY KEYWORDS ARE PRESERVED
         detected_keywords = turn.agricultural_keywords
         assert "iso" in detected_keywords, "ISO keyword should be detected"
-        assert "emergency" in turn.user_input.lower() or "emergency" in turn.ai_response.lower(), "Emergency keyword should be preserved"
+        assert (
+            "emergency" in turn.user_input.lower() or "emergency" in turn.ai_response.lower()
+        ), "Emergency keyword should be preserved"
         assert turn.safety_critical is True, "Should be marked as safety critical"
 
         # Verify optimization didn't remove critical keywords
         optimized_text = f"{turn.user_input} {turn.ai_response}".lower()
-        assert "iso" in optimized_text or "11783" in optimized_text, "ISO standards should be preserved"
-        assert "safety" in optimized_text or "emergency" in optimized_text, "Safety terms should be preserved"
+        assert (
+            "iso" in optimized_text or "11783" in optimized_text
+        ), "ISO standards should be preserved"
+        assert (
+            "safety" in optimized_text or "emergency" in optimized_text
+        ), "Safety terms should be preserved"
 
     def test_token_budget_management(self, optimizer):
         """Test token budget constraints are respected."""
@@ -165,12 +171,16 @@ class TestRealTimeTokenOptimizer:
         optimizer.set_token_budget(low_budget)
 
         # Create large input that would normally exceed budget
-        large_input = "Very long detailed request for comprehensive agricultural implementation " * 20
+        large_input = (
+            "Very long detailed request for comprehensive agricultural implementation " * 20
+        )
 
         turn = optimizer.optimize_conversation_turn(user_input=large_input)
 
         # VERIFY BUDGET CONSTRAINT
-        assert turn.optimized_tokens <= low_budget * 1.2, f"Should respect budget, got {turn.optimized_tokens} tokens for budget {low_budget}"
+        assert (
+            turn.optimized_tokens <= low_budget * 1.2
+        ), f"Should respect budget, got {turn.optimized_tokens} tokens for budget {low_budget}"
 
     def test_conversation_metrics_accuracy(self, optimizer):
         """Test conversation metrics are accurately calculated."""
@@ -178,34 +188,30 @@ class TestRealTimeTokenOptimizer:
         test_conversations = [
             ("Implement tractor safety", "Safety implementation complete"),
             ("Configure ISO 11783", "ISO configuration done"),
-            ("Test emergency stops", "Emergency testing successful")
+            ("Test emergency stops", "Emergency testing successful"),
         ]
 
         for user_input, ai_response in test_conversations:
-            optimizer.optimize_conversation_turn(
-                user_input=user_input,
-                ai_response=ai_response
-            )
+            optimizer.optimize_conversation_turn(user_input=user_input, ai_response=ai_response)
 
         # VERIFY METRICS ACCURACY
         summary = optimizer.get_conversation_summary()
-        total_metrics = summary['total_metrics']
+        total_metrics = summary["total_metrics"]
 
-        assert total_metrics['turns'] == len(test_conversations), "Should count all turns"
-        assert total_metrics['agricultural_turns'] > 0, "Should detect agricultural turns"
-        assert total_metrics['safety_critical_turns'] > 0, "Should detect safety turns"
-        assert total_metrics['tokens_saved'] >= 0, "Should track token savings"
+        assert total_metrics["turns"] == len(test_conversations), "Should count all turns"
+        assert total_metrics["agricultural_turns"] > 0, "Should detect agricultural turns"
+        assert total_metrics["safety_critical_turns"] > 0, "Should detect safety turns"
+        assert total_metrics["tokens_saved"] >= 0, "Should track token savings"
 
     def test_error_handling_and_fallback(self, optimizer):
         """Test system handles errors gracefully without breaking."""
         # ACTUAL TEST: Force optimization errors and verify fallback
-        with patch.object(optimizer.pipeline, 'process_complete_pipeline') as mock_pipeline:
+        with patch.object(optimizer.pipeline, "process_complete_pipeline") as mock_pipeline:
             mock_pipeline.side_effect = Exception("Optimization failed")
 
             # Should not crash when optimization fails
             turn = optimizer.optimize_conversation_turn(
-                user_input="Test input",
-                ai_response="Test response"
+                user_input="Test input", ai_response="Test response"
             )
 
             # VERIFY GRACEFUL FALLBACK
@@ -215,7 +221,9 @@ class TestRealTimeTokenOptimizer:
 
         # Verify metrics track failures
         summary = optimizer.get_conversation_summary()
-        assert summary['total_metrics']['optimization_failures'] > 0, "Should track optimization failures"
+        assert (
+            summary["total_metrics"]["optimization_failures"] > 0
+        ), "Should track optimization failures"
 
 
 class TestConversationManager:
@@ -235,39 +243,43 @@ class TestConversationManager:
         assert manager.project_root.exists()
 
         # Verify configuration is loaded/created
-        assert 'optimization_enabled' in manager.config
-        assert 'token_budget_per_turn' in manager.config
+        assert "optimization_enabled" in manager.config
+        assert "token_budget_per_turn" in manager.config
 
     def test_conversation_turn_processing_actually_works(self, manager):
         """Test complete conversation turn processing produces real results."""
         # ACTUAL TEST: Process real conversation and verify all components work
-        user_input = "Help me implement agricultural equipment safety monitoring with ISO compliance"
+        user_input = (
+            "Help me implement agricultural equipment safety monitoring with ISO compliance"
+        )
         ai_response = "I'll help you implement safety monitoring for agricultural equipment according to ISO standards."
 
         result = manager.process_conversation_turn(
-            user_input=user_input,
-            ai_response=ai_response,
-            conversation_id="test_conversation"
+            user_input=user_input, ai_response=ai_response, conversation_id="test_conversation"
         )
 
         # VERIFY ACTUAL PROCESSING RESULTS
-        assert 'optimized_content' in result
-        assert 'optimization_metadata' in result
-        assert 'agricultural_compliance' in result
+        assert "optimized_content" in result
+        assert "optimization_metadata" in result
+        assert "agricultural_compliance" in result
 
-        optimized_content = result['optimized_content']
-        assert optimized_content['user_input'] != "", "Should produce optimized user input"
-        assert optimized_content['ai_response'] != "", "Should produce optimized AI response"
+        optimized_content = result["optimized_content"]
+        assert optimized_content["user_input"] != "", "Should produce optimized user input"
+        assert optimized_content["ai_response"] != "", "Should produce optimized AI response"
 
         # Verify optimization metadata is real
-        opt_meta = result['optimization_metadata']
-        assert opt_meta['total_tokens_saved'] >= 0, "Should track token savings"
-        assert 'input' in opt_meta and 'response' in opt_meta, "Should have input and response metadata"
+        opt_meta = result["optimization_metadata"]
+        assert opt_meta["total_tokens_saved"] >= 0, "Should track token savings"
+        assert (
+            "input" in opt_meta and "response" in opt_meta
+        ), "Should have input and response metadata"
 
         # Verify agricultural compliance
-        compliance = result['agricultural_compliance']
-        assert compliance['compliance_maintained'] is True, "Should maintain compliance"
-        assert len(compliance['agricultural_keywords_detected']) > 0, "Should detect agricultural keywords"
+        compliance = result["agricultural_compliance"]
+        assert compliance["compliance_maintained"] is True, "Should maintain compliance"
+        assert (
+            len(compliance["agricultural_keywords_detected"]) > 0
+        ), "Should detect agricultural keywords"
 
     def test_command_optimization_integration(self, manager):
         """Test command-line tool optimization integration."""
@@ -275,25 +287,25 @@ class TestConversationManager:
         command_tests = [
             ("git status", "On branch main, nothing to commit", "git"),
             ("pytest -v", "214 tests passed, 3 failed", "test"),
-            ("tractor emergency stop", "Emergency stop activated", "safety")
+            ("tractor emergency stop", "Emergency stop activated", "safety"),
         ]
 
         for command, output, cmd_type in command_tests:
             result = manager.optimize_command_interaction(
-                command=command,
-                output=output,
-                command_type=cmd_type
+                command=command, output=output, command_type=cmd_type
             )
 
             # VERIFY COMMAND-SPECIFIC OPTIMIZATION
-            assert result['conversation_id'] == f"cmd_{cmd_type}", "Should use command-specific conversation ID"
-            assert result['optimized_content']['user_input'], "Should optimize command description"
+            assert (
+                result["conversation_id"] == f"cmd_{cmd_type}"
+            ), "Should use command-specific conversation ID"
+            assert result["optimized_content"]["user_input"], "Should optimize command description"
 
             # Verify optimization level appropriate for command type
-            opt_meta = result['optimization_metadata']
+            opt_meta = result["optimization_metadata"]
             if cmd_type == "safety":
                 # Safety commands should preserve more content
-                assert opt_meta['input'].get('optimization_level') in ['conservative', 'standard']
+                assert opt_meta["input"].get("optimization_level") in ["conservative", "standard"]
 
     def test_global_metrics_tracking(self, manager):
         """Test global metrics are accurately tracked across conversations."""
@@ -301,49 +313,45 @@ class TestConversationManager:
         conversations = [
             ("conv1", "Configure tractor settings", "Tractor configured successfully"),
             ("conv2", "Test safety systems", "Safety systems operational"),
-            ("conv3", "Check equipment status", "All equipment operational")
+            ("conv3", "Check equipment status", "All equipment operational"),
         ]
 
         initial_metrics = manager.get_global_metrics()
-        initial_interactions = initial_metrics['total_interactions']
+        initial_interactions = initial_metrics["total_interactions"]
 
         for conv_id, user_input, ai_response in conversations:
             manager.process_conversation_turn(
-                user_input=user_input,
-                ai_response=ai_response,
-                conversation_id=conv_id
+                user_input=user_input, ai_response=ai_response, conversation_id=conv_id
             )
 
         # VERIFY GLOBAL TRACKING
         final_metrics = manager.get_global_metrics()
-        assert final_metrics['total_interactions'] == initial_interactions + len(conversations)
-        assert final_metrics['active_conversations'] == len(conversations)
-        assert len(final_metrics['conversation_list']) == len(conversations)
+        assert final_metrics["total_interactions"] == initial_interactions + len(conversations)
+        assert final_metrics["active_conversations"] == len(conversations)
+        assert len(final_metrics["conversation_list"]) == len(conversations)
 
     def test_optimization_configuration_persistence(self, manager):
         """Test optimization configuration is properly saved and loaded."""
         # ACTUAL TEST: Modify configuration and verify persistence
-        original_budget = manager.config['token_budget_per_turn']
+        _original_budget = manager.config["token_budget_per_turn"]
         new_budget = 1500
 
         manager.set_optimization_parameters(
-            token_budget=new_budget,
-            adaptive_mode=False,
-            debug_mode=True
+            token_budget=new_budget, adaptive_mode=False, debug_mode=True
         )
 
         # VERIFY CONFIGURATION CHANGES
-        assert manager.config['token_budget_per_turn'] == new_budget
-        assert manager.config['adaptive_mode'] is False
-        assert manager.config['debug_mode'] is True
+        assert manager.config["token_budget_per_turn"] == new_budget
+        assert manager.config["adaptive_mode"] is False
+        assert manager.config["debug_mode"] is True
 
         # Verify configuration file was saved
         assert manager.config_path.exists(), "Configuration file should be created"
 
         # Create new manager instance and verify config is loaded
         new_manager = ConversationManager(project_root=manager.project_root)
-        assert new_manager.config['token_budget_per_turn'] == new_budget
-        assert new_manager.config['adaptive_mode'] is False
+        assert new_manager.config["token_budget_per_turn"] == new_budget
+        assert new_manager.config["adaptive_mode"] is False
 
     def test_conversation_export_functionality(self, manager):
         """Test conversation data export produces actual files."""
@@ -352,7 +360,7 @@ class TestConversationManager:
         manager.process_conversation_turn(
             user_input="Test export functionality",
             ai_response="Export test successful",
-            conversation_id=conversation_id
+            conversation_id=conversation_id,
         )
 
         # Export conversation data
@@ -362,15 +370,15 @@ class TestConversationManager:
         assert len(exported_files) > 0, "Should export at least one file"
         export_file = exported_files[0]
         assert export_file.exists(), "Export file should exist"
-        assert export_file.suffix == '.json', "Should export JSON format"
+        assert export_file.suffix == ".json", "Should export JSON format"
 
         # Verify export content is valid
         with open(export_file) as f:
             export_data = json.load(f)
 
-        assert 'session_summary' in export_data, "Should include session summary"
-        assert 'conversation_turns' in export_data, "Should include conversation turns"
-        assert len(export_data['conversation_turns']) > 0, "Should export actual turns"
+        assert "session_summary" in export_data, "Should include session summary"
+        assert "conversation_turns" in export_data, "Should include conversation turns"
+        assert len(export_data["conversation_turns"]) > 0, "Should export actual turns"
 
 
 class TestCommandLineIntegration:
@@ -389,14 +397,13 @@ class TestCommandLineIntegration:
 
         # Test status command
         result = subprocess.run(
-            [str(cmd_path), "--status"],
-            capture_output=True,
-            text=True,
-            timeout=30
+            [str(cmd_path), "--status"], capture_output=True, text=True, timeout=30
         )
 
         # VERIFY ACTUAL EXECUTION
-        assert result.returncode == 0, f"Command should execute successfully, stderr: {result.stderr}"
+        assert (
+            result.returncode == 0
+        ), f"Command should execute successfully, stderr: {result.stderr}"
         assert "Token Optimization Status" in result.stdout, "Should show status information"
 
     def test_single_optimization_command(self, project_root):
@@ -408,10 +415,18 @@ class TestCommandLineIntegration:
         test_output = "I'll help implement safety monitoring with ISO compliance for agricultural equipment operations"
 
         result = subprocess.run(
-            [str(cmd_path), "--input", test_input, "--output", test_output, "--command-type", "agricultural"],
+            [
+                str(cmd_path),
+                "--input",
+                test_input,
+                "--output",
+                test_output,
+                "--command-type",
+                "agricultural",
+            ],
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=30,
         )
 
         # VERIFY OPTIMIZATION RESULTS
@@ -428,7 +443,7 @@ class TestCommandLineIntegration:
             [str(cmd_path), "--test-sample"],
             capture_output=True,
             text=True,
-            timeout=60  # Longer timeout for comprehensive tests
+            timeout=60,  # Longer timeout for comprehensive tests
         )
 
         # VERIFY SAMPLE TESTS WORK
@@ -448,7 +463,7 @@ class TestCommandLineIntegration:
             [str(cmd_path), "--configure", "--enable", "--token-budget", "1500", "--adaptive"],
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=30,
         )
 
         # VERIFY CONFIGURATION CHANGES
@@ -476,7 +491,7 @@ class TestPerformanceAndEfficiency:
             "Configure advanced agricultural equipment safety protocols with emergency procedures",
             "Develop ISO 11783 compliant communication interfaces for equipment interoperability",
             "Create field operation scheduling system with collision avoidance capabilities",
-            "Design equipment diagnostics and performance monitoring for agricultural robotics"
+            "Design equipment diagnostics and performance monitoring for agricultural robotics",
         ]
 
         # Expand inputs to realistic conversation size
@@ -489,12 +504,11 @@ class TestPerformanceAndEfficiency:
         total_tokens_saved = 0
         total_original_tokens = 0
 
-        for i, conversation in enumerate(large_conversations):
+        for _i, conversation in enumerate(large_conversations):
             ai_response = f"Implementing {conversation[:50]}... with comprehensive solution including all required components and safety compliance."
 
             turn = performance_optimizer.optimize_conversation_turn(
-                user_input=conversation,
-                ai_response=ai_response
+                user_input=conversation, ai_response=ai_response
             )
 
             total_tokens_saved += turn.tokens_saved
@@ -503,17 +517,23 @@ class TestPerformanceAndEfficiency:
         optimization_time = time.time() - start_time
 
         # VERIFY PERFORMANCE BENCHMARKS
-        assert optimization_time < 5.0, f"Optimization should complete in under 5 seconds, took {optimization_time:.2f}s"
+        assert (
+            optimization_time < 5.0
+        ), f"Optimization should complete in under 5 seconds, took {optimization_time:.2f}s"
         assert total_tokens_saved >= 0, "Should achieve token savings"
 
         # Performance should be reasonable for large conversations
         conversations_per_second = len(large_conversations) / optimization_time
-        assert conversations_per_second > 1.0, f"Should process at least 1 conversation per second, got {conversations_per_second:.2f}"
+        assert (
+            conversations_per_second > 1.0
+        ), f"Should process at least 1 conversation per second, got {conversations_per_second:.2f}"
 
         # If original tokens > 0, verify some efficiency
         if total_original_tokens > 0:
             efficiency_ratio = total_tokens_saved / total_original_tokens
-            assert efficiency_ratio >= 0, f"Should maintain or improve efficiency, got {efficiency_ratio:.2f}"
+            assert (
+                efficiency_ratio >= 0
+            ), f"Should maintain or improve efficiency, got {efficiency_ratio:.2f}"
 
     def test_memory_usage_and_history_management(self, performance_optimizer):
         """Test memory usage stays reasonable with conversation history."""
@@ -524,11 +544,13 @@ class TestPerformanceAndEfficiency:
         for i in range(max_history + 10):
             performance_optimizer.optimize_conversation_turn(
                 user_input=f"Conversation {i} about agricultural equipment configuration",
-                ai_response=f"Response {i} about agricultural equipment setup and operation"
+                ai_response=f"Response {i} about agricultural equipment setup and operation",
             )
 
         # VERIFY MEMORY MANAGEMENT
-        assert len(performance_optimizer.conversation_history) <= max_history, "Should respect max history limit"
+        assert (
+            len(performance_optimizer.conversation_history) <= max_history
+        ), "Should respect max history limit"
         assert len(performance_optimizer.conversation_history) > 0, "Should maintain recent history"
 
     def test_concurrent_optimization_safety(self, performance_optimizer):
@@ -543,7 +565,7 @@ class TestPerformanceAndEfficiency:
             try:
                 turn = performance_optimizer.optimize_conversation_turn(
                     user_input=f"Concurrent test {conversation_id}",
-                    ai_response=f"Concurrent response {conversation_id}"
+                    ai_response=f"Concurrent response {conversation_id}",
                 )
                 results.append(turn)
             except Exception as e:
@@ -580,12 +602,14 @@ class TestIntegrationWithExistingInfrastructure:
 
         # Verify pipeline integration
         assert optimizer.pipeline is not None, "Should integrate with existing pipeline"
-        assert isinstance(optimizer.pipeline, AIProcessingPipeline), "Should use AI processing pipeline"
+        assert isinstance(
+            optimizer.pipeline, AIProcessingPipeline
+        ), "Should use AI processing pipeline"
 
         # Test optimization actually uses existing pipeline
         turn = optimizer.optimize_conversation_turn(
             user_input="Test integration with existing pipeline",
-            ai_response="Testing pipeline integration"
+            ai_response="Testing pipeline integration",
         )
 
         # VERIFY PIPELINE INTEGRATION WORKS
@@ -595,23 +619,22 @@ class TestIntegrationWithExistingInfrastructure:
     def test_global_function_integration(self):
         """Test global convenience functions work correctly."""
         # ACTUAL TEST: Use global functions and verify they work
-        from afs_fastapi.core.conversation_manager import optimize_interaction, get_optimization_status
 
         # Test global optimization function
         result = optimize_interaction(
             user_input="Test global optimization function",
             ai_response="Global optimization successful",
-            command_type="test"
+            command_type="test",
         )
 
         # VERIFY GLOBAL FUNCTIONS WORK
-        assert 'optimized_content' in result, "Global function should return optimization results"
-        assert 'optimization_metadata' in result, "Should include optimization metadata"
+        assert "optimized_content" in result, "Global function should return optimization results"
+        assert "optimization_metadata" in result, "Should include optimization metadata"
 
         # Test global status function
         status = get_optimization_status()
-        assert 'optimization_enabled' in status, "Should return optimization status"
-        assert 'total_interactions' in status, "Should track global interactions"
+        assert "optimization_enabled" in status, "Should return optimization status"
+        assert "total_interactions" in status, "Should track global interactions"
 
     def test_decorator_integration(self):
         """Test optimization decorator for automatic integration."""

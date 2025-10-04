@@ -14,7 +14,7 @@ import sys
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
@@ -22,11 +22,11 @@ sys.path.insert(0, str(project_root))
 
 try:
     from afs_fastapi.core.conversation_manager import (
+        configure_optimization,
         get_conversation_manager,
         optimize_interaction,
-        get_optimization_status,
-        configure_optimization
     )
+
     OPTIMIZATION_AVAILABLE = True
 except ImportError:
     OPTIMIZATION_AVAILABLE = False
@@ -45,7 +45,9 @@ class MandatoryOptimizationEnforcer:
         self.project_root = project_root
         self.enforcement_config_path = self.project_root / ".claude" / "mandatory_optimization.json"
         self.monitoring_data_path = self.project_root / ".claude" / "optimization_monitoring.json"
-        self.session_tracking_path = self.project_root / ".claude" / "session_optimization_tracking.json"
+        self.session_tracking_path = (
+            self.project_root / ".claude" / "session_optimization_tracking.json"
+        )
 
         # Ensure directories exist
         self.enforcement_config_path.parent.mkdir(parents=True, exist_ok=True)
@@ -71,12 +73,20 @@ class MandatoryOptimizationEnforcer:
             "monitoring_enabled": True,
             "cross_session_persistence": True,
             "agent_types_enforced": [
-                "claude", "gpt", "gemini", "copilot", "codewhisperer",
-                "anthropic", "openai", "google", "microsoft", "amazon"
+                "claude",
+                "gpt",
+                "gemini",
+                "copilot",
+                "codewhisperer",
+                "anthropic",
+                "openai",
+                "google",
+                "microsoft",
+                "amazon",
             ],
             "enforcement_version": "1.0.0",
             "created": datetime.now().isoformat(),
-            "last_updated": datetime.now().isoformat()
+            "last_updated": datetime.now().isoformat(),
         }
 
         if self.enforcement_config_path.exists():
@@ -89,7 +99,7 @@ class MandatoryOptimizationEnforcer:
                 pass
 
         # Save default configuration
-        with open(self.enforcement_config_path, 'w') as f:
+        with open(self.enforcement_config_path, "w") as f:
             json.dump(default_config, f, indent=2)
 
         return default_config
@@ -105,7 +115,7 @@ class MandatoryOptimizationEnforcer:
             "enforcement_failures": 0,
             "last_monitoring_update": datetime.now().isoformat(),
             "session_history": [],
-            "effectiveness_trend": []
+            "effectiveness_trend": [],
         }
 
         if self.monitoring_data_path.exists():
@@ -127,7 +137,7 @@ class MandatoryOptimizationEnforcer:
             "optimization_applied_count": 0,
             "agricultural_interactions": 0,
             "safety_critical_interactions": 0,
-            "agent_type": "unknown"
+            "agent_type": "unknown",
         }
 
         if self.session_tracking_path.exists():
@@ -158,7 +168,7 @@ class MandatoryOptimizationEnforcer:
             "total_tokens_saved": session_data.get("tokens_saved_this_session", 0),
             "agricultural_interactions": session_data.get("agricultural_interactions", 0),
             "safety_critical_interactions": session_data.get("safety_critical_interactions", 0),
-            "agent_type": session_data.get("agent_type", "unknown")
+            "agent_type": session_data.get("agent_type", "unknown"),
         }
 
         # Add to session history
@@ -170,21 +180,31 @@ class MandatoryOptimizationEnforcer:
 
         # Update global counters
         self.monitoring_data["total_sessions_monitored"] += 1
-        self.monitoring_data["total_interactions_optimized"] += session_data.get("interactions_this_session", 0)
-        self.monitoring_data["total_tokens_saved_all_time"] += session_data.get("tokens_saved_this_session", 0)
+        self.monitoring_data["total_interactions_optimized"] += session_data.get(
+            "interactions_this_session", 0
+        )
+        self.monitoring_data["total_tokens_saved_all_time"] += session_data.get(
+            "tokens_saved_this_session", 0
+        )
 
         # Update effectiveness trend
         if session_data.get("interactions_this_session", 0) > 0:
-            session_effectiveness = session_data.get("tokens_saved_this_session", 0) / session_data.get("interactions_this_session", 1)
-            self.monitoring_data["effectiveness_trend"].append({
-                "timestamp": datetime.now().isoformat(),
-                "effectiveness": session_effectiveness,
-                "interactions": session_data.get("interactions_this_session", 0)
-            })
+            session_effectiveness = session_data.get(
+                "tokens_saved_this_session", 0
+            ) / session_data.get("interactions_this_session", 1)
+            self.monitoring_data["effectiveness_trend"].append(
+                {
+                    "timestamp": datetime.now().isoformat(),
+                    "effectiveness": session_effectiveness,
+                    "interactions": session_data.get("interactions_this_session", 0),
+                }
+            )
 
             # Keep only last 100 effectiveness measurements
             if len(self.monitoring_data["effectiveness_trend"]) > 100:
-                self.monitoring_data["effectiveness_trend"] = self.monitoring_data["effectiveness_trend"][-100:]
+                self.monitoring_data["effectiveness_trend"] = self.monitoring_data[
+                    "effectiveness_trend"
+                ][-100:]
 
         self._save_monitoring_data()
 
@@ -196,15 +216,14 @@ class MandatoryOptimizationEnforcer:
         try:
             # Force enable optimization
             configure_optimization(
-                enabled=True,
-                token_budget=2000,
-                adaptive_mode=True,
-                debug_mode=False
+                enabled=True, token_budget=2000, adaptive_mode=True, debug_mode=False
             )
         except Exception:
             self.monitoring_data["enforcement_failures"] += 1
 
-    def enforce_optimization(self, user_input: str, ai_response: str = "", interaction_type: str = "general") -> dict[str, Any]:
+    def enforce_optimization(
+        self, user_input: str, ai_response: str = "", interaction_type: str = "general"
+    ) -> dict[str, Any]:
         """
         Mandatory enforcement of token optimization for any AI interaction.
 
@@ -218,7 +237,7 @@ class MandatoryOptimizationEnforcer:
                 "optimized": False,
                 "reason": "enforcement_disabled",
                 "original_input": user_input,
-                "original_response": ai_response
+                "original_response": ai_response,
             }
 
         if not OPTIMIZATION_AVAILABLE:
@@ -229,15 +248,13 @@ class MandatoryOptimizationEnforcer:
                 "optimized": False,
                 "reason": "optimization_system_unavailable",
                 "original_input": user_input,
-                "original_response": ai_response
+                "original_response": ai_response,
             }
 
         try:
             # Apply mandatory optimization
             result = optimize_interaction(
-                user_input=user_input,
-                ai_response=ai_response,
-                command_type=interaction_type
+                user_input=user_input, ai_response=ai_response, command_type=interaction_type
             )
 
             # Track successful optimization
@@ -249,7 +266,7 @@ class MandatoryOptimizationEnforcer:
                 "optimized_input": result["optimized_content"]["user_input"],
                 "optimized_response": result["optimized_content"]["ai_response"],
                 "tokens_saved": result["optimization_metadata"]["total_tokens_saved"],
-                "agricultural_compliance": result["agricultural_compliance"]
+                "agricultural_compliance": result["agricultural_compliance"],
             }
 
         except Exception as e:
@@ -260,7 +277,7 @@ class MandatoryOptimizationEnforcer:
                 "optimized": False,
                 "reason": f"optimization_failed: {str(e)}",
                 "original_input": user_input,
-                "original_response": ai_response
+                "original_response": ai_response,
             }
 
     def _track_optimization_success(self, optimization_result: dict[str, Any]) -> None:
@@ -310,7 +327,7 @@ class MandatoryOptimizationEnforcer:
         self.monitoring_data["last_monitoring_update"] = datetime.now().isoformat()
 
         try:
-            with open(self.monitoring_data_path, 'w') as f:
+            with open(self.monitoring_data_path, "w") as f:
                 json.dump(self.monitoring_data, f, indent=2)
         except OSError:
             pass  # Fail silently to avoid breaking interactions
@@ -318,7 +335,7 @@ class MandatoryOptimizationEnforcer:
     def _save_session_tracking(self) -> None:
         """Save current session tracking data."""
         try:
-            with open(self.session_tracking_path, 'w') as f:
+            with open(self.session_tracking_path, "w") as f:
                 json.dump(self.session_tracking, f, indent=2)
         except OSError:
             pass  # Fail silently to avoid breaking interactions
@@ -329,8 +346,8 @@ class MandatoryOptimizationEnforcer:
         current_effectiveness = 0.0
         if self.session_tracking["interactions_this_session"] > 0:
             current_effectiveness = (
-                self.session_tracking["tokens_saved_this_session"] /
-                self.session_tracking["interactions_this_session"]
+                self.session_tracking["tokens_saved_this_session"]
+                / self.session_tracking["interactions_this_session"]
             )
 
         # Calculate overall effectiveness
@@ -345,7 +362,7 @@ class MandatoryOptimizationEnforcer:
             "enforcement_status": {
                 "enabled": self.enforcement_config["enforcement_enabled"],
                 "mandatory": self.enforcement_config["mandatory_for_all_agents"],
-                "version": self.enforcement_config["enforcement_version"]
+                "version": self.enforcement_config["enforcement_version"],
             },
             "current_session": self.session_tracking,
             "current_session_effectiveness": current_effectiveness,
@@ -355,20 +372,24 @@ class MandatoryOptimizationEnforcer:
                 "total_tokens_saved": self.monitoring_data["total_tokens_saved_all_time"],
                 "overall_effectiveness": overall_effectiveness,
                 "compliance_violations": self.monitoring_data["agricultural_compliance_violations"],
-                "enforcement_failures": self.monitoring_data["enforcement_failures"]
+                "enforcement_failures": self.monitoring_data["enforcement_failures"],
             },
             "recent_sessions": self.monitoring_data["session_history"][-10:],  # Last 10 sessions
-            "effectiveness_trend": self.monitoring_data["effectiveness_trend"][-20:]  # Last 20 measurements
+            "effectiveness_trend": self.monitoring_data["effectiveness_trend"][
+                -20:
+            ],  # Last 20 measurements
         }
 
     def force_optimization_for_agent(self, agent_type: str) -> bool:
         """Force optimization enforcement for a specific agent type."""
-        if agent_type.lower() not in [agent.lower() for agent in self.enforcement_config["agent_types_enforced"]]:
+        if agent_type.lower() not in [
+            agent.lower() for agent in self.enforcement_config["agent_types_enforced"]
+        ]:
             self.enforcement_config["agent_types_enforced"].append(agent_type.lower())
 
             # Save updated configuration
             self.enforcement_config["last_updated"] = datetime.now().isoformat()
-            with open(self.enforcement_config_path, 'w') as f:
+            with open(self.enforcement_config_path, "w") as f:
                 json.dump(self.enforcement_config, f, indent=2)
 
             return True
@@ -377,13 +398,13 @@ class MandatoryOptimizationEnforcer:
     def is_optimization_mandatory(self) -> bool:
         """Check if optimization is mandatory for all agents."""
         return (
-            self.enforcement_config["enforcement_enabled"] and
-            self.enforcement_config["mandatory_for_all_agents"]
+            self.enforcement_config["enforcement_enabled"]
+            and self.enforcement_config["mandatory_for_all_agents"]
         )
 
 
 # Global enforcer instance
-_global_enforcer: Optional[MandatoryOptimizationEnforcer] = None
+_global_enforcer: MandatoryOptimizationEnforcer | None = None
 
 
 def get_enforcer() -> MandatoryOptimizationEnforcer:
@@ -396,7 +417,9 @@ def get_enforcer() -> MandatoryOptimizationEnforcer:
     return _global_enforcer
 
 
-def enforce_mandatory_optimization(user_input: str, ai_response: str = "", interaction_type: str = "general") -> dict[str, Any]:
+def enforce_mandatory_optimization(
+    user_input: str, ai_response: str = "", interaction_type: str = "general"
+) -> dict[str, Any]:
     """
     MANDATORY token optimization enforcement for ALL AI interactions.
 
@@ -426,11 +449,13 @@ def initialize_mandatory_optimization() -> bool:
             agent_type = "claude"
         else:
             # Check for common AI assistant indicators
-            env_vars = " ".join([
-                os.environ.get("AI_ASSISTANT", ""),
-                os.environ.get("MODEL_NAME", ""),
-                os.environ.get("ASSISTANT_TYPE", "")
-            ]).lower()
+            env_vars = " ".join(
+                [
+                    os.environ.get("AI_ASSISTANT", ""),
+                    os.environ.get("MODEL_NAME", ""),
+                    os.environ.get("ASSISTANT_TYPE", ""),
+                ]
+            ).lower()
 
             if "claude" in env_vars:
                 agent_type = "claude"

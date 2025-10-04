@@ -10,19 +10,19 @@ safety compliance.
 from __future__ import annotations
 
 import json
-import os
 import sys
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from afs_fastapi.services.realtime_token_optimizer import (
+from afs_fastapi.services.realtime_token_optimizer import (  # noqa: E402
     ConversationOptimizationMiddleware,
+    OptimizationLevel,
     RealTimeTokenOptimizer,
-    OptimizationLevel
 )
 
 
@@ -47,12 +47,12 @@ class ConversationManager:
         self.load_configuration()
 
         # Session management
-        self.active_conversations: Dict[str, Dict[str, Any]] = {}
+        self.active_conversations: dict[str, dict[str, Any]] = {}
         self.default_conversation_id = "main"
 
         # Integration hooks
-        self.pre_processing_hooks: List[callable] = []
-        self.post_processing_hooks: List[callable] = []
+        self.pre_processing_hooks: list[Callable] = []
+        self.post_processing_hooks: list[Callable] = []
 
         # Performance monitoring
         self.total_interactions = 0
@@ -70,7 +70,7 @@ class ConversationManager:
             "adaptive_mode": True,
             "auto_export_sessions": True,
             "agricultural_safety_level": "standard",
-            "context_window_size": 10
+            "context_window_size": 10,
         }
 
         if self.config_path.exists():
@@ -87,7 +87,7 @@ class ConversationManager:
     def save_configuration(self) -> None:
         """Save current configuration to disk."""
         self.config_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(self.config_path, 'w') as f:
+        with open(self.config_path, "w") as f:
             json.dump(self.config, f, indent=2)
 
     def process_conversation_turn(
@@ -95,8 +95,8 @@ class ConversationManager:
         user_input: str,
         ai_response: str = "",
         conversation_id: str | None = None,
-        optimization_level: OptimizationLevel | None = None
-    ) -> Dict[str, Any]:
+        optimization_level: OptimizationLevel | None = None,
+    ) -> dict[str, Any]:
         """
         Process a complete conversation turn with optimization.
 
@@ -136,7 +136,7 @@ class ConversationManager:
             self.active_conversations[conversation_id] = {
                 "created": self.optimizer.session_start.isoformat(),
                 "turns": 0,
-                "total_tokens_saved": 0
+                "total_tokens_saved": 0,
             }
 
         conversation = self.active_conversations[conversation_id]
@@ -152,29 +152,22 @@ class ConversationManager:
         # Build comprehensive result
         result = {
             "conversation_id": conversation_id,
-            "optimized_content": {
-                "user_input": optimized_input,
-                "ai_response": optimized_response
-            },
-            "original_content": {
-                "user_input": user_input,
-                "ai_response": ai_response
-            },
+            "optimized_content": {"user_input": optimized_input, "ai_response": optimized_response},
+            "original_content": {"user_input": user_input, "ai_response": ai_response},
             "optimization_metadata": {
                 "input": input_metadata,
                 "response": response_metadata,
                 "total_tokens_saved": (
-                    input_metadata.get("tokens_saved", 0) +
-                    response_metadata.get("tokens_saved", 0)
+                    input_metadata.get("tokens_saved", 0) + response_metadata.get("tokens_saved", 0)
                 ),
-                "conversation_turn": conversation["turns"]
+                "conversation_turn": conversation["turns"],
             },
             "conversation_metrics": self.get_conversation_metrics(conversation_id),
             "agricultural_compliance": {
                 "agricultural_keywords_detected": input_metadata.get("agricultural_keywords", []),
                 "safety_critical": input_metadata.get("safety_critical", False),
-                "compliance_maintained": True
-            }
+                "compliance_maintained": True,
+            },
         }
 
         # Run post-processing hooks
@@ -191,11 +184,8 @@ class ConversationManager:
         return result
 
     def optimize_command_interaction(
-        self,
-        command: str,
-        output: str,
-        command_type: str = "general"
-    ) -> Dict[str, Any]:
+        self, command: str, output: str, command_type: str = "general"
+    ) -> dict[str, Any]:
         """
         Optimize command-line tool interactions.
 
@@ -224,10 +214,10 @@ class ConversationManager:
             user_input=contextualized_input,
             ai_response=output,
             conversation_id=f"cmd_{command_type}",
-            optimization_level=opt_level
+            optimization_level=opt_level,
         )
 
-    def get_conversation_metrics(self, conversation_id: str) -> Dict[str, Any]:
+    def get_conversation_metrics(self, conversation_id: str) -> dict[str, Any]:
         """Get metrics for specific conversation."""
         if conversation_id not in self.active_conversations:
             return {"error": "Conversation not found"}
@@ -238,10 +228,10 @@ class ConversationManager:
         return {
             "conversation_specific": conversation,
             "session_summary": optimizer_summary,
-            "optimization_status": self.middleware.get_optimization_status()
+            "optimization_status": self.middleware.get_optimization_status(),
         }
 
-    def get_global_metrics(self) -> Dict[str, Any]:
+    def get_global_metrics(self) -> dict[str, Any]:
         """Get global conversation management metrics."""
         return {
             "total_interactions": self.total_interactions,
@@ -250,7 +240,7 @@ class ConversationManager:
             "conversation_list": list(self.active_conversations.keys()),
             "configuration": self.config,
             "optimization_enabled": self.middleware.optimization_enabled,
-            "platform_summary": self.optimizer.get_conversation_summary()
+            "platform_summary": self.optimizer.get_conversation_summary(),
         }
 
     def enable_optimization(self, enabled: bool = True) -> None:
@@ -263,7 +253,7 @@ class ConversationManager:
         self,
         token_budget: int | None = None,
         adaptive_mode: bool | None = None,
-        debug_mode: bool | None = None
+        debug_mode: bool | None = None,
     ) -> None:
         """Configure optimization parameters."""
         if token_budget is not None:
@@ -282,8 +272,8 @@ class ConversationManager:
 
     def register_hooks(
         self,
-        pre_processing_hook: callable | None = None,
-        post_processing_hook: callable | None = None
+        pre_processing_hook: Callable | None = None,
+        post_processing_hook: Callable | None = None,
     ) -> None:
         """Register processing hooks for custom integrations."""
         if pre_processing_hook:
@@ -291,7 +281,7 @@ class ConversationManager:
         if post_processing_hook:
             self.post_processing_hooks.append(post_processing_hook)
 
-    def export_conversation_data(self, conversation_id: str | None = None) -> List[Path]:
+    def export_conversation_data(self, conversation_id: str | None = None) -> list[Path]:
         """Export conversation data for analysis."""
         exported_files = []
 
@@ -301,13 +291,13 @@ class ConversationManager:
             exported_files.append(export_path)
         else:
             # Export all conversations
-            for conv_id in self.active_conversations:
+            for _conv_id in self.active_conversations:
                 export_path = self.optimizer.export_session_data()
                 exported_files.append(export_path)
 
         return exported_files
 
-    def reset_conversation(self, conversation_id: str) -> Dict[str, Any]:
+    def reset_conversation(self, conversation_id: str) -> dict[str, Any]:
         """Reset specific conversation and return final metrics."""
         if conversation_id in self.active_conversations:
             final_metrics = self.get_conversation_metrics(conversation_id)
@@ -315,7 +305,7 @@ class ConversationManager:
             return final_metrics
         return {"error": "Conversation not found"}
 
-    def reset_all_conversations(self) -> Dict[str, Any]:
+    def reset_all_conversations(self) -> dict[str, Any]:
         """Reset all conversations and return global metrics."""
         final_metrics = self.get_global_metrics()
 
@@ -333,7 +323,7 @@ class ConversationManager:
 
         return final_metrics
 
-    def compress_conversation_history(self, conversation_id: str | None = None) -> Dict[str, Any]:
+    def compress_conversation_history(self, conversation_id: str | None = None) -> dict[str, Any]:
         """Compress conversation history for a specific conversation or all."""
         compressed_history, tokens_saved = self.optimizer.optimize_conversation_history()
 
@@ -341,7 +331,7 @@ class ConversationManager:
             "compressed_history": compressed_history,
             "tokens_saved": tokens_saved,
             "compression_applied": len(compressed_history) > 0,
-            "conversation_id": conversation_id or "all"
+            "conversation_id": conversation_id or "all",
         }
 
 
@@ -360,10 +350,8 @@ def get_conversation_manager(project_root: Path | None = None) -> ConversationMa
 
 
 def optimize_interaction(
-    user_input: str,
-    ai_response: str = "",
-    command_type: str = "general"
-) -> Dict[str, Any]:
+    user_input: str, ai_response: str = "", command_type: str = "general"
+) -> dict[str, Any]:
     """
     Convenience function for optimizing any AI interaction.
 
@@ -383,7 +371,7 @@ def optimize_interaction(
         return manager.optimize_command_interaction(user_input, ai_response, command_type)
 
 
-def get_optimization_status() -> Dict[str, Any]:
+def get_optimization_status() -> dict[str, Any]:
     """Get current optimization status across the platform."""
     manager = get_conversation_manager()
     return manager.get_global_metrics()
@@ -393,7 +381,7 @@ def configure_optimization(
     enabled: bool | None = None,
     token_budget: int | None = None,
     adaptive_mode: bool | None = None,
-    debug_mode: bool | None = None
+    debug_mode: bool | None = None,
 ) -> None:
     """Configure platform-wide optimization settings."""
     manager = get_conversation_manager()
@@ -402,22 +390,21 @@ def configure_optimization(
         manager.enable_optimization(enabled)
 
     manager.set_optimization_parameters(
-        token_budget=token_budget,
-        adaptive_mode=adaptive_mode,
-        debug_mode=debug_mode
+        token_budget=token_budget, adaptive_mode=adaptive_mode, debug_mode=debug_mode
     )
 
 
 # Integration decorator for automatic optimization
 def optimize_ai_interaction(command_type: str = "general"):
     """Decorator to automatically optimize AI interactions."""
+
     def decorator(func):
         def wrapper(*args, **kwargs):
             # Execute original function
             result = func(*args, **kwargs)
 
             # Extract input/output for optimization
-            if hasattr(result, '__dict__'):
+            if hasattr(result, "__dict__"):
                 # Handle object results
                 input_text = str(args[0]) if args else "function_call"
                 output_text = str(result)
@@ -429,9 +416,7 @@ def optimize_ai_interaction(command_type: str = "general"):
 
             # Apply optimization
             optimization_result = optimize_interaction(
-                user_input=input_text,
-                ai_response=output_text,
-                command_type=command_type
+                user_input=input_text, ai_response=output_text, command_type=command_type
             )
 
             # Return original result with optimization metadata
@@ -441,4 +426,5 @@ def optimize_ai_interaction(command_type: str = "general"):
             return result
 
         return wrapper
+
     return decorator
