@@ -13,12 +13,13 @@ import json
 import re
 import time
 from collections import deque
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
 
-from .ai_processing_pipeline import AIProcessingPipeline, OptimizationLevel, PipelineResult
+from .ai_processing_pipeline import AIProcessingPipeline, OptimizationLevel
 
 
 @dataclass
@@ -32,7 +33,7 @@ class ConversationTurn:
     optimized_tokens: int
     tokens_saved: int
     optimization_level: OptimizationLevel
-    agricultural_keywords: List[str] = field(default_factory=list)
+    agricultural_keywords: list[str] = field(default_factory=list)
     safety_critical: bool = False
 
     @property
@@ -94,7 +95,7 @@ class RealTimeTokenOptimizer:
 
         # Real-time metrics
         self.metrics = ConversationMetrics()
-        self.optimization_callbacks: List[Callable[[ConversationTurn], None]] = []
+        self.optimization_callbacks: list[Callable[[ConversationTurn], None]] = []
 
         # Dynamic optimization settings
         self.adaptive_mode = True
@@ -107,12 +108,30 @@ class RealTimeTokenOptimizer:
 
         # Agricultural safety monitoring
         self.safety_keywords = {
-            "emergency", "stop", "critical", "danger", "fault", "collision",
-            "brake", "shutdown", "abort", "malfunction", "alert"
+            "emergency",
+            "stop",
+            "critical",
+            "danger",
+            "fault",
+            "collision",
+            "brake",
+            "shutdown",
+            "abort",
+            "malfunction",
+            "alert",
         }
         self.agricultural_keywords = {
-            "iso", "11783", "18497", "tractor", "equipment", "field",
-            "agricultural", "farming", "harvest", "cultivation", "isobus"
+            "iso",
+            "11783",
+            "18497",
+            "tractor",
+            "equipment",
+            "field",
+            "agricultural",
+            "farming",
+            "harvest",
+            "cultivation",
+            "isobus",
         }
 
     def _generate_session_id(self) -> str:
@@ -123,7 +142,7 @@ class RealTimeTokenOptimizer:
         self,
         user_input: str,
         ai_response: str = "",
-        force_optimization_level: OptimizationLevel | None = None
+        force_optimization_level: OptimizationLevel | None = None,
     ) -> ConversationTurn:
         """
         Optimize a single conversation turn in real-time.
@@ -168,8 +187,7 @@ class RealTimeTokenOptimizer:
                     optimization_level = OptimizationLevel.AGGRESSIVE
 
                 pipeline_result = self.pipeline.process_complete_pipeline(
-                    user_input=contextualized_input,
-                    optimization_level=optimization_level
+                    user_input=contextualized_input, optimization_level=optimization_level
                 )
                 optimized_response = pipeline_result.final_output
 
@@ -181,9 +199,13 @@ class RealTimeTokenOptimizer:
                 if optimized_tokens > self.token_budget_per_turn:
                     # Truncate response to fit budget
                     budget_ratio = self.token_budget_per_turn / optimized_tokens
-                    target_length = int(len(optimized_response) * budget_ratio * 0.8)  # 80% of budget for safety
+                    target_length = int(
+                        len(optimized_response) * budget_ratio * 0.8
+                    )  # 80% of budget for safety
                     optimized_response = optimized_response[:target_length] + "..."
-                    optimized_tokens = self._estimate_tokens(contextualized_input + optimized_response)
+                    optimized_tokens = self._estimate_tokens(
+                        contextualized_input + optimized_response
+                    )
 
             else:
                 # Optimize input only
@@ -197,8 +219,7 @@ class RealTimeTokenOptimizer:
                     contextualized_input = contextualized_input[:target_length] + "..."
 
                 pipeline_result = self.pipeline.process_complete_pipeline(
-                    user_input=contextualized_input,
-                    optimization_level=optimization_level
+                    user_input=contextualized_input, optimization_level=optimization_level
                 )
                 optimized_response = ""
                 optimized_tokens = self._estimate_tokens(contextualized_input)
@@ -223,7 +244,7 @@ class RealTimeTokenOptimizer:
             tokens_saved=tokens_saved,
             optimization_level=optimization_level,
             agricultural_keywords=agricultural_keywords,
-            safety_critical=safety_critical
+            safety_critical=safety_critical,
         )
 
         # Update conversation history and metrics
@@ -245,19 +266,59 @@ class RealTimeTokenOptimizer:
             return user_input
 
         # Get recent context
-        recent_turns = list(self.conversation_history)[-self.context_window_size:]
+        recent_turns = list(self.conversation_history)[-self.context_window_size :]
 
         # Build context summary for redundancy detection
         recent_topics = set()
         for turn in recent_turns:
             # Extract key topics from previous inputs
-            words = re.findall(r'\b\w+\b', turn.user_input.lower())
-            significant_words = [w for w in words if len(w) > 3 and w not in {
-                'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had',
-                'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his',
-                'how', 'its', 'new', 'now', 'old', 'see', 'two', 'who', 'boy', 'did',
-                'does', 'help', 'need', 'want', 'please', 'could', 'would', 'should'
-            }]
+            words = re.findall(r"\b\w+\b", turn.user_input.lower())
+            significant_words = [
+                w
+                for w in words
+                if len(w) > 3
+                and w
+                not in {
+                    "the",
+                    "and",
+                    "for",
+                    "are",
+                    "but",
+                    "not",
+                    "you",
+                    "all",
+                    "can",
+                    "had",
+                    "her",
+                    "was",
+                    "one",
+                    "our",
+                    "out",
+                    "day",
+                    "get",
+                    "has",
+                    "him",
+                    "his",
+                    "how",
+                    "its",
+                    "new",
+                    "now",
+                    "old",
+                    "see",
+                    "two",
+                    "who",
+                    "boy",
+                    "did",
+                    "does",
+                    "help",
+                    "need",
+                    "want",
+                    "please",
+                    "could",
+                    "would",
+                    "should",
+                }
+            ]
             recent_topics.update(significant_words)
 
         # Remove redundant references if context is available
@@ -266,14 +327,14 @@ class RealTimeTokenOptimizer:
 
         # Remove phrases that reference previous context redundantly
         redundant_phrases = [
-            r'\bas\s+mentioned\s+before\b',
-            r'\blike\s+we\s+discussed\b',
-            r'\bin\s+the\s+previous\s+conversation\b',
-            r'\bcontinuing\s+from\s+earlier\b'
+            r"\bas\s+mentioned\s+before\b",
+            r"\blike\s+we\s+discussed\b",
+            r"\bin\s+the\s+previous\s+conversation\b",
+            r"\bcontinuing\s+from\s+earlier\b",
         ]
 
         for pattern in redundant_phrases:
-            optimized_input = re.sub(pattern, '', optimized_input, flags=re.IGNORECASE)
+            optimized_input = re.sub(pattern, "", optimized_input, flags=re.IGNORECASE)
 
         # Compress repetitive topic references
         if len(recent_topics) > 5:
@@ -281,17 +342,19 @@ class RealTimeTokenOptimizer:
             for topic in recent_topics:
                 if topic in current_words and len(topic) > 4:
                     # Replace with shorter reference if not agricultural/safety term
-                    if (topic not in self.agricultural_keywords and
-                        topic not in self.safety_keywords):
-                        pattern = r'\b' + re.escape(topic) + r'\b'
+                    if (
+                        topic not in self.agricultural_keywords
+                        and topic not in self.safety_keywords
+                    ):
+                        pattern = r"\b" + re.escape(topic) + r"\b"
                         if optimized_input.lower().count(topic) > 1:
                             # Replace second and subsequent occurrences
                             optimized_input = re.sub(
-                                pattern, 'it', optimized_input, count=1, flags=re.IGNORECASE
+                                pattern, "it", optimized_input, count=1, flags=re.IGNORECASE
                             )
 
         # Clean up extra whitespace
-        optimized_input = re.sub(r'\s+', ' ', optimized_input).strip()
+        optimized_input = re.sub(r"\s+", " ", optimized_input).strip()
 
         # Ensure we have some content
         return optimized_input if optimized_input else user_input
@@ -333,7 +396,9 @@ class RealTimeTokenOptimizer:
             return OptimizationLevel.STANDARD
 
         recent_turns = list(self.conversation_history)[-5:]  # Last 5 turns
-        avg_tokens_per_turn = sum(turn.optimized_tokens for turn in recent_turns) / len(recent_turns)
+        avg_tokens_per_turn = sum(turn.optimized_tokens for turn in recent_turns) / len(
+            recent_turns
+        )
 
         # Check budget pressure
         budget_pressure = avg_tokens_per_turn / self.token_budget_per_turn
@@ -349,7 +414,7 @@ class RealTimeTokenOptimizer:
         """Estimate token count for text (rough approximation)."""
         return max(1, len(text) // 4)
 
-    def get_conversation_summary(self) -> Dict[str, Any]:
+    def get_conversation_summary(self) -> dict[str, Any]:
         """Get comprehensive conversation optimization summary."""
         session_duration = datetime.now() - self.session_start
 
@@ -361,7 +426,9 @@ class RealTimeTokenOptimizer:
 
         # Identify optimization patterns
         optimization_levels = [turn.optimization_level.value for turn in self.conversation_history]
-        level_counts = {level: optimization_levels.count(level) for level in set(optimization_levels)}
+        level_counts = {
+            level: optimization_levels.count(level) for level in set(optimization_levels)
+        }
 
         return {
             "session_id": self.current_session_id,
@@ -373,26 +440,32 @@ class RealTimeTokenOptimizer:
                 "average_reduction_percent": self.metrics.average_reduction,
                 "agricultural_turns": self.metrics.agricultural_turns,
                 "safety_critical_turns": self.metrics.safety_critical_turns,
-                "optimization_failures": self.metrics.optimization_failures
+                "optimization_failures": self.metrics.optimization_failures,
             },
             "recent_performance": {
                 "turns": len(recent_turns),
                 "tokens_saved": recent_savings,
-                "reduction_percent": recent_reduction
+                "reduction_percent": recent_reduction,
             },
             "optimization_patterns": {
                 "level_distribution": level_counts,
                 "adaptive_mode": self.adaptive_mode,
-                "current_budget_per_turn": self.token_budget_per_turn
+                "current_budget_per_turn": self.token_budget_per_turn,
             },
             "conversation_health": {
                 "context_window_size": len(self.conversation_history),
-                "agricultural_focus_percent": (self.metrics.agricultural_turns / max(1, self.metrics.total_turns)) * 100,
-                "safety_awareness_percent": (self.metrics.safety_critical_turns / max(1, self.metrics.total_turns)) * 100
-            }
+                "agricultural_focus_percent": (
+                    self.metrics.agricultural_turns / max(1, self.metrics.total_turns)
+                )
+                * 100,
+                "safety_awareness_percent": (
+                    self.metrics.safety_critical_turns / max(1, self.metrics.total_turns)
+                )
+                * 100,
+            },
         }
 
-    def optimize_conversation_history(self) -> Tuple[str, int]:
+    def optimize_conversation_history(self) -> tuple[str, int]:
         """
         Optimize entire conversation history for context compression.
 
@@ -415,7 +488,6 @@ class RealTimeTokenOptimizer:
                 recent_text.append(f"AI: {turn.ai_response}")
 
         recent_history_text = "\n".join(recent_text)
-        original_recent_tokens = self._estimate_tokens(recent_history_text)
 
         # Compress older history
         if older_history:
@@ -431,7 +503,7 @@ class RealTimeTokenOptimizer:
                     safety_mentioned = True
 
                 # Extract key topics
-                words = re.findall(r'\b\w+\b', turn.user_input.lower())
+                words = re.findall(r"\b\w+\b", turn.user_input.lower())
                 significant_words = [w for w in words if len(w) > 4][:3]  # Top 3 per turn
                 older_topics.update(significant_words)
 
@@ -459,8 +531,10 @@ class RealTimeTokenOptimizer:
             compressed_history = recent_history_text
 
         # Calculate savings
-        original_total_tokens = sum(self._estimate_tokens(f"{t.user_input} {t.ai_response}")
-                                  for t in self.conversation_history)
+        original_total_tokens = sum(
+            self._estimate_tokens(f"{t.user_input} {t.ai_response}")
+            for t in self.conversation_history
+        )
         compressed_tokens = self._estimate_tokens(compressed_history)
         tokens_saved = max(0, original_total_tokens - compressed_tokens)
 
@@ -478,7 +552,7 @@ class RealTimeTokenOptimizer:
         """Enable or disable adaptive optimization mode."""
         self.adaptive_mode = enabled
 
-    def reset_session(self) -> Dict[str, Any]:
+    def reset_session(self) -> dict[str, Any]:
         """Reset current session and return final metrics."""
         final_summary = self.get_conversation_summary()
 
@@ -493,7 +567,12 @@ class RealTimeTokenOptimizer:
     def export_session_data(self, output_path: Path | None = None) -> Path:
         """Export session data for analysis."""
         if output_path is None:
-            output_path = self.project_root / ".claude" / "optimization_sessions" / f"{self.current_session_id}.json"
+            output_path = (
+                self.project_root
+                / ".claude"
+                / "optimization_sessions"
+                / f"{self.current_session_id}.json"
+            )
 
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -511,13 +590,13 @@ class RealTimeTokenOptimizer:
                     "optimization_level": turn.optimization_level.value,
                     "agricultural_keywords": turn.agricultural_keywords,
                     "safety_critical": turn.safety_critical,
-                    "reduction_percentage": turn.reduction_percentage
+                    "reduction_percentage": turn.reduction_percentage,
                 }
                 for turn in self.conversation_history
-            ]
+            ],
         }
 
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             json.dump(export_data, f, indent=2)
 
         return output_path
@@ -537,7 +616,7 @@ class ConversationOptimizationMiddleware:
         self.optimization_enabled = True
         self.debug_mode = False
 
-    def process_user_input(self, user_input: str) -> Tuple[str, Dict[str, Any]]:
+    def process_user_input(self, user_input: str) -> tuple[str, dict[str, Any]]:
         """
         Process user input with optimization.
 
@@ -550,7 +629,7 @@ class ConversationOptimizationMiddleware:
         # Apply input-specific optimization
         turn = self.optimizer.optimize_conversation_turn(user_input=user_input)
 
-        optimization_metadata = {
+        optimization_metadata: dict[str, Any] = {
             "optimization_applied": True,
             "original_tokens": turn.original_tokens,
             "optimized_tokens": turn.optimized_tokens,
@@ -558,19 +637,21 @@ class ConversationOptimizationMiddleware:
             "optimization_level": turn.optimization_level.value,
             "agricultural_keywords": turn.agricultural_keywords,
             "safety_critical": turn.safety_critical,
-            "reduction_percentage": turn.reduction_percentage
+            "reduction_percentage": turn.reduction_percentage,
         }
 
         if self.debug_mode:
             optimization_metadata["debug_info"] = {
                 "original_input": user_input,
                 "conversation_history_size": len(self.optimizer.conversation_history),
-                "session_metrics": self.optimizer.get_conversation_summary()
+                "session_metrics": self.optimizer.get_conversation_summary(),
             }
 
         return turn.user_input, optimization_metadata
 
-    def process_ai_response(self, ai_response: str, user_input: str = "") -> Tuple[str, Dict[str, Any]]:
+    def process_ai_response(
+        self, ai_response: str, user_input: str = ""
+    ) -> tuple[str, dict[str, Any]]:
         """
         Process AI response with optimization.
 
@@ -582,11 +663,10 @@ class ConversationOptimizationMiddleware:
 
         # Apply response optimization
         turn = self.optimizer.optimize_conversation_turn(
-            user_input=user_input,
-            ai_response=ai_response
+            user_input=user_input, ai_response=ai_response
         )
 
-        optimization_metadata = {
+        optimization_metadata: dict[str, Any] = {
             "optimization_applied": True,
             "original_tokens": turn.original_tokens,
             "optimized_tokens": turn.optimized_tokens,
@@ -594,21 +674,21 @@ class ConversationOptimizationMiddleware:
             "optimization_level": turn.optimization_level.value,
             "agricultural_keywords": turn.agricultural_keywords,
             "safety_critical": turn.safety_critical,
-            "reduction_percentage": turn.reduction_percentage
+            "reduction_percentage": turn.reduction_percentage,
         }
 
         return turn.ai_response, optimization_metadata
 
-    def get_optimization_status(self) -> Dict[str, Any]:
+    def get_optimization_status(self) -> dict[str, Any]:
         """Get current optimization status and metrics."""
         return {
             "enabled": self.optimization_enabled,
             "debug_mode": self.debug_mode,
             "session_summary": self.optimizer.get_conversation_summary(),
-            "recent_performance": self._get_recent_performance()
+            "recent_performance": self._get_recent_performance(),
         }
 
-    def _get_recent_performance(self) -> Dict[str, Any]:
+    def _get_recent_performance(self) -> dict[str, Any]:
         """Get recent optimization performance metrics."""
         recent_turns = list(self.optimizer.conversation_history)[-5:]
         if not recent_turns:
@@ -618,7 +698,7 @@ class ConversationOptimizationMiddleware:
         return {
             "turns": len(recent_turns),
             "average_reduction": total_reduction / len(recent_turns),
-            "total_tokens_saved": sum(turn.tokens_saved for turn in recent_turns)
+            "total_tokens_saved": sum(turn.tokens_saved for turn in recent_turns),
         }
 
     def enable_optimization(self, enabled: bool = True) -> None:
