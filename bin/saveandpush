@@ -88,23 +88,33 @@ if ! git diff --quiet || ! git diff --cached --quiet || [[ -n "$(git ls-files --
     MODIFIED_FILES=$(git status --porcelain | wc -l | tr -d ' ')
     echo -e "${GREEN}✓ Found ${MODIFIED_FILES} files with changes${NC}"
 
-    echo -e "${BLUE}📁 Step 4: Staging all files...${NC}"
-    git add -A
-    echo -e "${GREEN}✓ All files staged${NC}"
-    echo
-
-    echo -e "${BLUE}📝 Step 5: Updating CHANGELOG.md...${NC}"
+    echo -e "${BLUE}📝 Step 4: Updating CHANGELOG.md...${NC}"
     if ! ./bin/updatechangelog; then
         echo -e "${YELLOW}⚠️  CHANGELOG update completed (may be no new commits)${NC}"
     else
         echo -e "${GREEN}✓ CHANGELOG.md updated${NC}"
     fi
+    echo
 
-    # Stage CHANGELOG.md if it was modified
+    echo -e "${BLUE}📁 Step 5: Staging modified files...${NC}"
+    # Stage only files that have actual changes (not CHANGELOG.md yet)
+    git add --update  # Stage tracked files that have been modified
+
+    # Stage new untracked files if any exist
+    UNTRACKED_FILES=$(git ls-files --others --exclude-standard)
+    if [[ -n "$UNTRACKED_FILES" ]]; then
+        git add $UNTRACKED_FILES
+        echo -e "${GREEN}✓ Untracked files staged${NC}"
+    fi
+
+    # Stage CHANGELOG.md only if it was modified by updatechangelog
     if [[ -n "$(git status --porcelain CHANGELOG.md)" ]]; then
         git add CHANGELOG.md
-        echo -e "${GREEN}✓ CHANGELOG.md staged${NC}"
+        echo -e "${GREEN}✓ CHANGELOG.md staged (modified)${NC}"
+    else
+        echo -e "${BLUE}ℹ️  CHANGELOG.md not modified, not staged${NC}"
     fi
+    echo -e "${GREEN}✓ Modified files staged${NC}"
     echo
 
     echo -e "${BLUE}💬 Step 6: Creating commit message...${NC}"

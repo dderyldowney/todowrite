@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **infrastructure**: Fix saveandpush command staging logic preventing CHANGELOG enforcement failures
+  - Corrected file staging order to update CHANGELOG.md before staging files
+  - Fixed selective staging to only stage files with actual changes rather than using `git add -A`
+  - Added robust handling for untracked files to prevent command errors
+  - Ensures CHANGELOG.md enforcement hook compliance for agricultural safety requirements
+  - Critical fix for session management workflow supporting cross-agent infrastructure sharing
+
 ### Changed
 - **monitoring**: Update agricultural AI session tracking and optimization monitoring state
   - Incremented session monitoring count to track agricultural equipment optimization effectiveness
