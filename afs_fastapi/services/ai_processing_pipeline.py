@@ -27,6 +27,28 @@ from typing import Any
 sys.path.append(str(Path(__file__).parent.parent.parent / ".claude" / "utilities"))
 
 try:
+    import markdown_it  # type: ignore[import-untyped]
+except ImportError:
+    markdown_it = None  # type: ignore[assignment]
+
+
+# Universal Tree class that works with or without markdown_it
+class Tree:
+    def __init__(self, tokens):
+        self.tokens = tokens
+
+    def render(self):
+        if markdown_it is None:
+            return ""
+        # Simple fallback rendering
+        content_parts = []
+        for token in self.tokens:
+            if hasattr(token, "content") and token.content:
+                content_parts.append(token.content)
+        return " ".join(content_parts)
+
+
+try:
     from response_compressor import ResponseCompressor  # type: ignore[import-not-found]
 except ImportError:
     # Fallback if response compressor not available
@@ -63,6 +85,14 @@ class OptimizationLevel(Enum):
             return 0.30  # Default to standard
 
 
+class TargetFormat(Enum):
+    """Defines the desired output format for the decoding stage."""
+
+    STANDARD = "standard"
+    BRIEF = "brief"
+    BULLET_POINTS = "bullet_points"
+
+
 @dataclass
 class PipelineContext:
     """Context data structure for AI processing pipeline operations."""
@@ -73,7 +103,7 @@ class PipelineContext:
     agricultural_safety_preserved: bool = True
     generated_response: str = ""
     raw_output: str = ""
-    target_format: str = "standard"
+    target_format: TargetFormat = TargetFormat.STANDARD
 
     # Optimization results
     tokens_saved: int = 0
@@ -168,7 +198,9 @@ class AIProcessingPipeline:
         # Initialize integrated components
         self.response_compressor = self._initialize_response_compressor()
         self.session_state = self._load_session_state()
+        self.context_library = self._load_context_library()
         self.essential_context = self._load_essential_context()
+        self.md_parser = markdown_it.MarkdownIt() if markdown_it else None
 
         # Cumulative optimization tracking
         self._cumulative_tokens_saved = 0
@@ -212,6 +244,18 @@ class AIProcessingPipeline:
 
         return "# Essential Context\n- Agricultural robotics platform\n- Safety-critical operations"
 
+    def _load_context_library(self) -> dict[str, Any]:
+        """Load keyword-driven context library for dynamic assembly."""
+        library_file = self.context_dir / "context_library.json"
+        if library_file.exists():
+            try:
+                with open(library_file) as f:
+                    return json.load(f)
+            except (OSError, json.JSONDecodeError):
+                pass
+        # Fallback with just a core context
+        return {"core_context": {"content": "AFS FastAPI Platform."}}
+
     def optimize_pre_fill_stage(self, context: PipelineContext) -> PipelineContext:
         """
         Optimize pre-fill stage through context compression.
@@ -219,40 +263,38 @@ class AIProcessingPipeline:
         Applies existing context optimization from essential.md to reduce
         initial context loading tokens while preserving agricultural safety content.
         """
-        # Use larger context for optimization simulation if session_context is small
-        if len(context.session_context) < 200:
-            # Simulate full documentation context for optimization
-            full_context = f"""
-            {context.session_context}
+        # Simulate original context size for savings calculation (e.g., full SESSION_SUMMARY.md)
+        # A real implementation might load the full file to count tokens.
+        # Here we use a static number representing the unoptimized state.
+        original_tokens = 3000  # Approx. tokens for SESSION_SUMMARY.md
 
-            # Complete Agricultural Robotics Documentation
-            ## ISO 11783 Compliance Requirements
-            Detailed ISOBUS protocol implementation requirements for agricultural equipment.
+        # --- Start of Keyword-Driven Dynamic Assembly ---
+        assembled_context_parts = []
 
-            ## Multi-Tractor Fleet Coordination
-            Comprehensive documentation for coordinating multiple tractors in field operations.
+        # 1. Always include the core context
+        core_context = self.context_library.get("core_context", {}).get("content", "")
+        if core_context:
+            assembled_context_parts.append(core_context)
 
-            ## Safety Standards and Emergency Procedures
-            Complete safety protocols for agricultural robotics operations.
+        # 2. Parse user input for keywords and find matching snippets
+        user_input_lower = context.user_input.lower()
+        matched_snippet_ids = set()
 
-            ## Technical Implementation Guidelines
-            Extensive technical documentation for agricultural robotics development.
-            """
-            original_tokens = len(full_context) // 4
-        else:
-            original_tokens = len(context.session_context) // 4
+        for snippet in self.context_library.get("context_snippets", []):
+            for keyword in snippet.get("keywords", []):
+                if keyword in user_input_lower and snippet["id"] not in matched_snippet_ids:
+                    assembled_context_parts.append(f"Context for '{keyword}': {snippet['content']}")
+                    matched_snippet_ids.add(snippet["id"])
+                    break  # Move to the next snippet once one keyword matches
 
-        # Apply context compression using essential context
-        context.essential_content = self.essential_context
+        # 3. Assemble the final context
+        final_context = "\n\n".join(assembled_context_parts)
 
-        # Preserve agricultural keywords
-        agricultural_keywords = context.detect_agricultural_keywords()
-        if agricultural_keywords:
-            # Ensure agricultural context is preserved in essential content
-            agricultural_section = "\n## Agricultural Context\n"
-            for keyword in agricultural_keywords:
-                agricultural_section += f"- {keyword.upper()}: safety-critical\n"
-            context.essential_content += agricultural_section
+        # If no snippets matched, just use the core context
+        if not final_context:
+            final_context = core_context
+
+        context.essential_content = final_context
 
         # Calculate token savings
         optimized_tokens = len(context.essential_content) // 4
@@ -390,9 +432,56 @@ class AIProcessingPipeline:
 
         return context
 
+    def _decode_standard(self, tokens: list) -> str:
+        """Handler for 'standard' format. Performs light cleanup."""
+        return Tree(tokens).render()
+
+    def _decode_brief(self, tokens: list) -> str:
+        """Handler for 'brief' format. Extracts first sentence and safety sections."""
+        output_parts = []
+        first_paragraph_found = False
+
+        for i, token in enumerate(tokens):
+            # Extract first sentence of the first paragraph
+            if not first_paragraph_found and token.type == "paragraph_open":
+                first_paragraph_found = True
+                inline_content = tokens[i + 1].content
+                first_sentence = inline_content.split(".")[0] + "."
+                output_parts.append(first_sentence)
+
+            # Always include safety sections
+            if token.type == "heading_open" and "safety" in tokens[i + 1].content.lower():
+                # Reconstruct the heading and its content
+                heading_content = Tree([tokens[i], tokens[i + 1], tokens[i + 2]]).render()
+                paragraph_content = Tree([tokens[i + 3], tokens[i + 4], tokens[i + 5]]).render()
+                output_parts.append(f"\n\n{heading_content.strip()}\n\n{paragraph_content.strip()}")
+
+        return "\n\n".join(output_parts).strip()
+
+    def _decode_bullet_points(self, tokens: list) -> str:
+        """Handler for 'bullet_points' format. Extracts or creates bullet points."""
+        list_items = []
+        has_list = any(token.type == "bullet_list_open" for token in tokens)
+
+        if has_list:
+            for token in tokens:
+                if token.type == "inline" and token.level == 4:  # Content of a list item
+                    list_items.append(f"- {token.content}")
+        else:
+            # Fallback: create bullets from the first paragraph
+            for i, token in enumerate(tokens):
+                if token.type == "paragraph_open":
+                    content = tokens[i + 1].content
+                    sentences = [s.strip() for s in content.split(".") if s.strip()]
+                    for sentence in sentences:
+                        list_items.append(f"- {sentence}.")
+                    break  # Only process the first paragraph
+
+        return "\n".join(list_items)
+
     def optimize_decoding_stage(self, context: PipelineContext) -> PipelineContext:
         """
-        Optimize decoding stage through output format optimization.
+        Optimize decoding stage through format-aware structural parsing.
 
         Applies final formatting optimization based on target format
         while maintaining agricultural compliance requirements.
@@ -405,53 +494,23 @@ class AIProcessingPipeline:
         original_output = context.raw_output
         original_tokens = len(original_output) // 4
 
-        # Apply format-specific optimization
-        if context.target_format == "brief":
-            # Extract key points for brief format
-            lines = context.raw_output.split("\n")
-            key_lines = []
+        final_output = original_output
+        format_optimized = False
 
-            for line in lines:
-                # Keep lines with agricultural keywords or action words
-                if any(
-                    keyword in line.lower()
-                    for keyword in [
-                        "agricultural",
-                        "tractor",
-                        "safety",
-                        "iso",
-                        "implemented",
-                        "configured",
-                    ]
-                ):
-                    key_lines.append(line)
-                elif len(key_lines) < 2:  # Keep first 2 lines if no keywords
-                    key_lines.append(line)
+        if self.md_parser:
+            tokens = self.md_parser.parse(original_output)
+            if context.target_format == TargetFormat.STANDARD:
+                final_output = self._decode_standard(tokens)
+                format_optimized = True
+            elif context.target_format == TargetFormat.BRIEF:
+                final_output = self._decode_brief(tokens)
+                format_optimized = True
+            elif context.target_format == TargetFormat.BULLET_POINTS:
+                final_output = self._decode_bullet_points(tokens)
+                format_optimized = True
 
-            # If no key lines found, apply word-level compression
-            if not key_lines and lines:
-                # Take first sentence and compress it
-                first_line = lines[0] if lines else original_output
-                words = first_line.split()
-                # Keep first half of words for brief format
-                compressed_words = words[: len(words) // 2] if len(words) > 4 else words[:2]
-                key_lines = [" ".join(compressed_words)]
-
-            context.final_output = "\n".join(key_lines) if key_lines else "Brief output"
-            context.format_optimized = True
-
-        else:
-            # Standard format: minimal optimization
-            context.final_output = context.raw_output
-            context.format_optimized = False
-
-        # Ensure we have some optimization for brief mode
-        if context.target_format == "brief" and len(context.final_output) >= len(original_output):
-            # Force compression by taking only first half
-            words = original_output.split()
-            compressed_words = words[: len(words) // 2] if len(words) > 2 else words[:1]
-            context.final_output = " ".join(compressed_words)
-            context.format_optimized = True
+        context.final_output = final_output
+        context.format_optimized = format_optimized
 
         # Calculate token savings
         optimized_tokens = len(context.final_output) // 4

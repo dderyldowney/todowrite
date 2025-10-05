@@ -16,6 +16,7 @@ from afs_fastapi.services.ai_processing_pipeline import (
     OptimizationLevel,
     PipelineContext,
     ProcessingStage,
+    TargetFormat,
 )
 
 
@@ -105,20 +106,62 @@ class TestAIProcessingPipeline:
         assert optimized_response.compression_applied is True
         assert optimized_response.educational_value_preserved is True
 
-    def test_decoding_stage_optimization(self, pipeline):
-        """Test decoding stage applies output format optimization."""
-        # RED: Test decoding stage formats output for minimal token usage
+    @pytest.mark.parametrize(
+        "target_format, expected_output, description",
+        [
+            (
+                TargetFormat.BRIEF,
+                "This is the first sentence.",
+                "Brief format should extract only the first sentence of the first paragraph.",
+            ),
+            (
+                TargetFormat.BULLET_POINTS,
+                "- First item\n- Second item",
+                "Bullet points format should extract only list items.",
+            ),
+            (
+                TargetFormat.STANDARD,
+                "# Main Title\n\nThis is the first sentence. This is the second sentence.\n\n- First item\n- Second item\n\n## Safety Section\n\nCritical safety info.",
+                "Standard format should return the cleaned, full markdown.",
+            ),
+        ],
+    )
+    def test_decoding_stage_format_aware_parsing(
+        self, pipeline, target_format, expected_output, description
+    ):
+        """Test format-aware structural parsing for various target formats."""
         context = PipelineContext(
-            raw_output="Raw AI model output with verbose formatting",
-            target_format="brief",
-            optimization_target=0.2,  # 20% reduction target
+            raw_output="# Main Title\n\nThis is the first sentence. This is the second sentence.\n\n- First item\n- Second item\n\n## Safety Section\n\nCritical safety info.",
+            target_format=target_format,
         )
 
         optimized_output = pipeline.optimize_decoding_stage(context)
 
-        assert optimized_output.tokens_saved > 0
+        assert optimized_output.final_output == expected_output, description
         assert optimized_output.format_optimized is True
-        assert optimized_output.final_output is not None
+
+    def test_decoding_stage_brief_preserves_safety_section(self, pipeline):
+        """Verify 'brief' format always includes sections with 'safety' in the title."""
+        raw_output = (
+            "# Overview\n\nSome general info.\n\n"
+            "## Agricultural Safety Compliance\n\nThis is a critical safety warning that must always be preserved.\n\n"
+            "### Other Details\n\nMore info."
+        )
+        context = PipelineContext(raw_output=raw_output, target_format=TargetFormat.BRIEF)
+
+        optimized_output = pipeline.optimize_decoding_stage(context)
+
+        expected = "Some general info.\n\n## Agricultural Safety Compliance\n\nThis is a critical safety warning that must always be preserved."
+        assert optimized_output.final_output == expected
+
+    def test_decoding_stage_bullet_points_fallback(self, pipeline):
+        """Verify 'bullet_points' format creates bullets from paragraphs if no list exists."""
+        raw_output = "# Title\n\nFirst sentence. Second sentence."
+        context = PipelineContext(raw_output=raw_output, target_format=TargetFormat.BULLET_POINTS)
+
+        optimized_output = pipeline.optimize_decoding_stage(context)
+
+        assert optimized_output.final_output == "- First sentence.\n- Second sentence."
 
     def test_integrated_pipeline_execution(self, pipeline):
         """Test full pipeline integration across all four stages."""

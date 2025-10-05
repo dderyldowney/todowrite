@@ -1,11 +1,11 @@
 {
-  "total_sessions_monitored": 8,
+  "total_sessions_monitored": 12,
   "total_interactions_optimized": 1,
   "total_tokens_saved_all_time": 0,
   "average_optimization_effectiveness": 0.0,
   "agricultural_compliance_violations": 0,
   "enforcement_failures": 0,
-  "last_monitoring_update": "2025-10-04T16:30:40.414299",
+  "last_monitoring_update": "2025-10-05T10:45:59.206742",
   "session_history": [
     {
       "session_id": "session_1759598761",
@@ -81,6 +81,46 @@
       "session_id": "session_1759609533",
       "session_start": "2025-10-04T16:25:33.634803",
       "session_end": "2025-10-04T16:30:40.414286",
+      "total_interactions": 0,
+      "total_tokens_saved": 0,
+      "agricultural_interactions": 0,
+      "safety_critical_interactions": 0,
+      "agent_type": "unknown"
+    },
+    {
+      "session_id": "session_1759609840",
+      "session_start": "2025-10-04T16:30:40.414131",
+      "session_end": "2025-10-05T10:30:08.859336",
+      "total_interactions": 0,
+      "total_tokens_saved": 0,
+      "agricultural_interactions": 0,
+      "safety_critical_interactions": 0,
+      "agent_type": "unknown"
+    },
+    {
+      "session_id": "session_1759674608",
+      "session_start": "2025-10-05T10:30:08.858933",
+      "session_end": "2025-10-05T10:35:43.211705",
+      "total_interactions": 0,
+      "total_tokens_saved": 0,
+      "agricultural_interactions": 0,
+      "safety_critical_interactions": 0,
+      "agent_type": "unknown"
+    },
+    {
+      "session_id": "session_1759674943",
+      "session_start": "2025-10-05T10:35:43.211581",
+      "session_end": "2025-10-05T10:40:52.894648",
+      "total_interactions": 0,
+      "total_tokens_saved": 0,
+      "agricultural_interactions": 0,
+      "safety_critical_interactions": 0,
+      "agent_type": "unknown"
+    },
+    {
+      "session_id": "session_1759675252",
+      "session_start": "2025-10-05T10:40:52.894508",
+      "session_end": "2025-10-05T10:45:59.206733",
       "total_interactions": 0,
       "total_tokens_saved": 0,
       "agricultural_interactions": 0,
