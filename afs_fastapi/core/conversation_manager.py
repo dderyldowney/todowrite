@@ -25,6 +25,16 @@ from afs_fastapi.services.realtime_token_optimizer import (  # noqa: E402
     RealTimeTokenOptimizer,
 )
 
+# Import mandatory optimization enforcer for monitoring integration
+try:
+    claude_hooks_path = project_root / ".claude" / "hooks"
+    sys.path.insert(0, str(claude_hooks_path))
+    from mandatory_optimization_enforcement import get_enforcer  # type: ignore[import-not-found]
+
+    ENFORCER_AVAILABLE = True
+except ImportError:
+    ENFORCER_AVAILABLE = False
+
 
 class ConversationManager:
     """
@@ -41,6 +51,14 @@ class ConversationManager:
         # Initialize optimization components
         self.optimizer = RealTimeTokenOptimizer(project_root=self.project_root)
         self.middleware = ConversationOptimizationMiddleware(self.optimizer)
+
+        # Initialize enforcer for monitoring integration
+        self.enforcer = None
+        if ENFORCER_AVAILABLE:
+            try:
+                self.enforcer = get_enforcer()
+            except Exception:
+                pass  # Graceful fallback if enforcer unavailable
 
         # Configuration
         self.config_path = self.project_root / ".claude" / "conversation_config.json"
@@ -89,6 +107,36 @@ class ConversationManager:
         self.config_path.parent.mkdir(parents=True, exist_ok=True)
         with open(self.config_path, "w") as f:
             json.dump(self.config, f, indent=2)
+
+    def _track_optimization_with_enforcer(
+        self, user_input: str, ai_response: str, optimization_metadata: dict[str, Any]
+    ) -> None:
+        """Track optimization results with the mandatory enforcer for monitoring."""
+        if not self.enforcer:
+            return
+
+        try:
+            # Create a mock optimization result for the enforcer
+            mock_result = {
+                "optimized_content": {"user_input": user_input, "ai_response": ai_response},
+                "optimization_metadata": optimization_metadata,
+                "agricultural_compliance": {
+                    "agricultural_keywords_detected": optimization_metadata.get("input", {}).get(
+                        "agricultural_keywords", []
+                    ),
+                    "safety_critical": optimization_metadata.get("input", {}).get(
+                        "safety_critical", False
+                    ),
+                    "compliance_maintained": True,
+                },
+            }
+
+            # Track the successful optimization with the enforcer
+            self.enforcer._track_optimization_success(mock_result)
+
+        except Exception:
+            # Don't let monitoring failures break optimization
+            pass
 
     def process_conversation_turn(
         self,
@@ -150,18 +198,20 @@ class ConversationManager:
         self.total_tokens_saved += response_metadata.get("tokens_saved", 0)
 
         # Build comprehensive result
+        optimization_metadata: dict[str, Any] = {
+            "input": input_metadata,
+            "response": response_metadata,
+            "total_tokens_saved": (
+                input_metadata.get("tokens_saved", 0) + response_metadata.get("tokens_saved", 0)
+            ),
+            "conversation_turn": conversation["turns"],
+        }
+
         result = {
             "conversation_id": conversation_id,
             "optimized_content": {"user_input": optimized_input, "ai_response": optimized_response},
             "original_content": {"user_input": user_input, "ai_response": ai_response},
-            "optimization_metadata": {
-                "input": input_metadata,
-                "response": response_metadata,
-                "total_tokens_saved": (
-                    input_metadata.get("tokens_saved", 0) + response_metadata.get("tokens_saved", 0)
-                ),
-                "conversation_turn": conversation["turns"],
-            },
+            "optimization_metadata": optimization_metadata,
             "conversation_metrics": self.get_conversation_metrics(conversation_id),
             "agricultural_compliance": {
                 "agricultural_keywords_detected": input_metadata.get("agricultural_keywords", []),
@@ -169,6 +219,11 @@ class ConversationManager:
                 "compliance_maintained": True,
             },
         }
+
+        # Track optimization with enforcer for monitoring
+        self._track_optimization_with_enforcer(
+            user_input, optimized_response if ai_response else "", optimization_metadata
+        )
 
         # Run post-processing hooks
         for hook in self.post_processing_hooks:
