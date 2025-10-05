@@ -43,7 +43,21 @@ fi
 
 # Execute Python script to update CHANGELOG
 echo -e "${BLUE}🔍 Analyzing git commit history...${NC}"
-python -m afs_fastapi.scripts.updatechangelog
+
+# Detect available Python executable
+PYTHON_CMD=""
+if command -v python3 >/dev/null 2>&1; then
+    PYTHON_CMD="python3"
+elif command -v python >/dev/null 2>&1; then
+    PYTHON_CMD="python"
+else
+    echo -e "${YELLOW}⚠️  Error: Neither 'python3' nor 'python' command found in PATH${NC}"
+    echo "   Please ensure Python is installed and available in your PATH"
+    exit 1
+fi
+
+# Execute Python script directly to avoid package dependency issues
+${PYTHON_CMD} "${PROJECT_ROOT}/afs_fastapi/scripts/updatechangelog.py"
 
 echo
 echo -e "${GREEN}📋 CHANGELOG.md Update Complete!${NC}"

@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Essential for agricultural robotics platform development workflow coordination
 
 ### Fixed
+- **infrastructure**: enhance updatechangelog command-line execution robustness (affects multi-tractor equipment operations)
+  - Add Python executable detection (python3/python) for environment compatibility
+  - Switch from module import to direct script execution to avoid package dependencies
+  - Eliminates pydantic/FastAPI import failures in minimal environments
+  - Ensures CHANGELOG.md generation works outside Claude Code sessions
 - **monitoring**: Integrate ConversationManager with MandatoryOptimizationEnforcer for accurate token savings tracking
   - Added enforcer initialization to ConversationManager for unified monitoring
   - Created _track_optimization_with_enforcer() bridge method integrating optimization tracking with conversation pipeline
