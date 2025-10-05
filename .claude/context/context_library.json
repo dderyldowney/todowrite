@@ -1,0 +1,48 @@
+{
+  "core_context": {
+    "id": "core_context",
+    "content": "AFS FastAPI: Production-ready agricultural robotics platform. All AI agents must follow 6 mandatory requirements: Test-First Development, Structured Investigation, Standardized Test Reporting, CHANGELOG Loop Protection, Git Commit Separation, Cross-Agent Infrastructure Sharing. Safety-critical context: ISO 18497 (Safety), ISO 11783 (ISOBUS)."
+  },
+  "context_snippets": [
+    {
+      "id": "tdd",
+      "keywords": ["tdd", "test-first", "red-green-refactor", "test", "tests", "testing"],
+      "content": "Test-First Development (TDD): RED-GREEN-REFACTOR methodology drives all implementation. 1. RED: Write failing test. 2. GREEN: Implement minimal code. 3. REFACTOR: Enhance quality. No features without a RED phase first. Reference: TDD_FRAMEWORK_MANDATORY.md"
+    },
+    {
+      "id": "investigation_pattern",
+      "keywords": ["investigation", "investigate", "analysis", "structured investigation"],
+      "content": "Structured Investigation Pattern: Every substantive response must include: 1. Investigation Steps, 2. Files Examined, 3. Evidence Collected, 4. Final Analysis. Reference: .claude/INVESTIGATION_PATTERN_MANDATORY.md"
+    },
+    {
+      "id": "isobus",
+      "keywords": ["isobus", "iso 11783", "tractor-implement"],
+      "content": "ISO 11783 (ISOBUS): Communication protocol for tractor-implement coordination. The platform has a production-ready implementation with guaranteed delivery for reliable messaging in agricultural operations. Authoritative references are in docs/."
+    },
+    {
+      "id": "safety_compliance",
+      "keywords": ["safety", "iso 18497", "compliance"],
+      "content": "ISO 18497: Agricultural machinery safety standards for autonomous systems. The platform is compliant, which is critical for safety in multi-tractor coordination to prevent equipment damage or injury."
+    },
+    {
+      "id": "crdt",
+      "keywords": ["crdt", "conflict-free", "synchronization", "sync"],
+      "content": "Conflict-Free Replicated Data Types (CRDTs): The platform uses a Last-Writer-Wins (LWW) CRDT with vector clocks for deterministic conflict resolution in distributed scenarios like multi-tractor field allocation. This prevents equipment conflicts."
+    },
+    {
+      "id": "vector_clock",
+      "keywords": ["vector clock", "causality", "ordering"],
+      "content": "Vector Clock: Used for causal ordering of operations in the distributed system. It's a key part of the CRDT implementation to resolve conflicts deterministically."
+    },
+    {
+      "id": "changelog",
+      "keywords": ["changelog", "updatechangelog", "version history"],
+      "content": "CHANGELOG.md must be included in every commit. A triple-layer loop protection system is in place. Use `./bin/updatechangelog` before committing. This is essential for compliance auditing."
+    },
+    {
+      "id": "saveandpush",
+      "keywords": ["saveandpush", "save", "push", "commit"],
+      "content": "The `saveandpush` command automates the 8-step workflow for session preservation: TODO sync, session save, file staging, CHANGELOG update, commit, and push. It ensures cross-agent continuity."
+    }
+  ]
+}
