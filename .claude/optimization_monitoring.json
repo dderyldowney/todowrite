@@ -1,11 +1,11 @@
 {
-  "total_sessions_monitored": 12,
-  "total_interactions_optimized": 1,
-  "total_tokens_saved_all_time": 0,
+  "total_sessions_monitored": 21,
+  "total_interactions_optimized": 7,
+  "total_tokens_saved_all_time": 148,
   "average_optimization_effectiveness": 0.0,
   "agricultural_compliance_violations": 0,
   "enforcement_failures": 0,
-  "last_monitoring_update": "2025-10-05T10:45:59.206742",
+  "last_monitoring_update": "2025-10-05T12:59:12.517103",
   "session_history": [
     {
       "session_id": "session_1759598761",
@@ -126,6 +126,96 @@
       "agricultural_interactions": 0,
       "safety_critical_interactions": 0,
       "agent_type": "unknown"
+    },
+    {
+      "session_id": "session_1759675559",
+      "session_start": "2025-10-05T10:45:59.206567",
+      "session_end": "2025-10-05T10:52:11.732005",
+      "total_interactions": 0,
+      "total_tokens_saved": 0,
+      "agricultural_interactions": 0,
+      "safety_critical_interactions": 0,
+      "agent_type": "unknown"
+    },
+    {
+      "session_id": "session_1759675931",
+      "session_start": "2025-10-05T10:52:11.731878",
+      "session_end": "2025-10-05T10:57:14.786640",
+      "total_interactions": 0,
+      "total_tokens_saved": 0,
+      "agricultural_interactions": 0,
+      "safety_critical_interactions": 0,
+      "agent_type": "unknown"
+    },
+    {
+      "session_id": "session_1759676234",
+      "session_start": "2025-10-05T10:57:14.786484",
+      "session_end": "2025-10-05T11:51:55.378101",
+      "total_interactions": 0,
+      "total_tokens_saved": 0,
+      "agricultural_interactions": 0,
+      "safety_critical_interactions": 0,
+      "agent_type": "unknown"
+    },
+    {
+      "session_id": "session_1759679515",
+      "session_start": "2025-10-05T11:51:55.377974",
+      "session_end": "2025-10-05T11:58:23.229116",
+      "total_interactions": 6,
+      "total_tokens_saved": 148,
+      "agricultural_interactions": 4,
+      "safety_critical_interactions": 1,
+      "agent_type": "unknown"
+    },
+    {
+      "session_id": "session_1759679903",
+      "session_start": "2025-10-05T11:58:23.228978",
+      "session_end": "2025-10-05T12:03:58.573018",
+      "total_interactions": 0,
+      "total_tokens_saved": 0,
+      "agricultural_interactions": 0,
+      "safety_critical_interactions": 0,
+      "agent_type": "unknown"
+    },
+    {
+      "session_id": "session_1759680238",
+      "session_start": "2025-10-05T12:03:58.572895",
+      "session_end": "2025-10-05T12:10:20.286534",
+      "total_interactions": 0,
+      "total_tokens_saved": 0,
+      "agricultural_interactions": 0,
+      "safety_critical_interactions": 0,
+      "agent_type": "unknown"
+    },
+    {
+      "session_id": "session_1759680620",
+      "session_start": "2025-10-05T12:10:20.286412",
+      "session_end": "2025-10-05T12:48:09.467067",
+      "total_interactions": 0,
+      "total_tokens_saved": 0,
+      "agricultural_interactions": 0,
+      "safety_critical_interactions": 0,
+      "agent_type": "unknown"
+    },
+    {
+      "session_id": "session_1759682889",
+      "session_start": "2025-10-05T12:48:09.466943",
+      "session_end": "2025-10-05T12:53:20.423593",
+      "total_interactions": 0,
+      "total_tokens_saved": 0,
+      "agricultural_interactions": 0,
+      "safety_critical_interactions": 0,
+      "agent_type": "unknown"
+    },
+    {
+      "session_id": "session_1759683200",
+      "session_start": "2025-10-05T12:53:20.423464",
+      "session_end": "2025-10-05T12:59:12.517095",
+      "total_interactions": 0,
+      "total_tokens_saved": 0,
+      "agricultural_interactions": 0,
+      "safety_critical_interactions": 0,
+      "agent_type": "unknown"
     }
   ],
   "effectiveness_trend": [
@@ -133,6 +223,11 @@
       "timestamp": "2025-10-04T13:40:22.815020",
       "effectiveness": 0.0,
       "interactions": 1
+    },
+    {
+      "timestamp": "2025-10-05T11:58:23.229124",
+      "effectiveness": 24.666666666666668,
+      "interactions": 6
     }
   ]
 }
