@@ -233,9 +233,6 @@ class TestUpdateChangelogCommandLineRobustness:
             assert "Error: Neither 'python3' nor 'python' command found in PATH" in result.stderr
             assert "Please ensure Python is installed and available in your PATH" in result.stderr
 
-    @pytest.mark.skip(
-        reason="Temporarily skipping due to persistent modification of .claude files by the environment."
-    )
     def test_maintains_git_working_directory_cleanliness(self) -> None:
         """Test script doesn't pollute git working directory with artifacts.
 
