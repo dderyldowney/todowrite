@@ -31,9 +31,7 @@ class TestGSet:
         to a set to mark it as 'harvested'. The set only ever grows.
         """
         # Arrange
-        g_set = GSet()
-
-        # Act
+        g_set: GSet[str] = GSet()
         g_set.add("FIELD_A_SECTION_01")
 
         # Assert
@@ -50,10 +48,10 @@ class TestGSet:
         The merge operation for a G-Set is a simple set union.
         """
         # Arrange
-        g_set_tractor_a = GSet()
+        g_set_tractor_a: GSet[str] = GSet()
         g_set_tractor_a.add("FIELD_A_SECTION_01")
 
-        g_set_tractor_b = GSet()
+        g_set_tractor_b: GSet[str] = GSet()
         g_set_tractor_b.add("FIELD_B_SECTION_07")
 
         # Act
@@ -74,7 +72,7 @@ class TestGSet:
         same as adding it once.
         """
         # Arrange
-        g_set = GSet()
+        g_set: GSet[str] = GSet()
         g_set.add("FIELD_A_SECTION_01")
 
         # Act
