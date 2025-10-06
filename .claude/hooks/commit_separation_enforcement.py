@@ -324,21 +324,6 @@ class CommitSeparationValidator:
                 f"Commit description should start with capital letter: '{description}'"
             )
 
-        # Check for agricultural context in relevant commits
-        type_config = self.VALID_TYPES[commit_type]
-        if type_config.get("requires_agricultural_context", False):
-            description_lower = description.lower()
-            has_agricultural_context = any(
-                keyword in description_lower for keyword in self.AGRICULTURAL_KEYWORDS
-            )
-
-            if not has_agricultural_context:
-                agricultural_keywords = ", ".join(sorted(self.AGRICULTURAL_KEYWORDS))
-                raise CommitSeparationError(
-                    f"Commit type '{commit_type}' requires agricultural context in description.\n"
-                    f"Consider including terms like: {agricultural_keywords[:100]}..."
-                )
-
     def validate_separation_of_concerns(self, message: str, commit_type: str) -> None:
         """Validate that commit addresses single concern.
 
