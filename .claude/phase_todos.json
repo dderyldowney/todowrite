@@ -1,29 +1,171 @@
 {
   "current_phase": {
-    "status": "none",
-    "last_completed_phase": {
-      "name": "Implement test_provides_clear_error_messages_for_common_failures",
-      "description": "Agricultural robotics development phase following TDD methodology",
-      "started_at": "2025-10-06T12:49:33Z",
-      "strategic_todo_id": "strategic-20251006_124847_4833",
-      "status": "completed",
-      "completed_at": "2025-10-06T15:44:26Z",
-      "final_stats": {
-        "total_steps": 5,
-        "completed_steps": 5,
-        "pending_steps": 0,
-        "in_progress_steps": 0,
-        "completion_percentage": 100.0
-      }
-    }
+    "name": "Create comprehensive user documentation for agricultural engineers",
+    "description": "Agricultural robotics development phase following TDD methodology",
+    "started_at": "2025-10-06T15:47:14Z",
+    "strategic_todo_id": "strategic-006",
+    "status": "active"
   },
-  "todos": [],
+  "todos": [
+    {
+      "id": "phase-20251006_155036_2118",
+      "content": "Define documentation scope and target audience needs.",
+      "status": "pending",
+      "created_at": "2025-10-06T15:50:36Z",
+      "priority": "medium",
+      "estimated_minutes": 20
+    },
+    {
+      "id": "phase-20251006_155036_7523",
+      "content": "Outline documentation structure (e.g., sections for platform tools, environment, `afs_fastapi` module).",
+      "status": "pending",
+      "created_at": "2025-10-06T15:50:36Z",
+      "priority": "medium",
+      "estimated_minutes": 20
+    },
+    {
+      "id": "phase-20251006_155036_5695",
+      "content": "Choose documentation format and tools (e.g., Markdown, Sphinx, Read the Docs).",
+      "status": "pending",
+      "created_at": "2025-10-06T15:50:36Z",
+      "priority": "medium",
+      "estimated_minutes": 20
+    },
+    {
+      "id": "phase-20251006_155036_1099",
+      "content": "Establish writing guidelines and style guide.",
+      "status": "pending",
+      "created_at": "2025-10-06T15:50:36Z",
+      "priority": "medium",
+      "estimated_minutes": 30
+    },
+    {
+      "id": "phase-20251006_155046_0006",
+      "content": "Document `bin/` scripts (e.g., `savesession`, `saveandpush`, `todo-status`, `phase-status`, `strategic-list`, `formatall`).",
+      "status": "pending",
+      "created_at": "2025-10-06T15:50:46Z",
+      "priority": "medium",
+      "estimated_minutes": 20
+    },
+    {
+      "id": "phase-20251006_155047_2249",
+      "content": "Provide usage examples for each platform tool.",
+      "status": "pending",
+      "created_at": "2025-10-06T15:50:46Z",
+      "priority": "medium",
+      "estimated_minutes": 30
+    },
+    {
+      "id": "phase-20251006_155047_7170",
+      "content": "Explain the purpose and agricultural context of each tool.",
+      "status": "pending",
+      "created_at": "2025-10-06T15:50:47Z",
+      "priority": "medium",
+      "estimated_minutes": 30
+    },
+    {
+      "id": "phase-20251006_155057_4217",
+      "content": "Document project setup (e.g., cloning repo, installing dependencies, virtual environments).",
+      "status": "pending",
+      "created_at": "2025-10-06T15:50:57Z",
+      "priority": "medium",
+      "estimated_minutes": 20
+    },
+    {
+      "id": "phase-20251006_155057_2390",
+      "content": "Explain pre-commit hooks and their purpose.",
+      "status": "pending",
+      "created_at": "2025-10-06T15:50:57Z",
+      "priority": "medium",
+      "estimated_minutes": 30
+    },
+    {
+      "id": "phase-20251006_155058_8702",
+      "content": "Document testing procedures (e.g., running `pytest`, understanding test reports).",
+      "status": "pending",
+      "created_at": "2025-10-06T15:50:58Z",
+      "priority": "high",
+      "estimated_minutes": 45
+    },
+    {
+      "id": "phase-20251006_155058_6875",
+      "content": "Document code formatting and linting (e.g., `black`, `ruff`, `isort`, `mypy`).",
+      "status": "pending",
+      "created_at": "2025-10-06T15:50:58Z",
+      "priority": "medium",
+      "estimated_minutes": 20
+    },
+    {
+      "id": "phase-20251006_155109_6170",
+      "content": "Document core modules and classes (e.g., `afs_fastapi/equipment`, `afs_fastapi/monitoring`, `afs_fastapi/api`).",
+      "status": "pending",
+      "created_at": "2025-10-06T15:51:09Z",
+      "priority": "medium",
+      "estimated_minutes": 20
+    },
+    {
+      "id": "phase-20251006_155109_2951",
+      "content": "Provide API reference for key functions and classes.",
+      "status": "pending",
+      "created_at": "2025-10-06T15:51:09Z",
+      "priority": "medium",
+      "estimated_minutes": 30
+    },
+    {
+      "id": "phase-20251006_155110_5193",
+      "content": "Include code examples for common use cases (e.g., interacting with equipment, fetching monitoring data).",
+      "status": "pending",
+      "created_at": "2025-10-06T15:51:10Z",
+      "priority": "medium",
+      "estimated_minutes": 30
+    },
+    {
+      "id": "phase-20251006_155110_7436",
+      "content": "Explain the agricultural robotics context and relevance of each module.",
+      "status": "pending",
+      "created_at": "2025-10-06T15:51:10Z",
+      "priority": "medium",
+      "estimated_minutes": 30
+    },
+    {
+      "id": "phase-20251006_155116_1815",
+      "content": "Conduct internal review of documentation with project team.",
+      "status": "pending",
+      "created_at": "2025-10-06T15:51:16Z",
+      "priority": "medium",
+      "estimated_minutes": 20
+    },
+    {
+      "id": "phase-20251006_155116_9988",
+      "content": "Gather feedback from target audience (agricultural engineers, AI engineers).",
+      "status": "pending",
+      "created_at": "2025-10-06T15:51:16Z",
+      "priority": "medium",
+      "estimated_minutes": 30
+    },
+    {
+      "id": "phase-20251006_155116_5392",
+      "content": "Refine documentation based on feedback.",
+      "status": "pending",
+      "created_at": "2025-10-06T15:51:16Z",
+      "priority": "medium",
+      "estimated_minutes": 20
+    },
+    {
+      "id": "phase-20251006_155116_0796",
+      "content": "Publish documentation to an accessible platform (e.g., GitHub Pages, Read the Docs).",
+      "status": "pending",
+      "created_at": "2025-10-06T15:51:16Z",
+      "priority": "medium",
+      "estimated_minutes": 20
+    }
+  ],
   "metadata": {
-    "last_updated": "2025-10-06T15:44:26Z",
+    "last_updated": "2025-10-06T15:51:16Z",
     "version": "1.0.0",
-    "total_phase_todos": 0,
+    "total_phase_todos": 19,
     "completed_count": 0,
     "in_progress_count": 0,
-    "pending_count": 0
+    "pending_count": 19
   }
 }
