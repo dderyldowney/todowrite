@@ -344,6 +344,7 @@ pytest.xml
 
 # AI Agent scratch files (not committed to repository)
 AGENT_TODOS.md
+CHANGELOG.md
 
 # End of https://www.toptal.com/developers/gitignore/api/node,ruby,rails,linux,macos
 .chatgpt-history.txt
