@@ -26,3 +26,34 @@ def test_git_working_directory_cleanliness():
     assert (
         result_untracked.stdout == ""
     ), f"Untracked files found in working directory:\n{result_untracked.stdout}"
+
+
+def test_compatible_with_various_shell_environments():
+    """
+    Tests that basic shell commands are compatible with various shell environments.
+    """
+    shells = ["bash", "zsh", "sh"]
+    command_to_test = "echo 'Hello from shell'"
+
+    for shell in shells:
+        try:
+            # Check if the shell executable exists
+            subprocess.run([shell, "-c", ""], check=True, capture_output=True)
+        except FileNotFoundError:
+            print(f"Skipping test for {shell} as it is not found.", flush=True)
+            continue
+        except subprocess.CalledProcessError:
+            # Shell exists but might have issues with empty command, continue
+            pass
+
+        print(f"Testing with shell: {shell}", flush=True)
+        result = subprocess.run(
+            [shell, "-c", command_to_test],
+            capture_output=True,
+            text=True,
+            check=True,  # Raise an exception if the command fails
+        )
+        assert (
+            result.stdout.strip() == "Hello from shell"
+        ), f"Unexpected output from {shell}: {result.stdout}"
+        assert result.stderr == "", f"Errors from {shell}: {result.stderr}"
