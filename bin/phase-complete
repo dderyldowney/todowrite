@@ -26,13 +26,6 @@ fi
 SEARCH_TERM="$1"
 PHASE_FILE=".claude/phase_todos.json"
 
-# Check if phase file exists
-if [[ ! -f "$PHASE_FILE" ]]; then
-    echo "Error: No development phase found."
-    echo "Use './bin/phase-start \"Phase Name\"' to start a new phase."
-    exit 1
-fi
-
 # Get current timestamp in ISO format
 ISO_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
@@ -42,15 +35,29 @@ import json
 import sys
 from datetime import datetime
 
-# Read current phase data
+PHASE_FILE = '$PHASE_FILE'
+SEARCH_TERM = '$SEARCH_TERM'
+ISO_TIMESTAMP = '$ISO_TIMESTAMP'
+
+# Read all phases data
 try:
-    with open('$PHASE_FILE', 'r') as f:
-        data = json.load(f)
+    with open(PHASE_FILE, 'r') as f:
+        all_phases_data = json.load(f)
 except FileNotFoundError:
     print('Error: No phase file found.')
     sys.exit(1)
 
-current_phase = data.get('current_phase', {})
+active_phase_id = all_phases_data.get('active_phase_id')
+if not active_phase_id:
+    print('Error: No active development phase found.')
+    print('Use \"./bin/phase-start\" to start a new phase or \"./bin/phase-activate <ID>\" to activate an existing one.')
+    sys.exit(1)
+
+current_phase = all_phases_data['phases'].get(active_phase_id)
+if not current_phase:
+    print(f'Error: Active phase with ID {active_phase_id} not found in phase file.')
+    sys.exit(1)
+
 if current_phase.get('status') == 'paused':
     print('Error: Cannot complete steps in a paused phase.')
     print(f'  Phase: {current_phase.get('name', 'Unknown Phase')}')
@@ -62,23 +69,22 @@ if current_phase.get('status') != 'active':
     print('Use \"./bin/phase-start\" to start a new phase.')
     sys.exit(1)
 
-search_term = '$SEARCH_TERM'
-todos = data.get('todos', [])
+todos = current_phase.get('todos', [])
 
 # Find matching todo by ID or content
 matched_todo = None
 for todo in todos:
     # Check if search term matches ID exactly
-    if todo['id'] == search_term:
+    if todo['id'] == SEARCH_TERM:
         matched_todo = todo
         break
     # Check if search term is contained in content (case insensitive)
-    elif search_term.lower() in todo['content'].lower():
+    elif SEARCH_TERM.lower() in todo['content'].lower():
         matched_todo = todo
         break
 
 if not matched_todo:
-    print(f'Error: No phase step found matching \"{search_term}\"')
+    print(f'Error: No phase step found matching \"{SEARCH_TERM}\"')
     print('Use \"./bin/phase-status\" to see current phase steps.')
     sys.exit(1)
 
@@ -90,17 +96,17 @@ if matched_todo['status'] == 'completed':
 
 # Mark as completed
 matched_todo['status'] = 'completed'
-matched_todo['completed_at'] = '$ISO_TIMESTAMP'
+matched_todo['completed_at'] = ISO_TIMESTAMP
 
-# Update metadata
-data['metadata']['last_updated'] = '$ISO_TIMESTAMP'
-data['metadata']['pending_count'] = len([t for t in todos if t['status'] == 'pending'])
-data['metadata']['in_progress_count'] = len([t for t in todos if t['status'] == 'in_progress'])
-data['metadata']['completed_count'] = len([t for t in todos if t['status'] == 'completed'])
+# Update metadata for the current phase
+current_phase['metadata']['last_updated'] = ISO_TIMESTAMP
+current_phase['metadata']['pending_count'] = len([t for t in todos if t['status'] == 'pending'])
+current_phase['metadata']['in_progress_count'] = len([t for t in todos if t['status'] == 'in_progress'])
+current_phase['metadata']['completed_count'] = len([t for t in todos if t['status'] == 'completed'])
 
 # Write back to file
-with open('$PHASE_FILE', 'w') as f:
-    json.dump(data, f, indent=2)
+with open(PHASE_FILE, 'w') as f:
+    json.dump(all_phases_data, f, indent=2)
 
 print('✓ Phase step marked as completed!')
 print(f'  ID: {matched_todo[\"id\"]}')
@@ -114,8 +120,8 @@ print()
 # Show phase progress
 phase_name = current_phase.get('name', 'Unknown Phase')
 total_todos = len(todos)
-completed_count = data['metadata']['completed_count']
-pending_count = data['metadata']['pending_count']
+completed_count = current_phase['metadata']['completed_count']
+pending_count = current_phase['metadata']['pending_count']
 progress_percentage = (completed_count / total_todos * 100) if total_todos > 0 else 0
 
 print(f'Phase: {phase_name}')
@@ -123,7 +129,7 @@ print(f'Progress: {completed_count}/{total_todos} steps completed ({progress_per
 print(f'Remaining: {pending_count} pending steps')
 
 # Check if phase is complete
-if pending_count == 0 and data['metadata']['in_progress_count'] == 0:
+if pending_count == 0 and current_phase['metadata']['in_progress_count'] == 0:
     print()
     print('🎉 All phase steps completed!')
     print('Consider using \"./bin/phase-end\" to archive this phase and update strategic progress.')
