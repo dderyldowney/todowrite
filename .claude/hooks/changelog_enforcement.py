@@ -140,14 +140,9 @@ compliance auditing.
 If this commit ONLY updates {self.changelog_filename} (e.g., regeneration), add
 [skip-changelog] to your commit message to prevent infinite regeneration loops.
 
-🌾 Agricultural Context:
-Equipment operators, safety engineers, and compliance auditors depend on
-{self.changelog_filename} as the authoritative record of all platform modifications
-affecting multi-tractor coordination systems. Complete change tracking is essential
-for safety-critical agricultural robotics operations.
+        The CHANGELOG.md serves as a critical record of all platform modifications.
 
-📖 See SESSION_SUMMARY.md for complete CHANGELOG.md maintenance protocol.
-"""
+📖 See SESSION_SUMMARY.md for complete CHANGELOG.md maintenance protocol."""
 
     def run_validation(self, hook_input: dict) -> bool:
         """Run CHANGELOG.md enforcement validation.
