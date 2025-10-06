@@ -1,10 +1,10 @@
 {
   "current_session_id": "session_1759776296",
   "session_start": "2025-10-06T14:44:56.635253",
-  "interactions_this_session": 10,
+  "interactions_this_session": 20,
   "tokens_saved_this_session": 0,
-  "optimization_applied_count": 10,
-  "agricultural_interactions": 4,
-  "safety_critical_interactions": 1,
+  "optimization_applied_count": 20,
+  "agricultural_interactions": 8,
+  "safety_critical_interactions": 2,
   "agent_type": "unknown"
 }
