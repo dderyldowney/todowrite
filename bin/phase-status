@@ -44,11 +44,24 @@ current_phase = data.get('current_phase', {})
 todos = data.get('todos', [])
 metadata = data.get('metadata', {})
 
-# Check if there's an active phase
-if current_phase.get('status') != 'active':
-    print('No active development phase found.')
-    print('Use \"./bin/phase-start\" to start a new phase.')
+# Check if there's an active or paused phase
+if current_phase.get('status') == 'none':
+    print('No development phase found.')
+    print('Use "./bin/phase-start" to start a new phase.')
     sys.exit(0)
+
+if current_phase.get('status') == 'paused':
+    print('⏸️ Current Phase: ' + current_phase.get('name', 'Unknown Phase') + ' (PAUSED)')
+    if 'paused_at' in current_phase:
+        paused_at = current_phase['paused_at']
+        paused_date = paused_at[:10]
+        paused_time = paused_at[11:16]
+        print(f'   Paused: {paused_date} at {paused_time} UTC')
+    print('\nUse "./bin/phase-resume" to continue this phase.')
+    sys.exit(0)
+
+# Display phase information
+phase_name = current_phase.get('name', 'Unknown Phase')
 
 # Display phase information
 phase_name = current_phase.get('name', 'Unknown Phase')

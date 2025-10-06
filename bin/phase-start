@@ -37,7 +37,15 @@ try:
         data = json.load(f)
     current = data.get('current_phase', {})
     if current.get('status') == 'active':
-        print(current.get('name', 'Unknown Phase'))
+        print(f'Error: Phase already active: {current.get('name', 'Unknown Phase')}')
+        print('Use './bin/phase-end' to complete the current phase before starting a new one.')
+        print('Use './bin/phase-status' to check current phase progress.')
+        sys.exit(1)
+    elif current.get('status') == 'paused':
+        print(f'Error: Phase already paused: {current.get('name', 'Unknown Phase')}')
+        print('Use './bin/phase-resume' to continue this phase.')
+        print('Use './bin/phase-end' to complete and archive the paused phase if no longer needed.')
+        sys.exit(1)
     else:
         print('')
 except:

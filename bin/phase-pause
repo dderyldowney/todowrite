@@ -1,0 +1,71 @@
+#!/bin/bash
+
+# phase-pause: Pause the current development phase
+# Usage: ./bin/phase-pause
+
+set -euo pipefail
+
+# Ensure we're in the project root
+if [[ ! -f ".claude/DUAL_TODO_SYSTEM.md" ]]; then
+    echo "Error: Must be run from AFS FastAPI project root directory"
+    exit 1
+fi
+
+PHASE_FILE=".claude/phase_todos.json"
+
+# Check if phase file exists
+if [[ ! -f "$PHASE_FILE" ]]; then
+    echo "Error: No development phase found."
+    echo "Use './bin/phase-start "Phase Name"' to start a new phase."
+    exit 1
+fi
+
+# Get current timestamp in ISO format
+ISO_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+# Pause the current phase
+python3 -c "
+import json
+import sys
+from datetime import datetime
+
+# Read current phase data
+try:
+    with open('$PHASE_FILE', 'r') as f:
+        data = json.load(f)
+except FileNotFoundError:
+    print('Error: No phase file found.')
+    sys.exit(1)
+
+current_phase = data.get('current_phase', {})
+
+if current_phase.get('status') == 'paused':
+    print('Info: Phase is already paused.')
+    print(f'  Phase: {current_phase.get('name', 'Unknown Phase')}')
+    sys.exit(0)
+
+if current_phase.get('status') != 'active':
+    print('Error: No active development phase found to pause.')
+    print('Current phase status: ' + current_phase.get('status', 'none'))
+    print('Use "./bin/phase-start" to start a new phase or "./bin/phase-resume" to resume a paused one.')
+    sys.exit(1)
+
+# Mark as paused
+current_phase['status'] = 'paused'
+current_phase['paused_at'] = '$ISO_TIMESTAMP'
+data['metadata']['last_updated'] = '$ISO_TIMESTAMP'
+
+# Write back to file
+with open('$PHASE_FILE', 'w') as f:
+    json.dump(data, f, indent=2)
+
+print('✓ Development phase paused successfully!')
+print(f'  Phase: {current_phase.get('name', 'Unknown Phase')}')
+print(f'  Paused at: {current_phase['paused_at']}')
+"
+
+echo ""
+echo "Use './bin/phase-status' to view phase status."
+echo "Use './bin/phase-resume' to resume the phase."
+# Auto-sync TODO state for session persistence
+./bin/todo-sync --silent 2>/dev/null || true

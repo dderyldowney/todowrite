@@ -50,8 +50,13 @@ except FileNotFoundError:
     print('Error: No phase file found.')
     sys.exit(1)
 
-# Check if there's an active phase
 current_phase = data.get('current_phase', {})
+if current_phase.get('status') == 'paused':
+    print('Error: Cannot complete steps in a paused phase.')
+    print(f'  Phase: {current_phase.get('name', 'Unknown Phase')}')
+    print('Use \"./bin/phase-resume\" to resume the phase before completing steps.')
+    sys.exit(1)
+
 if current_phase.get('status') != 'active':
     print('Error: No active development phase found.')
     print('Use \"./bin/phase-start\" to start a new phase.')
