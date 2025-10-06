@@ -99,17 +99,18 @@
     {
       "id": "strategic-20251006_124847_4833",
       "content": "Apply TDD_REMEDIATION_LIST.md: Rework placeholder tests to validate infrastructure.",
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-10-06T12:48:47Z",
       "priority": "high",
-      "category": "general"
+      "category": "general",
+      "completed_at": "2025-10-06T15:44:26Z"
     }
   ],
   "metadata": {
-    "last_updated": "2025-10-06T12:48:47Z",
+    "last_updated": "2025-10-06T15:44:26Z",
     "version": "1.0.0",
     "total_strategic_todos": 12,
-    "completed_count": 8,
-    "pending_count": 4
+    "completed_count": 9,
+    "pending_count": 3
   }
 }
