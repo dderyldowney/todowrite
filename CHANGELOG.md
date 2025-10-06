@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Configuration
+- **session**: Synchronize session configuration state
+
 ### Added
 - **ai-processing**: Implemented `contextual_focus_domain` in `ai_processing_config.json` to explicitly define the contextual focus for all agents to "agricultural robotics and artificial intelligence".
 
