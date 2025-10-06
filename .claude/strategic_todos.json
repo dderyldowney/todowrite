@@ -1,6 +1,14 @@
 {
   "todos": [
     {
+      "id": "strategic-003",
+      "content": "Implement cloud integration for agricultural data services",
+      "status": "pending",
+      "created_at": "2025-10-03T06:45:00Z",
+      "priority": "medium",
+      "category": "api"
+    },
+    {
       "id": "strategic-001",
       "content": "Phase 6 ISOBUS guaranteed delivery - COMPLETE (enterprise-grade reliability achieved)",
       "status": "completed",
@@ -37,14 +45,6 @@
       "completed_at": "2025-10-05T21:21:18Z"
     },
     {
-      "id": "strategic-003",
-      "content": "Implement cloud integration for agricultural data services",
-      "status": "pending",
-      "created_at": "2025-10-03T06:45:00Z",
-      "priority": "medium",
-      "category": "api"
-    },
-    {
       "id": "strategic-004",
       "content": "Add IoT sensor network integration with guaranteed delivery",
       "status": "pending",
@@ -57,7 +57,7 @@
       "content": "Create comprehensive user documentation for agricultural engineers",
       "status": "pending",
       "created_at": "2025-10-03T06:45:00Z",
-      "priority": "low",
+      "priority": "high",
       "category": "docs"
     },
     {
@@ -101,7 +101,7 @@
       "content": "Apply TDD_REMEDIATION_LIST.md: Rework placeholder tests to validate infrastructure.",
       "status": "pending",
       "created_at": "2025-10-06T12:48:47Z",
-      "priority": "medium",
+      "priority": "high",
       "category": "general"
     }
   ],
