@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **commands**: `formatall` command for comprehensive code formatting and quality checks.
+
+### Fixed
+- **mypy**: Resolved MyPy error in `afs_fastapi/services/fleet.py` by adding a `None` check before awaiting a callback result.
+
 ### Fixed
 - **mypy**: Configured MyPy to correctly resolve internal module imports for agricultural robotics development.
 - **types**: Resolved MyPy type errors in CRDT implementation and tests for agricultural robotics.

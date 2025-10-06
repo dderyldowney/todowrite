@@ -1,0 +1,12 @@
+#!/bin/bash
+# Apply Black formatting
+black . --quiet
+
+# Sort imports with isort
+isort . --quiet
+
+# Fix linting issues with Ruff
+ruff check . --fix --quiet
+
+# Validate types with MyPy
+mypy . --ignore-missing-imports --no-strict-optional
