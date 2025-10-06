@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **session**: Synchronize session configuration state
 
 ### Added
+- **scripts**: Implemented `example_command.py` as a simple script to demonstrate clear error messages.
+- **testing**: Implemented `test_example_command_clear_error_message` in `tests/unit/test_example_command.py` to verify clear error messages from `example_command.py`.
+
+### Added
 - **testing**: Implemented `test_failing_test_for_clear_error_messages` in `tests/integration/test_git_utils.py` to verify clear error messages for non-existent commands.
 
 ### Added
