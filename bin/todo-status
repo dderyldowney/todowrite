@@ -28,25 +28,23 @@ from collections import defaultdict
 strategic_data = {}
 strategic_todos = []
 try:
-    if open('$STRATEGIC_FILE', 'r'):
-        with open('$STRATEGIC_FILE', 'r') as f:
-            strategic_data = json.load(f)
-        strategic_todos = strategic_data.get('todos', [])
-except:
+    with open('$STRATEGIC_FILE', 'r') as f:
+        strategic_data = json.load(f)
+    strategic_todos = strategic_data.get('todos', [])
+except FileNotFoundError:
     pass
 
-# Read phase todos
-phase_data = {}
-phase_todos = []
-current_phase = {}
+# Read all phases data
+all_phases_data = {}
 try:
-    if open('$PHASE_FILE', 'r'):
-        with open('$PHASE_FILE', 'r') as f:
-            phase_data = json.load(f)
-        phase_todos = phase_data.get('todos', [])
-        current_phase = phase_data.get('current_phase', {})
-except:
+    with open('$PHASE_FILE', 'r') as f:
+        all_phases_data = json.load(f)
+except FileNotFoundError:
     pass
+
+active_phase_id = all_phases_data.get('active_phase_id')
+current_phase = all_phases_data['phases'].get(active_phase_id) if active_phase_id else None
+phase_todos = current_phase.get('todos', []) if current_phase else []
 
 # Strategic overview
 print('🎯 STRATEGIC DEVELOPMENT MOMENTUM')
@@ -59,7 +57,7 @@ if strategic_todos:
     strategic_progress = (strategic_completed / strategic_total * 100) if strategic_total > 0 else 0
 
     print(f'Total Strategic Objectives: {strategic_total}')
-    print(f'Completed: {strategic_completed} ({strategic_progress:.1f}%)')
+    print(f'Completed: {strategic_completed} ({strategic_progress:.1f}%)\n')
     print(f'Pending: {strategic_pending}')
     print()
 
@@ -68,7 +66,7 @@ if strategic_todos:
     completed_bars = int(strategic_progress / 100 * bar_width)
     pending_bars = bar_width - completed_bars
     progress_bar = '█' * completed_bars + '░' * pending_bars
-    print(f'Progress: [{progress_bar}] {strategic_progress:.1f}%')
+    print(f'Progress: [{progress_bar}] {strategic_progress:.1f}%\n')
     print()
 
     # Show next 3 high-priority strategic objectives
@@ -81,7 +79,7 @@ if strategic_todos:
         print('Next High-Priority Strategic Objectives:')
         for i, todo in enumerate(high_priority_pending[:3], 1):
             category = todo.get('category', 'general')
-            print(f'  {i}. {todo[\"content\"]} ({category})')
+            print(f'  {i}. {todo["content"]} ({category})')
         print()
 
     # Recent strategic completions
@@ -95,18 +93,18 @@ if strategic_todos:
         print('Recent Strategic Completions:')
         for todo in recent_strategic[:2]:
             completed_date = todo['completed_at'][:10]
-            print(f'  ✓ {todo[\"content\"]} ({completed_date})')
+            print(f'  ✓ {todo["content"]} ({completed_date})')
         print()
 else:
     print('No strategic objectives found.')
-    print('Use \"./bin/strategic-add\" to create strategic development goals.')
+    print('Use "./bin/strategic-add" to create strategic development goals.')
     print()
 
 # Phase overview
 print('🔄 CURRENT PHASE IMPLEMENTATION')
 print('='*50)
 
-if current_phase.get('status') == 'active':
+if current_phase and current_phase.get('status') == 'active':
     phase_name = current_phase.get('name', 'Unknown Phase')
     strategic_id = current_phase.get('strategic_todo_id')
     started_at = current_phase.get('started_at', '')
@@ -117,7 +115,7 @@ if current_phase.get('status') == 'active':
     if strategic_id:
         aligned_strategic = next((t for t in strategic_todos if t['id'] == strategic_id), None)
         if aligned_strategic:
-            print(f'Strategic Alignment: {aligned_strategic[\"content\"]}')
+            print(f'Strategic Alignment: {aligned_strategic["content"]}')
 
     # Format start date
     if started_at and 'T' in started_at:
@@ -135,7 +133,7 @@ if current_phase.get('status') == 'active':
         phase_progress = (phase_completed / phase_total * 100) if phase_total > 0 else 0
 
         print(f'Phase Steps: {phase_total} total')
-        print(f'Completed: {phase_completed} ({phase_progress:.1f}%)')
+        print(f'Completed: {phase_completed} ({phase_progress:.1f}%)\n')
         print(f'In Progress: {phase_in_progress}')
         print(f'Pending: {phase_pending}')
         print()
@@ -144,7 +142,7 @@ if current_phase.get('status') == 'active':
         completed_bars = int(phase_progress / 100 * bar_width)
         pending_bars = bar_width - completed_bars
         phase_bar = '█' * completed_bars + '░' * pending_bars
-        print(f'Progress: [{phase_bar}] {phase_progress:.1f}%')
+        print(f'Progress: [{phase_bar}] {phase_progress:.1f}%\n')
         print()
 
         # Show current and next steps
@@ -152,8 +150,8 @@ if current_phase.get('status') == 'active':
         if in_progress_steps:
             print('Currently Working On:')
             for step in in_progress_steps:
-                time_info = f' (~{step[\"estimated_minutes\"]}min)' if 'estimated_minutes' in step else ''
-                print(f'  ◐ {step[\"content\"]}{time_info}')
+                time_info = f' (~{step["estimated_minutes"]}min)' if 'estimated_minutes' in step else ''
+                print(f'  ◐ {step["content"]}{time_info}')
             print()
 
         pending_steps = [t for t in phase_todos if t['status'] == 'pending']
@@ -165,8 +163,8 @@ if current_phase.get('status') == 'active':
             print('Next Steps:')
             for step in pending_steps[:3]:
                 priority_marker = {'high': '[HIGH]', 'medium': '[MED]', 'low': '[LOW]'}.get(step.get('priority', 'medium'), '')
-                time_info = f' (~{step[\"estimated_minutes\"]}min)' if 'estimated_minutes' in step else ''
-                print(f'  ○ {priority_marker} {step[\"content\"]}{time_info}')
+                time_info = f' (~{step["estimated_minutes"]}min)' if 'estimated_minutes' in step else ''
+                print(f'  ○ {priority_marker} {step["content"]}{time_info}')
 
             if len(pending_steps) > 3:
                 print(f'  ... and {len(pending_steps) - 3} more pending steps')
@@ -188,44 +186,57 @@ if current_phase.get('status') == 'active':
         # Phase completion status
         if phase_pending == 0 and phase_in_progress == 0:
             print('🎉 Phase ready for completion!')
-            print('Use \"./bin/phase-end\" to archive this phase.')
+            print('Use "./bin/phase-end" to archive this phase.')
     else:
         print('No phase steps found.')
-        print('Use \"./bin/phase-add\" to add implementation steps.')
+        print('Use "./bin/phase-add" to add implementation steps.')
+elif current_phase and current_phase.get('status') == 'paused':
+    phase_name = current_phase.get('name', 'Unknown Phase')
+    paused_at = current_phase.get('paused_at', '')
+    print(f'Paused Phase: {phase_name}')
+    if paused_at and 'T' in paused_at:
+        paused_date = paused_at[:10]
+        paused_time = paused_at[11:16]
+        print(f'Paused: {paused_date} at {paused_time} UTC')
+    print('\nUse "./bin/phase-resume" to continue this phase.')
+    print()
 else:
     print('No active development phase.')
-    print('Use \"./bin/phase-start\" to begin new development phase.')
+    print('Use "./bin/phase-start" to begin new development phase.')
     print()
 
     # Show last completed phase if available
-    last_phase = current_phase.get('last_completed_phase')
-    if last_phase:
-        phase_name = last_phase.get('name', 'Unknown Phase')
-        completed_at = last_phase.get('completed_at', '')
-        final_stats = last_phase.get('final_stats', {})
+    last_completed_phase_id = all_phases_data.get('last_completed_phase_id')
+    if last_completed_phase_id:
+        last_phase = all_phases_data['phases'].get(last_completed_phase_id)
+        if last_phase:
+            phase_name = last_phase.get('name', 'Unknown Phase')
+            completed_at = last_phase.get('completed_at', '')
+            final_stats = last_phase.get('final_stats', {})
 
-        if completed_at and 'T' in completed_at:
-            completed_date = completed_at[:10]
-            print(f'Last Completed Phase: {phase_name} ({completed_date})')
+            if completed_at and 'T' in completed_at:
+                completed_date = completed_at[:10]
+                print(f'Last Completed Phase: {phase_name} ({completed_date})')
 
-            if final_stats:
-                completion_pct = final_stats.get('completion_percentage', 0)
-                total_steps = final_stats.get('total_steps', 0)
-                completed_steps = final_stats.get('completed_steps', 0)
-                print(f'Final Status: {completed_steps}/{total_steps} steps ({completion_pct:.1f}%)')
-            print()
+                if final_stats:
+                    completion_pct = final_stats.get('completion_percentage', 0)
+                    total_steps = final_stats.get('total_steps', 0)
+                    completed_steps = final_stats.get('completed_steps', 0)
+                    print(f'Final Status: {completed_steps}/{total_steps} steps ({completion_pct:.1f}%)\n')
+                print()
 
 # Overall system status
 print('📊 DEVELOPMENT SYSTEM OVERVIEW')
 print('='*50)
 
 total_strategic = len(strategic_todos)
-total_phase = len(phase_todos)
-active_phase_count = 1 if current_phase.get('status') == 'active' else 0
+total_phases = len(all_phases_data.get('phases', {}))
+active_phase_count = 1 if active_phase_id and current_phase and current_phase.get('status') == 'active' else 0
 
 print(f'Strategic Objectives: {total_strategic}')
+print(f'Total Development Phases: {total_phases}')
 print(f'Active Development Phases: {active_phase_count}')
-print(f'Current Phase Steps: {total_phase}')
+print(f'Current Phase Steps: {len(phase_todos)}')
 print()
 
 # Show command quick reference
@@ -233,14 +244,19 @@ print('💡 QUICK COMMAND REFERENCE')
 print('='*50)
 print('Strategic Management:')
 print('  ./bin/strategic-list                    - View strategic objectives')
-print('  ./bin/strategic-add \"Objective\"         - Add strategic objective')
+print('  ./bin/strategic-add "Objective"         - Add strategic objective')
 print('  ./bin/strategic-status                  - Strategic overview')
 print()
 print('Phase Management:')
-print('  ./bin/phase-start \"Phase Name\"          - Start new phase')
-print('  ./bin/phase-status                      - Current phase details')
-print('  ./bin/phase-add \"Step\"                  - Add implementation step')
-print('  ./bin/phase-complete \"Step\"             - Mark step completed')
+print('  ./bin/phase-start "Phase Name"          - Start new phase')
+print('  ./bin/phase-status                      - Current active phase details')
+print('  ./bin/phase-list-all                    - List all phases (active, paused, completed)')
+print('  ./bin/phase-activate <ID>               - Set an existing phase as active')
+print('  ./bin/phase-add "Step"                  - Add implementation step to active phase')
+print('  ./bin/phase-complete "Step"             - Mark step completed in active phase')
+print('  ./bin/phase-pause                       - Pause the active phase')
+print('  ./bin/phase-resume                      - Resume a paused phase')
+print('  ./bin/phase-end                         - Complete and archive active phase')
 print()
 print('Integrated Management:')
 print('  ./bin/todo-handoff                      - Prepare session handoff')
@@ -249,7 +265,7 @@ print()
 
 # Last updated information
 strategic_updated = strategic_data.get('metadata', {}).get('last_updated', 'Unknown')
-phase_updated = phase_data.get('metadata', {}).get('last_updated', 'Unknown')
+phase_updated = current_phase.get('metadata', {}).get('last_updated', 'Unknown') if current_phase else 'Unknown'
 
 latest_update = 'Unknown'
 if strategic_updated != 'Unknown' and phase_updated != 'Unknown':

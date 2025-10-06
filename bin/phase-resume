@@ -16,7 +16,7 @@ PHASE_FILE=".claude/phase_todos.json"
 # Check if phase file exists
 if [[ ! -f "$PHASE_FILE" ]]; then
     echo "Error: No development phase found."
-    echo "Use './bin/phase-start "Phase Name"' to start a new phase."
+    echo "Use './bin/phase-start \"Phase Name\"' to start a new phase."
     exit 1
 fi
 
@@ -29,15 +29,27 @@ import json
 import sys
 from datetime import datetime
 
-# Read current phase data
+PHASE_FILE = '$PHASE_FILE'
+ISO_TIMESTAMP = '$ISO_TIMESTAMP'
+
+# Read all phases data
 try:
-    with open('$PHASE_FILE', 'r') as f:
-        data = json.load(f)
+    with open(PHASE_FILE, 'r') as f:
+        all_phases_data = json.load(f)
 except FileNotFoundError:
     print('Error: No phase file found.')
     sys.exit(1)
 
-current_phase = data.get('current_phase', {})
+active_phase_id = all_phases_data.get('active_phase_id')
+if not active_phase_id:
+    print('Error: No active development phase found to resume.')
+    print('Use \"./bin/phase-start\" to start a new phase or \"./bin/phase-activate <ID>\" to activate an existing one.')
+    sys.exit(1)
+
+current_phase = all_phases_data['phases'].get(active_phase_id)
+if not current_phase:
+    print(f'Error: Active phase with ID {active_phase_id} not found in phase file.')
+    sys.exit(1)
 
 if current_phase.get('status') == 'active':
     print('Info: Phase is already active.')
@@ -47,17 +59,17 @@ if current_phase.get('status') == 'active':
 if current_phase.get('status') != 'paused':
     print('Error: No paused development phase found to resume.')
     print('Current phase status: ' + current_phase.get('status', 'none'))
-    print('Use "./bin/phase-start" to start a new phase or "./bin/phase-pause" to pause an active one.')
+    print('Use \"./bin/phase-start\" to start a new phase or \"./bin/phase-pause\" to pause an active one.')
     sys.exit(1)
 
 # Mark as active
 current_phase['status'] = 'active'
-current_phase['resumed_at'] = '$ISO_TIMESTAMP' # Optional: track resume time
-data['metadata']['last_updated'] = '$ISO_TIMESTAMP'
+current_phase['resumed_at'] = ISO_TIMESTAMP # Optional: track resume time
+current_phase['metadata']['last_updated'] = ISO_TIMESTAMP
 
 # Write back to file
-with open('$PHASE_FILE', 'w') as f:
-    json.dump(data, f, indent=2)
+with open(PHASE_FILE, 'w') as f:
+    json.dump(all_phases_data, f, indent=2)
 
 print('✓ Development phase resumed successfully!')
 print(f'  Phase: {current_phase.get('name', 'Unknown Phase')}')

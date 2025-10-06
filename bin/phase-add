@@ -31,13 +31,6 @@ fi
 STEP_DESCRIPTION="$1"
 PHASE_FILE=".claude/phase_todos.json"
 
-# Check if phase file exists and has active phase
-if [[ ! -f "$PHASE_FILE" ]]; then
-    echo "Error: No active development phase found."
-    echo "Use './bin/phase-start \"Phase Name\"' to start a new phase."
-    exit 1
-fi
-
 # Get current timestamp in ISO format
 ISO_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
@@ -52,16 +45,30 @@ import json
 import sys
 from datetime import datetime
 
-# Read current phase data
+PHASE_FILE = '$PHASE_FILE'
+STEP_DESCRIPTION = '$STEP_DESCRIPTION'
+ISO_TIMESTAMP = '$ISO_TIMESTAMP'
+NEW_ID = '$NEW_ID'
+
+# Read all phases data
 try:
-    with open('$PHASE_FILE', 'r') as f:
-        data = json.load(f)
+    with open(PHASE_FILE, 'r') as f:
+        all_phases_data = json.load(f)
 except FileNotFoundError:
     print('Error: No phase file found. Use \"./bin/phase-start\" to start a new phase.')
     sys.exit(1)
 
-# Check if there's an active phase
-current_phase = data.get('current_phase', {})
+active_phase_id = all_phases_data.get('active_phase_id')
+if not active_phase_id:
+    print('Error: No active development phase found.')
+    print('Use \"./bin/phase-start\" to start a new phase or \"./bin/phase-activate <ID>\" to activate an existing one.')
+    sys.exit(1)
+
+current_phase = all_phases_data['phases'].get(active_phase_id)
+if not current_phase:
+    print(f'Error: Active phase with ID {active_phase_id} not found in phase file.')
+    sys.exit(1)
+
 if current_phase.get('status') == 'paused':
     print('Error: Cannot add steps to a paused phase.')
     print(f'  Phase: {current_phase.get('name', 'Unknown Phase')}')
@@ -74,7 +81,7 @@ if current_phase.get('status') != 'active':
     sys.exit(1)
 
 # Determine priority based on step description
-step_desc = '$STEP_DESCRIPTION'.lower()
+step_desc = STEP_DESCRIPTION.lower()
 if any(keyword in step_desc for keyword in ['red phase', 'failing test', 'test']):
     priority = 'high'
 elif any(keyword in step_desc for keyword in ['green phase', 'implement', 'minimal']):
@@ -106,38 +113,38 @@ else:
 
 # Create new phase step
 new_step = {
-    'id': '$NEW_ID',
-    'content': '$STEP_DESCRIPTION',
+    'id': NEW_ID,
+    'content': STEP_DESCRIPTION,
     'status': 'pending',
-    'created_at': '$ISO_TIMESTAMP',
+    'created_at': ISO_TIMESTAMP,
     'priority': priority,
     'estimated_minutes': estimated_minutes
 }
 
 # Add to phase todos
-data['todos'].append(new_step)
+current_phase['todos'].append(new_step)
 
-# Update metadata
-todos = data['todos']
-data['metadata']['last_updated'] = '$ISO_TIMESTAMP'
-data['metadata']['total_phase_todos'] = len(todos)
-data['metadata']['pending_count'] = len([t for t in todos if t['status'] == 'pending'])
-data['metadata']['in_progress_count'] = len([t for t in todos if t['status'] == 'in_progress'])
-data['metadata']['completed_count'] = len([t for t in todos if t['status'] == 'completed'])
+# Update metadata for the current phase
+todos = current_phase['todos']
+current_phase['metadata']['last_updated'] = ISO_TIMESTAMP
+current_phase['metadata']['total_phase_todos'] = len(todos)
+current_phase['metadata']['pending_count'] = len([t for t in todos if t['status'] == 'pending'])
+current_phase['metadata']['in_progress_count'] = len([t for t in todos if t['status'] == 'in_progress'])
+current_phase['metadata']['completed_count'] = len([t for t in todos if t['status'] == 'completed'])
 
 # Write back to file
-with open('$PHASE_FILE', 'w') as f:
-    json.dump(data, f, indent=2)
+with open(PHASE_FILE, 'w') as f:
+    json.dump(all_phases_data, f, indent=2)
 
 print('✓ Phase step added successfully!')
-print(f'  ID: {new_step[\"id\"]}')
-print(f'  Content: {new_step[\"content\"]}')
-print(f'  Priority: {new_step[\"priority\"]}')
-print(f'  Estimated time: {new_step[\"estimated_minutes\"]} minutes')
-print(f'  Status: {new_step[\"status\"]}')
+print(f'  ID: {new_step["id"]}')
+print(f'  Content: {new_step["content"]}')
+print(f'  Priority: {new_step["priority"]}')
+print(f'  Estimated time: {new_step["estimated_minutes"]} minutes')
+print(f'  Status: {new_step["status"]}')
 print()
-print(f'Phase: {current_phase[\"name\"]}')
-print(f'Total steps: {len(todos)} | Pending: {data[\"metadata\"][\"pending_count\"]} | Completed: {data[\"metadata\"][\"completed_count\"]}')
+print(f'Phase: {current_phase["name"]}')
+print(f'Total steps: {len(todos)} | Pending: {current_phase["metadata"]["pending_count"]} | Completed: {current_phase["metadata"]["completed_count"]}')
 "
 
 echo ""

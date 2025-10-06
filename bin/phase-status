@@ -18,7 +18,7 @@ if [[ ! -f "$PHASE_FILE" ]]; then
     echo "=== AFS FastAPI Development Phase Status ==="
     echo ""
     echo "No development phase found."
-    echo "Use './bin/phase-start \"Phase Name\"' to start a new development phase."
+    echo "Use './bin/phase-start "Phase Name"' to start a new development phase."
     exit 0
 fi
 
@@ -32,24 +32,32 @@ import sys
 from datetime import datetime, timezone
 from collections import defaultdict
 
-# Read phase data
+PHASE_FILE = '$PHASE_FILE'
+
+# Read all phases data
 try:
-    with open('$PHASE_FILE', 'r') as f:
-        data = json.load(f)
+    with open(PHASE_FILE, 'r') as f:
+        all_phases_data = json.load(f)
 except FileNotFoundError:
     print('No development phase found.')
+    print('Use \"./bin/phase-start\" to start a new phase.')
     sys.exit(0)
 
-current_phase = data.get('current_phase', {})
-todos = data.get('todos', [])
-metadata = data.get('metadata', {})
+active_phase_id = all_phases_data.get('active_phase_id')
+if not active_phase_id:
+    print('No active development phase found.')
+    print('Use \"./bin/phase-start\" to start a new phase or \"./bin/phase-activate <ID>\" to activate an existing one.')
+    sys.exit(0)
+
+current_phase = all_phases_data['phases'].get(active_phase_id)
+if not current_phase:
+    print(f'Error: Active phase with ID {active_phase_id} not found in phase file.')
+    sys.exit(1)
+
+todos = current_phase.get('todos', [])
+metadata = current_phase.get('metadata', {})
 
 # Check if there's an active or paused phase
-if current_phase.get('status') == 'none':
-    print('No development phase found.')
-    print('Use "./bin/phase-start" to start a new phase.')
-    sys.exit(0)
-
 if current_phase.get('status') == 'paused':
     print('⏸️ Current Phase: ' + current_phase.get('name', 'Unknown Phase') + ' (PAUSED)')
     if 'paused_at' in current_phase:
@@ -57,11 +65,8 @@ if current_phase.get('status') == 'paused':
         paused_date = paused_at[:10]
         paused_time = paused_at[11:16]
         print(f'   Paused: {paused_date} at {paused_time} UTC')
-    print('\nUse "./bin/phase-resume" to continue this phase.')
+    print('\nUse \"./bin/phase-resume\" to continue this phase.')
     sys.exit(0)
-
-# Display phase information
-phase_name = current_phase.get('name', 'Unknown Phase')
 
 # Display phase information
 phase_name = current_phase.get('name', 'Unknown Phase')
@@ -92,7 +97,7 @@ in_progress_count = len([t for t in todos if t['status'] == 'in_progress'])
 
 if total_todos == 0:
     print('No phase steps found.')
-    print('Use \"./bin/phase-add\" to add implementation steps.')
+    print('Use "./bin/phase-add" to add implementation steps.')
     sys.exit(0)
 
 # Calculate progress percentage
@@ -101,7 +106,7 @@ progress_percentage = (completed_count / total_todos * 100) if total_todos > 0 e
 # Display overall progress
 print('📊 Phase Progress')
 print(f'   Total Steps: {total_todos}')
-print(f'   Completed: {completed_count} ({progress_percentage:.1f}%)')
+print(f'   Completed: {completed_count} ({progress_percentage:.1f}%)\n')
 print(f'   In Progress: {in_progress_count}')
 print(f'   Pending: {pending_count}')
 print()
@@ -112,7 +117,7 @@ completed_bars = int(progress_percentage / 100 * bar_width)
 pending_bars = bar_width - completed_bars
 
 progress_bar = '█' * completed_bars + '░' * pending_bars
-print(f'   Progress: [{progress_bar}] {progress_percentage:.1f}%')
+print(f'   Progress: [{progress_bar}] {progress_percentage:.1f}%\n')
 print()
 
 # Sort todos by status (in_progress first, then pending, then completed)
@@ -143,9 +148,9 @@ for i, todo in enumerate(sorted_todos, 1):
     # Add time estimate for non-completed items
     time_info = ''
     if todo['status'] != 'completed' and 'estimated_minutes' in todo:
-        time_info = f' (~{todo[\"estimated_minutes\"]}min)'
+        time_info = f' (~{todo["estimated_minutes"]}min)'
 
-    print(f'{i:2d}. {status_icon} {priority_marker} {todo[\"content\"]}{time_info}')
+    print(f'{i:2d}. {status_icon} {priority_marker} {todo["content"]}{time_info}')
 
     # Show completion time for completed items
     if todo['status'] == 'completed' and 'completed_at' in todo:
@@ -155,7 +160,7 @@ for i, todo in enumerate(sorted_todos, 1):
 
     # Show creation date for reference
     created_date = todo['created_at'][:10] if 'created_at' in todo else 'Unknown'
-    print(f'     ID: {todo[\"id\"]} | Created: {created_date}')
+    print(f'     ID: {todo["id"]} | Created: {created_date}')
     print()
 
 # Time estimates summary
@@ -177,7 +182,7 @@ if pending_count > 0 or in_progress_count > 0:
 if pending_count == 0 and in_progress_count == 0:
     print('🎉 Phase Complete!')
     print('   All steps have been completed.')
-    print('   Consider using \"./bin/phase-end\" to archive this phase.')
+    print('   Consider using "./bin/phase-end" to archive this phase.')
 elif in_progress_count > 0:
     print('🔄 Phase In Progress')
     in_progress_items = [t['content'] for t in todos if t['status'] == 'in_progress']
@@ -197,8 +202,8 @@ if last_updated != 'Unknown' and 'T' in last_updated:
 
 echo ""
 echo "Commands:"
-echo "  ./bin/phase-add \"Step Description\"     - Add implementation step"
-echo "  ./bin/phase-complete \"Step\"            - Mark step as completed"
+echo "  ./bin/phase-add "Step Description"     - Add implementation step"
+echo "  ./bin/phase-complete "Step"            - Mark step as completed"
 echo "  ./bin/phase-end                          - Complete and archive phase"
 # Auto-sync TODO state for session persistence
 ./bin/todo-sync --silent 2>/dev/null || true

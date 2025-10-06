@@ -28,40 +28,13 @@ PHASE_NAME="$1"
 PHASE_FILE=".claude/phase_todos.json"
 STRATEGIC_FILE=".claude/strategic_todos.json"
 
-# Check if there's already an active phase
-if [[ -f "$PHASE_FILE" ]]; then
-    CURRENT_PHASE=$(python3 -c "
-import json
-try:
-    with open('$PHASE_FILE', 'r') as f:
-        data = json.load(f)
-    current = data.get('current_phase', {})
-    if current.get('status') == 'active':
-        print(f'Error: Phase already active: {current.get('name', 'Unknown Phase')}')
-        print('Use './bin/phase-end' to complete the current phase before starting a new one.')
-        print('Use './bin/phase-status' to check current phase progress.')
-        sys.exit(1)
-    elif current.get('status') == 'paused':
-        print(f'Error: Phase already paused: {current.get('name', 'Unknown Phase')}')
-        print('Use './bin/phase-resume' to continue this phase.')
-        print('Use './bin/phase-end' to complete and archive the paused phase if no longer needed.')
-        sys.exit(1)
-    else:
-        print('')
-except:
-    print('')
-")
-
-    if [[ -n "$CURRENT_PHASE" ]]; then
-        echo "Error: Phase already active: $CURRENT_PHASE"
-        echo "Use './bin/phase-end' to complete the current phase before starting a new one."
-        echo "Use './bin/phase-status' to check current phase progress."
-        exit 1
-    fi
-fi
-
 # Get current timestamp in ISO format
 ISO_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+# Generate unique ID for the new phase
+TIMESTAMP=$(date -u +%Y%m%d_%H%M%S)
+RANDOM_ID=$(printf "%04d" $((RANDOM % 10000)))
+NEW_PHASE_ID="phase-${TIMESTAMP}_${RANDOM_ID}"
 
 # Show available strategic TODOs for alignment
 echo "=== Starting New Development Phase ==="
@@ -100,33 +73,64 @@ import json
 import sys
 from datetime import datetime
 
+PHASE_FILE = '$PHASE_FILE'
+STRATEGIC_FILE = '$STRATEGIC_FILE'
+NEW_PHASE_ID = '$NEW_PHASE_ID'
+PHASE_NAME = '$PHASE_NAME'
+ISO_TIMESTAMP = '$ISO_TIMESTAMP'
+STRATEGIC_ID = '$STRATEGIC_ID'
+
+# Read existing phase data or initialize new structure
+try:
+    with open(PHASE_FILE, 'r') as f:
+        all_phases_data = json.load(f)
+except FileNotFoundError:
+    all_phases_data = {
+        'active_phase_id': None,
+        'phases': {},
+        'last_completed_phase_id': None
+    }
+
+# Check for existing active or paused phase
+if all_phases_data.get('active_phase_id'):
+    active_phase = all_phases_data['phases'].get(all_phases_data['active_phase_id'])
+    if active_phase and active_phase['status'] == 'active':
+        print(f'Error: Phase already active: {active_phase.get('name', 'Unknown Phase')}')
+        print('Use './bin/phase-end' to complete the current phase before starting a new one.')
+        print('Use './bin/phase-status' to check current phase progress.')
+        sys.exit(1)
+    elif active_phase and active_phase['status'] == 'paused':
+        print(f'Error: Phase already paused: {active_phase.get('name', 'Unknown Phase')}')
+        print('Use './bin/phase-resume' to continue this phase.')
+        print('Use './bin/phase-end' to complete and archive the paused phase if no longer needed.')
+        sys.exit(1)
+
 # Validate strategic ID if provided
 strategic_todo = None
-if '$STRATEGIC_ID'.strip():
+if STRATEGIC_ID.strip():
     try:
-        with open('$STRATEGIC_FILE', 'r') as f:
+        with open(STRATEGIC_FILE, 'r') as f:
             strategic_data = json.load(f)
         strategic_todos = strategic_data.get('todos', [])
-        strategic_todo = next((t for t in strategic_todos if t['id'] == '$STRATEGIC_ID'), None)
+        strategic_todo = next((t for t in strategic_todos if t['id'] == STRATEGIC_ID), None)
         if not strategic_todo:
-            print(f'Warning: Strategic TODO ID \"$STRATEGIC_ID\" not found. Proceeding without alignment.')
+            print(f'Warning: Strategic TODO ID \"{STRATEGIC_ID}\" not found. Proceeding without alignment.')
         elif strategic_todo['status'] != 'pending':
-            print(f'Warning: Strategic TODO \"$STRATEGIC_ID\" is not pending (status: {strategic_todo[\"status\"]})')
+            print(f'Warning: Strategic TODO \"{STRATEGIC_ID}\" is not pending (status: {strategic_todo[\"status\"]})')
     except:
         print('Warning: Could not validate strategic TODO ID. Proceeding without alignment.')
 
 # Create new phase structure
-phase_data = {
-    'current_phase': {
-        'name': '$PHASE_NAME',
-        'description': 'Agricultural robotics development phase following TDD methodology',
-        'started_at': '$ISO_TIMESTAMP',
-        'strategic_todo_id': '$STRATEGIC_ID' if '$STRATEGIC_ID'.strip() and strategic_todo else None,
-        'status': 'active'
-    },
+new_phase_data = {
+    'id': NEW_PHASE_ID,
+    'name': PHASE_NAME,
+    'description': 'Agricultural robotics development phase following TDD methodology',
+    'started_at': ISO_TIMESTAMP,
+    'strategic_todo_id': STRATEGIC_ID if STRATEGIC_ID.strip() and strategic_todo else None,
+    'status': 'active',
     'todos': [],
     'metadata': {
-        'last_updated': '$ISO_TIMESTAMP',
+        'last_updated': ISO_TIMESTAMP,
         'version': '1.0.0',
         'total_phase_todos': 0,
         'completed_count': 0,
@@ -135,13 +139,18 @@ phase_data = {
     }
 }
 
-# Write phase file
-with open('$PHASE_FILE', 'w') as f:
-    json.dump(phase_data, f, indent=2)
+# Add new phase to the collection
+all_phases_data['phases'][NEW_PHASE_ID] = new_phase_data
+all_phases_data['active_phase_id'] = NEW_PHASE_ID
+
+# Write back to file
+with open(PHASE_FILE, 'w') as f:
+    json.dump(all_phases_data, f, indent=2)
 
 print('✓ New development phase started!')
-print(f'  Phase: $PHASE_NAME')
-print(f'  Started at: $ISO_TIMESTAMP')
+print(f'  Phase: {PHASE_NAME}')
+print(f'  ID: {NEW_PHASE_ID}')
+print(f'  Started at: {ISO_TIMESTAMP}')
 if strategic_todo:
     print(f'  Aligned with: {strategic_todo[\"content\"]}')
 print()
