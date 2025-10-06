@@ -215,27 +215,11 @@ class VectorClock:
         return copy.deepcopy(self._clocks)
 
     @classmethod
-    def from_dict(cls, clock_dict: dict[str, int], process_ids: list[str]) -> "VectorClock":
-        """Deserialize vector clock from dictionary.
-
-        Args:
-            clock_dict: Dictionary mapping process IDs to timestamps
-            process_ids: List of expected process IDs
-
-        Returns:
-            Reconstructed VectorClock instance
-
-        Agricultural Context:
-        Used to reconstruct vector clock from received ISOBUS messages.
-
-        """
-        clock = cls(process_ids)
-        # Adopt any provided processes that are not in the initial list
-        for process_id, timestamp in clock_dict.items():
-            if process_id not in clock._process_ids:
-                clock._process_ids.add(process_id)
-            clock._clocks[process_id] = int(timestamp)
-        return clock
+    def from_dict(cls, data: dict[str, int], process_ids: list[str]) -> "VectorClock":
+        """Create a VectorClock instance from a dictionary."""
+        instance = cls(process_ids)
+        instance._clocks = data
+        return instance
 
     def __str__(self) -> str:
         """Return string representation of vector clock."""
