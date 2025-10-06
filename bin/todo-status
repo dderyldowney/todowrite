@@ -93,7 +93,7 @@ if strategic_todos:
         print('Recent Strategic Completions:')
         for todo in recent_strategic[:2]:
             completed_date = todo['completed_at'][:10]
-            print(f'  ✓ {todo["content"]} ({completed_date})')
+            print(f'  ✓ {todo.get(\"content\", \"Description N/A\")} ({completed_date})')
         print()
 else:
     print('No strategic objectives found.')
@@ -248,7 +248,7 @@ print('  ./bin/strategic-add "Objective"         - Add strategic objective')
 print('  ./bin/strategic-status                  - Strategic overview')
 print()
 print('Phase Management:')
-print('  ./bin/phase-start "Phase Name"          - Start new phase')
+print('  ./bin/phase-start \"Phase Name\"          - Start new phase')
 print('  ./bin/phase-status                      - Current active phase details')
 print('  ./bin/phase-list-all                    - List all phases (active, paused, completed)')
 print('  ./bin/phase-activate <ID>               - Set an existing phase as active')
