@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **infrastructure**: Update strategic and phase TODO management state
+
+### Added
 - **docs**: Documented core modules and classes (`afs_fastapi/equipment`, `afs_fastapi/monitoring`, `afs_fastapi/api`) in `docs/afs_fastapi_module/core_modules.md`.
 
 ### Added

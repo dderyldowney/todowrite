@@ -43,7 +43,19 @@ except FileNotFoundError:
 
 # Check if there's an active phase
 current_phase = data.get('current_phase', {})
-if current_phase.get('status') != 'active':
+if current_phase.get('status') == 'paused':
+    print('Error: Cannot end a paused development phase directly.')
+    print(f'  Phase: {current_phase.get('name', 'Unknown Phase')}')
+    print('Use \"./bin/phase-resume\" to resume the phase, or type \"force\" below to force end it.')
+    print()
+    choice = input('Enter choice: ').strip().lower()
+    if choice != 'force':
+        print('Phase ending cancelled.')
+        sys.exit(0)
+    print('Force ending paused phase...')
+    # If force ending, change status to active temporarily for the rest of the script to work
+    current_phase['status'] = 'active'
+elif current_phase.get('status') != 'active':
     print('Error: No active development phase found.')
     print('Use \"./bin/phase-start\" to start a new phase.')
     sys.exit(1)
