@@ -263,6 +263,8 @@ class TestEmergencyStopPropagationTiming:
             await asyncio.sleep(0.05)
 
         mock_isobus.broadcast_priority_message.side_effect = fast_ack
+        mock_fleet.get_fleet_status.return_value = {}
+        mock_vc.get_process_ids.return_value = ["TRACTOR_1", "TRACTOR_2"]
         emergency_system = EmergencyStopPropagation(mock_fleet, mock_vc, mock_isobus)
 
         start_time = time.perf_counter()
