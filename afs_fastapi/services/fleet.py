@@ -376,7 +376,7 @@ class FleetCoordinationEngine:
                 try:
                     # Handle both sync and async callbacks
                     result = callback(message["payload"])
-                    if asyncio.iscoroutine(result):
+                    if result is not None and asyncio.iscoroutine(result):
                         await result
                 except Exception as e:
                     logger.error(f"Error in emergency callback: {e}")
