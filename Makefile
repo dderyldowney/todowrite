@@ -1,4 +1,4 @@
-.PHONY: help run test lint format type check clean precommit-install precommit-run precommit-autoupdate
+.PHONY: help run test lint format type check clean precommit-install precommit-run precommit-autoupdate install-dev
 
 help:
 	@echo "Targets:"
@@ -11,6 +11,7 @@ help:
 	@echo "  precommit-install - install and enable pre-commit hooks"
 	@echo "  precommit-run     - run pre-commit on all files"
 	@echo "  precommit-autoupdate - update hook revisions"
+	@echo "  install-dev - Install project in editable mode with dev dependencies"
 
 run:
 	AFS_API_RELOAD=1 python -m afs_fastapi
@@ -27,7 +28,7 @@ format:
 type:
 	mypy .
 
-check: lint type test
+check: install-dev lint type test
 
 clean:
 	rm -rf .pytest_cache .mypy_cache **/__pycache__
@@ -40,3 +41,6 @@ precommit-run:
 
 precommit-autoupdate:
 	pre-commit autoupdate
+
+install-dev:
+	python -m pip install -e .[dev]
