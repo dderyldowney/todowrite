@@ -126,6 +126,13 @@ class FieldAllocationCRDT:
         if owner_id not in self._vector_clock.get_process_ids():
             self._vector_clock.add_process(owner_id)
 
+        # Check if the owner_id matches the current owner before releasing
+        current_owner, _, _ = self._sections.get(section_id, (None, None, None))
+        if current_owner != owner_id:
+            # If the current owner is different, or section is not claimed, do not release
+            # This ensures a tractor cannot release a section it doesn't own.
+            return
+
         # Increment vector clock for this local event
         self._vector_clock.increment(owner_id)
 

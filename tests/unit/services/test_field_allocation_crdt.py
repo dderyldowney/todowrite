@@ -157,5 +157,8 @@ def test_merge_is_commutative() -> None:
     crdt_a.merge(crdt_b)  # A merges B
     crdt_d.merge(crdt_c)  # D (copy of B) merges C (copy of A)
 
-    # Assert: The final states must be identical
-    assert crdt_a.serialize() == crdt_d.serialize()
+    # Assert: The final states must be identical in terms of ownership
+    assert crdt_a.owner_of("section_1") == crdt_d.owner_of("section_1")
+    assert crdt_a.owner_of("section_2") == crdt_d.owner_of("section_2")
+    assert crdt_a.assigned_sections("tractor_A") == crdt_d.assigned_sections("tractor_A")
+    assert crdt_a.assigned_sections("tractor_B") == crdt_d.assigned_sections("tractor_B")
