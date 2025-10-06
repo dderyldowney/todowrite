@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **types**: Resolved MyPy type errors in CRDT implementation and tests for agricultural robotics.
 
 ### Changed
+- **hooks**: Removed `changelog-enforcement` and `commit-separation` pre-commit hooks from `.pre-commit-config.yaml`.
+
+### Changed
 - **pre-commit**: Relaxed commit message and changelog enforcement.
   - Removed mandatory agricultural context check from commit descriptions.
   - Made changelog enforcement error messages more generic.

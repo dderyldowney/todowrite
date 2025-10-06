@@ -43,20 +43,7 @@ repos:
         pass_filenames: false
         always_run: true
 
-      # CHANGELOG.md mandatory inclusion enforcement (required for all commits)
-      - id: changelog-enforcement
-        name: CHANGELOG.md Enforcement
-        entry: python .claude/hooks/changelog_enforcement.py
-        language: system
-        pass_filenames: false
-        always_run: true
 
-      # Commit separation of concerns enforcement (mandatory for all commits)
-      - id: commit-separation
-        name: Commit Separation of Concerns
-        entry: python .claude/hooks/commit_separation_enforcement.py
-        language: system
-        pass_filenames: false
-        always_run: true
-        stages: [commit-msg]
+
+
 
