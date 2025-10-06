@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **ai-processing**: Implemented `contextual_focus_domain` in `ai_processing_config.json` to explicitly define the contextual focus for all agents to "agricultural robotics and artificial intelligence".
+
+### Added
 - **commands**: `formatall` command for comprehensive code formatting and quality checks.
 
 ### Fixed

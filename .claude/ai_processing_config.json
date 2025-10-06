@@ -1,4 +1,5 @@
 {
+  "contextual_focus_domain": "agricultural robotics and artificial intelligence",
   "agricultural_safety_mode": true,
   "default_optimization_level": "standard",
   "token_budget": 4000,
