@@ -18,10 +18,11 @@
     {
       "id": "phase-20251006_124942_6883",
       "content": "Implement test_compatible_with_various_shell_environments",
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-10-06T12:49:42Z",
       "priority": "high",
-      "estimated_minutes": 45
+      "estimated_minutes": 45,
+      "completed_at": "2025-10-06T15:32:43Z"
     },
     {
       "id": "phase-20251006_124948_6715",
@@ -49,11 +50,11 @@
     }
   ],
   "metadata": {
-    "last_updated": "2025-10-06T12:49:56Z",
+    "last_updated": "2025-10-06T15:32:43Z",
     "version": "1.0.0",
     "total_phase_todos": 5,
-    "completed_count": 0,
+    "completed_count": 1,
     "in_progress_count": 0,
-    "pending_count": 5
+    "pending_count": 4
   }
 }
