@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **session**: Synchronize session configuration state
 
 ### Added
+- **testing**: Implemented `test_failing_test_for_clear_error_messages` in `tests/integration/test_git_utils.py` to verify clear error messages for non-existent commands.
+
+### Added
 - **testing**: Implemented `test_compatible_with_various_shell_environments` in `tests/integration/test_git_utils.py` to verify shell compatibility.
 
 ### Added

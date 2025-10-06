@@ -57,3 +57,30 @@ def test_compatible_with_various_shell_environments():
             result.stdout.strip() == "Hello from shell"
         ), f"Unexpected output from {shell}: {result.stdout}"
         assert result.stderr == "", f"Errors from {shell}: {result.stderr}"
+
+
+def test_failing_test_for_clear_error_messages():
+    """
+    Tests that running a non-existent command produces a clear error message.
+    This is a failing test to demonstrate error message clarity.
+    """
+    non_existent_command = "this_command_does_not_exist_12345"
+
+    result = subprocess.run(
+        non_existent_command,  # Pass command as a single string when shell=True
+        capture_output=True,
+        text=True,
+        check=False,  # We expect it to fail, so don't raise an exception
+        shell=True,  # Use shell to handle command not found
+    )
+
+    # Assert that the command failed
+    assert result.returncode != 0, "Non-existent command unexpectedly succeeded."
+
+    # Assert that stderr contains a clear error message about command not found
+    # The exact message can vary between systems, so check for common phrases
+    error_message_lower = result.stderr.lower()
+    assert any(
+        phrase in error_message_lower
+        for phrase in ["not found", "command not found", "no such file or directory"]
+    ), f"Error message is not clear: {result.stderr}"
