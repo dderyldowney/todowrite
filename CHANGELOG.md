@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **infrastructure**: Update strategic and phase TODO management state
+
 ### Configuration
 - **session**: Synchronize session configuration state
 
