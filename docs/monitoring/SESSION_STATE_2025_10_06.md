@@ -47,7 +47,7 @@ MANDATORY_REQUIREMENTS_PLACEHOLDER
 **Version**: v0.1.3+
 **Test Count**: 101 tests
 **Branch**: develop (0 commits ahead)
-**Working Directory**: 14 uncommitted changes
+**Working Directory**: 6 uncommitted changes
 
 **Code Quality**: Zero warnings (Ruff, Black, isort, MyPy)
 
@@ -104,7 +104,7 @@ RECENT_ACTIVITY_PLACEHOLDER
 ### Branch Status
 - **Current Branch**: develop
 - **Status**: 0 commits ahead of origin
-- **Working Directory**: 14 uncommitted changes
+- **Working Directory**: 6 uncommitted changes
 
 ### Recent Commits
 RECENT_COMMITS_PLACEHOLDER
