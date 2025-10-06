@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **session**: Synchronize session configuration state
 
 ### Added
+- **testing**: Implemented `test_git_working_directory_cleanliness` in `tests/integration/test_git_utils.py` to verify a clean git working directory.
+
+### Added
 - **ai-processing**: Implemented `contextual_focus_domain` in `ai_processing_config.json` to explicitly define the contextual focus for all agents to "agricultural robotics and artificial intelligence".
 
 ### Added
