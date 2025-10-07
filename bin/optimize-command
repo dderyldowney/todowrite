@@ -11,11 +11,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+from afs_fastapi.core.conversation_manager import optimize_interaction
+
 # Add project to path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
-
-from afs_fastapi.core.conversation_manager import optimize_interaction
 
 
 def main():
