@@ -1,10 +1,9 @@
-Feat: Add python-can integration and FarmTractor class
+Feat: Implement FieldAllocationCRDT for enhanced synchronization
 
-This commit introduces initial support for CAN bus communication using the `python-can` library.
+This commit introduces the core Conflict-Free Replicated Data Type (CRDT) for managing field segment allocations, a key component for enhanced synchronization in multi-tractor operations.
 
 Key changes include:
-- Created `afs_fastapi/equipment/can_interface.py` with a `CanBusManager` class to handle CAN bus initialization, sending, and receiving messages.
-- Created `afs_fastapi/equipment/tractor.py` with a `FarmTractor` class, integrating the `CanBusManager` for CAN communication.
-- The `FarmTractor` class now includes basic attributes and methods for tractor control and status, with placeholders for CAN message sending.
+- Created `afs_fastapi/models/field_segment.py` to define the `FieldSegment` Pydantic model, representing a unit of a field with status, assignment, and a timestamp for conflict resolution.
+- Implemented `afs_fastapi/services/crdt_manager.py` with the `FieldAllocationCRDT` class. This operation-based CRDT provides methods for adding, assigning, releasing, and completing field segments, as well as merging CRDT states using a last-write-wins strategy.
 
-This lays the groundwork for real-world agricultural equipment communication via ISOBUS.
+This completes the first chunk of the Enhanced Synchronization phase, laying the foundation for robust distributed field allocation.
