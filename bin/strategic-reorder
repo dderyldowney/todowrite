@@ -1,57 +1,27 @@
 #!/usr/bin/env python3
 
-import json
+import argparse
 import sys
 from pathlib import Path
 
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
-def reorder_strategic_todos(goal_id: str, new_position: int):
-    """Reorders a strategic TODO item."""
-    strategic_file = Path(".claude/strategic_todos.json")
-    if not strategic_file.is_file():
-        print("Error: strategic_todos.json not found.", file=sys.stderr)
+from afs_fastapi.core.todos_manager import reorder_strategic_goals  # noqa: E402
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Reorder a strategic goal.")
+    parser.add_argument("goal_id", type=str, help="The ID of the strategic goal to reorder.")
+    parser.add_argument("new_position", type=int, help="The new position of the strategic goal.")
+    args = parser.parse_args()
+
+    if reorder_strategic_goals(args.goal_id, args.new_position):
+        print(f"✓ Successfully moved goal ''{args.goal_id}'' to position {args.new_position}.")
+    else:
+        print(f"Error: Goal with ID ''{args.goal_id}'' not found.")
         sys.exit(1)
-
-    with open(strategic_file) as f:
-        data = json.load(f)
-
-    todos = data.get("todos", [])
-
-    goal_to_move = None
-    for i, todo in enumerate(todos):
-        if todo["id"] == goal_id:
-            goal_to_move = todos.pop(i)
-            break
-
-    if not goal_to_move:
-        print(f"Error: Goal with ID '{goal_id}' not found.", file=sys.stderr)
-        sys.exit(1)
-
-    # Adjust new position to be within bounds
-    if new_position < 1:
-        new_position = 1
-    if new_position > len(todos) + 1:
-        new_position = len(todos) + 1
-
-    todos.insert(new_position - 1, goal_to_move)
-
-    data["todos"] = todos
-    with open(strategic_file, "w") as f:
-        json.dump(data, f, indent=2)
-
-    print(f"\u2713 Successfully moved goal '{goal_id}' to position {new_position}.")
-
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: ./bin/strategic-reorder <goal-id> <new-position>", file=sys.stderr)
-        sys.exit(1)
-
-    goal_id = sys.argv[1]
-    try:
-        new_position = int(sys.argv[2])
-    except ValueError:
-        print("Error: New position must be an integer.", file=sys.stderr)
-        sys.exit(1)
-
-    reorder_strategic_todos(goal_id, new_position)
+    main()

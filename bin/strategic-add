@@ -1,94 +1,34 @@
-#!/bin/bash
+#!/usr/bin/env python3
 
-# strategic-add: Add new strategic TODO item for agricultural robotics development
-# Usage: ./bin/strategic-add "Description of strategic objective"
-
-set -euo pipefail
-
-# Ensure we're in the project root
-if [[ ! -f ".claude/DUAL_TODO_SYSTEM.md" ]]; then
-    echo "Error: Must be run from AFS FastAPI project root directory"
-    exit 1
-fi
-
-# Check if description provided
-if [[ $# -eq 0 ]]; then
-    echo "Usage: $0 \"Description of strategic objective\""
-    echo ""
-    echo "Examples:"
-    echo "  $0 \"Implement precision agriculture variable rate application\""
-    echo "  $0 \"Add autonomous navigation with obstacle avoidance\""
-    echo "  $0 \"Develop real-time crop monitoring integration\""
-    exit 1
-fi
-
-DESCRIPTION="$1"
-STRATEGIC_FILE=".claude/strategic_todos.json"
-
-# Generate unique ID based on timestamp and random component
-TIMESTAMP=$(date -u +%Y%m%d_%H%M%S)
-RANDOM_ID=$(printf "%04d" $((RANDOM % 10000)))
-NEW_ID="strategic-${TIMESTAMP}_${RANDOM_ID}"
-
-# Get current timestamp in ISO format
-ISO_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-
-# Create strategic todos file if it doesn't exist
-if [[ ! -f "$STRATEGIC_FILE" ]]; then
-    cat > "$STRATEGIC_FILE" <<EOF
-{
-  "todos": [],
-  "metadata": {
-    "last_updated": "$ISO_TIMESTAMP",
-    "version": "1.0.0",
-    "total_strategic_todos": 0,
-    "completed_count": 0,
-    "pending_count": 0
-  }
-}
-EOF
-fi
-
-# Use Python to add the new strategic TODO
-python3 -c "
-import json
+import argparse
 import sys
-from datetime import datetime
+from pathlib import Path
 
-# Read current todos
-with open('$STRATEGIC_FILE', 'r') as f:
-    data = json.load(f)
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
-# Create new todo item
-new_todo = {
-    'id': '$NEW_ID',
-    'content': '$DESCRIPTION',
-    'status': 'pending',
-    'created_at': '$ISO_TIMESTAMP',
-    'priority': 'medium',
-    'category': 'general'
-}
+from afs_fastapi.core.todos_manager import add_strategic_goal  # noqa: E402
 
-# Add to todos list
-data['todos'].append(new_todo)
 
-# Update metadata
-data['metadata']['last_updated'] = '$ISO_TIMESTAMP'
-data['metadata']['total_strategic_todos'] = len(data['todos'])
-data['metadata']['pending_count'] = len([t for t in data['todos'] if t['status'] == 'pending'])
-data['metadata']['completed_count'] = len([t for t in data['todos'] if t['status'] == 'completed'])
+def main():
+    parser = argparse.ArgumentParser(description="Add a new strategic goal.")
+    parser.add_argument("description", type=str, help="The description of the strategic goal.")
+    parser.add_argument("--category", type=str, default="general", help="The category of the strategic goal.")
+    parser.add_argument("--priority", type=str, default="medium", choices=["low", "medium", "high"], help="The priority of the strategic goal.")
+    args = parser.parse_args()
 
-# Write back to file
-with open('$STRATEGIC_FILE', 'w') as f:
-    json.dump(data, f, indent=2)
+    new_goal = add_strategic_goal(args.description, args.category, args.priority)
 
-print(f'✓ Strategic TODO added: {new_todo[\"id\"]}')
-print(f'  Content: {new_todo[\"content\"]}')
-print(f'  Status: {new_todo[\"status\"]}')
-print(f'  Priority: {new_todo[\"priority\"]}')
-"
+    print(f"✓ Strategic goal added: {new_goal['id']}")
+    print(f"  Description: {new_goal['description']}")
+    print(f"  Status: {new_goal['status']}")
+    print(f"  Priority: {new_goal['priority']}")
+    print(f"  Category: {new_goal['category']}")
+    print()
+    print("Strategic goal added successfully. Use './bin/strategic-list' to view all strategic goals.")
 
-echo ""
-echo "Strategic TODO added successfully. Use './bin/strategic-list' to view all strategic objectives."
+if __name__ == "__main__":
+    main()
 # Auto-sync TODO state for session persistence
 ./bin/todo-sync --silent 2>/dev/null || true

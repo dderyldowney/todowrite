@@ -1,209 +1,80 @@
-#!/bin/bash
+#!/usr/bin/env python3
 
-# phase-status: Display current development phase progress and step details
-# Usage: ./bin/phase-status
-
-set -euo pipefail
-
-# Ensure we're in the project root
-if [[ ! -f ".claude/DUAL_TODO_SYSTEM.md" ]]; then
-    echo "Error: Must be run from AFS FastAPI project root directory"
-    exit 1
-fi
-
-PHASE_FILE=".claude/phase_todos.json"
-
-# Check if phase file exists
-if [[ ! -f "$PHASE_FILE" ]]; then
-    echo "=== AFS FastAPI Development Phase Status ==="
-    echo ""
-    echo "No development phase found."
-    echo "Use './bin/phase-start "Phase Name"' to start a new development phase."
-    exit 0
-fi
-
-echo "=== AFS FastAPI Development Phase Status ==="
-echo ""
-
-# Use Python to display phase status with formatting
-python3 -c "
-import json
 import sys
-from datetime import datetime, timezone
-from collections import defaultdict
+from pathlib import Path
 
-PHASE_FILE = '$PHASE_FILE'
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
-# Read all phases data
-try:
-    with open(PHASE_FILE, 'r') as f:
-        all_phases_data = json.load(f)
-except FileNotFoundError:
-    print('No development phase found.')
-    print('Use \"./bin/phase-start\" to start a new phase.')
-    sys.exit(0)
+from afs_fastapi.core.todos_manager import get_active_phase  # noqa: E402
 
-active_phase_id = all_phases_data.get('active_phase_id')
-if not active_phase_id:
-    print('No active development phase found.')
-    print('Use \"./bin/phase-start\" to start a new phase or \"./bin/phase-activate <ID>\" to activate an existing one.')
-    sys.exit(0)
 
-current_phase = all_phases_data['phases'].get(active_phase_id)
-if not current_phase:
-    print(f'Error: Active phase with ID {active_phase_id} not found in phase file.')
-    sys.exit(1)
+def display_phase_status():
+    active_phase = get_active_phase()
 
-todos = current_phase.get('todos', [])
-metadata = current_phase.get('metadata', {})
+    if not active_phase:
+        print("=== AFS FastAPI Development Phase Status ===")
+        print()
+        print("No active development phase found.")
+        print("Use \"./bin/phase-start\" to start a new phase or \"./bin/phase-activate <ID>\" to activate an existing one.")
+        return
 
-# Check if there's an active or paused phase
-if current_phase.get('status') == 'paused':
-    print('⏸️ Current Phase: ' + current_phase.get('name', 'Unknown Phase') + ' (PAUSED)')
-    if 'paused_at' in current_phase:
-        paused_at = current_phase['paused_at']
-        paused_date = paused_at[:10]
-        paused_time = paused_at[11:16]
-        print(f'   Paused: {paused_date} at {paused_time} UTC')
-    print('\nUse \"./bin/phase-resume\" to continue this phase.')
-    sys.exit(0)
-
-# Display phase information
-phase_name = current_phase.get('name', 'Unknown Phase')
-phase_desc = current_phase.get('description', '')
-started_at = current_phase.get('started_at', 'Unknown')
-strategic_id = current_phase.get('strategic_todo_id')
-
-print(f'🚀 Current Phase: {phase_name}')
-if phase_desc:
-    print(f'   Description: {phase_desc}')
-
-# Format start date
-if started_at and 'T' in started_at:
-    start_date = started_at[:10]  # YYYY-MM-DD
-    start_time = started_at[11:16]  # HH:MM
-    print(f'   Started: {start_date} at {start_time} UTC')
-
-# Show strategic alignment if available
-if strategic_id:
-    print(f'   Strategic Alignment: {strategic_id}')
-print()
-
-# Calculate statistics
-total_todos = len(todos)
-pending_count = len([t for t in todos if t['status'] == 'pending'])
-completed_count = len([t for t in todos if t['status'] == 'completed'])
-in_progress_count = len([t for t in todos if t['status'] == 'in_progress'])
-
-if total_todos == 0:
-    print('No phase steps found.')
-    print('Use "./bin/phase-add" to add implementation steps.')
-    sys.exit(0)
-
-# Calculate progress percentage
-progress_percentage = (completed_count / total_todos * 100) if total_todos > 0 else 0
-
-# Display overall progress
-print('📊 Phase Progress')
-print(f'   Total Steps: {total_todos}')
-print(f'   Completed: {completed_count} ({progress_percentage:.1f}%)\n')
-print(f'   In Progress: {in_progress_count}')
-print(f'   Pending: {pending_count}')
-print()
-
-# Progress bar
-bar_width = 40
-completed_bars = int(progress_percentage / 100 * bar_width)
-pending_bars = bar_width - completed_bars
-
-progress_bar = '█' * completed_bars + '░' * pending_bars
-print(f'   Progress: [{progress_bar}] {progress_percentage:.1f}%\n')
-print()
-
-# Sort todos by status (in_progress first, then pending, then completed)
-status_order = {'in_progress': 0, 'pending': 1, 'completed': 2}
-priority_order = {'high': 0, 'medium': 1, 'low': 2}
-
-sorted_todos = sorted(todos, key=lambda x: (
-    status_order.get(x['status'], 999),
-    priority_order.get(x.get('priority', 'medium'), 999),
-    x['created_at']
-))
-
-# Display step details
-print('📋 Phase Steps')
-for i, todo in enumerate(sorted_todos, 1):
-    status_icon = {
-        'pending': '○',
-        'in_progress': '◐',
-        'completed': '●'
-    }.get(todo['status'], '?')
-
-    priority_marker = {
-        'high': '[HIGH]',
-        'medium': '[MED] ',
-        'low': '[LOW] '
-    }.get(todo.get('priority', 'medium'), '[???]')
-
-    # Add time estimate for non-completed items
-    time_info = ''
-    if todo['status'] != 'completed' and 'estimated_minutes' in todo:
-        time_info = f' (~{todo["estimated_minutes"]}min)'
-
-    print(f'{i:2d}. {status_icon} {priority_marker} {todo["content"]}{time_info}')
-
-    # Show completion time for completed items
-    if todo['status'] == 'completed' and 'completed_at' in todo:
-        completed_date = todo['completed_at'][:10]  # YYYY-MM-DD
-        completed_time = todo['completed_at'][11:16]  # HH:MM
-        print(f'     ✓ Completed: {completed_date} {completed_time} UTC')
-
-    # Show creation date for reference
-    created_date = todo['created_at'][:10] if 'created_at' in todo else 'Unknown'
-    print(f'     ID: {todo["id"]} | Created: {created_date}')
+    print("=== AFS FastAPI Development Phase Status ===")
     print()
 
-# Time estimates summary
-if pending_count > 0 or in_progress_count > 0:
-    remaining_todos = [t for t in todos if t['status'] in ['pending', 'in_progress']]
-    total_estimated_time = sum(t.get('estimated_minutes', 30) for t in remaining_todos)
+    phase_name = active_phase.get('name', 'Unknown Phase')
+    started_at = active_phase.get('date_started', 'Unknown')
+    strategic_id = active_phase.get('strategic_goal_id', 'N/A')
 
-    hours = total_estimated_time // 60
-    minutes = total_estimated_time % 60
+    phase_status = active_phase.get('status', 'unknown')
+    status_icon = {'active': '🚀', 'paused': '⏸️', 'partially-paused': '⏯️', 'completed': '✅'}.get(phase_status, '❓')
+    print(f"{status_icon} Current Phase: {phase_name} ({phase_status})")
+    if started_at and 'T' in started_at:
+        start_date = started_at[:10]
+        start_time = started_at[11:16]
+        print(f"   Started: {start_date} at {start_time} UTC")
+    
+    print(f"   Strategic Alignment: {strategic_id}")
+    print()
 
-    print('⏱️  Estimated Time Remaining')
-    if hours > 0:
-        print(f'   Approximately {hours}h {minutes}m for remaining {len(remaining_todos)} steps')
+    tasks = active_phase.get('tasks', [])
+    total_tasks = len(tasks)
+    if total_tasks > 0:
+        completed_tasks = len([t for t in tasks if t['status'] == 'completed'])
+        pending_tasks = len([t for t in tasks if t['status'] == 'pending'])
+        in_progress_tasks = len([t for t in tasks if t['status'] == 'in progress'])
+        progress_percentage = (completed_tasks / total_tasks * 100) if total_tasks > 0 else 0
+        
+        print("📊 Phase Progress")
+        print(f"   Total Steps: {total_tasks}")
+        print(f"   Completed: {completed_tasks} ({progress_percentage:.1f}%)")
+        print(f"   In Progress: {in_progress_tasks}")
+        print(f"   Pending: {pending_tasks}")
+        print()
+
+        bar_width = 40
+        completed_bars = int(progress_percentage / 100 * bar_width)
+        pending_bars = bar_width - completed_bars
+        progress_bar = '█' * completed_bars + '░' * pending_bars
+        print(f"   Progress: [{progress_bar}] {progress_percentage:.1f}%")
+        print()
+
+        print("📋 Phase Steps")
+        for i, task in enumerate(tasks, 1):
+            status_icon = {'pending': '○', 'in_progress': '◐', 'completed': '●', 'paused': '⏸️'}.get(task['status'], '?')
+            print(f"{i:2d}. {status_icon} {task['description']}")
+        print()
+
     else:
-        print(f'   Approximately {minutes}m for remaining {len(remaining_todos)} steps')
-    print()
+        print("No phase steps found.")
+        print("Use \"./bin/phase-add\" to add implementation steps.")
 
-# Phase completion status
-if pending_count == 0 and in_progress_count == 0:
-    print('🎉 Phase Complete!')
-    print('   All steps have been completed.')
-    print('   Consider using "./bin/phase-end" to archive this phase.')
-elif in_progress_count > 0:
-    print('🔄 Phase In Progress')
-    in_progress_items = [t['content'] for t in todos if t['status'] == 'in_progress']
-    for item in in_progress_items:
-        print(f'   Currently working on: {item}')
-else:
-    print('📝 Phase Planning')
-    print('   Ready to begin implementation steps.')
+    print("Commands:")
+    print("  ./bin/phase-add \"Step Description\"     - Add implementation step")
+    print("  ./bin/phase-complete \"Step\"            - Mark step as completed")
+    print("  ./bin/phase-end                          - Complete and archive phase")
 
-# Metadata
-last_updated = metadata.get('last_updated', 'Unknown')
-if last_updated != 'Unknown' and 'T' in last_updated:
-    last_updated_date = last_updated[:10]
-    last_updated_time = last_updated[11:16]
-    print(f'📅 Last Updated: {last_updated_date} {last_updated_time} UTC')
-"
+if __name__ == "__main__":
+    display_phase_status()
 
-echo ""
-echo "Commands:"
-echo "  ./bin/phase-add "Step Description"     - Add implementation step"
-echo "  ./bin/phase-complete "Step"            - Mark step as completed"
-echo "  ./bin/phase-end                          - Complete and archive phase"
-# Auto-sync TODO state for session persistence
-./bin/todo-sync --silent 2>/dev/null || true

@@ -1,83 +1,33 @@
-#!/bin/bash
+#!/usr/bin/env python3
 
-# phase-resume: Resume a paused development phase
-# Usage: ./bin/phase-resume
-
-set -euo pipefail
-
-# Ensure we're in the project root
-if [[ ! -f ".claude/DUAL_TODO_SYSTEM.md" ]]; then
-    echo "Error: Must be run from AFS FastAPI project root directory"
-    exit 1
-fi
-
-PHASE_FILE=".claude/phase_todos.json"
-
-# Check if phase file exists
-if [[ ! -f "$PHASE_FILE" ]]; then
-    echo "Error: No development phase found."
-    echo "Use './bin/phase-start \"Phase Name\"' to start a new phase."
-    exit 1
-fi
-
-# Get current timestamp in ISO format
-ISO_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-
-# Resume the paused phase
-python3 -c "
-import json
+import argparse
 import sys
-from datetime import datetime
+from pathlib import Path
 
-PHASE_FILE = '$PHASE_FILE'
-ISO_TIMESTAMP = '$ISO_TIMESTAMP'
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
-# Read all phases data
-try:
-    with open(PHASE_FILE, 'r') as f:
-        all_phases_data = json.load(f)
-except FileNotFoundError:
-    print('Error: No phase file found.')
-    sys.exit(1)
+from afs_fastapi.core.todos_manager import resume_paused_phase  # noqa: E402
 
-active_phase_id = all_phases_data.get('active_phase_id')
-if not active_phase_id:
-    print('Error: No active development phase found to resume.')
-    print('Use \"./bin/phase-start\" to start a new phase or \"./bin/phase-activate <ID>\" to activate an existing one.')
-    sys.exit(1)
 
-current_phase = all_phases_data['phases'].get(active_phase_id)
-if not current_phase:
-    print(f'Error: Active phase with ID {active_phase_id} not found in phase file.')
-    sys.exit(1)
+def main():
+    parser = argparse.ArgumentParser(description="Resume a paused development phase.")
+    parser.parse_args() # Call parse_args to handle --help and other argparse features
 
-if current_phase.get('status') == 'active':
-    print('Info: Phase is already active.')
-    print(f'  Phase: {current_phase.get('name', 'Unknown Phase')}')
-    sys.exit(0)
+    resumed_phase, error = resume_paused_phase()
 
-if current_phase.get('status') != 'paused':
-    print('Error: No paused development phase found to resume.')
-    print('Current phase status: ' + current_phase.get('status', 'none'))
-    print('Use \"./bin/phase-start\" to start a new phase or \"./bin/phase-pause\" to pause an active one.')
-    sys.exit(1)
+    if error:
+        print(f"Error: {error}")
+        sys.exit(1)
+    
+    if resumed_phase:
+        print("✓ Development phase resumed successfully!")
+        print(f"  Phase: {resumed_phase.get('name', 'Unknown Phase')}")
+        print(f"  Resumed at: {resumed_phase['resumed_at']}")
+        print()
+        print("Use './bin/phase-status' to view phase status.")
+        print("Use './bin/phase-add' to add steps or './bin/phase-complete' to complete steps.")
 
-# Mark as active
-current_phase['status'] = 'active'
-current_phase['resumed_at'] = ISO_TIMESTAMP # Optional: track resume time
-current_phase['metadata']['last_updated'] = ISO_TIMESTAMP
-
-# Write back to file
-with open(PHASE_FILE, 'w') as f:
-    json.dump(all_phases_data, f, indent=2)
-
-print('✓ Development phase resumed successfully!')
-print(f'  Phase: {current_phase.get('name', 'Unknown Phase')}')
-print(f'  Resumed at: {current_phase['resumed_at']}')
-"
-
-echo ""
-echo "Use './bin/phase-status' to view phase status."
-echo "Use './bin/phase-add' to add steps or './bin/phase-complete' to complete steps."
-# Auto-sync TODO state for session persistence
-./bin/todo-sync --silent 2>/dev/null || true
+if __name__ == "__main__":
+    main()

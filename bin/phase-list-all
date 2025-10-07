@@ -1,99 +1,65 @@
-#!/bin/bash
+#!/usr/bin/env python3
 
-# phase-list-all: List all development phases (active, paused, completed)
-# Usage: ./bin/phase-list-all
-
-set -euo pipefail
-
-# Ensure we're in the project root
-if [[ ! -f ".claude/DUAL_TODO_SYSTEM.md" ]]; then
-    echo "Error: Must be run from AFS FastAPI project root directory"
-    exit 1
-fi
-
-PHASE_FILE=".claude/phase_todos.json"
-
-echo "=== AFS FastAPI All Development Phases ==="
-echo ""
-
-# Use Python to display all phases with formatting
-python3 <<EOF
-import json
 import sys
-from datetime import datetime, timezone
+from pathlib import Path
 
-PHASE_FILE = '$PHASE_FILE'
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
-# Read all phases data
-try:
-    with open(PHASE_FILE, 'r') as f:
-        all_phases_data = json.load(f)
-except FileNotFoundError:
-    print('No development phases found.')
-    print('Use "./bin/phase-start" to start a new phase.')
-    sys.exit(0)
+from afs_fastapi.core.todos_manager import get_all_phases  # noqa: E402
 
-phases = all_phases_data.get('phases', {})
-active_phase_id = all_phases_data.get('active_phase_id')
 
-if not phases:
-    print('No development phases found.')
-    print('Use "./bin/phase-start" to start a new phase.')
-    sys.exit(0)
+def display_all_phases():
+    phases = get_all_phases()
 
-# Sort phases by started_at, newest first
-sorted_phases = sorted(phases.values(), key=lambda x: x.get('started_at', ''), reverse=True)
+    if not phases:
+        print("No development phases found.")
+        print("Use './bin/phase-start' to start a new phase.")
+        return
 
-for phase in sorted_phases:
-    phase_id = phase.get('id', 'Unknown ID')
-    phase_name = phase.get('name', 'Unknown Phase')
-    status = phase.get('status', 'unknown')
-    started_at = phase.get('started_at', 'Unknown')
-    completed_at = phase.get('completed_at', 'N/A')
-    strategic_id = phase.get('strategic_todo_id', 'N/A')
-
-    status_icon = {
-        'active': '🚀',
-        'paused': '⏸️',
-        'completed': '✅',
-        'unknown': '❓'
-    }.get(status, '❓')
-
-    active_marker = " (ACTIVE)" if phase_id == active_phase_id else ""
-
-    print(f'{status_icon} {phase_name}{active_marker}')
-    print(f'   ID: {phase_id}')
-    print(f'   Status: {status.capitalize()}')
-    print(f'   Started: {started_at[:10]} {started_at[11:16]} UTC')
-    if status == 'completed':
-        print(f'   Completed: {completed_at[:10]} {completed_at[11:16]} UTC')
-    elif status == 'paused' and 'paused_at' in phase:
-        paused_at = phase['paused_at']
-        print(f'   Paused: {paused_at[:10]} {paused_at[11:16]} UTC')
-    print(f'   Strategic Alignment: {strategic_id}')
-
-    # Display step summary if available
-    metadata = phase.get('metadata', {})
-    total_steps = metadata.get('total_phase_todos', 0)
-    completed_steps = metadata.get('completed_count', 0)
-    pending_steps = metadata.get('pending_count', 0)
-    in_progress_steps = metadata.get('in_progress_count', 0)
-
-    if total_steps > 0:
-        progress_percentage = (completed_steps / total_steps * 100) if total_steps > 0 else 0
-        print(f'   Steps: {completed_steps}/{total_steps} completed ({progress_percentage:.1f}%)\n')
-        if pending_steps > 0:
-            print(f'     Pending: {pending_steps}')
-        if in_progress_steps > 0:
-            print(f'     In Progress: {in_progress_steps}')
-    else:
-        print('   Steps: No steps defined.')
+    print("=== AFS FastAPI All Development Phases ===")
     print()
 
-print('Use "./bin/phase-activate <ID>" to set a phase as active.')
-print('Use "./bin/phase-status" for detailed status of the active phase.')
-EOF
+    sorted_phases = sorted(phases, key=lambda x: x.get('date_started', ''), reverse=True)
 
-echo ""
-# Auto-sync TODO state for session persistence
-./bin/todo-sync --silent 2>/dev/null || true
+    for phase in sorted_phases:
+        phase_id = phase.get('id', 'Unknown ID')
+        phase_name = phase.get('name', 'Unknown Phase')
+        status = phase.get('status', 'unknown')
+        started_at = phase.get('date_started', 'Unknown')
+        completed_at = phase.get('date_completed', 'N/A')
+        strategic_id = phase.get('strategic_goal_id', 'N/A')
+
+        status_icon = {
+            'active': '🚀',
+            'paused': '⏸️',
+            'completed': '✅',
+            'unknown': '❓'
+        }.get(status, '❓')
+
+        print(f'{status_icon} {phase_name}')
+        print(f'   ID: {phase_id}')
+        print(f'   Status: {status.capitalize()}')
+        if started_at and 'T' in started_at:
+            print(f'   Started: {started_at[:10]} {started_at[11:16]} UTC')
+        if status == 'completed' and completed_at and 'T' in completed_at:
+            print(f'   Completed: {completed_at[:10]} {completed_at[11:16]} UTC')
+        
+        print(f'   Strategic Alignment: {strategic_id}')
+
+        tasks = phase.get('tasks', [])
+        total_tasks = len(tasks)
+        if total_tasks > 0:
+            completed_tasks = len([t for t in tasks if t['status'] == 'completed'])
+            progress_percentage = (completed_tasks / total_tasks * 100) if total_tasks > 0 else 0
+            print(f'   Tasks: {completed_tasks}/{total_tasks} completed ({progress_percentage:.1f}%)')
+        else:
+            print('   Tasks: No tasks defined.')
+        print()
+
+    print('Use "./bin/phase-activate <ID>" to set a phase as active.')
+    print('Use "./bin/phase-status" for detailed status of the active phase.')
+
+if __name__ == "__main__":
+    display_all_phases()

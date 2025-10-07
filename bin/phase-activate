@@ -1,82 +1,33 @@
-#!/bin/bash
+#!/usr/bin/env python3
 
-# phase-activate: Activate an existing development phase
-# Usage: ./bin/phase-activate <phase_id>
-
-set -euo pipefail
-
-# Ensure we're in the project root
-if [[ ! -f ".claude/DUAL_TODO_SYSTEM.md" ]]; then
-    echo "Error: Must be run from AFS FastAPI project root directory"
-    exit 1
-fi
-
-# Check if phase ID provided
-if [[ $# -eq 0 ]]; then
-    echo "Usage: $0 <phase_id>"
-    echo ""
-    echo "Use './bin/phase-status' to see available phases and their IDs."
-    exit 1
-fi
-
-PHASE_ID_TO_ACTIVATE="$1"
-PHASE_FILE=".claude/phase_todos.json"
-
-# Activate the specified phase
-python3 -c "
-import json
+import argparse
 import sys
-from datetime import datetime
+from pathlib import Path
 
-PHASE_FILE = '$PHASE_FILE'
-PHASE_ID_TO_ACTIVATE = '$PHASE_ID_TO_ACTIVATE'
-ISO_TIMESTAMP = datetime.utcnow().isoformat(timespec='seconds') + 'Z'
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
-# Read all phases data
-try:
-    with open(PHASE_FILE, 'r') as f:
-        all_phases_data = json.load(f)
-except FileNotFoundError:
-    print('Error: No phase file found. Use \"./bin/phase-start\" to start a new phase.')
-    sys.exit(1)
+from afs_fastapi.core.todos_manager import activate_phase  # noqa: E402
 
-# Check if the phase to activate exists
-if PHASE_ID_TO_ACTIVATE not in all_phases_data.get('phases', {}):
-    print(f'Error: Phase with ID {PHASE_ID_TO_ACTIVATE} not found.')
-    print('Use \"./bin/phase-status\" to see available phases and their IDs.')
-    sys.exit(1)
 
-# Get the phase to activate
-phase_to_activate = all_phases_data['phases'][PHASE_ID_TO_ACTIVATE]
+def main():
+    parser = argparse.ArgumentParser(description="Activate an existing development phase.")
+    parser.add_argument("phase_id", type=str, help="The ID of the phase to activate.")
+    args = parser.parse_args()
 
-# Check if it's already the active phase
-if all_phases_data.get('active_phase_id') == PHASE_ID_TO_ACTIVATE:
-    print(f'Info: Phase {phase_to_activate.get('name', 'Unknown Phase')} (ID: {PHASE_ID_TO_ACTIVATE}) is already the active phase.')
-    sys.exit(0)
+    activated_phase, error = activate_phase(args.phase_id)
 
-# Set the new active phase
-all_phases_data['active_phase_id'] = PHASE_ID_TO_ACTIVATE
+    if error:
+        print(f"Error: {error}")
+        sys.exit(1)
+    
+    if activated_phase:
+        print(f"✓ Phase {activated_phase.get('name', 'Unknown Phase')} (ID: {activated_phase.get('id')}) activated successfully!")
+        print()
+        print("Next steps:")
+        print('1. Use "./bin/phase-status" to view the newly active phase.')
+        print('2. Use "./bin/phase-add" to add steps or "./bin/phase-complete" to complete steps.')
 
-# If the phase was paused, set its status to active (resuming it)
-if phase_to_activate.get('status') == 'paused':
-    phase_to_activate['status'] = 'active'
-    phase_to_activate['resumed_at'] = ISO_TIMESTAMP
-    print(f'Info: Phase {phase_to_activate.get('name', 'Unknown Phase')} (ID: {PHASE_ID_TO_ACTIVATE}) was paused and has been resumed.')
-
-# Update metadata for the activated phase
-phase_to_activate['metadata']['last_updated'] = ISO_TIMESTAMP
-
-# Write back to file
-with open(PHASE_FILE, 'w') as f:
-    json.dump(all_phases_data, f, indent=2)
-
-print(f'✓ Phase {phase_to_activate.get('name', 'Unknown Phase')} (ID: {PHASE_ID_TO_ACTIVATE}) activated successfully!')
-print()
-print('Next steps:')
-print('1. Use "./bin/phase-status" to view the newly active phase.')
-print('2. Use "./bin/phase-add" to add steps or "./bin/phase-complete" to complete steps.')
-"
-
-echo ""
-# Auto-sync TODO state for session persistence
-./bin/todo-sync --silent 2>/dev/null || true
+if __name__ == "__main__":
+    main()
