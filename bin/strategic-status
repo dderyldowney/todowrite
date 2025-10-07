@@ -1,3 +1,4 @@
+# type: ignore
 #!/usr/bin/env python3
 
 import sys
@@ -93,6 +94,3 @@ def display_strategic_status():
 
 if __name__ == "__main__":
     display_strategic_status()
-
-# Auto-sync TODO state for session persistence
-./bin/todo-sync --silent 2>/dev/null || true
