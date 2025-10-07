@@ -10,21 +10,21 @@ class CanParser:
 
         parsed_data = {}
 
-        if pgn == 61444 and spn == 190: # Engine Speed
+        if pgn == 61444 and spn == 190:  # Engine Speed
             parsed_data["engine_speed"] = value
-        elif pgn == 65265 and spn == 84: # Vehicle Speed
+        elif pgn == 65265 and spn == 84:  # Vehicle Speed
             parsed_data["vehicle_speed"] = value
-        elif pgn == 65276 and spn == 96: # Fuel Level
+        elif pgn == 65276 and spn == 96:  # Fuel Level
             parsed_data["fuel_level"] = value
-        elif pgn == 65267 and spn == 162: # GPS Coordinates (Latitude, simplified)
-            parsed_data["gps_coordinates"] = value # Simplified for now
+        elif pgn == 65267 and spn == 162:  # GPS Coordinates (Latitude, simplified)
+            parsed_data["gps_coordinates"] = value  # Simplified for now
         else:
-            return None # Unknown PGN/SPN combination
+            return None  # Unknown PGN/SPN combination
 
         return {
             "pgn": pgn,
             "spn": spn,
             "value": value,
             "data_type": data_type,
-            "parsed_data": parsed_data
+            "parsed_data": parsed_data,
         }
