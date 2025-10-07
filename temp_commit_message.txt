@@ -1,13 +1,13 @@
-Feat: Implement retry mechanism for CAN messages using tenacity
+Feat: Implement circuit breaker for CAN messages using pybreaker
 
-This commit introduces a retry mechanism for sending CAN messages, enhancing the reliability of communication with agricultural equipment.
+This commit introduces a circuit breaker pattern for CAN message transmission, enhancing network resilience by preventing continuous attempts to communicate over a failing CAN bus.
 
 Key changes include:
-- Added `tenacity` as a project dependency for implementing robust retry logic.
+- Added `pybreaker` as a project dependency.
 - Modified `afs_fastapi/equipment/can_interface.py` to:
-    - Import `tenacity` decorators (`retry`, `stop_after_attempt`, `wait_fixed`).
-    - Decorated the `send_message` method with `@retry` to automatically reattempt message transmission up to 3 times with a 1-second delay between attempts.
-    - Modified `send_message` to raise `can.CanError` on failure, allowing `tenacity` to catch and retry.
-    - Added a new `send_reliable_message` method that wraps `send_message` with the retry logic, providing a reliable interface for sending critical CAN messages.
+    - Import `CircuitBreaker` and `CircuitBreakerError` from `pybreaker`.
+    - Initialize a `CircuitBreaker` instance in the `CanBusManager` constructor with a `fail_max` of 5 and `reset_timeout` of 60 seconds, excluding `can.CanError` to allow `tenacity` to handle initial retries.
+    - Wrapped the `send_reliable_message` method with the circuit breaker, so that if the circuit is open, messages are not sent, and a `CircuitBreakerError` is caught.
+    - Added logic to close the circuit on successful CAN bus connection and open it on connection/disconnection failures.
 
-This completes the first part of the Enhanced ISOBUS Messaging chunk, laying the groundwork for guaranteed delivery of CAN messages.
+This completes the second part of the Enhanced ISOBUS Messaging chunk, providing graceful degradation for CAN communication.

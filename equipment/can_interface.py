@@ -1,4 +1,5 @@
 import can
+from pybreaker import CircuitBreaker, CircuitBreakerError
 from tenacity import retry, stop_after_attempt, wait_fixed
 
 
@@ -22,6 +23,7 @@ class CanBusManager:
         self.bitrate = bitrate
         self.bus: can.BusABC | None = None
         self.notifier: can.Notifier | None = None
+        self.breaker = CircuitBreaker(fail_max=5, reset_timeout=60, exclude=[can.CanError])
 
     def connect(self) -> None:
         """
@@ -34,9 +36,11 @@ class CanBusManager:
             print(
                 f"Successfully connected to CAN bus: {self.interface} on {self.channel} at {self.bitrate} bps"
             )
+            self.breaker.close()  # Close circuit on successful connection
         except Exception as e:
             print(f"Failed to connect to CAN bus: {e}")
             self.bus = None
+            self.breaker.open()  # Open circuit on connection failure
 
     def disconnect(self) -> None:
         """
@@ -49,17 +53,12 @@ class CanBusManager:
             self.bus.shutdown()
             self.bus = None
             print("Disconnected from CAN bus.")
+            self.breaker.open()  # Open circuit on disconnection
 
     @retry(stop=stop_after_attempt(3), wait=wait_fixed(1))
-    def send_message(self, message: can.Message) -> bool:
+    def _send_message_with_retry(self, message: can.Message) -> bool:
         """
-        Sends a CAN message with retry logic.
-
-        Args:
-            message (can.Message): The CAN message to send.
-
-        Returns:
-            bool: True if the message was sent successfully, False otherwise.
+        Internal method to send a CAN message with retry logic.
         """
         if not self.bus:
             print("CAN bus not connected. Cannot send message.")
@@ -74,10 +73,13 @@ class CanBusManager:
 
     def send_reliable_message(self, message: can.Message) -> bool:
         """
-        Sends a CAN message reliably with retries.
+        Sends a CAN message reliably with retries and circuit breaker protection.
         """
         try:
-            return self.send_message(message)
+            return self.breaker.call(self._send_message_with_retry, message)
+        except CircuitBreakerError:
+            print(f"Circuit breaker is open. Cannot send message {message}.")
+            return False
         except can.CanError:
             print(f"Failed to send message {message} after multiple retries.")
             return False
