@@ -70,7 +70,7 @@ REFERENCE_MAP="${PROJECT_ROOT}/.claude/context/reference_map.json"
 # Validate context files exist
 if [ ! -f "${ESSENTIAL_CONTEXT}" ]; then
     echo -e "${YELLOW}⚠️  Optimized context not found; falling back to standard loadsession${NC}"
-    exec "${PROJECT_ROOT}/bin/loadsession"
+    exec "${PROJECT_ROOT}/bin/run_loadsession.sh"
 fi
 
 # Update session state

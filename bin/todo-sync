@@ -5,6 +5,10 @@
 
 set -euo pipefail
 
+# Determine project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
 SILENT="${1:-}"
 STRATEGIC_FILE=".claude/strategic_todos.json"
 PHASE_FILE=".claude/phase_todos.json"
@@ -14,7 +18,12 @@ SYNC_STATE_FILE=".claude/todo_sync_state.json"
 ISO_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
 # Create sync state record
-python3 -c "$(cat << EOF
+STRATEGIC_FILE_PATH="${PROJECT_ROOT}/${STRATEGIC_FILE}"
+PHASE_FILE_PATH="${PROJECT_ROOT}/${PHASE_FILE}"
+SYNC_STATE_FILE_PATH="${PROJECT_ROOT}/${SYNC_STATE_FILE}"
+
+# Define the Python script content
+PYTHON_SCRIPT_CONTENT=$(cat << 'EOF'
 import json
 import sys
 from datetime import datetime
@@ -79,4 +88,19 @@ if SILENT != '--silent':
         print(f'  Phase: {sync_state["phase_summary"]["completed_steps"]}/{sync_state["phase_summary"]["total_steps"]} ({phase_progress:.1f}%)')
     print(f'  Synced: {ISO_TIMESTAMP}')
 EOF
-)"
+)
+
+# Write the Python script to a temporary file
+TEMP_PYTHON_SCRIPT="${SCRIPT_DIR}/temp_todo_sync.py"
+echo "${PYTHON_SCRIPT_CONTENT}" > "${TEMP_PYTHON_SCRIPT}"
+
+export STRATEGIC_FILE="${STRATEGIC_FILE_PATH}"
+export PHASE_FILE="${PHASE_FILE_PATH}"
+export SYNC_STATE_FILE="${SYNC_STATE_FILE_PATH}"
+export ISO_TIMESTAMP="${ISO_TIMESTAMP}"
+export SILENT="${SILENT}"
+
+python3 "${TEMP_PYTHON_SCRIPT}"
+
+# Clean up temporary Python file
+rm "${TEMP_PYTHON_SCRIPT}"
