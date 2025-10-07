@@ -424,6 +424,309 @@
       "date_added": "2025-10-06T12:48:47Z",
       "date_completed": "2025-10-06T15:44:26Z",
       "phases": []
+    },
+    {
+      "id": "strategic-20251007_135458",
+      "description": "Cloud-Based Data Management & Analytics Platform",
+      "category": "Platform Enhancement",
+      "priority": "high",
+      "status": "pending",
+      "date_added": "2025-10-07T13:54:58Z",
+      "date_completed": null,
+      "phases": [
+        {
+          "id": "phase-20251007_135501",
+          "name": "Cloud Infrastructure Setup",
+          "status": "completed",
+          "date_started": "2025-10-07T13:55:01Z",
+          "date_completed": "2025-10-07T13:55:19Z",
+          "tasks": [
+            {
+              "id": "task-20251007_135504",
+              "description": "Research cloud providers (AWS, Azure, GCP) for agricultural data.",
+              "status": "pending",
+              "date_completed": null
+            },
+            {
+              "id": "task-20251007_135507",
+              "description": "Select cloud provider and set up initial infrastructure (VPC, databases, storage).",
+              "status": "pending",
+              "date_completed": null
+            },
+            {
+              "id": "task-20251007_135511",
+              "description": "Implement secure data ingestion pipelines from on-premise systems.",
+              "status": "pending",
+              "date_completed": null
+            }
+          ],
+          "paused_at": null,
+          "resumed_at": null,
+          "strategic_goal_id": "strategic-20251007_135458"
+        },
+        {
+          "id": "phase-20251007_135523",
+          "name": "Data Model & Storage Design",
+          "status": "completed",
+          "date_started": "2025-10-07T13:55:23Z",
+          "date_completed": "2025-10-07T13:55:35Z",
+          "tasks": [
+            {
+              "id": "task-20251007_135526",
+              "description": "Define data models for various agricultural data (sensor, equipment, yield).",
+              "status": "pending",
+              "date_completed": null
+            },
+            {
+              "id": "task-20251007_135528",
+              "description": "Design scalable database schemas for time-series and relational data.",
+              "status": "pending",
+              "date_completed": null
+            },
+            {
+              "id": "task-20251007_135532",
+              "description": "Implement data archiving and retention policies.",
+              "status": "pending",
+              "date_completed": null
+            }
+          ],
+          "paused_at": null,
+          "resumed_at": null,
+          "strategic_goal_id": "strategic-20251007_135458"
+        },
+        {
+          "id": "phase-20251007_135540",
+          "name": "Analytics & Reporting Engine",
+          "status": "completed",
+          "date_started": "2025-10-07T13:55:40Z",
+          "date_completed": "2025-10-07T13:55:53Z",
+          "tasks": [
+            {
+              "id": "task-20251007_135544",
+              "description": "Develop data processing and analytics modules.",
+              "status": "pending",
+              "date_completed": null
+            },
+            {
+              "id": "task-20251007_135546",
+              "description": "Integrate with visualization tools for dashboards and reports.",
+              "status": "pending",
+              "date_completed": null
+            },
+            {
+              "id": "task-20251007_135549",
+              "description": "Implement APIs for external access to aggregated data.",
+              "status": "pending",
+              "date_completed": null
+            }
+          ],
+          "paused_at": null,
+          "resumed_at": null,
+          "strategic_goal_id": "strategic-20251007_135458"
+        }
+      ]
+    },
+    {
+      "id": "strategic-20251007_135555",
+      "description": "Robust IoT Sensor Integration with Edge Processing Capabilities",
+      "category": "Platform Enhancement",
+      "priority": "high",
+      "status": "pending",
+      "date_added": "2025-10-07T13:55:55Z",
+      "date_completed": null,
+      "phases": [
+        {
+          "id": "phase-20251007_135604",
+          "name": "Sensor Hardware & Protocol Standardization",
+          "status": "completed",
+          "date_started": "2025-10-07T13:56:04Z",
+          "date_completed": "2025-10-07T13:56:19Z",
+          "tasks": [
+            {
+              "id": "task-20251007_135609",
+              "description": "Research common agricultural IoT sensors and communication protocols (LoRaWAN, MQTT).",
+              "status": "pending",
+              "date_completed": null
+            },
+            {
+              "id": "task-20251007_135613",
+              "description": "Define standard data formats for sensor readings.",
+              "status": "pending",
+              "date_completed": null
+            },
+            {
+              "id": "task-20251007_135615",
+              "description": "Develop generic sensor interface module.",
+              "status": "pending",
+              "date_completed": null
+            }
+          ],
+          "paused_at": null,
+          "resumed_at": null,
+          "strategic_goal_id": "strategic-20251007_135555"
+        },
+        {
+          "id": "phase-20251007_135633",
+          "name": "Edge Gateway Development",
+          "status": "completed",
+          "date_started": "2025-10-07T13:56:33Z",
+          "date_completed": "2025-10-07T13:57:16Z",
+          "tasks": [
+            {
+              "id": "task-20251007_135645",
+              "description": "Select edge computing hardware for tractors/stations.",
+              "status": "pending",
+              "date_completed": null
+            },
+            {
+              "id": "task-20251007_135656",
+              "description": "Develop edge software for data aggregation and local processing.",
+              "status": "pending",
+              "date_completed": null
+            },
+            {
+              "id": "task-20251007_135705",
+              "description": "Implement offline data buffering and synchronization mechanisms.",
+              "status": "pending",
+              "date_completed": null
+            }
+          ],
+          "paused_at": null,
+          "resumed_at": null,
+          "strategic_goal_id": "strategic-20251007_135555"
+        },
+        {
+          "id": "phase-20251007_135718",
+          "name": "Real-time Edge Analytics & Control",
+          "status": "completed",
+          "date_started": "2025-10-07T13:57:18Z",
+          "date_completed": "2025-10-07T13:57:38Z",
+          "tasks": [
+            {
+              "id": "task-20251007_135725",
+              "description": "Implement lightweight analytics models for edge devices.",
+              "status": "pending",
+              "date_completed": null
+            },
+            {
+              "id": "task-20251007_135727",
+              "description": "Develop local control logic based on edge insights (e.g., localized irrigation).",
+              "status": "pending",
+              "date_completed": null
+            },
+            {
+              "id": "task-20251007_135734",
+              "description": "Ensure secure communication between edge and cloud.",
+              "status": "pending",
+              "date_completed": null
+            }
+          ],
+          "paused_at": null,
+          "resumed_at": null,
+          "strategic_goal_id": "strategic-20251007_135555"
+        }
+      ]
+    },
+    {
+      "id": "strategic-20251007_135740",
+      "description": "Intuitive User Interface (UI) for Farm Management and Operational Control",
+      "category": "Platform Enhancement",
+      "priority": "high",
+      "status": "pending",
+      "date_added": "2025-10-07T13:57:40Z",
+      "date_completed": null,
+      "phases": [
+        {
+          "id": "phase-20251007_135744",
+          "name": "UI/UX Design & Prototyping",
+          "status": "completed",
+          "date_started": "2025-10-07T13:57:44Z",
+          "date_completed": "2025-10-07T13:58:07Z",
+          "tasks": [
+            {
+              "id": "task-20251007_135748",
+              "description": "Conduct user research with agricultural engineers and farmers.",
+              "status": "pending",
+              "date_completed": null
+            },
+            {
+              "id": "task-20251007_135756",
+              "description": "Create wireframes and mockups for key UI screens (dashboard, field view, equipment control).",
+              "status": "pending",
+              "date_completed": null
+            },
+            {
+              "id": "task-20251007_135803",
+              "description": "Develop interactive prototypes for user feedback.",
+              "status": "pending",
+              "date_completed": null
+            }
+          ],
+          "paused_at": null,
+          "resumed_at": null,
+          "strategic_goal_id": "strategic-20251007_135740"
+        },
+        {
+          "id": "phase-20251007_135817",
+          "name": "Frontend Development Framework Selection & Setup",
+          "status": "completed",
+          "date_started": "2025-10-07T13:58:17Z",
+          "date_completed": "2025-10-07T13:58:49Z",
+          "tasks": [
+            {
+              "id": "task-20251007_135838",
+              "description": "Evaluate frontend frameworks (React, Vue, Angular) for suitability.",
+              "status": "pending",
+              "date_completed": null
+            },
+            {
+              "id": "task-20251007_135841",
+              "description": "Set up development environment and basic project structure.",
+              "status": "pending",
+              "date_completed": null
+            },
+            {
+              "id": "task-20251007_135844",
+              "description": "Implement core UI components and design system.",
+              "status": "pending",
+              "date_completed": null
+            }
+          ],
+          "paused_at": null,
+          "resumed_at": null,
+          "strategic_goal_id": "strategic-20251007_135740"
+        },
+        {
+          "id": "phase-20251007_135852",
+          "name": "Feature Implementation & Integration",
+          "status": "completed",
+          "date_started": "2025-10-07T13:58:52Z",
+          "date_completed": "2025-10-07T13:59:05Z",
+          "tasks": [
+            {
+              "id": "task-20251007_135856",
+              "description": "Implement real-time tractor tracking and status display.",
+              "status": "pending",
+              "date_completed": null
+            },
+            {
+              "id": "task-20251007_135859",
+              "description": "Develop field management tools (boundary drawing, task assignment).",
+              "status": "pending",
+              "date_completed": null
+            },
+            {
+              "id": "task-20251007_135902",
+              "description": "Integrate with API for operational control and data visualization.",
+              "status": "pending",
+              "date_completed": null
+            }
+          ],
+          "paused_at": null,
+          "resumed_at": null,
+          "strategic_goal_id": "strategic-20251007_135740"
+        }
+      ]
     }
   ]
 }
