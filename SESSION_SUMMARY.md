@@ -9,5 +9,5 @@
 - Completed: 12
 
 ### Active Phase
-- Name: Data Model & Storage Design
+- Name: Cloud Infrastructure Setup
 - Status: 0/3 tasks completed

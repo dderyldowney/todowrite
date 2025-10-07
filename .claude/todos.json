@@ -437,7 +437,7 @@
         {
           "id": "phase-20251007_135501",
           "name": "Cloud Infrastructure Setup",
-          "status": "paused",
+          "status": "active",
           "date_started": "2025-10-07T13:55:01Z",
           "date_completed": "2025-10-07T13:55:19Z",
           "tasks": [
@@ -467,7 +467,7 @@
         {
           "id": "phase-20251007_135523",
           "name": "Data Model & Storage Design",
-          "status": "active",
+          "status": "paused",
           "date_started": "2025-10-07T13:55:23Z",
           "date_completed": null,
           "tasks": [
@@ -490,7 +490,7 @@
               "date_completed": null
             }
           ],
-          "paused_at": null,
+          "paused_at": "2025-10-07T14:23:31Z",
           "resumed_at": null,
           "strategic_goal_id": "strategic-20251007_135458"
         },
