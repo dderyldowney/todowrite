@@ -32,3 +32,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# Auto-sync TODO state for session persistence
+./bin/todo-sync --silent 2>/dev/null || true
