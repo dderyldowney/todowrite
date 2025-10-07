@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from ..equipment.farm_tractors import FarmTractor, FarmTractorResponse
-from ..models.field_segment import FieldSegment  # type: ignore
+from models.field_segment import FieldSegment  # type: ignore
 from ..monitoring.schemas import SoilReadingResponse, WaterQualityResponse
 from ..monitoring.soil_monitor import SoilMonitor
 from ..monitoring.water_monitor import WaterMonitor
