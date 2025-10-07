@@ -1,16 +1,13 @@
-Feat: Expose FieldAllocationCRDT via FastAPI endpoints
+Feat: Integrate CrdtClient into FarmTractor for field allocation
 
-This commit integrates the `FieldAllocationCRDT` into the FastAPI application by exposing its functionality through a set of new API endpoints.
+This commit updates the `FarmTractor` class to interact with the `FieldAllocationCRDT` via new FastAPI endpoints, enabling distributed field allocation management.
 
 Key changes include:
-- Imported `FieldAllocationCRDT` and `FieldSegment` into `afs_fastapi/afs_fastapi/api/main.py`.
-- Initialized a global instance of `FieldAllocationCRDT`.
-- Added new API endpoints under `/crdt/` for:
-    - Adding new field segments (`POST /crdt/segments`)
-    - Assigning segments to tractors (`POST /crdt/assign`)
-    - Releasing segments from tractors (`POST /crdt/release`)
-    - Marking segments as completed (`POST /crdt/complete`)
-    - Retrieving allocated, unallocated, and completed segments (`GET /crdt/segments/allocated/{tractor_id}`, `GET /crdt/segments/unallocated`, `GET /crdt/segments/completed`)
-    - Merging CRDT states from other replicas (`POST /crdt/merge`)
+- Added `httpx` as a project dependency for making asynchronous HTTP requests.
+- Created `afs_fastapi/services/crdt_client.py` to encapsulate HTTP client logic for CRDT endpoints.
+- Modified `afs_fastapi/equipment/tractor.py` to:
+    - Import `CrdtClient` and `FieldSegment`.
+    - Initialize `CrdtClient` in the `FarmTractor` constructor.
+    - Add asynchronous methods (`assign_field_segment`, `release_field_segment`, `complete_field_segment`, `get_allocated_field_segments`, `get_unallocated_field_segments`, `get_completed_field_segments`) that utilize the `CrdtClient` to interact with the CRDT FastAPI endpoints.
 
-This completes the second chunk of the Enhanced Synchronization phase, making the CRDT accessible and usable within the FastAPI application.
+This completes the third chunk of the Enhanced Synchronization phase, making the `FarmTractor` capable of participating in distributed field allocation.
