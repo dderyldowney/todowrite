@@ -1,4 +1,5 @@
 import can
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 
 class CanBusManager:
@@ -49,9 +50,10 @@ class CanBusManager:
             self.bus = None
             print("Disconnected from CAN bus.")
 
+    @retry(stop=stop_after_attempt(3), wait=wait_fixed(1))
     def send_message(self, message: can.Message) -> bool:
         """
-        Sends a CAN message.
+        Sends a CAN message with retry logic.
 
         Args:
             message (can.Message): The CAN message to send.
@@ -61,12 +63,23 @@ class CanBusManager:
         """
         if not self.bus:
             print("CAN bus not connected. Cannot send message.")
-            return False
+            raise can.CanError("CAN bus not connected")  # Raise exception for tenacity to catch
         try:
             self.bus.send(message)
+            print(f"Message sent: {message}")
             return True
         except can.CanError as e:
-            print(f"Failed to send CAN message: {e}")
+            print(f"Failed to send CAN message: {e}. Retrying...")
+            raise  # Re-raise for tenacity to catch
+
+    def send_reliable_message(self, message: can.Message) -> bool:
+        """
+        Sends a CAN message reliably with retries.
+        """
+        try:
+            return self.send_message(message)
+        except can.CanError:
+            print(f"Failed to send message {message} after multiple retries.")
             return False
 
     def add_listener(self, listener: can.Listener) -> None:

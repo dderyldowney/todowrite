@@ -1,0 +1,13 @@
+Feat: Implement retry mechanism for CAN messages using tenacity
+
+This commit introduces a retry mechanism for sending CAN messages, enhancing the reliability of communication with agricultural equipment.
+
+Key changes include:
+- Added `tenacity` as a project dependency for implementing robust retry logic.
+- Modified `afs_fastapi/equipment/can_interface.py` to:
+    - Import `tenacity` decorators (`retry`, `stop_after_attempt`, `wait_fixed`).
+    - Decorated the `send_message` method with `@retry` to automatically reattempt message transmission up to 3 times with a 1-second delay between attempts.
+    - Modified `send_message` to raise `can.CanError` on failure, allowing `tenacity` to catch and retry.
+    - Added a new `send_reliable_message` method that wraps `send_message` with the retry logic, providing a reliable interface for sending critical CAN messages.
+
+This completes the first part of the Enhanced ISOBUS Messaging chunk, laying the groundwork for guaranteed delivery of CAN messages.
