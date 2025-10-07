@@ -74,124 +74,147 @@
         {
           "id": "phase-20251007_113846",
           "name": "Phase 1 Implement cloud integration for agricultural data services",
-          "status": "active",
+          "status": "pending",
           "date_started": "2025-10-07T11:38:46Z",
           "date_completed": null,
           "tasks": [
             {
               "id": "task-20251007_113953",
               "description": "Investigate existing agricultural cloud platforms and APIs (e.g., John Deere Operations Center, Climate FieldView).",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114001",
               "description": "Define key data points for integration (e.g., sensor data, equipment telemetry, field boundaries, yield data).",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114007",
               "description": "Identify security and privacy requirements for agricultural data in the cloud.",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114011",
               "description": "Document data formats and protocols for cloud communication.",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114015",
               "description": "Design the high-level architecture for cloud integration within AFS FastAPI.",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114020",
               "description": "Choose appropriate cloud services (e.g., AWS IoT, Azure IoT Hub, Google Cloud IoT Core) for data ingestion and processing.",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114024",
               "description": "Define data models for cloud-integrated agricultural data.",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114029",
               "description": "Design authentication and authorization mechanisms for secure cloud access.",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114034",
               "description": "RED: Write failing unit tests for cloud platform API client (e.g., for connecting, authenticating, sending data).",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114038",
               "description": "GREEN: Implement minimal cloud platform API client functionality to pass tests.",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114043",
               "description": "REFACTOR: Refactor API client for robustness, error handling, and efficiency.",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114047",
               "description": "RED: Write failing integration tests for data ingestion pipeline (e.g., sending sensor data to cloud).",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114052",
               "description": "GREEN: Implement minimal data ingestion pipeline to pass tests.",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114056",
               "description": "REFACTOR: Refactor data ingestion pipeline for scalability and fault tolerance.",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114102",
               "description": "RED: Write failing tests for data synchronization (e.g., two-way sync of field boundaries).",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114106",
               "description": "GREEN: Implement minimal data synchronization logic to pass tests.",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114112",
               "description": "REFACTOR: Refactor data synchronization for conflict resolution and performance.",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114116",
               "description": "Perform end-to-end testing of the cloud integration with a simulated agricultural environment.",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114121",
               "description": "Conduct security audits and penetration testing for cloud communication.",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114126",
               "description": "Validate data integrity and consistency between local and cloud systems.",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114130",
               "description": "Document the cloud integration module, including API usage, configuration, and troubleshooting.",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114135",
               "description": "Create deployment scripts and instructions for cloud integration components.",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             },
             {
               "id": "task-20251007_114146",
               "description": "Update user documentation for agricultural engineers on how to configure and use cloud features.",
-              "status": "pending"
+              "status": "pending",
+              "date_completed": null
             }
           ]
         }
