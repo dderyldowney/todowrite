@@ -1,9 +1,16 @@
-Feat: Implement FieldAllocationCRDT for enhanced synchronization
+Feat: Expose FieldAllocationCRDT via FastAPI endpoints
 
-This commit introduces the core Conflict-Free Replicated Data Type (CRDT) for managing field segment allocations, a key component for enhanced synchronization in multi-tractor operations.
+This commit integrates the `FieldAllocationCRDT` into the FastAPI application by exposing its functionality through a set of new API endpoints.
 
 Key changes include:
-- Created `afs_fastapi/models/field_segment.py` to define the `FieldSegment` Pydantic model, representing a unit of a field with status, assignment, and a timestamp for conflict resolution.
-- Implemented `afs_fastapi/services/crdt_manager.py` with the `FieldAllocationCRDT` class. This operation-based CRDT provides methods for adding, assigning, releasing, and completing field segments, as well as merging CRDT states using a last-write-wins strategy.
+- Imported `FieldAllocationCRDT` and `FieldSegment` into `afs_fastapi/afs_fastapi/api/main.py`.
+- Initialized a global instance of `FieldAllocationCRDT`.
+- Added new API endpoints under `/crdt/` for:
+    - Adding new field segments (`POST /crdt/segments`)
+    - Assigning segments to tractors (`POST /crdt/assign`)
+    - Releasing segments from tractors (`POST /crdt/release`)
+    - Marking segments as completed (`POST /crdt/complete`)
+    - Retrieving allocated, unallocated, and completed segments (`GET /crdt/segments/allocated/{tractor_id}`, `GET /crdt/segments/unallocated`, `GET /crdt/segments/completed`)
+    - Merging CRDT states from other replicas (`POST /crdt/merge`)
 
-This completes the first chunk of the Enhanced Synchronization phase, laying the foundation for robust distributed field allocation.
+This completes the second chunk of the Enhanced Synchronization phase, making the CRDT accessible and usable within the FastAPI application.
