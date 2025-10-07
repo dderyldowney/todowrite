@@ -14,13 +14,17 @@ fi
 STRATEGIC_FILE=".claude/strategic_todos.json"
 PHASE_FILE=".claude/phase_todos.json"
 
+export STRATEGIC_FILE
+export PHASE_FILE
+
 echo "=== AFS FastAPI Dual TODO System Status ==="
 echo ""
 
 # Use Python to display comprehensive TODO status
-python3 -c "
+python3 <<EOF
 import json
 import sys
+import os
 from datetime import datetime, timezone
 from collections import defaultdict
 
@@ -28,7 +32,7 @@ from collections import defaultdict
 strategic_data = {}
 strategic_todos = []
 try:
-    with open('$STRATEGIC_FILE', 'r') as f:
+    with open(os.environ.get('STRATEGIC_FILE'), 'r') as f:
         strategic_data = json.load(f)
     strategic_todos = strategic_data.get('todos', [])
 except FileNotFoundError:
@@ -37,7 +41,7 @@ except FileNotFoundError:
 # Read all phases data
 all_phases_data = {}
 try:
-    with open('$PHASE_FILE', 'r') as f:
+    with open(os.environ.get('PHASE_FILE'), 'r') as f:
         all_phases_data = json.load(f)
 except FileNotFoundError:
     pass
@@ -93,7 +97,7 @@ if strategic_todos:
         print('Recent Strategic Completions:')
         for todo in recent_strategic[:2]:
             completed_date = todo['completed_at'][:10]
-            print(f'  ✓ {todo.get(\"content\", \"Description N/A\")} ({completed_date})')
+            print(f'  ✓ {todo.get("content", "Description N/A")} ({completed_date})')
         print()
 else:
     print('No strategic objectives found.')
@@ -279,6 +283,6 @@ if latest_update != 'Unknown' and 'T' in latest_update:
     update_date = latest_update[:10]
     update_time = latest_update[11:16]
     print(f'System Last Updated: {update_date} {update_time} UTC')
-"
+EOF
 # Auto-sync TODO state for session persistence
 ./bin/todo-sync --silent 2>/dev/null || true
