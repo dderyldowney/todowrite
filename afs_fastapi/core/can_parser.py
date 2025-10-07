@@ -10,6 +10,6 @@ class CanParser:
                 "pgn": message["pgn"],
                 "spn": message["spn"],
                 "value": message["value"],
-                "parsed_data": {"engine_speed": message["value"]}
+                "parsed_data": {"engine_speed": message["value"]},
             }
         return None
