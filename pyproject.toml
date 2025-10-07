@@ -30,6 +30,7 @@ dependencies = [
   "pydantic>=2.7",           # Models/validation
   "python-can",              # CAN bus communication
   "httpx",                   # HTTP client for CRDT communication
+  "tenacity",                # Retry mechanism for reliable messaging
   # add any concrete libs you use at runtime (DB client, sensors, etc.)
 ]
 
