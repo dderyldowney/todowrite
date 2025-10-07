@@ -1,3 +1,5 @@
+import logging
+
 import can
 from pybreaker import CircuitBreaker, CircuitBreakerError
 from tenacity import retry, stop_after_attempt, wait_fixed
@@ -24,6 +26,7 @@ class CanBusManager:
         self.bus: can.BusABC | None = None
         self.notifier: can.Notifier | None = None
         self.breaker = CircuitBreaker(fail_max=5, reset_timeout=60, exclude=[can.CanError])
+        self.logger = logging.getLogger(__name__)
 
     def connect(self) -> None:
         """
@@ -33,12 +36,12 @@ class CanBusManager:
             self.bus = can.interface.Bus(
                 interface=self.interface, channel=self.channel, bitrate=self.bitrate
             )
-            print(
+            self.logger.info(
                 f"Successfully connected to CAN bus: {self.interface} on {self.channel} at {self.bitrate} bps"
             )
             self.breaker.close()  # Close circuit on successful connection
         except Exception as e:
-            print(f"Failed to connect to CAN bus: {e}")
+            self.logger.error(f"Failed to connect to CAN bus: {e}")
             self.bus = None
             self.breaker.open()  # Open circuit on connection failure
 
@@ -52,7 +55,7 @@ class CanBusManager:
         if self.bus:
             self.bus.shutdown()
             self.bus = None
-            print("Disconnected from CAN bus.")
+            self.logger.info("Disconnected from CAN bus.")
             self.breaker.open()  # Open circuit on disconnection
 
     @retry(stop=stop_after_attempt(3), wait=wait_fixed(1))
@@ -61,14 +64,14 @@ class CanBusManager:
         Internal method to send a CAN message with retry logic.
         """
         if not self.bus:
-            print("CAN bus not connected. Cannot send message.")
+            self.logger.warning("CAN bus not connected. Cannot send message.")
             raise can.CanError("CAN bus not connected")  # Raise exception for tenacity to catch
         try:
             self.bus.send(message)
-            print(f"Message sent: {message}")
+            self.logger.debug(f"Message sent: {message}")
             return True
         except can.CanError as e:
-            print(f"Failed to send CAN message: {e}. Retrying...")
+            self.logger.warning(f"Failed to send CAN message: {e}. Retrying...")
             raise  # Re-raise for tenacity to catch
 
     def send_reliable_message(self, message: can.Message) -> bool:
@@ -78,10 +81,10 @@ class CanBusManager:
         try:
             return self.breaker.call(self._send_message_with_retry, message)
         except CircuitBreakerError:
-            print(f"Circuit breaker is open. Cannot send message {message}.")
+            self.logger.error(f"Circuit breaker is open. Cannot send message {message}.")
             return False
         except can.CanError:
-            print(f"Failed to send message {message} after multiple retries.")
+            self.logger.error(f"Failed to send message {message} after multiple retries.")
             return False
 
     def add_listener(self, listener: can.Listener) -> None:
@@ -92,7 +95,7 @@ class CanBusManager:
             listener (can.Listener): The listener object to add.
         """
         if not self.bus:
-            print("CAN bus not connected. Cannot add listener.")
+            self.logger.warning("CAN bus not connected. Cannot add listener.")
             return
         if not self.notifier:
             self.notifier = can.Notifier(self.bus, [listener])
