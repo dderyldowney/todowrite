@@ -7,14 +7,14 @@
       "priority": "medium",
       "status": "completed",
       "date_added": "2025-10-03T06:45:00Z",
-      "date_completed": "2025-10-07T10:53:27Z",
+      "date_completed": "2025-10-07T11:03:51Z",
       "phases": [
         {
           "id": "phase-3",
           "name": "Phase 3",
-          "status": "pending",
+          "status": "completed",
           "date_started": "2025-10-07T09:01:00Z",
-          "date_completed": null,
+          "date_completed": "2025-10-07T11:03:51Z",
           "tasks": []
         },
         {
@@ -28,9 +28,9 @@
         {
           "id": "phase-2",
           "name": "Phase 2",
-          "status": "pending",
+          "status": "completed",
           "date_started": "2025-10-07T09:00:00Z",
-          "date_completed": null,
+          "date_completed": "2025-10-07T11:03:35Z",
           "tasks": []
         },
         {
