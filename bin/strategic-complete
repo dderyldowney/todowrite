@@ -8,7 +8,10 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from afs_fastapi.core.todos_manager import complete_strategic_goal, get_strategic_goals  # noqa: E402
+from afs_fastapi.core.todos_manager import (  # noqa: E402
+    complete_strategic_goal,
+    get_strategic_goals,
+)
 
 
 def main():
@@ -51,5 +54,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 # Auto-sync TODO state for session persistence
 ./bin/todo-sync --silent 2>/dev/null || true

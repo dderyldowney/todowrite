@@ -70,5 +70,6 @@ def display_strategic_todos():
 if __name__ == "__main__":
     display_strategic_todos()
 
+
 # Auto-sync TODO state for session persistence
 ./bin/todo-sync --silent 2>/dev/null || true
