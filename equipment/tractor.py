@@ -3,12 +3,14 @@ from typing import Any
 import can
 
 from afs_fastapi.equipment.can_interface import CanBusManager  # type: ignore
+from afs_fastapi.models.field_segment import FieldSegment  # type: ignore
+from afs_fastapi.services.crdt_client import CrdtClient  # type: ignore
 
 
 class FarmTractor:
     """
     Represents a farm tractor with various controls and capabilities.
-    Integrates with CanBusManager for CAN bus communication.
+    Integrates with CanBusManager for CAN bus communication and CrdtClient for field allocation.
     """
 
     def __init__(
@@ -19,6 +21,7 @@ class FarmTractor:
         can_interface: str = "socketcan",
         can_channel: str = "can0",
         can_bitrate: int = 500000,
+        crdt_base_url: str = "http://localhost:8000",
     ):
         self.tractor_id = tractor_id
         self.make = make
@@ -29,6 +32,7 @@ class FarmTractor:
         self.implement_attached = False
         self.implement_position = "up"
         self.can_manager = CanBusManager(can_interface, can_channel, can_bitrate)
+        self.crdt_client = CrdtClient(base_url=crdt_base_url)
 
     def start_engine(self) -> str:
         if not self.engine_on:
@@ -105,3 +109,21 @@ class FarmTractor:
                 return f"Tractor {self.tractor_id} sent CAN message: ID={arb_id}, Data={data}"
             return f"Tractor {self.tractor_id} failed to send CAN message."
         return f"Tractor {self.tractor_id} CAN bus not connected."
+
+    async def assign_field_segment(self, segment_id: str) -> dict[str, str]:
+        return await self.crdt_client.assign_segment(segment_id, self.tractor_id)
+
+    async def release_field_segment(self, segment_id: str) -> dict[str, str]:
+        return await self.crdt_client.release_segment(segment_id, self.tractor_id)
+
+    async def complete_field_segment(self, segment_id: str) -> dict[str, str]:
+        return await self.crdt_client.complete_segment(segment_id, self.tractor_id)
+
+    async def get_allocated_field_segments(self) -> list[FieldSegment]:
+        return await self.crdt_client.get_allocated_segments(self.tractor_id)
+
+    async def get_unallocated_field_segments(self) -> list[FieldSegment]:
+        return await self.crdt_client.get_unallocated_segments()
+
+    async def get_completed_field_segments(self) -> list[FieldSegment]:
+        return await self.crdt_client.get_completed_segments()

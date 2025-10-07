@@ -29,6 +29,7 @@ dependencies = [
   "starlette>=0.46",         # FastAPI’s ASGI toolkit
   "pydantic>=2.7",           # Models/validation
   "python-can",              # CAN bus communication
+  "httpx",                   # HTTP client for CRDT communication
   # add any concrete libs you use at runtime (DB client, sensors, etc.)
 ]
 
