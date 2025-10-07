@@ -28,6 +28,7 @@ dependencies = [
   "uvicorn[standard]>=0.30", # ASGI server
   "starlette>=0.46",         # FastAPI’s ASGI toolkit
   "pydantic>=2.7",           # Models/validation
+  "python-can",              # CAN bus communication
   # add any concrete libs you use at runtime (DB client, sensors, etc.)
 ]
 

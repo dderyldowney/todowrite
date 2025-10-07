@@ -1,0 +1,10 @@
+Feat: Add python-can integration and FarmTractor class
+
+This commit introduces initial support for CAN bus communication using the `python-can` library.
+
+Key changes include:
+- Created `afs_fastapi/equipment/can_interface.py` with a `CanBusManager` class to handle CAN bus initialization, sending, and receiving messages.
+- Created `afs_fastapi/equipment/tractor.py` with a `FarmTractor` class, integrating the `CanBusManager` for CAN communication.
+- The `FarmTractor` class now includes basic attributes and methods for tractor control and status, with placeholders for CAN message sending.
+
+This lays the groundwork for real-world agricultural equipment communication via ISOBUS.
