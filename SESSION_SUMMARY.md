@@ -9,5 +9,5 @@
 - Completed: 12
 
 ### Active Phase
-- Name: None
-- Status: 0/N/A tasks completed
+- Name: Data Model & Storage Design
+- Status: 0/3 tasks completed
