@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+
+import argparse
+import sys
+from pathlib import Path
+
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from afs_fastapi.core.todos_manager import delete_task  # noqa: E402
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Delete a task.")
+    parser.add_argument("task_id", type=str, help="The ID of the task to delete.")
+    args = parser.parse_args()
+
+    success, error = delete_task(args.task_id)
+
+    if error:
+        print(f"Error: {error}")
+        sys.exit(1)
+    
+    if success:
+        print(f"✓ Task ''{args.task_id}'' deleted successfully!")
+
+if __name__ == "__main__":
+    main()

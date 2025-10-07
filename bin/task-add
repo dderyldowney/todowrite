@@ -23,14 +23,12 @@ def main():
         sys.exit(1)
     
     if new_task:
-        print("✓ Phase step added successfully!")
+        print("✓ Task added successfully!")
         print(f"  ID: {new_task['id']}")
         print(f"  Description: {new_task['description']}")
         print(f"  Status: {new_task['status']}")
         print()
-        print("Use './bin/phase-status' to view all phase steps.")
+        print("Use './bin/phase-status' to view all tasks in the active phase.")
 
 if __name__ == "__main__":
     main()
-# Auto-sync TODO state for session persistence
-./bin/todo-sync --silent 2>/dev/null || true

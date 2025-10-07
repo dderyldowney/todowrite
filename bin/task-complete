@@ -23,7 +23,7 @@ def main():
         sys.exit(1)
     
     if completed_task:
-        print("✓ Phase step marked as completed!")
+        print("✓ Task marked as completed!")
         print(f"  ID: {completed_task['id']}")
         print(f"  Description: {completed_task['description']}")
         print(f"  Completed at: {completed_task['date_completed']}")

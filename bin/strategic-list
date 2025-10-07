@@ -1,131 +1,74 @@
-#!/bin/bash
+#!/usr/bin/env python3
 
-# strategic-list: Display all strategic TODO items for agricultural robotics platform
-# Usage: ./bin/strategic-list [--pending|--completed|--all] [--raw]
-
-set -euo pipefail
-
-# Ensure we're in the project root
-if [[ ! -f ".claude/DUAL_TODO_SYSTEM.md" ]]; then
-    echo "Error: Must be run from AFS FastAPI project root directory"
-    exit 1
-fi
-
-STRATEGIC_FILE=".claude/strategic_todos.json"
-FILTER="all"
-RAW_VIEW="false"
-
-for arg in "$@"
-do
-    case $arg in
-        --pending|--completed|--all)
-        FILTER="${arg#--}"
-        shift
-        ;;
-        --raw)
-        RAW_VIEW="true"
-        shift
-        ;;
-        *)
-        ;;
-    esac
-done
-
-# Create strategic todos file if it doesn't exist
-if [[ ! -f "$STRATEGIC_FILE" ]]; then
-    echo "No strategic TODOs found. Use './bin/strategic-add' to create strategic objectives."
-    exit 0
-fi
-
-# Validate filter argument
-case "$FILTER" in
-    pending|completed|all)
-        ;;
-    *)
-        echo "Usage: $0 [--pending|--completed|--all] [--raw]"
-        exit 1
-        ;;
-esac
-
-echo "=== AFS FastAPI Strategic TODOs ==="
-echo ""
-
-# Use Python to display strategic TODOs with formatting
-python3 <<EOF
-import json
 import sys
-from datetime import datetime, timezone
+from pathlib import Path
 
-# Read strategic todos
-with open('$STRATEGIC_FILE', 'r') as f:
-    data = json.load(f)
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
-todos = data.get('todos', [])
-metadata = data.get('metadata', {})
-filter_type = '$FILTER'
-raw_view = '$RAW_VIEW'
+from afs_fastapi.core.todos_manager import get_strategic_goals  # noqa: E402
 
-# Filter todos based on status
-if filter_type == 'pending':
-    filtered_todos = [t for t in todos if t['status'] == 'pending']
-elif filter_type == 'completed':
-    filtered_todos = [t for t in todos if t['status'] == 'completed']
-else:
-    filtered_todos = todos
 
-if not filtered_todos:
-    if filter_type == 'pending':
-        print('No pending strategic TODOs found.')
-    elif filter_type == 'completed':
-        print('No completed strategic TODOs found.')
-    else:
-        print('No strategic TODOs found.')
-    sys.exit(0)
+def get_priority_emoji(priority):
+    if priority == "high":
+        return ""
+    elif priority == "medium":
+        return ""
+    elif priority == "low":
+        return ""
+    return "⚪️"
 
-# Sort by status (pending first), then by priority (high first), then by creation date
-if raw_view != 'true':
-    priority_order = {'high': 0, 'medium': 1, 'low': 2}
-    status_order = {'pending': 0, 'in_progress': 1, 'completed': 2}
+def get_status_emoji(status):
+    if status == "completed":
+        return "●"
+    elif status == "in progress":
+        return "◌"
+    elif status == "pending":
+        return "○"
+    elif status == "paused":
+        return "⏸️"
+    return "?"
 
-    filtered_todos.sort(key=lambda x: (
-        status_order.get(x['status'], 999),
-        priority_order.get(x['priority'], 999),
-        x['created_at']
-    ))
+def display_strategic_todos():
+    goals = get_strategic_goals()
 
-# Display todos with formatting
-for i, todo in enumerate(filtered_todos, 1):
-    status_icon = {
-        'pending': '○',
-        'in_progress': '◐',
-        'completed': '●'
-    }.get(todo['status'], '?')
+    if not goals:
+        print("No strategic goals found.")
+        return
 
-    priority_marker = {
-        'high': '[HIGH]',
-        'medium': '[MED] ',
-        'low': '[LOW] '
-    }.get(todo['priority'], '[???]')
-
-    print(f"{i:2d}. {status_icon} {priority_marker} {todo['content']}")
-    print(f"     ID: {todo['id']} | Category: {todo.get('category', 'general')}")
-
-    # Show completion date if completed
-    if todo['status'] == 'completed' and 'completed_at' in todo:
-        completed_date = todo['completed_at'][:10]  # YYYY-MM-DD
-        print(f"     Completed: {completed_date}")
-
+    print("=== AFS FastAPI Strategic Goals ===")
     print()
 
-# Display summary
-print('=== Summary ===')
-print(f"Total Strategic TODOs: {metadata.get('total_strategic_todos', len(todos))}")
-print(f"Pending: {metadata.get('pending_count', 0)} | Completed: {metadata.get('completed_count', 0)}")
-print(f"Last Updated: {metadata.get('last_updated', 'Unknown')}")
-EOF
+    pending_goals = [g for g in goals if g.get("status") != "completed"]
+    completed_goals = [g for g in goals if g.get("status") == "completed"]
 
-echo ""
-echo "Use './bin/strategic-add \"Description\"' to add new strategic objectives."
-echo "Use './bin/strategic-complete \"Objective\"' to mark objectives as completed."
+    for i, goal in enumerate(pending_goals, 1):
+        priority_emoji = get_priority_emoji(goal.get("priority", "medium"))
+        status_emoji = get_status_emoji(goal.get("status", "pending"))
+        print(f"{i:2d}. {status_emoji} [{priority_emoji}] {goal.get("description", "No description")}")
+        print(f"     ID: {goal.get("id")} | Category: {goal.get("category", "general")}")
+        print()
+
+    if completed_goals:
+        print("-" * 20)
+        for i, goal in enumerate(completed_goals, 1):
+            status_emoji = get_status_emoji(goal.get("status", "pending"))
+            print(f"{status_emoji} {goal.get("description", "No description")} - COMPLETE")
+            print(f"  ID: {goal.get("id")} | Completed: {goal.get("date_completed")}")
+            print()
+
+
+    print("=== Summary ===")
+    print(f"Total Strategic Goals: {len(goals)}")
+    print(f"Pending: {len(pending_goals)} | Completed: {len(completed_goals)}")
+    print()
+    print("Use './bin/strategic-add \"Description\"' to add new strategic goals.")
+    print("Use './bin/strategic-complete \"Objective\"' to mark goals as completed.")
+
+
+if __name__ == "__main__":
+    display_strategic_todos()
+
 # Auto-sync TODO state for session persistence
 ./bin/todo-sync --silent 2>/dev/null || true

@@ -1,0 +1,281 @@
+{
+  "strategic_goals": [
+    {
+      "id": "strategic-004",
+      "description": "Add IoT sensor network integration with guaranteed delivery",
+      "category": "monitoring",
+      "priority": "medium",
+      "status": "completed",
+      "date_added": "2025-10-03T06:45:00Z",
+      "date_completed": "2025-10-07T10:53:27Z",
+      "phases": [
+        {
+          "id": "phase-3",
+          "name": "Phase 3",
+          "status": "pending",
+          "date_started": "2025-10-07T09:01:00Z",
+          "date_completed": null,
+          "tasks": []
+        },
+        {
+          "id": "phase-20251007_084332",
+          "name": "Implement cloud integration",
+          "status": "completed",
+          "date_started": "2025-10-07T08:43:32Z",
+          "date_completed": "2025-10-07T08:45:07Z",
+          "tasks": []
+        },
+        {
+          "id": "phase-2",
+          "name": "Phase 2",
+          "status": "pending",
+          "date_started": "2025-10-07T09:00:00Z",
+          "date_completed": null,
+          "tasks": []
+        },
+        {
+          "id": "phase-20251007_084734",
+          "name": "Task Reordering Test",
+          "status": "completed",
+          "date_started": "2025-10-07T08:47:34Z",
+          "date_completed": "2025-10-07T10:53:27Z",
+          "tasks": [
+            {
+              "id": "task-20251007_084759",
+              "description": "Task 2",
+              "status": "completed",
+              "date_completed": "2025-10-07T10:47:50Z"
+            },
+            {
+              "id": "task-20251007_084750",
+              "description": "Task 1",
+              "status": "completed",
+              "date_completed": "2025-10-07T10:47:18Z"
+            },
+            {
+              "id": "task-20251007_090130",
+              "description": "Test pause/resume",
+              "status": "completed",
+              "date_completed": "2025-10-07T10:48:10Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "strategic-003",
+      "description": "Implement cloud integration for agricultural data services",
+      "category": "api",
+      "priority": "medium",
+      "status": "pending",
+      "date_added": "2025-10-03T06:45:00Z",
+      "date_completed": null,
+      "phases": []
+    },
+    {
+      "id": "strategic-001",
+      "description": "Phase 6 ISOBUS guaranteed delivery - COMPLETE (enterprise-grade reliability achieved)",
+      "category": "equipment",
+      "priority": "high",
+      "status": "completed",
+      "date_added": "2025-10-03T06:00:00Z",
+      "date_completed": "2025-10-03T06:45:00Z",
+      "phases": []
+    },
+    {
+      "id": "strategic-20251003_151113_4657",
+      "description": "Implement comprehensive token usage reduction strategy for session management and AI communication efficiency",
+      "category": "infrastructure",
+      "priority": "high",
+      "status": "completed",
+      "date_added": "2025-10-03T06:00:00Z",
+      "date_completed": "2025-10-03T15:38:08Z",
+      "phases": []
+    },
+    {
+      "id": "strategic-002",
+      "description": "Advance to Phase 7 agricultural robotics enhancement",
+      "category": "equipment",
+      "priority": "high",
+      "status": "completed",
+      "date_added": "2025-10-03T06:45:00Z",
+      "date_completed": "2025-10-03T21:27:38Z",
+      "phases": []
+    },
+    {
+      "id": "strategic-005",
+      "description": "Develop advanced fleet coordination capabilities",
+      "category": "coordination",
+      "priority": "high",
+      "status": "completed",
+      "date_added": "2025-10-03T06:45:00Z",
+      "date_completed": "2025-10-05T21:21:18Z",
+      "phases": []
+    },
+    {
+      "id": "strategic-006",
+      "description": "Create comprehensive user documentation for agricultural engineers",
+      "category": "docs",
+      "priority": "high",
+      "status": "completed",
+      "date_added": "2025-10-03T06:45:00Z",
+      "date_completed": "2025-10-06T17:23:31Z",
+      "phases": [
+        {
+          "id": "phase-2025-10-06T15:47:14Z",
+          "name": "Create comprehensive user documentation for agricultural engineers",
+          "status": "completed",
+          "date_started": "2025-10-06T15:47:14Z",
+          "date_completed": "2025-10-07T08:27:42Z",
+          "tasks": [
+            {
+              "id": "task-001",
+              "description": "Define documentation scope and target audience needs.",
+              "status": "completed"
+            },
+            {
+              "id": "task-002",
+              "description": "Outline documentation structure (e.g., sections for platform tools, environment, `afs_fastapi` module).",
+              "status": "completed"
+            },
+            {
+              "id": "task-003",
+              "description": "Choose documentation format and tools (e.g., Markdown, Sphinx, Read the Docs).",
+              "status": "completed"
+            },
+            {
+              "id": "task-004",
+              "description": "Establish writing guidelines and style guide.",
+              "status": "completed"
+            },
+            {
+              "id": "task-005",
+              "description": "Document `bin/` scripts (e.g., `savesession`, `saveandpush`, `todo-status`, `phase-status`, `strategic-list`, `formatall`).",
+              "status": "completed"
+            },
+            {
+              "id": "task-006",
+              "description": "Provide usage examples for each platform tool.",
+              "status": "completed"
+            },
+            {
+              "id": "task-007",
+              "description": "Explain the purpose and agricultural context of each tool.",
+              "status": "completed"
+            },
+            {
+              "id": "task-008",
+              "description": "Document project setup (e.g., cloning repo, installing dependencies, virtual environments).",
+              "status": "completed"
+            },
+            {
+              "id": "task-009",
+              "description": "Explain pre-commit hooks and their purpose.",
+              "status": "completed"
+            },
+            {
+              "id": "task-010",
+              "description": "Document testing procedures (e.g., running `pytest`, understanding test reports).",
+              "status": "completed"
+            },
+            {
+              "id": "task-011",
+              "description": "Document code formatting and linting (e.g., `black`, `ruff`, `isort`, `mypy`).",
+              "status": "completed"
+            },
+            {
+              "id": "task-012",
+              "description": "Document core modules and classes (e.g., `afs_fastapi/equipment`, `afs_fastapi/monitoring`, `afs_fastapi/api`).",
+              "status": "completed"
+            },
+            {
+              "id": "task-013",
+              "description": "Provide API reference for key functions and classes.",
+              "status": "pending"
+            },
+            {
+              "id": "task-014",
+              "description": "Include code examples for common use cases (e.g., interacting with equipment, fetching monitoring data).",
+              "status": "pending"
+            },
+            {
+              "id": "task-015",
+              "description": "Explain the agricultural robotics context and relevance of each module.",
+              "status": "pending"
+            },
+            {
+              "id": "task-016",
+              "description": "Conduct internal review of documentation with project team.",
+              "status": "pending"
+            },
+            {
+              "id": "task-017",
+              "description": "Gather feedback from target audience (agricultural engineers, AI engineers).",
+              "status": "pending"
+            },
+            {
+              "id": "task-018",
+              "description": "Refine documentation based on feedback.",
+              "status": "pending"
+            },
+            {
+              "id": "task-019",
+              "description": "Publish documentation to an accessible platform (e.g., GitHub Pages, Read the Docs).",
+              "status": "pending"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "strategic-20251003_214232_5470",
+      "description": "Implement advanced token reduction for AI processing pipeline (pre-fill, prompt processing, generation, decoding)",
+      "category": "general",
+      "priority": "medium",
+      "status": "completed",
+      "date_added": "2025-10-03T21:42:32Z",
+      "date_completed": "2025-10-05T16:55:08Z",
+      "phases": []
+    },
+    {
+      "id": "strategic-20251005_183103_0130",
+      "description": "Fix Infrastructure Python Environment Detection - Critical updatechangelog bash execution failures preventing reliable commits and development workflow",
+      "category": "general",
+      "priority": "medium",
+      "status": "completed",
+      "date_added": "2025-10-05T18:31:03Z",
+      "date_completed": "2025-10-05T18:46:21Z",
+      "phases": []
+    },
+    {
+      "id": "strategic-20251005_183115_8286",
+      "description": "Rebuild AI Processing Pipeline Context System - Critical failures in context handling, prompt distillation, and format-aware parsing breaking session management",
+      "category": "general",
+      "priority": "medium",
+      "status": "completed",
+      "date_added": "2025-10-05T18:31:15Z",
+      "date_completed": "2025-10-05T19:01:45Z",
+      "phases": []
+    },
+    {
+      "id": "strategic-20251005_214104_9378",
+      "description": "Implement comprehensive safety-critical systems for agricultural fleet coordination (EmergencyStopPropagation, CommunicationLossFailSafe, CollisionAvoidanceSystem)",
+      "category": "general",
+      "priority": "medium",
+      "status": "completed",
+      "date_added": "2025-10-05T21:41:04Z",
+      "date_completed": "2025-10-05T21:41:12Z",
+      "phases": []
+    },
+    {
+      "id": "strategic-20251006_124847_4833",
+      "description": "Apply TDD_REMEDIATION_LIST.md: Rework placeholder tests to validate infrastructure.",
+      "category": "general",
+      "priority": "high",
+      "status": "completed",
+      "date_added": "2025-10-06T12:48:47Z",
+      "date_completed": "2025-10-06T15:44:26Z",
+      "phases": []
+    }
+  ]
+}
