@@ -5,8 +5,8 @@
 
 ### Strategic Goals
 - Total: 20
-- Pending: 7
-- Completed: 13
+- Pending: 5
+- Completed: 15
 
 ### Active Phase
 - Name: None
