@@ -4,8 +4,8 @@
 ## TODOs Summary
 
 ### Strategic Goals
-- Total: 15
-- Pending: 3
+- Total: 20
+- Pending: 8
 - Completed: 12
 
 ### Active Phase
