@@ -9,7 +9,7 @@ class FieldAllocationCRDT:
     Uses a last-write-wins strategy for conflict resolution.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._segments: dict[str, FieldSegment] = {}
 
     def add_segment(self, segment: FieldSegment) -> None:

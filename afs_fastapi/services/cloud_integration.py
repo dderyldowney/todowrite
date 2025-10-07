@@ -6,16 +6,17 @@ for data exchange, telemetry, and remote control of robotic systems.
 """
 
 import logging
-import time
-from typing import Dict, Any
+from typing import Any
 
 logger = logging.getLogger(__name__)
+
 
 class CloudIntegrationService:
     """
     Manages connections and data flow with agricultural cloud platforms.
     """
-    def __init__(self, config: Dict[str, Any]):
+
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.connected = False
         logger.info("CloudIntegrationService initialized with config: %s", config)
@@ -33,7 +34,7 @@ class CloudIntegrationService:
                 logger.warning("Missing API key or endpoint in configuration.")
                 self.connected = False
                 return False
-            
+
             # Simulate API key validation
             if api_key == "invalid_key":
                 logger.error("Invalid API key provided.")
@@ -59,14 +60,14 @@ class CloudIntegrationService:
         logger.info("Not connected to disconnect.")
         return False
 
-    def send_telemetry_data(self, data: Dict[str, Any]) -> bool:
+    def send_telemetry_data(self, data: dict[str, Any]) -> bool:
         """
         Sends telemetry data to the cloud platform with a basic retry mechanism.
         """
         if not self.connected:
             logger.error("Cannot send telemetry data: Not connected to cloud.")
             return False
-        
+
         # Simulate adding to a queue for asynchronous processing
         if "queue_data" in data and data["queue_data"]:
             logger.info("Simulating adding data to an ingestion queue: %s", data)
@@ -78,11 +79,13 @@ class CloudIntegrationService:
             try:
                 logger.info("Attempt %d: Sending telemetry data: %s", attempt + 1, data)
                 # Simulate sending data
-                if "fail_always" in data and data["fail_always"]: # Added check for persistent failure
+                if (
+                    "fail_always" in data and data["fail_always"]
+                ):  # Added check for persistent failure
                     logger.error("Simulated persistent failure to send telemetry data.")
-                    return False # Fail immediately if fail_always is True
+                    return False  # Fail immediately if fail_always is True
 
-                if attempt == 0 and "fail_first_attempt" in data: # Simulate a transient failure
+                if attempt == 0 and "fail_first_attempt" in data:  # Simulate a transient failure
                     raise ConnectionError("Simulated transient network issue.")
                 logger.info("Telemetry data sent successfully on attempt %d.", attempt + 1)
                 return True
@@ -95,7 +98,7 @@ class CloudIntegrationService:
         logger.error("Failed to send telemetry data after %d attempts.", max_retries)
         return False
 
-    def receive_commands(self) -> Dict[str, Any]:
+    def receive_commands(self) -> dict[str, Any]:
         """
         Receives commands from the cloud platform.
         """
@@ -111,7 +114,7 @@ class CloudIntegrationService:
             logger.error("Error receiving commands: %s", e)
             return {}
 
-    def synchronize_field_boundaries(self, field_data: Dict[str, Any]) -> bool:
+    def synchronize_field_boundaries(self, field_data: dict[str, Any]) -> bool:
         """
         Simulates synchronizing field boundary data with the cloud platform.
         """
@@ -122,12 +125,15 @@ class CloudIntegrationService:
             if "fail_sync" in field_data and field_data["fail_sync"]:
                 logger.error("Simulated failure to synchronize field boundaries.")
                 return False
-            
+
             # Simulate conflict resolution
             if "conflict_detected" in field_data and field_data["conflict_detected"]:
-                logger.warning("Conflict detected during field boundary synchronization for %s. Applying last-write-wins.", field_data.get("field_id"))
+                logger.warning(
+                    "Conflict detected during field boundary synchronization for %s. Applying last-write-wins.",
+                    field_data.get("field_id"),
+                )
                 # In a real scenario, more sophisticated conflict resolution logic would be here
-            
+
             logger.info("Synchronizing field boundaries: %s", field_data)
             # Simulate actual synchronization logic
             return True
@@ -135,13 +141,14 @@ class CloudIntegrationService:
             logger.error("Error synchronizing field boundaries: %s", e)
             return False
 
+
 # Example usage (for demonstration/testing purposes)
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     cloud_config = {
         "platform": "AgriCloudX",
         "endpoint": "https://api.agricloudx.com",
-        "api_key": "your_api_key_here"
+        "api_key": "your_api_key_here",
     }
     service = CloudIntegrationService(cloud_config)
 
