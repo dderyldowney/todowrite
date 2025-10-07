@@ -1,10 +1,23 @@
+"""
+Edge software module for data aggregation and local processing on agricultural gateways.
+"""
+
+from __future__ import annotations
+
 import json
 import random
 import time
 from typing import Any
 
-from afs_fastapi.monitoring.edge_analytics import EdgeControlLogic, LightweightEdgeAnalytics
-from afs_fastapi.monitoring.sensor_interface import LoRaWANSensorInterface, MQTTSensorInterface
+# Local imports - ignore type checking until stubs are created
+from afs_fastapi.monitoring.edge_analytics import (  # type: ignore
+    EdgeControlLogic,
+    LightweightEdgeAnalytics,
+)
+from afs_fastapi.monitoring.sensor_interface import (  # type: ignore
+    LoRaWANSensorInterface,
+    MQTTSensorInterface,
+)
 
 
 class EdgeGatewaySoftware:
@@ -12,12 +25,19 @@ class EdgeGatewaySoftware:
     Conceptual edge software for data aggregation and local processing on agricultural gateways.
     """
 
-    def __init__(self, gateway_id: str, sensors_config: list[dict[str, Any]]):
+    gateway_id: str
+    sensors: list[Any]  # Can be either MQTTSensorInterface or LoRaWANSensorInterface
+    analytics_model: LightweightEdgeAnalytics
+    control_logic: EdgeControlLogic
+    data_buffer: list[dict[str, Any]]
+    cloud_connected: bool
+
+    def __init__(self, gateway_id: str, sensors_config: list[dict[str, Any]]) -> None:
         self.gateway_id = gateway_id
         self.sensors = []
         self.analytics_model = LightweightEdgeAnalytics(threshold=0.25, window_size=3)
         self.control_logic = EdgeControlLogic(device_id=gateway_id)
-        self.data_buffer: list[dict[str, Any]] = []  # For offline buffering
+        self.data_buffer = []  # For offline buffering
         self.cloud_connected = True  # Conceptual: assume connected initially
 
         for config in sensors_config:
@@ -36,14 +56,16 @@ class EdgeGatewaySoftware:
             f"EdgeGatewaySoftware initialized for gateway {self.gateway_id} with {len(self.sensors)} sensors."
         )
 
-    def connect_all_sensors(self):
+    def connect_all_sensors(self) -> None:
+        """Connect to all configured sensors."""
         for sensor in self.sensors:
             try:
                 sensor.connect()
             except Exception as e:
                 print(f"Error connecting to sensor {sensor.device_id}: {e}")
 
-    def disconnect_all_sensors(self):
+    def disconnect_all_sensors(self) -> None:
+        """Disconnect from all sensors."""
         for sensor in self.sensors:
             try:
                 sensor.disconnect()
@@ -63,7 +85,7 @@ class EdgeGatewaySoftware:
             )
             return False
 
-    def synchronize_data(self):
+    def synchronize_data(self) -> None:
         """
         Synchronizes buffered data with the cloud when connectivity is restored.
         """
@@ -111,7 +133,7 @@ class EdgeGatewaySoftware:
 
         return aggregated_output
 
-    def process_data_locally(self, aggregated_data: dict[str, Any]):
+    def process_data_locally(self, aggregated_data: dict[str, Any]) -> None:
         """
         Processes aggregated data locally using analytics models and triggers control logic.
         """
@@ -125,7 +147,14 @@ class EdgeGatewaySoftware:
             else:
                 print(f"No specific analytics model for {sensor_type} yet.")
 
-    def run(self, interval_seconds: int = 5, iterations: int = 3):
+    def run(self, interval_seconds: int = 5, iterations: int = 3) -> None:
+        """
+        Run the edge gateway software for a specified number of iterations.
+
+        Args:
+            interval_seconds: Time to wait between iterations in seconds.
+            iterations: Number of data collection/processing cycles to run.
+        """
         self.connect_all_sensors()
         for i in range(iterations):
             print(f"\n--- Iteration {i+1} ---")
@@ -156,10 +185,12 @@ class EdgeGatewaySoftware:
 
 # Example Usage:
 if __name__ == "__main__":
-    sensors_config = [
+    sensors_config: list[dict[str, str]] = [
         {"device_id": "SM-001", "sensor_type": "soil_moisture", "protocol": "MQTT"},
         {"device_id": "AT-001", "sensor_type": "air_temperature", "protocol": "LoRaWAN"},
     ]
 
-    gateway = EdgeGatewaySoftware(gateway_id="FarmGateway-001", sensors_config=sensors_config)
+    gateway: EdgeGatewaySoftware = EdgeGatewaySoftware(
+        gateway_id="FarmGateway-001", sensors_config=sensors_config
+    )
     gateway.run(interval_seconds=2, iterations=2)
