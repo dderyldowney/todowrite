@@ -1,6 +1,6 @@
 import time
 
-from afs_fastapi.models.field_segment import FieldSegment  # type: ignore
+from models.field_segment import FieldSegment  # type: ignore
 
 
 class FieldAllocationCRDT:
