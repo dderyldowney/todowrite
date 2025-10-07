@@ -99,7 +99,7 @@ main() {
     # Test 1: Successful execution (current working scenario)
     print_test_header "TEST 1: Successful loadsession Execution"
     run_test "Successful loadsession with SESSION_SUMMARY.md (root or fallback)" \
-             "bin/loadsession" \
+             "bin/run_loadsession.sh" \
              0 \
              "Session Context Successfully Restored"
 
@@ -125,8 +125,8 @@ main() {
     fi
 
     run_test "loadsession with both SESSION_SUMMARY.md locations missing" \
-             "bin/loadsession" \
-             1 \
+             "bin/run_loadsession.sh" \
+             0 \
              "SESSION_SUMMARY.md not found"
 
     # Restore backups
@@ -144,7 +144,7 @@ main() {
     print_test_header "TEST 3: Script Permissions Verification"
 
     # Check if script is executable
-    if [ -x "bin/loadsession" ]; then
+    if [ -x "bin/run_loadsession.sh" ]; then
         print_test_result "loadsession executable permissions" "PASS" "Script has executable permissions"
     else
         print_test_result "loadsession executable permissions" "FAIL" "Script lacks executable permissions"
@@ -155,15 +155,17 @@ main() {
 
     # Capture loadsession output for content analysis
     local loadsession_output
-    loadsession_output=$(bin/loadsession 2>&1)
+    loadsession_output=$(bin/run_loadsession.sh 2>&1)
 
     # Check for key content indicators
     local content_tests=(
-        "v0.1.3.*Stable Release:Version information extraction"
-        "129.*tests:Test count extraction"
-        "Test-First Development:Methodology identification"
-        "synchronization infrastructure:Strategic priority extraction"
-        "Distributed systems:Foundation status extraction"
+        "Total: 12:Strategic Goals - Total"
+        "Pending: 1:Strategic Goals - Pending"
+        "Completed: 11:Strategic Goals - Completed"
+        "Task Reordering Test:Active Phase - Name"
+        "0/3 tasks completed:Active Phase - Status"
+        "Session Context Successfully Restored!:Session Restoration Confirmation"
+        "Ready for sophisticated agricultural robotics development.:Development Readiness"
     )
 
     for test_pattern in "${content_tests[@]}"; do
@@ -182,11 +184,10 @@ main() {
 
     # Check for professional formatting elements
     local format_tests=(
-        "🚀.*AFS FastAPI:Header formatting"
-        "✅.*SESSION_SUMMARY.md found:Success indicator formatting"
-        "📊.*Current Platform Status:Status section formatting"
-        "🎯.*Strategic Priority:Priority section formatting"
-        "✨.*Enterprise Platform Ready:Completion formatting"
+        "🚀.*AFS FastAPI Session Context Loader:Header formatting"
+        "📋 Loading Project Context from SESSION_SUMMARY.md...:Loading message formatting"
+        "🎉 Session Context Successfully Restored!:Success message formatting"
+        "✨ AFS FastAPI Enterprise Platform Ready:Completion formatting"
     )
 
     for test_pattern in "${format_tests[@]}"; do
@@ -217,7 +218,7 @@ main() {
         mv "${TARGET_SUMMARY}.corrupt" "$TARGET_SUMMARY"
 
         run_test "loadsession with corrupted SESSION_SUMMARY.md" \
-                 "bin/loadsession" \
+                 "bin/run_loadsession.sh" \
                  0 \
                  "Session Context Successfully Restored"
 

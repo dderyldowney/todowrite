@@ -14,5 +14,5 @@ if [[ ! -x "${PROJECT_ROOT}/bin/loadsession" ]]; then
   exit 1
 fi
 
-exec "${PROJECT_ROOT}/bin/loadsession" "$@"
+exec "${PROJECT_ROOT}/bin/run_loadsession.sh" "$@"
 

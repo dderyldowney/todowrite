@@ -35,7 +35,7 @@ def main():
 
 ### Active Phase
 - Name: {active_phase['name'] if active_phase else 'None'}
-- Status: {len([t for t in active_phase['tasks'] if t['status'] == 'completed'])}/{len(active_phase['tasks']) if active_phase else 'N/A'} tasks completed
+- Status: {len([t for t in active_phase['tasks'] if t['status'] == 'completed']) if active_phase and 'tasks' in active_phase else 0}/{len(active_phase['tasks']) if active_phase and 'tasks' in active_phase else 'N/A'} tasks completed
 """
 
     # Save summary to file

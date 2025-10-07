@@ -67,7 +67,7 @@ fi
 CUSTOM_MESSAGE="${1:-}"
 
 echo -e "${BLUE}🔄 Step 1: Saving TODO state...${NC}"
-if ! python3 ./bin/todo-sync; then
+if ! ./bin/todo-sync; then
     echo -e "${RED}❌ Failed to sync TODO state${NC}"
     exit 1
 fi
@@ -89,7 +89,7 @@ if ! git diff --quiet || ! git diff --cached --quiet || [[ -n "$(git ls-files --
     echo -e "${GREEN}✓ Found ${MODIFIED_FILES} files with changes${NC}"
 
     echo -e "${BLUE}📝 Step 4: Updating CHANGELOG.md...${NC}"
-    if ! python3 ./bin/updatechangelog; then
+    if ! ./bin/updatechangelog; then
         echo -e "${YELLOW}⚠️  CHANGELOG update completed (may be no new commits)${NC}"
     else
         echo -e "${GREEN}✓ CHANGELOG.md updated${NC}"

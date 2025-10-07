@@ -39,6 +39,7 @@ from pathlib import Path
 try:
     sys.path.insert(0, str(Path(__file__).parent))
     from mandatory_optimization_enforcement import initialize_mandatory_optimization
+
     OPTIMIZATION_ENFORCEMENT_AVAILABLE = True
 except ImportError:
     OPTIMIZATION_ENFORCEMENT_AVAILABLE = False
@@ -68,7 +69,7 @@ class UniversalSessionInitializationHook:
         self.global_session_marker = self.project_root / ".claude" / ".global_session_state"
 
         # Universal loadsession access
-        self.loadsession_script = self.project_root / "bin" / "loadsession"
+        self.loadsession_script = self.project_root / "bin" / "run_loadsession.sh"
 
         # Agent identification for tracking
         self.current_agent_id = self._generate_agent_id()
@@ -236,15 +237,23 @@ class UniversalSessionInitializationHook:
             enforcement = report["enforcement_status"]
 
             if enforcement["enabled"]:
-                print("🛡️  Token optimization: 🟢 ENFORCED (mandatory for all agents)", file=sys.stderr)
-                print("💰 All AI interactions automatically optimized with agricultural compliance", file=sys.stderr)
+                print(
+                    "🛡️  Token optimization: 🟢 ENFORCED (mandatory for all agents)", file=sys.stderr
+                )
+                print(
+                    "💰 All AI interactions automatically optimized with agricultural compliance",
+                    file=sys.stderr,
+                )
 
                 # Show session info if available
                 current_session = report.get("current_session", {})
                 if current_session.get("interactions_this_session", 0) > 0:
                     interactions = current_session["interactions_this_session"]
                     tokens_saved = current_session["tokens_saved_this_session"]
-                    print(f"📊 Current session: {interactions} interactions, {tokens_saved} tokens saved", file=sys.stderr)
+                    print(
+                        f"📊 Current session: {interactions} interactions, {tokens_saved} tokens saved",
+                        file=sys.stderr,
+                    )
             else:
                 print("🚫 Token optimization enforcement disabled", file=sys.stderr)
 
