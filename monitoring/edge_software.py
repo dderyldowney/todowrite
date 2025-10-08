@@ -1,15 +1,14 @@
-"""
-Edge software module for data aggregation and local processing on agricultural gateways.
-"""
-
-from __future__ import annotations
+import json
+import random
+import time
+"""Edge software for data aggregation and local processing on agricultural gateways."""
 
 import json
 import random
 import time
 from typing import Any
 
-# Local imports - ignore type checking until stubs are created
+# Local imports - type checking ignored until stubs are created
 from afs_fastapi.monitoring.edge_analytics import (  # type: ignore
     EdgeControlLogic,
     LightweightEdgeAnalytics,

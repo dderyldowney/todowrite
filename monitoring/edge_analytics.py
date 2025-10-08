@@ -3,8 +3,6 @@ Edge analytics module for agricultural robotics platform.
 Provides lightweight analytics and control logic for edge devices.
 """
 
-from __future__ import annotations
-
 import numpy as np
 
 
