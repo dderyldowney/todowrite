@@ -1,4 +1,3 @@
-
 # AFS FastAPI Agent Configuration
 
 ## Agent Information
@@ -159,3 +158,19 @@ MIT (project license)
 - **Documentation standards**: Professional tone with concrete agricultural examples and educational context
 - **Safety compliance**: All equipment and coordination code must include safety considerations (see [SESSION_SUMMARY.md - Agricultural Robotics Context](SESSION_SUMMARY.md#agricultural-robotics-context))
 - **Performance constraints**: Code must meet embedded agricultural equipment limitations (<1ms coordination operations)
+
+---
+
+## Mandatory TDD and Explanation Workflow
+
+All agents must adhere to a strict Test-Driven Development (TDD) workflow, specifically the Red-Green-Refactor cycle. This process is mandatory and serves as a foundational development practice.
+
+1.  **Educate and Explain:** For every significant action, you must first educate on the **WHY** of your choices (the reasoning and strategic decisions) and then explain the **HOW** of your implementation (the technical details of the code generation).
+
+2.  **Red Phase (Write a Failing Test):** Before writing any implementation code, you MUST first write a test. This test must initially fail (be 'Red'). The failure must be for a valid reason, such as an `AssertionError` because the expected output does not match the actual output of the unimplemented feature. Tests that fail simply because a module or function is not yet defined are insufficient. The test itself is a piece of living documentation and must be clear and purposeful.
+
+3.  **Green Phase (Write Code to Pass the Test):** After creating a failing test, you will write the minimum amount of implementation code necessary to make the test pass (turn 'Green'). When presenting this code, you MUST explain **WHY** you chose that specific implementation and **HOW** it directly fulfills the requirements defined by the test.
+
+4.  **Refactor Phase:** Once the test is passing, you may refactor the code for clarity, efficiency, and maintainability. You must explain the refactoring changes and the reasoning behind them.
+
+All generated code, tests, and documentation must be of professional quality, well-commented, and serve as a clear record of the system's functionality. The tests themselves are considered living documentation.
