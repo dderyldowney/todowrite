@@ -1,14 +1,11 @@
-import json
-import random
-import time
 """Edge software for data aggregation and local processing on agricultural gateways."""
 
 import json
 import random
 import time
-from typing import Any
+from typing import Any, Protocol, TypeVar
 
-# Local imports - type checking ignored until stubs are created
+# Local imports
 from afs_fastapi.monitoring.edge_analytics import (  # type: ignore
     EdgeControlLogic,
     LightweightEdgeAnalytics,
@@ -16,7 +13,34 @@ from afs_fastapi.monitoring.edge_analytics import (  # type: ignore
 from afs_fastapi.monitoring.sensor_interface import (  # type: ignore
     LoRaWANSensorInterface,
     MQTTSensorInterface,
+    SensorInterface,
 )
+
+T = TypeVar("T", bound=SensorInterface)
+SensorType = MQTTSensorInterface | LoRaWANSensorInterface
+
+
+class AnalyticsModel(Protocol):
+    """Protocol defining the interface for analytics models."""
+
+    def process_sensor_data(self, value: float) -> bool: ...
+
+
+class ControlLogic(Protocol):
+    """Protocol defining the interface for control logic."""
+
+    def trigger_irrigation(self, is_anomaly: bool, value: float) -> None: ...
+
+
+class SensorDevice(Protocol):
+    """Protocol defining the interface for sensor devices."""
+
+    device_id: str
+    sensor_type: str
+
+    def read_data(self) -> float | dict[str, float]: ...
+    def connect(self) -> None: ...
+    def disconnect(self) -> None: ...
 
 
 class EdgeGatewaySoftware:
@@ -25,11 +49,15 @@ class EdgeGatewaySoftware:
     """
 
     gateway_id: str
-    sensors: list[Any]  # Can be either MQTTSensorInterface or LoRaWANSensorInterface
-    analytics_model: LightweightEdgeAnalytics
-    control_logic: EdgeControlLogic
+    sensors: list[SensorDevice]
+    analytics_model: AnalyticsModel
+    control_logic: ControlLogic
     data_buffer: list[dict[str, Any]]
     cloud_connected: bool
+
+    # Sensor data types
+    SensorValue = float | dict[str, float]
+    RawReadings = list[dict[str, Any]]
 
     def __init__(self, gateway_id: str, sensors_config: list[dict[str, Any]]) -> None:
         self.gateway_id = gateway_id
@@ -114,6 +142,12 @@ class EdgeGatewaySoftware:
         """
         Aggregates raw sensor data. This is a conceptual aggregation.
         In a real scenario, this might involve averaging, filtering, or combining data.
+
+        Args:
+            raw_data: List of sensor readings, each containing timestamp, sensor_type, and value
+
+        Returns:
+            Dict containing aggregated sensor data with gateway_id, timestamp, and readings
         """
         aggregated_output: dict[str, Any] = {
             "gateway_id": self.gateway_id,
@@ -159,10 +193,18 @@ class EdgeGatewaySoftware:
             print(f"\n--- Iteration {i+1} ---")
             self.synchronize_data()  # Attempt to sync buffered data first
 
-            raw_readings = []
+            raw_readings: list[dict[str, Any]] = []
             for sensor in self.sensors:
                 try:
-                    raw_readings.append(sensor.read_data())
+                    reading = sensor.read_data()
+                    if isinstance(reading, (float, dict)):
+                        raw_readings.append(
+                            {
+                                "sensor_type": sensor.sensor_type,
+                                "value": reading,
+                                "timestamp": time.time(),
+                            }
+                        )
                 except ConnectionError as e:
                     print(f"Skipping sensor {sensor.device_id}: {e}")
 
