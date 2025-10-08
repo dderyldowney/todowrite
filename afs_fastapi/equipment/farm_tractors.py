@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import ClassVar, Literal
+from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel
 
@@ -495,6 +496,11 @@ class FarmTractor(
         self.power_consumption: dict[str, float] = {}
         self.regenerative_mode: bool = False
 
+        # Enhanced Reliable ISOBUS Communication
+        from afs_fastapi.equipment.reliable_isobus import ReliableISOBUSDevice
+
+        self.reliable_isobus = ReliableISOBUSDevice(device_address=self.isobus_address)
+
     def start_engine(self) -> str:
         if self.engine_on:
             raise ValueError("Engine is already running.")
@@ -804,21 +810,130 @@ class FarmTractor(
         """Return standardized ISOBUS device name."""
         return self.device_name
 
-    def send_message(self, message: ISOBUSMessage) -> bool:
-        """Send ISOBUS message to network."""
-        # TODO: Implement actual ISOBUS CAN transmission
-        print(f"ISOBUS TX: PGN={message.pgn:04X} from {message.source_address:02X}")
-        return True
+    def send_message(self, message: ISOBUSMessage, use_reliable: bool = False) -> bool:
+        """Send ISOBUS message to network with optional guaranteed delivery.
+
+        Parameters
+        ----------
+        message : ISOBUSMessage
+            Message to transmit via ISOBUS.
+        use_reliable : bool, default False
+            Whether to use guaranteed delivery system.
+
+        Returns
+        -------
+        bool
+            True if message was successfully queued for transmission.
+
+        Notes
+        -----
+        When use_reliable=True, this method returns immediately but the message
+        may still be retrying in the background. Use send_reliable_message methods
+        for delivery confirmation callbacks.
+        """
+        if use_reliable:
+            # Route through guaranteed delivery system
+
+            # Determine priority based on PGN
+            priority = self._get_message_priority(message.pgn)
+
+            try:
+                self.reliable_isobus.send_reliable_message(
+                    message,
+                    requires_ack=True,
+                    priority=priority,
+                )
+                return True
+            except Exception as e:
+                print(f"ISOBUS Reliable TX Error: {e}")
+                return False
+        else:
+            # Original simulation behavior for backward compatibility
+            print(f"ISOBUS TX: PGN={message.pgn:04X} from {message.source_address:02X}")
+            return True
+
+    def _get_message_priority(self, pgn: int) -> int:
+        """Determine message priority based on PGN for agricultural operations.
+
+        Parameters
+        ----------
+        pgn : int
+            Parameter Group Number from ISOBUS message.
+
+        Returns
+        -------
+        int
+            Priority level (0 = highest priority).
+        """
+        from afs_fastapi.equipment.reliable_isobus import ISOBUSPriority
+
+        # Map ISOBUS PGNs to agricultural priorities
+        if pgn == 0xFE49:  # Emergency messages
+            return ISOBUSPriority.EMERGENCY_STOP
+        elif pgn in [0xFE47, 0xFE46]:  # Collision avoidance
+            return ISOBUSPriority.COLLISION_AVOIDANCE
+        elif pgn == 0xEF00:  # Field allocation
+            return ISOBUSPriority.FIELD_COORDINATION
+        elif pgn in [0xCF00, 0xDF00]:  # Implement control
+            return ISOBUSPriority.IMPLEMENT_CONTROL
+        elif pgn == 0xFE48:  # Status updates
+            return ISOBUSPriority.STATUS_UPDATE
+        else:  # Diagnostic and other messages
+            return ISOBUSPriority.DIAGNOSTICS
 
     def receive_message(self) -> ISOBUSMessage | None:
-        """Receive ISOBUS message from network."""
-        # TODO: Implement actual ISOBUS CAN reception
+        """Receive ISOBUS message from network with reliable message processing.
+
+        Returns
+        -------
+        ISOBUSMessage or None
+            Received message, or None if no messages available.
+
+        Notes
+        -----
+        This method automatically processes acknowledgments for the guaranteed
+        delivery system and handles reliable message reception.
+        """
+        # Check for basic queued messages (simulation/testing)
         if self.message_queue:
-            return self.message_queue.pop(0)
+            message = self.message_queue.pop(0)
+
+            # Process acknowledgments for guaranteed delivery system
+            if message.pgn == 0xE800:  # ACK PGN
+                try:
+                    self.reliable_isobus.process_acknowledgment(message)
+                    # Return None since ACK messages are processed internally
+                    return None
+                except Exception as e:
+                    print(f"ISOBUS ACK Processing Error: {e}")
+
+            return message
+
+        # TODO: In real implementation, would check CAN bus for incoming messages
+        # and process them through the reliable message system
+
         return None
 
-    def send_tractor_status(self) -> bool:
-        """Send standardized tractor status via ISOBUS."""
+    def send_tractor_status(self, use_reliable: bool = False) -> bool:
+        """Send standardized tractor status via ISOBUS.
+
+        Parameters
+        ----------
+        use_reliable : bool, default False
+            Whether to use guaranteed delivery for status broadcast.
+
+        Returns
+        -------
+        bool
+            True if status message was successfully transmitted.
+
+        Notes
+        -----
+        When use_reliable=True, status updates will be queued for guaranteed
+        delivery with automatic retries and acknowledgment tracking. This is
+        useful for critical agricultural operations where status confirmation
+        is required for safety or coordination purposes.
+        """
         status_data = bytes(
             [
                 self.gear,
@@ -837,7 +952,198 @@ class FarmTractor(
             timestamp=datetime.now(),
         )
 
-        return self.send_message(message)
+        return self.send_message(message, use_reliable=use_reliable)
+
+    # ==============================================================================
+    # Agricultural Implement Control with Guaranteed Delivery
+    # ==============================================================================
+
+    def send_implement_command(
+        self,
+        implement_address: int,
+        command_type: str,
+        parameters: dict[str, Any],
+        use_reliable: bool = True,
+        delivery_callback: Callable[[str, str], None] | None = None,
+    ) -> str | bool:
+        """Send command to agricultural implement with optional guaranteed delivery.
+
+        Parameters
+        ----------
+        implement_address : int
+            ISOBUS address of target implement (0x80-0x87 typical range).
+        command_type : str
+            Type of command: 'raise', 'lower', 'enable', 'disable', 'configure'.
+        parameters : dict[str, Any]
+            Command-specific parameters (depth, rate, speed, etc.).
+        use_reliable : bool, default True
+            Whether to use guaranteed delivery for implement commands.
+        delivery_callback : callable, optional
+            Called when delivery is confirmed or fails.
+
+        Returns
+        -------
+        str or bool
+            Message ID if using reliable delivery, bool success otherwise.
+
+        Examples
+        --------
+        >>> # Lower cultivator to 6 inches with guaranteed delivery
+        >>> msg_id = tractor.send_implement_command(
+        ...     implement_address=0x82,
+        ...     command_type="lower",
+        ...     parameters={"depth": 6.0, "speed": 8.0},
+        ...     delivery_callback=lambda mid, status: print(f"Cultivator: {status}")
+        ... )
+
+        >>> # Enable precision planter without guaranteed delivery
+        >>> success = tractor.send_implement_command(
+        ...     implement_address=0x83,
+        ...     command_type="enable",
+        ...     parameters={"seed_rate": 32000, "row_spacing": 30},
+        ...     use_reliable=False
+        ... )
+        """
+        from afs_fastapi.equipment.reliable_isobus import ISOBUSPriority
+
+        # Encode command parameters for ISOBUS transmission
+        command_data = self._encode_implement_command(command_type, parameters)
+
+        implement_message = ISOBUSMessage(
+            pgn=0xCF00,  # Implement control PGN
+            source_address=self.isobus_address,
+            destination_address=implement_address,
+            data=command_data,
+            timestamp=datetime.now(),
+        )
+
+        if use_reliable:
+            # Use guaranteed delivery for implement commands
+            return self.reliable_isobus.send_reliable_message(
+                implement_message,
+                delivery_callback=delivery_callback,
+                requires_ack=True,
+                max_retries=3,
+                priority=ISOBUSPriority.IMPLEMENT_CONTROL,
+            )
+        else:
+            # Use basic transmission
+            return self.send_message(implement_message, use_reliable=False)
+
+    def _encode_implement_command(self, command_type: str, parameters: dict[str, Any]) -> bytes:
+        """Encode implement command parameters into ISOBUS data format.
+
+        Parameters
+        ----------
+        command_type : str
+            Command type identifier.
+        parameters : dict[str, Any]
+            Command parameters to encode.
+
+        Returns
+        -------
+        bytes
+            Encoded command data for ISOBUS transmission.
+        """
+        # Simplified encoding for demonstration
+        # Real implementation would follow ISO 11783 application layer standards
+
+        command_codes = {
+            "raise": 0x01,
+            "lower": 0x02,
+            "enable": 0x03,
+            "disable": 0x04,
+            "configure": 0x05,
+        }
+
+        command_code = command_codes.get(command_type, 0x00)
+
+        # Pack common agricultural parameters
+        depth = int(parameters.get("depth", 0) * 10)  # Depth in 0.1 inch units
+        rate = int(parameters.get("rate", 0))  # Application rate
+        speed = int(parameters.get("speed", 0) * 10)  # Speed in 0.1 mph units
+
+        return bytes(
+            [
+                command_code,
+                (depth >> 8) & 0xFF,  # Depth high byte
+                depth & 0xFF,  # Depth low byte
+                (rate >> 8) & 0xFF,  # Rate high byte
+                rate & 0xFF,  # Rate low byte
+                (speed >> 8) & 0xFF,  # Speed high byte
+                speed & 0xFF,  # Speed low byte
+                0x00,  # Reserved
+            ]
+        )
+
+    def coordinate_field_operation(
+        self,
+        field_crdt: Any,  # FieldAllocationCRDT
+        operation_type: str,
+        implement_addresses: list[int],
+        use_reliable: bool = True,
+    ) -> list[str]:
+        """Coordinate multi-implement field operation with guaranteed delivery.
+
+        Parameters
+        ----------
+        field_crdt : FieldAllocationCRDT
+            Field allocation state for coordination.
+        operation_type : str
+            Type of operation: 'planting', 'spraying', 'harvesting', 'tillage'.
+        implement_addresses : list[int]
+            ISOBUS addresses of implements to coordinate.
+        use_reliable : bool, default True
+            Whether to use guaranteed delivery for coordination messages.
+
+        Returns
+        -------
+        list[str]
+            List of message IDs for tracking coordination delivery.
+
+        Notes
+        -----
+        This method demonstrates how guaranteed delivery integrates with field
+        allocation CRDTs to ensure coordinated agricultural operations across
+        multiple implements without conflicts or work duplication.
+        """
+
+        message_ids = []
+
+        # Broadcast field allocation state
+        if use_reliable:
+            allocation_msg_id = self.broadcast_field_allocation_reliable(field_crdt)
+            message_ids.append(allocation_msg_id)
+
+        # Send operation commands to each implement
+        operation_parameters = {
+            "planting": {"seed_rate": 32000, "depth": 2.0, "speed": 6.0},
+            "spraying": {"application_rate": 20, "pressure": 40, "speed": 12.0},
+            "harvesting": {"header_height": 24, "ground_speed": 5.0},
+            "tillage": {"depth": 8.0, "speed": 7.0, "overlap": 2.0},
+        }
+
+        params = operation_parameters.get(operation_type, {})
+
+        for implement_addr in implement_addresses:
+            if use_reliable:
+                msg_id = self.send_implement_command(
+                    implement_address=implement_addr,
+                    command_type="configure",
+                    parameters=params,
+                    use_reliable=True,
+                )
+                if isinstance(msg_id, str):
+                    message_ids.append(msg_id)
+            else:
+                self.send_implement_command(
+                    implement_address=implement_addr,
+                    command_type="configure",
+                    parameters=params,
+                    use_reliable=False,
+                )
+
+        return message_ids
 
     # ==============================================================================
     # Safety System Interface Implementation (ISO 18497)
@@ -1154,3 +1460,179 @@ class FarmTractor(
             obstacle_count=len(self.obstacle_list),
             status=str(self),
         )
+
+    # ==============================================================================
+    # Enhanced Reliable ISOBUS Communication Methods
+    # ==============================================================================
+
+    def send_tractor_status_reliable(
+        self,
+        delivery_callback: Callable[[str, str], None] | None = None,
+        requires_ack: bool = True,
+        max_retries: int = 3,
+        priority: int | None = None,
+    ) -> str:
+        """Send tractor status with guaranteed delivery.
+
+        Parameters
+        ----------
+        delivery_callback : callable, optional
+            Called when delivery is confirmed or fails.
+        requires_ack : bool, default True
+            Whether acknowledgment is required.
+        max_retries : int, default 3
+            Maximum retry attempts.
+        priority : int, optional
+            Message priority (0 = highest). If None, uses STATUS_UPDATE priority.
+
+        Returns
+        -------
+        str
+            Message ID for tracking delivery status.
+        """
+        from afs_fastapi.equipment.reliable_isobus import ISOBUSPriority
+
+        # Use agricultural priority if not specified
+        if priority is None:
+            priority = ISOBUSPriority.STATUS_UPDATE
+
+        # Create standard status message
+        status_data = bytes(
+            [
+                self.gear,
+                int(self.speed),
+                int(self.engine_rpm / 10),
+                int(self.fuel_level),
+                0x01 if self.engine_on else 0x00,
+            ]
+        )
+
+        status_message = ISOBUSMessage(
+            pgn=0xFE48,  # Tractor status PGN
+            source_address=self.isobus_address,
+            destination_address=0xFF,  # Broadcast
+            data=status_data,
+            timestamp=datetime.now(),
+        )
+
+        # Send with guaranteed delivery
+        return self.reliable_isobus.send_reliable_message(
+            status_message,
+            delivery_callback=delivery_callback,
+            requires_ack=requires_ack,
+            max_retries=max_retries,
+            priority=priority,
+        )
+
+    def broadcast_field_allocation_reliable(
+        self,
+        field_crdt: Any,  # FieldAllocationCRDT
+        delivery_callback: Callable[[str, str], None] | None = None,
+        requires_ack: bool = True,
+        max_retries: int = 3,
+        priority: int | None = None,
+    ) -> str:
+        """Broadcast field allocation CRDT with guaranteed delivery.
+
+        Parameters
+        ----------
+        field_crdt : FieldAllocationCRDT
+            Field allocation state to broadcast.
+        delivery_callback : callable, optional
+            Called when delivery is confirmed or fails.
+        requires_ack : bool, default True
+            Whether acknowledgment is required.
+        max_retries : int, default 3
+            Maximum retry attempts.
+        priority : int, optional
+            Message priority (0 = highest). If None, uses FIELD_COORDINATION priority.
+
+        Returns
+        -------
+        str
+            Message ID for tracking delivery status.
+        """
+        from afs_fastapi.equipment.reliable_isobus import ISOBUSPriority
+
+        # Use agricultural priority if not specified
+        if priority is None:
+            priority = ISOBUSPriority.FIELD_COORDINATION
+
+        # Serialize CRDT for transmission
+        serialized_data = field_crdt.serialize()
+
+        allocation_message = ISOBUSMessage(
+            pgn=0xEF00,  # Custom PGN for field allocation
+            source_address=self.isobus_address,
+            destination_address=0xFF,  # Broadcast
+            data=str(serialized_data).encode(),
+            timestamp=datetime.now(),
+        )
+
+        # Send with guaranteed delivery
+        return self.reliable_isobus.send_reliable_message(
+            allocation_message,
+            delivery_callback=delivery_callback,
+            requires_ack=requires_ack,
+            max_retries=max_retries,
+            priority=priority,
+        )
+
+    def emergency_stop_reliable(
+        self,
+        delivery_callback: Callable[[str, str], None] | None = None,
+        max_retries: int = 5,
+        retry_interval: float = 0.05,
+        timeout: float = 1.0,
+    ) -> list[str]:
+        """Trigger emergency stop with guaranteed delivery broadcast.
+
+        Parameters
+        ----------
+        delivery_callback : callable, optional
+            Called when delivery is confirmed or fails.
+        max_retries : int, default 5
+            Maximum retry attempts for safety-critical message.
+        retry_interval : float, default 0.05
+            Faster retry interval for emergency.
+        timeout : float, default 1.0
+            Shorter timeout for urgency.
+
+        Returns
+        -------
+        list[str]
+            List of message IDs for tracking delivery status.
+        """
+        # Perform standard emergency stop
+        self.emergency_stop()
+
+        # Create emergency broadcast message
+        emergency_data = b"\xFF\x00\x00\x00\x01"  # Emergency stop pattern
+
+        # Send emergency broadcast with highest priority and guaranteed delivery
+        from afs_fastapi.equipment.reliable_isobus import ISOBUSPriority
+
+        message_ids = []
+
+        # Broadcast to multiple recipients for safety redundancy
+        for destination in [0xFF, 0x81, 0x82, 0x83]:  # Broadcast + specific implements
+            emergency_msg = ISOBUSMessage(
+                pgn=0xFE49,
+                source_address=self.isobus_address,
+                destination_address=destination,
+                data=emergency_data,
+                timestamp=datetime.now(),
+            )
+
+            message_id = self.reliable_isobus.send_reliable_message(
+                emergency_msg,
+                delivery_callback=delivery_callback,
+                requires_ack=True,
+                max_retries=max_retries,
+                retry_interval=retry_interval,
+                timeout=timeout,
+                priority=ISOBUSPriority.EMERGENCY_STOP,  # Highest priority for safety
+            )
+            message_ids.append(message_id)
+
+        return message_ids

@@ -126,7 +126,7 @@ class TestFarmTractorAdvanced(unittest.TestCase):
         self.tractor.accelerate(15)
 
         # Trigger emergency stop
-        result = self.tractor.emergency_stop()
+        result = self.tractor.emergency_stop()  # type: ignore[assignment]
         self.assertTrue(result)  # ISO 18497 interface returns boolean
         self.assertTrue(self.tractor.emergency_stop_active)
         self.assertEqual(self.tractor.speed, 0)

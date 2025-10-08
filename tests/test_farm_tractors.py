@@ -114,3 +114,19 @@ def test_hydraulics_edge_cases():
     # Test double deactivate
     with pytest.raises(ValueError, match="Hydraulics are already deactivated"):
         tractor.deactivate_hydraulics()
+
+
+def test_stop_engine_resets_state():
+    tractor = FarmTractor("John", "Deere", 2020)
+    tractor.start_engine()
+    tractor.accelerate(20)
+    tractor.change_gear(5)
+    tractor.engage_power_takeoff()
+    tractor.activate_hydraulics()
+
+    tractor.stop_engine()
+
+    assert tractor.speed == 0
+    assert tractor.gear == 0
+    assert not tractor.power_takeoff
+    assert not tractor.hydraulics

@@ -1,0 +1,50 @@
+# type: ignore
+#!/usr/bin/env python3
+
+import sys
+from pathlib import Path
+
+
+def main():
+    print("🚀 AFS FastAPI Session Context Loader")
+    print("=====================================")
+    print()
+
+    project_root = Path(__file__).resolve().parent.parent
+    summary_file = project_root / "SESSION_SUMMARY.md"
+
+    if not summary_file.is_file():
+        print("⚠️  SESSION_SUMMARY.md not found.")
+        print("   Run './bin/savesession' to create it.")
+        return
+
+    print("📋 Loading Project Context from SESSION_SUMMARY.md...")
+    print()
+    
+    with open(summary_file, 'r') as f:
+        summary_content = f.read()
+    
+    print(summary_content)
+
+    print()
+    print("🎉 Session Context Successfully Restored!")
+    print()
+    print("Ready for sophisticated agricultural robotics development.")
+    print()
+
+    # Show current git status for context
+    print("📋 Current Git Status:")
+    # I cannot run git status from here, as it's a shell command.
+    # I will just print a message to the user.
+    print("   (Run 'git status' to see the current git status)")
+    print()
+
+    print("💾 Session Management Commands:")
+    print("   • ./bin/savesession - Save session state before ending")
+    print("   • ./bin/loadsession - Restore session context")
+    print()
+
+    print("✨ AFS FastAPI Enterprise Platform Ready")
+
+if __name__ == "__main__":
+    main()

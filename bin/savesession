@@ -1,0 +1,50 @@
+# type: ignore
+#!/usr/bin/env python3
+
+import json
+import sys
+from datetime import datetime
+from pathlib import Path
+
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from afs_fastapi.core.todos_manager import get_active_phase, get_strategic_goals  # noqa: E402
+
+
+def main():
+    print("💾 AFS FastAPI Session State Snapshot")
+    print("======================================")
+    print()
+
+    # Gather data
+    goals = get_strategic_goals()
+    active_phase = get_active_phase()
+    
+    # Create summary content
+    summary = f"""
+# AFS FastAPI Session Summary
+
+## TODOs Summary
+
+### Strategic Goals
+- Total: {len(goals)}
+- Pending: {len([g for g in goals if g['status'] == 'pending'])}
+- Completed: {len([g for g in goals if g['status'] == 'completed'])}
+
+### Active Phase
+- Name: {active_phase['name'] if active_phase else 'None'}
+- Status: {len([t for t in active_phase['tasks'] if t['status'] == 'completed']) if active_phase and 'tasks' in active_phase else 0}/{len(active_phase['tasks']) if active_phase and 'tasks' in active_phase else 'N/A'} tasks completed
+"""
+
+    # Save summary to file
+    summary_file = project_root / "SESSION_SUMMARY.md"
+    with open(summary_file, 'w') as f:
+        f.write(summary)
+
+    print(f"✅ Session summary saved to {summary_file}")
+    print()
+
+if __name__ == "__main__":
+    main()

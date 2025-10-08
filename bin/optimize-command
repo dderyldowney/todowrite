@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+"""
+Command optimization wrapper for AFS FastAPI project commands.
+
+Automatically applies real-time token optimization to any command output
+while preserving agricultural safety compliance and technical accuracy.
+"""
+
+import argparse
+import subprocess
+import sys
+from pathlib import Path
+
+from afs_fastapi.core.conversation_manager import optimize_interaction
+
+# Add project to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+
+def main():
+    """Main command optimization wrapper."""
+    parser = argparse.ArgumentParser(
+        description="Apply real-time token optimization to command outputs",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Optimize git status output
+  ./bin/optimize-command git status
+
+  # Optimize test results
+  ./bin/optimize-command pytest tests/unit/ -v
+
+  # Optimize strategic status with specific optimization
+  ./bin/optimize-command --type agricultural ./bin/strategic-status
+
+  # Chain with existing commands
+  ./bin/strategic-status | ./bin/optimize-command --stdin --type status
+        """,
+    )
+
+    # Command specification
+    parser.add_argument("command", nargs="*", help="Command to execute and optimize")
+    parser.add_argument(
+        "--stdin", action="store_true", help="Read input from stdin instead of executing command"
+    )
+    parser.add_argument(
+        "--type",
+        default="general",
+        choices=["general", "git", "test", "status", "agricultural", "safety"],
+        help="Command type for optimization tuning",
+    )
+
+    # Optimization options
+    parser.add_argument(
+        "--level",
+        choices=["conservative", "standard", "aggressive", "adaptive"],
+        help="Force specific optimization level",
+    )
+    parser.add_argument(
+        "--preserve-format", action="store_true", help="Preserve original formatting structure"
+    )
+    parser.add_argument("--json", action="store_true", help="Output optimization metadata as JSON")
+
+    # Output options
+    parser.add_argument(
+        "--show-savings", action="store_true", help="Show token savings information"
+    )
+    parser.add_argument("--quiet", action="store_true", help="Only output optimized content")
+
+    args = parser.parse_args()
+
+    if args.stdin:
+        # Read from stdin
+        try:
+            input_text = sys.stdin.read()
+            command_desc = f"stdin input ({args.type})"
+        except KeyboardInterrupt:
+            sys.exit(1)
+    elif args.command:
+        # Execute command and capture output
+        try:
+            result = subprocess.run(
+                args.command, capture_output=True, text=True, timeout=300  # 5 minute timeout
+            )
+            input_text = result.stdout
+            if result.stderr:
+                input_text += f"\nSTDERR:\n{result.stderr}"
+            command_desc = " ".join(args.command)
+
+            # Exit with original exit code if command failed and no output to optimize
+            if result.returncode != 0 and not input_text.strip():
+                sys.exit(result.returncode)
+
+        except subprocess.TimeoutExpired:
+            print("Error: Command timeout expired", file=sys.stderr)
+            sys.exit(1)
+        except FileNotFoundError:
+            print(f"Error: Command not found: {args.command[0]}", file=sys.stderr)
+            sys.exit(1)
+    else:
+        parser.print_help()
+        sys.exit(1)
+
+    if not input_text.strip():
+        if not args.quiet:
+            print("No output to optimize", file=sys.stderr)
+        sys.exit(0)
+
+    # Apply optimization
+    try:
+        result = optimize_interaction(
+            user_input=f"Command: {command_desc}", ai_response=input_text, command_type=args.type
+        )
+
+        optimized_content = result["optimized_content"]
+        optimization_meta = result["optimization_metadata"]
+
+        if args.json:
+            import json
+
+            print(json.dumps(result, indent=2))
+            return
+
+        # Output optimized content
+        optimized_output = optimized_content["ai_response"]
+        if optimized_output:
+            print(optimized_output)
+        else:
+            print(input_text)  # Fallback to original
+
+        # Show optimization information if requested
+        if args.show_savings and not args.quiet:
+            total_saved = optimization_meta["total_tokens_saved"]
+            if total_saved > 0:
+                print(f"\n💰 Token optimization: {total_saved} tokens saved", file=sys.stderr)
+
+                # Show agricultural compliance info
+                compliance = result["agricultural_compliance"]
+                if compliance["agricultural_keywords_detected"]:
+                    keywords = ", ".join(compliance["agricultural_keywords_detected"])
+                    print(f"🚜 Agricultural keywords preserved: {keywords}", file=sys.stderr)
+                if compliance["safety_critical"]:
+                    print("⚠️  Safety-critical content preserved", file=sys.stderr)
+
+    except Exception as e:
+        if not args.quiet:
+            print(f"Optimization failed: {e}", file=sys.stderr)
+        # Output original content on optimization failure
+        print(input_text)
+
+
+if __name__ == "__main__":
+    main()

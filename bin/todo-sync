@@ -1,0 +1,106 @@
+#!/bin/bash
+
+# todo-sync: Synchronize dual TODO state with session management
+# Usage: ./bin/todo-sync [--silent]
+
+set -euo pipefail
+
+# Determine project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+SILENT="${1:-}"
+STRATEGIC_FILE=".claude/strategic_todos.json"
+PHASE_FILE=".claude/phase_todos.json"
+SYNC_STATE_FILE=".claude/todo_sync_state.json"
+
+# Update sync timestamp
+ISO_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+# Create sync state record
+STRATEGIC_FILE_PATH="${PROJECT_ROOT}/${STRATEGIC_FILE}"
+PHASE_FILE_PATH="${PROJECT_ROOT}/${PHASE_FILE}"
+SYNC_STATE_FILE_PATH="${PROJECT_ROOT}/${SYNC_STATE_FILE}"
+
+# Define the Python script content
+PYTHON_SCRIPT_CONTENT=$(cat << 'EOF'
+import json
+import sys
+from datetime import datetime
+import os
+
+# Read current TODO states
+strategic_data = {}
+phase_data = {}
+
+STRATEGIC_FILE = os.environ.get('STRATEGIC_FILE')
+PHASE_FILE = os.environ.get('PHASE_FILE')
+SYNC_STATE_FILE = os.environ.get('SYNC_STATE_FILE')
+ISO_TIMESTAMP = os.environ.get('ISO_TIMESTAMP')
+SILENT = os.environ.get('SILENT')
+
+try:
+    with open(STRATEGIC_FILE, 'r') as f:
+        strategic_data = json.load(f)
+except FileNotFoundError:
+    strategic_data = {'todos': [], 'metadata': {'total_strategic_todos': 0, 'completed_count': 0, 'pending_count': 0}}
+
+try:
+    with open(PHASE_FILE, 'r') as f:
+        phase_data = json.load(f)
+except FileNotFoundError:
+    phase_data = {'current_phase': {'status': 'none'}, 'todos': [], 'metadata': {'total_phase_todos': 0, 'completed_count': 0, 'pending_count': 0}}
+
+# Create consolidated sync state
+sync_state = {
+    'last_sync': ISO_TIMESTAMP,
+    'strategic_summary': {
+        'total': strategic_data.get('metadata', {}).get('total_strategic_todos', 0),
+        'completed': strategic_data.get('metadata', {}).get('completed_count', 0),
+        'pending': strategic_data.get('metadata', {}).get('pending_count', 0),
+        'progress_percentage': (strategic_data.get('metadata', {}).get('completed_count', 0) / max(1, strategic_data.get('metadata', {}).get('total_strategic_todos', 1))) * 100
+    },
+    'phase_summary': {
+        'active_phase': phase_data.get('current_phase', {}).get('name', 'None'),
+        'phase_status': phase_data.get('current_phase', {}).get('status', 'none'),
+        'total_steps': phase_data.get('metadata', {}).get('total_phase_todos', 0),
+        'completed_steps': phase_data.get('metadata', {}).get('completed_count', 0),
+        'pending_steps': phase_data.get('metadata', {}).get('pending_count', 0),
+        'progress_percentage': (phase_data.get('metadata', {}).get('completed_count', 0) / max(1, phase_data.get('metadata', {}).get('total_phase_todos', 1))) * 100
+    },
+    'session_context': {
+        'development_momentum': 'active' if phase_data.get('current_phase', {}).get('status') == 'active' else 'planning',
+        'next_priority': 'strategic' if phase_data.get('current_phase', {}).get('status') != 'active' else 'phase'
+    }
+}
+
+# Write sync state
+with open(SYNC_STATE_FILE, 'w') as f:
+    json.dump(sync_state, f, indent=2)
+
+if SILENT != '--silent':
+    strategic_progress = sync_state['strategic_summary']['progress_percentage']
+    phase_progress = sync_state['phase_summary']['progress_percentage']
+
+    print('✓ TODO state synchronized')
+    print(f'  Strategic: {sync_state["strategic_summary"]["completed"]}/{sync_state["strategic_summary"]["total"]} ({strategic_progress:.1f}%)')
+    if sync_state['phase_summary']['active_phase'] != 'None':
+        print(f'  Phase: {sync_state["phase_summary"]["completed_steps"]}/{sync_state["phase_summary"]["total_steps"]} ({phase_progress:.1f}%)')
+    print(f'  Synced: {ISO_TIMESTAMP}')
+EOF
+)
+
+# Write the Python script to a temporary file
+TEMP_PYTHON_SCRIPT="${SCRIPT_DIR}/temp_todo_sync.py"
+echo "${PYTHON_SCRIPT_CONTENT}" > "${TEMP_PYTHON_SCRIPT}"
+
+export STRATEGIC_FILE="${STRATEGIC_FILE_PATH}"
+export PHASE_FILE="${PHASE_FILE_PATH}"
+export SYNC_STATE_FILE="${SYNC_STATE_FILE_PATH}"
+export ISO_TIMESTAMP="${ISO_TIMESTAMP}"
+export SILENT="${SILENT}"
+
+python3 "${TEMP_PYTHON_SCRIPT}"
+
+# Clean up temporary Python file
+rm "${TEMP_PYTHON_SCRIPT}"

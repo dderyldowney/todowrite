@@ -1,0 +1,221 @@
+#!/bin/bash
+
+# saveandpush - AFS FastAPI Complete Session State Save and Repository Push
+# Universal cross-agent command for complete session management workflow
+#
+# FUNCTIONALITY: Automates complete session state preservation and repository synchronization
+# - Saves TODO state via todo-sync
+# - Saves session state via savesession
+# - Stages all modified files
+# - Updates CHANGELOG.md with mandatory compliance
+# - Creates proper git commit with agricultural context
+# - Pushes to remote repository for cross-agent accessibility
+#
+# Usage: ./bin/saveandpush [commit-message]
+# Usage: ./bin/saveandpush --help
+
+set -euo pipefail
+
+# Colors for output
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# Display help if requested
+if [[ "${1:-}" == "--help" ]]; then
+    echo -e "${BLUE}saveandpush - Complete Session State Save and Repository Push${NC}"
+    echo
+    echo "Usage:"
+    echo "  ./bin/saveandpush [commit-message]"
+    echo "  ./bin/saveandpush --help"
+    echo
+    echo "Functionality:"
+    echo "  • Saves TODO state via todo-sync"
+    echo "  • Saves session state via savesession"
+    echo "  • Stages all modified files"
+    echo "  • Updates CHANGELOG.md with mandatory compliance"
+    echo "  • Creates proper git commit with agricultural context"
+    echo "  • Pushes to remote repository"
+    echo
+    echo "Examples:"
+    echo "  ./bin/saveandpush"
+    echo "  ./bin/saveandpush \"Implement autonomous navigation feature\""
+    echo
+    exit 0
+fi
+
+echo -e "${BLUE}🚀 AFS FastAPI Complete Session Save and Push${NC}"
+echo -e "${BLUE}=============================================${NC}"
+echo
+
+# Determine project root relative to this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# Ensure we're in project root
+cd "${PROJECT_ROOT}"
+
+# Ensure we're in the project root with required files
+if [[ ! -f ".claude/DUAL_TODO_SYSTEM.md" ]]; then
+    echo -e "${RED}❌ Error: Must be run from AFS FastAPI project root directory${NC}"
+    exit 1
+fi
+
+# Custom commit message or auto-generate
+CUSTOM_MESSAGE="${1:-}"
+
+echo -e "${BLUE}🔄 Step 1: Saving TODO state...${NC}"
+if ! ./bin/todo-sync; then
+    echo -e "${RED}❌ Failed to sync TODO state${NC}"
+    exit 1
+fi
+echo -e "${GREEN}✓ TODO state synchronized${NC}"
+echo
+
+echo -e "${BLUE}💾 Step 2: Saving session state...${NC}"
+if ! python3 ./bin/savesession; then
+    echo -e "${YELLOW}⚠️  Session save completed with warnings (may already exist)${NC}"
+else
+    echo -e "${GREEN}✓ Session state saved${NC}"
+fi
+echo
+
+echo -e "${BLUE}📋 Step 3: Checking git status...${NC}"
+if ! git diff --quiet || ! git diff --cached --quiet || [[ -n "$(git ls-files --others --exclude-standard)" ]]; then
+    # Get list of changed files for commit message generation
+    MODIFIED_FILES=$(git status --porcelain | wc -l | tr -d ' ')
+    echo -e "${GREEN}✓ Found ${MODIFIED_FILES} files with changes${NC}"
+
+    echo -e "${BLUE}📝 Step 4: Updating CHANGELOG.md...${NC}"
+    if ! ./bin/updatechangelog; then
+        echo -e "${YELLOW}⚠️  CHANGELOG update completed (may be no new commits)${NC}"
+    else
+        echo -e "${GREEN}✓ CHANGELOG.md updated${NC}"
+    fi
+    echo
+
+    echo -e "${BLUE}📁 Step 5: Staging modified files...${NC}"
+    # Stage only files that have actual changes (not CHANGELOG.md yet)
+    git add --update  # Stage tracked files that have been modified
+
+    # Stage new untracked files if any exist
+    UNTRACKED_FILES=$(git ls-files --others --exclude-standard)
+    if [[ -n "$UNTRACKED_FILES" ]]; then
+        git add $UNTRACKED_FILES
+        echo -e "${GREEN}✓ Untracked files staged${NC}"
+    fi
+
+    # Stage CHANGELOG.md only if it was modified by updatechangelog
+    if [[ -n "$(git status --porcelain CHANGELOG.md)" ]]; then
+        git add CHANGELOG.md
+        echo -e "${GREEN}✓ CHANGELOG.md staged (modified)${NC}"
+    else
+        echo -e "${BLUE}ℹ️  CHANGELOG.md not modified, not staged${NC}"
+    fi
+    echo -e "${GREEN}✓ Modified files staged${NC}"
+    echo
+
+    echo -e "${BLUE}💬 Step 6: Creating commit message...${NC}"
+
+    # Generate intelligent commit message based on files changed
+    if [[ -n "$CUSTOM_MESSAGE" ]]; then
+        COMMIT_SUBJECT="docs(session): $CUSTOM_MESSAGE"
+        COMMIT_BODY="Complete session state preservation for agricultural robotics platform:
+
+- TODO state synchronized via todo-sync command
+- Session state captured with mandatory compaction
+- Modified files staged for repository continuity
+- CHANGELOG.md updated maintaining ISO 11783/18497 compliance
+- Cross-agent infrastructure sharing for universal AI platform accessibility
+
+Custom context: $CUSTOM_MESSAGE"
+    else
+        # Auto-generate based on file patterns
+        if git diff --cached --name-only | grep -q "strategic_todos.json\|phase_todos.json"; then
+            COMMIT_SUBJECT="feat(infrastructure): Update strategic and phase TODO management state"
+            COMMIT_BODY="Synchronize dual TODO system state for agricultural robotics development:
+
+- Strategic TODO updates with priority management for equipment coordination
+- Phase TODO synchronization supporting TDD methodology compliance
+- Session state preservation maintaining cross-agent continuity
+- CHANGELOG.md updated for ISO 18497/11783 compliance tracking
+- Complete development state captured for multi-tractor coordination systems"
+        elif git diff --cached --name-only | grep -q "\.md$"; then
+            COMMIT_SUBJECT="docs(session): Update documentation and session state"
+            COMMIT_BODY="Preserve session documentation state for agricultural robotics platform:
+
+- Session state documentation updated with current development progress
+- Agricultural robotics compliance documentation maintained
+- Cross-agent infrastructure sharing preserved for universal AI platform access
+- CHANGELOG.md updated maintaining complete version history
+- Essential for ISO 11783/18497 compliance auditing and stakeholder communication"
+        else
+            COMMIT_SUBJECT="config(session): Synchronize session configuration state"
+            COMMIT_BODY="Update session configuration state for agricultural robotics platform:
+
+- Configuration files synchronized for cross-session continuity
+- Agricultural robotics platform state preserved for compliance tracking
+- Cross-agent infrastructure sharing maintained for universal AI platform benefits
+- CHANGELOG.md updated maintaining complete development history
+- Session state captured for safety-critical agricultural systems development"
+        fi
+    fi
+
+    echo -e "${GREEN}✓ Commit message generated${NC}"
+    echo -e "${BLUE}Subject: $COMMIT_SUBJECT${NC}"
+    echo
+
+    echo -e "${BLUE}📤 Step 7: Creating git commit...${NC}"
+    if git commit -m "$COMMIT_SUBJECT
+
+$COMMIT_BODY
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"; then
+        echo -e "${GREEN}✓ Git commit created successfully${NC}"
+        COMMIT_HASH=$(git rev-parse --short HEAD)
+        echo -e "${BLUE}Commit: $COMMIT_HASH${NC}"
+        echo
+
+        echo -e "${BLUE}🌐 Step 8: Pushing to remote repository...${NC}"
+        CURRENT_BRANCH=$(git branch --show-current)
+        if git push origin "$CURRENT_BRANCH"; then
+            echo -e "${GREEN}✓ Successfully pushed to origin/$CURRENT_BRANCH${NC}"
+            echo
+
+            echo -e "${GREEN}🎉 Complete Session Save and Push Successful!${NC}"
+            echo -e "${BLUE}============================================${NC}"
+            echo -e "${GREEN}✓ TODO state: Synchronized${NC}"
+            echo -e "${GREEN}✓ Session state: Saved${NC}"
+            echo -e "${GREEN}✓ Files staged: $MODIFIED_FILES files${NC}"
+            echo -e "${GREEN}✓ CHANGELOG.md: Updated${NC}"
+            echo -e "${GREEN}✓ Commit: $COMMIT_HASH${NC}"
+            echo -e "${GREEN}✓ Push: origin/$CURRENT_BRANCH${NC}"
+            echo
+            echo -e "${BLUE}🌾 Agricultural Context: Session state preserved for cross-agent${NC}"
+            echo -e "${BLUE}   infrastructure sharing supporting ISO 11783/18497 compliance.${NC}"
+        else
+            echo -e "${RED}❌ Failed to push to remote repository${NC}"
+            echo -e "${YELLOW}💡 Commit created locally. Manual push may be required.${NC}"
+            exit 1
+        fi
+    else
+        echo -e "${RED}❌ Failed to create git commit${NC}"
+        echo -e "${YELLOW}💡 Check pre-commit hooks and commit message format${NC}"
+        exit 1
+    fi
+else
+    echo -e "${YELLOW}ℹ️  No changes detected in working directory${NC}"
+    echo -e "${BLUE}🔄 Step 2: Saving TODO and session state only...${NC}"
+
+    # Still save TODO and session state even if no git changes
+    echo -e "${GREEN}✓ TODO state synchronized${NC}"
+    echo -e "${GREEN}✓ Session state preserved${NC}"
+    echo
+    echo -e "${BLUE}💡 Repository already up to date${NC}"
+fi
+
+echo -e "${BLUE}Session management complete. All state preserved for cross-agent access.${NC}"

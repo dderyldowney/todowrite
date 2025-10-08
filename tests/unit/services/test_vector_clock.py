@@ -14,17 +14,9 @@ Agricultural Context:
 """
 
 import unittest
-from typing import TYPE_CHECKING
 
-# Import will fail initially (Red Phase) - this is expected in TDD
-try:
-    from afs_fastapi.services.synchronization import VectorClock
-except ImportError:
-    # This import error is expected during Red phase of TDD
-    VectorClock = None  # type: ignore[assignment,misc]
-
-if TYPE_CHECKING:
-    from afs_fastapi.services.synchronization import VectorClock
+# Import VectorClock - now available after TDD Green phase completion
+from afs_fastapi.services.synchronization import VectorClock
 
 
 class TestVectorClock(unittest.TestCase):
@@ -44,9 +36,7 @@ class TestVectorClock(unittest.TestCase):
         Agricultural Context: Simulates a field with three tractors
         that need to coordinate their operations.
         """
-        # Skip tests if VectorClock not implemented yet (Red phase)
-        if VectorClock is None:
-            self.skipTest("VectorClock not implemented yet - Red phase of TDD")
+        # VectorClock is now implemented (Green phase completed)
 
         self.tractor_ids = ["tractor_001", "tractor_002", "tractor_003"]
         self.clock = VectorClock(self.tractor_ids)
@@ -249,8 +239,7 @@ class TestVectorClockEdgeCases(unittest.TestCase):
     """
 
     def setUp(self):
-        if VectorClock is None:
-            self.skipTest("VectorClock not implemented yet - Red phase of TDD")
+        # VectorClock is now implemented (Green phase completed)
 
         self.tractor_ids = ["tractor_001", "tractor_002"]
 
@@ -319,3 +308,67 @@ class TestVectorClockEdgeCases(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestVectorClockDynamicComposition(unittest.TestCase):
+    """
+    Dynamic team composition tests (robots joining/leaving the fleet).
+
+    Agricultural Context: Fleet composition can change in the field as
+    tractors enter/exit operation zones or recover from connectivity loss.
+    Vector clocks must gracefully handle joining/leaving processes and adopt
+    unknown processes encountered during synchronization.
+    """
+
+    def setUp(self):
+        self.initial_ids = ["tractor_001", "tractor_002"]
+
+    def test_add_process_and_increment(self):
+        """Vector clock supports adding a new process at runtime."""
+        clock = VectorClock(self.initial_ids)
+
+        # Add a new tractor to the fleet
+        clock.add_process("tractor_003")
+
+        # New tractor appears with time 0 and can be incremented
+        self.assertIn("tractor_003", set(clock.get_process_ids()))
+        self.assertEqual(clock.get_time("tractor_003"), 0)
+
+        clock.increment("tractor_003")
+        self.assertEqual(clock.get_time("tractor_003"), 1)
+
+    def test_remove_process(self):
+        """Vector clock supports removing a process at runtime."""
+        clock = VectorClock(["tractor_001", "tractor_002", "tractor_003"])
+
+        # Remove a tractor leaving the operation
+        clock.remove_process("tractor_003")
+
+        self.assertNotIn("tractor_003", set(clock.get_process_ids()))
+
+        # Removed tractor lookups should raise a clear error
+        with self.assertRaises(ValueError):
+            clock.get_time("tractor_003")
+
+        # Serialization should not include removed tractor
+        serialized = clock.to_dict()
+        self.assertNotIn("tractor_003", serialized)
+
+    def test_adopt_unknown_process_on_update(self):
+        """
+        Clock adopts unknown processes found in received messages and
+        applies max-time rule before incrementing the receiver.
+        """
+        receiver = VectorClock(["tractor_001", "tractor_002"])
+        sender = VectorClock(["tractor_001", "tractor_002", "tractor_004"])
+
+        # New tractor performs an operation unknown to receiver
+        sender.increment("tractor_004")
+
+        # Receiver updates from sender and should adopt tractor_004
+        receiver.update_with_received_message("tractor_001", sender)
+
+        # Adopted with correct timestamp and receiver incremented
+        self.assertIn("tractor_004", set(receiver.get_process_ids()))
+        self.assertEqual(receiver.get_time("tractor_004"), 1)
+        self.assertEqual(receiver.get_time("tractor_001"), 1)

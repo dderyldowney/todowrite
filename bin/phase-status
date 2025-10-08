@@ -1,0 +1,80 @@
+# type: ignore
+#!/usr/bin/env python3
+
+import sys
+from pathlib import Path
+
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from afs_fastapi.core.todos_manager import get_active_phase  # noqa: E402
+
+
+def display_phase_status():
+    active_phase = get_active_phase()
+
+    if not active_phase:
+        print("=== AFS FastAPI Development Phase Status ===")
+        print()
+        print("No active development phase found.")
+        print("Use \"./bin/phase-start\" to start a new phase or \"./bin/phase-activate <ID>\" to activate an existing one.")
+        return
+
+    print("=== AFS FastAPI Development Phase Status ===")
+    print()
+
+    phase_name = active_phase.get('name', 'Unknown Phase')
+    started_at = active_phase.get('date_started', 'Unknown')
+    strategic_id = active_phase.get('strategic_goal_id', 'N/A')
+
+    phase_status = active_phase.get('status', 'unknown')
+    status_icon = {'active': '🚀', 'paused': '⏸️', 'partially-paused': '⏯️', 'completed': '✅'}.get(phase_status, '❓')
+    print(f"{status_icon} Current Phase: {phase_name} ({phase_status})")
+    if started_at and 'T' in started_at:
+        start_date = started_at[:10]
+        start_time = started_at[11:16]
+        print(f"   Started: {start_date} at {start_time} UTC")
+    
+    print(f"   Strategic Alignment: {strategic_id}")
+    print()
+
+    tasks = active_phase.get('tasks', [])
+    total_tasks = len(tasks)
+    if total_tasks > 0:
+        completed_tasks = len([t for t in tasks if t['status'] == 'completed'])
+        pending_tasks = len([t for t in tasks if t['status'] == 'pending'])
+        in_progress_tasks = len([t for t in tasks if t['status'] == 'in progress'])
+        progress_percentage = (completed_tasks / total_tasks * 100) if total_tasks > 0 else 0
+        
+        print("📊 Phase Progress")
+        print(f"   Total Steps: {total_tasks}")
+        print(f"   Completed: {completed_tasks} ({progress_percentage:.1f}%)")
+        print(f"   In Progress: {in_progress_tasks}")
+        print(f"   Pending: {pending_tasks}")
+        print()
+
+        bar_width = 40
+        completed_bars = int(progress_percentage / 100 * bar_width)
+        pending_bars = bar_width - completed_bars
+        progress_bar = '█' * completed_bars + '░' * pending_bars
+        print(f"   Progress: [{progress_bar}] {progress_percentage:.1f}%")
+        print()
+
+        print("📋 Phase Steps")
+        for i, task in enumerate(tasks, 1):
+            status_icon = {'pending': '○', 'in_progress': '◐', 'completed': '●', 'paused': '⏸️'}.get(task['status'], '?')
+            print(f"{i:2d}. {status_icon} {task['description']}")
+        print()
+
+    else:
+        print("No phase steps found.")
+        print("Use \"./bin/phase-add\" to add implementation steps.")
+
+    print("Commands:")
+    print("  ./bin/phase-add \"Step Description\"     - Add implementation step")
+    print("  ./bin/phase-complete \"Step\"            - Mark step as completed")
+    print("  ./bin/phase-end                          - Complete and archive phase")
+
+if __name__ == "__main__":
+    display_phase_status()

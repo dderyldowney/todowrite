@@ -1,0 +1,33 @@
+# type: ignore
+#!/usr/bin/env python3
+
+import argparse
+import sys
+from pathlib import Path
+
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from afs_fastapi.core.todos_manager import add_strategic_goal  # noqa: E402
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Add a new strategic goal.")
+    parser.add_argument("description", type=str, help="The description of the strategic goal.")
+    parser.add_argument("--category", type=str, default="general", help="The category of the strategic goal.")
+    parser.add_argument("--priority", type=str, default="medium", choices=["low", "medium", "high"], help="The priority of the strategic goal.")
+    args = parser.parse_args()
+
+    new_goal = add_strategic_goal(args.description, args.category, args.priority)
+
+    print(f"✓ Strategic goal added: {new_goal['id']}")
+    print(f"  Description: {new_goal['description']}")
+    print(f"  Status: {new_goal['status']}")
+    print(f"  Priority: {new_goal['priority']}")
+    print(f"  Category: {new_goal['category']}")
+    print()
+    print("Strategic goal added successfully. Use './bin/strategic-list' to view all strategic goals.")
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# updatechangelog - AFS FastAPI CHANGELOG.md Generator
+# Regenerates CHANGELOG.md from git commit history following Keep a Changelog format
+
+set -e
+
+# Colors for output
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}📝 AFS FastAPI CHANGELOG Generator${NC}"
+echo -e "${BLUE}====================================${NC}"
+echo
+
+# Determine project root relative to this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# Ensure we're in project root
+cd "${PROJECT_ROOT}"
+
+# Check if CHANGELOG.md exists
+if [ ! -f "CHANGELOG.md" ]; then
+    echo -e "${YELLOW}⚠️  CHANGELOG.md not found at project root${NC}"
+    echo "   Creating new CHANGELOG.md..."
+    cat > CHANGELOG.md << 'EOF'
+# Changelog
+
+All notable changes to the AFS FastAPI Agricultural Robotics Platform will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+EOF
+    echo -e "${GREEN}✅ Created new CHANGELOG.md${NC}"
+    echo
+fi
+
+# Execute Python script to update CHANGELOG
+echo -e "${BLUE}🔍 Analyzing git commit history...${NC}"
+
+# Detect available Python executable
+PYTHON_CMD=""
+if command -v python3 >/dev/null 2>&1; then
+    PYTHON_CMD="python3"
+elif command -v python >/dev/null 2>&1; then
+    PYTHON_CMD="python"
+else
+    echo -e "${YELLOW}⚠️  Error: Neither 'python3' nor 'python' command found in PATH${NC}"
+    echo "   Please ensure Python is installed and available in your PATH"
+    exit 1
+fi
+
+# Execute Python script directly to avoid package dependency issues
+${PYTHON_CMD} "${PROJECT_ROOT}/afs_fastapi/scripts/updatechangelog.py"
+
+echo
+echo -e "${GREEN}📋 CHANGELOG.md Update Complete!${NC}"
+echo
+echo -e "${BLUE}Next steps:${NC}"
+echo "   1. Review updated CHANGELOG.md"
+echo "   2. Stage changes: git add CHANGELOG.md"
+echo "   3. Commit with your code changes"
+echo

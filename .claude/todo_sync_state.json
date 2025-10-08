@@ -1,0 +1,21 @@
+{
+  "last_sync": "2025-10-07T21:33:58Z",
+  "strategic_summary": {
+    "total": 0,
+    "completed": 0,
+    "pending": 0,
+    "progress_percentage": 0.0
+  },
+  "phase_summary": {
+    "active_phase": "None",
+    "phase_status": "none",
+    "total_steps": 0,
+    "completed_steps": 0,
+    "pending_steps": 0,
+    "progress_percentage": 0.0
+  },
+  "session_context": {
+    "development_momentum": "planning",
+    "next_priority": "strategic"
+  }
+}

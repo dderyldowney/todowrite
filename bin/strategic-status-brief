@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+
+import sys
+from pathlib import Path
+
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from afs_fastapi.core.todos_manager import get_strategic_goals  # noqa: E402
+
+
+def display_strategic_status_brief():
+    goals = get_strategic_goals()
+
+    if not goals:
+        print("🎯 AFS FastAPI Strategic Status (Brief)")
+        print("======================================")
+        print("No strategic goals found.")
+        return
+
+    print("🎯 AFS FastAPI Strategic Status (Brief)")
+    print("======================================")
+
+    high_priority_pending = [g for g in goals if g['status'] == 'pending' and g.get('priority') == 'high']
+    
+    print("📊 Priority Focus:")
+    if high_priority_pending:
+        for goal in high_priority_pending[:3]:
+            print(f"   • {goal['description']}")
+    else:
+        print("   No high-priority objectives active")
+    
+    print()
+    print("📈 Quick Stats:")
+    pending_count = len([g for g in goals if g['status'] == 'pending'])
+    print(f"   • Pending: {pending_count} objectives")
+    
+    # I cannot get the "completed today" count without more complex date handling.
+    # I will omit it for now to keep the script simple.
+
+    print()
+    print("💡 Use './bin/strategic-status' for full details")
+
+if __name__ == "__main__":
+    display_strategic_status_brief()

@@ -1,0 +1,75 @@
+Description: Initial GCP Infrastructure for AFS FastAPI Cloud Integration
+
+Resources:
+  # VPC Network
+  AFSVPCNetwork:
+    Type: compute.v1.network
+    Properties:
+      name: afs-fastapi-vpc
+      autoCreateSubnetworks: false
+      routingMode: REGIONAL
+      tags:
+        Name: AFSFastAPIVPC
+
+  AFSSubnet1:
+    Type: compute.v1.subnetwork
+    Properties:
+      name: afs-fastapi-subnet1
+      ipCidrRange: 10.0.1.0/24
+      region: us-central1
+      network: $(ref.AFSVPCNetwork.selfLink)
+      tags:
+        Name: AFSFastAPISubnet1
+
+  AFSSubnet2:
+    Type: compute.v1.subnetwork
+    Properties:
+      name: afs-fastapi-subnet2
+      ipCidrRange: 10.0.2.0/24
+      region: us-central1
+      network: $(ref.AFSVPCNetwork.selfLink)
+      tags:
+        Name: AFSFastAPISubnet2
+
+  # Cloud Firestore (NoSQL for sensor data)
+  AFSFirestoreDatabase:
+    Type: firestore.v1.database
+    Properties:
+      name: afs-fastapi-sensor-data
+      locationId: us-central
+      type: DATASTORE_MODE
+      tags:
+        Name: AFSFastAPISensorDataDB
+
+  # Cloud Storage (for raw data)
+  AFSCloudStorageBucket:
+    Type: storage.v1.bucket
+    Properties:
+      name: afs-fastapi-raw-data-bucket
+      location: US
+      storageClass: STANDARD
+      versioning:
+        enabled: true
+      tags:
+        Name: AFSFastAPIRawDataBucket
+
+  # Cloud IoT Core (for data ingestion)
+  # Security: Cloud IoT Core leverages GCP IAM for authentication and authorization, and supports JWTs for device authentication.
+  AFSIoTRegistry:
+    Type: cloudiot.v1.registry
+    Properties:
+      name: afs-fastapi-iot-registry
+      region: us-central1
+      eventNotificationConfigs:
+        - pubsubTopicName: $(ref.AFSPubSubTopic.selfLink)
+      tags:
+        Name: AFSFastAPIIoTRegistry
+
+  # Cloud Pub/Sub (for streaming data)
+  # Security: Cloud Pub/Sub uses GCP IAM for access control, allowing fine-grained permissions on topics and subscriptions.
+  AFSPubSubTopic:
+    Type: pubsub.v1.topic
+    Properties:
+      name: afs-fastapi-data-stream
+      tags:
+        Name: AFSFastAPIDataStreamTopic

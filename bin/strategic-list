@@ -1,0 +1,72 @@
+# type: ignore
+#!/usr/bin/env python3
+
+import sys
+from pathlib import Path
+
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from afs_fastapi.core.todos_manager import get_strategic_goals  # noqa: E402
+
+
+def get_priority_emoji(priority):
+    if priority == "high":
+        return ""
+    elif priority == "medium":
+        return ""
+    elif priority == "low":
+        return ""
+    return "⚪️"
+
+def get_status_emoji(status):
+    if status == "completed":
+        return "●"
+    elif status == "in progress":
+        return "◌"
+    elif status == "pending":
+        return "○"
+    elif status == "paused":
+        return "⏸️"
+    return "?"
+
+def display_strategic_todos():
+    goals = get_strategic_goals()
+
+    if not goals:
+        print("No strategic goals found.")
+        return
+
+    print("=== AFS FastAPI Strategic Goals ===")
+    print()
+
+    pending_goals = [g for g in goals if g.get("status") != "completed"]
+    completed_goals = [g for g in goals if g.get("status") == "completed"]
+
+    for i, goal in enumerate(pending_goals, 1):
+        priority_emoji = get_priority_emoji(goal.get("priority", "medium"))
+        status_emoji = get_status_emoji(goal.get("status", "pending"))
+        print(f"{i:2d}. {status_emoji} [{priority_emoji}] {goal.get("description", "No description")}")
+        print(f"     ID: {goal.get("id")} | Category: {goal.get("category", "general")}")
+        print()
+
+    if completed_goals:
+        print("-" * 20)
+        for i, goal in enumerate(completed_goals, 1):
+            status_emoji = get_status_emoji(goal.get("status", "pending"))
+            print(f"{status_emoji} {goal.get("description", "No description")} - COMPLETE")
+            print(f"  ID: {goal.get("id")} | Completed: {goal.get("date_completed")}")
+            print()
+
+
+    print("=== Summary ===")
+    print(f"Total Strategic Goals: {len(goals)}")
+    print(f"Pending: {len(pending_goals)} | Completed: {len(completed_goals)}")
+    print()
+    print("Use './bin/strategic-add \"Description\"' to add new strategic goals.")
+    print("Use './bin/strategic-complete \"Objective\"' to mark goals as completed.")
+
+
+if __name__ == "__main__":
+    display_strategic_todos()

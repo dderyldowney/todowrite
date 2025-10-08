@@ -1,0 +1,95 @@
+Description: Initial Azure Infrastructure for AFS FastAPI Cloud Integration
+
+Resources:
+  # Virtual Network (VNet)
+  AFSVNet:
+    Type: Microsoft.Network/virtualNetworks
+    Properties:
+      addressSpace:
+        addressPrefixes:
+          - 10.0.0.0/16
+      subnets:
+        - name: AFSFastAPISubnet1
+          addressPrefix: 10.0.1.0/24
+        - name: AFSFastAPISubnet2
+          addressPrefix: 10.0.2.0/24
+      tags:
+        Name: AFSFastAPIVNet
+
+  # Azure Cosmos DB (NoSQL for sensor data)
+  AFSCosmosDBAccount:
+    Type: Microsoft.DocumentDB/databaseAccounts
+    Properties:
+      databaseAccountOfferType: Standard
+      locations:
+        - locationName: East US
+          failoverPriority: 0
+      capabilities:
+        - name: EnableTable
+      tags:
+        Name: AFSFastAPICosmosDB
+
+  AFSCosmosDBTable:
+    Type: Microsoft.DocumentDB/databaseAccounts/tables
+    DependsOn:
+      - AFSFastAPICosmosDBAccount
+    Properties:
+      resource:
+        id: AFSSensorData
+      options:
+        throughput: 400
+      tags:
+        Name: AFSSensorDataTable
+
+  # Azure Blob Storage (for raw data)
+  AFSStorageAccount:
+    Type: Microsoft.Storage/storageAccounts
+    Properties:
+      sku:
+        name: Standard_LRS
+      kind: StorageV2
+      accessTier: Hot
+      tags:
+        Name: AFSFastAPIStorage
+
+  AFSStorageContainer:
+    Type: Microsoft.Storage/storageAccounts/blobServices/containers
+    DependsOn:
+      - AFSFastAPIStorageAccount
+    Properties:
+      containerName: afs-fastapi-raw-data
+      publicAccess: None
+      tags:
+        Name: AFSFastAPIRawDataContainer
+
+  # Azure IoT Hub (for data ingestion)
+  # Security: Azure IoT Hub provides built-in security features like per-device authentication, IP filtering, and integration with Azure Active Directory for role-based access control (RBAC).
+  AFSIoTHub:
+    Type: Microsoft.Devices/IotHubs
+    Properties:
+      sku:
+        name: S1
+        capacity: 1
+      tags:
+        Name: AFSFastAPIIoTHub
+
+  # Azure Event Hub (for streaming data)
+  # Security: Event Hubs support shared access signatures (SAS) and Azure Active Directory for authentication and authorization.
+  AFSEventHubNamespace:
+    Type: Microsoft.EventHub/namespaces
+    Properties:
+      sku:
+        name: Standard
+        capacity: 1
+      tags:
+        Name: AFSFastAPIEventHubNamespace
+
+  AFSEventHub:
+    Type: Microsoft.EventHub/namespaces/eventhubs
+    DependsOn:
+      - AFSFastAPIEventHubNamespace
+    Properties:
+      messageRetentionInDays: 1
+      partitionCount: 1
+      tags:
+        Name: AFSFastAPIEventHub

@@ -1,0 +1,57 @@
+# type: ignore
+#!/usr/bin/env python3
+
+import argparse
+import sys
+from pathlib import Path
+
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from afs_fastapi.core.todos_manager import (  # noqa: E402
+    complete_strategic_goal,
+    get_strategic_goals,
+)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Mark a strategic goal as complete.")
+    parser.add_argument("search_term", type=str, help="The ID or description of the strategic goal to complete.")
+    args = parser.parse_args()
+
+    goals = get_strategic_goals()
+    matched_goal = None
+    for goal in goals:
+        if goal['id'] == args.search_term or args.search_term.lower() in goal['description'].lower():
+            matched_goal = goal
+            break
+    
+    if not matched_goal:
+        print(f"Error: No strategic goal found matching \"{args.search_term}\"")
+        print("Use './bin/strategic-list' to see available strategic goals.")
+        sys.exit(1)
+
+    if matched_goal['status'] == 'completed':
+        print(f"Strategic goal already completed: {matched_goal['description']}")
+        print(f"Completed at: {matched_goal.get('date_completed', 'Unknown')}")
+        sys.exit(0)
+
+    if complete_strategic_goal(matched_goal['id']):
+        print("✓ Strategic goal marked as completed!")
+        print(f"  ID: {matched_goal['id']}")
+        print(f"  Description: {matched_goal['description']}")
+        # The date_completed will be set by the complete_strategic_goal function,
+        # but we don't have it here without reloading the data.
+        # We can either reload or just print a generic message.
+        # For now, we'll just print a generic message.
+        print("  Status: completed")
+        print()
+        print("Strategic goal completed successfully. Use './bin/strategic-list' to view updated strategic goals.")
+    else:
+        print(f"Error: Failed to mark strategic goal as completed: {matched_goal['id']}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

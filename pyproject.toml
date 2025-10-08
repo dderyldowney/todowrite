@@ -28,6 +28,10 @@ dependencies = [
   "uvicorn[standard]>=0.30", # ASGI server
   "starlette>=0.46",         # FastAPI’s ASGI toolkit
   "pydantic>=2.7",           # Models/validation
+  "python-can",              # CAN bus communication
+  "httpx",                   # HTTP client for CRDT communication
+  "tenacity",                # Retry mechanism for reliable messaging
+  "pybreaker",               # Circuit breaker for network resilience
   # add any concrete libs you use at runtime (DB client, sensors, etc.)
 ]
 
@@ -39,7 +43,12 @@ dev = [
   "mypy>=1.10",
   "ruff>=0.5",
   "black>=24.0",
-  "types-setuptools",  # example type stubs; trim as needed
+  "markdown-it-py>=3.0",      # Tier 1: CommonMark-compliant markdown parser
+  "mdit-py-plugins>=0.4",     # GFM extensions for markdown-it-py
+  "markdown2>=2.4",           # Tier 2: Fallback markdown parser with extras
+  "markdown>=3.5",            # Tier 3: Python-Markdown final fallback
+  "types-setuptools",         # example type stubs; trim as needed
+  "types-Markdown",           # stubs for docs/convert_readme_to_index_html.py
 ]
 
 [project.scripts]
@@ -63,6 +72,7 @@ lint.ignore = [
   "E501",  # line length handled by formatter
 ]
 src = ["afs_fastapi", "tests"]
+lint.per-file-ignores = {"tests/core/test_todos_manager.py" = ["E402"]}
 
 [tool.black]
 line-length = 100
@@ -103,15 +113,6 @@ reportMissingTypeStubs = "warning"
 reportUnknownMemberType = "warning"
 stubPath = "typings"
 
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = [
-  "-ra",
-  "--strict-markers",
-  "--import-mode=importlib",
-]
-testpaths = ["tests"]
-
 [tool.coverage.run]
 branch = true
 source = ["afs_fastapi"]
@@ -125,7 +126,7 @@ skip_covered = true
 profile = "black"
 line_length = 100
 known_first_party = ["afs_fastapi"]
-src_paths = ["afs_fastapi", "tests"]
+src_paths = ["afs_fastapi", "tests", "bin"]
 include_trailing_comma = true
 force_grid_wrap = 0
 combine_as_imports = true

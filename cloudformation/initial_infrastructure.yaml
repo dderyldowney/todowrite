@@ -1,0 +1,189 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Initial AWS Infrastructure for AFS FastAPI Cloud Integration
+
+Resources:
+  AFSVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: AFSFastAPIVPC
+
+  AFSPublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref AFSVPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select [ 0, !GetAtt AFSVPC.AvailabilityZones ]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: AFSFastAPIPublicSubnet1
+
+  AFSPublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref AFSVPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Select [ 1, !GetAtt AFSVPC.AvailabilityZones ]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: AFSFastAPIPublicSubnet2
+
+  AFSInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: AFSFastAPIInternetGateway
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref AFSVPC
+      InternetGatewayId: !Ref AFSInternetGateway
+
+  AFSPublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref AFSVPC
+      Tags:
+        - Key: Name
+          Value: AFSFastAPIPublicRouteTable
+
+  AFSPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref AFSPublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref AFSInternetGateway
+
+  AFSPublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref AFSPublicSubnet1
+      RouteTableId: !Ref AFSPublicRouteTable
+
+  AFSPublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref AFSPublicSubnet2
+      RouteTableId: !Ref AFSPublicRouteTable
+
+  # Example: DynamoDB Table for sensor data (NoSQL)
+  AFSSensorDataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: AFSFastAPISensorData
+      AttributeDefinitions:
+        - AttributeName: deviceId
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: N
+      KeySchema:
+        - AttributeName: deviceId
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: Name
+          Value: AFSFastAPISensorDataTable
+
+  # Example: S3 Bucket for raw data storage
+  AFSRawDataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub afs-fastapi-raw-data-${AWS::AccountId}-${AWS::Region}
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - Key: Name
+          Value: AFSFastAPIRawDataBucket
+
+  # Secure Data Ingestion Pipeline Components
+  AFSIoTRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: iot.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: AFSIoTPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - s3:PutObject
+                  - kinesis:PutRecord
+                Resource:
+                  - !GetAtt AFSSensorDataTable.Arn
+                  - !Sub arn:aws:s3:::afs-fastapi-raw-data-${AWS::AccountId}-${AWS::Region}/*
+                  - !GetAtt AFSKinesisStream.Arn
+
+  AFSKinesisStream:
+    Type: AWS::Kinesis::Stream
+    Properties:
+      Name: AFSFastAPIDataStream
+      ShardCount: 1
+      Tags:
+        - Key: Name
+          Value: AFSFastAPIDataStream
+
+  AFSIoTTopicRule:
+    Type: AWS::IoT::TopicRule
+    Properties:
+      RuleName: AFSFastAPISensorDataRule
+      TopicRulePayload:
+        RuleDisabled: false
+        AwsIotSqlVersion: '2016-03-23'
+        Sql: "SELECT * FROM 'afs/+/data'"
+        Actions:
+          - DynamoDBv2:
+              PutItem:
+                TableName: !Ref AFSSensorDataTable
+              RoleArn: !GetAtt AFSIoTRole.Arn
+          - S3:
+              BucketName: !Ref AFSRawDataBucket
+              Key: !Sub raw_data/${timestamp()}
+              RoleArn: !GetAtt AFSIoTRole.Arn
+          - Kinesis:
+              StreamName: !Ref AFSKinesisStream
+              PartitionKey: "${newuuid()}"
+              RoleArn: !GetAtt AFSIoTRole.Arn
+
+Outputs:
+  VPCId:
+    Description: The ID of the newly created VPC
+    Value: !Ref AFSVPC
+  PublicSubnet1Id:
+    Description: The ID of Public Subnet 1
+    Value: !Ref AFSPublicSubnet1
+  PublicSubnet2Id:
+    Description: The ID of Public Subnet 2
+    Value: !Ref AFSPublicSubnet2
+  SensorDataTableName:
+    Description: Name of the DynamoDB table for sensor data
+    Value: !Ref AFSSensorDataTable
+  RawDataBucketName:
+    Description: Name of the S3 bucket for raw data
+    Value: !Ref AFSRawDataBucket
+  KinesisStreamName:
+    Description: Name of the Kinesis Stream for data ingestion
+    Value: !Ref AFSKinesisStream
+  IoTRuleName:
+    Description: Name of the AWS IoT Topic Rule
+    Value: !Ref AFSIoTTopicRule
+
