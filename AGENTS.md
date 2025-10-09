@@ -37,7 +37,7 @@ MIT (project license)
 
 **Six Mandatory Requirements** (see [SESSION_SUMMARY.md](SESSION_SUMMARY.md#mandatory-requirements-for-all-ai-agents) for complete details):
 - Test-First Development, Structured Investigation Pattern, Standardized Test Reporting, CHANGELOG Loop Protection, Git Commit Separation, Cross-Agent Infrastructure Sharing
-- Strict Red-Green-Refactor (RGR) adherence: Green status must only be achieved through actual working implementation code; 'pass' is prohibited as a means to gain green status. No code is to be generated until a well-defined and detailed set of tests defining the expected behavior(s) have been generated and their logic verified.
+- **ABSOLUTE Red-Green-Refactor (RGR) adherence**: See [RED_GREEN_REFACTOR_ABSOLUTE_ENFORCEMENT.md](RED_GREEN_REFACTOR_ABSOLUTE_ENFORCEMENT.md) for zero-exceptions policy. Green status must only be achieved through actual working implementation code; 'pass' is prohibited as a means to gain green status. No code is to be generated until a well-defined and detailed set of tests defining the expected behavior(s) have been generated and their logic verified.
 
 **Essential documentation**:
 - Session architecture: `docs/EXECUTION_ORDER.md` (6-phase initialization, 28+ files)
