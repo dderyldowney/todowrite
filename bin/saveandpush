@@ -122,7 +122,8 @@ if ! git diff --quiet || ! git diff --cached --quiet || [[ -n "$(git ls-files --
     # Generate intelligent commit message based on files changed
     if [[ -n "$CUSTOM_MESSAGE" ]]; then
         COMMIT_SUBJECT="docs(session): $CUSTOM_MESSAGE"
-        COMMIT_BODY="Complete session state preservation for agricultural robotics platform:
+        read -r -d '' COMMIT_BODY <<EOF
+Complete session state preservation for agricultural robotics platform:
 
 - TODO state synchronized via todo-sync command
 - Session state captured with mandatory compaction
@@ -130,36 +131,43 @@ if ! git diff --quiet || ! git diff --cached --quiet || [[ -n "$(git ls-files --
 - CHANGELOG.md updated maintaining ISO 11783/18497 compliance
 - Cross-agent infrastructure sharing for universal AI platform accessibility
 
-Custom context: $CUSTOM_MESSAGE"
+Custom context: $CUSTOM_MESSAGE
+EOF
     else
         # Auto-generate based on file patterns
         if git diff --cached --name-only | grep -q "strategic_todos.json\|phase_todos.json"; then
             COMMIT_SUBJECT="feat(infrastructure): Update strategic and phase TODO management state"
-            COMMIT_BODY="Synchronize dual TODO system state for agricultural robotics development:
+            read -r -d '' COMMIT_BODY <<EOF
+Synchronize dual TODO system state for agricultural robotics development:
 
 - Strategic TODO updates with priority management for equipment coordination
 - Phase TODO synchronization supporting TDD methodology compliance
 - Session state preservation maintaining cross-agent continuity
 - CHANGELOG.md updated for ISO 18497/11783 compliance tracking
-- Complete development state captured for multi-tractor coordination systems"
+- Complete development state captured for multi-tractor coordination systems
+EOF
         elif git diff --cached --name-only | grep -q "\.md$"; then
             COMMIT_SUBJECT="docs(session): Update documentation and session state"
-            COMMIT_BODY="Preserve session documentation state for agricultural robotics platform:
+            read -r -d '' COMMIT_BODY <<EOF
+Preserve session documentation state for agricultural robotics platform:
 
 - Session state documentation updated with current development progress
 - Agricultural robotics compliance documentation maintained
 - Cross-agent infrastructure sharing preserved for universal AI platform access
 - CHANGELOG.md updated maintaining complete version history
-- Essential for ISO 11783/18497 compliance auditing and stakeholder communication"
+- Essential for ISO 11783/18497 compliance auditing and stakeholder communication
+EOF
         else
             COMMIT_SUBJECT="config(session): Synchronize session configuration state"
-            COMMIT_BODY="Update session configuration state for agricultural robotics platform:
+            read -r -d '' COMMIT_BODY <<EOF
+Update session configuration state for agricultural robotics platform:
 
 - Configuration files synchronized for cross-session continuity
 - Agricultural robotics platform state preserved for compliance tracking
 - Cross-agent infrastructure sharing maintained for universal AI platform benefits
 - CHANGELOG.md updated maintaining complete development history
-- Session state captured for safety-critical agricultural systems development"
+- Session state captured for safety-critical agricultural systems development
+EOF
         fi
     fi
 
