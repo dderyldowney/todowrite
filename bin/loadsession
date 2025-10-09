@@ -1,7 +1,6 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 
-import sys
 from pathlib import Path
 
 
@@ -20,10 +19,10 @@ def main():
 
     print("📋 Loading Project Context from SESSION_SUMMARY.md...")
     print()
-    
-    with open(summary_file, 'r') as f:
+
+    with open(summary_file) as f:
         summary_content = f.read()
-    
+
     print(summary_content)
 
     print()
@@ -45,6 +44,7 @@ def main():
     print()
 
     print("✨ AFS FastAPI Enterprise Platform Ready")
+
 
 if __name__ == "__main__":
     main()
