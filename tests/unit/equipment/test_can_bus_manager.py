@@ -239,14 +239,16 @@ class TestConnectionPool:
     ) -> None:
         """Test successful connection pool initialization."""
         # Mock successful connections
-        physical_manager.connect_interface.return_value = True
+        with patch.object(
+            physical_manager, "connect_interface", new_callable=AsyncMock
+        ) as mock_connect:
+            mock_connect.return_value = True
+            success = await connection_pool.initialize()
 
-        success = await connection_pool.initialize()
-
-        assert success is True
-        assert len(connection_pool.primary_connections) == 2
-        assert len(connection_pool.backup_connections) == 1
-        assert all(connection_pool.primary_connections.values())
+            assert success is True
+            assert len(connection_pool.primary_connections) == 2
+            assert len(connection_pool.backup_connections) == 1
+            assert all(connection_pool.primary_connections.values())
 
     @pytest.mark.asyncio
     async def test_pool_initialization_failure(
@@ -256,12 +258,14 @@ class TestConnectionPool:
     ) -> None:
         """Test connection pool initialization with failures."""
         # Mock connection failures
-        physical_manager.connect_interface.return_value = False
+        with patch.object(
+            physical_manager, "connect_interface", new_callable=AsyncMock
+        ) as mock_connect:
+            mock_connect.return_value = False
+            success = await connection_pool.initialize()
 
-        success = await connection_pool.initialize()
-
-        assert success is True  # Should still succeed even with connection failures
-        assert not any(connection_pool.primary_connections.values())
+            assert success is True  # Should still succeed even with connection failures
+            assert not any(connection_pool.primary_connections.values())
 
     def test_get_active_interfaces(
         self,
@@ -334,14 +338,20 @@ class TestConnectionPool:
     ) -> None:
         """Test connection pool shutdown."""
         # Initialize first
-        physical_manager.connect_interface.return_value = True
-        await connection_pool.initialize()
+        with patch.object(
+            physical_manager, "connect_interface", new_callable=AsyncMock
+        ) as mock_connect:
+            with patch.object(
+                physical_manager, "disconnect_all", new_callable=AsyncMock
+            ) as mock_disconnect:
+                mock_connect.return_value = True
+                await connection_pool.initialize()
 
-        # Shutdown
-        await connection_pool.shutdown()
+                # Shutdown
+                await connection_pool.shutdown()
 
-        # Verify disconnect was called
-        physical_manager.disconnect_all.assert_called_once()
+                # Verify disconnect was called
+                mock_disconnect.assert_called_once()
 
 
 class TestCANBusConnectionManager:
@@ -512,13 +522,16 @@ class TestCANBusConnectionManager:
         assert can_manager._state == ManagerState.INITIALIZING
 
         # Mock different scenarios and check state updates
-        can_manager._statistics.active_interfaces = 0
+        can_manager.connection_pool.primary_connections = {}
+        can_manager.connection_pool.backup_connections = {}
+        can_manager.connection_pool.connection_health = {}
         can_manager._check_overall_health()
         assert can_manager._state == ManagerState.ERROR
 
-        # Restore some interfaces
-        can_manager._statistics.active_interfaces = 1
+        # Simulate failover scenario: primary down, backup available
         can_manager.connection_pool.primary_connections = {"can0": False}
+        can_manager.connection_pool.backup_connections = {"can1": True}
+        can_manager.connection_pool.connection_health = {"can0": 0.0, "can1": 0.8}
         can_manager.pool_config.auto_recovery = True
         can_manager._check_overall_health()
         assert can_manager._state == ManagerState.FAILOVER
