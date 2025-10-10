@@ -7,5 +7,14 @@
     "git_hash": "a04c0b69dc82ff580d8da20d3d86628225cb8223",
     "current_phase": "unknown",
     "type": "pause_point"
+  },
+  {
+    "id": "pause_2",
+    "reason": "Time to pause. Session limits reched",
+    "next_action": "",
+    "timestamp": "2025-10-10T10:49:51.042825",
+    "git_hash": "6edec87894003e75833349e536a98c4b01bd3a19",
+    "current_phase": "unknown",
+    "type": "pause_point"
   }
 ]
