@@ -81,3 +81,90 @@ The platform provides universal session management commands available to all AI 
 - Commands are executable via bash: `./bin/commandname`
 - Select commands are available as slash commands: `/loadsession`, `/whereweare`, `/updatedocs`
 - Command triggers are stored in `.claude/commands/` with complete specifications.
+
+### Mandatory Pause Structure for Claude Code
+
+**CRITICAL REQUIREMENT**: Claude Code MUST implement the mandatory pause structure defined in `PAUSE_STRUCTURE_SPECIFICATION.md` with zero exceptions.
+
+**Claude-Specific Pause Enforcement**:
+
+1. **Automatic Session Monitoring**: Claude MUST continuously monitor session duration and trigger pauses at appropriate points (session monitoring)
+2. **Quality Gate Integration**: Before every pause, Claude MUST validate all quality gates (Black, Ruff, isort, MyPy, pre-commit hooks)
+3. **Context Preservation**: Claude MUST create detailed resumption context using the standardized format
+4. **Task Completion Tracking**: Claude MUST use TodoWrite tool to track progress and pause at natural task boundaries
+
+**Claude Pause Commands** (mandatory usage):
+
+```bash
+# Task-level pause (every 2-3 completed tasks)
+./bin/pause-here "Task: [TASK_NAME] - [STATUS]" "[NEXT_STEPS]"
+
+# Phase-level pause (phase completion)
+./bin/phase-end
+./bin/pause-here "Phase: [PHASE_NAME] - Complete" "[NEXT_PHASE]"
+
+# Strategic pause (strategic goal completion)
+./bin/strategic-complete "[GOAL_DESCRIPTION]"
+./bin/saveandpush "Strategic milestone: [DESCRIPTION]"
+./bin/pause-here "Strategic: [GOAL_NAME] - Complete" "[NEXT_STRATEGIC_GOAL]"
+
+# Emergency pause (session limit approaching)
+./bin/pause-here "Emergency: Session limit approaching" "Resume with context preserved"
+```
+
+**Claude Session Limits** (strictly enforced):
+- **Maximum session duration**: 3 hours
+- **Warning trigger**: 2.5 hours - complete current task and pause
+- **Hard stop**: 3 hours - immediate pause regardless of task state
+- **Quality validation**: All work must pass quality gates before pause
+
+**Claude Context Requirements**:
+- **Before pause**: TodoWrite status, git status clean, quality gates passed
+- **During pause**: Detailed resumption instructions with specific next steps
+- **After resume**: Load session context, validate project state, verify git status
+
+**Integration with Claude Code Workflow**:
+1. Claude MUST check session duration before starting new tasks
+2. Claude MUST pause at task completion boundaries within phases
+3. Claude MUST enforce quality gates before every pause
+4. Claude MUST use TodoWrite tool for progress tracking
+5. Claude MUST create git commits for completed work before pausing
+6. Claude MUST follow the commit-per-task workflow established in this project
+
+**Claude Pause Context Template**:
+```markdown
+# Claude Code Pause Context: [PAUSE_ID]
+
+**Session Type:** Claude Code Development Session
+**Pause Reason:** [DETAILED_REASON]
+**Timestamp:** [ISO_TIMESTAMP]
+**Duration:** [SESSION_DURATION]
+**Git Hash:** [COMMIT_HASH]
+
+## Claude-Specific Context
+**Current File(s):** [FILES_BEING_WORKED_ON]
+**Active TODO Status:** [X/Y] todos completed
+**Quality Gates:** [PASSED/FAILED] - [DETAILS]
+**Test Status:** [PASSING/FAILING] - [COUNT]
+
+## Task Progress (TodoWrite Status)
+- [X] Completed Task 1
+- [X] Completed Task 2
+- [ ] Current Task: [TASK_NAME] - [STATUS]
+- [ ] Next Task: [NEXT_TASK]
+
+## Claude Resume Instructions
+1. Execute: `./bin/loadsession`
+2. Verify: `git status` (should be clean)
+3. Check: `pytest --tb=short` (all tests passing)
+4. Update: TodoWrite tool with current progress
+5. Continue: [SPECIFIC_NEXT_ACTIONS]
+
+## Agricultural Context
+**Current System:** [AGRICULTURAL_SYSTEM_BEING_DEVELOPED]
+**Safety Considerations:** [ANY_SAFETY_CRITICAL_ASPECTS]
+**Performance Requirements:** [TIMING_OR_RELIABILITY_CONSTRAINTS]
+```
+
+**Enforcement Mechanism**:
+Claude Code MUST refuse to continue development past 3-hour sessions without executing a proper pause. This is a hard requirement with zero exceptions to prevent context loss and ensure development quality in the agricultural robotics platform.

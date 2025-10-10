@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+"""Emergency pause system for AFS FastAPI critical session situations.
+
+Provides immediate pause capability for emergency situations such as session
+limit exceeded, critical system issues, or unexpected development blockers.
+Prioritizes context preservation over quality gates when necessary.
+"""
+
+from __future__ import annotations
+
+import subprocess
+import sys
+
+
+def main() -> None:
+    """Execute emergency pause with minimal validation."""
+    print("🚨 AFS FastAPI Emergency Pause System")
+    print("=" * 40)
+    print("⚠️  EMERGENCY PAUSE TRIGGERED")
+
+    # Get optional reason from command line
+    reason = "Emergency session halt"
+    if len(sys.argv) > 1:
+        reason = sys.argv[1]
+
+    # Step 1: Immediate session state preservation
+    print("\n💾 Step 1: Emergency Session Preservation...")
+    try:
+        # Save current session state immediately
+        subprocess.run(["./bin/savesession"], check=True, capture_output=True)
+        print("  ✅ Session state preserved")
+    except subprocess.CalledProcessError as e:
+        print(f"  ⚠️  Session save warning: {e}")
+
+    # Step 2: Emergency git commit (even if quality gates fail)
+    print("\n📁 Step 2: Emergency Git Preservation...")
+    try:
+        # Check for uncommitted changes
+        git_status = subprocess.run(
+            ["git", "status", "--porcelain"], capture_output=True, text=True
+        )
+
+        if git_status.stdout.strip():
+            print("  🔄 Staging uncommitted changes...")
+            subprocess.run(["git", "add", "."], check=True)
+
+            # Create emergency commit with clear marking
+            emergency_commit_msg = f"EMERGENCY: {reason} - context preservation commit"
+            subprocess.run(["git", "commit", "-m", emergency_commit_msg, "--no-verify"], check=True)
+            print("  ✅ Emergency commit created (bypassed quality gates)")
+        else:
+            print("  ✅ No uncommitted changes to preserve")
+
+    except subprocess.CalledProcessError as e:
+        print(f"  ❌ Git emergency preservation failed: {e}")
+        print("  ⚠️  Manual intervention may be required")
+
+    # Step 3: Record session monitoring info
+    print("\n📊 Step 3: Recording Emergency Context...")
+    try:
+        subprocess.run(["./bin/session-monitor", "pause", f"EMERGENCY: {reason}"], check=True)
+        print("  ✅ Emergency pause recorded in session monitoring")
+    except subprocess.CalledProcessError:
+        print("  ⚠️  Session monitoring update failed (non-critical)")
+
+    # Step 4: Create emergency pause point
+    print("\n⏸️  Step 4: Creating Emergency Pause Point...")
+    emergency_next_steps = "CRITICAL: Review emergency conditions before resuming. Check system state, validate git history, run quality checks."
+
+    try:
+        subprocess.run(
+            ["./bin/pause-here", f"EMERGENCY: {reason}", emergency_next_steps],
+            check=True,
+            capture_output=True,
+        )
+        print("  ✅ Emergency pause point created")
+    except subprocess.CalledProcessError as e:
+        print(f"  ❌ Emergency pause creation failed: {e}")
+
+    # Step 5: Emergency instructions
+    print("\n🆘 EMERGENCY PAUSE COMPLETE")
+    print("=" * 40)
+    print("📋 EMERGENCY CONTEXT PRESERVED:")
+    print("  🔄 Session state saved")
+    print("  📁 Git changes committed (quality gates bypassed)")
+    print("  ⏸️  Pause point created with emergency context")
+    print()
+    print("🔧 RECOVERY INSTRUCTIONS:")
+    print("  1. Address the emergency condition that triggered this pause")
+    print("  2. Resume with: ./bin/resume-from [pause_id]")
+    print("  3. Validate system state: git status, pytest --tb=short")
+    print(
+        '  4. Run quality checks: ./bin/quality-check-and-pause "Recovery validation" "[next steps]"'
+    )
+    print("  5. Review emergency commit for any quality issues")
+    print()
+    print("⚠️  WARNING: Emergency commits may contain quality gate violations")
+    print("   These must be addressed during recovery before continuing development")
+
+
+if __name__ == "__main__":
+    main()

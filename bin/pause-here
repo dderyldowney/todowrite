@@ -18,8 +18,8 @@ sys.path.insert(0, str(project_root))
 from bin.common.json_operations import load_json, save_json
 
 
-def create_pause_point(reason: str, next_action: str = "") -> None:
-    """Create a pause point with context preservation.
+def create_pause_point(reason: str, next_action: str = "", enforce_quality: bool = True) -> None:
+    """Create a pause point with context preservation and mandatory pause structure compliance.
 
     Parameters
     ----------
@@ -27,20 +27,73 @@ def create_pause_point(reason: str, next_action: str = "") -> None:
         Reason for pausing (e.g., "Session limit approaching", "Natural breakpoint")
     next_action : str, optional
         What should be done when resuming
+    enforce_quality : bool, optional
+        Whether to enforce quality gates before pausing (default: True)
     """
     timestamp = datetime.now().isoformat()
 
     print(f"⏸️  Creating pause point: {reason}")
     print(f"⏰ Timestamp: {timestamp}")
 
-    # 1. Stage current work (even incomplete)
-    import subprocess
+    # Enhanced: Session monitoring integration
     try:
-        result = subprocess.run(
-            ["git", "add", "-A"],
+        import subprocess
+
+        # Update session monitoring with pause record
+        subprocess.run(
+            ["./bin/session-monitor", "pause", reason],
             cwd=project_root,
             capture_output=True,
-            text=True
+            text=True,
+        )
+        print("📊 Session monitoring updated")
+    except subprocess.CalledProcessError:
+        print("⚠️  Session monitoring update failed (non-critical)")
+
+    # Enhanced: Quality gate enforcement (unless explicitly disabled for emergency pauses)
+    if enforce_quality:
+        print("\n🔍 Mandatory Pause Structure: Quality Gate Validation...")
+        try:
+            quality_checks = [
+                (["python", "-m", "pytest", "--tb=short", "-q"], "Running test suite..."),
+                (["python", "-m", "black", "--check", "."], "Checking code formatting..."),
+                (["python", "-m", "ruff", "check", "."], "Running linting checks..."),
+            ]
+
+            quality_failed = False
+            for command, description in quality_checks:
+                print(f"  {description}")
+                result = subprocess.run(
+                    command,
+                    cwd=project_root,
+                    capture_output=True,
+                    text=True,
+                    timeout=120,  # 2 minute timeout per check
+                )
+                if result.returncode != 0:
+                    print(f"  ❌ FAILED: {' '.join(command)}")
+                    quality_failed = True
+                else:
+                    print(f"  ✅ PASSED: {' '.join(command)}")
+
+            if quality_failed:
+                print("\n⚠️  QUALITY GATES FAILED - Creating pause with quality warnings")
+                print("   Quality issues must be resolved during resumption")
+                reason = f"QUALITY_ISSUES: {reason}"
+            else:
+                print("\n✅ All quality gates passed")
+
+        except subprocess.TimeoutExpired:
+            print("  ⏰ Quality check timeout - proceeding with pause")
+            reason = f"TIMEOUT_QUALITY: {reason}"
+        except Exception as e:
+            print(f"  ⚠️  Quality check error: {e} - proceeding with pause")
+            reason = f"ERROR_QUALITY: {reason}"
+
+    # 1. Stage current work (even incomplete)
+    try:
+        result = subprocess.run(
+            ["git", "add", "-A"], cwd=project_root, capture_output=True, text=True
         )
         if result.returncode != 0:
             print(f"❌ Git add failed: {result.stderr}")
@@ -52,7 +105,7 @@ def create_pause_point(reason: str, next_action: str = "") -> None:
             ["git", "status", "--porcelain", "--staged"],
             cwd=project_root,
             capture_output=True,
-            text=True
+            text=True,
         )
 
         if result.stdout.strip():  # There are staged changes
@@ -64,7 +117,7 @@ def create_pause_point(reason: str, next_action: str = "") -> None:
                 ["git", "commit", "-m", commit_msg],
                 cwd=project_root,
                 capture_output=True,
-                text=True
+                text=True,
             )
             if result.returncode != 0:
                 print(f"❌ Git commit failed: {result.stderr}")
@@ -81,10 +134,7 @@ def create_pause_point(reason: str, next_action: str = "") -> None:
 
         # Get current git hash
         result = subprocess.run(
-            ["git", "rev-parse", "HEAD"],
-            cwd=project_root,
-            capture_output=True,
-            text=True
+            ["git", "rev-parse", "HEAD"], cwd=project_root, capture_output=True, text=True
         )
         git_hash = result.stdout.strip() if result.returncode == 0 else "unknown"
 
@@ -99,21 +149,62 @@ def create_pause_point(reason: str, next_action: str = "") -> None:
             "timestamp": timestamp,
             "git_hash": git_hash,
             "current_phase": phase_info.get("name", "unknown"),
-            "type": "pause_point"
+            "type": "pause_point",
         }
 
         pause_points.append(pause_data)
         save_json(pause_points_file, pause_points)
         print("✅ Saved pause point metadata")
 
-        # 4. Create detailed context file
+        # 4. Create detailed context file with pause structure compliance
         context_file = project_root / ".claude" / f"pause_context_{pause_data['id']}.md"
         with open(context_file, "w") as f:
             f.write(f"# Pause Point Context: {pause_data['id']}\n\n")
             f.write(f"**Reason:** {reason}\n")
             f.write(f"**Timestamp:** {timestamp}\n")
             f.write(f"**Git Hash:** {git_hash}\n")
-            f.write(f"**Current Phase:** {phase_info.get('name', 'unknown')}\n\n")
+            f.write(f"**Current Phase:** {phase_info.get('name', 'unknown')}\n")
+            f.write(
+                f"**Pause Structure Compliance:** {'✅ Enforced' if enforce_quality else '⚠️ Emergency Mode'}\n\n"
+            )
+
+            # Enhanced: Quality gate status
+            quality_status = (
+                "❌ Failed"
+                if "QUALITY_ISSUES" in reason
+                else "✅ Passed" if enforce_quality else "⚠️ Bypassed"
+            )
+            f.write("## Quality Gate Status\n")
+            f.write(f"**Status:** {quality_status}\n")
+            if "QUALITY_ISSUES" in reason:
+                f.write(
+                    "**⚠️ Quality Issues Detected:** Quality gates must be resolved during resumption\n"
+                )
+            elif not enforce_quality:
+                f.write("**⚠️ Emergency Mode:** Quality gates were bypassed for emergency pause\n")
+            f.write("\n")
+
+            # Enhanced: Session monitoring context
+            f.write("## Session Context\n")
+            try:
+                session_status_result = subprocess.run(
+                    ["./bin/session-monitor", "status"],
+                    cwd=project_root,
+                    capture_output=True,
+                    text=True,
+                )
+                if session_status_result.returncode == 0:
+                    for line in session_status_result.stdout.split("\n"):
+                        if any(
+                            keyword in line
+                            for keyword in ["Duration:", "Tasks completed:", "State:"]
+                        ):
+                            f.write(f"**{line.strip()}**\n")
+                else:
+                    f.write("**Session Monitoring:** Not available\n")
+            except Exception:
+                f.write("**Session Monitoring:** Error retrieving status\n")
+            f.write("\n")
 
             if next_action:
                 f.write(f"## Next Action\n{next_action}\n\n")
@@ -121,10 +212,34 @@ def create_pause_point(reason: str, next_action: str = "") -> None:
             f.write("## Current State\n")
             f.write("- Work has been staged and committed\n")
             f.write("- Context preserved for resumption\n")
-            f.write("- Ready for session handoff\n\n")
+            f.write("- Ready for session handoff\n")
+            f.write("- Pause structure compliance enforced\n")
+            f.write("- Session monitoring updated\n\n")
 
-            f.write("## Resume Instructions\n")
-            f.write(f"```bash\n./bin/resume-from {pause_data['id']}\n```\n\n")
+            # Enhanced: Mandatory resume instructions
+            f.write("## Resume Instructions (Mandatory)\n")
+            f.write("```bash\n")
+            f.write("# 1. Resume from pause point\n")
+            f.write(f"./bin/resume-from {pause_data['id']}\n\n")
+            f.write("# 2. Load session context\n")
+            f.write("./bin/loadsession\n\n")
+            f.write("# 3. Validate quality if issues detected\n")
+            if "QUALITY_ISSUES" in reason:
+                f.write(
+                    './bin/quality-check-and-pause "Quality validation after resume" "[next steps]"\n\n'
+                )
+            f.write("# 4. Check session status\n")
+            f.write("./bin/session-monitor status\n")
+            f.write("```\n\n")
+
+            # Enhanced: Pause structure compliance note
+            f.write("## Pause Structure Compliance\n")
+            f.write(
+                "This pause point was created following the mandatory pause structure defined in\n"
+            )
+            f.write(
+                "`PAUSE_STRUCTURE_SPECIFICATION.md`. All resumption must follow the same standards.\n\n"
+            )
 
         print("✅ Created detailed context file")
 
@@ -149,18 +264,42 @@ def create_pause_point(reason: str, next_action: str = "") -> None:
 
 
 def main() -> None:
-    """Main pause point creation function."""
+    """Main pause point creation function with mandatory pause structure compliance."""
     if len(sys.argv) < 2:
-        print("Usage: ./bin/pause-here \"Reason for pausing\" [\"Next action\"]")
+        print("AFS FastAPI Enhanced Pause System")
+        print('Usage: ./bin/pause-here "Reason for pausing" ["Next action"] [--emergency]')
+        print("\nMandatory Pause Structure Compliance:")
+        print("  • Quality gates are enforced by default")
+        print("  • Session monitoring is automatically updated")
+        print("  • Comprehensive context preservation")
         print("\nExamples:")
-        print("  ./bin/pause-here \"Session limit approaching\"")
-        print("  ./bin/pause-here \"Natural breakpoint\" \"Continue with message queue implementation\"")
+        print('  ./bin/pause-here "Session limit approaching"')
+        print(
+            '  ./bin/pause-here "Natural breakpoint" "Continue with message queue implementation"'
+        )
+        print(
+            '  ./bin/pause-here "Critical system error" "Address error before resuming" --emergency'
+        )
+        print("\nRecommended Usage:")
+        print(
+            '  Task completion: ./bin/quality-check-and-pause "Task: [name] complete" "[next task]"'
+        )
+        print('  Emergency halt:  ./bin/emergency-pause "[emergency reason]"')
+        print('  Strategic milestone: ./bin/strategic-milestone-pause "[goal]" "complete"')
         sys.exit(1)
 
     reason = sys.argv[1]
     next_action = sys.argv[2] if len(sys.argv) > 2 else ""
 
-    create_pause_point(reason, next_action)
+    # Check for emergency mode flag
+    emergency_mode = "--emergency" in sys.argv
+    enforce_quality = not emergency_mode
+
+    if emergency_mode:
+        print("🚨 EMERGENCY MODE: Quality gates will be bypassed")
+        print("⚠️  Emergency pauses should be followed by quality validation during resumption")
+
+    create_pause_point(reason, next_action, enforce_quality)
 
 
 if __name__ == "__main__":

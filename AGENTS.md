@@ -35,9 +35,10 @@ MIT (project license)
 - End sessions: `./bin/savesession` (capture state before ending)
 - Strategic assessment: `./bin/whereweare` (display) or `./bin/whereweare --generate` (regenerate)
 
-**Six Mandatory Requirements** (see [SESSION_SUMMARY.md](SESSION_SUMMARY.md#mandatory-requirements-for-all-ai-agents) for complete details):
-- Test-First Development, Structured Investigation Pattern, Standardized Test Reporting, CHANGELOG Loop Protection, Git Commit Separation, Cross-Agent Infrastructure Sharing
+**Seven Mandatory Requirements** (see [SESSION_SUMMARY.md](SESSION_SUMMARY.md#mandatory-requirements-for-all-ai-agents) for complete details):
+- Test-First Development, Structured Investigation Pattern, Standardized Test Reporting, CHANGELOG Loop Protection, Git Commit Separation, Cross-Agent Infrastructure Sharing, **Mandatory Pause Structure Enforcement**
 - **ABSOLUTE Red-Green-Refactor (RGR) adherence**: See [RED_GREEN_REFACTOR_ABSOLUTE_ENFORCEMENT.md](RED_GREEN_REFACTOR_ABSOLUTE_ENFORCEMENT.md) for zero-exceptions policy. Green status must only be achieved through actual working implementation code; 'pass' is prohibited as a means to gain green status. No code is to be generated until a well-defined and detailed set of tests defining the expected behavior(s) have been generated and their logic verified.
+- **MANDATORY Pause Structure Compliance**: See [PAUSE_STRUCTURE_SPECIFICATION.md](PAUSE_STRUCTURE_SPECIFICATION.md) for complete requirements. ALL AI agents MUST implement the "Recommended Pause Structure for Session Optimization" with zero exceptions. This includes task-level pauses (every 2-3 tasks), phase-level pauses (phase completion), and strategic milestone pauses (strategic goal completion). Session limits of 3 hours MUST be enforced with automatic pause triggers.
 
 **Essential documentation**:
 - Session architecture: `docs/EXECUTION_ORDER.md` (6-phase initialization, 28+ files)

@@ -1,0 +1,244 @@
+#!/usr/bin/env python3
+"""Session monitoring system for AFS FastAPI pause structure enforcement.
+
+Monitors session duration and provides warnings/triggers for mandatory pause
+structure compliance. Ensures no sessions exceed 3-hour limits and provides
+proactive pause recommendations.
+"""
+
+from __future__ import annotations
+
+import json
+import sys
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
+
+
+class SessionMonitor:
+    """Monitor and enforce session duration limits."""
+
+    def __init__(self) -> None:
+        """Initialize session monitoring."""
+        self.project_root = Path(__file__).resolve().parent.parent
+        self.session_file = self.project_root / ".claude" / "current_session.json"
+        self.session_file.parent.mkdir(exist_ok=True)
+
+    def start_session(self) -> None:
+        """Start a new session with timestamp tracking."""
+        session_data = {
+            "start_time": datetime.now(UTC).isoformat(),
+            "session_id": f"session_{int(datetime.now(UTC).timestamp())}",
+            "warnings_issued": [],
+            "tasks_completed": 0,
+            "last_pause": None,
+        }
+
+        with open(self.session_file, "w") as f:
+            json.dump(session_data, f, indent=2)
+
+        print("🚀 Session monitoring started")
+        print(f"📅 Start time: {session_data['start_time']}")
+        print(f"🆔 Session ID: {session_data['session_id']}")
+
+    def get_session_status(self) -> dict[str, Any]:
+        """Get current session status and duration."""
+        if not self.session_file.exists():
+            return {"error": "No active session found. Run: ./bin/session-monitor start"}
+
+        with open(self.session_file) as f:
+            session_data = json.load(f)
+
+        start_time = datetime.fromisoformat(session_data["start_time"])
+        current_time = datetime.now(UTC)
+        duration = current_time - start_time
+
+        duration_hours = duration.total_seconds() / 3600
+        duration_minutes = (duration.total_seconds() % 3600) / 60
+
+        status = {
+            "session_id": session_data["session_id"],
+            "start_time": session_data["start_time"],
+            "current_time": current_time.isoformat(),
+            "duration_hours": duration_hours,
+            "duration_minutes": duration_minutes,
+            "duration_formatted": f"{int(duration_hours)}h {int(duration_minutes)}m",
+            "tasks_completed": session_data["tasks_completed"],
+            "warnings_issued": session_data["warnings_issued"],
+            "last_pause": session_data.get("last_pause"),
+        }
+
+        # Determine session state
+        if duration_hours >= 3.0:
+            status["state"] = "CRITICAL - IMMEDIATE PAUSE REQUIRED"
+            status["action"] = "STOP - Execute emergency pause immediately"
+        elif duration_hours >= 2.5:
+            status["state"] = "WARNING - Complete current task and pause"
+            status["action"] = "Complete current task, then execute pause"
+        elif duration_hours >= 2.0:
+            status["state"] = "NOTICE - Consider pause at next task boundary"
+            status["action"] = "Plan pause at next natural stopping point"
+        else:
+            status["state"] = "ACTIVE - Continue development"
+            status["action"] = "Continue with normal development workflow"
+
+        return status
+
+    def issue_warning(self, warning_type: str) -> None:
+        """Issue a session duration warning."""
+        if not self.session_file.exists():
+            print("❌ No active session to warn")
+            return
+
+        with open(self.session_file) as f:
+            session_data = json.load(f)
+
+        warning = {
+            "type": warning_type,
+            "timestamp": datetime.now(UTC).isoformat(),
+            "duration_at_warning": self.get_session_status()["duration_formatted"],
+        }
+
+        session_data["warnings_issued"].append(warning)
+
+        with open(self.session_file, "w") as f:
+            json.dump(session_data, f, indent=2)
+
+        print(f"⚠️  SESSION WARNING: {warning_type}")
+        print(f"⏰ Duration: {warning['duration_at_warning']}")
+
+    def increment_task_count(self) -> None:
+        """Increment completed task counter."""
+        if not self.session_file.exists():
+            print("❌ No active session to update")
+            return
+
+        with open(self.session_file) as f:
+            session_data = json.load(f)
+
+        session_data["tasks_completed"] += 1
+
+        with open(self.session_file, "w") as f:
+            json.dump(session_data, f, indent=2)
+
+        print(f"✅ Task completed (Total: {session_data['tasks_completed']})")
+
+        # Check if pause is recommended based on task count
+        if session_data["tasks_completed"] % 3 == 0:
+            print("📝 RECOMMENDATION: Consider pause after 3 completed tasks")
+
+    def record_pause(self, pause_reason: str) -> None:
+        """Record a pause in the session."""
+        if not self.session_file.exists():
+            print("❌ No active session to update")
+            return
+
+        with open(self.session_file) as f:
+            session_data = json.load(f)
+
+        session_data["last_pause"] = {
+            "timestamp": datetime.now(UTC).isoformat(),
+            "reason": pause_reason,
+            "duration_at_pause": self.get_session_status()["duration_formatted"],
+        }
+
+        with open(self.session_file, "w") as f:
+            json.dump(session_data, f, indent=2)
+
+        print(f"⏸️  Pause recorded: {pause_reason}")
+
+    def end_session(self) -> None:
+        """End the current session."""
+        if self.session_file.exists():
+            status = self.get_session_status()
+            print(f"🏁 Session ended after {status['duration_formatted']}")
+            print(f"📊 Tasks completed: {status['tasks_completed']}")
+            self.session_file.unlink()
+        else:
+            print("ℹ️  No active session to end")
+
+
+def main() -> None:
+    """Main session monitoring interface."""
+    monitor = SessionMonitor()
+
+    if len(sys.argv) < 2:
+        print("AFS FastAPI Session Monitor")
+        print("=" * 30)
+        print("Commands:")
+        print("  start          - Start new session")
+        print("  status         - Show current session status")
+        print("  check          - Check session and issue warnings if needed")
+        print("  task-complete  - Mark a task as completed")
+        print("  pause [reason] - Record a pause")
+        print("  end            - End current session")
+        sys.exit(1)
+
+    command = sys.argv[1]
+
+    if command == "start":
+        monitor.start_session()
+
+    elif command == "status":
+        status = monitor.get_session_status()
+        if "error" in status:
+            print(f"❌ {status['error']}")
+            sys.exit(1)
+
+        print("📊 AFS FastAPI Session Status")
+        print("=" * 30)
+        print(f"🆔 Session ID: {status['session_id']}")
+        print(f"⏰ Duration: {status['duration_formatted']}")
+        print(f"📋 Tasks completed: {status['tasks_completed']}")
+        print(f"🚦 State: {status['state']}")
+        print(f"💡 Action: {status['action']}")
+
+        if status["warnings_issued"]:
+            print(f"⚠️  Warnings issued: {len(status['warnings_issued'])}")
+
+    elif command == "check":
+        status = monitor.get_session_status()
+        if "error" in status:
+            print(f"❌ {status['error']}")
+            sys.exit(1)
+
+        print(f"🔍 Session Check: {status['duration_formatted']}")
+
+        if status["duration_hours"] >= 3.0:
+            monitor.issue_warning("CRITICAL_DURATION_EXCEEDED")
+            print("🛑 CRITICAL: Execute emergency pause immediately!")
+            print(
+                'Command: ./bin/pause-here "Emergency: 3-hour limit exceeded" "Resume with preserved context"'
+            )
+            sys.exit(1)
+
+        elif status["duration_hours"] >= 2.5:
+            monitor.issue_warning("WARNING_DURATION_APPROACHING")
+            print("⚠️  WARNING: Complete current task and pause")
+            print(
+                'Command: ./bin/quality-check-and-pause "Planned: 2.5h warning" "[Next task description]"'
+            )
+
+        elif status["duration_hours"] >= 2.0:
+            print("📝 NOTICE: Consider pause at next task boundary")
+
+        else:
+            print("✅ Session duration within normal limits")
+
+    elif command == "task-complete":
+        monitor.increment_task_count()
+
+    elif command == "pause":
+        reason = sys.argv[2] if len(sys.argv) > 2 else "Manual pause"
+        monitor.record_pause(reason)
+
+    elif command == "end":
+        monitor.end_session()
+
+    else:
+        print(f"❌ Unknown command: {command}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
