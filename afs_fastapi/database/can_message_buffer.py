@@ -14,12 +14,13 @@ import asyncio
 import logging
 import time
 from collections import deque
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from collections.abc import Callable
 
 import can
+
 from afs_fastapi.core.can_frame_codec import CANFrameCodec, DecodedPGN
 from afs_fastapi.database.can_time_series_schema import CANMessagePriority
 
@@ -30,19 +31,19 @@ logger = logging.getLogger(__name__)
 class BufferStrategy(Enum):
     """Buffer management strategies for different use cases."""
 
-    TIME_BASED = "time_based"      # Flush every N seconds
-    SIZE_BASED = "size_based"      # Flush when buffer reaches N messages
-    PRIORITY_BASED = "priority"    # Flush based on message priority
-    ADAPTIVE = "adaptive"          # Adapt based on system load
+    TIME_BASED = "time_based"  # Flush every N seconds
+    SIZE_BASED = "size_based"  # Flush when buffer reaches N messages
+    PRIORITY_BASED = "priority"  # Flush based on message priority
+    ADAPTIVE = "adaptive"  # Adapt based on system load
 
 
 class CompressionLevel(Enum):
     """Message compression levels for storage optimization."""
 
-    NONE = 0      # No compression
-    LOW = 1       # Basic compression
-    MEDIUM = 2    # Balanced compression
-    HIGH = 3      # Maximum compression
+    NONE = 0  # No compression
+    LOW = 1  # Basic compression
+    MEDIUM = 2  # Balanced compression
+    HIGH = 3  # Maximum compression
 
 
 @dataclass
@@ -51,24 +52,26 @@ class BufferConfiguration:
 
     # Buffer size limits
     max_buffer_size: int = 10000  # Maximum messages in buffer
-    max_memory_mb: int = 100      # Maximum memory usage (MB)
+    max_memory_mb: int = 100  # Maximum memory usage (MB)
 
     # Flush timing
-    flush_interval: float = 5.0   # Seconds between flushes
+    flush_interval: float = 5.0  # Seconds between flushes
     max_flush_time: float = 30.0  # Maximum time before forced flush
 
     # Batch processing
-    batch_size: int = 1000        # Messages per batch write
-    max_batch_size: int = 5000    # Maximum batch size
+    batch_size: int = 1000  # Messages per batch write
+    max_batch_size: int = 5000  # Maximum batch size
 
     # Buffer strategy
     strategy: BufferStrategy = BufferStrategy.ADAPTIVE
-    priority_weights: dict[CANMessagePriority, float] = field(default_factory=lambda: {
-        CANMessagePriority.CRITICAL: 1.0,
-        CANMessagePriority.HIGH: 0.8,
-        CANMessagePriority.NORMAL: 0.6,
-        CANMessagePriority.LOW: 0.4,
-    })
+    priority_weights: dict[CANMessagePriority, float] = field(
+        default_factory=lambda: {
+            CANMessagePriority.CRITICAL: 1.0,
+            CANMessagePriority.HIGH: 0.8,
+            CANMessagePriority.NORMAL: 0.6,
+            CANMessagePriority.LOW: 0.4,
+        }
+    )
 
     # Performance tuning
     compression_level: CompressionLevel = CompressionLevel.LOW
@@ -121,17 +124,17 @@ class BufferStatistics:
     # Buffer state
     current_buffer_size: int = 0
     current_memory_usage: float = 0.0  # MB
-    buffer_utilization: float = 0.0    # Percentage
+    buffer_utilization: float = 0.0  # Percentage
 
     # Performance metrics
-    avg_flush_time: float = 0.0        # Seconds
+    avg_flush_time: float = 0.0  # Seconds
     avg_batch_size: float = 0.0
     messages_per_second: float = 0.0
 
     # Quality metrics
-    decode_success_rate: float = 0.0   # Percentage
+    decode_success_rate: float = 0.0  # Percentage
     validation_pass_rate: float = 0.0  # Percentage
-    deduplication_rate: float = 0.0    # Percentage
+    deduplication_rate: float = 0.0  # Percentage
 
     # Timing
     last_flush_time: datetime | None = None
@@ -372,8 +375,10 @@ class CANMessageBuffer:
             return True
 
         # Priority-based flush (critical messages present)
-        if (self.config.strategy == BufferStrategy.PRIORITY_BASED and
-            len(self._priority_buffers[CANMessagePriority.CRITICAL]) > 0):
+        if (
+            self.config.strategy == BufferStrategy.PRIORITY_BASED
+            and len(self._priority_buffers[CANMessagePriority.CRITICAL]) > 0
+        ):
             return True
 
         # Forced flush (maximum time exceeded)
@@ -424,11 +429,9 @@ class CANMessageBuffer:
 
                 # Update performance metrics
                 flush_time = time.time() - start_time
-                self.stats.avg_flush_time = (
-                    (self.stats.avg_flush_time * 0.9) + (flush_time * 0.1)
-                )
-                self.stats.avg_batch_size = (
-                    (self.stats.avg_batch_size * 0.9) + (len(messages_to_flush) * 0.1)
+                self.stats.avg_flush_time = (self.stats.avg_flush_time * 0.9) + (flush_time * 0.1)
+                self.stats.avg_batch_size = (self.stats.avg_batch_size * 0.9) + (
+                    len(messages_to_flush) * 0.1
                 )
 
                 logger.debug(f"Flushed {len(messages_to_flush)} messages in {flush_time:.3f}s")
@@ -580,9 +583,7 @@ class CANMessageBuffer:
 
         # Clean old hashes
         cutoff_time = current_time - timedelta(seconds=self.config.dedup_window_seconds)
-        self._message_hashes = {
-            h: t for h, t in self._message_hashes.items() if t > cutoff_time
-        }
+        self._message_hashes = {h: t for h, t in self._message_hashes.items() if t > cutoff_time}
 
         # Check for duplicate
         if msg_hash in self._message_hashes:
@@ -645,8 +646,7 @@ class CANMessageBuffer:
 
         if time_delta > 0:
             self.stats.messages_per_second = (
-                self.stats.total_received /
-                (current_time - self._start_time).total_seconds()
+                self.stats.total_received / (current_time - self._start_time).total_seconds()
             )
 
         # Calculate success rates

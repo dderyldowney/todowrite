@@ -23,11 +23,11 @@ from enum import IntEnum
 class J1939Priority(IntEnum):
     """J1939 message priority levels for agricultural equipment."""
 
-    EMERGENCY_STOP = 0      # Highest priority - safety critical
-    CONTROL_MESSAGES = 1    # Real-time control
-    ENGINE_DATA = 3         # Engine parameters
-    POSITION_DATA = 6       # GPS/navigation data
-    STATUS_UPDATES = 7      # General status information
+    EMERGENCY_STOP = 0  # Highest priority - safety critical
+    CONTROL_MESSAGES = 1  # Real-time control
+    ENGINE_DATA = 3  # Engine parameters
+    POSITION_DATA = 6  # GPS/navigation data
+    STATUS_UPDATES = 7  # General status information
 
 
 @dataclass
@@ -39,12 +39,12 @@ class J1939Message:
     between tractors, implements, and agricultural control systems.
     """
 
-    pgn: int                    # Parameter Group Number
-    priority: int               # Message priority (0-7)
-    source_address: int         # Source ECU address
+    pgn: int  # Parameter Group Number
+    priority: int  # Message priority (0-7)
+    source_address: int  # Source ECU address
     destination_address: int | None = None  # Destination (None for broadcast)
-    data: bytes = b''          # Message data payload
-    timestamp: float = 0.0     # Message timestamp
+    data: bytes = b""  # Message data payload
+    timestamp: float = 0.0  # Message timestamp
 
     @property
     def is_broadcast(self) -> bool:
@@ -77,10 +77,10 @@ class J1939NameField:
     """
 
     arbitrary_address_capable: bool
-    industry_group: int         # 2 = Agricultural and Forestry Equipment
+    industry_group: int  # 2 = Agricultural and Forestry Equipment
     vehicle_system_instance: int
-    vehicle_system: int         # 25 = Tractor
-    function: int              # Equipment function code
+    vehicle_system: int  # 25 = Tractor
+    function: int  # Equipment function code
     function_instance: int
     ecu_instance: int
     manufacturer_code: int
@@ -90,16 +90,16 @@ class J1939NameField:
         """Convert NAME field to 8-byte CAN data format."""
         # Pack NAME field into 8 bytes according to J1939 specification
         name_bytes = struct.pack(
-            '<Q',  # Little-endian 8-byte unsigned
-            (self.arbitrary_address_capable << 63) |
-            (self.industry_group << 60) |
-            (self.vehicle_system_instance << 56) |
-            (self.vehicle_system << 49) |
-            (self.function << 40) |
-            (self.function_instance << 35) |
-            (self.ecu_instance << 32) |
-            (self.manufacturer_code << 21) |
-            (self.identity_number << 0)
+            "<Q",  # Little-endian 8-byte unsigned
+            (self.arbitrary_address_capable << 63)
+            | (self.industry_group << 60)
+            | (self.vehicle_system_instance << 56)
+            | (self.vehicle_system << 49)
+            | (self.function << 40)
+            | (self.function_instance << 35)
+            | (self.ecu_instance << 32)
+            | (self.manufacturer_code << 21)
+            | (self.identity_number << 0),
         )
         return name_bytes
 
@@ -149,7 +149,7 @@ class J1939AddressManager:
         self.device_name = device_name
         self.preferred_address = preferred_address
         self.device_class = device_class
-        self.claimed_address = None
+        self.claimed_address: int | None = None
 
     def generate_address_claim(self) -> J1939Message:
         """
@@ -164,18 +164,18 @@ class J1939AddressManager:
             industry_group=2,  # Agricultural and Forestry Equipment
             vehicle_system_instance=0,
             vehicle_system=25,  # Tractor
-            function=25,        # Agricultural Implement
+            function=25,  # Agricultural Implement
             function_instance=0,
             ecu_instance=0,
             manufacturer_code=1234,  # Example manufacturer
-            identity_number=5678     # Unique device ID
+            identity_number=5678,  # Unique device ID
         )
 
         return J1939Message(
             pgn=0xEE00,  # Address Claimed PGN
-            priority=6,   # Standard priority for address claiming
+            priority=6,  # Standard priority for address claiming
             source_address=self.preferred_address,
-            data=name_field.to_bytes()
+            data=name_field.to_bytes(),
         )
 
     def handle_address_conflict(self, conflicting_device) -> AddressClaimResult:
@@ -189,13 +189,15 @@ class J1939AddressManager:
             Address conflict resolution result
         """
         # Simplified conflict resolution - choose new address
-        new_address = self.preferred_address + 1 if self.preferred_address < 253 else self.preferred_address - 1
+        new_address: int = (
+            self.preferred_address + 1
+            if self.preferred_address < 253
+            else self.preferred_address - 1
+        )
         self.claimed_address = new_address
 
         return AddressClaimResult(
-            address_claimed=new_address,
-            conflict_resolved=True,
-            device_name=self.device_name
+            address_claimed=new_address, conflict_resolved=True, device_name=self.device_name
         )
 
 
@@ -214,7 +216,7 @@ class J1939PriorityManager:
             "engine_data": J1939Priority.ENGINE_DATA,
             "implement_status": 6,  # Custom priority for implement status
             "position_data": J1939Priority.POSITION_DATA,
-            "hydraulic_control": J1939Priority.CONTROL_MESSAGES
+            "hydraulic_control": J1939Priority.CONTROL_MESSAGES,
         }
 
     def get_priority_for_system(self, system_name: str) -> int:
@@ -244,7 +246,7 @@ class J1939PGNParser:
             0xFEEE: "Engine Temperature 1",
             0xF004: "Electronic Engine Controller 1",
             0xFEF3: "Vehicle Position",
-            0xAC00: "Agricultural Guidance System"  # Custom agricultural PGN
+            0xAC00: "Agricultural Guidance System",  # Custom agricultural PGN
         }
 
     def parse_pgn(self, pgn: int, data: bytes) -> ParsedPGNData:
@@ -264,19 +266,19 @@ class J1939PGNParser:
         if pgn == 0xFEEE:  # Engine Temperature 1
             if len(data) >= 2:
                 parsed_data.coolant_temperature = data[0] - 40  # Offset binary
-                parsed_data.fuel_temperature = data[1] - 40    # Offset binary
+                parsed_data.fuel_temperature = data[1] - 40  # Offset binary
 
         elif pgn == 0xF004:  # Electronic Engine Controller 1
             if len(data) >= 4:
                 # Engine speed in 0.125 RPM resolution
-                speed_raw = struct.unpack('<H', data[0:2])[0]
+                speed_raw = struct.unpack("<H", data[0:2])[0]
                 parsed_data.engine_speed = int(speed_raw * 0.125)
 
         elif pgn == 0xFEF3:  # Vehicle Position
             if len(data) >= 8:
                 # Simplified position parsing for agricultural use
-                lat_raw = struct.unpack('<L', data[0:4])[0]
-                lon_raw = struct.unpack('<L', data[4:8])[0]
+                lat_raw = struct.unpack("<L", data[0:4])[0]
+                lon_raw = struct.unpack("<L", data[4:8])[0]
                 parsed_data.latitude = lat_raw / 10000000.0  # Convert to degrees
                 parsed_data.longitude = lon_raw / 10000000.0  # Convert to degrees
                 parsed_data.position_accuracy = "High"
@@ -296,7 +298,7 @@ class TransportSegment:
 
     sequence_number: int
     is_connection_management: bool = False
-    data: bytes = b''
+    data: bytes = b""
     total_segments: int = 0
 
 
@@ -343,9 +345,7 @@ class J1939TransportProtocol:
 
         # Add connection management segment
         cm_segment = TransportSegment(
-            sequence_number=0,
-            is_connection_management=True,
-            total_segments=total_segments
+            sequence_number=0, is_connection_management=True, total_segments=total_segments
         )
         segments.append(cm_segment)
 
@@ -355,10 +355,7 @@ class J1939TransportProtocol:
             end_idx = min(start_idx + segment_size, data_len)
             segment_data = data[start_idx:end_idx]
 
-            segment = TransportSegment(
-                sequence_number=i + 1,
-                data=segment_data
-            )
+            segment = TransportSegment(sequence_number=i + 1, data=segment_data)
             segments.append(segment)
 
         return segments
@@ -379,14 +376,11 @@ class J1939TransportProtocol:
         # Check for missing segments
         for i, segment in enumerate(segments):
             if segment is None:
-                raise J1939TransportError(
-                    f"Missing segment {i}",
-                    "SEGMENT_MISSING"
-                )
+                raise J1939TransportError(f"Missing segment {i}", "SEGMENT_MISSING")
 
         # Skip connection management segment and reassemble data
         data_segments = [s for s in segments[1:] if s is not None]
-        reassembled_data = b''.join(segment.data for segment in data_segments)
+        reassembled_data = b"".join(segment.data for segment in data_segments)
 
         return reassembled_data
 
@@ -402,10 +396,7 @@ class J1939TransportProtocol:
             Segment wait result
         """
         # Simplified timeout simulation
-        return SegmentWaitResult(
-            timeout_occurred=True,
-            error_code="SEGMENT_TIMEOUT"
-        )
+        return SegmentWaitResult(timeout_occurred=True, error_code="SEGMENT_TIMEOUT")
 
 
 @dataclass
@@ -417,14 +408,14 @@ class J1939DTC:
     information for proactive maintenance and safety monitoring.
     """
 
-    spn: int                    # Suspect Parameter Number
-    fmi: int                    # Failure Mode Identifier
+    spn: int  # Suspect Parameter Number
+    fmi: int  # Failure Mode Identifier
     failure_mode: int
     occurrence_count: int
     source_address: int
     severity: str = "Unknown"
     requires_immediate_action: bool = False
-    priority_level: int = 5     # Default priority
+    priority_level: int = 5  # Default priority
     # Agricultural-specific fields
     equipment_type: str | None = None
     fault_category: str | None = None
@@ -444,7 +435,9 @@ class J1939DiagnosticManager:
         """Initialize diagnostic manager for agricultural equipment."""
         self.safety_critical_spns = {9999}  # Emergency stop and safety systems
 
-    def generate_dtc(self, spn: int, fmi: int, occurrence_count: int, source_address: int = 0) -> J1939DTC:
+    def generate_dtc(
+        self, spn: int, fmi: int, occurrence_count: int, source_address: int = 0
+    ) -> J1939DTC:
         """
         Generate J1939 DTC for agricultural equipment fault.
 
@@ -462,7 +455,7 @@ class J1939DiagnosticManager:
             fmi=fmi,
             failure_mode=fmi,
             occurrence_count=occurrence_count,
-            source_address=source_address
+            source_address=source_address,
         )
 
         # Determine severity based on SPN and FMI
@@ -480,8 +473,9 @@ class J1939DiagnosticManager:
 
         return dtc
 
-    def generate_agricultural_dtc(self, equipment_type: str, fault_category: str,
-                                 severity: str, description: str) -> J1939DTC:
+    def generate_agricultural_dtc(
+        self, equipment_type: str, fault_category: str, severity: str, description: str
+    ) -> J1939DTC:
         """
         Generate agricultural-specific DTC.
 
@@ -496,14 +490,14 @@ class J1939DiagnosticManager:
         """
         dtc = J1939DTC(
             spn=2000,  # Custom agricultural SPN range
-            fmi=2,     # Generic failure mode
+            fmi=2,  # Generic failure mode
             failure_mode=2,
             occurrence_count=1,
             source_address=0x26,  # Typical implement address
             equipment_type=equipment_type,
             fault_category=fault_category,
             severity=severity,
-            agricultural_specific=True
+            agricultural_specific=True,
         )
 
         # Set recommended action based on fault category
@@ -545,11 +539,14 @@ class J1939ISobusAdapter:
         Returns:
             ISOBUS message object
         """
+
         # Mock ISOBUS message object
         class ISOBUSMessage:
             def __init__(self):
                 self.function_code = j1939_message.pgn & 0xFF
-                self.agricultural_context = "Position Data" if j1939_message.pgn == 0xFEF3 else "Unknown"
+                self.agricultural_context = (
+                    "Position Data" if j1939_message.pgn == 0xFEF3 else "Unknown"
+                )
                 self.compatibility_verified = True
 
         return ISOBUSMessage()
@@ -585,7 +582,7 @@ class J1939Stack:
             priority=priority,
             source_address=0x26,  # Default implement address
             data=data,
-            timestamp=time.time()
+            timestamp=time.time(),
         )
 
     def process_message(self, message: J1939Message) -> bool:

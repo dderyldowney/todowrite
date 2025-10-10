@@ -108,7 +108,7 @@ class TestMessageRouter:
         # Create EEC1 message
         message = can.Message(
             arbitration_id=0x18F00400,  # EEC1 from engine ECU
-            data=b'\x00\x64\xC8\x40\x38\x00\x00\x00',
+            data=b"\x00\x64\xC8\x40\x38\x00\x00\x00",
             is_extended_id=True,
         )
 
@@ -123,7 +123,7 @@ class TestMessageRouter:
         # Unknown message should use all available interfaces
         message = can.Message(
             arbitration_id=0x18DEAD25,  # Unknown message
-            data=b'\x01\x02\x03\x04',
+            data=b"\x01\x02\x03\x04",
             is_extended_id=True,
         )
 
@@ -148,7 +148,7 @@ class TestMessageRouter:
         # Create GPS message
         message = can.Message(
             arbitration_id=0x18FEF325,  # VP from GPS receiver
-            data=b'\x00\x00\x00\x00\x00\x00\x00\x00',
+            data=b"\x00\x00\x00\x00\x00\x00\x00\x00",
             is_extended_id=True,
         )
 
@@ -166,12 +166,21 @@ class TestMessageRouter:
         """Test routing statistics collection."""
         # Add some rules
         rule1 = RoutingRule(
-            name="Rule 1", pgn_filters=[0xF004], source_filters=[], destination_filters=[],
-            priority=MessagePriority.HIGH, target_interfaces=["can0"]
+            name="Rule 1",
+            pgn_filters=[0xF004],
+            source_filters=[],
+            destination_filters=[],
+            priority=MessagePriority.HIGH,
+            target_interfaces=["can0"],
         )
         rule2 = RoutingRule(
-            name="Rule 2", pgn_filters=[0xFEF1], source_filters=[], destination_filters=[],
-            priority=MessagePriority.NORMAL, target_interfaces=["can1"], enabled=False
+            name="Rule 2",
+            pgn_filters=[0xFEF1],
+            source_filters=[],
+            destination_filters=[],
+            priority=MessagePriority.NORMAL,
+            target_interfaces=["can1"],
+            enabled=False,
         )
 
         router.add_routing_rule(rule1)
@@ -359,17 +368,19 @@ class TestCANBusConnectionManager:
         assert can_manager._state == ManagerState.INITIALIZING
 
         # Mock the connection pool initialization
-        with patch.object(can_manager.connection_pool, 'initialize', return_value=True):
+        with patch.object(can_manager.connection_pool, "initialize", return_value=True):
             success = await can_manager.initialize()
 
         assert success is True
         assert can_manager._state == ManagerState.RUNNING
 
     @pytest.mark.asyncio
-    async def test_manager_initialization_failure(self, can_manager: CANBusConnectionManager) -> None:
+    async def test_manager_initialization_failure(
+        self, can_manager: CANBusConnectionManager
+    ) -> None:
         """Test manager initialization failure."""
         # Mock connection pool failure
-        with patch.object(can_manager.connection_pool, 'initialize', return_value=False):
+        with patch.object(can_manager.connection_pool, "initialize", return_value=False):
             success = await can_manager.initialize()
 
         assert success is False
@@ -394,7 +405,7 @@ class TestCANBusConnectionManager:
         """Test handling of incoming CAN messages."""
         message = can.Message(
             arbitration_id=0x18F00400,
-            data=b'\x00\x64\xC8\x40\x38\x00\x00\x00',
+            data=b"\x00\x64\xC8\x40\x38\x00\x00\x00",
             is_extended_id=True,
         )
 
@@ -407,7 +418,7 @@ class TestCANBusConnectionManager:
     def test_incoming_message_queue_full(self, can_manager: CANBusConnectionManager) -> None:
         """Test handling when message queue is full."""
         # Fill the queue
-        message = can.Message(arbitration_id=0x123, data=b'\x01\x02', is_extended_id=True)
+        message = can.Message(arbitration_id=0x123, data=b"\x01\x02", is_extended_id=True)
 
         # Fill queue to capacity
         for _ in range(1000):  # Queue maxsize is 1000
@@ -424,7 +435,7 @@ class TestCANBusConnectionManager:
         """Test sending message with automatic routing."""
         message = can.Message(
             arbitration_id=0x18F00400,  # EEC1
-            data=b'\x00\x64\xC8\x40\x38\x00\x00\x00',
+            data=b"\x00\x64\xC8\x40\x38\x00\x00\x00",
             is_extended_id=True,
         )
 
@@ -432,8 +443,12 @@ class TestCANBusConnectionManager:
         mock_interface = MagicMock()
         mock_interface.send_message = AsyncMock(return_value=True)
 
-        with patch.object(can_manager.connection_pool, 'get_active_interfaces', return_value=["can0"]), \
-             patch.object(can_manager.physical_manager, '_interfaces', {"can0": mock_interface}):
+        with (
+            patch.object(
+                can_manager.connection_pool, "get_active_interfaces", return_value=["can0"]
+            ),
+            patch.object(can_manager.physical_manager, "_interfaces", {"can0": mock_interface}),
+        ):
 
             results = await can_manager.send_message(message)
 
@@ -442,15 +457,17 @@ class TestCANBusConnectionManager:
             mock_interface.send_message.assert_called_once_with(message)
 
     @pytest.mark.asyncio
-    async def test_send_message_specific_interfaces(self, can_manager: CANBusConnectionManager) -> None:
+    async def test_send_message_specific_interfaces(
+        self, can_manager: CANBusConnectionManager
+    ) -> None:
         """Test sending message to specific interfaces."""
-        message = can.Message(arbitration_id=0x123, data=b'\x01\x02', is_extended_id=True)
+        message = can.Message(arbitration_id=0x123, data=b"\x01\x02", is_extended_id=True)
 
         # Mock interface
         mock_interface = MagicMock()
         mock_interface.send_message = AsyncMock(return_value=True)
 
-        with patch.object(can_manager.physical_manager, '_interfaces', {"can0": mock_interface}):
+        with patch.object(can_manager.physical_manager, "_interfaces", {"can0": mock_interface}):
             results = await can_manager.send_message(message, target_interfaces=["can0"])
 
             assert results["can0"] is True
@@ -482,7 +499,9 @@ class TestCANBusConnectionManager:
 
         # Mock successful creation
         mock_interface = MagicMock()
-        with patch.object(can_manager.physical_manager, 'create_interface', return_value=mock_interface):
+        with patch.object(
+            can_manager.physical_manager, "create_interface", return_value=mock_interface
+        ):
             success = await can_manager.create_interface("test_interface", config)
 
         assert success is True
@@ -512,7 +531,9 @@ class TestCANBusConnectionManager:
         assert len(can_manager.message_router.routing_rules) >= 3
 
         # Check for emergency rule
-        emergency_rules = [r for r in can_manager.message_router.routing_rules if "Emergency" in r.name]
+        emergency_rules = [
+            r for r in can_manager.message_router.routing_rules if "Emergency" in r.name
+        ]
         assert len(emergency_rules) >= 1
 
         # Check for engine rule
@@ -523,13 +544,13 @@ class TestCANBusConnectionManager:
     async def test_manager_shutdown(self, can_manager: CANBusConnectionManager) -> None:
         """Test manager shutdown process."""
         # Initialize first
-        with patch.object(can_manager.connection_pool, 'initialize', return_value=True):
+        with patch.object(can_manager.connection_pool, "initialize", return_value=True):
             await can_manager.initialize()
 
         assert can_manager._state == ManagerState.RUNNING
 
         # Mock connection pool shutdown
-        with patch.object(can_manager.connection_pool, 'shutdown') as mock_shutdown:
+        with patch.object(can_manager.connection_pool, "shutdown") as mock_shutdown:
             await can_manager.shutdown()
 
         assert can_manager._state == ManagerState.STOPPED
@@ -554,7 +575,7 @@ class TestIntegrationScenarios:
         manager = CANBusConnectionManager(pool_config)
 
         # Mock successful initialization
-        with patch.object(manager.connection_pool, 'initialize', return_value=True):
+        with patch.object(manager.connection_pool, "initialize", return_value=True):
             success = await manager.initialize()
 
         assert success is True
@@ -563,13 +584,13 @@ class TestIntegrationScenarios:
         # Test routing for different message types
         engine_message = can.Message(
             arbitration_id=0x18F00400,  # EEC1 - Engine data
-            data=b'\x00\x64\xC8\x40\x38\x00\x00\x00',
+            data=b"\x00\x64\xC8\x40\x38\x00\x00\x00",
             is_extended_id=True,
         )
 
         emergency_message = can.Message(
             arbitration_id=0x18E00125,  # Emergency stop
-            data=b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00',
+            data=b"\xFF\xFF\xFF\xFF\x00\x00\x00\x00",
             is_extended_id=True,
         )
 
@@ -577,11 +598,21 @@ class TestIntegrationScenarios:
         mock_interface = MagicMock()
         mock_interface.send_message = AsyncMock(return_value=True)
 
-        with patch.object(manager.physical_manager, '_interfaces', {
-            "field_network": mock_interface,
-            "implement_network": mock_interface,
-        }), patch.object(manager.connection_pool, 'get_active_interfaces',
-                        return_value=["field_network", "implement_network"]):
+        with (
+            patch.object(
+                manager.physical_manager,
+                "_interfaces",
+                {
+                    "field_network": mock_interface,
+                    "implement_network": mock_interface,
+                },
+            ),
+            patch.object(
+                manager.connection_pool,
+                "get_active_interfaces",
+                return_value=["field_network", "implement_network"],
+            ),
+        ):
 
             # Send engine message - should route to appropriate interfaces
             engine_results = await manager.send_message(engine_message)
@@ -607,7 +638,7 @@ class TestIntegrationScenarios:
         manager = CANBusConnectionManager(pool_config)
 
         # Mock initialization
-        with patch.object(manager.connection_pool, 'initialize', return_value=True):
+        with patch.object(manager.connection_pool, "initialize", return_value=True):
             await manager.initialize()
 
         # Simulate primary interface failure
@@ -641,7 +672,7 @@ class TestIntegrationScenarios:
         manager = CANBusConnectionManager(pool_config)
 
         # Mock initialization
-        with patch.object(manager.connection_pool, 'initialize', return_value=True):
+        with patch.object(manager.connection_pool, "initialize", return_value=True):
             await manager.initialize()
 
         # Setup message callback to track processed messages
@@ -654,9 +685,9 @@ class TestIntegrationScenarios:
 
         # Simulate high-frequency messages
         test_messages = [
-            (0x18F00400, b'\x00\x64\xC8\x40\x38\x00\x00\x00'),  # EEC1 - 50ms
-            (0x18FEF10B, b'\x80\x19\x00\x00\x00\x00\x00\x00'),  # WVS - 100ms
-            (0x18FEF325, b'\x00\x00\x00\x00\x00\x00\x00\x00'),  # VP - 1000ms
+            (0x18F00400, b"\x00\x64\xC8\x40\x38\x00\x00\x00"),  # EEC1 - 50ms
+            (0x18FEF10B, b"\x80\x19\x00\x00\x00\x00\x00\x00"),  # WVS - 100ms
+            (0x18FEF325, b"\x00\x00\x00\x00\x00\x00\x00\x00"),  # VP - 1000ms
         ]
 
         # Send rapid burst of messages
@@ -707,7 +738,7 @@ class TestIntegrationScenarios:
         # Create EEC1 message
         message = can.Message(
             arbitration_id=0x18F00400,
-            data=b'\x00\x64\xC8\x40\x38\x00\x00\x00',
+            data=b"\x00\x64\xC8\x40\x38\x00\x00\x00",
             is_extended_id=True,
         )
 

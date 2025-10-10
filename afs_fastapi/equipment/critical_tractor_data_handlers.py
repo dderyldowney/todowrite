@@ -12,11 +12,11 @@ from __future__ import annotations
 
 import logging
 import math
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any
-from collections.abc import Callable
 
 from afs_fastapi.core.can_frame_codec import CANFrameCodec, DecodedPGN
 from afs_fastapi.equipment.can_error_handling import CANErrorHandler, CANErrorType
@@ -37,11 +37,11 @@ class AlertLevel(Enum):
 class DataQuality(Enum):
     """Data quality assessment levels."""
 
-    EXCELLENT = "excellent"    # <1% variance, high frequency
-    GOOD = "good"             # <5% variance, normal frequency
-    FAIR = "fair"             # <10% variance, reduced frequency
-    POOR = "poor"             # >10% variance, irregular frequency
-    INVALID = "invalid"       # Failed validation
+    EXCELLENT = "excellent"  # <1% variance, high frequency
+    GOOD = "good"  # <5% variance, normal frequency
+    FAIR = "fair"  # <10% variance, reduced frequency
+    POOR = "poor"  # >10% variance, irregular frequency
+    INVALID = "invalid"  # Failed validation
 
 
 @dataclass
@@ -179,7 +179,9 @@ class SpeedDataHandler:
             self._update_speed_history(speed_data)
             self._check_speed_alerts(speed_data)
 
-            logger.debug(f"Processed speed: {speed_kmh:.1f} km/h from {decoded_msg.source_address:02X}")
+            logger.debug(
+                f"Processed speed: {speed_kmh:.1f} km/h from {decoded_msg.source_address:02X}"
+            )
             return speed_data
 
         except Exception as e:
@@ -300,36 +302,42 @@ class SpeedDataHandler:
 
         # Overspeed alerts
         if speed_data.working_speed and speed_data.value > self.max_working_speed:
-            alerts.append(Alert(
-                level=AlertLevel.WARNING,
-                message=f"Working speed exceeded: {speed_data.value:.1f} km/h",
-                data_type="speed",
-                source_address=speed_data.source_address,
-                timestamp=speed_data.timestamp,
-                value=speed_data.value,
-                threshold=self.max_working_speed,
-            ))
+            alerts.append(
+                Alert(
+                    level=AlertLevel.WARNING,
+                    message=f"Working speed exceeded: {speed_data.value:.1f} km/h",
+                    data_type="speed",
+                    source_address=speed_data.source_address,
+                    timestamp=speed_data.timestamp,
+                    value=speed_data.value,
+                    threshold=self.max_working_speed,
+                )
+            )
 
         if speed_data.value > self.max_transport_speed:
-            alerts.append(Alert(
-                level=AlertLevel.CRITICAL,
-                message=f"Transport speed exceeded: {speed_data.value:.1f} km/h",
-                data_type="speed",
-                source_address=speed_data.source_address,
-                timestamp=speed_data.timestamp,
-                value=speed_data.value,
-                threshold=self.max_transport_speed,
-            ))
+            alerts.append(
+                Alert(
+                    level=AlertLevel.CRITICAL,
+                    message=f"Transport speed exceeded: {speed_data.value:.1f} km/h",
+                    data_type="speed",
+                    source_address=speed_data.source_address,
+                    timestamp=speed_data.timestamp,
+                    value=speed_data.value,
+                    threshold=self.max_transport_speed,
+                )
+            )
 
         # Quality alerts
         if speed_data.quality == DataQuality.POOR:
-            alerts.append(Alert(
-                level=AlertLevel.WARNING,
-                message="Speed data quality degraded",
-                data_type="speed_quality",
-                source_address=speed_data.source_address,
-                timestamp=speed_data.timestamp,
-            ))
+            alerts.append(
+                Alert(
+                    level=AlertLevel.WARNING,
+                    message="Speed data quality degraded",
+                    data_type="speed_quality",
+                    source_address=speed_data.source_address,
+                    timestamp=speed_data.timestamp,
+                )
+            )
 
         # Send alerts
         for alert in alerts:
@@ -427,7 +435,9 @@ class FuelDataHandler:
             self._update_fuel_history(fuel_data)
             self._check_fuel_alerts(fuel_data)
 
-            logger.debug(f"Processed fuel: {fuel_rate_lh:.1f} L/h, {fuel_level_percent:.1f}% from {decoded_msg.source_address:02X}")
+            logger.debug(
+                f"Processed fuel: {fuel_rate_lh:.1f} L/h, {fuel_level_percent:.1f}% from {decoded_msg.source_address:02X}"
+            )
             return fuel_data
 
         except Exception as e:
@@ -468,7 +478,9 @@ class FuelDataHandler:
             avg_rate = sum(recent_rates) / len(recent_rates)
             # This is a simplified estimation - real implementation would be more sophisticated
             estimated_hours_remaining = 8.0  # Default 8 hours remaining
-            estimated_fuel_remaining = min(100.0, (estimated_hours_remaining * avg_rate / self.tank_capacity) * 100)
+            estimated_fuel_remaining = min(
+                100.0, (estimated_hours_remaining * avg_rate / self.tank_capacity) * 100
+            )
             return max(0.0, estimated_fuel_remaining)
 
         return 50.0  # Default middle value
@@ -568,37 +580,43 @@ class FuelDataHandler:
 
         # Low fuel alerts
         if fuel_data.fuel_level_percent <= self.critical_fuel_threshold:
-            alerts.append(Alert(
-                level=AlertLevel.CRITICAL,
-                message=f"Critical fuel level: {fuel_data.fuel_level_percent:.1f}%",
-                data_type="fuel_level",
-                source_address=fuel_data.source_address,
-                timestamp=fuel_data.timestamp,
-                value=fuel_data.fuel_level_percent,
-                threshold=self.critical_fuel_threshold,
-            ))
+            alerts.append(
+                Alert(
+                    level=AlertLevel.CRITICAL,
+                    message=f"Critical fuel level: {fuel_data.fuel_level_percent:.1f}%",
+                    data_type="fuel_level",
+                    source_address=fuel_data.source_address,
+                    timestamp=fuel_data.timestamp,
+                    value=fuel_data.fuel_level_percent,
+                    threshold=self.critical_fuel_threshold,
+                )
+            )
         elif fuel_data.fuel_level_percent <= self.low_fuel_threshold:
-            alerts.append(Alert(
-                level=AlertLevel.WARNING,
-                message=f"Low fuel level: {fuel_data.fuel_level_percent:.1f}%",
-                data_type="fuel_level",
-                source_address=fuel_data.source_address,
-                timestamp=fuel_data.timestamp,
-                value=fuel_data.fuel_level_percent,
-                threshold=self.low_fuel_threshold,
-            ))
+            alerts.append(
+                Alert(
+                    level=AlertLevel.WARNING,
+                    message=f"Low fuel level: {fuel_data.fuel_level_percent:.1f}%",
+                    data_type="fuel_level",
+                    source_address=fuel_data.source_address,
+                    timestamp=fuel_data.timestamp,
+                    value=fuel_data.fuel_level_percent,
+                    threshold=self.low_fuel_threshold,
+                )
+            )
 
         # High consumption alerts
         if fuel_data.fuel_rate_lh > 30.0:  # High consumption threshold
-            alerts.append(Alert(
-                level=AlertLevel.WARNING,
-                message=f"High fuel consumption: {fuel_data.fuel_rate_lh:.1f} L/h",
-                data_type="fuel_consumption",
-                source_address=fuel_data.source_address,
-                timestamp=fuel_data.timestamp,
-                value=fuel_data.fuel_rate_lh,
-                threshold=30.0,
-            ))
+            alerts.append(
+                Alert(
+                    level=AlertLevel.WARNING,
+                    message=f"High fuel consumption: {fuel_data.fuel_rate_lh:.1f} L/h",
+                    data_type="fuel_consumption",
+                    source_address=fuel_data.source_address,
+                    timestamp=fuel_data.timestamp,
+                    value=fuel_data.fuel_rate_lh,
+                    threshold=30.0,
+                )
+            )
 
         # Send alerts
         for alert in alerts:
@@ -696,7 +714,9 @@ class GPSDataHandler:
             self._update_gps_history(gps_data)
             self._check_gps_alerts(gps_data)
 
-            logger.debug(f"Processed GPS: {latitude:.6f}, {longitude:.6f} from {decoded_msg.source_address:02X}")
+            logger.debug(
+                f"Processed GPS: {latitude:.6f}, {longitude:.6f} from {decoded_msg.source_address:02X}"
+            )
             return gps_data
 
         except Exception as e:
@@ -790,13 +810,17 @@ class GPSDataHandler:
         dlat = lat2_rad - lat1_rad
         dlon = lon2_rad - lon1_rad
 
-        a = (math.sin(dlat / 2) ** 2 +
-             math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon / 2) ** 2)
+        a = (
+            math.sin(dlat / 2) ** 2
+            + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon / 2) ** 2
+        )
         c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
         return R * c
 
-    def _assess_gps_quality(self, latitude: float, longitude: float, source_address: int) -> DataQuality:
+    def _assess_gps_quality(
+        self, latitude: float, longitude: float, source_address: int
+    ) -> DataQuality:
         """Assess GPS data quality.
 
         Parameters
@@ -820,7 +844,9 @@ class GPSDataHandler:
             position_variance = 0.0
 
             for pos in recent_positions:
-                distance = self._haversine_distance(latitude, longitude, pos.latitude, pos.longitude)
+                distance = self._haversine_distance(
+                    latitude, longitude, pos.latitude, pos.longitude
+                )
                 position_variance += distance * 1000  # Convert to meters
 
             avg_variance = position_variance / len(recent_positions)
@@ -894,7 +920,9 @@ class GPSDataHandler:
 
         # Zone detection for variable rate applications
         # This would typically integrate with prescription maps
-        gps_data.zone_id = f"zone_{hash((gps_data.latitude // 0.001, gps_data.longitude // 0.001)) % 100:02d}"
+        gps_data.zone_id = (
+            f"zone_{hash((gps_data.latitude // 0.001, gps_data.longitude // 0.001)) % 100:02d}"
+        )
 
         # Guidance error estimation (would require guidance system integration)
         gps_data.guidance_error = 0.5  # Default 0.5m guidance error
@@ -933,37 +961,43 @@ class GPSDataHandler:
 
         # Poor GPS quality
         if gps_data.quality == DataQuality.POOR:
-            alerts.append(Alert(
-                level=AlertLevel.WARNING,
-                message="GPS signal quality degraded",
-                data_type="gps_quality",
-                source_address=gps_data.source_address,
-                timestamp=gps_data.timestamp,
-            ))
+            alerts.append(
+                Alert(
+                    level=AlertLevel.WARNING,
+                    message="GPS signal quality degraded",
+                    data_type="gps_quality",
+                    source_address=gps_data.source_address,
+                    timestamp=gps_data.timestamp,
+                )
+            )
 
         # Low satellite count
         if gps_data.satellite_count and gps_data.satellite_count < self.min_satellite_count:
-            alerts.append(Alert(
-                level=AlertLevel.WARNING,
-                message=f"Low satellite count: {gps_data.satellite_count}",
-                data_type="gps_satellites",
-                source_address=gps_data.source_address,
-                timestamp=gps_data.timestamp,
-                value=float(gps_data.satellite_count),
-                threshold=float(self.min_satellite_count),
-            ))
+            alerts.append(
+                Alert(
+                    level=AlertLevel.WARNING,
+                    message=f"Low satellite count: {gps_data.satellite_count}",
+                    data_type="gps_satellites",
+                    source_address=gps_data.source_address,
+                    timestamp=gps_data.timestamp,
+                    value=float(gps_data.satellite_count),
+                    threshold=float(self.min_satellite_count),
+                )
+            )
 
         # High HDOP (poor accuracy)
         if gps_data.hdop and gps_data.hdop > self.max_hdop:
-            alerts.append(Alert(
-                level=AlertLevel.WARNING,
-                message=f"Poor GPS accuracy (HDOP: {gps_data.hdop:.1f})",
-                data_type="gps_hdop",
-                source_address=gps_data.source_address,
-                timestamp=gps_data.timestamp,
-                value=gps_data.hdop,
-                threshold=self.max_hdop,
-            ))
+            alerts.append(
+                Alert(
+                    level=AlertLevel.WARNING,
+                    message=f"Poor GPS accuracy (HDOP: {gps_data.hdop:.1f})",
+                    data_type="gps_hdop",
+                    source_address=gps_data.source_address,
+                    timestamp=gps_data.timestamp,
+                    value=gps_data.hdop,
+                    threshold=self.max_hdop,
+                )
+            )
 
         # Send alerts
         for alert in alerts:
@@ -1186,7 +1220,8 @@ class CriticalDataAggregator:
         # Get recent alerts (last 5 minutes)
         cutoff_time = datetime.utcnow() - timedelta(minutes=5)
         recent_alerts = [
-            alert for alert in self._alert_history
+            alert
+            for alert in self._alert_history
             if alert.source_address == source_address and alert.timestamp > cutoff_time
         ]
 

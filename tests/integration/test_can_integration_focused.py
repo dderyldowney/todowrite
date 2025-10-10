@@ -6,29 +6,25 @@ agricultural scenarios, using the actual implemented components.
 
 from __future__ import annotations
 
-import pytest
-from unittest.mock import AsyncMock
-import can
 from datetime import datetime
+from unittest.mock import AsyncMock
 
+import can
+import pytest
+
+from afs_fastapi.core.can_frame_codec import CANFrameCodec
+from afs_fastapi.equipment.can_bus_manager import CANBusConnectionManager, ConnectionPoolConfig
+from afs_fastapi.equipment.can_error_handling import CANErrorHandler
 from afs_fastapi.equipment.physical_can_interface import (
-    InterfaceConfiguration,
-    CANInterfaceType,
     BusSpeed,
-)
-from afs_fastapi.equipment.can_bus_manager import (
-    CANBusConnectionManager,
-    ConnectionPoolConfig,
-)
-from afs_fastapi.core.can_frame_codec import (
-    CANFrameCodec,
+    CANInterfaceType,
+    InterfaceConfiguration,
 )
 from afs_fastapi.protocols.isobus_handlers import (
-    ISOBUSProtocolManager,
     ISOBUSDevice,
     ISOBUSFunction,
+    ISOBUSProtocolManager,
 )
-from afs_fastapi.equipment.can_error_handling import CANErrorHandler
 
 
 class TestCANIntegrationFocused:
@@ -95,8 +91,8 @@ class TestCANIntegrationFocused:
         # Test encoding GPS position
         gps_frame = can_codec.encoder.encode_gps_position(
             source_address=0x82,
-            latitude=40.7128,   # NYC latitude
-            longitude=-74.0060, # NYC longitude
+            latitude=40.7128,  # NYC latitude
+            longitude=-74.0060,  # NYC longitude
         )
 
         assert gps_frame is not None
@@ -236,11 +232,11 @@ class TestCANIntegrationFocused:
         )
 
         # Should handle gracefully without crashing
-        decoded = can_codec.decode_message(invalid_message)
+        _ = can_codec.decode_message(invalid_message)
         # May return None or handle gracefully
 
         # Test with invalid encoding parameters
-        invalid_frame = can_codec.encoder.encode_engine_data(
+        _ = can_codec.encoder.encode_engine_data(
             source_address=999,  # Invalid address
             engine_speed=-100.0,  # Invalid speed
         )

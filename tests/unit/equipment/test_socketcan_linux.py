@@ -49,10 +49,7 @@ class TestLinuxSocketCANManager:
     link/can
     can <NOARP,UP,ECHO>"""
 
-        with patch.object(
-            linux_manager, '_run_command',
-            return_value=(mock_output, "")
-        ):
+        with patch.object(linux_manager, "_run_command", return_value=(mock_output, "")):
             interfaces = await linux_manager.discover_can_interfaces()
 
             assert len(interfaces) == 2
@@ -77,8 +74,9 @@ class TestLinuxSocketCANManager:
     async def test_interface_discovery_failure(self, linux_manager: LinuxSocketCANManager) -> None:
         """Test handling of interface discovery failures."""
         with patch.object(
-            linux_manager, '_run_command',
-            side_effect=subprocess.CalledProcessError(1, ['ip'], "Command failed")
+            linux_manager,
+            "_run_command",
+            side_effect=subprocess.CalledProcessError(1, ["ip"], "Command failed"),
         ):
             interfaces = await linux_manager.discover_can_interfaces()
 
@@ -89,7 +87,7 @@ class TestLinuxSocketCANManager:
         """Test CAN interface configuration on Linux."""
         mock_run_command = AsyncMock(return_value=("", ""))
 
-        with patch.object(linux_manager, '_run_command', mock_run_command):
+        with patch.object(linux_manager, "_run_command", mock_run_command):
             result = await linux_manager.configure_interface(
                 interface_name="can0",
                 bitrate=250000,
@@ -103,23 +101,37 @@ class TestLinuxSocketCANManager:
             assert mock_run_command.call_count == 3
 
             # Check down command
-            mock_run_command.assert_any_call(['ip', 'link', 'set', 'can0', 'down'])
+            mock_run_command.assert_any_call(["ip", "link", "set", "can0", "down"])
 
             # Check configuration command
-            mock_run_command.assert_any_call([
-                'ip', 'link', 'set', 'can0', 'type', 'can',
-                'bitrate', '250000', 'sample-point', '0.875', 'restart-ms', '100'
-            ])
+            mock_run_command.assert_any_call(
+                [
+                    "ip",
+                    "link",
+                    "set",
+                    "can0",
+                    "type",
+                    "can",
+                    "bitrate",
+                    "250000",
+                    "sample-point",
+                    "0.875",
+                    "restart-ms",
+                    "100",
+                ]
+            )
 
             # Check up command
-            mock_run_command.assert_any_call(['ip', 'link', 'set', 'can0', 'up'])
+            mock_run_command.assert_any_call(["ip", "link", "set", "can0", "up"])
 
     @pytest.mark.asyncio
-    async def test_interface_configuration_with_fd(self, linux_manager: LinuxSocketCANManager) -> None:
+    async def test_interface_configuration_with_fd(
+        self, linux_manager: LinuxSocketCANManager
+    ) -> None:
         """Test CAN FD interface configuration."""
         mock_run_command = AsyncMock(return_value=("", ""))
 
-        with patch.object(linux_manager, '_run_command', mock_run_command):
+        with patch.object(linux_manager, "_run_command", mock_run_command):
             result = await linux_manager.configure_interface(
                 interface_name="can0",
                 bitrate=500000,
@@ -129,24 +141,41 @@ class TestLinuxSocketCANManager:
             assert result is True
 
             # Verify FD configuration was included
-            mock_run_command.assert_any_call([
-                'ip', 'link', 'set', 'can0', 'type', 'can',
-                'bitrate', '500000', 'restart-ms', '100', 'fd', 'on'
-            ])
+            mock_run_command.assert_any_call(
+                [
+                    "ip",
+                    "link",
+                    "set",
+                    "can0",
+                    "type",
+                    "can",
+                    "bitrate",
+                    "500000",
+                    "restart-ms",
+                    "100",
+                    "fd",
+                    "on",
+                ]
+            )
 
     @pytest.mark.asyncio
-    async def test_interface_configuration_failure(self, linux_manager: LinuxSocketCANManager) -> None:
+    async def test_interface_configuration_failure(
+        self, linux_manager: LinuxSocketCANManager
+    ) -> None:
         """Test handling of interface configuration failures."""
         with patch.object(
-            linux_manager, '_run_command',
-            side_effect=subprocess.CalledProcessError(1, ['ip'], "Permission denied")
+            linux_manager,
+            "_run_command",
+            side_effect=subprocess.CalledProcessError(1, ["ip"], "Permission denied"),
         ):
             result = await linux_manager.configure_interface("can0", 250000)
 
             assert result is False
 
     @pytest.mark.asyncio
-    async def test_statistics_parsing_from_ip_command(self, linux_manager: LinuxSocketCANManager) -> None:
+    async def test_statistics_parsing_from_ip_command(
+        self, linux_manager: LinuxSocketCANManager
+    ) -> None:
         """Test parsing statistics from ip command output."""
         mock_ip_output = """3: can0: <UP,LOWER_UP> mtu 16 qdisc pfifo_fast state UP qlen 10
     link/can
@@ -155,10 +184,7 @@ class TestLinuxSocketCANManager:
     TX: bytes  packets  errors  dropped carrier collsns
     12480    156      2       1       0       0"""
 
-        with patch.object(
-            linux_manager, '_run_command',
-            return_value=(mock_ip_output, "")
-        ):
+        with patch.object(linux_manager, "_run_command", return_value=(mock_ip_output, "")):
             stats = await linux_manager.get_interface_statistics("can0")
 
             assert stats is not None
@@ -185,8 +211,10 @@ tx_dropped: 1"""
         mock_path = MagicMock()
         mock_path.exists.return_value = True
 
-        with patch('pathlib.Path', return_value=mock_path), \
-             patch('builtins.open', mock_open(read_data=mock_proc_content)):
+        with (
+            patch("pathlib.Path", return_value=mock_path),
+            patch("builtins.open", mock_open(read_data=mock_proc_content)),
+        ):
 
             stats = await linux_manager._parse_proc_stats("can0", mock_path)
 
@@ -243,7 +271,7 @@ tx_dropped: 1"""
             tx_packets=80,
         )
 
-        with patch.object(linux_manager, 'get_interface_statistics', return_value=mock_stats):
+        with patch.object(linux_manager, "get_interface_statistics", return_value=mock_stats):
             # Start monitoring
             await linux_manager.start_monitoring("can0", update_interval=0.1)
 
@@ -267,7 +295,7 @@ tx_dropped: 1"""
         """Test interface queue optimization."""
         mock_run_command = AsyncMock(return_value=("", ""))
 
-        with patch.object(linux_manager, '_run_command', mock_run_command):
+        with patch.object(linux_manager, "_run_command", mock_run_command):
             high_priority_ids = [0x18E001, 0x18E002, 0x18E003]
 
             result = await linux_manager.optimize_interface_queue(
@@ -279,9 +307,9 @@ tx_dropped: 1"""
             assert result is True
 
             # Verify queue configuration command
-            mock_run_command.assert_called_once_with([
-                'ip', 'link', 'set', 'can0', 'txqueuelen', '150'
-            ])
+            mock_run_command.assert_called_once_with(
+                ["ip", "link", "set", "can0", "txqueuelen", "150"]
+            )
 
     @pytest.mark.asyncio
     async def test_bus_health_check_healthy(self, linux_manager: LinuxSocketCANManager) -> None:
@@ -314,8 +342,10 @@ tx_dropped: 1"""
             bus_load_percentage=45.0,
         )
 
-        with patch.object(linux_manager, 'discover_can_interfaces', return_value=[mock_interface]), \
-             patch.object(linux_manager, 'get_interface_statistics', return_value=mock_stats):
+        with (
+            patch.object(linux_manager, "discover_can_interfaces", return_value=[mock_interface]),
+            patch.object(linux_manager, "get_interface_statistics", return_value=mock_stats),
+        ):
 
             health_report = await linux_manager.perform_bus_health_check("can0")
 
@@ -354,8 +384,10 @@ tx_dropped: 1"""
             bus_load_percentage=85.0,  # High bus load
         )
 
-        with patch.object(linux_manager, 'discover_can_interfaces', return_value=[mock_interface]), \
-             patch.object(linux_manager, 'get_interface_statistics', return_value=mock_stats):
+        with (
+            patch.object(linux_manager, "discover_can_interfaces", return_value=[mock_interface]),
+            patch.object(linux_manager, "get_interface_statistics", return_value=mock_stats),
+        ):
 
             health_report = await linux_manager.perform_bus_health_check("can0")
 
@@ -420,9 +452,13 @@ class TestEnhancedSocketCANInterface:
         mock_configure = AsyncMock(return_value=True)
         mock_start_monitoring = AsyncMock()
 
-        with patch.object(enhanced_interface.linux_manager, 'configure_interface', mock_configure), \
-             patch.object(enhanced_interface.linux_manager, 'start_monitoring', mock_start_monitoring), \
-             patch('can.interface.Bus') as mock_bus:
+        with (
+            patch.object(enhanced_interface.linux_manager, "configure_interface", mock_configure),
+            patch.object(
+                enhanced_interface.linux_manager, "start_monitoring", mock_start_monitoring
+            ),
+            patch("can.interface.Bus") as mock_bus,
+        ):
 
             mock_bus_instance = MagicMock()
             mock_bus.return_value = mock_bus_instance
@@ -450,8 +486,10 @@ class TestEnhancedSocketCANInterface:
         """Test enhanced disconnection with proper cleanup."""
         mock_stop_monitoring = AsyncMock()
 
-        with patch.object(enhanced_interface.linux_manager, 'stop_monitoring', mock_stop_monitoring), \
-             patch('can.interface.Bus'):
+        with (
+            patch.object(enhanced_interface.linux_manager, "stop_monitoring", mock_stop_monitoring),
+            patch("can.interface.Bus"),
+        ):
 
             # First connect
             await enhanced_interface.connect()
@@ -472,7 +510,9 @@ class TestEnhancedSocketCANInterface:
         """Test agricultural-specific optimizations."""
         mock_optimize_queue = AsyncMock(return_value=True)
 
-        with patch.object(enhanced_interface.linux_manager, 'optimize_interface_queue', mock_optimize_queue):
+        with patch.object(
+            enhanced_interface.linux_manager, "optimize_interface_queue", mock_optimize_queue
+        ):
             result = await enhanced_interface.optimize_for_agriculture()
 
             assert result is True
@@ -500,8 +540,8 @@ class TestEnhancedSocketCANInterface:
 
         with patch.object(
             enhanced_interface.linux_manager,
-            'perform_bus_health_check',
-            return_value=mock_health_report
+            "perform_bus_health_check",
+            return_value=mock_health_report,
         ):
             health_status = await enhanced_interface.get_health_status()
 
@@ -521,9 +561,7 @@ class TestEnhancedSocketCANInterface:
         )
 
         with patch.object(
-            enhanced_interface.linux_manager,
-            'get_cached_statistics',
-            return_value=mock_stats
+            enhanced_interface.linux_manager, "get_cached_statistics", return_value=mock_stats
         ):
             metrics = enhanced_interface.get_performance_metrics()
 
@@ -573,9 +611,11 @@ class TestIntegrationScenarios:
             ),
         ]
 
-        with patch.object(linux_manager, 'discover_can_interfaces', return_value=mock_interfaces), \
-             patch.object(linux_manager, 'configure_interface', return_value=True), \
-             patch.object(linux_manager, 'start_monitoring'):
+        with (
+            patch.object(linux_manager, "discover_can_interfaces", return_value=mock_interfaces),
+            patch.object(linux_manager, "configure_interface", return_value=True),
+            patch.object(linux_manager, "start_monitoring"),
+        ):
 
             # Discover available interfaces
             interfaces = await linux_manager.discover_can_interfaces()
@@ -635,8 +675,12 @@ class TestIntegrationScenarios:
             bus_load_percentage=82.0,  # High bus load
         )
 
-        with patch.object(linux_manager, 'discover_can_interfaces', return_value=[critical_interface]), \
-             patch.object(linux_manager, 'get_interface_statistics', return_value=critical_stats):
+        with (
+            patch.object(
+                linux_manager, "discover_can_interfaces", return_value=[critical_interface]
+            ),
+            patch.object(linux_manager, "get_interface_statistics", return_value=critical_stats),
+        ):
 
             # Perform health check
             health_report = await linux_manager.perform_bus_health_check("can0")
@@ -653,7 +697,10 @@ class TestIntegrationScenarios:
             # Verify recommendations are provided
             if health_report["recommendations"]:
                 recommendations_text = " ".join(health_report["recommendations"])
-                assert "load balancing" in recommendations_text.lower() or "filtering" in recommendations_text.lower()
+                assert (
+                    "load balancing" in recommendations_text.lower()
+                    or "filtering" in recommendations_text.lower()
+                )
 
     @pytest.mark.asyncio
     async def test_high_throughput_filtering_optimization(self) -> None:

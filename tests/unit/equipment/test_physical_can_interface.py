@@ -130,7 +130,7 @@ class TestSocketCANInterface:
     ) -> None:
         """Test SocketCAN connection and disconnection."""
         # Mock the CAN bus creation
-        with patch('can.interface.Bus') as mock_bus:
+        with patch("can.interface.Bus") as mock_bus:
             mock_bus_instance = MagicMock()
             mock_bus.return_value = mock_bus_instance
 
@@ -164,7 +164,7 @@ class TestSocketCANInterface:
     ) -> None:
         """Test SocketCAN connection failure handling."""
         # Mock bus creation to raise exception
-        with patch('can.interface.Bus', side_effect=Exception("Interface not found")):
+        with patch("can.interface.Bus", side_effect=Exception("Interface not found")):
             connection_result = await socketcan_interface.connect()
 
             assert connection_result is False
@@ -177,7 +177,7 @@ class TestSocketCANInterface:
     ) -> None:
         """Test sending CAN message via SocketCAN."""
         # Set up connected state
-        with patch('can.interface.Bus') as mock_bus:
+        with patch("can.interface.Bus") as mock_bus:
             mock_bus_instance = MagicMock()
             mock_bus.return_value = mock_bus_instance
 
@@ -186,7 +186,7 @@ class TestSocketCANInterface:
             # Create test message
             test_message = can.Message(
                 arbitration_id=0x18F00425,  # J1939 message
-                data=b'\x01\x02\x03\x04',
+                data=b"\x01\x02\x03\x04",
                 is_extended_id=True,
             )
 
@@ -203,14 +203,14 @@ class TestSocketCANInterface:
         socketcan_interface: SocketCANInterface,
     ) -> None:
         """Test CAN message sending failure handling."""
-        with patch('can.interface.Bus') as mock_bus:
+        with patch("can.interface.Bus") as mock_bus:
             mock_bus_instance = MagicMock()
             mock_bus_instance.send.side_effect = can.CanError("Bus error")
             mock_bus.return_value = mock_bus_instance
 
             await socketcan_interface.connect()
 
-            test_message = can.Message(arbitration_id=0x123, data=b'\x01\x02')
+            test_message = can.Message(arbitration_id=0x123, data=b"\x01\x02")
             send_result = await socketcan_interface.send_message(test_message)
 
             assert send_result is False
@@ -243,7 +243,7 @@ class TestSocketCANInterface:
         socketcan_interface.add_message_callback(test_callback)
 
         # Simulate received message
-        test_message = can.Message(arbitration_id=0x123, data=b'\x01\x02')
+        test_message = can.Message(arbitration_id=0x123, data=b"\x01\x02")
         socketcan_interface._handle_received_message(test_message)
 
         assert len(received_messages) == 1
@@ -303,7 +303,7 @@ class TestPhysicalCANManager:
         await can_manager.create_interface("test_if", test_config)
 
         # Mock CAN bus for connection
-        with patch('can.interface.Bus'):
+        with patch("can.interface.Bus"):
             # Test connection
             connection_result = await can_manager.connect_interface("test_if")
             assert connection_result is True
@@ -328,7 +328,7 @@ class TestPhysicalCANManager:
         await can_manager.create_interface("if1", test_config)
         await can_manager.create_interface("if2", test_config)
 
-        with patch('can.interface.Bus'):
+        with patch("can.interface.Bus"):
             results = await can_manager.connect_all()
 
             assert len(results) == 2
@@ -346,14 +346,14 @@ class TestPhysicalCANManager:
         await can_manager.create_interface("if1", test_config)
         await can_manager.create_interface("if2", test_config)
 
-        with patch('can.interface.Bus') as mock_bus:
+        with patch("can.interface.Bus") as mock_bus:
             mock_bus_instances = [MagicMock(), MagicMock()]
             mock_bus.side_effect = mock_bus_instances
 
             await can_manager.connect_all()
 
             # Test broadcast
-            test_message = can.Message(arbitration_id=0x123, data=b'\x01\x02')
+            test_message = can.Message(arbitration_id=0x123, data=b"\x01\x02")
             results = await can_manager.broadcast_message(test_message)
 
             assert len(results) == 2
@@ -391,7 +391,7 @@ class TestPhysicalCANManager:
             priority=3,
         )
 
-        test_data = b'\x12\x34\x56\x78\x9A\xBC\xDE\xF0'
+        test_data = b"\x12\x34\x56\x78\x9A\xBC\xDE\xF0"
         message = can_manager.create_j1939_message(address, test_data)
 
         assert message.is_extended_id is True
@@ -424,10 +424,10 @@ class TestIntegrationScenarios:
             ),
         ]
 
-        with patch('can.interface.Bus'):
+        with patch("can.interface.Bus"):
             # Create interfaces
-            field_interface = await manager.create_interface("field_network", tractor_configs[0])
-            implement_interface = await manager.create_interface("implement_network", tractor_configs[1])
+            _ = await manager.create_interface("field_network", tractor_configs[0])
+            _ = await manager.create_interface("implement_network", tractor_configs[1])
 
             # Connect all interfaces
             connection_results = await manager.connect_all()
@@ -442,7 +442,7 @@ class TestIntegrationScenarios:
                     parameter_group_number=0xE001,  # Emergency stop
                     priority=0,  # Highest priority
                 ),
-                b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00'  # Emergency stop signal
+                b"\xFF\xFF\xFF\xFF\x00\x00\x00\x00",  # Emergency stop signal
             )
 
             broadcast_results = await manager.broadcast_message(emergency_message)
@@ -460,18 +460,18 @@ class TestIntegrationScenarios:
             extended_frames=True,  # Required for J1939
         )
 
-        with patch('can.interface.Bus'):
+        with patch("can.interface.Bus"):
             interface = await manager.create_interface("isobus_test", config)
             await manager.connect_interface("isobus_test")
 
             # Test standard ISOBUS message types
             standard_messages = [
                 # Electronic Engine Controller 1 (EEC1)
-                (J1939Address(source_address=0x00, parameter_group_number=0xF004), b'\x00' * 8),
+                (J1939Address(source_address=0x00, parameter_group_number=0xF004), b"\x00" * 8),
                 # Wheel-Based Vehicle Speed (WVS)
-                (J1939Address(source_address=0x0B, parameter_group_number=0xFE48), b'\x00' * 8),
+                (J1939Address(source_address=0x0B, parameter_group_number=0xFE48), b"\x00" * 8),
                 # Vehicle Position (VP)
-                (J1939Address(source_address=0x25, parameter_group_number=0xFEF3), b'\x00' * 8),
+                (J1939Address(source_address=0x25, parameter_group_number=0xFEF3), b"\x00" * 8),
             ]
 
             for address, data in standard_messages:
@@ -499,7 +499,7 @@ class TestIntegrationScenarios:
             bitrate=BusSpeed.SPEED_250K,
         )
 
-        with patch('can.interface.Bus') as mock_bus:
+        with patch("can.interface.Bus") as mock_bus:
             # First connection succeeds
             mock_bus_instance = MagicMock()
             mock_bus.return_value = mock_bus_instance
@@ -513,7 +513,7 @@ class TestIntegrationScenarios:
 
             test_message = manager.create_j1939_message(
                 J1939Address(source_address=0x25, parameter_group_number=0xF004),
-                b'\x01\x02\x03\x04\x05\x06\x07\x08'
+                b"\x01\x02\x03\x04\x05\x06\x07\x08",
             )
 
             send_result = await interface.send_message(test_message)

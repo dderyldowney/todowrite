@@ -10,6 +10,8 @@ Implementation follows Test-First Development (TDD) GREEN phase.
 
 from __future__ import annotations
 
+# Configure logging for CAN codec
+import logging
 import struct
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -18,8 +20,6 @@ from typing import Any
 
 import can
 
-# Configure logging for CAN codec
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -143,7 +143,7 @@ class TransportProtocolFrame:
     source_address: int
     destination_address: int
     sequence_number: int = 0
-    data_bytes: bytes = b''
+    data_bytes: bytes = b""
 
 
 class J1939Decoder:
@@ -164,106 +164,208 @@ class J1939Decoder:
         # Electronic Engine Controller 1 (EEC1) - PGN 61444 (0xF004)
         eec1_spns = [
             SPNDefinition(
-                spn=190, name="Engine Speed", description="Actual engine speed",
-                data_type=J1939DataType.RPM, start_bit=24, bit_length=16,
-                scale=0.125, units="rpm", min_value=0, max_value=8031.875,
-                not_available_value=0xFFFF, error_value=0xFFFE
+                spn=190,
+                name="Engine Speed",
+                description="Actual engine speed",
+                data_type=J1939DataType.RPM,
+                start_bit=24,
+                bit_length=16,
+                scale=0.125,
+                units="rpm",
+                min_value=0,
+                max_value=8031.875,
+                not_available_value=0xFFFF,
+                error_value=0xFFFE,
             ),
             SPNDefinition(
-                spn=102, name="Engine Intake Manifold #1 Pressure", description="Gauge pressure",
-                data_type=J1939DataType.PRESSURE, start_bit=8, bit_length=8,
-                scale=2.0, units="kPa", min_value=0, max_value=500,
-                not_available_value=0xFF, error_value=0xFE
+                spn=102,
+                name="Engine Intake Manifold #1 Pressure",
+                description="Gauge pressure",
+                data_type=J1939DataType.PRESSURE,
+                start_bit=8,
+                bit_length=8,
+                scale=2.0,
+                units="kPa",
+                min_value=0,
+                max_value=500,
+                not_available_value=0xFF,
+                error_value=0xFE,
             ),
             SPNDefinition(
-                spn=61, name="Engine Percent Torque At Current Speed", description="Current output torque",
-                data_type=J1939DataType.PERCENTAGE, start_bit=16, bit_length=8,
-                scale=1.0, offset=-125, units="%", min_value=-125, max_value=125,
-                not_available_value=0xFF, error_value=0xFE
+                spn=61,
+                name="Engine Percent Torque At Current Speed",
+                description="Current output torque",
+                data_type=J1939DataType.PERCENTAGE,
+                start_bit=16,
+                bit_length=8,
+                scale=1.0,
+                offset=-125,
+                units="%",
+                min_value=-125,
+                max_value=125,
+                not_available_value=0xFF,
+                error_value=0xFE,
             ),
         ]
 
         eec1_pgn = PGNDefinition(
-            pgn=0xF004, name="Electronic Engine Controller 1", description="Engine parameters",
-            data_length=8, transmission_rate=50, spn_definitions=eec1_spns
+            pgn=0xF004,
+            name="Electronic Engine Controller 1",
+            description="Engine parameters",
+            data_length=8,
+            transmission_rate=50,
+            spn_definitions=eec1_spns,
         )
 
         # Wheel-Based Vehicle Speed (WVS) - PGN 65265 (0xFEF1)
         wvs_spns = [
             SPNDefinition(
-                spn=84, name="Wheel-Based Vehicle Speed", description="Speed over ground",
-                data_type=J1939DataType.SPEED, start_bit=8, bit_length=16,
-                scale=0.00390625, units="km/h", min_value=0, max_value=250.996,
-                not_available_value=0xFFFF, error_value=0xFFFE
+                spn=84,
+                name="Wheel-Based Vehicle Speed",
+                description="Speed over ground",
+                data_type=J1939DataType.SPEED,
+                start_bit=8,
+                bit_length=16,
+                scale=0.00390625,
+                units="km/h",
+                min_value=0,
+                max_value=250.996,
+                not_available_value=0xFFFF,
+                error_value=0xFFFE,
             ),
         ]
 
         wvs_pgn = PGNDefinition(
-            pgn=0xFEF1, name="Wheel-Based Vehicle Speed", description="Vehicle speed information",
-            data_length=8, transmission_rate=100, spn_definitions=wvs_spns
+            pgn=0xFEF1,
+            name="Wheel-Based Vehicle Speed",
+            description="Vehicle speed information",
+            data_length=8,
+            transmission_rate=100,
+            spn_definitions=wvs_spns,
         )
 
         # Vehicle Position (VP) - PGN 65267 (0xFEF3)
         vp_spns = [
             SPNDefinition(
-                spn=584, name="Latitude", description="Latitude coordinate",
-                data_type=J1939DataType.LATITUDE, start_bit=0, bit_length=32,
-                scale=1e-7, units="degrees", min_value=-180, max_value=180,
-                not_available_value=0xFFFFFFFF, error_value=0xFFFFFFFE
+                spn=584,
+                name="Latitude",
+                description="Latitude coordinate",
+                data_type=J1939DataType.LATITUDE,
+                start_bit=0,
+                bit_length=32,
+                scale=1e-7,
+                units="degrees",
+                min_value=-180,
+                max_value=180,
+                not_available_value=0xFFFFFFFF,
+                error_value=0xFFFFFFFE,
             ),
             SPNDefinition(
-                spn=585, name="Longitude", description="Longitude coordinate",
-                data_type=J1939DataType.LONGITUDE, start_bit=32, bit_length=32,
-                scale=1e-7, units="degrees", min_value=-180, max_value=180,
-                not_available_value=0xFFFFFFFF, error_value=0xFFFFFFFE
+                spn=585,
+                name="Longitude",
+                description="Longitude coordinate",
+                data_type=J1939DataType.LONGITUDE,
+                start_bit=32,
+                bit_length=32,
+                scale=1e-7,
+                units="degrees",
+                min_value=-180,
+                max_value=180,
+                not_available_value=0xFFFFFFFF,
+                error_value=0xFFFFFFFE,
             ),
         ]
 
         vp_pgn = PGNDefinition(
-            pgn=0xFEF3, name="Vehicle Position", description="GPS coordinates",
-            data_length=8, transmission_rate=1000, spn_definitions=vp_spns
+            pgn=0xFEF3,
+            name="Vehicle Position",
+            description="GPS coordinates",
+            data_length=8,
+            transmission_rate=1000,
+            spn_definitions=vp_spns,
         )
 
         # Fuel Economy (LFE) - PGN 65266 (0xFEF2)
         lfe_spns = [
             SPNDefinition(
-                spn=183, name="Engine Fuel Rate", description="Current fuel consumption rate",
-                data_type=J1939DataType.FUEL_RATE, start_bit=0, bit_length=16,
-                scale=0.05, units="L/h", min_value=0, max_value=3212.75,
-                not_available_value=0xFFFF, error_value=0xFFFE
+                spn=183,
+                name="Engine Fuel Rate",
+                description="Current fuel consumption rate",
+                data_type=J1939DataType.FUEL_RATE,
+                start_bit=0,
+                bit_length=16,
+                scale=0.05,
+                units="L/h",
+                min_value=0,
+                max_value=3212.75,
+                not_available_value=0xFFFF,
+                error_value=0xFFFE,
             ),
             SPNDefinition(
-                spn=184, name="Engine Instantaneous Fuel Economy", description="Instantaneous fuel economy",
-                data_type=J1939DataType.SPEED, start_bit=16, bit_length=16,
-                scale=0.00390625, units="km/L", min_value=0, max_value=125.5,
-                not_available_value=0xFFFF, error_value=0xFFFE
+                spn=184,
+                name="Engine Instantaneous Fuel Economy",
+                description="Instantaneous fuel economy",
+                data_type=J1939DataType.SPEED,
+                start_bit=16,
+                bit_length=16,
+                scale=0.00390625,
+                units="km/L",
+                min_value=0,
+                max_value=125.5,
+                not_available_value=0xFFFF,
+                error_value=0xFFFE,
             ),
         ]
 
         lfe_pgn = PGNDefinition(
-            pgn=0xFEF2, name="Fuel Economy", description="Fuel consumption data",
-            data_length=8, transmission_rate=1000, spn_definitions=lfe_spns
+            pgn=0xFEF2,
+            name="Fuel Economy",
+            description="Fuel consumption data",
+            data_length=8,
+            transmission_rate=1000,
+            spn_definitions=lfe_spns,
         )
 
         # Electronic Transmission Controller 1 (ETC1) - PGN 61445 (0xF005)
         etc1_spns = [
             SPNDefinition(
-                spn=191, name="Transmission Output Shaft Speed", description="Output shaft RPM",
-                data_type=J1939DataType.RPM, start_bit=8, bit_length=16,
-                scale=0.125, units="rpm", min_value=0, max_value=8031.875,
-                not_available_value=0xFFFF, error_value=0xFFFE
+                spn=191,
+                name="Transmission Output Shaft Speed",
+                description="Output shaft RPM",
+                data_type=J1939DataType.RPM,
+                start_bit=8,
+                bit_length=16,
+                scale=0.125,
+                units="rpm",
+                min_value=0,
+                max_value=8031.875,
+                not_available_value=0xFFFF,
+                error_value=0xFFFE,
             ),
             SPNDefinition(
-                spn=127, name="Transmission Current Gear", description="Currently selected gear",
-                data_type=J1939DataType.UINT8, start_bit=40, bit_length=8,
-                scale=1.0, offset=-125, units="", min_value=-125, max_value=125,
-                not_available_value=0xFF, error_value=0xFE
+                spn=127,
+                name="Transmission Current Gear",
+                description="Currently selected gear",
+                data_type=J1939DataType.UINT8,
+                start_bit=40,
+                bit_length=8,
+                scale=1.0,
+                offset=-125,
+                units="",
+                min_value=-125,
+                max_value=125,
+                not_available_value=0xFF,
+                error_value=0xFE,
             ),
         ]
 
         etc1_pgn = PGNDefinition(
-            pgn=0xF005, name="Electronic Transmission Controller 1", description="Transmission data",
-            data_length=8, transmission_rate=100, spn_definitions=etc1_spns
+            pgn=0xF005,
+            name="Electronic Transmission Controller 1",
+            description="Transmission data",
+            data_length=8,
+            transmission_rate=100,
+            spn_definitions=etc1_spns,
         )
 
         # Register all PGN definitions
@@ -311,9 +413,13 @@ class J1939Decoder:
 
             # Check for Transport Protocol messages
             if pdu_format == 0xEC:  # TP.DT (Transport Protocol Data Transfer)
-                return self._handle_transport_protocol_dt(message, source_address, destination_address)
+                return self._handle_transport_protocol_dt(
+                    message, source_address, destination_address
+                )
             elif pdu_format == 0xEB:  # TP.CM (Transport Protocol Connection Management)
-                return self._handle_transport_protocol_cm(message, source_address, destination_address)
+                return self._handle_transport_protocol_cm(
+                    message, source_address, destination_address
+                )
 
             # Look up PGN definition
             if pgn not in self.pgn_definitions:
@@ -362,7 +468,7 @@ class J1939Decoder:
             return None
 
         priority = (can_id >> 26) & 0x07
-        reserved = (can_id >> 25) & 0x01
+        # reserved = (can_id >> 25) & 0x01  # Reserved bit - not used in parsing
         data_page = (can_id >> 24) & 0x01
         pdu_format = (can_id >> 16) & 0xFF
         pdu_specific = (can_id >> 8) & 0xFF
@@ -404,14 +510,19 @@ class J1939Decoder:
             # Apply scaling and offset
             if is_valid:
                 # Handle signed integers (including latitude/longitude which can be negative)
-                if spn_def.data_type in [J1939DataType.INT8, J1939DataType.INT16, J1939DataType.INT32,
-                                       J1939DataType.LATITUDE, J1939DataType.LONGITUDE]:
+                if spn_def.data_type in [
+                    J1939DataType.INT8,
+                    J1939DataType.INT16,
+                    J1939DataType.INT32,
+                    J1939DataType.LATITUDE,
+                    J1939DataType.LONGITUDE,
+                ]:
                     if spn_def.bit_length <= 8:
-                        raw_value = struct.unpack('b', struct.pack('B', raw_value))[0]
+                        raw_value = struct.unpack("b", struct.pack("B", raw_value))[0]
                     elif spn_def.bit_length <= 16:
-                        raw_value = struct.unpack('h', struct.pack('H', raw_value))[0]
+                        raw_value = struct.unpack("h", struct.pack("H", raw_value))[0]
                     elif spn_def.bit_length <= 32:
-                        raw_value = struct.unpack('i', struct.pack('I', raw_value))[0]
+                        raw_value = struct.unpack("i", struct.pack("I", raw_value))[0]
 
                 scaled_value = (raw_value * spn_def.scale) + spn_def.offset
 
@@ -472,10 +583,7 @@ class J1939Decoder:
         return extracted
 
     def _handle_transport_protocol_dt(
-        self,
-        message: can.Message,
-        source_address: int,
-        destination_address: int
+        self, message: can.Message, source_address: int, destination_address: int
     ) -> DecodedPGN | None:
         """Handle J1939 Transport Protocol Data Transfer message.
 
@@ -497,20 +605,17 @@ class J1939Decoder:
             return None
 
         sequence_number = message.data[0]
-        data_bytes = message.data[1:]
+        # data_bytes = message.data[1:]  # Will be used when multi-frame assembly is implemented
 
         # Find active transport session
-        session_key = (source_address, destination_address, 0)  # PGN will be set later
+        # session_key = (source_address, destination_address, 0)  # Will be used for multi-frame sessions
 
         # For now, return None as multi-frame assembly requires more complex state management
         logger.debug(f"TP.DT message received: seq={sequence_number}, from={source_address:02X}")
         return None
 
     def _handle_transport_protocol_cm(
-        self,
-        message: can.Message,
-        source_address: int,
-        destination_address: int
+        self, message: can.Message, source_address: int, destination_address: int
     ) -> DecodedPGN | None:
         """Handle J1939 Transport Protocol Connection Management message.
 
@@ -534,12 +639,14 @@ class J1939Decoder:
         control_byte = message.data[0]
 
         if control_byte == 16:  # RTS (Request to Send)
-            total_message_size = struct.unpack('<H', message.data[1:3])[0]
+            total_message_size = struct.unpack("<H", message.data[1:3])[0]
             total_packets = message.data[3]
-            maximum_packets = message.data[4]
-            pgn = struct.unpack('<I', message.data[5:8] + b'\x00')[0]
+            # maximum_packets = message.data[4]  # Will be used when implementing flow control
+            pgn = struct.unpack("<I", message.data[5:8] + b"\x00")[0]
 
-            logger.debug(f"TP.CM RTS: PGN={pgn:04X}, size={total_message_size}, packets={total_packets}")
+            logger.debug(
+                f"TP.CM RTS: PGN={pgn:04X}, size={total_message_size}, packets={total_packets}"
+            )
 
         # For now, just log and return None
         return None
@@ -559,7 +666,7 @@ class J1939Encoder:
         spn_values: dict[int, Any],
         priority: int = 6,
         destination_address: int = 255,
-        timestamp: float | None = None
+        timestamp: float | None = None,
     ) -> can.Message | None:
         """Encode a PGN message with SPN values.
 
@@ -600,7 +707,9 @@ class J1939Encoder:
                     value = spn_values[spn_def.spn]
                     encoded_value = self._encode_spn_value(spn_def, value)
                     if encoded_value is not None:
-                        self._insert_bits(data, spn_def.start_bit, spn_def.bit_length, encoded_value)
+                        self._insert_bits(
+                            data, spn_def.start_bit, spn_def.bit_length, encoded_value
+                        )
 
             # Construct J1939 CAN ID
             can_id = self._construct_j1939_id(pgn, priority, source_address, destination_address)
@@ -609,7 +718,7 @@ class J1939Encoder:
                 arbitration_id=can_id,
                 data=bytes(data),
                 is_extended_id=True,
-                timestamp=timestamp,
+                timestamp=timestamp or 0.0,
             )
 
         except Exception as e:
@@ -642,8 +751,13 @@ class J1939Encoder:
             raw_value = round(raw_value)
 
             # Handle signed values (latitude/longitude can be negative)
-            if spn_def.data_type in [J1939DataType.INT8, J1939DataType.INT16, J1939DataType.INT32,
-                                   J1939DataType.LATITUDE, J1939DataType.LONGITUDE]:
+            if spn_def.data_type in [
+                J1939DataType.INT8,
+                J1939DataType.INT16,
+                J1939DataType.INT32,
+                J1939DataType.LATITUDE,
+                J1939DataType.LONGITUDE,
+            ]:
                 # For signed integers, use proper range checking
                 if spn_def.bit_length <= 8:
                     min_raw, max_raw = -128, 127
@@ -662,11 +776,11 @@ class J1939Encoder:
                 # Convert signed to unsigned representation for bit packing
                 if raw_value < 0:
                     if spn_def.bit_length <= 8:
-                        raw_value = struct.unpack('B', struct.pack('b', int(raw_value)))[0]
+                        raw_value = struct.unpack("B", struct.pack("b", int(raw_value)))[0]
                     elif spn_def.bit_length <= 16:
-                        raw_value = struct.unpack('H', struct.pack('h', int(raw_value)))[0]
+                        raw_value = struct.unpack("H", struct.pack("h", int(raw_value)))[0]
                     elif spn_def.bit_length <= 32:
-                        raw_value = struct.unpack('I', struct.pack('i', int(raw_value)))[0]
+                        raw_value = struct.unpack("I", struct.pack("i", int(raw_value)))[0]
             else:
                 # Unsigned integers
                 max_raw = (1 << spn_def.bit_length) - 1
@@ -709,16 +823,12 @@ class J1939Encoder:
             bit_in_byte = bit_pos % 8
 
             if value & (1 << i):
-                data[byte_idx] |= (1 << bit_in_byte)
+                data[byte_idx] |= 1 << bit_in_byte
             else:
                 data[byte_idx] &= ~(1 << bit_in_byte)
 
     def _construct_j1939_id(
-        self,
-        pgn: int,
-        priority: int,
-        source_address: int,
-        destination_address: int
+        self, pgn: int, priority: int, source_address: int, destination_address: int
     ) -> int:
         """Construct J1939 29-bit CAN ID.
 
@@ -751,12 +861,12 @@ class J1939Encoder:
 
         # Construct 29-bit ID
         can_id = (
-            (priority << 26) |
-            (0 << 25) |  # Reserved bit
-            (data_page << 24) |
-            (pdu_format << 16) |
-            (pdu_specific << 8) |
-            source_address
+            (priority << 26)
+            | (0 << 25)  # Reserved bit
+            | (data_page << 24)
+            | (pdu_format << 16)
+            | (pdu_specific << 8)
+            | source_address
         )
 
         return can_id
@@ -869,11 +979,7 @@ class CANFrameCodec:
         return self.decoder.decode_can_message(message)
 
     def encode_message(
-        self,
-        pgn: int,
-        source_address: int,
-        spn_values: dict[int, Any],
-        **kwargs
+        self, pgn: int, source_address: int, spn_values: dict[int, Any], **kwargs
     ) -> can.Message | None:
         """Encode a PGN message.
 

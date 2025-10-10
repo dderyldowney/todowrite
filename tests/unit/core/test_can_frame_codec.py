@@ -51,14 +51,24 @@ class TestSPNDefinition:
         """Test PGN definition containing multiple SPNs."""
         spns = [
             SPNDefinition(
-                spn=190, name="Engine Speed", description="Engine RPM",
-                data_type=J1939DataType.RPM, start_bit=24, bit_length=16,
-                scale=0.125, units="rpm"
+                spn=190,
+                name="Engine Speed",
+                description="Engine RPM",
+                data_type=J1939DataType.RPM,
+                start_bit=24,
+                bit_length=16,
+                scale=0.125,
+                units="rpm",
             ),
             SPNDefinition(
-                spn=102, name="Manifold Pressure", description="Intake pressure",
-                data_type=J1939DataType.PRESSURE, start_bit=8, bit_length=8,
-                scale=2.0, units="kPa"
+                spn=102,
+                name="Manifold Pressure",
+                description="Intake pressure",
+                data_type=J1939DataType.PRESSURE,
+                start_bit=8,
+                bit_length=8,
+                scale=2.0,
+                units="kPa",
             ),
         ]
 
@@ -95,7 +105,7 @@ class TestJ1939Decoder:
 
         # Check for key SPNs
         assert 190 in decoder.spn_definitions  # Engine Speed
-        assert 84 in decoder.spn_definitions   # Vehicle Speed
+        assert 84 in decoder.spn_definitions  # Vehicle Speed
         assert 584 in decoder.spn_definitions  # Latitude
         assert 585 in decoder.spn_definitions  # Longitude
 
@@ -192,11 +202,11 @@ class TestJ1939Decoder:
         data = bytearray(8)
 
         # Pack latitude (little-endian)
-        lat_bytes = struct.pack('<I', 407128000)
+        lat_bytes = struct.pack("<I", 407128000)
         data[0:4] = lat_bytes
 
         # Pack longitude (little-endian)
-        lon_bytes = struct.pack('<i', -740060000)  # Signed for negative
+        lon_bytes = struct.pack("<i", -740060000)  # Signed for negative
         data[4:8] = lon_bytes
 
         message = can.Message(
@@ -251,7 +261,7 @@ class TestJ1939Decoder:
         """Test handling of unknown PGN messages."""
         message = can.Message(
             arbitration_id=0x18DEAD25,  # Unknown PGN
-            data=b'\x01\x02\x03\x04\x05\x06\x07\x08',
+            data=b"\x01\x02\x03\x04\x05\x06\x07\x08",
             is_extended_id=True,
         )
 
@@ -262,7 +272,7 @@ class TestJ1939Decoder:
         """Test that standard (11-bit) CAN frames are ignored."""
         message = can.Message(
             arbitration_id=0x123,  # Standard frame
-            data=b'\x01\x02\x03\x04',
+            data=b"\x01\x02\x03\x04",
             is_extended_id=False,
         )
 
@@ -353,7 +363,7 @@ class TestJ1939Encoder:
         """Test encoding custom PGN with specific SPN values."""
         spn_values = {
             190: 2000.0,  # Engine speed
-            102: 250.0,   # Manifold pressure
+            102: 250.0,  # Manifold pressure
         }
 
         message = encoder.encode_pgn_message(
@@ -384,8 +394,8 @@ class TestJ1939Encoder:
     def test_encoding_with_none_values(self, encoder: J1939Encoder) -> None:
         """Test encoding with None values (not available)."""
         spn_values = {
-            190: None,     # Engine speed not available
-            102: 180.0,    # Manifold pressure available
+            190: None,  # Engine speed not available
+            102: 180.0,  # Manifold pressure available
         }
 
         message = encoder.encode_pgn_message(
@@ -435,8 +445,8 @@ class TestCANFrameCodec:
         # Original data
         original_spn_values = {
             190: 1850.0,  # Engine speed
-            102: 220.0,   # Manifold pressure
-            61: 80.0,     # Torque percent
+            102: 220.0,  # Manifold pressure
+            61: 80.0,  # Torque percent
         }
 
         # Encode
@@ -493,7 +503,7 @@ class TestCANFrameCodec:
 
         # Check for key SPNs
         assert 190 in supported_spns  # Engine Speed
-        assert 84 in supported_spns   # Vehicle Speed
+        assert 84 in supported_spns  # Vehicle Speed
         assert 584 in supported_spns  # Latitude
 
 
@@ -513,16 +523,16 @@ class TestAgriculturalMessageScenarios:
             source_address=0x00,  # Engine ECU
             spn_values={
                 190: 2100.0,  # Engine RPM at PTO speed
-                102: 180.0,   # Manifold pressure under load
-                61: 85.0,     # High torque demand
-            }
+                102: 180.0,  # Manifold pressure under load
+                61: 85.0,  # High torque demand
+            },
         )
 
         # Transmission reporting vehicle movement
         speed_msg = codec.encode_message(
             pgn=0xFEF1,
             source_address=0x03,  # Transmission ECU
-            spn_values={84: 12.5}  # Field working speed
+            spn_values={84: 12.5},  # Field working speed
         )
 
         # GPS receiver reporting position
@@ -530,9 +540,9 @@ class TestAgriculturalMessageScenarios:
             pgn=0xFEF3,
             source_address=0x25,  # GPS receiver
             spn_values={
-                584: 42.3601,    # Farm latitude
-                585: -71.0589,   # Farm longitude
-            }
+                584: 42.3601,  # Farm latitude
+                585: -71.0589,  # Farm longitude
+            },
         )
 
         # Fuel system reporting consumption
@@ -541,8 +551,8 @@ class TestAgriculturalMessageScenarios:
             source_address=0x17,  # Fuel system ECU
             spn_values={
                 183: 25.5,  # Current fuel rate L/h
-                184: 2.1,   # Fuel economy km/L
-            }
+                184: 2.1,  # Fuel economy km/L
+            },
         )
 
         # Verify all messages encode successfully
@@ -569,15 +579,11 @@ class TestAgriculturalMessageScenarios:
         """Test encoding high-precision agricultural data."""
         # High-precision GPS coordinates (6 decimal places)
         precision_coords = {
-            584: 40.123456,   # Precision latitude
+            584: 40.123456,  # Precision latitude
             585: -74.987654,  # Precision longitude
         }
 
-        gps_msg = codec.encode_message(
-            pgn=0xFEF3,
-            source_address=0x25,
-            spn_values=precision_coords
-        )
+        gps_msg = codec.encode_message(pgn=0xFEF3, source_address=0x25, spn_values=precision_coords)
 
         assert gps_msg is not None
 
@@ -600,8 +606,8 @@ class TestAgriculturalMessageScenarios:
         # High-performance engine at maximum rated conditions
         extreme_engine = {
             190: 3000.0,  # Maximum engine RPM
-            102: 300.0,   # High boost pressure
-            61: 100.0,    # Maximum torque output
+            102: 300.0,  # High boost pressure
+            61: 100.0,  # Maximum torque output
         }
 
         # High-speed transport conditions
@@ -635,8 +641,8 @@ class TestAgriculturalMessageScenarios:
         """Test handling mixed valid and invalid SPN data."""
         mixed_data = {
             190: 1800.0,  # Valid engine speed
-            102: None,    # Not available manifold pressure
-            61: 65.0,     # Valid torque
+            102: None,  # Not available manifold pressure
+            61: 65.0,  # Valid torque
         }
 
         message = codec.encode_message(0xF004, 0x00, mixed_data)

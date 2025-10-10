@@ -11,11 +11,12 @@ Implementation follows Test-First Development (TDD) GREEN phase.
 from __future__ import annotations
 
 import logging
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 from typing import Any
-from collections.abc import AsyncGenerator
 
+import can
 from sqlalchemy import create_engine, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import sessionmaker
@@ -219,7 +220,9 @@ class CANTimeSeriesStorage:
                             },
                             decoding_success=True,
                             spn_count=len(msg.decoded_message.spn_values),
-                            valid_spn_count=len([spn for spn in msg.decoded_message.spn_values if spn.is_valid]),
+                            valid_spn_count=len(
+                                [spn for spn in msg.decoded_message.spn_values if spn.is_valid]
+                            ),
                             equipment_type=self._detect_equipment_type(msg.decoded_message),
                         )
                         decoded_records.append(decoded_record)
@@ -241,7 +244,9 @@ class CANTimeSeriesStorage:
                 # Commit transaction
                 await session.commit()
 
-                logger.debug(f"Stored {len(raw_records)} raw and {len(decoded_records)} decoded messages")
+                logger.debug(
+                    f"Stored {len(raw_records)} raw and {len(decoded_records)} decoded messages"
+                )
                 return True
 
         except Exception as e:
@@ -273,7 +278,8 @@ class CANTimeSeriesStorage:
         try:
             async with self._get_async_session() as session:
                 # Query for raw agricultural data
-                query = text("""
+                query = text(
+                    """
                     SELECT
                         source_address,
                         date_trunc(:window, timestamp) as window_start,
@@ -291,13 +297,17 @@ class CANTimeSeriesStorage:
                         AND pgn IN (61444, 65265, 65266, 65267)  -- Key agricultural PGNs
                     GROUP BY source_address, window_start
                     ORDER BY source_address, window_start
-                """)
+                """
+                )
 
-                result = await session.execute(query, {
-                    "window": time_window,
-                    "start_time": start_time,
-                    "end_time": end_time,
-                })
+                result = await session.execute(
+                    query,
+                    {
+                        "window": time_window,
+                        "start_time": start_time,
+                        "end_time": end_time,
+                    },
+                )
 
                 metrics_records = []
                 for row in result:
@@ -320,7 +330,9 @@ class CANTimeSeriesStorage:
                     session.add_all(metrics_records)
                     await session.commit()
 
-                logger.info(f"Computed {len(metrics_records)} metric records for {time_window} window")
+                logger.info(
+                    f"Computed {len(metrics_records)} metric records for {time_window} window"
+                )
                 return True
 
         except Exception as e:
@@ -345,10 +357,13 @@ class CANTimeSeriesStorage:
         try:
             async with self._get_async_session() as session:
                 current_time = datetime.utcnow()
-                window_start = current_time.replace(minute=(current_time.minute // 5) * 5, second=0, microsecond=0)
+                window_start = current_time.replace(
+                    minute=(current_time.minute // 5) * 5, second=0, microsecond=0
+                )
 
                 # Query network statistics
-                query = text("""
+                query = text(
+                    """
                     SELECT
                         COUNT(*) as total_messages,
                         COUNT(DISTINCT source_address) as unique_sources,
@@ -359,13 +374,17 @@ class CANTimeSeriesStorage:
                     WHERE interface_id = :interface_id
                         AND timestamp >= :window_start
                         AND timestamp < :window_end
-                """)
+                """
+                )
 
-                result = await session.execute(query, {
-                    "interface_id": interface_id,
-                    "window_start": window_start,
-                    "window_end": window_start + timedelta(minutes=5),
-                })
+                result = await session.execute(
+                    query,
+                    {
+                        "interface_id": interface_id,
+                        "window_start": window_start,
+                        "window_end": window_start + timedelta(minutes=5),
+                    },
+                )
 
                 row = result.first()
                 if row:
@@ -501,24 +520,36 @@ class CANTimeSeriesStorage:
                 for table in hypertables:
                     try:
                         # Create hypertable
-                        await session.execute(text(f"""
+                        await session.execute(
+                            text(
+                                f"""
                             SELECT create_hypertable('{table}', 'timestamp',
                                 if_not_exists => TRUE,
                                 chunk_time_interval => INTERVAL '1 day');
-                        """))
+                        """
+                            )
+                        )
 
                         # Enable compression (for older data)
                         if self.config.enable_compression:
-                            await session.execute(text(f"""
+                            await session.execute(
+                                text(
+                                    f"""
                                 ALTER TABLE {table} SET (
                                     timescaledb.compress,
                                     timescaledb.compress_segmentby = 'source_address'
                                 );
-                            """))
+                            """
+                                )
+                            )
 
-                            await session.execute(text(f"""
+                            await session.execute(
+                                text(
+                                    f"""
                                 SELECT add_compression_policy('{table}', INTERVAL '7 days');
-                            """))
+                            """
+                                )
+                            )
 
                     except Exception as e:
                         logger.warning(f"Failed to setup hypertable for {table}: {e}")

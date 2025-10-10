@@ -36,9 +36,9 @@ class CANMessagePriority(Enum):
     """CAN message priority levels for storage optimization."""
 
     CRITICAL = 0  # Emergency, safety - always store
-    HIGH = 1      # Engine, transmission - store frequently
-    NORMAL = 2    # Standard telemetry - store normally
-    LOW = 3       # Diagnostics - store less frequently
+    HIGH = 1  # Engine, transmission - store frequently
+    NORMAL = 2  # Standard telemetry - store normally
+    LOW = 3  # Diagnostics - store less frequently
 
 
 class CANMessageRaw(TimeSeriesBase):
@@ -174,7 +174,9 @@ class AgriculturalMetrics(TimeSeriesBase):
     __table_args__ = (
         Index("idx_metrics_equipment_time_window", "equipment_type", "timestamp", "time_window"),
         Index("idx_metrics_source_time_window", "source_address", "timestamp", "time_window"),
-        UniqueConstraint("timestamp", "time_window", "source_address", name="uq_metrics_time_source"),
+        UniqueConstraint(
+            "timestamp", "time_window", "source_address", name="uq_metrics_time_source"
+        ),
     )
 
 

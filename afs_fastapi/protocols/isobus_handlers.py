@@ -14,11 +14,11 @@ import asyncio
 import logging
 import struct
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any
-from collections.abc import Callable
 
 import can
 
@@ -53,11 +53,11 @@ class ISOBUSFunction(Enum):
 class TPControl(Enum):
     """Transport Protocol control bytes."""
 
-    RTS = 16    # Request to Send
-    CTS = 17    # Clear to Send
-    EOM = 19    # End of Message
-    BAM = 32    # Broadcast Announce Message
-    ABORT = 255 # Connection Abort
+    RTS = 16  # Request to Send
+    CTS = 17  # Clear to Send
+    EOM = 19  # End of Message
+    BAM = 32  # Broadcast Announce Message
+    ABORT = 255  # Connection Abort
 
 
 class DMType(Enum):
@@ -146,8 +146,8 @@ class AddressClaimHandler:
         self.error_handler = error_handler
 
         self.claimed_addresses: dict[int, ISOBUSDevice] = {}  # address -> device
-        self.pending_claims: dict[int, ISOBUSDevice] = {}     # address -> device
-        self.address_conflicts: list[tuple[int, int]] = []    # (address, timestamp)
+        self.pending_claims: dict[int, ISOBUSDevice] = {}  # address -> device
+        self.address_conflicts: list[tuple[int, int]] = []  # (address, timestamp)
 
         self._claim_callbacks: list[Callable[[ISOBUSDevice], None]] = []
 
@@ -183,15 +183,17 @@ class AddressClaimHandler:
             name_bytes = message.data
 
             # Extract NAME components
-            identity_number = struct.unpack('<I', name_bytes[0:4])[0] & 0x1FFFFF  # 21 bits
-            manufacturer_code = (struct.unpack('<H', name_bytes[3:5])[0] >> 5) & 0x7FF  # 11 bits
+            identity_number = struct.unpack("<I", name_bytes[0:4])[0] & 0x1FFFFF  # 21 bits
+            manufacturer_code = (struct.unpack("<H", name_bytes[3:5])[0] >> 5) & 0x7FF  # 11 bits
             ecu_instance = (name_bytes[4] >> 3) & 0x07  # 3 bits
-            function_instance = name_bytes[4] & 0x1F  # 5 bits
+            # function_instance = name_bytes[4] & 0x1F  # 5 bits - will be used for instance tracking
             function = ISOBUSFunction(name_bytes[5])  # 8 bits
             device_class = (name_bytes[6] >> 1) & 0x7F  # 7 bits
-            device_class_instance = ((name_bytes[6] & 0x01) << 3) | ((name_bytes[7] >> 5) & 0x07)  # 4 bits
-            industry_group = (name_bytes[7] >> 4) & 0x07  # 3 bits
-            arbitrary_address_capable = bool(name_bytes[7] & 0x80)
+            device_class_instance = ((name_bytes[6] & 0x01) << 3) | (
+                (name_bytes[7] >> 5) & 0x07
+            )  # 4 bits
+            # industry_group = (name_bytes[7] >> 4) & 0x07  # 3 bits - will be used for classification
+            # arbitrary_address_capable = bool(name_bytes[7] & 0x80)  # Will be used for address management
 
             source_address = message.arbitration_id & 0xFF
 
@@ -255,12 +257,14 @@ class AddressClaimHandler:
         name_bytes = bytearray(8)
 
         # Identity number (21 bits)
-        identity_bytes = struct.pack('<I', device.identity_number & 0x1FFFFF)
+        identity_bytes = struct.pack("<I", device.identity_number & 0x1FFFFF)
         name_bytes[0:3] = identity_bytes[0:3]
 
         # Manufacturer code (11 bits) + part of identity
-        manufacturer_and_identity = (device.manufacturer_code << 5) | ((device.identity_number >> 16) & 0x1F)
-        name_bytes[3:5] = struct.pack('<H', manufacturer_and_identity)
+        manufacturer_and_identity = (device.manufacturer_code << 5) | (
+            (device.identity_number >> 16) & 0x1F
+        )
+        name_bytes[3:5] = struct.pack("<H", manufacturer_and_identity)
 
         # ECU instance and function instance
         name_bytes[4] = (device.ecu_instance << 3) | (0 & 0x1F)  # Function instance = 0
@@ -272,7 +276,9 @@ class AddressClaimHandler:
         name_bytes[6] = (device.device_class << 1) | ((device.device_class_instance >> 3) & 0x01)
 
         # Industry group and arbitrary address capability
-        name_bytes[7] = ((device.device_class_instance & 0x07) << 5) | (0x04 << 4) | 0x80  # Industry group 4, arbitrary address capable
+        name_bytes[7] = (
+            ((device.device_class_instance & 0x07) << 5) | (0x04 << 4) | 0x80
+        )  # Industry group 4, arbitrary address capable
 
         # Construct CAN message
         can_id = 0x18EEFF00 | device.address  # PGN 60928 (Address Claim)
@@ -333,7 +339,9 @@ class TransportProtocolHandler:
         self.active_sessions: dict[str, TPSession] = {}  # session_id -> session
         self.completed_messages: list[tuple[int, bytes, datetime]] = []  # (pgn, data, timestamp)
 
-        self._message_callbacks: list[Callable[[int, bytes, int], None]] = []  # (pgn, data, source_address)
+        self._message_callbacks: list[Callable[[int, bytes, int], None]] = (
+            []
+        )  # (pgn, data, source_address)
         self._session_timeout = 30.0  # seconds
 
     def add_message_callback(self, callback: Callable[[int, bytes, int], None]) -> None:
@@ -369,10 +377,10 @@ class TransportProtocolHandler:
 
             if control_byte == TPControl.RTS.value:
                 # Request to Send
-                total_size = struct.unpack('<H', message.data[1:3])[0]
+                total_size = struct.unpack("<H", message.data[1:3])[0]
                 total_packets = message.data[3]
                 max_packets = message.data[4]
-                pgn = struct.unpack('<I', message.data[5:8] + b'\x00')[0]
+                pgn = struct.unpack("<I", message.data[5:8] + b"\x00")[0]
 
                 session_id = f"{source_address:02X}_{destination_address:02X}_{pgn:04X}"
 
@@ -391,14 +399,15 @@ class TransportProtocolHandler:
                 logger.debug(f"TP RTS: PGN={pgn:04X}, size={total_size}, packets={total_packets}")
 
                 # Send CTS response (simplified - send all packets)
-                cts_response = self._create_cts_message(destination_address, source_address, total_packets, 1)
+                # cts_response = self._create_cts_message(destination_address, source_address, total_packets, 1)
+                # TODO: Actually send the CTS response when interface sending is implemented
                 return session_id
 
             elif control_byte == TPControl.BAM.value:
                 # Broadcast Announce Message
-                total_size = struct.unpack('<H', message.data[1:3])[0]
+                total_size = struct.unpack("<H", message.data[1:3])[0]
                 total_packets = message.data[3]
-                pgn = struct.unpack('<I', message.data[5:8] + b'\x00')[0]
+                pgn = struct.unpack("<I", message.data[5:8] + b"\x00")[0]
 
                 session_id = f"BAM_{source_address:02X}_{pgn:04X}"
 
@@ -424,7 +433,7 @@ class TransportProtocolHandler:
 
             elif control_byte == TPControl.ABORT.value:
                 # Connection abort
-                pgn = struct.unpack('<I', message.data[5:8] + b'\x00')[0]
+                pgn = struct.unpack("<I", message.data[5:8] + b"\x00")[0]
                 session_id = f"{source_address:02X}_{destination_address:02X}_{pgn:04X}"
                 if session_id in self.active_sessions:
                     del self.active_sessions[session_id]
@@ -461,8 +470,9 @@ class TransportProtocolHandler:
             # Find matching session
             session = None
             for sess in self.active_sessions.values():
-                if (sess.source_address == source_address and
-                    (sess.destination_address == destination_address or sess.is_bam)):
+                if sess.source_address == source_address and (
+                    sess.destination_address == destination_address or sess.is_bam
+                ):
                     session = sess
                     break
 
@@ -485,7 +495,9 @@ class TransportProtocolHandler:
             session.packets_received += 1
             session.last_packet_time = datetime.now()
 
-            logger.debug(f"TP data packet {sequence_number}/{session.total_packets} for PGN {session.pgn:04X}")
+            logger.debug(
+                f"TP data packet {sequence_number}/{session.total_packets} for PGN {session.pgn:04X}"
+            )
 
             # Check if complete
             if session.packets_received >= session.total_packets:
@@ -505,7 +517,9 @@ class TransportProtocolHandler:
                 # Store in completed messages
                 self.completed_messages.append((session.pgn, completed_data, datetime.now()))
 
-                logger.info(f"TP session completed: PGN={session.pgn:04X}, size={len(completed_data)}")
+                logger.info(
+                    f"TP session completed: PGN={session.pgn:04X}, size={len(completed_data)}"
+                )
                 return completed_data
 
             return None
@@ -514,7 +528,9 @@ class TransportProtocolHandler:
             logger.error(f"Failed to handle TP.DT message: {e}")
             return None
 
-    def _create_cts_message(self, source: int, dest: int, packets: int, next_packet: int) -> can.Message:
+    def _create_cts_message(
+        self, source: int, dest: int, packets: int, next_packet: int
+    ) -> can.Message:
         """Create Clear to Send message.
 
         Parameters
@@ -578,7 +594,9 @@ class DiagnosticHandler:
 
         self._diagnostic_callbacks: list[Callable[[int, list[DiagnosticTroubleCode]], None]] = []
 
-    def add_diagnostic_callback(self, callback: Callable[[int, list[DiagnosticTroubleCode]], None]) -> None:
+    def add_diagnostic_callback(
+        self, callback: Callable[[int, list[DiagnosticTroubleCode]], None]
+    ) -> None:
         """Add callback for diagnostic events.
 
         Parameters
@@ -618,7 +636,7 @@ class DiagnosticHandler:
 
             for i in range(0, len(dtc_data) - 3, 4):
                 if i + 4 <= len(dtc_data):
-                    dtc_bytes = dtc_data[i:i+4]
+                    dtc_bytes = dtc_data[i : i + 4]
                     dtc = self._parse_dtc(dtc_bytes, lamp_status)
                     if dtc:
                         dtcs.append(dtc)
@@ -663,7 +681,7 @@ class DiagnosticHandler:
 
             for i in range(0, len(dtc_data) - 3, 4):
                 if i + 4 <= len(dtc_data):
-                    dtc_bytes = dtc_data[i:i+4]
+                    dtc_bytes = dtc_data[i : i + 4]
                     dtc = self._parse_dtc(dtc_bytes, "Previously Active")
                     if dtc:
                         dtcs.append(dtc)
@@ -741,7 +759,7 @@ class DiagnosticHandler:
                 return None
 
             # Parse SPN (Suspect Parameter Number) - bits 0-18
-            spn = (dtc_bytes[0] | (dtc_bytes[1] << 8) | ((dtc_bytes[2] & 0x03) << 16))
+            spn = dtc_bytes[0] | (dtc_bytes[1] << 8) | ((dtc_bytes[2] & 0x03) << 16)
 
             # Parse FMI (Failure Mode Indicator) - bits 19-23
             fmi = (dtc_bytes[2] >> 2) & 0x1F
@@ -820,7 +838,7 @@ class ISOBUSProtocolManager:
         self.diagnostics = DiagnosticHandler(codec, self.error_handler)
 
         # Message routing
-        self._message_handlers: dict[int, Callable[[can.Message], None]] = {
+        self._message_handlers: dict[int, Callable[[can.Message], Any]] = {
             0xEEFF: self.address_claim.handle_address_claim,  # Address Claim
             0xEB00: self.transport_protocol.handle_tp_cm_message,  # TP.CM
             0xEC00: self.transport_protocol.handle_tp_dt_message,  # TP.DT
@@ -949,7 +967,9 @@ class ISOBUSProtocolManager:
             },
             "diagnostics": {
                 "devices_with_active_dtcs": len(self.diagnostics.active_dtcs),
-                "total_active_dtcs": sum(len(dtcs) for dtcs in self.diagnostics.active_dtcs.values()),
+                "total_active_dtcs": sum(
+                    len(dtcs) for dtcs in self.diagnostics.active_dtcs.values()
+                ),
                 "devices_with_inactive_dtcs": len(self.diagnostics.inactive_dtcs),
             },
         }

@@ -64,7 +64,7 @@ class TestAddressClaimHandler:
         name_data = bytearray(8)
 
         # Identity number (21 bits): 12345
-        identity_bytes = struct.pack('<I', 12345)
+        identity_bytes = struct.pack("<I", 12345)
         name_data[0:3] = identity_bytes[0:3]
 
         # Manufacturer code (11 bits) at bits 21-31: 123
@@ -103,7 +103,7 @@ class TestAddressClaimHandler:
         """Test handling address conflicts."""
         # First device claims address
         name_data1 = bytearray(8)
-        struct.pack_into('<I', name_data1, 0, 11111)  # Identity 11111
+        struct.pack_into("<I", name_data1, 0, 11111)  # Identity 11111
         name_data1[5] = ISOBUSFunction.TRACTOR.value
 
         message1 = can.Message(
@@ -118,7 +118,7 @@ class TestAddressClaimHandler:
 
         # Second device tries to claim same address with different identity
         name_data2 = bytearray(8)
-        struct.pack_into('<I', name_data2, 0, 22222)  # Different identity
+        struct.pack_into("<I", name_data2, 0, 22222)  # Different identity
         name_data2[5] = ISOBUSFunction.SPRAYERS.value
 
         message2 = can.Message(
@@ -155,7 +155,7 @@ class TestAddressClaimHandler:
         assert len(message.data) == 8
 
         # Verify NAME field construction
-        identity = struct.unpack('<I', message.data[0:4])[0] & 0x1FFFFF
+        identity = struct.unpack("<I", message.data[0:4])[0] & 0x1FFFFF
         assert identity == 54321
 
         assert message.data[5] == ISOBUSFunction.TRACTOR.value
@@ -164,17 +164,29 @@ class TestAddressClaimHandler:
         """Test retrieving devices by function."""
         # Add tractor device
         tractor_device = ISOBUSDevice(
-            name="Tractor", address=0x00, function=ISOBUSFunction.TRACTOR,
-            manufacturer_code=100, device_class=0, device_class_instance=0,
-            ecu_instance=0, identity_number=1000, preferred_address=0x00
+            name="Tractor",
+            address=0x00,
+            function=ISOBUSFunction.TRACTOR,
+            manufacturer_code=100,
+            device_class=0,
+            device_class_instance=0,
+            ecu_instance=0,
+            identity_number=1000,
+            preferred_address=0x00,
         )
         address_claim_handler.claimed_addresses[0x00] = tractor_device
 
         # Add sprayer device
         sprayer_device = ISOBUSDevice(
-            name="Sprayer", address=0x01, function=ISOBUSFunction.SPRAYERS,
-            manufacturer_code=200, device_class=0, device_class_instance=0,
-            ecu_instance=0, identity_number=2000, preferred_address=0x01
+            name="Sprayer",
+            address=0x01,
+            function=ISOBUSFunction.SPRAYERS,
+            manufacturer_code=200,
+            device_class=0,
+            device_class_instance=0,
+            ecu_instance=0,
+            identity_number=2000,
+            preferred_address=0x01,
         )
         address_claim_handler.claimed_addresses[0x01] = sprayer_device
 
@@ -201,7 +213,7 @@ class TestAddressClaimHandler:
 
         # Trigger address claim
         name_data = bytearray(8)
-        struct.pack_into('<I', name_data, 0, 99999)
+        struct.pack_into("<I", name_data, 0, 99999)
         name_data[5] = ISOBUSFunction.PLANTERS_SEEDERS.value
 
         message = can.Message(
@@ -249,10 +261,10 @@ class TestTransportProtocolHandler:
         # Control byte (RTS), total size (20 bytes), packets (3), max packets (3), PGN
         rts_data = bytearray(8)
         rts_data[0] = TPControl.RTS.value
-        rts_data[1:3] = struct.pack('<H', 20)  # Total size
+        rts_data[1:3] = struct.pack("<H", 20)  # Total size
         rts_data[3] = 3  # Total packets
         rts_data[4] = 3  # Max packets per CTS
-        rts_data[5:8] = struct.pack('<I', 0x1234)[0:3]  # PGN
+        rts_data[5:8] = struct.pack("<I", 0x1234)[0:3]  # PGN
 
         message = can.Message(
             arbitration_id=0x18EB2500,  # TP.CM from 0x00 to 0x25
@@ -277,10 +289,10 @@ class TestTransportProtocolHandler:
         # Create BAM message
         bam_data = bytearray(8)
         bam_data[0] = TPControl.BAM.value
-        bam_data[1:3] = struct.pack('<H', 15)  # Total size
+        bam_data[1:3] = struct.pack("<H", 15)  # Total size
         bam_data[3] = 3  # Total packets
         bam_data[4] = 0xFF  # Reserved
-        bam_data[5:8] = struct.pack('<I', 0x5678)[0:3]  # PGN
+        bam_data[5:8] = struct.pack("<I", 0x5678)[0:3]  # PGN
 
         message = can.Message(
             arbitration_id=0x18EBFF00,  # TP.CM broadcast from 0x00
@@ -298,15 +310,17 @@ class TestTransportProtocolHandler:
         assert session.pgn == 0x5678
         assert session.destination_address == 255
 
-    def test_handle_data_transfer_complete_session(self, tp_handler: TransportProtocolHandler) -> None:
+    def test_handle_data_transfer_complete_session(
+        self, tp_handler: TransportProtocolHandler
+    ) -> None:
         """Test handling data transfer messages to complete a session."""
         # First, create a session with RTS
         rts_data = bytearray(8)
         rts_data[0] = TPControl.RTS.value
-        rts_data[1:3] = struct.pack('<H', 10)  # 10 bytes total
+        rts_data[1:3] = struct.pack("<H", 10)  # 10 bytes total
         rts_data[3] = 2  # 2 packets
         rts_data[4] = 2
-        rts_data[5:8] = struct.pack('<I', 0xABCD)[0:3]
+        rts_data[5:8] = struct.pack("<I", 0xABCD)[0:3]
 
         rts_message = can.Message(
             arbitration_id=0x18EB2500,
@@ -319,6 +333,7 @@ class TestTransportProtocolHandler:
 
         # Track completed messages
         completed_messages = []
+
         def message_callback(pgn: int, data: bytes, source_address: int) -> None:
             completed_messages.append((pgn, data, source_address))
 
@@ -327,7 +342,7 @@ class TestTransportProtocolHandler:
         # Send first data packet
         dt1_data = bytearray(8)
         dt1_data[0] = 1  # Sequence number
-        dt1_data[1:8] = b'1234567'  # 7 bytes of data
+        dt1_data[1:8] = b"1234567"  # 7 bytes of data
 
         dt1_message = can.Message(
             arbitration_id=0x18EC2500,  # TP.DT from 0x00 to 0x25
@@ -341,7 +356,7 @@ class TestTransportProtocolHandler:
         # Send second data packet
         dt2_data = bytearray(8)
         dt2_data[0] = 2  # Sequence number
-        dt2_data[1:4] = b'890'  # 3 bytes to complete 10 total
+        dt2_data[1:4] = b"890"  # 3 bytes to complete 10 total
 
         dt2_message = can.Message(
             arbitration_id=0x18EC2500,
@@ -352,12 +367,12 @@ class TestTransportProtocolHandler:
         result2 = tp_handler.handle_tp_dt_message(dt2_message)
         assert result2 is not None  # Should be complete
         assert len(result2) == 10
-        assert result2 == b'1234567890'
+        assert result2 == b"1234567890"
 
         # Verify callback was called
         assert len(completed_messages) == 1
         assert completed_messages[0][0] == 0xABCD  # PGN
-        assert completed_messages[0][1] == b'1234567890'  # Data
+        assert completed_messages[0][1] == b"1234567890"  # Data
         assert completed_messages[0][2] == 0x00  # Source address
 
         # Session should be cleaned up
@@ -368,10 +383,10 @@ class TestTransportProtocolHandler:
         # Create session
         rts_data = bytearray(8)
         rts_data[0] = TPControl.RTS.value
-        rts_data[1:3] = struct.pack('<H', 7)
+        rts_data[1:3] = struct.pack("<H", 7)
         rts_data[3] = 1
         rts_data[4] = 1
-        rts_data[5:8] = struct.pack('<I', 0x1111)[0:3]
+        rts_data[5:8] = struct.pack("<I", 0x1111)[0:3]
 
         rts_message = can.Message(
             arbitration_id=0x18EB2500,
@@ -384,7 +399,7 @@ class TestTransportProtocolHandler:
         # Send packet with wrong sequence number
         dt_data = bytearray(8)
         dt_data[0] = 3  # Wrong sequence (should be 1)
-        dt_data[1:8] = b'ABCDEFG'
+        dt_data[1:8] = b"ABCDEFG"
 
         dt_message = can.Message(
             arbitration_id=0x18EC2500,
@@ -460,12 +475,10 @@ class TestDiagnosticHandler:
         dtc1_spn = 110
         dtc1_fmi = 3
         dtc1_data = dtc1_spn | ((dtc1_fmi & 0x1F) << 19)
-        dm1_data[2:6] = struct.pack('<I', dtc1_data)
+        dm1_data[2:6] = struct.pack("<I", dtc1_data)
         dm1_data[6] = 5  # Occurrence count
 
         # Second DTC: SPN 190, FMI 1, occurrence count 2
-        dtc2_spn = 190
-        dtc2_fmi = 1
         dm1_data[7] = 2  # Occurrence count for second DTC (simplified)
 
         message = can.Message(
@@ -513,7 +526,7 @@ class TestDiagnosticHandler:
         """Test diagnostic event callbacks."""
         callback_calls = []
 
-        def diagnostic_callback(source_address: int, dtcs: List[DiagnosticTroubleCode]) -> None:
+        def diagnostic_callback(source_address: int, dtcs: list[DiagnosticTroubleCode]) -> None:
             callback_calls.append((source_address, len(dtcs)))
 
         diagnostic_handler.add_diagnostic_callback(diagnostic_callback)
@@ -523,7 +536,7 @@ class TestDiagnosticHandler:
         dm1_data[0] = 0x40  # MIL ON
         dm1_data[1] = 0xFF
         # Add simple DTC
-        dm1_data[2:6] = struct.pack('<I', 100 | (2 << 19))  # SPN 100, FMI 2
+        dm1_data[2:6] = struct.pack("<I", 100 | (2 << 19))  # SPN 100, FMI 2
         dm1_data[6] = 1
 
         message = can.Message(
@@ -564,8 +577,12 @@ class TestDiagnosticHandler:
     def test_get_all_active_dtcs(self, diagnostic_handler: DiagnosticHandler) -> None:
         """Test retrieving all active DTCs."""
         # Add DTCs for multiple devices
-        dtc1 = DiagnosticTroubleCode(spn=110, fmi=3, occurrence_count=1, status="Active", lamp_status="", description="")
-        dtc2 = DiagnosticTroubleCode(spn=190, fmi=1, occurrence_count=2, status="Active", lamp_status="", description="")
+        dtc1 = DiagnosticTroubleCode(
+            spn=110, fmi=3, occurrence_count=1, status="Active", lamp_status="", description=""
+        )
+        dtc2 = DiagnosticTroubleCode(
+            spn=190, fmi=1, occurrence_count=2, status="Active", lamp_status="", description=""
+        )
 
         diagnostic_handler.active_dtcs[0x25] = [dtc1]
         diagnostic_handler.active_dtcs[0x30] = [dtc2]
@@ -610,7 +627,7 @@ class TestISOBUSProtocolManager:
         """Test message routing for address claim."""
         # Create address claim message
         name_data = bytearray(8)
-        struct.pack_into('<I', name_data, 0, 12345)
+        struct.pack_into("<I", name_data, 0, 12345)
         name_data[5] = ISOBUSFunction.TRACTOR.value
 
         message = can.Message(
@@ -632,10 +649,10 @@ class TestISOBUSProtocolManager:
         # Create RTS message
         rts_data = bytearray(8)
         rts_data[0] = TPControl.RTS.value
-        rts_data[1:3] = struct.pack('<H', 20)
+        rts_data[1:3] = struct.pack("<H", 20)
         rts_data[3] = 3
         rts_data[4] = 3
-        rts_data[5:8] = struct.pack('<I', 0x1234)[0:3]
+        rts_data[5:8] = struct.pack("<I", 0x1234)[0:3]
 
         message = can.Message(
             arbitration_id=0x18EB2500,
@@ -673,7 +690,7 @@ class TestISOBUSProtocolManager:
         # Create unknown message
         message = can.Message(
             arbitration_id=0x18DEAD25,
-            data=b'\x01\x02\x03\x04',
+            data=b"\x01\x02\x03\x04",
             is_extended_id=True,
         )
 
@@ -684,7 +701,7 @@ class TestISOBUSProtocolManager:
         """Test that standard CAN frames are ignored."""
         message = can.Message(
             arbitration_id=0x123,
-            data=b'\x01\x02\x03\x04',
+            data=b"\x01\x02\x03\x04",
             is_extended_id=False,  # Standard frame
         )
 
@@ -695,9 +712,15 @@ class TestISOBUSProtocolManager:
         """Test getting comprehensive network status."""
         # Add some test data
         test_device = ISOBUSDevice(
-            name="Test", address=0x25, function=ISOBUSFunction.TRACTOR,
-            manufacturer_code=100, device_class=0, device_class_instance=0,
-            ecu_instance=0, identity_number=1000, preferred_address=0x25
+            name="Test",
+            address=0x25,
+            function=ISOBUSFunction.TRACTOR,
+            manufacturer_code=100,
+            device_class=0,
+            device_class_instance=0,
+            ecu_instance=0,
+            identity_number=1000,
+            preferred_address=0x25,
         )
         protocol_manager.address_claim.claimed_addresses[0x25] = test_device
 
@@ -735,7 +758,7 @@ class TestIntegrationScenarios:
         try:
             # 1. Tractor claims address
             tractor_name = bytearray(8)
-            struct.pack_into('<I', tractor_name, 0, 11111)
+            struct.pack_into("<I", tractor_name, 0, 11111)
             tractor_name[5] = ISOBUSFunction.TRACTOR.value
 
             tractor_claim = can.Message(
@@ -749,7 +772,7 @@ class TestIntegrationScenarios:
 
             # 2. Implement claims address
             implement_name = bytearray(8)
-            struct.pack_into('<I', implement_name, 0, 22222)
+            struct.pack_into("<I", implement_name, 0, 22222)
             implement_name[5] = ISOBUSFunction.SPRAYERS.value
 
             implement_claim = can.Message(
@@ -765,7 +788,7 @@ class TestIntegrationScenarios:
             dm1_data = bytearray(8)
             dm1_data[0] = 0x44  # Amber warning lamp on
             dm1_data[1] = 0xFF
-            dm1_data[2:6] = struct.pack('<I', 190 | (3 << 19))  # SPN 190, FMI 3
+            dm1_data[2:6] = struct.pack("<I", 190 | (3 << 19))  # SPN 190, FMI 3
             dm1_data[6] = 1
 
             dm1_message = can.Message(
@@ -812,6 +835,7 @@ class TestIntegrationScenarios:
         try:
             # Track completed messages
             completed_messages = []
+
             def message_callback(pgn: int, data: bytes, source_address: int) -> None:
                 completed_messages.append((pgn, data, source_address))
 
@@ -820,10 +844,10 @@ class TestIntegrationScenarios:
             # 1. Send RTS for 25-byte message (4 packets)
             rts_data = bytearray(8)
             rts_data[0] = TPControl.RTS.value
-            rts_data[1:3] = struct.pack('<H', 25)  # 25 bytes
+            rts_data[1:3] = struct.pack("<H", 25)  # 25 bytes
             rts_data[3] = 4  # 4 packets
             rts_data[4] = 3  # Max 3 packets per CTS
-            rts_data[5:8] = struct.pack('<I', 0xABCD)[0:3]  # PGN
+            rts_data[5:8] = struct.pack("<I", 0xABCD)[0:3]  # PGN
 
             rts_message = can.Message(
                 arbitration_id=0x18EB0025,  # From 0x25 to 0x00
@@ -835,7 +859,7 @@ class TestIntegrationScenarios:
             assert handled is True
 
             # 2. Send 4 data packets
-            test_data = b'ABCDEFGHIJKLMNOPQRSTUVWXY'  # 25 bytes
+            test_data = b"ABCDEFGHIJKLMNOPQRSTUVWXY"  # 25 bytes
 
             for packet_num in range(1, 5):
                 dt_data = bytearray(8)
@@ -845,7 +869,7 @@ class TestIntegrationScenarios:
                 end_idx = min(start_idx + 7, len(test_data))
                 packet_data = test_data[start_idx:end_idx]
 
-                dt_data[1:1+len(packet_data)] = packet_data
+                dt_data[1 : 1 + len(packet_data)] = packet_data
 
                 dt_message = can.Message(
                     arbitration_id=0x18EC0025,  # TP.DT from 0x25 to 0x00
@@ -872,7 +896,7 @@ class TestIntegrationScenarios:
 
         # Device 1 claims address 0x25
         name1 = bytearray(8)
-        struct.pack_into('<I', name1, 0, 11111)
+        struct.pack_into("<I", name1, 0, 11111)
         name1[5] = ISOBUSFunction.TRACTOR.value
 
         claim1 = can.Message(
@@ -891,7 +915,7 @@ class TestIntegrationScenarios:
 
         # Device 2 tries to claim same address with different identity
         name2 = bytearray(8)
-        struct.pack_into('<I', name2, 0, 22222)  # Different identity
+        struct.pack_into("<I", name2, 0, 22222)  # Different identity
         name2[5] = ISOBUSFunction.SPRAYERS.value
 
         claim2 = can.Message(

@@ -13,19 +13,16 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any
-from collections.abc import Callable
 
 import can
 
 from afs_fastapi.core.can_frame_codec import CANFrameCodec, DecodedPGN
-from afs_fastapi.equipment.can_error_handling import (
-    CANErrorHandler,
-    ISOBUSErrorLogger,
-)
+from afs_fastapi.equipment.can_error_handling import CANErrorHandler, ISOBUSErrorLogger
 from afs_fastapi.equipment.physical_can_interface import (
     InterfaceConfiguration,
     InterfaceState,
@@ -52,9 +49,9 @@ class MessagePriority(Enum):
     """Message priority levels for routing."""
 
     CRITICAL = 0  # Emergency, safety
-    HIGH = 1      # Engine, transmission critical
-    NORMAL = 2    # Standard telemetry
-    LOW = 3       # Diagnostics, configuration
+    HIGH = 1  # Engine, transmission critical
+    NORMAL = 2  # Standard telemetry
+    LOW = 3  # Diagnostics, configuration
 
 
 @dataclass
@@ -149,9 +146,7 @@ class MessageRouter:
         return False
 
     def route_message(
-        self,
-        message: can.Message,
-        available_interfaces: list[str]
+        self, message: can.Message, available_interfaces: list[str]
     ) -> tuple[list[str], MessagePriority]:
         """Route a CAN message to appropriate interfaces.
 
@@ -180,7 +175,9 @@ class MessageRouter:
 
         # Check cache first
         if pgn in self.route_cache:
-            cached_interfaces = [iface for iface in self.route_cache[pgn] if iface in available_interfaces]
+            cached_interfaces = [
+                iface for iface in self.route_cache[pgn] if iface in available_interfaces
+            ]
             if cached_interfaces:
                 return cached_interfaces, self._get_pgn_priority(pgn)
 
@@ -201,7 +198,10 @@ class MessageRouter:
                 continue
 
             # Check destination filter (if applicable)
-            if rule.destination_filters and decoded.destination_address not in rule.destination_filters:
+            if (
+                rule.destination_filters
+                and decoded.destination_address not in rule.destination_filters
+            ):
                 continue
 
             # Rule matches - add target interfaces
@@ -327,7 +327,9 @@ class ConnectionPool:
             # Start health checking
             self._health_check_task = asyncio.create_task(self._health_check_loop())
 
-            logger.info(f"Connection pool initialized with {len(self.primary_connections)} primary interfaces")
+            logger.info(
+                f"Connection pool initialized with {len(self.primary_connections)} primary interfaces"
+            )
             return True
 
         except Exception as e:
@@ -383,7 +385,9 @@ class ConnectionPool:
             Best interface ID or None
         """
         exclude = exclude or []
-        active_interfaces = [iface for iface in self.get_active_interfaces() if iface not in exclude]
+        active_interfaces = [
+            iface for iface in self.get_active_interfaces() if iface not in exclude
+        ]
 
         if not active_interfaces:
             return None
@@ -408,7 +412,9 @@ class ConnectionPool:
         current_time = datetime.now()
 
         # Check all interfaces
-        all_interfaces = list(self.primary_connections.keys()) + list(self.backup_connections.keys())
+        all_interfaces = list(self.primary_connections.keys()) + list(
+            self.backup_connections.keys()
+        )
 
         for interface_id in all_interfaces:
             try:
@@ -533,7 +539,9 @@ class CANBusConnectionManager:
         # Core components
         self.codec = CANFrameCodec()
         self.physical_manager = PhysicalCANManager(self.error_handler, self.error_logger)
-        self.connection_pool = ConnectionPool(pool_config, self.physical_manager, self.error_handler)
+        self.connection_pool = ConnectionPool(
+            pool_config, self.physical_manager, self.error_handler
+        )
         self.message_router = MessageRouter(self.codec)
 
         # State management
@@ -632,7 +640,7 @@ class CANBusConnectionManager:
         self,
         message: can.Message,
         target_interfaces: list[str] | None = None,
-        priority: MessagePriority = MessagePriority.NORMAL
+        priority: MessagePriority = MessagePriority.NORMAL,
     ) -> dict[str, bool]:
         """Send CAN message through managed interfaces.
 
@@ -654,8 +662,9 @@ class CANBusConnectionManager:
             # Auto-route if no specific interfaces provided
             if target_interfaces is None:
                 available_interfaces = self.connection_pool.get_active_interfaces()
-                target_interfaces, auto_priority = self.message_router.route_message(message, available_interfaces)
-                priority = auto_priority
+                target_interfaces, priority = self.message_router.route_message(
+                    message, available_interfaces
+                )
 
             # Send to target interfaces
             results = {}
@@ -703,8 +712,7 @@ class CANBusConnectionManager:
             try:
                 # Get message from queue
                 message, interface_id = await asyncio.wait_for(
-                    self._message_queue.get(),
-                    timeout=1.0
+                    self._message_queue.get(), timeout=1.0
                 )
 
                 # Decode message
@@ -750,9 +758,12 @@ class CANBusConnectionManager:
         active_interfaces = self.connection_pool.get_active_interfaces()
         self._statistics.active_interfaces = len(active_interfaces)
 
-        all_interfaces = list(self.connection_pool.primary_connections.keys()) + \
-                        list(self.connection_pool.backup_connections.keys())
-        self._statistics.failed_interfaces = len(all_interfaces) - self._statistics.active_interfaces
+        all_interfaces = list(self.connection_pool.primary_connections.keys()) + list(
+            self.connection_pool.backup_connections.keys()
+        )
+        self._statistics.failed_interfaces = (
+            len(all_interfaces) - self._statistics.active_interfaces
+        )
 
     def _check_overall_health(self) -> None:
         """Check overall manager health and update state."""
@@ -777,7 +788,8 @@ class CANBusConnectionManager:
             source_filters=[],
             destination_filters=[],
             priority=MessagePriority.CRITICAL,
-            target_interfaces=self.pool_config.primary_interfaces + self.pool_config.backup_interfaces,
+            target_interfaces=self.pool_config.primary_interfaces
+            + self.pool_config.backup_interfaces,
         )
 
         # Engine/transmission critical - primary interfaces

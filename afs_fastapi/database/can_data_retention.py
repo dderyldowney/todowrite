@@ -30,29 +30,29 @@ logger = logging.getLogger(__name__)
 class RetentionPolicy(Enum):
     """Data retention policy types."""
 
-    CRITICAL = "critical"      # Safety, emergency data - long retention
+    CRITICAL = "critical"  # Safety, emergency data - long retention
     OPERATIONAL = "operational"  # Standard operations - medium retention
-    DIAGNOSTIC = "diagnostic"   # Troubleshooting data - short retention
+    DIAGNOSTIC = "diagnostic"  # Troubleshooting data - short retention
     EXPERIMENTAL = "experimental"  # Development/testing - very short retention
 
 
 class ArchivalStrategy(Enum):
     """Data archival strategies."""
 
-    NONE = "none"              # No archival, just delete
-    LOCAL_STORAGE = "local"    # Archive to local storage
-    CLOUD_STORAGE = "cloud"    # Archive to cloud storage (S3, GCS, etc.)
+    NONE = "none"  # No archival, just delete
+    LOCAL_STORAGE = "local"  # Archive to local storage
+    CLOUD_STORAGE = "cloud"  # Archive to cloud storage (S3, GCS, etc.)
     COMPRESSED = "compressed"  # Compress and archive locally
-    TAPE_STORAGE = "tape"      # Archive to tape storage
+    TAPE_STORAGE = "tape"  # Archive to tape storage
 
 
 class CompressionFormat(Enum):
     """Supported compression formats for archival."""
 
-    PARQUET = "parquet"        # Columnar format, excellent compression
-    GZIP_CSV = "gzip_csv"      # Compressed CSV
-    ZSTD = "zstd"              # Fast compression
-    LZMA = "lzma"              # High compression ratio
+    PARQUET = "parquet"  # Columnar format, excellent compression
+    GZIP_CSV = "gzip_csv"  # Compressed CSV
+    ZSTD = "zstd"  # Fast compression
+    LZMA = "lzma"  # High compression ratio
 
 
 @dataclass
@@ -133,7 +133,6 @@ class CANDataRetentionManager:
                 where_clause="priority <= 2 OR pgn IN (57344, 57345, 57346)",  # Emergency PGNs
                 description="Critical safety and emergency data",
             ),
-
             # Operational data - keep for 2 years
             RetentionRule(
                 name="operational_data",
@@ -145,7 +144,6 @@ class CANDataRetentionManager:
                 where_clause="retention_policy = 'operational'",
                 description="Standard operational data",
             ),
-
             # Raw message data - keep for 30 days
             RetentionRule(
                 name="raw_messages_cleanup",
@@ -157,7 +155,6 @@ class CANDataRetentionManager:
                 where_clause="retention_policy = 'standard'",
                 description="Standard raw CAN messages",
             ),
-
             # Decoded messages - keep for 90 days
             RetentionRule(
                 name="decoded_messages_cleanup",
@@ -168,7 +165,6 @@ class CANDataRetentionManager:
                 table_pattern="can_messages_decoded",
                 description="Decoded CAN messages",
             ),
-
             # Network health data - keep for 180 days
             RetentionRule(
                 name="network_health_cleanup",
@@ -178,7 +174,6 @@ class CANDataRetentionManager:
                 table_pattern="can_network_health",
                 description="Network health monitoring data",
             ),
-
             # Agricultural metrics - keep for 5 years (compressed)
             RetentionRule(
                 name="metrics_long_term",
@@ -189,7 +184,6 @@ class CANDataRetentionManager:
                 table_pattern="agricultural_metrics",
                 description="Long-term agricultural performance metrics",
             ),
-
             # Equipment sessions - keep for 3 years
             RetentionRule(
                 name="equipment_sessions_cleanup",
@@ -200,7 +194,6 @@ class CANDataRetentionManager:
                 table_pattern="equipment_sessions",
                 description="Equipment operation sessions",
             ),
-
             # Test data - keep for 7 days
             RetentionRule(
                 name="test_data_cleanup",
@@ -230,9 +223,7 @@ class CANDataRetentionManager:
         self.base_archive_path.mkdir(parents=True, exist_ok=True)
 
         # Start background cleanup task
-        self._cleanup_task = asyncio.create_task(
-            self._cleanup_loop(cleanup_interval)
-        )
+        self._cleanup_task = asyncio.create_task(self._cleanup_loop(cleanup_interval))
 
         logger.info(f"Data retention manager started (cleanup every {cleanup_interval}s)")
 
@@ -282,9 +273,11 @@ class CANDataRetentionManager:
                     results["records_archived"] += rule_results.get("archived", 0)
                     results["records_deleted"] += rule_results.get("deleted", 0)
 
-                    logger.info(f"Processed rule '{rule.name}': "
-                              f"archived={rule_results.get('archived', 0)}, "
-                              f"deleted={rule_results.get('deleted', 0)}")
+                    logger.info(
+                        f"Processed rule '{rule.name}': "
+                        f"archived={rule_results.get('archived', 0)}, "
+                        f"deleted={rule_results.get('deleted', 0)}"
+                    )
 
                 except Exception as e:
                     error_msg = f"Failed to process rule '{rule.name}': {e}"
@@ -303,9 +296,11 @@ class CANDataRetentionManager:
             results["end_time"] = end_time
             results["duration_seconds"] = duration
 
-            logger.info(f"Cleanup cycle completed in {duration:.2f}s: "
-                       f"archived={results['records_archived']}, "
-                       f"deleted={results['records_deleted']}")
+            logger.info(
+                f"Cleanup cycle completed in {duration:.2f}s: "
+                f"archived={results['records_archived']}, "
+                f"deleted={results['records_deleted']}"
+            )
 
         except Exception as e:
             logger.error(f"Cleanup cycle failed: {e}")
@@ -341,8 +336,11 @@ class CANDataRetentionManager:
                 archive_cutoff = current_time - rule.archive_after
 
             # Archive data if needed
-            if (rule.archival_strategy != ArchivalStrategy.NONE and
-                archive_cutoff and archive_cutoff > deletion_cutoff):
+            if (
+                rule.archival_strategy != ArchivalStrategy.NONE
+                and archive_cutoff
+                and archive_cutoff > deletion_cutoff
+            ):
 
                 archived_count = await self._archive_table_data(
                     table, rule, archive_cutoff, deletion_cutoff
@@ -371,23 +369,29 @@ class CANDataRetentionManager:
         async with self.storage._get_async_session() as session:
             if pattern == "*":
                 # Get all time-series tables
-                query = text("""
+                query = text(
+                    """
                     SELECT tablename FROM pg_tables
                     WHERE schemaname = 'public'
                     AND tablename LIKE 'can_%'
                     OR tablename LIKE 'agricultural_%'
                     OR tablename LIKE 'equipment_%'
-                """)
+                """
+                )
             else:
                 # Convert pattern to SQL LIKE pattern
                 sql_pattern = pattern.replace("*", "%")
-                query = text("""
+                query = text(
+                    """
                     SELECT tablename FROM pg_tables
                     WHERE schemaname = 'public'
                     AND tablename LIKE :pattern
-                """)
+                """
+                )
 
-            result = await session.execute(query, {"pattern": sql_pattern} if pattern != "*" else {})
+            result = await session.execute(
+                query, {"pattern": sql_pattern} if pattern != "*" else {}
+            )
             return [row[0] for row in result]
 
     async def _archive_table_data(
@@ -435,10 +439,13 @@ class CANDataRetentionManager:
 
                 while True:
                     query = text(base_query + f" LIMIT {rule.batch_size} OFFSET {offset}")
-                    result = await session.execute(query, {
-                        "archive_cutoff": archive_cutoff,
-                        "deletion_cutoff": deletion_cutoff,
-                    })
+                    result = await session.execute(
+                        query,
+                        {
+                            "archive_cutoff": archive_cutoff,
+                            "deletion_cutoff": deletion_cutoff,
+                        },
+                    )
 
                     rows = result.fetchall()
                     if not rows:
@@ -491,10 +498,7 @@ class CANDataRetentionManager:
         try:
             # Create archive directory structure
             archive_dir = (
-                self.base_archive_path /
-                rule.policy.value /
-                table /
-                archive_date.strftime("%Y/%m")
+                self.base_archive_path / rule.policy.value / table / archive_date.strftime("%Y/%m")
             )
             archive_dir.mkdir(parents=True, exist_ok=True)
 
@@ -562,9 +566,12 @@ class CANDataRetentionManager:
                     base_query += f" AND ({rule.where_clause})"
 
                 # Execute deletion
-                result = await session.execute(text(base_query), {
-                    "deletion_cutoff": deletion_cutoff,
-                })
+                result = await session.execute(
+                    text(base_query),
+                    {
+                        "deletion_cutoff": deletion_cutoff,
+                    },
+                )
 
                 await session.commit()
                 deleted_count = result.rowcount or 0
@@ -664,17 +671,22 @@ class CANDataRetentionManager:
                         # Estimate deletions
                         deletion_cutoff = datetime.utcnow() - rule.retention_period
 
-                        query = text(f"""
+                        query = text(
+                            f"""
                             SELECT COUNT(*) as count,
                                    pg_total_relation_size('{table}') as table_size
                             FROM {table}
                             WHERE timestamp < :deletion_cutoff
                             {f"AND ({rule.where_clause})" if rule.where_clause else ""}
-                        """)
+                        """
+                        )
 
-                        result = await session.execute(query, {
-                            "deletion_cutoff": deletion_cutoff,
-                        })
+                        result = await session.execute(
+                            query,
+                            {
+                                "deletion_cutoff": deletion_cutoff,
+                            },
+                        )
 
                         row = result.first()
                         if row and row.count > 0:

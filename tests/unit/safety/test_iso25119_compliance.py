@@ -12,7 +12,6 @@ Safety Integrity Levels (SIL) for autonomous and semi-autonomous operations.
 import unittest
 
 
-
 class TestISO25119SafetyIntegrityLevels(unittest.TestCase):
     """
     RED PHASE: Test ISO 25119 Safety Integrity Level (SIL) implementation.
@@ -37,7 +36,7 @@ class TestISO25119SafetyIntegrityLevels(unittest.TestCase):
         autonomous_nav_sil = classifier.determine_sil_level(
             system_type="autonomous_navigation",
             operation_mode="field_operations",
-            risk_factors=["collision_risk", "operator_safety", "equipment_damage"]
+            risk_factors=["collision_risk", "operator_safety", "equipment_damage"],
         )
 
         assert autonomous_nav_sil.sil_level == "SIL 2"
@@ -48,7 +47,7 @@ class TestISO25119SafetyIntegrityLevels(unittest.TestCase):
         hydraulic_sil = classifier.determine_sil_level(
             system_type="hydraulic_control",
             operation_mode="implement_operation",
-            risk_factors=["equipment_damage", "operational_efficiency"]
+            risk_factors=["equipment_damage", "operational_efficiency"],
         )
 
         assert hydraulic_sil.sil_level == "SIL 1"
@@ -58,7 +57,12 @@ class TestISO25119SafetyIntegrityLevels(unittest.TestCase):
         emergency_sil = classifier.determine_sil_level(
             system_type="emergency_stop",
             operation_mode="all_operations",
-            risk_factors=["operator_safety", "collision_risk", "equipment_damage", "bystander_safety"]
+            risk_factors=[
+                "operator_safety",
+                "collision_risk",
+                "equipment_damage",
+                "bystander_safety",
+            ],
         )
 
         assert emergency_sil.sil_level == "SIL 3"
@@ -85,8 +89,8 @@ class TestISO25119SafetyIntegrityLevels(unittest.TestCase):
                 "field_type": "open_field",
                 "visibility_conditions": "good",
                 "equipment_types": ["tractor", "tractor"],
-                "operation_speed": "high"
-            }
+                "operation_speed": "high",
+            },
         )
 
         assert collision_hazard.severity_level == "S3"  # Life-threatening injuries
@@ -102,8 +106,8 @@ class TestISO25119SafetyIntegrityLevels(unittest.TestCase):
                 "field_type": "sloped_field",
                 "implement_weight": "heavy",
                 "operation_speed": "medium",
-                "bystander_presence": "possible"
-            }
+                "bystander_presence": "possible",
+            },
         )
 
         assert detachment_hazard.severity_level == "S2"  # Severe injuries possible
@@ -129,8 +133,12 @@ class TestISO25119SafetyIntegrityLevels(unittest.TestCase):
                 "equipment_type": "autonomous_tractor",
                 "intended_use": "field_cultivation",
                 "operating_environment": "agricultural_fields",
-                "safety_goals": ["prevent_collision", "ensure_operator_safety", "protect_equipment"]
-            }
+                "safety_goals": [
+                    "prevent_collision",
+                    "ensure_operator_safety",
+                    "protect_equipment",
+                ],
+            },
         )
 
         assert concept_phase.phase_complete is True
@@ -146,8 +154,8 @@ class TestISO25119SafetyIntegrityLevels(unittest.TestCase):
                 "field_operation_normal",
                 "field_operation_adverse_weather",
                 "multi_equipment_coordination",
-                "emergency_situations"
-            ]
+                "emergency_situations",
+            ],
         )
 
         assert hara_phase.hazards_identified is True
@@ -184,8 +192,8 @@ class TestISO25119SafetyFunctions(unittest.TestCase):
                 "field_slope": 5.2,  # degrees
                 "soil_moisture": "high",
                 "visibility": "good",
-                "other_equipment_present": True
-            }
+                "other_equipment_present": True,
+            },
         )
 
         assert safe_state_result.safe_state_achieved is True
@@ -198,10 +206,10 @@ class TestISO25119SafetyFunctions(unittest.TestCase):
             planned_path=[
                 {"x": 0, "y": 0, "heading": 0},
                 {"x": 100, "y": 0, "heading": 0},
-                {"x": 100, "y": 50, "heading": 90}
+                {"x": 100, "y": 50, "heading": 90},
             ],
             field_boundaries={"min_x": -10, "max_x": 110, "min_y": -10, "max_y": 60},
-            obstacle_map={"obstacles": [{"x": 50, "y": 25, "radius": 5}]}
+            obstacle_map={"obstacles": [{"x": 50, "y": 25, "radius": 5}]},
         )
 
         assert path_validation.path_safe is True
@@ -225,12 +233,8 @@ class TestISO25119SafetyFunctions(unittest.TestCase):
         hydraulic_status = safety_monitor.monitor_hydraulic_system(
             pressure_reading=180.5,  # bar
             temperature_reading=65.3,  # Celsius
-            flow_rate=45.2,         # L/min
-            system_limits={
-                "max_pressure": 200.0,
-                "max_temperature": 80.0,
-                "min_flow_rate": 40.0
-            }
+            flow_rate=45.2,  # L/min
+            system_limits={"max_pressure": 200.0, "max_temperature": 80.0, "min_flow_rate": 40.0},
         )
 
         assert hydraulic_status.system_safe is True
@@ -245,10 +249,10 @@ class TestISO25119SafetyFunctions(unittest.TestCase):
                 "lower_links_engaged": True,
                 "hydraulic_connected": True,
                 "electrical_connected": True,
-                "pto_connected": False  # Not required for this implement
+                "pto_connected": False,  # Not required for this implement
             },
             implement_type="cultivator",
-            operation_mode="transport"
+            operation_mode="transport",
         )
 
         assert attachment_status.attachment_secure is True
@@ -275,8 +279,8 @@ class TestISO25119SafetyFunctions(unittest.TestCase):
             field_conditions={
                 "slope": 3.5,  # degrees
                 "surface_condition": "firm",
-                "weather": "clear"
-            }
+                "weather": "clear",
+            },
         )
 
         assert emergency_response.all_equipment_stopped is True
@@ -288,7 +292,7 @@ class TestISO25119SafetyFunctions(unittest.TestCase):
         # Test emergency communication protocol
         communication_test = emergency_system.test_emergency_communication(
             communication_channels=["radio", "cellular", "satellite"],
-            test_scenarios=["normal_conditions", "interference", "partial_failure"]
+            test_scenarios=["normal_conditions", "interference", "partial_failure"],
         )
 
         assert communication_test.primary_channel_functional is True
@@ -324,14 +328,14 @@ class TestISO25119VerificationValidation(unittest.TestCase):
                 "emergency_stop",
                 "obstacle_avoidance",
                 "path_following",
-                "implement_control"
+                "implement_control",
             ],
             test_conditions={
                 "field_types": ["flat", "sloped", "terraced"],
                 "weather_conditions": ["clear", "rain", "fog"],
                 "soil_conditions": ["dry", "wet", "muddy"],
-                "crop_types": ["corn", "wheat", "soybeans"]
-            }
+                "crop_types": ["corn", "wheat", "soybeans"],
+            },
         )
 
         assert verification_results.all_functions_verified is True
@@ -346,13 +350,13 @@ class TestISO25119VerificationValidation(unittest.TestCase):
                 "communication_loss",
                 "hydraulic_pressure_drop",
                 "engine_overheat",
-                "implement_detachment"
+                "implement_detachment",
             ],
             safety_requirements={
                 "safe_state_transition_time": 2.0,  # seconds
                 "operator_notification_time": 0.5,  # seconds
-                "system_recovery_capability": True
-            }
+                "system_recovery_capability": True,
+            },
         )
 
         assert failure_mode_tests.all_scenarios_tested is True
@@ -379,15 +383,15 @@ class TestISO25119VerificationValidation(unittest.TestCase):
                 "field_sizes_hectares": [10, 25, 50, 75, 100],
                 "crop_types": ["corn", "soybeans", "wheat"],
                 "terrain_variations": ["flat", "rolling", "steep"],
-                "weather_exposure": ["sunny", "rainy", "windy", "foggy"]
+                "weather_exposure": ["sunny", "rainy", "windy", "foggy"],
             },
             operational_scenarios=[
                 "normal_cultivation",
                 "precision_planting",
                 "harvest_operations",
                 "transport_mode",
-                "emergency_scenarios"
-            ]
+                "emergency_scenarios",
+            ],
         )
 
         assert field_test_results.validation_successful is True
@@ -403,7 +407,7 @@ class TestISO25119VerificationValidation(unittest.TestCase):
                 "high_dust_environment",
                 "temperature_extremes",
                 "multiple_equipment_coordination",
-                "communication_interference"
+                "communication_interference",
             ]
         )
 
@@ -439,14 +443,14 @@ class TestISO25119Documentation(unittest.TestCase):
                 "type": "autonomous_tractor",
                 "intended_use": "field_cultivation",
                 "operational_domain": "agricultural_fields",
-                "automation_level": "SAE_Level_4"
+                "automation_level": "SAE_Level_4",
             },
             safety_requirements_trace={
                 "requirements_count": 127,
                 "sil_levels_addressed": ["SIL 1", "SIL 2", "SIL 3"],
                 "verification_methods": ["testing", "analysis", "review"],
-                "validation_evidence": ["field_tests", "simulation", "expert_review"]
-            }
+                "validation_evidence": ["field_tests", "simulation", "expert_review"],
+            },
         )
 
         assert case_document.safety_argument_complete is True
@@ -459,8 +463,12 @@ class TestISO25119Documentation(unittest.TestCase):
         traceability_matrix = safety_case.generate_traceability_matrix(
             safety_goals=["prevent_collision", "ensure_safe_stop", "maintain_control"],
             safety_requirements=["REQ_001", "REQ_002", "REQ_003", "REQ_004"],
-            implementation_elements=["emergency_stop_module", "collision_detection", "path_controller"],
-            verification_activities=["unit_tests", "integration_tests", "field_tests"]
+            implementation_elements=[
+                "emergency_stop_module",
+                "collision_detection",
+                "path_controller",
+            ],
+            verification_activities=["unit_tests", "integration_tests", "field_tests"],
         )
 
         assert traceability_matrix.complete_coverage is True

@@ -10,28 +10,77 @@ This module tests the complete CAN communication stack including:
 
 from __future__ import annotations
 
-import pytest
-from unittest.mock import AsyncMock, patch
-import can
+from dataclasses import dataclass
 from datetime import datetime
+from typing import Any
+from unittest.mock import AsyncMock, patch
 
-from afs_fastapi.equipment.physical_can_interface import (
-    InterfaceConfiguration,
-    CANInterfaceType,
-    InterfaceState,
-    BusSpeed,
-)
-from afs_fastapi.equipment.can_bus_manager import (
-    CANBusConnectionManager,
-    ConnectionPoolConfig,
-)
-from afs_fastapi.core.can_frame_codec import (
-    CANFrameCodec,
-)
-from afs_fastapi.protocols.isobus_handlers import (
-    ISOBUSProtocolManager,
-)
+import can
+import pytest
+
+from afs_fastapi.core.can_frame_codec import CANFrameCodec
+from afs_fastapi.equipment.can_bus_manager import CANBusConnectionManager, ConnectionPoolConfig
 from afs_fastapi.equipment.can_error_handling import CANErrorHandler
+from afs_fastapi.equipment.physical_can_interface import (
+    BusSpeed,
+    CANInterfaceType,
+    InterfaceConfiguration,
+    InterfaceState,
+)
+from afs_fastapi.protocols.isobus_handlers import ISOBUSProtocolManager
+
+
+@dataclass
+class AddressClaimMessage:
+    """Test data class for address claim messages."""
+
+    source_address: int
+    name: int
+    function_code: int
+    vehicle_system: int
+
+
+@dataclass
+class EngineData:
+    """Test data class for engine data."""
+
+    rpm: float
+    torque: float
+    fuel_rate: float
+    coolant_temp: float
+    oil_pressure: float
+    air_intake_temp: float
+
+
+@dataclass
+class VehiclePosition:
+    """Test data class for vehicle position."""
+
+    latitude: float
+    longitude: float
+    altitude: float
+
+
+@dataclass
+class TransportProtocolMessage:
+    """Test data class for transport protocol messages."""
+
+    control_byte: int
+    total_message_size: int
+    total_packets: int
+    destination_address: int
+    pgn: int
+    data: bytes
+
+
+@dataclass
+class DiagnosticMessage:
+    """Test data class for diagnostic messages."""
+
+    source_address: int
+    lamp_status: int
+    dtc_count: int
+    dtcs: list[dict[str, Any]]
 
 
 class TestCANInterfaceIntegration:
@@ -171,9 +220,7 @@ class TestCANInterfaceIntegration:
             assert "rpm" in decoded_engine.data
             assert decoded_engine.data["rpm"] == 1800
 
-    async def test_multi_tractor_field_coordination_scenario(
-        self, can_manager, isobus_manager
-    ):
+    async def test_multi_tractor_field_coordination_scenario(self, can_manager, isobus_manager):
         """Test realistic multi-tractor field coordination scenario."""
         # Simulate 3 tractors performing coordinated field operation
         tractor_configs = []
@@ -187,7 +234,7 @@ class TestCANInterfaceIntegration:
 
         # Mock interfaces for all tractors
         mock_interfaces = []
-        for i in range(3):
+        for _ in range(3):
             mock_interface = AsyncMock()
             mock_interface.connect.return_value = True
             mock_interface.state = InterfaceState.CONNECTED
@@ -205,8 +252,12 @@ class TestCANInterfaceIntegration:
             # Simulate GPS position updates from all tractors
             positions = [
                 VehiclePosition(latitude=40.7128, longitude=-74.0060, altitude=10.0),  # NYC
-                VehiclePosition(latitude=40.7589, longitude=-73.9851, altitude=15.0),  # Times Square
-                VehiclePosition(latitude=40.6892, longitude=-74.0445, altitude=8.0),   # Statue of Liberty
+                VehiclePosition(
+                    latitude=40.7589, longitude=-73.9851, altitude=15.0
+                ),  # Times Square
+                VehiclePosition(
+                    latitude=40.6892, longitude=-74.0445, altitude=8.0
+                ),  # Statue of Liberty
             ]
 
             # Send position updates
@@ -254,9 +305,7 @@ class TestCANInterfaceIntegration:
             for mock_interface in mock_interfaces:
                 assert mock_interface.send_message.call_count >= 1
 
-    async def test_error_handling_and_recovery_integration(
-        self, can_manager, isobus_manager
-    ):
+    async def test_error_handling_and_recovery_integration(self, can_manager, isobus_manager):
         """Test comprehensive error handling and recovery scenarios."""
         config = InterfaceConfiguration(
             interface_type=CANInterfaceType.SOCKETCAN,
@@ -302,9 +351,7 @@ class TestCANInterfaceIntegration:
             assert len(decoded_dm1.dtcs) == 2
             assert decoded_dm1.dtcs[0]["spn"] == 110
 
-    async def test_high_throughput_message_processing(
-        self, can_manager, isobus_manager
-    ):
+    async def test_high_throughput_message_processing(self, can_manager, isobus_manager):
         """Test system performance with high message throughput."""
         config = InterfaceConfiguration(
             interface_type=CANInterfaceType.SOCKETCAN,
@@ -339,9 +386,7 @@ class TestCANInterfaceIntegration:
                     air_intake_temp=20 + (i % 15),
                 )
 
-                frame = can_manager.codec.encode_engine_data(
-                    engine_data, source_address=0x81
-                )
+                frame = can_manager.codec.encode_engine_data(engine_data, source_address=0x81)
                 await can_manager.send_message("performance_test", frame)
 
             end_time = datetime.now()
@@ -355,9 +400,7 @@ class TestCANInterfaceIntegration:
             throughput = total_messages / processing_time
             assert throughput > 50  # Minimum 50 messages/second
 
-    async def test_real_world_agricultural_protocol_compliance(
-        self, can_manager, isobus_manager
-    ):
+    async def test_real_world_agricultural_protocol_compliance(self, can_manager, isobus_manager):
         """Test compliance with real-world agricultural protocols."""
         config = InterfaceConfiguration(
             interface_type=CANInterfaceType.SOCKETCAN,
@@ -378,10 +421,10 @@ class TestCANInterfaceIntegration:
             # 1. Address Claim procedure compliance
             # Verify proper NAME field structure
             name_field = (
-                (0x19 << 21) |  # Function code (Tractor)
-                (0x00 << 16) |  # Function instance
-                (0x07 << 11) |  # ECU instance
-                (0x0123 << 0)   # Manufacturer code and serial
+                (0x19 << 21)  # Function code (Tractor)
+                | (0x00 << 16)  # Function instance
+                | (0x07 << 11)  # ECU instance
+                | (0x0123 << 0)  # Manufacturer code and serial
             )
 
             address_claim = AddressClaimMessage(
@@ -391,9 +434,7 @@ class TestCANInterfaceIntegration:
                 vehicle_system=0x00,
             )
 
-            claim_frame = isobus_manager.address_claim.create_address_claim_message(
-                address_claim
-            )
+            claim_frame = isobus_manager.address_claim.create_address_claim_message(address_claim)
 
             # Verify J1939-21 compliance
             assert (claim_frame.arbitration_id >> 8) & 0xFFFF == 0x18EEFF  # PGN for Address Claim
@@ -433,23 +474,19 @@ class TestCANInterfaceIntegration:
             # Verify all compliance messages were sent
             assert mock_interface.send_message.call_count >= 3
 
-    async def test_failover_and_redundancy_integration(
-        self, can_manager
-    ):
+    async def test_failover_and_redundancy_integration(self, can_manager):
         """Test failover and redundancy mechanisms."""
         # Configure primary and backup interfaces
         primary_config = InterfaceConfiguration(
-            interface_type=InterfaceType.SOCKETCAN,
+            interface_type=CANInterfaceType.SOCKETCAN,
             channel="vcan0",
-            bitrate=250000,
-            agricultural_mode=True,
+            bitrate=BusSpeed.SPEED_250K,
         )
 
         backup_config = InterfaceConfiguration(
-            interface_type=InterfaceType.SOCKETCAN,
+            interface_type=CANInterfaceType.SOCKETCAN,
             channel="vcan1",
-            bitrate=250000,
-            agricultural_mode=True,
+            bitrate=BusSpeed.SPEED_250K,
         )
 
         # Mock primary interface that will fail
@@ -490,9 +527,7 @@ class TestCANInterfaceIntegration:
             assert mock_backup.connect.called
 
     @pytest.mark.asyncio
-    async def test_memory_and_resource_management(
-        self, can_manager
-    ):
+    async def test_memory_and_resource_management(self, can_manager):
         """Test memory usage and resource cleanup."""
         config = InterfaceConfiguration(
             interface_type=CANInterfaceType.SOCKETCAN,

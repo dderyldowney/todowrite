@@ -21,10 +21,7 @@ from pathlib import Path
 from typing import Any
 
 from afs_fastapi.equipment.can_error_handling import CANErrorHandler, CANErrorType
-from afs_fastapi.equipment.physical_can_interface import (
-    InterfaceConfiguration,
-    SocketCANInterface,
-)
+from afs_fastapi.equipment.physical_can_interface import InterfaceConfiguration, SocketCANInterface
 
 # Configure logging for SocketCAN Linux integration
 logger = logging.getLogger(__name__)
@@ -115,14 +112,18 @@ class LinuxSocketCANManager:
         List[LinuxCANInterfaceInfo]
             List of discovered CAN interfaces
         """
-        interfaces = []
+        interfaces: list[LinuxCANInterfaceInfo] = []
 
         try:
             # Use ip command to discover CAN interfaces
             result = await asyncio.create_subprocess_exec(
-                'ip', 'link', 'show', 'type', 'can',
+                "ip",
+                "link",
+                "show",
+                "type",
+                "can",
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
             stdout, stderr = await result.communicate()
 
@@ -132,7 +133,7 @@ class LinuxSocketCANManager:
 
             # Parse ip link output
             output = stdout.decode()
-            interface_blocks = re.split(r'\n(?=\d+:)', output)
+            interface_blocks = re.split(r"\n(?=\d+:)", output)
 
             for block in interface_blocks:
                 if not block.strip():
@@ -166,25 +167,25 @@ class LinuxSocketCANManager:
             Parsed interface information
         """
         try:
-            lines = block.strip().split('\n')
+            lines = block.strip().split("\n")
             if not lines:
                 return None
 
             # Parse interface name and state
             first_line = lines[0]
-            match = re.search(r'\d+:\s+(\w+):\s+<([^>]+)>', first_line)
+            match = re.search(r"\d+:\s+(\w+):\s+<([^>]+)>", first_line)
             if not match:
                 return None
 
             interface_name = match.group(1)
-            flags = match.group(2).split(',')
+            flags = match.group(2).split(",")
 
             # Determine state
             state = SocketCANState.DOWN
-            if 'UP' in flags:
-                if 'ERROR-PASSIVE' in flags:
+            if "UP" in flags:
+                if "ERROR-PASSIVE" in flags:
                     state = SocketCANState.ERROR_PASSIVE
-                elif 'ERROR-WARNING' in flags:
+                elif "ERROR-WARNING" in flags:
                     state = SocketCANState.ERROR_WARNING
                 else:
                     state = SocketCANState.UP
@@ -193,11 +194,11 @@ class LinuxSocketCANManager:
             mtu = 16  # Default CAN MTU
             tx_queue_len = 10  # Default queue length
 
-            mtu_match = re.search(r'mtu (\d+)', first_line)
+            mtu_match = re.search(r"mtu (\d+)", first_line)
             if mtu_match:
                 mtu = int(mtu_match.group(1))
 
-            qlen_match = re.search(r'qlen (\d+)', first_line)
+            qlen_match = re.search(r"qlen (\d+)", first_line)
             if qlen_match:
                 tx_queue_len = int(qlen_match.group(1))
 
@@ -212,38 +213,38 @@ class LinuxSocketCANManager:
             restart_ms = 0
 
             for line in lines[1:]:
-                if 'bitrate' in line:
-                    bitrate_match = re.search(r'bitrate (\d+)', line)
+                if "bitrate" in line:
+                    bitrate_match = re.search(r"bitrate (\d+)", line)
                     if bitrate_match:
                         bitrate = int(bitrate_match.group(1))
 
-                    sample_point_match = re.search(r'sample-point ([\d.]+)', line)
+                    sample_point_match = re.search(r"sample-point ([\d.]+)", line)
                     if sample_point_match:
                         sample_point = float(sample_point_match.group(1))
 
                     # Parse time segments
-                    tq_match = re.search(r'tq (\d+)', line)
+                    tq_match = re.search(r"tq (\d+)", line)
                     if tq_match:
                         tq = int(tq_match.group(1))
 
-                    prop_seg_match = re.search(r'prop-seg (\d+)', line)
+                    prop_seg_match = re.search(r"prop-seg (\d+)", line)
                     if prop_seg_match:
                         prop_seg = int(prop_seg_match.group(1))
 
-                    phase_seg1_match = re.search(r'phase-seg1 (\d+)', line)
+                    phase_seg1_match = re.search(r"phase-seg1 (\d+)", line)
                     if phase_seg1_match:
                         phase_seg1 = int(phase_seg1_match.group(1))
 
-                    phase_seg2_match = re.search(r'phase-seg2 (\d+)', line)
+                    phase_seg2_match = re.search(r"phase-seg2 (\d+)", line)
                     if phase_seg2_match:
                         phase_seg2 = int(phase_seg2_match.group(1))
 
-                    sjw_match = re.search(r'sjw (\d+)', line)
+                    sjw_match = re.search(r"sjw (\d+)", line)
                     if sjw_match:
                         sjw = int(sjw_match.group(1))
 
-                if 'restart-ms' in line:
-                    restart_match = re.search(r'restart-ms (\d+)', line)
+                if "restart-ms" in line:
+                    restart_match = re.search(r"restart-ms (\d+)", line)
                     if restart_match:
                         restart_ms = int(restart_match.group(1))
 
@@ -296,24 +297,24 @@ class LinuxSocketCANManager:
         """
         try:
             # Bring interface down first
-            await self._run_command(['ip', 'link', 'set', interface_name, 'down'])
+            await self._run_command(["ip", "link", "set", interface_name, "down"])
 
             # Configure bitrate
-            cmd = ['ip', 'link', 'set', interface_name, 'type', 'can', 'bitrate', str(bitrate)]
+            cmd = ["ip", "link", "set", interface_name, "type", "can", "bitrate", str(bitrate)]
 
             if sample_point is not None:
-                cmd.extend(['sample-point', str(sample_point)])
+                cmd.extend(["sample-point", str(sample_point)])
 
             if restart_ms > 0:
-                cmd.extend(['restart-ms', str(restart_ms)])
+                cmd.extend(["restart-ms", str(restart_ms)])
 
             if fd_enabled:
-                cmd.extend(['fd', 'on'])
+                cmd.extend(["fd", "on"])
 
             await self._run_command(cmd)
 
             # Bring interface up
-            await self._run_command(['ip', 'link', 'set', interface_name, 'up'])
+            await self._run_command(["ip", "link", "set", interface_name, "up"])
 
             logger.info(f"Configured CAN interface {interface_name}: {bitrate} bps")
             return True
@@ -346,19 +347,14 @@ class LinuxSocketCANManager:
             If command fails
         """
         process = await asyncio.create_subprocess_exec(
-            *cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
+            *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
         )
 
         stdout, stderr = await process.communicate()
 
         if process.returncode != 0:
             raise subprocess.CalledProcessError(
-                process.returncode,
-                cmd,
-                stdout.decode(),
-                stderr.decode()
+                process.returncode or -1, cmd, stdout.decode(), stderr.decode()
             )
 
         return stdout.decode(), stderr.decode()
@@ -383,7 +379,7 @@ class LinuxSocketCANManager:
                 return await self._parse_proc_stats(interface_name, stats_path)
 
             # Fallback to ip -s link show
-            stdout, _ = await self._run_command(['ip', '-s', 'link', 'show', interface_name])
+            stdout, _ = await self._run_command(["ip", "-s", "link", "show", interface_name])
             return self._parse_ip_stats(interface_name, stdout)
 
         except Exception as e:
@@ -412,24 +408,24 @@ class LinuxSocketCANManager:
                 content = f.read()
 
             # Parse CAN-specific statistics format
-            for line in content.split('\n'):
-                if 'rx_packets' in line:
-                    match = re.search(r'rx_packets:\s*(\d+)', line)
+            for line in content.split("\n"):
+                if "rx_packets" in line:
+                    match = re.search(r"rx_packets:\s*(\d+)", line)
                     if match:
                         stats.rx_packets = int(match.group(1))
 
-                elif 'tx_packets' in line:
-                    match = re.search(r'tx_packets:\s*(\d+)', line)
+                elif "tx_packets" in line:
+                    match = re.search(r"tx_packets:\s*(\d+)", line)
                     if match:
                         stats.tx_packets = int(match.group(1))
 
-                elif 'rx_errors' in line:
-                    match = re.search(r'rx_errors:\s*(\d+)', line)
+                elif "rx_errors" in line:
+                    match = re.search(r"rx_errors:\s*(\d+)", line)
                     if match:
                         stats.rx_errors = int(match.group(1))
 
-                elif 'tx_errors' in line:
-                    match = re.search(r'tx_errors:\s*(\d+)', line)
+                elif "tx_errors" in line:
+                    match = re.search(r"tx_errors:\s*(\d+)", line)
                     if match:
                         stats.tx_errors = int(match.group(1))
 
@@ -457,9 +453,9 @@ class LinuxSocketCANManager:
 
         try:
             # Parse ip -s output
-            lines = output.split('\n')
+            lines = output.split("\n")
             for i, line in enumerate(lines):
-                if 'RX:' in line and i + 1 < len(lines):
+                if "RX:" in line and i + 1 < len(lines):
                     # Parse RX statistics line
                     rx_stats = lines[i + 1].strip().split()
                     if len(rx_stats) >= 4:
@@ -468,7 +464,7 @@ class LinuxSocketCANManager:
                         stats.rx_errors = int(rx_stats[2])
                         stats.rx_dropped = int(rx_stats[3])
 
-                elif 'TX:' in line and i + 1 < len(lines):
+                elif "TX:" in line and i + 1 < len(lines):
                     # Parse TX statistics line
                     tx_stats = lines[i + 1].strip().split()
                     if len(tx_stats) >= 4:
@@ -498,14 +494,16 @@ class LinuxSocketCANManager:
         List[CANFilter]
             Created CAN filters
         """
-        filters = []
+        filters: list[CANFilter] = []
 
         for can_id, mask, extended in filter_specs:
-            filters.append(CANFilter(
-                can_id=can_id,
-                can_mask=mask,
-                extended=extended,
-            ))
+            filters.append(
+                CANFilter(
+                    can_id=can_id,
+                    can_mask=mask,
+                    extended=extended,
+                )
+            )
 
         return filters
 
@@ -553,9 +551,7 @@ class LinuxSocketCANManager:
             logger.warning(f"Monitoring already started for {interface_name}")
             return
 
-        task = asyncio.create_task(
-            self._monitoring_loop(interface_name, update_interval)
-        )
+        task = asyncio.create_task(self._monitoring_loop(interface_name, update_interval))
         self._monitoring_tasks[interface_name] = task
 
         logger.info(f"Started monitoring for CAN interface {interface_name}")
@@ -609,8 +605,7 @@ class LinuxSocketCANManager:
                             if time_elapsed > 0:
                                 estimated_bps = estimated_bits / time_elapsed
                                 stats.bus_load_percentage = min(
-                                    100.0,
-                                    (estimated_bps / interface_info.bitrate) * 100.0
+                                    100.0, (estimated_bps / interface_info.bitrate) * 100.0
                                 )
 
                 await asyncio.sleep(update_interval)
@@ -660,9 +655,9 @@ class LinuxSocketCANManager:
         """
         try:
             # Configure transmit queue length
-            await self._run_command([
-                'ip', 'link', 'set', interface_name, 'txqueuelen', str(queue_size)
-            ])
+            await self._run_command(
+                ["ip", "link", "set", interface_name, "txqueuelen", str(queue_size)]
+            )
 
             # Note: Priority queueing would require tc (traffic control) configuration
             # This is a simplified implementation focusing on queue size
@@ -686,7 +681,7 @@ class LinuxSocketCANManager:
         Dict[str, Any]
             Health check results
         """
-        health_report = {
+        health_report: dict[str, Any] = {
             "interface": interface_name,
             "timestamp": datetime.now().isoformat(),
             "overall_health": "unknown",
@@ -734,9 +729,7 @@ class LinuxSocketCANManager:
                 if total_packets > 0:
                     error_rate = (total_errors / total_packets) * 100
                     if error_rate > 5.0:  # 5% error rate threshold
-                        health_report["issues"].append(
-                            f"High error rate: {error_rate:.2f}%"
-                        )
+                        health_report["issues"].append(f"High error rate: {error_rate:.2f}%")
 
                 # Check bus load
                 if stats.bus_load_percentage > 80.0:
@@ -827,18 +820,23 @@ class EnhancedSocketCANInterface(SocketCANInterface):
             agricultural_filters = self.linux_manager.create_agricultural_filters()
 
             # Convert to python-can filter format
-            can_filters = []
+            can_filters: list[dict[str, Any]] = []
             for f in agricultural_filters:
-                can_filters.append({
-                    "can_id": f.can_id,
-                    "can_mask": f.can_mask,
-                    "extended": f.extended,
-                })
+                can_filters.append(
+                    {
+                        "can_id": f.can_id,
+                        "can_mask": f.can_mask,
+                        "extended": f.extended,
+                    }
+                )
 
             # Apply filters to the bus
-            if self._bus and hasattr(self._bus, 'set_filters'):
-                self._bus.set_filters(can_filters)
-                logger.info(f"Applied {len(can_filters)} agricultural filters to {self.interface_id}")
+            if self._bus and hasattr(self._bus, "set_filters"):
+                # MyPy: ignore type mismatch with python-can filters
+                self._bus.set_filters(can_filters)  # type: ignore[arg-type]
+                logger.info(
+                    f"Applied {len(can_filters)} agricultural filters to {self.interface_id}"
+                )
 
         except Exception as e:
             logger.warning(f"Failed to apply filters to {self.interface_id}: {e}")

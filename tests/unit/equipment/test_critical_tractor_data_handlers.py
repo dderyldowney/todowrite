@@ -10,22 +10,23 @@ Implementation follows Test-First Development (TDD) validation.
 
 from __future__ import annotations
 
-import pytest
 from datetime import datetime, timedelta
 from unittest.mock import patch
+
+import pytest
 
 from afs_fastapi.core.can_frame_codec import CANFrameCodec, DecodedPGN, DecodedSPN
 from afs_fastapi.equipment.can_error_handling import CANErrorHandler
 from afs_fastapi.equipment.critical_tractor_data_handlers import (
     AlertLevel,
-    DataQuality,
-    SpeedData,
-    FuelData,
-    GPSData,
-    SpeedDataHandler,
-    FuelDataHandler,
-    GPSDataHandler,
     CriticalDataAggregator,
+    DataQuality,
+    FuelData,
+    FuelDataHandler,
+    GPSData,
+    GPSDataHandler,
+    SpeedData,
+    SpeedDataHandler,
 )
 
 
@@ -53,7 +54,7 @@ class TestSpeedDataHandler:
             raw_value=3968,  # Raw encoded value
             is_valid=True,
             is_not_available=False,
-            is_error=False
+            is_error=False,
         )
 
         return DecodedPGN(
@@ -65,10 +66,12 @@ class TestSpeedDataHandler:
             timestamp=datetime.utcnow(),
             spn_values=[speed_spn],
             raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00",
-            data_length=8
+            data_length=8,
         )
 
-    def test_process_valid_speed_message(self, speed_handler: SpeedDataHandler, speed_message: DecodedPGN) -> None:
+    def test_process_valid_speed_message(
+        self, speed_handler: SpeedDataHandler, speed_message: DecodedPGN
+    ) -> None:
         """Test processing a valid speed message."""
         # Process speed message
         result = speed_handler.process_speed_message(speed_message)
@@ -82,7 +85,9 @@ class TestSpeedDataHandler:
         assert result.working_speed is True  # 15.5 km/h is working speed
         assert result.quality == DataQuality.GOOD
 
-    def test_process_invalid_speed_message(self, speed_handler: SpeedDataHandler, speed_message: DecodedPGN) -> None:
+    def test_process_invalid_speed_message(
+        self, speed_handler: SpeedDataHandler, speed_message: DecodedPGN
+    ) -> None:
         """Test processing invalid speed message."""
         # Make SPN invalid
         speed_message.spn_values[0].is_valid = False
@@ -93,7 +98,9 @@ class TestSpeedDataHandler:
         # Should return None for invalid data
         assert result is None
 
-    def test_speed_quality_assessment(self, speed_handler: SpeedDataHandler, speed_message: DecodedPGN) -> None:
+    def test_speed_quality_assessment(
+        self, speed_handler: SpeedDataHandler, speed_message: DecodedPGN
+    ) -> None:
         """Test speed quality assessment with variance analysis."""
         # Process several similar speeds to build history
         for speed in [15.0, 15.2, 15.1, 15.3, 15.0]:
@@ -114,7 +121,9 @@ class TestSpeedDataHandler:
         assert result is not None
         assert result.quality == DataQuality.POOR
 
-    def test_working_speed_detection(self, speed_handler: SpeedDataHandler, speed_message: DecodedPGN) -> None:
+    def test_working_speed_detection(
+        self, speed_handler: SpeedDataHandler, speed_message: DecodedPGN
+    ) -> None:
         """Test working speed vs transport speed detection."""
         # Test working speed
         speed_message.spn_values[0].value = 12.0
@@ -140,7 +149,9 @@ class TestSpeedDataHandler:
         speed_handler.add_alert_callback(alerts_received.append)
 
         # Test overspeed in working mode (speed is 30.0 but not in working mode, so no working speed alert)
-        speed_message.spn_values[0].value = 30.0  # Exceeds max working speed (25.0), so not working speed
+        speed_message.spn_values[0].value = (
+            30.0  # Exceeds max working speed (25.0), so not working speed
+        )
         result = speed_handler.process_speed_message(speed_message)
 
         assert result is not None
@@ -183,7 +194,7 @@ class TestFuelDataHandler:
             raw_value=250,  # Raw encoded value
             is_valid=True,
             is_not_available=False,
-            is_error=False
+            is_error=False,
         )
 
         return DecodedPGN(
@@ -195,10 +206,12 @@ class TestFuelDataHandler:
             timestamp=datetime.utcnow(),
             spn_values=[fuel_rate_spn],
             raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00",
-            data_length=8
+            data_length=8,
         )
 
-    def test_process_valid_fuel_message(self, fuel_handler: FuelDataHandler, fuel_message: DecodedPGN) -> None:
+    def test_process_valid_fuel_message(
+        self, fuel_handler: FuelDataHandler, fuel_message: DecodedPGN
+    ) -> None:
         """Test processing a valid fuel message."""
         # Process fuel message
         result = fuel_handler.process_fuel_message(fuel_message)
@@ -213,7 +226,9 @@ class TestFuelDataHandler:
         assert result.operational_mode == "normal_work"
         assert result.fuel_level_percent > 0
 
-    def test_operational_mode_detection(self, fuel_handler: FuelDataHandler, fuel_message: DecodedPGN) -> None:
+    def test_operational_mode_detection(
+        self, fuel_handler: FuelDataHandler, fuel_message: DecodedPGN
+    ) -> None:
         """Test operational mode detection based on fuel consumption."""
         # Test idle mode
         fuel_message.spn_values[0].value = 1.5
@@ -245,7 +260,7 @@ class TestFuelDataHandler:
         fuel_handler.add_alert_callback(alerts_received.append)
 
         # Mock fuel level estimation to return low fuel
-        with patch.object(fuel_handler, '_estimate_fuel_level', return_value=15.0):
+        with patch.object(fuel_handler, "_estimate_fuel_level", return_value=15.0):
             result = fuel_handler.process_fuel_message(fuel_message)
 
         assert result is not None
@@ -255,7 +270,7 @@ class TestFuelDataHandler:
 
         # Test critical fuel level
         alerts_received.clear()
-        with patch.object(fuel_handler, '_estimate_fuel_level', return_value=5.0):
+        with patch.object(fuel_handler, "_estimate_fuel_level", return_value=5.0):
             result = fuel_handler.process_fuel_message(fuel_message)
 
         assert result is not None
@@ -266,7 +281,7 @@ class TestFuelDataHandler:
         # Test high consumption alert
         alerts_received.clear()
         fuel_message.spn_values[0].value = 35.0  # High consumption
-        with patch.object(fuel_handler, '_estimate_fuel_level', return_value=50.0):
+        with patch.object(fuel_handler, "_estimate_fuel_level", return_value=50.0):
             result = fuel_handler.process_fuel_message(fuel_message)
 
         assert result is not None
@@ -299,7 +314,7 @@ class TestGPSDataHandler:
             raw_value=401234560,  # Raw encoded value
             is_valid=True,
             is_not_available=False,
-            is_error=False
+            is_error=False,
         )
 
         lon_spn = DecodedSPN(
@@ -310,7 +325,7 @@ class TestGPSDataHandler:
             raw_value=-856543210,  # Raw encoded value
             is_valid=True,
             is_not_available=False,
-            is_error=False
+            is_error=False,
         )
 
         return DecodedPGN(
@@ -322,10 +337,12 @@ class TestGPSDataHandler:
             timestamp=datetime.utcnow(),
             spn_values=[lat_spn, lon_spn],
             raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00",
-            data_length=8
+            data_length=8,
         )
 
-    def test_process_valid_gps_message(self, gps_handler: GPSDataHandler, gps_message: DecodedPGN) -> None:
+    def test_process_valid_gps_message(
+        self, gps_handler: GPSDataHandler, gps_message: DecodedPGN
+    ) -> None:
         """Test processing a valid GPS message."""
         # Process GPS message
         result = gps_handler.process_gps_message(gps_message)
@@ -341,7 +358,9 @@ class TestGPSDataHandler:
         assert result.satellite_count is not None
         assert result.hdop is not None
 
-    def test_coordinate_validation(self, gps_handler: GPSDataHandler, gps_message: DecodedPGN) -> None:
+    def test_coordinate_validation(
+        self, gps_handler: GPSDataHandler, gps_message: DecodedPGN
+    ) -> None:
         """Test GPS coordinate validation."""
         # Test invalid latitude
         gps_message.spn_values[0].value = 91.0  # Invalid latitude
@@ -366,7 +385,9 @@ class TestGPSDataHandler:
         # Should be approximately 0.157 km
         assert 0.1 < distance < 0.2
 
-    def test_speed_over_ground_calculation(self, gps_handler: GPSDataHandler, gps_message: DecodedPGN) -> None:
+    def test_speed_over_ground_calculation(
+        self, gps_handler: GPSDataHandler, gps_message: DecodedPGN
+    ) -> None:
         """Test speed over ground calculation from position history."""
         # First position
         result1 = gps_handler.process_gps_message(gps_message)
@@ -374,7 +395,9 @@ class TestGPSDataHandler:
         assert result1.speed_over_ground is None  # No history yet
 
         # Second position (simulate movement)
-        with patch('afs_fastapi.equipment.critical_tractor_data_handlers.datetime') as mock_datetime:
+        with patch(
+            "afs_fastapi.equipment.critical_tractor_data_handlers.datetime"
+        ) as mock_datetime:
             # Simulate 1 second later
             mock_datetime.utcnow.return_value = datetime.utcnow() + timedelta(seconds=1)
 
@@ -385,7 +408,9 @@ class TestGPSDataHandler:
         assert result2.speed_over_ground is not None
         # Should show significant speed (movement over time)
 
-    def test_precision_agriculture_features(self, gps_handler: GPSDataHandler, gps_message: DecodedPGN) -> None:
+    def test_precision_agriculture_features(
+        self, gps_handler: GPSDataHandler, gps_message: DecodedPGN
+    ) -> None:
         """Test precision agriculture feature enhancement."""
         result = gps_handler.process_gps_message(gps_message)
 
@@ -403,9 +428,9 @@ class TestGPSDataHandler:
         gps_handler.add_alert_callback(alerts_received.append)
 
         # Mock poor quality GPS
-        with patch.object(gps_handler, '_assess_gps_quality', return_value=DataQuality.POOR):
-            with patch.object(gps_handler, '_estimate_satellite_count', return_value=3):
-                with patch.object(gps_handler, '_estimate_hdop', return_value=3.0):
+        with patch.object(gps_handler, "_assess_gps_quality", return_value=DataQuality.POOR):
+            with patch.object(gps_handler, "_estimate_satellite_count", return_value=3):
+                with patch.object(gps_handler, "_estimate_hdop", return_value=3.0):
                     result = gps_handler.process_gps_message(gps_message)
 
         assert result is not None
@@ -431,7 +456,9 @@ class TestCriticalDataAggregator:
         return CANErrorHandler()
 
     @pytest.fixture
-    def aggregator(self, codec: CANFrameCodec, error_handler: CANErrorHandler) -> CriticalDataAggregator:
+    def aggregator(
+        self, codec: CANFrameCodec, error_handler: CANErrorHandler
+    ) -> CriticalDataAggregator:
         """Create critical data aggregator for testing."""
         return CriticalDataAggregator(codec, error_handler)
 
@@ -446,7 +473,7 @@ class TestCriticalDataAggregator:
             raw_value=3968,  # Raw encoded value
             is_valid=True,
             is_not_available=False,
-            is_error=False
+            is_error=False,
         )
 
         return DecodedPGN(
@@ -458,10 +485,12 @@ class TestCriticalDataAggregator:
             timestamp=datetime.utcnow(),
             spn_values=[speed_spn],
             raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00",
-            data_length=8
+            data_length=8,
         )
 
-    def test_process_speed_message(self, aggregator: CriticalDataAggregator, speed_message: DecodedPGN) -> None:
+    def test_process_speed_message(
+        self, aggregator: CriticalDataAggregator, speed_message: DecodedPGN
+    ) -> None:
         """Test processing speed message through aggregator."""
         # Process speed message
         result = aggregator.process_message(speed_message)
@@ -474,7 +503,9 @@ class TestCriticalDataAggregator:
         assert current_data[0x81]["speed"] is not None
         assert current_data[0x81]["speed"].value == 15.5
 
-    def test_equipment_summary(self, aggregator: CriticalDataAggregator, speed_message: DecodedPGN) -> None:
+    def test_equipment_summary(
+        self, aggregator: CriticalDataAggregator, speed_message: DecodedPGN
+    ) -> None:
         """Test equipment summary generation."""
         # Process a message to have some data
         aggregator.process_message(speed_message)
@@ -493,10 +524,14 @@ class TestCriticalDataAggregator:
         """Test overall equipment status assessment."""
         # Test offline status
         summary = aggregator.get_equipment_summary(0x99)  # Non-existent equipment
-        assert summary["overall_status"] == "offline"  # Should be offline for non-existent equipment
+        assert (
+            summary["overall_status"] == "offline"
+        )  # Should be offline for non-existent equipment
         assert summary["online"] is False
 
-    def test_alert_forwarding(self, aggregator: CriticalDataAggregator, speed_message: DecodedPGN) -> None:
+    def test_alert_forwarding(
+        self, aggregator: CriticalDataAggregator, speed_message: DecodedPGN
+    ) -> None:
         """Test alert forwarding from individual handlers."""
         alerts_received = []
         aggregator.add_alert_callback(alerts_received.append)
@@ -510,7 +545,9 @@ class TestCriticalDataAggregator:
         assert alerts_received[0].level == AlertLevel.CRITICAL
         assert "Transport speed exceeded" in alerts_received[0].message
 
-    def test_data_callback_notifications(self, aggregator: CriticalDataAggregator, speed_message: DecodedPGN) -> None:
+    def test_data_callback_notifications(
+        self, aggregator: CriticalDataAggregator, speed_message: DecodedPGN
+    ) -> None:
         """Test data update callback notifications."""
         updates_received = []
 
@@ -527,32 +564,64 @@ class TestCriticalDataAggregator:
         assert updates_received[0][0] == 0x81
         assert "speed" in updates_received[0][1]
 
-    def test_multiple_message_types(self, aggregator: CriticalDataAggregator, speed_message: DecodedPGN) -> None:
+    def test_multiple_message_types(
+        self, aggregator: CriticalDataAggregator, speed_message: DecodedPGN
+    ) -> None:
         """Test processing multiple types of critical messages."""
         # Create fuel message
         fuel_spn = DecodedSPN(
-            spn=183, name="Engine Fuel Rate", value=12.5, units="L/h",
-            raw_value=250, is_valid=True, is_not_available=False, is_error=False
+            spn=183,
+            name="Engine Fuel Rate",
+            value=12.5,
+            units="L/h",
+            raw_value=250,
+            is_valid=True,
+            is_not_available=False,
+            is_error=False,
         )
         fuel_message = DecodedPGN(
-            pgn=0xFEF2, name="Fuel Economy", source_address=0x81,
-            destination_address=0xFF, priority=6, timestamp=datetime.utcnow(),
-            spn_values=[fuel_spn], raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00", data_length=8
+            pgn=0xFEF2,
+            name="Fuel Economy",
+            source_address=0x81,
+            destination_address=0xFF,
+            priority=6,
+            timestamp=datetime.utcnow(),
+            spn_values=[fuel_spn],
+            raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00",
+            data_length=8,
         )
 
         # Create GPS message
         lat_spn = DecodedSPN(
-            spn=584, name="Latitude", value=40.123456, units="degrees",
-            raw_value=401234560, is_valid=True, is_not_available=False, is_error=False
+            spn=584,
+            name="Latitude",
+            value=40.123456,
+            units="degrees",
+            raw_value=401234560,
+            is_valid=True,
+            is_not_available=False,
+            is_error=False,
         )
         lon_spn = DecodedSPN(
-            spn=585, name="Longitude", value=-85.654321, units="degrees",
-            raw_value=-856543210, is_valid=True, is_not_available=False, is_error=False
+            spn=585,
+            name="Longitude",
+            value=-85.654321,
+            units="degrees",
+            raw_value=-856543210,
+            is_valid=True,
+            is_not_available=False,
+            is_error=False,
         )
         gps_message = DecodedPGN(
-            pgn=0xFEF3, name="Vehicle Position", source_address=0x81,
-            destination_address=0xFF, priority=6, timestamp=datetime.utcnow(),
-            spn_values=[lat_spn, lon_spn], raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00", data_length=8
+            pgn=0xFEF3,
+            name="Vehicle Position",
+            source_address=0x81,
+            destination_address=0xFF,
+            priority=6,
+            timestamp=datetime.utcnow(),
+            spn_values=[lat_spn, lon_spn],
+            raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00",
+            data_length=8,
         )
 
         # Process all message types
@@ -591,39 +660,81 @@ class TestCriticalDataIntegration:
 
         # Initial speed data - working speed
         speed_spn = DecodedSPN(
-            spn=84, name="Wheel-Based Vehicle Speed", value=12.0, units="km/h",
-            raw_value=3072, is_valid=True, is_not_available=False, is_error=False
+            spn=84,
+            name="Wheel-Based Vehicle Speed",
+            value=12.0,
+            units="km/h",
+            raw_value=3072,
+            is_valid=True,
+            is_not_available=False,
+            is_error=False,
         )
         speed_msg = DecodedPGN(
-            pgn=0xFEF1, name="Wheel-Based Vehicle Speed", source_address=tractor_address,
-            destination_address=0xFF, priority=6, timestamp=datetime.utcnow(),
-            spn_values=[speed_spn], raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00", data_length=8
+            pgn=0xFEF1,
+            name="Wheel-Based Vehicle Speed",
+            source_address=tractor_address,
+            destination_address=0xFF,
+            priority=6,
+            timestamp=datetime.utcnow(),
+            spn_values=[speed_spn],
+            raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00",
+            data_length=8,
         )
 
         # Normal fuel consumption
         fuel_spn = DecodedSPN(
-            spn=183, name="Engine Fuel Rate", value=15.0, units="L/h",
-            raw_value=300, is_valid=True, is_not_available=False, is_error=False
+            spn=183,
+            name="Engine Fuel Rate",
+            value=15.0,
+            units="L/h",
+            raw_value=300,
+            is_valid=True,
+            is_not_available=False,
+            is_error=False,
         )
         fuel_msg = DecodedPGN(
-            pgn=0xFEF2, name="Fuel Economy", source_address=tractor_address,
-            destination_address=0xFF, priority=6, timestamp=datetime.utcnow(),
-            spn_values=[fuel_spn], raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00", data_length=8
+            pgn=0xFEF2,
+            name="Fuel Economy",
+            source_address=tractor_address,
+            destination_address=0xFF,
+            priority=6,
+            timestamp=datetime.utcnow(),
+            spn_values=[fuel_spn],
+            raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00",
+            data_length=8,
         )
 
         # GPS position
         lat_spn = DecodedSPN(
-            spn=584, name="Latitude", value=40.123456, units="degrees",
-            raw_value=401234560, is_valid=True, is_not_available=False, is_error=False
+            spn=584,
+            name="Latitude",
+            value=40.123456,
+            units="degrees",
+            raw_value=401234560,
+            is_valid=True,
+            is_not_available=False,
+            is_error=False,
         )
         lon_spn = DecodedSPN(
-            spn=585, name="Longitude", value=-85.654321, units="degrees",
-            raw_value=-856543210, is_valid=True, is_not_available=False, is_error=False
+            spn=585,
+            name="Longitude",
+            value=-85.654321,
+            units="degrees",
+            raw_value=-856543210,
+            is_valid=True,
+            is_not_available=False,
+            is_error=False,
         )
         gps_msg = DecodedPGN(
-            pgn=0xFEF3, name="Vehicle Position", source_address=tractor_address,
-            destination_address=0xFF, priority=6, timestamp=datetime.utcnow(),
-            spn_values=[lat_spn, lon_spn], raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00", data_length=8
+            pgn=0xFEF3,
+            name="Vehicle Position",
+            source_address=tractor_address,
+            destination_address=0xFF,
+            priority=6,
+            timestamp=datetime.utcnow(),
+            spn_values=[lat_spn, lon_spn],
+            raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00",
+            data_length=8,
         )
 
         # Process normal operation

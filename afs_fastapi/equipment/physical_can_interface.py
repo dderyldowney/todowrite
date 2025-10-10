@@ -20,6 +20,7 @@ from enum import Enum
 from typing import Any, Protocol
 
 import can
+
 from afs_fastapi.equipment.can_error_handling import (
     CANErrorHandler,
     CANErrorType,
@@ -241,10 +242,10 @@ class PhysicalCANInterface(ABC):
         self._status.last_heartbeat = datetime.now()
         self._status.state = self._state
 
-        if self._bus and hasattr(self._bus, 'get_stats'):
+        if self._bus and hasattr(self._bus, "get_stats"):
             try:
                 stats = self._bus.get_stats()
-                self._status.bus_load_percentage = stats.get('bus_load', 0.0)
+                self._status.bus_load_percentage = stats.get("bus_load", 0.0)
             except Exception as e:
                 logger.debug(f"Could not get bus statistics: {e}")
 
@@ -314,7 +315,9 @@ class SocketCANInterface(PhysicalCANInterface):
                 self._heartbeat_task = asyncio.create_task(self._heartbeat_loop())
 
                 self._state = InterfaceState.CONNECTED
-                logger.info(f"SocketCAN connected: {self.config.channel} at {self.config.bitrate.value} bps")
+                logger.info(
+                    f"SocketCAN connected: {self.config.channel} at {self.config.bitrate.value} bps"
+                )
 
                 # Start message reception task
                 asyncio.create_task(self._message_reception_loop(listener))
@@ -462,7 +465,9 @@ class PhysicalCANManager:
             if config.interface_type == CANInterfaceType.SOCKETCAN:
                 interface = SocketCANInterface(interface_id, config, self.error_handler)
             else:
-                raise NotImplementedError(f"Interface type {config.interface_type} not implemented yet")
+                raise NotImplementedError(
+                    f"Interface type {config.interface_type} not implemented yet"
+                )
 
             # Add global message callbacks
             for callback in self._global_callbacks:
@@ -607,8 +612,7 @@ class PhysicalCANManager:
             Status by interface ID
         """
         return {
-            interface_id: interface.status
-            for interface_id, interface in self._interfaces.items()
+            interface_id: interface.status for interface_id, interface in self._interfaces.items()
         }
 
     def create_j1939_message(
@@ -635,11 +639,11 @@ class PhysicalCANManager:
         """
         # Construct 29-bit CAN ID for J1939
         can_id = (
-            (address.priority << 26) |
-            (int(address.data_page) << 25) |
-            (address.pdu_format << 16) |
-            (address.pdu_specific << 8) |
-            address.source_address
+            (address.priority << 26)
+            | (int(address.data_page) << 25)
+            | (address.pdu_format << 16)
+            | (address.pdu_specific << 8)
+            | address.source_address
         )
 
         return can.Message(
