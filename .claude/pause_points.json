@@ -1,0 +1,11 @@
+[
+  {
+    "id": "pause_1",
+    "reason": "Testing pause functionality",
+    "next_action": "Continue with resume testing",
+    "timestamp": "2025-10-10T10:45:27.860372",
+    "git_hash": "a04c0b69dc82ff580d8da20d3d86628225cb8223",
+    "current_phase": "unknown",
+    "type": "pause_point"
+  }
+]
