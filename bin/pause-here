@@ -1,0 +1,167 @@
+#!/usr/bin/env python3
+"""
+Explicit pause point tool for agricultural robotics development.
+
+Creates documented pause points with full context preservation.
+Ideal for stopping work due to session limits or natural breakpoints.
+"""
+
+from __future__ import annotations
+
+import sys
+from datetime import datetime
+from pathlib import Path
+
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from bin.common.json_operations import load_json, save_json
+
+
+def create_pause_point(reason: str, next_action: str = "") -> None:
+    """Create a pause point with context preservation.
+
+    Parameters
+    ----------
+    reason : str
+        Reason for pausing (e.g., "Session limit approaching", "Natural breakpoint")
+    next_action : str, optional
+        What should be done when resuming
+    """
+    timestamp = datetime.now().isoformat()
+
+    print(f"⏸️  Creating pause point: {reason}")
+    print(f"⏰ Timestamp: {timestamp}")
+
+    # 1. Stage current work (even incomplete)
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["git", "add", "-A"],
+            cwd=project_root,
+            capture_output=True,
+            text=True
+        )
+        if result.returncode != 0:
+            print(f"❌ Git add failed: {result.stderr}")
+            return
+        print("✅ Staged current work")
+
+        # 2. Create WIP commit if there are changes
+        result = subprocess.run(
+            ["git", "status", "--porcelain", "--staged"],
+            cwd=project_root,
+            capture_output=True,
+            text=True
+        )
+
+        if result.stdout.strip():  # There are staged changes
+            commit_msg = f"wip: pause point - {reason}\n\nPaused at {timestamp}"
+            if next_action:
+                commit_msg += f"\nNext: {next_action}"
+
+            result = subprocess.run(
+                ["git", "commit", "-m", commit_msg],
+                cwd=project_root,
+                capture_output=True,
+                text=True
+            )
+            if result.returncode != 0:
+                print(f"❌ Git commit failed: {result.stderr}")
+                return
+            print("✅ Created WIP commit")
+        else:
+            print("ℹ️  No changes to commit")
+
+        # 3. Save pause point metadata
+        pause_points_file = project_root / ".claude" / "pause_points.json"
+        pause_points_file.parent.mkdir(exist_ok=True)
+
+        pause_points = load_json(pause_points_file, default=[])
+
+        # Get current git hash
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=project_root,
+            capture_output=True,
+            text=True
+        )
+        git_hash = result.stdout.strip() if result.returncode == 0 else "unknown"
+
+        # Get current phase info
+        phase_file = project_root / ".claude" / "current_phase.json"
+        phase_info = load_json(phase_file, default={})
+
+        pause_data = {
+            "id": f"pause_{len(pause_points) + 1}",
+            "reason": reason,
+            "next_action": next_action,
+            "timestamp": timestamp,
+            "git_hash": git_hash,
+            "current_phase": phase_info.get("name", "unknown"),
+            "type": "pause_point"
+        }
+
+        pause_points.append(pause_data)
+        save_json(pause_points_file, pause_points)
+        print("✅ Saved pause point metadata")
+
+        # 4. Create detailed context file
+        context_file = project_root / ".claude" / f"pause_context_{pause_data['id']}.md"
+        with open(context_file, "w") as f:
+            f.write(f"# Pause Point Context: {pause_data['id']}\n\n")
+            f.write(f"**Reason:** {reason}\n")
+            f.write(f"**Timestamp:** {timestamp}\n")
+            f.write(f"**Git Hash:** {git_hash}\n")
+            f.write(f"**Current Phase:** {phase_info.get('name', 'unknown')}\n\n")
+
+            if next_action:
+                f.write(f"## Next Action\n{next_action}\n\n")
+
+            f.write("## Current State\n")
+            f.write("- Work has been staged and committed\n")
+            f.write("- Context preserved for resumption\n")
+            f.write("- Ready for session handoff\n\n")
+
+            f.write("## Resume Instructions\n")
+            f.write(f"```bash\n./bin/resume-from {pause_data['id']}\n```\n\n")
+
+        print("✅ Created detailed context file")
+
+        # 5. Update session summary
+        session_file = project_root / "SESSION_SUMMARY.md"
+        if session_file.exists():
+            with open(session_file, "a") as f:
+                f.write(f"\n## ⏸️ Pause Point: {reason}\n")
+                f.write(f"**Time:** {timestamp}\n")
+                f.write(f"**Git Hash:** {git_hash}\n")
+                if next_action:
+                    f.write(f"**Next:** {next_action}\n")
+                f.write(f"**Resume:** `./bin/resume-from {pause_data['id']}`\n\n")
+            print("✅ Updated session summary")
+
+        print(f"\n🛑 Pause point '{pause_data['id']}' created successfully")
+        print(f"📍 Resume with: ./bin/resume-from {pause_data['id']}")
+        print(f"📄 Context saved in: {context_file}")
+
+    except Exception as e:
+        print(f"❌ Pause point creation failed: {e}")
+
+
+def main() -> None:
+    """Main pause point creation function."""
+    if len(sys.argv) < 2:
+        print("Usage: ./bin/pause-here \"Reason for pausing\" [\"Next action\"]")
+        print("\nExamples:")
+        print("  ./bin/pause-here \"Session limit approaching\"")
+        print("  ./bin/pause-here \"Natural breakpoint\" \"Continue with message queue implementation\"")
+        sys.exit(1)
+
+    reason = sys.argv[1]
+    next_action = sys.argv[2] if len(sys.argv) > 2 else ""
+
+    create_pause_point(reason, next_action)
+
+
+if __name__ == "__main__":
+    main()

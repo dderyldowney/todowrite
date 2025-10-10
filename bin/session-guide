@@ -1,0 +1,189 @@
+#!/usr/bin/env python3
+"""
+Session Management Guide for Agricultural Robotics Development.
+
+Interactive guide for following session management best practices
+during phase work with automatic checkpoint reminders.
+"""
+
+from __future__ import annotations
+
+import sys
+from datetime import datetime
+from pathlib import Path
+
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from bin.common.json_operations import load_json, save_json
+
+
+def show_session_start_guide() -> None:
+    """Show session start guidance."""
+    print("🚀 Starting New Session - Follow these steps:\n")
+
+    print("1. 📍 Check for resume points:")
+    print("   ./bin/resume-from list")
+
+    print("\n2. 🔄 Resume from last work (if available):")
+    print("   ./bin/resume-from <point_id>")
+
+    print("\n3. 📊 Check current phase status:")
+    print("   ./bin/phase-status")
+
+    print("\n4. 📋 Plan work unit (< 30 min target):")
+    print("   - Choose atomic task from phase steps")
+    print("   - Estimate completion time")
+    print("   - Identify natural checkpoints")
+
+    print("\n5. 🎯 Begin work with checkpoint strategy:")
+    print("   - Checkpoint every 15-20 minutes")
+    print("   - Use ./bin/checkpoint after meaningful progress")
+    print("   - Use ./bin/pause-here before session limits")
+
+    print("\n📚 Reference: docs/SESSION_MANAGEMENT_STRATEGY.md")
+
+
+def show_checkpoint_reminders() -> None:
+    """Show checkpoint timing reminders."""
+    print("⏰ Checkpoint Timing Guide:\n")
+
+    print("✅ ALWAYS checkpoint after:")
+    print("   - Creating new files")
+    print("   - Completing test suites")
+    print("   - Fixing compilation errors")
+    print("   - Finishing phase steps")
+
+    print("\n⏸️  ALWAYS pause before:")
+    print("   - Major refactoring")
+    print("   - Changing focus areas")
+    print("   - Approaching session limits")
+    print("   - Starting risky operations")
+
+    print("\n🎯 Target frequency: Every 15-20 minutes")
+    print("💡 Better to checkpoint too often than too little!")
+
+
+def show_phase_workflow() -> None:
+    """Show phase work workflow guidance."""
+    print("🚀 Phase Work Workflow:\n")
+
+    print("📋 For each phase step:")
+    print("   1. Plan & Design → checkpoint")
+    print("   2. Create Tests → checkpoint")
+    print("   3. Implement Core → checkpoint per file")
+    print("   4. Integration → checkpoint")
+    print("   5. Validation → checkpoint")
+
+    print("\n🔄 Work Unit Cycle:")
+    print("   Start → Work (15-20 min) → Checkpoint → Repeat")
+
+    print("\n🚦 Control Points:")
+    print("   - Ask permission before major work")
+    print("   - Stop at natural breakpoints")
+    print("   - Respond to human control signals")
+
+
+def show_emergency_procedures() -> None:
+    """Show emergency recovery procedures."""
+    print("🚨 Emergency Recovery Procedures:\n")
+
+    print("1. 📊 Assess current state:")
+    print("   git status")
+    print("   git log -1")
+    print("   ./bin/resume-from list")
+
+    print("\n2. 🔄 Choose recovery method:")
+    print("   A. Resume from checkpoint: ./bin/resume-from <id>")
+    print("   B. Git reset: git reset --hard <commit>")
+    print("   C. Manual reconstruction (see template)")
+
+    print("\n3. ✅ Validate recovery:")
+    print("   - Check git state")
+    print("   - Verify phase alignment")
+    print("   - Test basic functionality")
+
+    print("\n📋 Template: docs/session_templates/emergency_recovery_template.md")
+
+
+def create_session_tracker() -> None:
+    """Create a session tracking file for current session."""
+    session_id = datetime.now().strftime("session_%Y%m%d_%H%M")
+    session_file = project_root / ".claude" / "session_history" / f"{session_id}.json"
+    session_file.parent.mkdir(exist_ok=True)
+
+    session_data = {
+        "session_id": session_id,
+        "start_time": datetime.now().isoformat(),
+        "checkpoints": [],
+        "pause_points": [],
+        "work_units": [],
+        "status": "active"
+    }
+
+    save_json(session_file, session_data)
+    print(f"📊 Created session tracker: {session_file}")
+
+
+def show_control_signals() -> None:
+    """Show human control signals for AI."""
+    print("🎛️  Human Control Signals for AI:\n")
+
+    print("📍 Checkpoint Commands:")
+    print("   'checkpoint' → Create immediate savepoint")
+    print("   'pause'      → Stop and create pause point")
+    print("   'continue'   → Proceed with current work")
+
+    print("\n🔄 Flow Control:")
+    print("   'switch'     → Change focus (auto-checkpoint first)")
+    print("   'status'     → Show current progress")
+    print("   'stop'       → End session safely")
+
+    print("\n⏰ Timing Signals:")
+    print("   'time check' → Show elapsed time since last checkpoint")
+    print("   'savepoint'  → Request checkpoint before continuing")
+
+
+def main() -> None:
+    """Main session guide function."""
+    if len(sys.argv) < 2:
+        print("Usage: ./bin/session-guide <command>")
+        print("\nCommands:")
+        print("  start       - Session start guidance")
+        print("  checkpoint  - Checkpoint timing reminders")
+        print("  workflow    - Phase work workflow")
+        print("  emergency   - Emergency recovery procedures")
+        print("  tracker     - Create session tracker")
+        print("  controls    - Human control signals reference")
+        print("  all         - Show all guidance")
+        sys.exit(1)
+
+    command = sys.argv[1]
+
+    if command == "start":
+        show_session_start_guide()
+    elif command == "checkpoint":
+        show_checkpoint_reminders()
+    elif command == "workflow":
+        show_phase_workflow()
+    elif command == "emergency":
+        show_emergency_procedures()
+    elif command == "tracker":
+        create_session_tracker()
+    elif command == "controls":
+        show_control_signals()
+    elif command == "all":
+        show_session_start_guide()
+        print("\n" + "="*60 + "\n")
+        show_checkpoint_reminders()
+        print("\n" + "="*60 + "\n")
+        show_phase_workflow()
+        print("\n" + "="*60 + "\n")
+        show_control_signals()
+    else:
+        print(f"❌ Unknown command: {command}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
