@@ -83,6 +83,7 @@ pytest==8.3.4
 pytest-asyncio==1.2.0
 pytest-bdd==8.1.0
 pytest-mock==3.14.0
+pytest-timeout
 pytest-watch==4.2.0
 python-can==4.6.1
 python-dateutil==2.9.0.post0

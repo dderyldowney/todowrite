@@ -369,7 +369,7 @@ class SocketCANInterface(PhysicalCANInterface):
             return False
 
         try:
-            self._bus.send(message)
+            await asyncio.to_thread(self._bus.send, message)
             self._status.messages_sent += 1
             logger.debug(f"SocketCAN message sent: ID={message.arbitration_id:08X}")
             return True

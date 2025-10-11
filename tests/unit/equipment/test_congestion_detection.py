@@ -292,18 +292,18 @@ class TestTrafficThrottler:
             peak_latency=75.0,
         )
 
-        # Field operations - more aggressive throttling to preserve safety
+        # Field operations - more conservative throttling to preserve safety
         field_decision = throttler.make_throttle_decision(
             metrics, CongestionLevel.MODERATE, operation_context="field_operation"
         )
 
-        # Transport operations - less aggressive throttling
+        # Transport operations - more aggressive throttling allowed
         transport_decision = throttler.make_throttle_decision(
             metrics, CongestionLevel.MODERATE, operation_context="transport"
         )
 
         # Field operations should have more conservative throttling
-        assert field_decision.severity_factor <= transport_decision.severity_factor
+        assert field_decision.severity_factor >= transport_decision.severity_factor
 
     @pytest.mark.asyncio
     async def test_adaptive_throttle_adjustment(self, throttler: TrafficThrottler) -> None:

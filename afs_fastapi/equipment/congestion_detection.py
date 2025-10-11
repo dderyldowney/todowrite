@@ -582,8 +582,8 @@ class TrafficThrottler:
         # Emergency throttling - very aggressive
         base_severity = 0.3
         if operation_context == "field_operation":
-            # Even more aggressive for field operations
-            severity_factor = base_severity * 0.8
+            # More conservative for field operations (higher severity factor = less throttling)
+            severity_factor = base_severity * 1.1
         else:
             severity_factor = base_severity
 

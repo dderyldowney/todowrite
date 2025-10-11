@@ -10,4 +10,4 @@
 
 ### Active Phase
 - Name: CAN Network Traffic Management
-- Status: 1/6 tasks completed
+- Status: 3/6 tasks completed
