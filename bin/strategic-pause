@@ -9,7 +9,7 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from afs_fastapi.core.todos_manager import pause_strategic_goal  # noqa: E402
+from afs_fastapi.core.todos_manager import load_todos, save_todos  # noqa: E402
 
 
 def main():
@@ -17,14 +17,24 @@ def main():
     parser.add_argument("goal_id", type=str, help="The ID of the strategic goal to pause.")
     args = parser.parse_args()
 
-    success, error = pause_strategic_goal(args.goal_id)
-
-    if error:
-        print(f"Error: {error}")
-        sys.exit(1)
+    todos = load_todos()
+    goals = todos["goals"]
+    goal_found = False
+    for goal in goals:
+        if goal["id"] == args.goal_id:
+            if goal["status"] == "done":
+                print(f"Error: Goal '{args.goal_id}' is already done and cannot be paused.")
+                sys.exit(1)
+            goal["status"] = "blocked"
+            goal_found = True
+            break
     
-    if success:
-        print(f"✓ Strategic goal ''{args.goal_id}'' paused successfully!")
+    if not goal_found:
+        print(f"Error: Goal with ID '{args.goal_id}' not found.")
+        sys.exit(1)
+
+    save_todos(todos)
+    print(f"✓ Goal '{args.goal_id}' paused successfully!")
 
 if __name__ == "__main__":
     main()

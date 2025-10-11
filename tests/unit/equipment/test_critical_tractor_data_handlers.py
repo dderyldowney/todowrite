@@ -145,7 +145,7 @@ class TestSpeedDataHandler:
 
     def test_speed_alerts(self, speed_handler: SpeedDataHandler, speed_message: DecodedPGN) -> None:
         """Test speed alert generation."""
-        alerts_received = []
+        alerts_received: list[str] = []
         speed_handler.add_alert_callback(alerts_received.append)
 
         # Test overspeed in working mode (speed is 30.0 but not in working mode, so no working speed alert)
@@ -256,7 +256,7 @@ class TestFuelDataHandler:
 
     def test_fuel_alerts(self, fuel_handler: FuelDataHandler, fuel_message: DecodedPGN) -> None:
         """Test fuel level and consumption alerts."""
-        alerts_received = []
+        alerts_received: list[str] = []
         fuel_handler.add_alert_callback(alerts_received.append)
 
         # Mock fuel level estimation to return low fuel
@@ -424,7 +424,7 @@ class TestGPSDataHandler:
 
     def test_gps_quality_alerts(self, gps_handler: GPSDataHandler, gps_message: DecodedPGN) -> None:
         """Test GPS quality and satellite alerts."""
-        alerts_received = []
+        alerts_received: list[str] = []
         gps_handler.add_alert_callback(alerts_received.append)
 
         # Mock poor quality GPS
@@ -533,7 +533,7 @@ class TestCriticalDataAggregator:
         self, aggregator: CriticalDataAggregator, speed_message: DecodedPGN
     ) -> None:
         """Test alert forwarding from individual handlers."""
-        alerts_received = []
+        alerts_received: list[str] = []
         aggregator.add_alert_callback(alerts_received.append)
 
         # Process high speed message that should trigger alert
@@ -549,7 +549,7 @@ class TestCriticalDataAggregator:
         self, aggregator: CriticalDataAggregator, speed_message: DecodedPGN
     ) -> None:
         """Test data update callback notifications."""
-        updates_received = []
+        updates_received: list[tuple[int, dict]] = []
 
         def data_callback(source_address: int, data: dict) -> None:
             updates_received.append((source_address, data))
@@ -649,8 +649,8 @@ class TestCriticalDataIntegration:
         aggregator = CriticalDataAggregator(codec, error_handler)
 
         # Collection for alerts and data updates
-        alerts_received = []
-        data_updates = []
+        alerts_received: list[str] = []
+        data_updates: list[tuple[int, dict]] = []
 
         aggregator.add_alert_callback(alerts_received.append)
         aggregator.add_data_callback(lambda addr, data: data_updates.append((addr, data)))

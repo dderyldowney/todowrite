@@ -9,31 +9,34 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from afs_fastapi.core.todos_manager import get_strategic_goals  # noqa: E402
+from afs_fastapi.core.todos_manager import get_goals  # noqa: E402
 
 
 def display_strategic_status():
-    goals = get_strategic_goals()
+    goals = get_goals()
 
     if not goals:
         print("=== AFS FastAPI Strategic Status ===")
         print()
         print("No strategic goals found.")
-        print("Use './bin/strategic-add \"Description\"' to create strategic objectives.")
+        print("Use 'add_goal(\"Title\", \"Description\", category=\"category\", priority=\"priority\")' to create strategic objectives.")
         return
 
     print("=== AFS FastAPI Strategic Development Status ===")
     print()
 
     total_goals = len(goals)
-    pending_count = len([g for g in goals if g['status'] == 'pending'])
-    completed_count = len([g for g in goals if g['status'] == 'completed'])
-    in_progress_count = len([g for g in goals if g['status'] == 'in progress'])
+    pending_count = len([g for g in goals if g['status'] == 'planned' or g['status'] == 'in_progress'])
+    completed_count = len([g for g in goals if g['status'] == 'done'])
+    in_progress_count = len([g for g in goals if g['status'] == 'in_progress'])
+    blocked_count = len([g for g in goals if g['status'] == 'blocked'])
+    rejected_count = len([g for g in goals if g['status'] == 'rejected'])
+
 
     progress_percentage = (completed_count / total_goals * 100) if total_goals > 0 else 0
 
-    category_stats = defaultdict(lambda: {'pending': 0, 'completed': 0, 'in_progress': 0})
-    priority_stats = defaultdict(lambda: {'pending': 0, 'completed': 0, 'in_progress': 0})
+    category_stats = defaultdict(lambda: {'planned': 0, 'in_progress': 0, 'blocked': 0, 'done': 0, 'rejected': 0})
+    priority_stats = defaultdict(lambda: {'planned': 0, 'in_progress': 0, 'blocked': 0, 'done': 0, 'rejected': 0})
 
     for goal in goals:
         category = goal.get('category', 'general')
@@ -48,6 +51,8 @@ def display_strategic_status():
     print(f'   Completed: {completed_count} ({progress_percentage:.1f}%)')
     print(f'   In Progress: {in_progress_count}')
     print(f'   Pending: {pending_count}')
+    print(f'   Blocked: {blocked_count}')
+    print(f'   Rejected: {rejected_count}')
     print()
 
     bar_width = 40
@@ -61,9 +66,9 @@ def display_strategic_status():
         print('📁 Category Breakdown')
         for category, stats in sorted(category_stats.items()):
             total_cat = sum(stats.values())
-            completed_cat = stats['completed']
+            completed_cat = stats['done']
             cat_progress = (completed_cat / total_cat * 100) if total_cat > 0 else 0
-            print(f'   {category.title():12} | Total: {total_cat:2} | Complete: {completed_cat:2} ({cat_progress:4.1f}%) | Pending: {stats["pending"]:2}')
+            print(f'   {category.title():12} | Total: {total_cat:2} | Complete: {completed_cat:2} ({cat_progress:4.1f}%) | Pending: {stats["planned"] + stats["in_progress"]:2} | Blocked: {stats["blocked"]:2} | Rejected: {stats["rejected"]:2}')
         print()
 
     if priority_stats:
@@ -72,25 +77,25 @@ def display_strategic_status():
             if priority in priority_stats:
                 stats = priority_stats[priority]
                 total_pri = sum(stats.values())
-                completed_pri = stats['completed']
+                completed_pri = stats['done']
                 pri_progress = (completed_pri / total_pri * 100) if total_pri > 0 else 0
                 priority_icon = {'high': '🔴', 'medium': '🟡', 'low': '🟢'}.get(priority, '⚪')
-                print(f'   {priority_icon} {priority.title():6} | Total: {total_pri:2} | Complete: {completed_pri:2} ({pri_progress:4.1f}%) | Pending: {stats["pending"]:2}')
+                print(f'   {priority_icon} {priority.title():6} | Total: {total_pri:2} | Complete: {completed_pri:2} ({pri_progress:4.1f}%) | Pending: {stats["planned"] + stats["in_progress"]:2} | Blocked: {stats["blocked"]:2} | Rejected: {stats["rejected"]:2}')
         print()
 
-    recent_completed = [g for g in goals if g['status'] == 'completed' and 'date_completed' in g and g['date_completed']]
-    recent_completed.sort(key=lambda x: x['date_completed'], reverse=True)
+    recent_completed = [g for g in goals if g['status'] == 'done']
+    # No date_completed in new schema, so sorting by ID for now
+    recent_completed.sort(key=lambda x: x['id'], reverse=True)
 
     if recent_completed:
         print('🎉 Recent Completions')
         for goal in recent_completed[:5]:
-            completed_date = goal['date_completed'][:10]
             priority_marker = {'high': '[HIGH]', 'medium': '[MED]', 'low': '[LOW]'}.get(goal['priority'], '[???]')
-            print(f'   {completed_date} {priority_marker} {goal["description"]}')
+            print(f'   {goal["id"]} {priority_marker} {goal["title"]}')
         print()
 
-    print("Use './bin/strategic-list' to view detailed strategic objectives.")
-    print("Use './bin/strategic-add \"Description\"' to add new strategic objectives.")
+    print("Use 'get_goals()' to view detailed strategic objectives.")
+    print("Use 'add_goal(\"Title\", \"Description\", category=\"category\", priority=\"priority\")' to add new strategic objectives.")
 
 if __name__ == "__main__":
     display_strategic_status()

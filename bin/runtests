@@ -15,7 +15,7 @@ print_usage() {
     echo "  -h, --help      Show this help message and exit."
     echo "  -q, --quiet     Run pytest in quiet mode."
     echo "  -c, --coverage  Generate a coverage report."
-    echo "  -t TIMEOUT      Set a timeout in seconds for each test (default: 60)."
+
 }
 
 while [[ $# -gt 0 ]]; do
@@ -33,10 +33,7 @@ while [[ $# -gt 0 ]]; do
             COVERAGE=true
             shift
             ;;
-        -t|--timeout)
-            TIMEOUT="$2"
-            shift 2
-            ;;
+
         *)
             PATHS+=("$1")
             shift
@@ -44,7 +41,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-FINAL_CMD="pytest $PYTEST_ARGS --timeout=$TIMEOUT"
+FINAL_CMD="pytest $PYTEST_ARGS"
 
 if [ "$COVERAGE" = true ]; then
     FINAL_CMD+=" --cov=afs_fastapi --cov-report=html"

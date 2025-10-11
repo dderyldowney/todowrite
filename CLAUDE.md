@@ -82,21 +82,9 @@ The platform provides universal session management commands available to all AI 
 - Select commands are available as slash commands: `/loadsession`, `/whereweare`, `/updatedocs`
 - Command triggers are stored in `.claude/commands/` with complete specifications.
 
-### Mandatory Granular Task Design for Claude Code
+### Mandatory TodoWrite.md Task Management
 
-**CRITICAL REQUIREMENT**: Claude Code MUST follow the "Mandatory Granular Task Design Standards" defined in `AGENTS.md` with zero exceptions.
-
-**Claude-Specific Granular Task Enforcement**:
-1. **TodoWrite Integration**: Use TodoWrite tool to mirror phase task granularity in personal todo tracking
-2. **Task-Level Commits**: Create git commits for each completed granular task (1-2 hour units)
-3. **Progress Visibility**: Break down large requests into granular phase tasks immediately upon receiving them
-4. **Context Optimization**: Use granular tasks to reduce context switching and improve focus
-
-**Claude Task Creation Standards**:
-- **Maximum 2-hour task duration** - Each TodoWrite task and phase task must be completable in single session
-- **Immediate task breakdown** - When user requests broad functionality, immediately break into granular tasks
-- **Use phase commands** - Leverage `./bin/phase-add` to create properly scoped agricultural robotics tasks
-- **Agricultural context** - Every task must include specific agricultural equipment, operation, or safety context
+**CRITICAL REQUIREMENT**: Claude Code MUST follow the "Mandatory TodoWrite.md Task Management System" defined in `AGENTS.md` with zero exceptions.
 
 ### Mandatory Pause Structure for Claude Code
 
@@ -184,3 +172,11 @@ The platform provides universal session management commands available to all AI 
 
 **Enforcement Mechanism**:
 Claude Code MUST refuse to continue development past 3-hour sessions without executing a proper pause. This is a hard requirement with zero exceptions to prevent context loss and ensure development quality in the agricultural robotics platform.
+
+### Mandatory Git Commit Message Format
+
+**CRITICAL REQUIREMENT**: Claude Code MUST follow the "Mandatory Git Commit Message Format" defined in `AGENTS.md` with zero exceptions.
+
+### Mandatory Type Hinting and Annotation
+
+**CRITICAL REQUIREMENT**: Claude Code MUST follow the "Mandatory Type Hinting and Annotation" defined in `AGENTS.md` with zero exceptions.

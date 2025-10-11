@@ -9,7 +9,7 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from afs_fastapi.core.todos_manager import add_strategic_goal  # noqa: E402
+from afs_fastapi.core.todos_manager import add_goal  # noqa: E402
 
 
 def main():
@@ -19,7 +19,7 @@ def main():
     parser.add_argument("--priority", type=str, default="medium", choices=["low", "medium", "high"], help="The priority of the strategic goal.")
     args = parser.parse_args()
 
-    new_goal = add_strategic_goal(args.description, args.category, args.priority)
+    new_goal = add_goal(args.description, args.description, args.category, args.priority)
 
     print(f"✓ Strategic goal added: {new_goal['id']}")
     print(f"  Description: {new_goal['description']}")

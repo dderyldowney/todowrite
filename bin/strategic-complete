@@ -10,8 +10,9 @@ project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
 from afs_fastapi.core.todos_manager import (  # noqa: E402
-    complete_strategic_goal,
-    get_strategic_goals,
+    get_goals,
+    load_todos,
+    save_todos,
 )
 
 
@@ -20,37 +21,33 @@ def main():
     parser.add_argument("search_term", type=str, help="The ID or description of the strategic goal to complete.")
     args = parser.parse_args()
 
-    goals = get_strategic_goals()
+    todos = load_todos()
+    goals = todos["goals"]
     matched_goal = None
     for goal in goals:
-        if goal['id'] == args.search_term or args.search_term.lower() in goal['description'].lower():
+        if goal['id'] == args.search_term or args.search_term.lower() in goal['title'].lower():
             matched_goal = goal
             break
     
     if not matched_goal:
-        print(f"Error: No strategic goal found matching \"{args.search_term}\"")
-        print("Use './bin/strategic-list' to see available strategic goals.")
+        print(f"Error: No goal found matching \"{args.search_term}\"")
+        print("Use 'get_goals()' to see available goals.")
         sys.exit(1)
 
-    if matched_goal['status'] == 'completed':
-        print(f"Strategic goal already completed: {matched_goal['description']}")
-        print(f"Completed at: {matched_goal.get('date_completed', 'Unknown')}")
+    if matched_goal['status'] == 'done':
+        print(f"Goal already completed: {matched_goal['title']}")
         sys.exit(0)
 
-    if complete_strategic_goal(matched_goal['id']):
-        print("✓ Strategic goal marked as completed!")
-        print(f"  ID: {matched_goal['id']}")
-        print(f"  Description: {matched_goal['description']}")
-        # The date_completed will be set by the complete_strategic_goal function,
-        # but we don't have it here without reloading the data.
-        # We can either reload or just print a generic message.
-        # For now, we'll just print a generic message.
-        print("  Status: completed")
-        print()
-        print("Strategic goal completed successfully. Use './bin/strategic-list' to view updated strategic goals.")
-    else:
-        print(f"Error: Failed to mark strategic goal as completed: {matched_goal['id']}")
-        sys.exit(1)
+    # Update the status and save
+    matched_goal['status'] = 'done'
+    save_todos(todos)
+
+    print("✓ Goal marked as completed!")
+    print(f"  ID: {matched_goal['id']}")
+    print(f"  Title: {matched_goal['title']}")
+    print("  Status: done")
+    print()
+    print("Goal completed successfully. Use 'get_goals()' to view updated goals.")
 
 
 if __name__ == "__main__":

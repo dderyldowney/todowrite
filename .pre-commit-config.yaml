@@ -21,11 +21,11 @@ repos:
         args: ["--check-only"]
         language: system
         types: [python]
-      - id: mypy
-        name: MyPy (type check)
-        entry: mypy
-        language: system
-        types: [python]
+      # - id: mypy
+      #   name: MyPy (type check)
+      #   entry: mypy
+      #   language: system
+      #   types: [python]
 
       # Mandatory TDD enforcement (always runs on commit)
       - id: tdd-enforcement

@@ -10,7 +10,7 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from afs_fastapi.core.todos_manager import get_active_phase, get_strategic_goals  # noqa: E402
+from afs_fastapi.core.todos_manager import get_active_items, load_todos, save_todos, GoalItem  # noqa: E402
 
 
 def main():
@@ -19,9 +19,26 @@ def main():
     print()
 
     # Gather data
-    goals = get_strategic_goals()
-    active_phase = get_active_phase()
+    todos_data = load_todos()
+    goals = todos_data["goals"]
+    active_items = get_active_items()
+    active_phase = active_items["phase"]
     
+    # Calculate counts for strategic goals
+    total_goals = len(goals)
+    pending_goals = len([g for g in goals if g["status"] == "planned" or g["status"] == "in_progress"])
+    completed_goals = len([g for g in goals if g["status"] == "done"])
+
+    # Calculate counts for active phase tasks
+    total_active_phase_tasks = 0
+    completed_active_phase_tasks = 0
+    if active_phase:
+        for step in active_phase.get("steps", []):
+            for task in step.get("tasks", []):
+                total_active_phase_tasks += 1
+                if task["status"] == "done":
+                    completed_active_phase_tasks += 1
+
     # Create summary content
     summary = f"""
 # AFS FastAPI Session Summary
@@ -29,13 +46,13 @@ def main():
 ## TODOs Summary
 
 ### Strategic Goals
-- Total: {len(goals)}
-- Pending: {len([g for g in goals if g['status'] == 'planned'])}
-- Completed: {len([g for g in goals if g['status'] == 'done'])}
+- Total: {total_goals}
+- Pending: {pending_goals}
+- Completed: {completed_goals}
 
 ### Active Phase
 - Name: {active_phase['title'] if active_phase else 'None'}
-- Status: {len([t for step in active_phase.get('steps', []) for t in step.get('tasks', []) if t['status'] == 'done']) if active_phase else 0}/{len([t for step in active_phase.get('steps', []) for t in step.get('tasks', [])]) if active_phase else 'N/A'} tasks completed
+- Status: {completed_active_phase_tasks}/{total_active_phase_tasks if total_active_phase_tasks > 0 else 'N/A'} tasks completed
 """
 
     # Save summary to file

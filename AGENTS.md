@@ -47,69 +47,75 @@ MIT (project license)
 - Platform standards: `CLAUDE.md` (professional tone and documentation requirements)
 - Test validation: Ensure all 214 tests pass (see `WORKFLOW.md`)
 
-## Mandatory Granular Task Design Standards
+## Mandatory TodoWrite.md Task Management System
 
-**CRITICAL REQUIREMENT**: All AI agents MUST structure phases, phase steps, and tasks with maximum granularity to enable smaller context usage and more focused work.
+**CRITICAL REQUIREMENT**: All AI agents MUST use the `TodoWrite.md` system for all task management, planning, and execution. This system is the single source of truth for all work items in the project.
 
-### Task Granularity Requirements
+### The `TodoWrite.md` Specification
 
-**Strategic Goal → Phase → Task Hierarchy**:
-- **Strategic Goals**: High-level objectives (weeks/months of work)
-- **Phases**: Major implementation stages (days/weeks of work)
-- **Tasks**: Atomic work units (1-2 hours maximum per task)
+The `TodoWrite.md` system is a hierarchical task management system with a 5-level structure: **Goal → Phase → Step → Task → SubTask**. It enforces strict rules for single concern, traceability, and validation.
 
-**Granularity Standards** (mandatory for ALL agents):
-- **Minimum 10+ tasks per phase** - Break large tasks into smaller focused units
-- **Maximum 2-hour task duration** - Each task must be completable in single focused session
-- **Single responsibility per task** - One clear objective per task (design, implement, test, refactor)
-- **Explicit dependencies** - Clear task ordering and prerequisites
+All agents MUST adhere to the full specification defined in the `ToDoWrite.md` file.
 
-### Phase Structure Requirements
+### Key Principles of `TodoWrite.md`
 
-**Phase Design Standards**:
-- **Minimum 3-4 phases per strategic goal** - Avoid monolithic single-phase goals
-- **6-15 tasks per phase** - Sufficient granularity for progress tracking
-- **Clear phase boundaries** - Distinct deliverables and quality gates between phases
-- **Testable milestones** - Each phase completion must be verifiable
+- **Hierarchical Decomposition**: All work MUST be decomposed through the 5-level hierarchy.
+- **Single Concern Principle (SoC)**: Every item at every level MUST address exactly one concern.
+- **Atomicity**: The lowest level, `SubTask`, MUST map to a single, executable command.
+- **Validation**: All items are subject to a strict validation pipeline, as implemented in `afs_fastapi/core/todos_manager.py`.
 
-**Examples of Proper Task Granularity**:
+### Reference Implementation
 
-❌ **TOO BROAD**: "Implement network health monitoring with traffic analytics and performance metrics"
+The `afs_fastapi/core/todos_manager.py` module provides the reference implementation for the `TodoWrite.md` system, including data structures, validation logic, and migration from legacy formats. All agents MUST use the functions provided in this module for all task management operations.
 
-✅ **PROPERLY GRANULAR**:
-1. "Design network health monitoring data structures and metrics collection framework"
-2. "Implement CAN message traffic statistics collector with real-time counters"
-3. "Create performance metrics dashboard with latency and throughput visualization"
-4. "Implement unit tests for CAN message traffic prioritization algorithms"
-5. "Create integration tests for network congestion detection scenarios"
-6. "Implement load testing framework for high-traffic CAN scenarios"
-7. "Create performance benchmarking tests for agricultural traffic patterns"
+### Enforcement
 
-### Implementation Standards
+- All task creation, modification, and execution MUST be done through the `todos_manager.py` API.
+- The validation pipeline in `todos_manager.py` will be enforced.
+- Agents MUST NOT use any other task management system or format.
+- The legacy task management system is deprecated and MUST NOT be used.
 
-**Task Creation Requirements**:
-- **Use `./bin/phase-add "Task Description"`** for each granular task
-- **Descriptive task names** - Include specific deliverable and context
-- **Agricultural domain context** - Reference equipment, operations, or safety requirements
-- **Technology specificity** - Mention frameworks, protocols, or interfaces involved
+## Mandatory Git Commit Message Format
 
-**Progress Tracking Standards**:
-- **Mark tasks completed immediately** - Use `./bin/phase-complete "Task"` after finishing
-- **One task in-progress at a time** - Focus on single atomic unit
-- **Quality gates per task** - All code quality checks must pass before task completion
-- **Test coverage per task** - TDD requirements apply to each individual task
+**CRITICAL REQUIREMENT**: All AI agents MUST create git commit messages using HEREDOCs. This ensures that commit messages are well-formatted, multi-line, and easy to read.
 
-### Context Optimization Benefits
+### HEREDOC Format
 
-**Granular Task Design Advantages**:
-- **Reduced context switching** - Focus on single concern per session
-- **Better progress visibility** - Clear completion tracking and metrics
-- **Easier debugging** - Isolated changes per task reduce error scope
-- **Improved collaboration** - Clear handoff points between agents/sessions
-- **Quality assurance** - Smaller tasks enable thorough validation per unit
+The commit message MUST be formatted as a HEREDOC, like this:
 
-**Enforcement Mechanism**:
-All agents MUST follow this granular design standard. Phase reviews will validate task granularity compliance. Sessions that create overly broad tasks will be flagged for restructuring.
+```bash
+git commit -F - <<EOF
+feat(scope): Short description of the change
+
+Longer description of the change, explaining the what and the why.
+Can be multiple lines.
+
+- Bullet points are also good.
+
+Co-authored-by: Agent Name <agent@email.com>
+EOF
+```
+
+### Enforcement
+
+- All `git commit` commands MUST use the `-F -` option to read the commit message from stdin.
+- The commit message MUST be provided as a HEREDOC.
+- Pre-commit hooks MAY be used to validate the commit message format.
+
+## Mandatory Type Hinting and Annotation
+
+**CRITICAL REQUIREMENT**: All AI agents MUST use type hints and annotations for all code and tests they generate. This is a critical requirement and any violation will be considered a failure.
+
+### Rationale
+
+This project enforces strict type safety to ensure the reliability and maintainability of the agricultural robotics platform. Type hints and annotations are essential for static analysis, code completion, and overall code quality.
+
+### Enforcement
+
+- All function and method signatures MUST include type hints for all arguments and the return value.
+- All variables MUST be annotated with their type when they are defined.
+- The `mypy` pre-commit hook is enabled and MUST pass for all commits.
+- Agents MUST NOT generate any code or tests without proper type hinting and annotation.
 
 ## Configuration
 
@@ -193,7 +199,7 @@ All agents MUST follow this granular design standard. Phase reviews will validat
 - **Enforced on every commit** (blocks non-compliant code):
   - **Code quality**: Ruff (lint), Black (format check), isort (imports), MyPy (types)
   - **TDD enforcement**: `.claude/hooks/tdd_enforcement.py` - Validates Test-First Development
-  - **Safety validation**: `.claude/hooks/safety_validation.py` - Ensures agricultural safety compliance
+  - **Safety validation**: `.claude/hooks/safety_validation.py` - Ensures agricultural safety standards compliance
   - **Commit separation**: `.claude/hooks/commit_separation_enforcement.py` - Enforces single concern per commit
 - **Installation**: `make precommit-install` (installs pre-commit and registers hooks)
 - **Manual execution**: `make precommit-run` (run all hooks without committing)

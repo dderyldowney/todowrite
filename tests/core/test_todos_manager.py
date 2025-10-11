@@ -9,359 +9,718 @@ import unittest
 from unittest.mock import mock_open, patch
 
 from afs_fastapi.core.todos_manager import (  # noqa: E402
-    add_strategic_goal,
-    add_task_to_active_phase,
-    complete_strategic_goal,
-    complete_task_in_active_phase,
-    delete_phase,
-    delete_strategic_goal,
-    delete_task,
-    end_phase,
-    get_active_phase,
-    get_all_phases,
-    get_strategic_goals,
+    add_goal,
+    add_phase,
+    add_step,
+    add_subtask,
+    add_task,
+    execute_subtask,
+    get_active_items,
+    get_execution_ready_subtasks,
+    get_goals,
     load_todos,
-    pause_active_phase,
-    pause_task,
-    reorder_phases,
-    reorder_strategic_goals,
-    reorder_tasks,
-    resume_paused_phase,
-    resume_task,
     save_todos,
-    start_phase,
-    update_parent_statuses,
+    validate_all_items,
+    validate_dependencies,
+    validate_granularity,
+    validate_hierarchy_order,
+    validate_single_concern,
+    validate_status_rules,
+    validate_subtask_atomicity,
 )
 
 
 class TestTodosManager(unittest.TestCase):
 
-    @patch("builtins.open", new_callable=mock_open, read_data='{"strategic_goals": []}')
+    @patch("builtins.open", new_callable=mock_open, read_data='{"goals": []}')
     def test_load_todos_file_found(self, mock_file):
-        """Test that load_todos loads the file correctly."""
+        """Test that load_todos loads the file correctly with the new schema."""
         todos = load_todos()
-        self.assertEqual(todos, {"strategic_goals": []})
-        mock_file.assert_called_with(".claude/todos.json", "r")
+        self.assertEqual(todos, {"goals": []})
+        mock_file.assert_called_with(".claude/todos.json")
 
     @patch("builtins.open", side_effect=FileNotFoundError)
     def test_load_todos_file_not_found(self, mock_file):
         """Test that load_todos returns an empty structure when the file is not found."""
         todos = load_todos()
-        self.assertEqual(todos, {"strategic_goals": []})
+        self.assertEqual(todos, {"goals": []})
 
     @patch("builtins.open", new_callable=mock_open)
     def test_save_todos(self, mock_file):
-        """Test that save_todos writes the todos to the file."""
-        todos = {"strategic_goals": [{"id": "goal-1"}]}
+        """Test that save_todos writes the todos to the file with the new schema."""
+        todos = {
+            "goals": [
+                {
+                    "id": "goal-1",
+                    "parent_id": None,
+                    "level": "Goal",
+                    "title": "Test Goal",
+                    "description": "Test Description",
+                    "single_concern": True,
+                    "dependencies": [],
+                    "status": "planned",
+                    "validation_log": [],
+                    "phases": [],
+                    "category": "general",
+                    "priority": "medium",
+                }
+            ]
+        }
         save_todos(todos)
         mock_file.assert_called_with(".claude/todos.json", "w")
 
         written_content = "".join(call.args[0] for call in mock_file().write.call_args_list)
 
-        self.assertEqual(written_content, json.dumps(todos, indent=2))
+        self.assertEqual(json.loads(written_content), todos)
 
     @patch("afs_fastapi.core.todos_manager.load_todos")
-    def test_get_strategic_goals(self, mock_load_todos):
-        """Test that get_strategic_goals returns the strategic goals."""
-        mock_load_todos.return_value = {"strategic_goals": [{"id": "goal-1"}]}
-        goals = get_strategic_goals()
+    def test_get_goals(self, mock_load_todos):
+        """Test that get_goals returns all goals."""
+        mock_load_todos.return_value = {"goals": [{"id": "goal-1"}]}
+        goals = get_goals()
         self.assertEqual(goals, [{"id": "goal-1"}])
 
     @patch("afs_fastapi.core.todos_manager.load_todos")
     @patch("afs_fastapi.core.todos_manager.save_todos")
-    def test_add_strategic_goal(self, mock_save_todos, mock_load_todos):
-        """Test that add_strategic_goal adds a new goal."""
-        mock_load_todos.return_value = {"strategic_goals": []}
-        add_strategic_goal("Test Goal", "test-category", "high")
+    @patch("afs_fastapi.core.todos_manager.run_validation_pipeline", return_value=[])
+    @patch("afs_fastapi.core.todos_manager.create_flat_item_dict", return_value={})
+    def test_add_goal(
+        self,
+        mock_create_flat_item_dict,
+        mock_run_validation_pipeline,
+        mock_save_todos,
+        mock_load_todos,
+    ):
+        """Test that add_goal adds a new goal."""
+        mock_load_todos.return_value = {"goals": []}
+        new_goal = add_goal("Test Goal", "Test Description", "test-category", "high")
         self.assertTrue(mock_save_todos.called)
-        saved_data = mock_save_todos.call_args[0][0]
-        self.assertEqual(len(saved_data["strategic_goals"]), 1)
-        self.assertEqual(saved_data["strategic_goals"][0]["description"], "Test Goal")
+        self.assertEqual(new_goal["title"], "Test Goal")
+        self.assertEqual(new_goal["description"], "Test Description")
+        self.assertEqual(new_goal["category"], "test-category")
+        self.assertEqual(new_goal["priority"], "high")
+        self.assertEqual(new_goal["status"], "planned")
+        self.assertEqual(new_goal["level"], "Goal")
 
     @patch("afs_fastapi.core.todos_manager.load_todos")
     @patch("afs_fastapi.core.todos_manager.save_todos")
-    def test_complete_strategic_goal(self, mock_save_todos, mock_load_todos):
-        """Test that complete_strategic_goal marks a goal as completed."""
-        mock_load_todos.return_value = {"strategic_goals": [{"id": "goal-1", "status": "pending"}]}
-        complete_strategic_goal("goal-1")
+    @patch("afs_fastapi.core.todos_manager.run_validation_pipeline", return_value=[])
+    @patch("afs_fastapi.core.todos_manager.create_flat_item_dict", return_value={})
+    def test_add_phase(
+        self,
+        mock_create_flat_item_dict,
+        mock_run_validation_pipeline,
+        mock_save_todos,
+        mock_load_todos,
+    ):
+        """Test that add_phase adds a new phase to a goal."""
+        mock_load_todos.return_value = {"goals": [{"id": "goal-1", "phases": []}]}
+        new_phase, error = add_phase("goal-1", "Test Phase", "Test Description")
+        self.assertIsNone(error)
         self.assertTrue(mock_save_todos.called)
-        saved_data = mock_save_todos.call_args[0][0]
-        self.assertEqual(saved_data["strategic_goals"][0]["status"], "completed")
+        self.assertEqual(new_phase["title"], "Test Phase")
+        self.assertEqual(new_phase["parent_id"], "goal-1")
+        self.assertEqual(new_phase["level"], "Phase")
 
     @patch("afs_fastapi.core.todos_manager.load_todos")
     @patch("afs_fastapi.core.todos_manager.save_todos")
-    def test_reorder_strategic_goals(self, mock_save_todos, mock_load_todos):
-        """Test that reorder_strategic_goals reorders the goals."""
+    @patch("afs_fastapi.core.todos_manager.run_validation_pipeline", return_value=[])
+    @patch("afs_fastapi.core.todos_manager.create_flat_item_dict", return_value={})
+    def test_add_step(
+        self,
+        mock_create_flat_item_dict,
+        mock_run_validation_pipeline,
+        mock_save_todos,
+        mock_load_todos,
+    ):
+        """Test that add_step adds a new step to a phase."""
         mock_load_todos.return_value = {
-            "strategic_goals": [
-                {"id": "goal-1"},
-                {"id": "goal-2"},
-                {"id": "goal-3"},
+            "goals": [{"id": "goal-1", "phases": [{"id": "phase-1", "steps": []}]}]
+        }
+        new_step, error = add_step("phase-1", "Test Step", "Test Description")
+        self.assertIsNone(error)
+        self.assertTrue(mock_save_todos.called)
+        self.assertEqual(new_step["title"], "Test Step")
+        self.assertEqual(new_step["parent_id"], "phase-1")
+        self.assertEqual(new_step["level"], "Step")
+
+    @patch("afs_fastapi.core.todos_manager.load_todos")
+    @patch("afs_fastapi.core.todos_manager.save_todos")
+    @patch("afs_fastapi.core.todos_manager.run_validation_pipeline", return_value=[])
+    @patch("afs_fastapi.core.todos_manager.create_flat_item_dict", return_value={})
+    def test_add_task(
+        self,
+        mock_create_flat_item_dict,
+        mock_run_validation_pipeline,
+        mock_save_todos,
+        mock_load_todos,
+    ):
+        """Test that add_task adds a new task to a step."""
+        mock_load_todos.return_value = {
+            "goals": [
+                {
+                    "id": "goal-1",
+                    "phases": [{"id": "phase-1", "steps": [{"id": "step-1", "tasks": []}]}],
+                }
             ]
         }
-        reorder_strategic_goals("goal-3", 1)
+        new_task, error = add_task("step-1", "Test Task", "Test Description")
+        self.assertIsNone(error)
         self.assertTrue(mock_save_todos.called)
-        saved_data = mock_save_todos.call_args[0][0]
-        self.assertEqual(saved_data["strategic_goals"][0]["id"], "goal-3")
+        self.assertEqual(new_task["title"], "Test Task")
+        self.assertEqual(new_task["parent_id"], "step-1")
+        self.assertEqual(new_task["level"], "Task")
 
     @patch("afs_fastapi.core.todos_manager.load_todos")
     @patch("afs_fastapi.core.todos_manager.save_todos")
-    def test_delete_strategic_goal(self, mock_save_todos, mock_load_todos):
-        """Test that delete_strategic_goal deletes a goal."""
-        mock_load_todos.return_value = {"strategic_goals": [{"id": "goal-1"}]}
-        delete_strategic_goal("goal-1")
-        self.assertTrue(mock_save_todos.called)
-        saved_data = mock_save_todos.call_args[0][0]
-        self.assertEqual(len(saved_data["strategic_goals"]), 0)
-
-    @patch("afs_fastapi.core.todos_manager.load_todos")
-    def test_get_all_phases(self, mock_load_todos):
-        """Test that get_all_phases returns all phases."""
+    @patch("afs_fastapi.core.todos_manager.run_validation_pipeline", return_value=[])
+    @patch("afs_fastapi.core.todos_manager.create_flat_item_dict", return_value={})
+    def test_add_subtask(
+        self,
+        mock_create_flat_item_dict,
+        mock_run_validation_pipeline,
+        mock_save_todos,
+        mock_load_todos,
+    ):
+        """Test that add_subtask adds a new subtask to a task."""
         mock_load_todos.return_value = {
-            "strategic_goals": [
-                {"id": "goal-1", "phases": [{"id": "phase-1"}]},
-                {"id": "goal-2", "phases": [{"id": "phase-2"}, {"id": "phase-3"}]},
-            ]
-        }
-        phases = get_all_phases()
-        self.assertEqual(len(phases), 3)
-        self.assertEqual(phases[0]["strategic_goal_id"], "goal-1")
-
-    @patch("afs_fastapi.core.todos_manager.load_todos")
-    def test_get_active_phase(self, mock_load_todos):
-        """Test that get_active_phase returns the active phase."""
-        mock_load_todos.return_value = {
-            "strategic_goals": [
-                {"id": "goal-1", "phases": [{"id": "phase-1", "status": "active"}]},
-                {"id": "goal-2", "phases": [{"id": "phase-2", "status": "completed"}]},
-            ]
-        }
-        active_phase = get_active_phase()
-        self.assertEqual(active_phase["id"], "phase-1")
-
-    @patch("afs_fastapi.core.todos_manager.load_todos")
-    @patch("afs_fastapi.core.todos_manager.save_todos")
-    def test_start_phase(self, mock_save_todos, mock_load_todos):
-        """Test that start_phase starts a new phase."""
-        mock_load_todos.return_value = {"strategic_goals": [{"id": "goal-1", "phases": []}]}
-        start_phase("New Phase", "goal-1")
-        self.assertTrue(mock_save_todos.called)
-        saved_data = mock_save_todos.call_args[0][0]
-        self.assertEqual(len(saved_data["strategic_goals"][0]["phases"]), 1)
-        self.assertEqual(saved_data["strategic_goals"][0]["phases"][0]["name"], "New Phase")
-        self.assertEqual(saved_data["strategic_goals"][0]["phases"][0]["status"], "active")
-
-    @patch("afs_fastapi.core.todos_manager.load_todos")
-    @patch("afs_fastapi.core.todos_manager.save_todos")
-    def test_end_phase(self, mock_save_todos, mock_load_todos):
-        """Test that end_phase ends the active phase."""
-        mock_load_todos.return_value = {
-            "strategic_goals": [
-                {"id": "goal-1", "phases": [{"id": "phase-1", "status": "active", "tasks": []}]}
-            ]
-        }
-        end_phase()
-        self.assertTrue(mock_save_todos.called)
-        saved_data = mock_save_todos.call_args[0][0]
-        self.assertEqual(saved_data["strategic_goals"][0]["phases"][0]["status"], "completed")
-
-    @patch("afs_fastapi.core.todos_manager.load_todos")
-    @patch("afs_fastapi.core.todos_manager.save_todos")
-    def test_pause_active_phase(self, mock_save_todos, mock_load_todos):
-        """Test that pause_active_phase pauses the active phase."""
-        mock_load_todos.return_value = {
-            "strategic_goals": [{"id": "goal-1", "phases": [{"id": "phase-1", "status": "active"}]}]
-        }
-        pause_active_phase()
-        self.assertTrue(mock_save_todos.called)
-        saved_data = mock_save_todos.call_args[0][0]
-        self.assertEqual(saved_data["strategic_goals"][0]["phases"][0]["status"], "paused")
-
-    @patch("afs_fastapi.core.todos_manager.load_todos")
-    @patch("afs_fastapi.core.todos_manager.save_todos")
-    def test_resume_paused_phase(self, mock_save_todos, mock_load_todos):
-        """Test that resume_paused_phase resumes a paused phase."""
-        mock_load_todos.return_value = {
-            "strategic_goals": [{"id": "goal-1", "phases": [{"id": "phase-1", "status": "paused"}]}]
-        }
-        resume_paused_phase()
-        self.assertTrue(mock_save_todos.called)
-        saved_data = mock_save_todos.call_args[0][0]
-        self.assertEqual(saved_data["strategic_goals"][0]["phases"][0]["status"], "active")
-
-    @patch("afs_fastapi.core.todos_manager.load_todos")
-    @patch("afs_fastapi.core.todos_manager.save_todos")
-    def test_delete_phase(self, mock_save_todos, mock_load_todos):
-        """Test that delete_phase deletes a phase."""
-        mock_load_todos.return_value = {
-            "strategic_goals": [{"id": "goal-1", "phases": [{"id": "phase-1"}]}]
-        }
-        delete_phase("phase-1")
-        self.assertTrue(mock_save_todos.called)
-        saved_data = mock_save_todos.call_args[0][0]
-        self.assertEqual(len(saved_data["strategic_goals"][0]["phases"]), 0)
-
-    @patch("afs_fastapi.core.todos_manager.load_todos")
-    @patch("afs_fastapi.core.todos_manager.save_todos")
-    def test_reorder_phases(self, mock_save_todos, mock_load_todos):
-        """Test that reorder_phases reorders the phases."""
-        mock_load_todos.return_value = {
-            "strategic_goals": [{"id": "goal-1", "phases": [{"id": "phase-1"}, {"id": "phase-2"}]}]
-        }
-        reorder_phases("phase-2", 1)
-        self.assertTrue(mock_save_todos.called)
-        saved_data = mock_save_todos.call_args[0][0]
-        self.assertEqual(saved_data["strategic_goals"][0]["phases"][0]["id"], "phase-2")
-
-    @patch("afs_fastapi.core.todos_manager.load_todos")
-    @patch("afs_fastapi.core.todos_manager.save_todos")
-    def test_add_task_to_active_phase(self, mock_save_todos, mock_load_todos):
-        """Test that add_task_to_active_phase adds a task."""
-        mock_load_todos.return_value = {
-            "strategic_goals": [
-                {"id": "goal-1", "phases": [{"id": "phase-1", "status": "active", "tasks": []}]}
-            ]
-        }
-        add_task_to_active_phase("New Task")
-        self.assertTrue(mock_save_todos.called)
-        saved_data = mock_save_todos.call_args[0][0]
-        self.assertEqual(len(saved_data["strategic_goals"][0]["phases"][0]["tasks"]), 1)
-        self.assertEqual(
-            saved_data["strategic_goals"][0]["phases"][0]["tasks"][0]["description"], "New Task"
-        )
-
-    @patch("afs_fastapi.core.todos_manager.load_todos")
-    @patch("afs_fastapi.core.todos_manager.save_todos")
-    def test_complete_task_in_active_phase(self, mock_save_todos, mock_load_todos):
-        """Test that complete_task_in_active_phase completes a task."""
-        mock_load_todos.return_value = {
-            "strategic_goals": [
+            "goals": [
                 {
                     "id": "goal-1",
                     "phases": [
                         {
                             "id": "phase-1",
-                            "status": "active",
-                            "tasks": [{"id": "task-1", "status": "pending"}],
+                            "steps": [
+                                {"id": "step-1", "tasks": [{"id": "task-1", "subtasks": []}]}
+                            ],
                         }
                     ],
                 }
             ]
         }
-        complete_task_in_active_phase("task-1")
-        self.assertTrue(mock_save_todos.called)
-        saved_data = mock_save_todos.call_args[0][0]
-        self.assertEqual(
-            saved_data["strategic_goals"][0]["phases"][0]["tasks"][0]["status"], "completed"
+        new_subtask, error = add_subtask(
+            "task-1", "Test SubTask", "Test Description", "echo 'hello'"
         )
-
-    @patch("afs_fastapi.core.todos_manager.load_todos")
-    @patch("afs_fastapi.core.todos_manager.save_todos")
-    def test_delete_task(self, mock_save_todos, mock_load_todos):
-        """Test that delete_task deletes a task."""
-        mock_load_todos.return_value = {
-            "strategic_goals": [
-                {"id": "goal-1", "phases": [{"id": "phase-1", "tasks": [{"id": "task-1"}]}]}
-            ]
-        }
-        delete_task("task-1")
+        self.assertIsNone(error)
         self.assertTrue(mock_save_todos.called)
-        saved_data = mock_save_todos.call_args[0][0]
-        self.assertEqual(len(saved_data["strategic_goals"][0]["phases"][0]["tasks"]), 0)
+        self.assertEqual(new_subtask["title"], "Test SubTask")
+        self.assertEqual(new_subtask["parent_id"], "task-1")
+        self.assertEqual(new_subtask["level"], "SubTask")
+        self.assertEqual(new_subtask["command"], "echo 'hello'")
 
     @patch("afs_fastapi.core.todos_manager.load_todos")
     @patch("afs_fastapi.core.todos_manager.save_todos")
-    def test_reorder_tasks(self, mock_save_todos, mock_load_todos):
-        """Test that reorder_tasks reorders the tasks."""
+    def test_execute_subtask(self, mock_save_todos, mock_load_todos):
+        """Test that execute_subtask executes a subtask."""
         mock_load_todos.return_value = {
-            "strategic_goals": [
-                {
-                    "id": "goal-1",
-                    "phases": [{"id": "phase-1", "tasks": [{"id": "task-1"}, {"id": "task-2"}]}],
-                }
-            ]
-        }
-        reorder_tasks("task-2", 1)
-        self.assertTrue(mock_save_todos.called)
-        saved_data = mock_save_todos.call_args[0][0]
-        self.assertEqual(saved_data["strategic_goals"][0]["phases"][0]["tasks"][0]["id"], "task-2")
-
-    @patch("afs_fastapi.core.todos_manager.load_todos")
-    @patch("afs_fastapi.core.todos_manager.save_todos")
-    def test_pause_task(self, mock_save_todos, mock_load_todos):
-        """Test that pause_task pauses a task."""
-        mock_load_todos.return_value = {
-            "strategic_goals": [
+            "goals": [
                 {
                     "id": "goal-1",
                     "phases": [
                         {
                             "id": "phase-1",
-                            "status": "active",
-                            "tasks": [{"id": "task-1", "status": "pending"}],
+                            "steps": [
+                                {
+                                    "id": "step-1",
+                                    "tasks": [
+                                        {
+                                            "id": "task-1",
+                                            "subtasks": [
+                                                {
+                                                    "id": "subtask-1",
+                                                    "status": "planned",
+                                                    "command_type": "bash",
+                                                    "execution_log": [],
+                                                }
+                                            ],
+                                        }
+                                    ],
+                                }
+                            ],
                         }
                     ],
                 }
             ]
         }
-        pause_task("task-1")
+        success, message = execute_subtask("subtask-1")
+        self.assertTrue(success)
         self.assertTrue(mock_save_todos.called)
         saved_data = mock_save_todos.call_args[0][0]
         self.assertEqual(
-            saved_data["strategic_goals"][0]["phases"][0]["tasks"][0]["status"], "paused"
+            saved_data["goals"][0]["phases"][0]["steps"][0]["tasks"][0]["subtasks"][0]["status"],
+            "done",
         )
 
     @patch("afs_fastapi.core.todos_manager.load_todos")
-    @patch("afs_fastapi.core.todos_manager.save_todos")
-    def test_resume_task(self, mock_save_todos, mock_load_todos):
-        """Test that resume_task resumes a task."""
+    def test_get_active_items(self, mock_load_todos):
+        """Test that get_active_items returns currently active items."""
         mock_load_todos.return_value = {
-            "strategic_goals": [
+            "goals": [
+                {
+                    "id": "goal-1",
+                    "status": "in_progress",
+                    "phases": [
+                        {
+                            "id": "phase-1",
+                            "status": "in_progress",
+                            "steps": [
+                                {
+                                    "id": "step-1",
+                                    "status": "in_progress",
+                                    "tasks": [
+                                        {
+                                            "id": "task-1",
+                                            "status": "in_progress",
+                                            "subtasks": [
+                                                {"id": "subtask-1", "status": "in_progress"}
+                                            ],
+                                        }
+                                    ],
+                                }
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+        active_items = get_active_items()
+        self.assertIsNotNone(active_items["goal"])
+        self.assertIsNotNone(active_items["phase"])
+        self.assertIsNotNone(active_items["step"])
+        self.assertIsNotNone(active_items["task"])
+        self.assertIsNotNone(active_items["subtask"])
+
+    @patch("afs_fastapi.core.todos_manager.load_todos")
+    @patch("afs_fastapi.core.todos_manager.create_flat_item_dict")
+    @patch("afs_fastapi.core.todos_manager.run_validation_pipeline", return_value=["error"])
+    def test_validate_all_items(
+        self, mock_run_validation_pipeline, mock_create_flat_item_dict, mock_load_todos
+    ):
+        """Test that validate_all_items runs validation on all items."""
+        mock_load_todos.return_value = {"goals": [{"id": "goal-1"}]}
+        mock_create_flat_item_dict.return_value = {"goal-1": {"id": "goal-1"}}
+        validation_results = validate_all_items()
+        self.assertEqual(validation_results, {"goal-1": ["error"]})
+
+    @patch("afs_fastapi.core.todos_manager.load_todos")
+    def test_get_execution_ready_subtasks(self, mock_load_todos):
+        """Test that get_execution_ready_subtasks returns subtasks ready for execution."""
+        mock_load_todos.return_value = {
+            "goals": [
                 {
                     "id": "goal-1",
                     "phases": [
                         {
                             "id": "phase-1",
-                            "status": "active",
-                            "tasks": [{"id": "task-1", "status": "paused"}],
+                            "steps": [
+                                {
+                                    "id": "step-1",
+                                    "tasks": [
+                                        {
+                                            "id": "task-1",
+                                            "subtasks": [
+                                                {
+                                                    "id": "subtask-1",
+                                                    "status": "planned",
+                                                    "command_type": "bash",
+                                                },
+                                                {
+                                                    "id": "subtask-2",
+                                                    "status": "done",
+                                                    "command_type": "bash",
+                                                },
+                                                {
+                                                    "id": "subtask-3",
+                                                    "status": "planned",
+                                                    "command_type": "todo",
+                                                },
+                                            ],
+                                        }
+                                    ],
+                                }
+                            ],
                         }
                     ],
                 }
             ]
         }
-        resume_task("task-1")
-        self.assertTrue(mock_save_todos.called)
-        saved_data = mock_save_todos.call_args[0][0]
-        self.assertEqual(
-            saved_data["strategic_goals"][0]["phases"][0]["tasks"][0]["status"], "pending"
+        ready_subtasks = get_execution_ready_subtasks()
+        self.assertEqual(len(ready_subtasks), 1)
+        self.assertEqual(ready_subtasks[0]["id"], "subtask-1")
+
+    def test_validate_hierarchy_order(self):
+        """Test V1: Hierarchy order validation."""
+        # Valid Goal
+        goal = {
+            "id": "g1",
+            "parent_id": None,
+            "level": "Goal",
+            "title": "T",
+            "description": "D",
+            "single_concern": True,
+            "dependencies": [],
+            "status": "planned",
+            "validation_log": [],
+        }
+        self.assertEqual(validate_hierarchy_order(goal, "Goal"), [])
+
+        # Invalid Goal (has parent_id)
+        invalid_goal = {
+            "id": "g1",
+            "parent_id": "p1",
+            "level": "Goal",
+            "title": "T",
+            "description": "D",
+            "single_concern": True,
+            "dependencies": [],
+            "status": "planned",
+            "validation_log": [],
+        }
+        self.assertIn(
+            "Goal must have parent_id=null", validate_hierarchy_order(invalid_goal, "Goal")
         )
 
-    @patch("afs_fastapi.core.todos_manager.load_todos")
-    @patch("afs_fastapi.core.todos_manager.save_todos")
-    def test_update_parent_statuses(self, mock_save_todos, mock_load_todos):
-        """Test that update_parent_statuses updates the parent statuses."""
-        mock_load_todos.return_value = {
-            "strategic_goals": [
-                {
-                    "id": "goal-1",
-                    "status": "pending",
-                    "phases": [
-                        {
-                            "id": "phase-1",
-                            "status": "active",
-                            "tasks": [{"id": "task-1", "status": "paused"}],
-                        }
-                    ],
-                }
-            ]
+        # Valid Phase
+        phase = {
+            "id": "p1",
+            "parent_id": "g1",
+            "level": "Phase",
+            "title": "T",
+            "description": "D",
+            "single_concern": True,
+            "dependencies": [],
+            "status": "planned",
+            "validation_log": [],
+            "steps": [],
         }
-        update_parent_statuses()
-        self.assertTrue(mock_save_todos.called)
-        saved_data = mock_save_todos.call_args[0][0]
-        self.assertEqual(
-            saved_data["strategic_goals"][0]["phases"][0]["status"], "partially-paused"
+        self.assertEqual(validate_hierarchy_order(phase, "Phase"), [])
+
+        # Invalid Phase (no parent_id)
+        invalid_phase = {
+            "id": "p1",
+            "parent_id": None,
+            "level": "Phase",
+            "title": "T",
+            "description": "D",
+            "single_concern": True,
+            "dependencies": [],
+            "status": "planned",
+            "validation_log": [],
+            "steps": [],
+        }
+        self.assertIn(
+            "Phase must have a parent_id", validate_hierarchy_order(invalid_phase, "Phase")
         )
-        self.assertEqual(saved_data["strategic_goals"][0]["status"], "partially-paused")
+
+        # Level mismatch
+        self.assertIn(
+            "Hierarchy violation: Expected Goal, got Phase", validate_hierarchy_order(phase, "Goal")
+        )
+
+    def test_validate_single_concern(self):
+        """Test V2: Single concern validation."""
+        # Single concern
+        item = {
+            "id": "t1",
+            "level": "Task",
+            "title": "Implement feature X",
+            "description": "Implement the core logic for feature X.",
+            "single_concern": False,
+            "dependencies": [],
+            "status": "planned",
+            "validation_log": [],
+        }
+        errors = validate_single_concern(item)
+        self.assertEqual(errors, [])
+        self.assertTrue(item["single_concern"])
+
+        # Multiple verbs in title
+        item = {
+            "id": "t1",
+            "level": "Task",
+            "title": "Implement and test feature X",
+            "description": "Implement the core logic for feature X.",
+            "single_concern": False,
+            "dependencies": [],
+            "status": "planned",
+            "validation_log": [],
+        }
+        errors = validate_single_concern(item)
+        self.assertIn(
+            "Multiple concerns in title: contains ['implement', 'test']. Split into separate items.",
+            errors,
+        )
+        self.assertFalse(item["single_concern"])
+
+        # Conjunction in title
+        item = {
+            "id": "t1",
+            "level": "Task",
+            "title": "Implement feature X and Y",
+            "description": "Implement the core logic for feature X.",
+            "single_concern": False,
+            "dependencies": [],
+            "status": "planned",
+            "validation_log": [],
+        }
+        errors = validate_single_concern(item)
+        self.assertIn(
+            "Title contains conjunctions suggesting multiple concerns. Split into separate items.",
+            errors,
+        )
+        self.assertFalse(item["single_concern"])
+
+        # Multiple verbs in description
+        item = {
+            "id": "t1",
+            "level": "Task",
+            "title": "Implement feature X",
+            "description": "Implement the core logic, test the functionality, and validate the solution.",
+            "single_concern": False,
+            "dependencies": [],
+            "status": "planned",
+            "validation_log": [],
+        }
+        errors = validate_single_concern(item)
+        self.assertIn(
+            "Description may contain multiple concerns: ['implement', 'test', 'validate']", errors
+        )
+        self.assertFalse(item["single_concern"])
+
+    def test_validate_granularity(self):
+        """Test V3: Granularity validation."""
+        # Valid granularity
+        step = {
+            "id": "s1",
+            "parent_id": "phase-1",
+            "level": "Step",
+            "title": "Implement login",
+            "description": "Implement user login functionality.",
+            "single_concern": True,
+            "dependencies": [],
+            "status": "planned",
+            "validation_log": [],
+            "tasks": [],
+        }
+        task = {
+            "id": "t1",
+            "parent_id": "s1",
+            "level": "Task",
+            "title": "Implement login form",
+            "description": "Create the login form UI.",
+            "single_concern": True,
+            "dependencies": [],
+            "status": "planned",
+            "validation_log": [],
+            "subtasks": [],
+        }
+        all_items = {"s1": step, "t1": task}
+        self.assertEqual(validate_granularity(step, all_items), [])
+
+        # Invalid granularity (child does not serve parent concern)
+        step = {
+            "id": "s1",
+            "parent_id": "phase-1",
+            "level": "Step",
+            "title": "Implement login",
+            "description": "Implement user login functionality.",
+            "single_concern": True,
+            "dependencies": [],
+            "status": "planned",
+            "validation_log": [],
+            "tasks": [],
+        }
+        task = {
+            "id": "t1",
+            "parent_id": "s1",
+            "level": "Task",
+            "title": "Implement payment gateway",
+            "description": "Integrate with Stripe.",
+            "single_concern": True,
+            "dependencies": [],
+            "status": "planned",
+            "validation_log": [],
+            "subtasks": [],
+        }
+        all_items = {"s1": step, "t1": task}
+        errors = validate_granularity(step, all_items)
+        self.assertIn("Child t1 may not serve parent concern s1", errors)
+
+    def test_validate_dependencies(self):
+        """Test V4: Dependency validation."""
+        # Valid dependencies
+        item1 = {
+            "id": "t1",
+            "dependencies": [],
+            "level": "Task",
+            "title": "T",
+            "description": "D",
+            "single_concern": True,
+            "status": "planned",
+            "validation_log": [],
+        }
+        item2 = {
+            "id": "t2",
+            "dependencies": ["t1"],
+            "level": "Task",
+            "title": "T",
+            "description": "D",
+            "single_concern": True,
+            "status": "planned",
+            "validation_log": [],
+        }
+        all_items = {"t1": item1, "t2": item2}
+        self.assertEqual(validate_dependencies(item2, all_items), [])
+
+        # Non-existent dependency
+        item = {
+            "id": "t1",
+            "dependencies": ["non-existent"],
+            "level": "Task",
+            "title": "T",
+            "description": "D",
+            "single_concern": True,
+            "status": "planned",
+            "validation_log": [],
+        }
+        all_items = {"t1": item}
+        errors = validate_dependencies(item, all_items)
+        self.assertIn("Dependency non-existent does not exist", errors)
+
+        # Circular dependency (simplified check)
+        item1 = {
+            "id": "t1",
+            "dependencies": ["t2"],
+            "level": "Task",
+            "title": "T",
+            "description": "D",
+            "single_concern": True,
+            "status": "planned",
+            "validation_log": [],
+        }
+        item2 = {
+            "id": "t2",
+            "dependencies": ["t1"],
+            "level": "Task",
+            "title": "T",
+            "description": "D",
+            "single_concern": True,
+            "status": "planned",
+            "validation_log": [],
+        }
+        all_items = {"t1": item1, "t2": item2}
+        errors = validate_dependencies(item1, all_items)
+        self.assertIn("Circular dependency detected for t1", errors)
+
+    def test_validate_subtask_atomicity(self):
+        """Test V5: SubTask atomicity validation."""
+        # Valid SubTask
+        subtask = {
+            "id": "st1",
+            "level": "SubTask",
+            "command": "echo 'hello'",
+            "command_type": "bash",
+            "title": "T",
+            "description": "D",
+            "single_concern": True,
+            "dependencies": [],
+            "status": "planned",
+            "validation_log": [],
+            "execution_log": [],
+        }
+        self.assertEqual(validate_subtask_atomicity(subtask), [])
+
+        # Multiple commands
+        subtask = {
+            "id": "st1",
+            "level": "SubTask",
+            "command": "echo 'hello' && echo 'world'",
+            "command_type": "bash",
+            "title": "T",
+            "description": "D",
+            "single_concern": True,
+            "dependencies": [],
+            "status": "planned",
+            "validation_log": [],
+            "execution_log": [],
+        }
+        errors = validate_subtask_atomicity(subtask)
+        self.assertIn("SubTask contains multiple commands. Split into separate SubTasks.", errors)
+
+        # Empty command
+        subtask = {
+            "id": "st1",
+            "level": "SubTask",
+            "command": "",
+            "command_type": "bash",
+            "title": "T",
+            "description": "D",
+            "single_concern": True,
+            "dependencies": [],
+            "status": "planned",
+            "validation_log": [],
+            "execution_log": [],
+        }
+        errors = validate_subtask_atomicity(subtask)
+        self.assertIn("SubTask must have a non-empty command", errors)
+
+    def test_validate_status_rules(self):
+        """Test V6: Status rules validation."""
+        # Parent done, children incomplete
+        goal = {
+            "id": "g1",
+            "parent_id": None,
+            "level": "Goal",
+            "status": "done",
+            "title": "T",
+            "description": "D",
+            "single_concern": True,
+            "dependencies": [],
+            "validation_log": [],
+        }
+        phase = {
+            "id": "p1",
+            "parent_id": "g1",
+            "level": "Phase",
+            "status": "planned",
+            "title": "T",
+            "description": "D",
+            "single_concern": True,
+            "dependencies": [],
+            "validation_log": [],
+            "steps": [],
+        }
+        all_items = {"g1": goal, "p1": phase}
+        errors = validate_status_rules(goal, all_items)
+        self.assertIn("Parent g1 cannot be done while children ['p1'] are incomplete", errors)
+
+        # Child blocked, parent not blocked
+        goal = {
+            "id": "g1",
+            "parent_id": None,
+            "level": "Goal",
+            "status": "planned",
+            "title": "T",
+            "description": "D",
+            "single_concern": True,
+            "dependencies": [],
+            "validation_log": [],
+        }
+        phase = {
+            "id": "p1",
+            "parent_id": "g1",
+            "level": "Phase",
+            "status": "blocked",
+            "title": "T",
+            "description": "D",
+            "single_concern": True,
+            "dependencies": [],
+            "validation_log": [],
+            "steps": [],
+        }
+        all_items = {"g1": goal, "p1": phase}
+        errors = validate_status_rules(goal, all_items)
+        self.assertIn("Parent g1 should be blocked due to blocked children", errors)
 
 
 if __name__ == "__main__":

@@ -16,10 +16,14 @@ from datetime import UTC, datetime
 def main() -> None:
     """Execute strategic pause with comprehensive milestone documentation."""
     if len(sys.argv) < 2:
-        print('Usage: ./bin/strategic-milestone-pause "[STRATEGIC_GOAL]" [COMPLETION_STATUS]')
+        print('Usage: python3 ./bin/strategic-milestone-pause "[GOAL_TITLE]" [COMPLETION_STATUS]')
         print("\nExamples:")
-        print('  ./bin/strategic-milestone-pause "CAN Network Traffic Management" "complete"')
-        print('  ./bin/strategic-milestone-pause "Message Prioritization Framework" "milestone"')
+        print(
+            '  python3 ./bin/strategic-milestone-pause "CAN Network Traffic Management" "complete"'
+        )
+        print(
+            '  python3 ./bin/strategic-milestone-pause "Message Prioritization Framework" "milestone"'
+        )
         sys.exit(1)
 
     strategic_goal = sys.argv[1]
@@ -27,7 +31,7 @@ def main() -> None:
 
     print("🎯 AFS FastAPI Strategic Milestone Pause System")
     print("=" * 50)
-    print(f"🏆 Strategic Goal: {strategic_goal}")
+    print(f"🏆 Goal: {strategic_goal}")
     print(f"📊 Status: {completion_status}")
 
     # Step 1: Validate quality gates for strategic milestone
@@ -55,9 +59,11 @@ def main() -> None:
     if completion_status.lower() in ["complete", "completed"]:
         try:
             subprocess.run(
-                ["./bin/strategic-complete", strategic_goal], check=True, capture_output=True
+                ["python3", "./bin/strategic-complete", strategic_goal],
+                check=True,
+                capture_output=True,
             )
-            print(f"  ✅ Strategic goal marked as completed: {strategic_goal}")
+            print(f"  ✅ Goal marked as completed: {strategic_goal}")
         except subprocess.CalledProcessError as e:
             print(f"  ⚠️  Strategic completion warning: {e}")
 
@@ -65,7 +71,7 @@ def main() -> None:
     print("\n💾 Step 3: Preserving Strategic Milestone...")
     try:
         milestone_message = (
-            f"Strategic {completion_status}: {strategic_goal} - comprehensive milestone achievement"
+            f"Goal {completion_status}: {strategic_goal} - comprehensive milestone achievement"
         )
         subprocess.run(["./bin/saveandpush", milestone_message], check=True, capture_output=True)
         print("  ✅ Strategic milestone saved and pushed")
@@ -76,11 +82,10 @@ def main() -> None:
     print("\n📊 Step 4: Strategic Status Analysis...")
     try:
         strategic_status = subprocess.run(
-            ["PYTHONPATH=.", "./bin/strategic-status"],
+            ["python3", "./bin/strategic-status"],
             check=True,
             capture_output=True,
             text=True,
-            shell=True,
         )
         print("  ✅ Strategic status analyzed")
 
@@ -116,7 +121,7 @@ def main() -> None:
     print()
     print("📋 STRATEGIC CONTEXT PRESERVED:")
     print("  ✅ Quality gates validated and passed")
-    print("  ✅ Strategic tracking updated")
+    print("  ✅ Goal tracking updated")
     print("  ✅ Work saved and pushed to repository")
     print("  ✅ Pause point created with strategic context")
     print("  ✅ Session monitoring updated")
@@ -125,18 +130,17 @@ def main() -> None:
     print("  1. Resume with: ./bin/resume-from [pause_id]")
     print("  2. Load context: ./bin/loadsession")
     print("  3. Review progress: PYTHONPATH=. ./bin/strategic-status")
-    print("  4. Plan next strategic objective")
+    print("  4. Plan next objective")
     print()
 
     # Step 7: Next strategic objective recommendations
-    print("🎯 NEXT STRATEGIC OBJECTIVES:")
+    print("🎯 NEXT OBJECTIVES:")
     try:
         strategic_list = subprocess.run(
-            ["PYTHONPATH=.", "./bin/strategic-list"],
+            ["python3", "./bin/strategic-list"],
             check=True,
             capture_output=True,
             text=True,
-            shell=True,
         )
 
         # Find pending objectives
@@ -148,14 +152,14 @@ def main() -> None:
                 pending_count += 1
 
         if pending_count == 0:
-            print("  🎉 ALL STRATEGIC OBJECTIVES COMPLETED!")
+            print("  🎉 ALL OBJECTIVES COMPLETED!")
             print("  🚀 Agricultural robotics platform ready for production!")
 
     except subprocess.CalledProcessError:
         print("  ⚠️  Strategic objectives list unavailable")
 
     print()
-    print("💡 Strategic milestone pause ensures proper context preservation")
+    print("💡 Milestone pause ensures proper context preservation")
     print("   and maintains development momentum across major achievements.")
 
 
