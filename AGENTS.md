@@ -47,6 +47,70 @@ MIT (project license)
 - Platform standards: `CLAUDE.md` (professional tone and documentation requirements)
 - Test validation: Ensure all 214 tests pass (see `WORKFLOW.md`)
 
+## Mandatory Granular Task Design Standards
+
+**CRITICAL REQUIREMENT**: All AI agents MUST structure phases, phase steps, and tasks with maximum granularity to enable smaller context usage and more focused work.
+
+### Task Granularity Requirements
+
+**Strategic Goal → Phase → Task Hierarchy**:
+- **Strategic Goals**: High-level objectives (weeks/months of work)
+- **Phases**: Major implementation stages (days/weeks of work)
+- **Tasks**: Atomic work units (1-2 hours maximum per task)
+
+**Granularity Standards** (mandatory for ALL agents):
+- **Minimum 10+ tasks per phase** - Break large tasks into smaller focused units
+- **Maximum 2-hour task duration** - Each task must be completable in single focused session
+- **Single responsibility per task** - One clear objective per task (design, implement, test, refactor)
+- **Explicit dependencies** - Clear task ordering and prerequisites
+
+### Phase Structure Requirements
+
+**Phase Design Standards**:
+- **Minimum 3-4 phases per strategic goal** - Avoid monolithic single-phase goals
+- **6-15 tasks per phase** - Sufficient granularity for progress tracking
+- **Clear phase boundaries** - Distinct deliverables and quality gates between phases
+- **Testable milestones** - Each phase completion must be verifiable
+
+**Examples of Proper Task Granularity**:
+
+❌ **TOO BROAD**: "Implement network health monitoring with traffic analytics and performance metrics"
+
+✅ **PROPERLY GRANULAR**:
+1. "Design network health monitoring data structures and metrics collection framework"
+2. "Implement CAN message traffic statistics collector with real-time counters"
+3. "Create performance metrics dashboard with latency and throughput visualization"
+4. "Implement unit tests for CAN message traffic prioritization algorithms"
+5. "Create integration tests for network congestion detection scenarios"
+6. "Implement load testing framework for high-traffic CAN scenarios"
+7. "Create performance benchmarking tests for agricultural traffic patterns"
+
+### Implementation Standards
+
+**Task Creation Requirements**:
+- **Use `./bin/phase-add "Task Description"`** for each granular task
+- **Descriptive task names** - Include specific deliverable and context
+- **Agricultural domain context** - Reference equipment, operations, or safety requirements
+- **Technology specificity** - Mention frameworks, protocols, or interfaces involved
+
+**Progress Tracking Standards**:
+- **Mark tasks completed immediately** - Use `./bin/phase-complete "Task"` after finishing
+- **One task in-progress at a time** - Focus on single atomic unit
+- **Quality gates per task** - All code quality checks must pass before task completion
+- **Test coverage per task** - TDD requirements apply to each individual task
+
+### Context Optimization Benefits
+
+**Granular Task Design Advantages**:
+- **Reduced context switching** - Focus on single concern per session
+- **Better progress visibility** - Clear completion tracking and metrics
+- **Easier debugging** - Isolated changes per task reduce error scope
+- **Improved collaboration** - Clear handoff points between agents/sessions
+- **Quality assurance** - Smaller tasks enable thorough validation per unit
+
+**Enforcement Mechanism**:
+All agents MUST follow this granular design standard. Phase reviews will validate task granularity compliance. Sessions that create overly broad tasks will be flagged for restructuring.
+
 ## Configuration
 
 - Python: `>=3.12,<3.13` (see `pyproject.toml`)
