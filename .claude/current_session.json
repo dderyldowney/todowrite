@@ -3,5 +3,9 @@
   "session_id": "session_1760208745",
   "warnings_issued": [],
   "tasks_completed": 0,
-  "last_pause": null
+  "last_pause": {
+    "timestamp": "2025-10-11T22:19:03.423869+00:00",
+    "reason": "Test Reason",
+    "duration_at_pause": "3h 26m"
+  }
 }
