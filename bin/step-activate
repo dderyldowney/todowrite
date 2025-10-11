@@ -1,0 +1,39 @@
+# type: ignore
+#!/usr/bin/env python3
+"""Activate a specific step (deactivates others)."""
+
+import argparse
+import sys
+from pathlib import Path
+
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from afs_fastapi.core.todos_manager import activate_step  # noqa: E402
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Activate a specific step (deactivates others).")
+    parser.add_argument("step_id", type=str, help="The ID of the step to activate.")
+    args = parser.parse_args()
+
+    activated_step, error = activate_step(args.step_id)
+
+    if error:
+        print(f"Error: {error}")
+        sys.exit(1)
+
+    if activated_step:
+        print("✓ Step activated successfully!")
+        print(f"  ID: {activated_step['id']}")
+        print(f"  Name: {activated_step['name']}")
+        print(f"  Status: {activated_step['status']}")
+        print(f"  Tasks: {len(activated_step['tasks'])}")
+        print()
+        print("Use './bin/step-status' to view all steps.")
+        print("Use './bin/task-add <description>' to add tasks to this step.")
+
+
+if __name__ == "__main__":
+    main()

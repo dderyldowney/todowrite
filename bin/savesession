@@ -30,12 +30,12 @@ def main():
 
 ### Strategic Goals
 - Total: {len(goals)}
-- Pending: {len([g for g in goals if g['status'] == 'pending'])}
-- Completed: {len([g for g in goals if g['status'] == 'completed'])}
+- Pending: {len([g for g in goals if g['status'] == 'planned'])}
+- Completed: {len([g for g in goals if g['status'] == 'done'])}
 
 ### Active Phase
-- Name: {active_phase['name'] if active_phase else 'None'}
-- Status: {len([t for t in active_phase['tasks'] if t['status'] == 'completed']) if active_phase and 'tasks' in active_phase else 0}/{len(active_phase['tasks']) if active_phase and 'tasks' in active_phase else 'N/A'} tasks completed
+- Name: {active_phase['title'] if active_phase else 'None'}
+- Status: {len([t for step in active_phase.get('steps', []) for t in step.get('tasks', []) if t['status'] == 'done']) if active_phase else 0}/{len([t for step in active_phase.get('steps', []) for t in step.get('tasks', [])]) if active_phase else 'N/A'} tasks completed
 """
 
     # Save summary to file

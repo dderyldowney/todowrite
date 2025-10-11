@@ -1,0 +1,85 @@
+# type: ignore
+#!/usr/bin/env python3
+"""Show current step status for the active phase."""
+
+import sys
+from pathlib import Path
+
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from afs_fastapi.core.todos_manager import get_active_phase, get_active_step  # noqa: E402
+
+
+def main():
+    active_phase = get_active_phase()
+
+    if not active_phase:
+        print("No active phase found.")
+        print("Use './bin/phase-start <name> <strategic_goal_id>' to start a phase.")
+        sys.exit(1)
+
+    print("=== AFS FastAPI Step Status ===")
+    print()
+    print(f"🚀 Active Phase: {active_phase['name']}")
+    print(f"   Started: {active_phase['date_started']}")
+
+    steps = active_phase.get("steps", [])
+    if not steps:
+        print()
+        print("📋 No steps found in active phase.")
+        print("Use './bin/step-add <name>' to add a step.")
+        return
+
+    # Count step status
+    total_steps = len(steps)
+    completed_steps = len([s for s in steps if s.get("status") == "completed"])
+    active_steps = len([s for s in steps if s.get("status") == "active"])
+    pending_steps = len([s for s in steps if s.get("status") == "pending"])
+
+    print()
+    print("📊 Step Progress")
+    print(f"   Total Steps: {total_steps}")
+    print(f"   Completed: {completed_steps} ({completed_steps/total_steps*100:.1f}%)")
+    print(f"   Active: {active_steps}")
+    print(f"   Pending: {pending_steps}")
+
+    # Progress bar
+    progress = completed_steps / total_steps if total_steps > 0 else 0
+    bar_length = 40
+    filled_length = int(bar_length * progress)
+    bar = "█" * filled_length + "░" * (bar_length - filled_length)
+    print(f"   Progress: [{bar}] {progress:.1%}")
+
+    print()
+    print("📋 Steps")
+
+    active_step = get_active_step()
+    active_step_id = active_step["id"] if active_step else None
+
+    for i, step in enumerate(steps, 1):
+        status_symbol = "●" if step.get("status") == "completed" else "○"
+        active_marker = " ⚡" if step["id"] == active_step_id else ""
+
+        task_count = len(step.get("tasks", []))
+        completed_tasks = len([t for t in step.get("tasks", []) if t.get("status") == "completed"])
+
+        print(f" {i:2d}. {status_symbol} {step['name']}{active_marker}")
+        print(f"     ID: {step['id']}")
+        print(f"     Status: {step['status']}")
+        print(f"     Tasks: {completed_tasks}/{task_count}")
+
+        if step.get("date_completed"):
+            print(f"     Completed: {step['date_completed']}")
+
+    print()
+    print("Commands:")
+    print("  ./bin/step-add <name>              - Add new step")
+    print("  ./bin/step-activate <step_id>      - Activate step")
+    print("  ./bin/step-complete <step_id>      - Complete step")
+    print("  ./bin/task-add <description>       - Add task to active step")
+
+
+if __name__ == "__main__":
+    main()
