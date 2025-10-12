@@ -1,11 +1,7 @@
 {
-  "start_time": "2025-10-11T18:52:25.118946+00:00",
-  "session_id": "session_1760208745",
+  "start_time": "2025-10-12T23:43:18.014504+00:00",
+  "session_id": "session_1760312598",
   "warnings_issued": [],
   "tasks_completed": 0,
-  "last_pause": {
-    "timestamp": "2025-10-11T22:19:03.423869+00:00",
-    "reason": "Test Reason",
-    "duration_at_pause": "3h 26m"
-  }
+  "last_pause": null
 }

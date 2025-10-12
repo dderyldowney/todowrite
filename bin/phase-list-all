@@ -8,8 +8,14 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from afs_fastapi.core.todos_manager import get_all_phases  # noqa: E402
+from afs_fastapi.core.todos_manager import get_goals  # noqa: E402
 
+def get_all_phases():
+    goals = get_goals()
+    all_phases = []
+    for goal in goals:
+        all_phases.extend(goal.get('phases', []))
+    return all_phases
 
 def display_all_phases():
     phases = get_all_phases()
@@ -26,7 +32,7 @@ def display_all_phases():
 
     for phase in sorted_phases:
         phase_id = phase.get('id', 'Unknown ID')
-        phase_name = phase.get('name', 'Unknown Phase')
+        phase_name = phase.get('title', 'Unknown Phase')
         status = phase.get('status', 'unknown')
         started_at = phase.get('date_started', 'Unknown')
         completed_at = phase.get('date_completed', 'N/A')
