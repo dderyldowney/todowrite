@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from equipment.can_interface import CanBusManager
+from afs_fastapi.equipment.can_bus_manager import CanBusManager
 
 
 class TestCanBusManager(unittest.TestCase):
@@ -37,7 +37,10 @@ class TestCanBusManager(unittest.TestCase):
         self.assertIsNone(manager.notifier)
         self.assertEqual(manager.breaker.current_state, "open")
 
-    @patch("equipment.can_interface.CanBusManager._send_message_with_retry", return_value=True)
+    @patch(
+        "afs_fastapi.equipment.can_bus_manager.CanBusManager._send_message_with_retry",
+        return_value=True,
+    )
     def test_send_reliable_message_success(self, mock_send_with_retry):
         """Test sending a reliable message successfully."""
         manager = CanBusManager()
@@ -46,7 +49,7 @@ class TestCanBusManager(unittest.TestCase):
         self.assertTrue(result)
         mock_send_with_retry.assert_called_once_with(message)
 
-    @patch("equipment.can_interface.CanBusManager._send_message_with_retry")
+    @patch("afs_fastapi.equipment.can_bus_manager.CanBusManager._send_message_with_retry")
     def test_send_reliable_message_circuit_open(self, mock_send_with_retry):
         """Test that send_reliable_message returns False when the circuit is open."""
         manager = CanBusManager()

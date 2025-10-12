@@ -135,13 +135,12 @@ Custom context: $CUSTOM_MESSAGE
 EOF
     else
         # Auto-generate based on file patterns
-        if git diff --cached --name-only | grep -q "strategic_todos.json\|phase_todos.json"; then
-            COMMIT_SUBJECT="feat(infrastructure): Update strategic and phase TODO management state"
+        if git diff --cached --name-only | grep -q "todos.json"; then
+            COMMIT_SUBJECT="feat(todos): Update TODO management state"
             read -r -d '' COMMIT_BODY <<EOF
-Synchronize dual TODO system state for agricultural robotics development:
+Synchronize TODO system state for agricultural robotics development:
 
-- Strategic TODO updates with priority management for equipment coordination
-- Phase TODO synchronization supporting TDD methodology compliance
+- TODO updates with priority management for equipment coordination
 - Session state preservation maintaining cross-agent continuity
 - CHANGELOG.md updated for ISO 18497/11783 compliance tracking
 - Complete development state captured for multi-tractor coordination systems

@@ -1,6 +1,6 @@
 import unittest
 
-from equipment.can_interface import CanBusManager
+from afs_fastapi.equipment.can_bus_manager import CanBusManager
 
 
 class TestCanBusIntegration(unittest.TestCase):
