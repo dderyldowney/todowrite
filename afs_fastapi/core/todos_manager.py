@@ -602,6 +602,39 @@ def execute_subtask(subtask_id: str) -> tuple[bool, str | None]:
         return False, f"SubTask execution failed: {str(e)}"
 
 
+def activate_phase(phase_id: str) -> tuple[PhaseItem | None, str | None]:
+    """Activate a phase, setting all other phases to planned."""
+    todos = load_todos()
+    target_phase = None
+    target_goal = None
+
+    # Deactivate all other phases and find the target phase and its goal
+    for goal in todos["goals"]:
+        for phase in goal["phases"]:
+            if phase["id"] == phase_id:
+                target_phase = phase
+                target_goal = goal
+            else:
+                if phase["status"] == "in_progress":
+                    phase["status"] = "planned"
+
+    if not target_phase:
+        return None, f"Phase with ID '{phase_id}' not found."
+
+    # Activate the target phase and its goal
+    target_phase["status"] = "in_progress"
+    if target_goal:
+        target_goal["status"] = "in_progress"
+
+    # Deactivate other goals
+    for goal in todos["goals"]:
+        if target_goal and goal["id"] != target_goal["id"] and goal["status"] == "in_progress":
+            goal["status"] = "planned"
+
+    save_todos(todos)
+    return target_phase, None
+
+
 def get_active_items() -> dict[str, BaseItem | None]:
     """Get currently active items at each level."""
     todos = load_todos()
