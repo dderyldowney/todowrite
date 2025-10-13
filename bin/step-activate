@@ -27,7 +27,7 @@ def main():
     if activated_step:
         print("✓ Step activated successfully!")
         print(f"  ID: {activated_step['id']}")
-        print(f"  Name: {activated_step['name']}")
+        print(f"  Name: {activated_step['title']}")
         print(f"  Status: {activated_step['status']}")
         print(f"  Tasks: {len(activated_step['tasks'])}")
         print()

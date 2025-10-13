@@ -684,6 +684,73 @@ def validate_all_items() -> dict[str, list[str]]:
     return validation_results
 
 
+def activate_step(step_id: str) -> tuple[StepItem | None, str | None]:
+    """Activate a step, setting all other steps in the same phase to planned."""
+    todos = load_todos()
+    target_step = None
+    target_phase = None
+    target_goal = None
+
+    for goal in todos["goals"]:
+        for phase in goal["phases"]:
+            for step in phase["steps"]:
+                if step["id"] == step_id:
+                    target_step = step
+                    target_phase = phase
+                    target_goal = goal
+                else:
+                    if step["status"] == "in_progress":
+                        step["status"] = "planned"
+
+    if not target_step:
+        return None, f"Step with ID '{step_id}' not found."
+
+    target_step["status"] = "in_progress"
+    if target_phase:
+        target_phase["status"] = "in_progress"
+    if target_goal:
+        target_goal["status"] = "in_progress"
+
+    save_todos(todos)
+    return target_step, None
+
+
+def activate_task(task_id: str) -> tuple[TaskItem | None, str | None]:
+    """Activate a task, setting all other tasks in the same step to planned."""
+    todos = load_todos()
+    target_task = None
+    target_step = None
+    target_phase = None
+    target_goal = None
+
+    for goal in todos["goals"]:
+        for phase in goal["phases"]:
+            for step in phase["steps"]:
+                for task in step["tasks"]:
+                    if task["id"] == task_id:
+                        target_task = task
+                        target_step = step
+                        target_phase = phase
+                        target_goal = goal
+                    else:
+                        if task["status"] == "in_progress":
+                            task["status"] = "planned"
+
+    if not target_task:
+        return None, f"Task with ID '{task_id}' not found."
+
+    target_task["status"] = "in_progress"
+    if target_step:
+        target_step["status"] = "in_progress"
+    if target_phase:
+        target_phase["status"] = "in_progress"
+    if target_goal:
+        target_goal["status"] = "in_progress"
+
+    save_todos(todos)
+    return target_task, None
+
+
 def get_execution_ready_subtasks() -> list[SubTaskItem]:
     """Get all SubTasks that are ready for execution."""
     todos = load_todos()

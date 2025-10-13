@@ -10,7 +10,7 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from afs_fastapi.core.todos_manager import add_step_to_active_phase  # noqa: E402
+from afs_fastapi.core.todos_manager import add_step, get_active_items  # noqa: E402
 
 
 def main():
@@ -18,7 +18,14 @@ def main():
     parser.add_argument("name", type=str, help="The name of the step.")
     args = parser.parse_args()
 
-    new_step, error = add_step_to_active_phase(args.name)
+    active_items = get_active_items()
+    active_phase = active_items.get("phase")
+
+    if not active_phase:
+        print("Error: No active phase. Please activate a phase first using './bin/phase-activate <phase_id>'.")
+        sys.exit(1)
+
+    new_step, error = add_step(active_phase["id"], args.name, f"Implementation step for {args.name}")
 
     if error:
         print(f"Error: {error}")
@@ -27,7 +34,7 @@ def main():
     if new_step:
         print("✓ Step added successfully!")
         print(f"  ID: {new_step['id']}")
-        print(f"  Name: {new_step['name']}")
+        print(f"  Name: {new_step['title']}")
         print(f"  Status: {new_step['status']}")
         print()
         print("Use './bin/step-status' to view all steps.")

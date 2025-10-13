@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+
+import argparse
+import sys
+from pathlib import Path
+
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from afs_fastapi.core.todos_manager import activate_task  # noqa: E402
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Activate an existing development task.")
+    parser.add_argument("task_id", type=str, help="The ID of the task to activate.")
+    args = parser.parse_args()
+
+    activated_task, error = activate_task(args.task_id)
+
+    if error:
+        print(f"Error: {error}")
+        sys.exit(1)
+
+    if activated_task:
+        print(
+            f"✓ Task {activated_task.get('title', 'Unknown Task')} (ID: {activated_task.get('id')}) activated successfully!"
+        )
+        print()
+        print("Next steps:")
+        print('1. Use "./bin/task-status" to view the newly active task.')
+        print(
+            '2. Use "./bin/subtask-add" to add subtasks or "./bin/task-complete" to complete tasks.'
+        )
+
+
+if __name__ == "__main__":
+    main()
