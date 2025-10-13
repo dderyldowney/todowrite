@@ -18,6 +18,7 @@ import pytest
 from afs_fastapi.core.can_frame_codec import CANFrameCodec, DecodedPGN, DecodedSPN
 from afs_fastapi.equipment.can_error_handling import CANErrorHandler
 from afs_fastapi.equipment.critical_tractor_data_handlers import (
+    Alert,
     AlertLevel,
     CriticalDataAggregator,
     DataQuality,
@@ -145,7 +146,7 @@ class TestSpeedDataHandler:
 
     def test_speed_alerts(self, speed_handler: SpeedDataHandler, speed_message: DecodedPGN) -> None:
         """Test speed alert generation."""
-        alerts_received: list[str] = []
+        alerts_received: list[Alert] = []
         speed_handler.add_alert_callback(alerts_received.append)
 
         # Test overspeed in working mode (speed is 30.0 but not in working mode, so no working speed alert)
@@ -256,7 +257,7 @@ class TestFuelDataHandler:
 
     def test_fuel_alerts(self, fuel_handler: FuelDataHandler, fuel_message: DecodedPGN) -> None:
         """Test fuel level and consumption alerts."""
-        alerts_received: list[str] = []
+        alerts_received: list[Alert] = []
         fuel_handler.add_alert_callback(alerts_received.append)
 
         # Mock fuel level estimation to return low fuel
@@ -424,7 +425,7 @@ class TestGPSDataHandler:
 
     def test_gps_quality_alerts(self, gps_handler: GPSDataHandler, gps_message: DecodedPGN) -> None:
         """Test GPS quality and satellite alerts."""
-        alerts_received: list[str] = []
+        alerts_received: list[Alert] = []
         gps_handler.add_alert_callback(alerts_received.append)
 
         # Mock poor quality GPS
@@ -533,7 +534,7 @@ class TestCriticalDataAggregator:
         self, aggregator: CriticalDataAggregator, speed_message: DecodedPGN
     ) -> None:
         """Test alert forwarding from individual handlers."""
-        alerts_received: list[str] = []
+        alerts_received: list[Alert] = []
         aggregator.add_alert_callback(alerts_received.append)
 
         # Process high speed message that should trigger alert
@@ -649,7 +650,7 @@ class TestCriticalDataIntegration:
         aggregator = CriticalDataAggregator(codec, error_handler)
 
         # Collection for alerts and data updates
-        alerts_received: list[str] = []
+        alerts_received: list[Alert] = []
         data_updates: list[tuple[int, dict]] = []
 
         aggregator.add_alert_callback(alerts_received.append)

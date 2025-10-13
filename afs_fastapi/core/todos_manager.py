@@ -762,7 +762,7 @@ def activate_subtask(subtask_id: str) -> tuple[SubTaskItem | None, str | None]:
 
     for goal in todos["goals"]:
         for phase in goal["phases"]:
-            for step in goal["steps"]:
+            for step in phase["steps"]:
                 for task in step["tasks"]:
                     for subtask in task["subtasks"]:
                         if subtask["id"] == subtask_id:
@@ -790,6 +790,42 @@ def activate_subtask(subtask_id: str) -> tuple[SubTaskItem | None, str | None]:
 
     save_todos(todos)
     return target_subtask, None
+
+
+def update_goal_status(goal_id: str, new_status: StatusType) -> tuple[GoalItem | None, str | None]:
+    """Update the status of a specific goal."""
+    todos = load_todos()
+    target_goal = None
+
+    for goal in todos["goals"]:
+        if goal["id"] == goal_id:
+            target_goal = goal
+            break
+
+    if not target_goal:
+        return None, f"Goal with ID '{goal_id}' not found."
+
+    target_goal["status"] = new_status
+    save_todos(todos)
+    return target_goal, None
+
+
+def clear_goal_children(goal_id: str) -> tuple[bool, str | None]:
+    """Clears all phases, steps, tasks, and subtasks under a given goal."""
+    todos = load_todos()
+    target_goal = None
+
+    for goal in todos["goals"]:
+        if goal["id"] == goal_id:
+            target_goal = goal
+            break
+
+    if not target_goal:
+        return False, f"Goal with ID '{goal_id}' not found."
+
+    target_goal["phases"] = []
+    save_todos(todos)
+    return True, None
 
 
 def update_step_status(step_id: str, new_status: StatusType) -> tuple[StepItem | None, str | None]:
