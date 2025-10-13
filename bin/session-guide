@@ -12,10 +12,10 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+from bin.common.json_operations import save_json
+
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
-
-from bin.common.json_operations import load_json, save_json
 
 
 def show_session_start_guide() -> None:
@@ -118,7 +118,7 @@ def create_session_tracker() -> None:
         "checkpoints": [],
         "pause_points": [],
         "work_units": [],
-        "status": "active"
+        "status": "active",
     }
 
     save_json(session_file, session_data)
@@ -174,11 +174,11 @@ def main() -> None:
         show_control_signals()
     elif command == "all":
         show_session_start_guide()
-        print("\n" + "="*60 + "\n")
+        print("\n" + "=" * 60 + "\n")
         show_checkpoint_reminders()
-        print("\n" + "="*60 + "\n")
+        print("\n" + "=" * 60 + "\n")
         show_phase_workflow()
-        print("\n" + "="*60 + "\n")
+        print("\n" + "=" * 60 + "\n")
         show_control_signals()
     else:
         print(f"❌ Unknown command: {command}")

@@ -12,10 +12,10 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+from bin.common.json_operations import load_json, save_json
+
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
-
-from bin.common.json_operations import load_json, save_json
 
 
 def create_checkpoint(description: str) -> None:
@@ -33,12 +33,10 @@ def create_checkpoint(description: str) -> None:
 
     # 1. Stage all changes
     import subprocess
+
     try:
         result = subprocess.run(
-            ["git", "add", "-A"],
-            cwd=project_root,
-            capture_output=True,
-            text=True
+            ["git", "add", "-A"], cwd=project_root, capture_output=True, text=True
         )
         if result.returncode != 0:
             print(f"❌ Git add failed: {result.stderr}")
@@ -48,10 +46,7 @@ def create_checkpoint(description: str) -> None:
         # 2. Create commit
         commit_msg = f"checkpoint: {description}\n\nAutomatic checkpoint created at {timestamp}"
         result = subprocess.run(
-            ["git", "commit", "-m", commit_msg],
-            cwd=project_root,
-            capture_output=True,
-            text=True
+            ["git", "commit", "-m", commit_msg], cwd=project_root, capture_output=True, text=True
         )
         if result.returncode != 0:
             print(f"❌ Git commit failed: {result.stderr}")
@@ -66,10 +61,7 @@ def create_checkpoint(description: str) -> None:
 
         # Get current git hash
         result = subprocess.run(
-            ["git", "rev-parse", "HEAD"],
-            cwd=project_root,
-            capture_output=True,
-            text=True
+            ["git", "rev-parse", "HEAD"], cwd=project_root, capture_output=True, text=True
         )
         git_hash = result.stdout.strip() if result.returncode == 0 else "unknown"
 
@@ -78,7 +70,7 @@ def create_checkpoint(description: str) -> None:
             "description": description,
             "timestamp": timestamp,
             "git_hash": git_hash,
-            "type": "checkpoint"
+            "type": "checkpoint",
         }
 
         checkpoints.append(checkpoint_data)
@@ -92,7 +84,7 @@ def create_checkpoint(description: str) -> None:
                 f.write(f"\n## Checkpoint: {description}\n")
                 f.write(f"**Time:** {timestamp}\n")
                 f.write(f"**Git Hash:** {git_hash}\n")
-                f.write(f"**Status:** Work saved and committed\n\n")
+                f.write("**Status:** Work saved and committed\n\n")
             print("✅ Updated session summary")
 
         print(f"🎯 Checkpoint '{checkpoint_data['id']}' created successfully")
@@ -105,9 +97,9 @@ def create_checkpoint(description: str) -> None:
 def main() -> None:
     """Main checkpoint creation function."""
     if len(sys.argv) != 2:
-        print("Usage: ./bin/checkpoint \"Description of work completed\"")
+        print('Usage: ./bin/checkpoint "Description of work completed"')
         print("\nExample:")
-        print("  ./bin/checkpoint \"Completed message prioritization framework\"")
+        print('  ./bin/checkpoint "Completed message prioritization framework"')
         sys.exit(1)
 
     description = sys.argv[1]
