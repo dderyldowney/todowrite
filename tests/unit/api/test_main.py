@@ -8,24 +8,28 @@ client = TestClient(app)
 
 
 def test_read_root():
+    """Test the root endpoint of the API."""
     response = client.get("/")
     assert response.status_code == 200
     assert response.json() == {"message": "Welcome to the Agricultural Farm System API"}
 
 
 def test_health_check():
+    """Test the health check endpoint of the API."""
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json() == {"status": "healthy"}
 
 
 def test_api_version():
+    """Test the API version endpoint."""
     response = client.get("/version")
     assert response.status_code == 200
     assert "version" in response.json()
 
 
 def test_get_tractor_status():
+    """Test retrieving the status of a specific tractor."""
     tractor_id = "TR123"
     response = client.get(f"/equipment/tractor/{tractor_id}")
     assert response.status_code == 200
@@ -38,6 +42,7 @@ def test_get_tractor_status():
 
 @patch("afs_fastapi.monitoring.soil_monitor.SoilMonitor.get_soil_composition")
 def test_get_soil_status(mock_soil_composition: Mock):
+    """Test retrieving the soil status from the monitoring endpoint."""
     # return numeric readings matching API expectations
     mock_soil_composition.return_value = {"ph": 6.5, "moisture": 75.0, "nitrogen": 1.2}
     sensor_id = "SOIL001"
@@ -51,6 +56,7 @@ def test_get_soil_status(mock_soil_composition: Mock):
 
 @patch("afs_fastapi.monitoring.water_monitor.WaterMonitor.get_water_quality")
 def test_get_water_status(mock_water_quality: Mock):
+    """Test retrieving the water status from the monitoring endpoint."""
     mock_water_quality.return_value = {"ph": 7.0, "turbidity": 0.5, "dissolved_oxygen": 8.0}
     sensor_id = "WTR001"
     response = client.get(f"/monitoring/water/{sensor_id}")

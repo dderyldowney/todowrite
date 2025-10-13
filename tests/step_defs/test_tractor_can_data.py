@@ -32,12 +32,14 @@ def tractor_ecu():
 # Given Steps
 @given("the AFS FastAPI system is connected to an ISOBUS network")
 def system_connected_to_isobus(afs_fastapi_system, isobus_network):
+    """Sets the ISOBUS network to connected."""
     isobus_network["connected"] = True
     pass
 
 
 @given("a Tractor ECU is present on the network")
 def tractor_ecu_present(tractor_ecu, isobus_network):
+    """Sets the tractor ECU to present on the network."""
     tractor_ecu["present"] = True
     pass
 
@@ -49,10 +51,10 @@ def tractor_ecu_present(tractor_ecu, isobus_network):
     )
 )
 def ecu_broadcasts_data_with_value(tractor_ecu, isobus_network, data_type, pgn, spn, value):
+    """Simulates the ECU broadcasting data with a specific value."""
     isobus_network["messages_on_bus"].append(
         {"pgn": pgn, "spn": spn, "value": value, "data_type": data_type}
     )
-    pass
 
 
 # Then Steps
@@ -62,6 +64,7 @@ def ecu_broadcasts_data_with_value(tractor_ecu, isobus_network, data_type, pgn, 
     )
 )
 def system_receives_and_parses_data(afs_fastapi_system, isobus_network, data_type, value):
+    """Verifies that the AFS FastAPI system correctly receives and parses the CAN data."""
     for message in isobus_network["messages_on_bus"]:
         parsed_message = afs_fastapi_system["can_parser"].parse_message(message)
         if parsed_message:

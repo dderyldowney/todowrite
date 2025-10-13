@@ -1,1 +1,1 @@
-# bin.common package for shared utilities
+"""Shared utilities for bin scripts."""

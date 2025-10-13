@@ -15,9 +15,7 @@ from afs_fastapi.equipment.farm_tractors import FarmTractor, FieldMode
 
 @pytest.fixture
 def enhanced_tractor() -> FarmTractor:
-    """
-    Create a fully configured tractor with enhanced robotic features enabled.
-    """
+    """Create a fully configured tractor with enhanced robotic features enabled."""
     tractor = FarmTractor("John Deere", "9RX", 2023, "https://deere.com/manual")
 
     # Configure basic operations
@@ -47,9 +45,7 @@ def enhanced_tractor() -> FarmTractor:
 
 
 def test_api_response_serialization_basic_fields(enhanced_tractor: FarmTractor):
-    """
-    Test that basic tractor fields serialize correctly to API response format.
-    """
+    """Test that basic tractor fields serialize correctly to API response format."""
     response = enhanced_tractor.to_response("tractor-001")
 
     # Validate core identification fields
@@ -68,9 +64,7 @@ def test_api_response_serialization_basic_fields(enhanced_tractor: FarmTractor):
 
 
 def test_api_response_serialization_enhanced_fields(enhanced_tractor: FarmTractor):
-    """
-    Test that enhanced robotic interface fields serialize correctly.
-    """
+    """Test that enhanced robotic interface fields serialize correctly."""
     response = enhanced_tractor.to_response("tractor-002")
 
     # GPS and Navigation
@@ -97,9 +91,7 @@ def test_api_response_serialization_enhanced_fields(enhanced_tractor: FarmTracto
 
 
 def test_api_response_serialization_professional_fields(enhanced_tractor: FarmTractor):
-    """
-    Test that professional agricultural interface fields serialize correctly.
-    """
+    """Test that professional agricultural interface fields serialize correctly."""
     response = enhanced_tractor.to_response("tractor-003")
 
     # Engine and Fuel diagnostics
@@ -133,9 +125,7 @@ def test_api_response_serialization_professional_fields(enhanced_tractor: FarmTr
 
 
 def test_api_response_json_serialization(enhanced_tractor: FarmTractor):
-    """
-    Test that the API response can be fully serialized to JSON.
-    """
+    """Test that the API response can be fully serialized to JSON."""
     response = enhanced_tractor.to_response("tractor-004")
 
     # Convert to JSON and back to ensure complete serializability
@@ -181,9 +171,7 @@ def test_api_response_json_serialization(enhanced_tractor: FarmTractor):
 
 
 def test_api_response_field_types_and_validation(enhanced_tractor: FarmTractor):
-    """
-    Test that API response fields have correct types and pass Pydantic validation.
-    """
+    """Test that API response fields have correct types and pass Pydantic validation."""
     response = enhanced_tractor.to_response("tractor-005")
 
     # Integer fields
@@ -222,9 +210,7 @@ def test_api_response_field_types_and_validation(enhanced_tractor: FarmTractor):
 
 
 def test_api_response_emergency_stop_serialization():
-    """
-    Test API response serialization during emergency stop conditions.
-    """
+    """Test API response serialization during emergency stop conditions."""
     tractor = FarmTractor("Case IH", "Magnum", 2024)
     tractor.start_engine()
     tractor.set_gps_position(40.0, -85.0)  # Set GPS position
@@ -249,9 +235,7 @@ def test_api_response_emergency_stop_serialization():
 
 
 def test_api_response_comprehensive_field_coverage():
-    """
-    Test that all 40 expected API response fields are present and serializable.
-    """
+    """Test that all 40 expected API response fields are present and serializable."""
     tractor = FarmTractor("New Holland", "T7", 2025)
     response = tractor.to_response("comprehensive-test")
 
