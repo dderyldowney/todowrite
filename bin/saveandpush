@@ -120,54 +120,16 @@ if ! git diff --quiet || ! git diff --cached --quiet || [[ -n "$(git ls-files --
     echo -e "${BLUE}💬 Step 6: Creating commit message...${NC}"
 
     # Generate intelligent commit message based on files changed
-    if [[ -n "$CUSTOM_MESSAGE" ]]; then
-        COMMIT_SUBJECT="docs(session): $CUSTOM_MESSAGE"
-        read -r -d '' COMMIT_BODY <<EOF
-Complete session state preservation for agricultural robotics platform:
-
-- TODO state synchronized via todo-sync command
-- Session state captured with mandatory compaction
-- Modified files staged for repository continuity
-- CHANGELOG.md updated maintaining ISO 11783/18497 compliance
-- Cross-agent infrastructure sharing for universal AI platform accessibility
-
-Custom context: $CUSTOM_MESSAGE
-EOF
+    # Always auto-generate based on file patterns
+    if git diff --cached --name-only | grep -q "todos.json"; then
+        COMMIT_SUBJECT="feat(todos): Update TODO management state"
+        COMMIT_BODY="Synchronize TODO system state for agricultural robotics development: TODO updates with priority management for equipment coordination, session state preservation maintaining cross-agent continuity, CHANGELOG.md updated for ISO 18497/11783 compliance tracking, complete development state captured for multi-tractor coordination systems."
+    elif git diff --cached --name-only | grep -q "\.md$"; then
+        COMMIT_SUBJECT="docs(session): Update documentation and session state"
+        COMMIT_BODY="Preserve session documentation state for agricultural robotics platform: Session state documentation updated with current development progress, agricultural robotics compliance documentation maintained, cross-agent infrastructure sharing preserved for universal AI platform access, CHANGELOG.md updated maintaining complete version history, essential for ISO 11783/18497 compliance auditing and stakeholder communication."
     else
-        # Auto-generate based on file patterns
-        if git diff --cached --name-only | grep -q "todos.json"; then
-            COMMIT_SUBJECT="feat(todos): Update TODO management state"
-            read -r -d '' COMMIT_BODY <<EOF
-Synchronize TODO system state for agricultural robotics development:
-
-- TODO updates with priority management for equipment coordination
-- Session state preservation maintaining cross-agent continuity
-- CHANGELOG.md updated for ISO 18497/11783 compliance tracking
-- Complete development state captured for multi-tractor coordination systems
-EOF
-        elif git diff --cached --name-only | grep -q "\.md$"; then
-            COMMIT_SUBJECT="docs(session): Update documentation and session state"
-            read -r -d '' COMMIT_BODY <<EOF
-Preserve session documentation state for agricultural robotics platform:
-
-- Session state documentation updated with current development progress
-- Agricultural robotics compliance documentation maintained
-- Cross-agent infrastructure sharing preserved for universal AI platform access
-- CHANGELOG.md updated maintaining complete version history
-- Essential for ISO 11783/18497 compliance auditing and stakeholder communication
-EOF
-        else
-            COMMIT_SUBJECT="config(session): Synchronize session configuration state"
-            read -r -d '' COMMIT_BODY <<EOF
-Update session configuration state for agricultural robotics platform:
-
-- Configuration files synchronized for cross-session continuity
-- Agricultural robotics platform state preserved for compliance tracking
-- Cross-agent infrastructure sharing maintained for universal AI platform benefits
-- CHANGELOG.md updated maintaining complete development history
-- Session state captured for safety-critical agricultural systems development
-EOF
-        fi
+        COMMIT_SUBJECT="config(session): Synchronize session configuration state"
+        COMMIT_BODY="Update session configuration state for agricultural robotics platform: Configuration files synchronized for cross-session continuity, agricultural robotics platform state preserved for compliance tracking, cross-agent infrastructure sharing maintained for universal AI platform benefits, CHANGELOG.md updated maintaining complete development history, session state captured for safety-critical agricultural systems development."
     fi
 
     echo -e "${GREEN}✓ Commit message generated${NC}"
@@ -175,13 +137,7 @@ EOF
     echo
 
     echo -e "${BLUE}📤 Step 7: Creating git commit...${NC}"
-    if git commit -m "$COMMIT_SUBJECT
-
-$COMMIT_BODY
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>"; then
+    if git commit -m "$COMMIT_SUBJECT\n\n$COMMIT_BODY\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>"; then
         echo -e "${GREEN}✓ Git commit created successfully${NC}"
         COMMIT_HASH=$(git rev-parse --short HEAD)
         echo -e "${BLUE}Commit: $COMMIT_HASH${NC}"
@@ -194,7 +150,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"; then
             echo
 
             echo -e "${GREEN}🎉 Complete Session Save and Push Successful!${NC}"
-            echo -e "${BLUE}============================================${NC}"
+            echo -e "${BLUE}=============================================${NC}\n"
             echo -e "${GREEN}✓ TODO state: Synchronized${NC}"
             echo -e "${GREEN}✓ Session state: Saved${NC}"
             echo -e "${GREEN}✓ Files staged: $MODIFIED_FILES files${NC}"
@@ -225,4 +181,4 @@ else
     echo -e "${BLUE}💡 Repository already up to date${NC}"
 fi
 
-echo -e "${BLUE}Session management complete. All state preserved for cross-agent access.${NC}"
+echo -e "${BLUE}Session management complete. All state preserved for cross-agent access.${NC}\n"

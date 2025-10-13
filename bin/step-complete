@@ -10,7 +10,7 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from afs_fastapi.core.todos_manager import complete_step  # noqa: E402
+from afs_fastapi.core.todos_manager import update_step_status  # noqa: E402
 
 
 def main():
@@ -20,19 +20,17 @@ def main():
     parser.add_argument("step_id", type=str, help="The ID of the step to complete.")
     args = parser.parse_args()
 
-    completed_step, error = complete_step(args.step_id)
+    updated_step, error = update_step_status(args.step_id, "done")
 
     if error:
         print(f"Error: {error}")
         sys.exit(1)
 
-    if completed_step:
-        print("✓ Step completed successfully!")
-        print(f"  ID: {completed_step['id']}")
-        print(f"  Name: {completed_step['name']}")
-        print(f"  Status: {completed_step['status']}")
-        print(f"  Completed: {completed_step['date_completed']}")
-        print(f"  Tasks: {len(completed_step['tasks'])} (all marked completed)")
+    if updated_step:
+        print("✓ Step status updated to 'done' successfully!")
+        print(f"  ID: {updated_step['id']}")
+        print(f"  Name: {updated_step['title']}")
+        print(f"  Status: {updated_step['status']}")
         print()
         print("Use './bin/step-status' to view all steps.")
 
