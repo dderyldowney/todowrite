@@ -762,7 +762,7 @@ def activate_subtask(subtask_id: str) -> tuple[SubTaskItem | None, str | None]:
 
     for goal in todos["goals"]:
         for phase in goal["phases"]:
-            for step in phase["steps"]:
+            for step in goal["steps"]:
                 for task in step["tasks"]:
                     for subtask in task["subtasks"]:
                         if subtask["id"] == subtask_id:
@@ -790,9 +790,6 @@ def activate_subtask(subtask_id: str) -> tuple[SubTaskItem | None, str | None]:
 
     save_todos(todos)
     return target_subtask, None
-
-    save_todos(todos)
-    return target_task, None
 
 
 def update_step_status(step_id: str, new_status: StatusType) -> tuple[StepItem | None, str | None]:
