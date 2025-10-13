@@ -12,7 +12,7 @@ htmlcov/
 coverage.xml
 
 .idea/
-venv/
+virtualenv/
 .venv/
 __pycache__
 build/
@@ -349,3 +349,6 @@ CHANGELOG.md
 # End of https://www.toptal.com/developers/gitignore/api/node,ruby,rails,linux,macos
 .chatgpt-history.txt
 afs_fastapi/core/todos_manager 2.py
+
+# Ignore the large todos.json file
+/.claude/todos.json
