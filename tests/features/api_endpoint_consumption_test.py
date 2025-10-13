@@ -17,12 +17,16 @@ from afs_fastapi.api.main import app
 
 @pytest.fixture
 def client() -> TestClient:
-    """Create a FastAPI test client for API endpoint testing."""
+    """
+    Create a FastAPI test client for API endpoint testing.
+    """
     return TestClient(app)
 
 
 def test_tractor_endpoint_basic_connectivity(client: TestClient):
-    """Test basic connectivity to the tractor status endpoint."""
+    """
+    Test basic connectivity to the tractor status endpoint.
+    """
     response = client.get("/equipment/tractor/test-001")
 
     assert response.status_code == 200
@@ -34,7 +38,9 @@ def test_tractor_endpoint_basic_connectivity(client: TestClient):
 
 
 def test_tractor_endpoint_enhanced_response_structure(client: TestClient):
-    """Test that the tractor endpoint returns all enhanced robotic interface fields."""
+    """
+    Test that the tractor endpoint returns all enhanced robotic interface fields.
+    """
     response = client.get("/equipment/tractor/robotic-test")
 
     assert response.status_code == 200
@@ -84,7 +90,9 @@ def test_tractor_endpoint_enhanced_response_structure(client: TestClient):
 
 
 def test_tractor_endpoint_field_types_validation(client: TestClient):
-    """Test that API endpoint returns correctly typed fields."""
+    """
+    Test that API endpoint returns correctly typed fields.
+    """
     response = client.get("/equipment/tractor/type-test")
 
     assert response.status_code == 200
@@ -134,7 +142,9 @@ def test_tractor_endpoint_field_types_validation(client: TestClient):
 
 
 def test_tractor_endpoint_professional_agriculture_fields(client: TestClient):
-    """Test that professional agricultural fields are exposed correctly via API."""
+    """
+    Test that professional agricultural fields are exposed correctly via API.
+    """
     response = client.get("/equipment/tractor/pro-ag-test")
 
     assert response.status_code == 200
@@ -169,7 +179,9 @@ def test_tractor_endpoint_professional_agriculture_fields(client: TestClient):
 
 
 def test_tractor_endpoint_multiple_requests_consistency(client: TestClient):
-    """Test that multiple requests to the tractor endpoint return consistent structure."""
+    """
+    Test that multiple requests to the tractor endpoint return consistent structure.
+    """
     tractor_ids = ["consistency-1", "consistency-2", "consistency-3"]
     responses: list[dict[str, Any]] = []
 
@@ -194,7 +206,9 @@ def test_tractor_endpoint_multiple_requests_consistency(client: TestClient):
 
 
 def test_tractor_endpoint_json_schema_compliance(client: TestClient):
-    """Test that the API endpoint response complies with expected JSON schema."""
+    """
+    Test that the API endpoint response complies with expected JSON schema.
+    """
     response = client.get("/equipment/tractor/schema-test")
 
     assert response.status_code == 200
@@ -230,7 +244,9 @@ def test_tractor_endpoint_json_schema_compliance(client: TestClient):
 
 
 def test_tractor_endpoint_enhanced_navigation_data(client: TestClient):
-    """Test that enhanced navigation and GPS data is properly exposed via API."""
+    """
+    Test that enhanced navigation and GPS data is properly exposed via API.
+    """
     response = client.get("/equipment/tractor/nav-test")
 
     assert response.status_code == 200
@@ -255,7 +271,9 @@ def test_tractor_endpoint_enhanced_navigation_data(client: TestClient):
 
 
 def test_tractor_endpoint_field_operations_data(client: TestClient):
-    """Test that field operations data is properly exposed via API."""
+    """
+    Test that field operations data is properly exposed via API.
+    """
     response = client.get("/equipment/tractor/field-ops-test")
 
     assert response.status_code == 200
@@ -295,7 +313,9 @@ def test_tractor_endpoint_field_operations_data(client: TestClient):
 
 
 def test_api_endpoint_error_handling(client: TestClient):
-    """Test API endpoint error handling for invalid requests."""
+    """
+    Test API endpoint error handling for invalid requests.
+    """
     # Test with empty tractor ID
     response = client.get("/equipment/tractor/")
     assert response.status_code == 404  # Not Found - missing path parameter
@@ -306,7 +326,9 @@ def test_api_endpoint_error_handling(client: TestClient):
 
 
 def test_api_endpoint_performance_and_response_time(client: TestClient):
-    """Test API endpoint performance and response time characteristics."""
+    """
+    Test API endpoint performance and response time characteristics.
+    """
     import time
 
     start_time = time.time()
@@ -326,7 +348,9 @@ def test_api_endpoint_performance_and_response_time(client: TestClient):
 
 
 def test_api_endpoint_comprehensive_integration(client: TestClient):
-    """Comprehensive integration test covering full API workflow."""
+    """
+    Comprehensive integration test covering full API workflow.
+    """
     # Test the complete workflow from request to response
     tractor_id = "integration-test-001"
     response = client.get(f"/equipment/tractor/{tractor_id}")

@@ -1,5 +1,3 @@
-"""Feature tests for engine workflow and state management."""
-
 import pytest
 
 from afs_fastapi.equipment.farm_tractors import FarmTractor
@@ -7,12 +5,16 @@ from afs_fastapi.equipment.farm_tractors import FarmTractor
 
 @pytest.fixture
 def tractor() -> FarmTractor:
-    """Pytest fixture to create a fresh instance of FarmTractor for each test."""
+    """
+    Pytest fixture to create a fresh instance of FarmTractor for each test.
+    """
     return FarmTractor("John Deere", "Model X", 2023, "https://manual.johndeere.com")
 
 
 def test_engine_start(tractor: FarmTractor):
-    """Test starting the engine."""
+    """
+    Test starting the engine.
+    """
     # Initial state
     assert not tractor.engine_on  # Engine is off by default
 
@@ -26,7 +28,9 @@ def test_engine_start(tractor: FarmTractor):
 
 
 def test_engine_stop(tractor: FarmTractor):
-    """Test stopping the engine and the system reset."""
+    """
+    Test stopping the engine and the system reset.
+    """
     # Initial state (engine is off by default)
     assert not tractor.engine_on
 
@@ -48,7 +52,9 @@ def test_engine_stop(tractor: FarmTractor):
 
 
 def test_engine_dependency_for_operations(tractor: FarmTractor):
-    """Test that engine-dependent operations cannot proceed unless the engine is running."""
+    """
+    Test that engine-dependent operations cannot proceed unless the engine is running.
+    """
     # Ensure engine is off
     assert not tractor.engine_on
 
@@ -85,7 +91,9 @@ def test_engine_dependency_for_operations(tractor: FarmTractor):
 
 
 def test_engine_state_after_reset(tractor: FarmTractor):
-    """Test that stopping the engine resets the tractor's state."""
+    """
+    Test that stopping the engine resets the tractor's state.
+    """
     # Start the engine
     assert tractor.start_engine() == "Engine started."
     assert tractor.engine_on
@@ -108,7 +116,9 @@ def test_engine_state_after_reset(tractor: FarmTractor):
 
 
 def test_restart_engine_after_stopping(tractor: FarmTractor):
-    """Test that the engine can be restarted after it has been stopped."""
+    """
+    Test that the engine can be restarted after it has been stopped.
+    """
     # Start the engine
     assert tractor.start_engine() == "Engine started."
     assert tractor.engine_on

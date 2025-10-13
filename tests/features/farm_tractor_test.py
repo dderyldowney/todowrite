@@ -1,5 +1,3 @@
-"""Feature tests for FarmTractor functionality."""
-
 import pytest
 
 from afs_fastapi.equipment.farm_tractors import FarmTractor
@@ -7,12 +5,16 @@ from afs_fastapi.equipment.farm_tractors import FarmTractor
 
 @pytest.fixture
 def tractor() -> FarmTractor:
-    """Pytest fixture to create a fresh instance of FarmTractor for each test."""
+    """
+    Pytest fixture to create a fresh instance of FarmTractor for each test.
+    """
     return FarmTractor("John Deere", "Model X", 2023, "https://manual.johndeere.com")
 
 
 def test_start_stop_engine_workflow(tractor: FarmTractor):
-    """Test the end-to-end workflow of starting and stopping the engine, ensuring all systems reset."""
+    """
+    Test the end-to-end workflow of starting and stopping the engine, ensuring all systems reset.
+    """
     # Start the engine
     assert tractor.start_engine() == "Engine started."
     assert tractor.engine_on
@@ -37,7 +39,9 @@ def test_start_stop_engine_workflow(tractor: FarmTractor):
 
 
 def test_complete_gear_and_speed_workflow(tractor: FarmTractor):
-    """Test transitioning through gears and adjusting speed under valid and invalid conditions."""
+    """
+    Test transitioning through gears and adjusting speed under valid and invalid conditions.
+    """
     # Start the engine
     assert tractor.start_engine() == "Engine started."
     assert tractor.engine_on
@@ -66,7 +70,9 @@ def test_complete_gear_and_speed_workflow(tractor: FarmTractor):
 
 
 def test_power_takeoff_and_hydraulics_full_workflow(tractor: FarmTractor):
-    """Test a full workflow of using PTO and hydraulics."""
+    """
+    Test a full workflow of using PTO and hydraulics.
+    """
     # Start the engine
     assert tractor.start_engine() == "Engine started."
     assert tractor.engine_on
@@ -101,7 +107,10 @@ def test_power_takeoff_and_hydraulics_full_workflow(tractor: FarmTractor):
 
 
 def test_end_to_end_combined_workflow(tractor: FarmTractor):
-    """Test a combined end-to-end workflow that involves starting the engine, accelerating, changing gears, activating hydraulics and PTO, and stopping the tractor."""
+    """
+    Test a combined end-to-end workflow that involves starting the engine,
+    accelerating, changing gears, activating hydraulics and PTO, and stopping the tractor.
+    """
     # Start the engine
     assert tractor.start_engine() == "Engine started."
     assert tractor.engine_on
@@ -138,7 +147,9 @@ def test_end_to_end_combined_workflow(tractor: FarmTractor):
 
 
 def test_string_representation(tractor: FarmTractor):
-    """Test the string representation of the tractor during various states."""
+    """
+    Test the string representation of the tractor during various states.
+    """
     # Default state - check for key information presence
     default_str = str(tractor)
 
