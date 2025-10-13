@@ -1,5 +1,5 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 """Show current step status for the active phase."""
 
 import sys
@@ -65,7 +65,13 @@ def main():
     active_step_id = active_step["id"] if active_step else None
 
     for i, step in enumerate(steps, 1):
-        status_symbol = {'planned': '○', 'in_progress': '◐', 'done': '●', 'blocked': '🚫', 'rejected': '❌'}.get(step['status'], '?')
+        status_symbol = {
+            "planned": "○",
+            "in_progress": "◐",
+            "done": "●",
+            "blocked": "🚫",
+            "rejected": "❌",
+        }.get(step["status"], "?")
         active_marker = " ⚡" if step["id"] == active_step_id else ""
 
         task_count = len(step.get("tasks", []))
