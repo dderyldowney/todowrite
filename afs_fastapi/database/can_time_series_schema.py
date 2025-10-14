@@ -41,7 +41,7 @@ class CANMessagePriority(Enum):
     LOW = 3  # Diagnostics - store less frequently
 
 
-class CANMessageRaw(TimeSeriesBase):
+class CANMessageRaw(TimeSeriesBase):  # type: ignore
     """Raw CAN message storage for complete message history.
 
     Optimized for high-throughput write operations with minimal processing.
@@ -82,7 +82,7 @@ class CANMessageRaw(TimeSeriesBase):
     )
 
 
-class CANMessageDecoded(TimeSeriesBase):
+class CANMessageDecoded(TimeSeriesBase):  # type: ignore
     """Decoded CAN message storage with parsed SPN values.
 
     Stores human-readable values for analytics and monitoring.
@@ -125,7 +125,7 @@ class CANMessageDecoded(TimeSeriesBase):
     )
 
 
-class AgriculturalMetrics(TimeSeriesBase):
+class AgriculturalMetrics(TimeSeriesBase):  # type: ignore
     """Aggregated agricultural metrics derived from CAN data.
 
     Pre-computed metrics for dashboard and analytics performance.
@@ -180,7 +180,7 @@ class AgriculturalMetrics(TimeSeriesBase):
     )
 
 
-class CANNetworkHealth(TimeSeriesBase):
+class CANNetworkHealth(TimeSeriesBase):  # type: ignore
     """CAN network health monitoring and diagnostics.
 
     Tracks network performance, error rates, and system health.
@@ -236,7 +236,7 @@ class CANNetworkHealth(TimeSeriesBase):
     )
 
 
-class EquipmentSession(TimeSeriesBase):
+class EquipmentSession(TimeSeriesBase):  # type: ignore
     """Equipment operation sessions for work tracking.
 
     Tracks discrete work sessions and equipment utilization.

@@ -1,4 +1,3 @@
-# type: ignore
 #!/usr/bin/env python3
 
 import argparse
@@ -9,27 +8,35 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from afs_fastapi.core.todos_manager import add_task_to_active_phase  # noqa: E402
+from afs_fastapi.core.todos_manager import add_phase  # noqa: E402
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Add a new task to the active phase.")
-    parser.add_argument("description", type=str, help="The description of the task.")
+    parser = argparse.ArgumentParser(description="Add a new phase to a goal.")
+    parser.add_argument(
+        "--goal-id", required=True, type=str, help="The ID of the goal to add the phase to."
+    )
+    parser.add_argument("--title", required=True, type=str, help="The title of the new phase.")
+    parser.add_argument(
+        "--description", required=True, type=str, help="The description of the new phase."
+    )
     args = parser.parse_args()
 
-    new_task, error = add_task_to_active_phase(args.description)
+    new_phase, error = add_phase(args.goal_id, args.title, args.description)
 
     if error:
         print(f"Error: {error}")
         sys.exit(1)
-    
-    if new_task:
-        print("✓ Phase step added successfully!")
-        print(f"  ID: {new_task['id']}")
-        print(f"  Description: {new_task['description']}")
-        print(f"  Status: {new_task['status']}")
+
+    if new_phase:
+        print("✓ Phase added successfully!")
+        print(f"  ID: {new_phase['id']}")
+        print(f"  Title: {new_phase['title']}")
+        print(f"  Description: {new_phase['description']}")
+        print(f"  Status: {new_phase['status']}")
         print()
-        print("Use './bin/phase-status' to view all phase steps.")
+        print("Use './bin/phase-list-all' to view all phases.")
+
 
 if __name__ == "__main__":
     main()

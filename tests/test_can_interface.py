@@ -1,14 +1,14 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from afs_fastapi.equipment.can_bus_manager import CanBusManager
+from afs_fastapi.equipment.can_bus_manager import CANBusConnectionManager
 
 
-class TestCanBusManager(unittest.TestCase):
+class TestCANBusConnectionManager(unittest.TestCase):
     @patch("can.interface.Bus")
     def test_connect_success(self, mock_bus):
         """Test successful connection to the CAN bus."""
-        manager = CanBusManager()
+        manager = CANBusConnectionManager()
         manager.connect()
         mock_bus.assert_called_once_with(interface="socketcan", channel="can0", bitrate=500000)
         self.assertIsNotNone(manager.bus)
@@ -17,7 +17,7 @@ class TestCanBusManager(unittest.TestCase):
     @patch("can.interface.Bus", side_effect=Exception("Connection failed"))
     def test_connect_failure(self, mock_bus):
         """Test failed connection to the CAN bus."""
-        manager = CanBusManager()
+        manager = CANBusConnectionManager()
         manager.connect()
         mock_bus.assert_called_once_with(interface="socketcan", channel="can0", bitrate=500000)
         self.assertIsNone(manager.bus)
@@ -25,7 +25,7 @@ class TestCanBusManager(unittest.TestCase):
 
     def test_disconnect(self):
         """Test disconnection from the CAN bus."""
-        manager = CanBusManager()
+        manager = CANBusConnectionManager()
         bus_mock = MagicMock()
         notifier_mock = MagicMock()
         manager.bus = bus_mock
@@ -38,21 +38,21 @@ class TestCanBusManager(unittest.TestCase):
         self.assertEqual(manager.breaker.current_state, "open")
 
     @patch(
-        "afs_fastapi.equipment.can_bus_manager.CanBusManager._send_message_with_retry",
+        "afs_fastapi.equipment.can_bus_manager.CANBusConnectionManager._send_message_with_retry",
         return_value=True,
     )
     def test_send_reliable_message_success(self, mock_send_with_retry):
         """Test sending a reliable message successfully."""
-        manager = CanBusManager()
+        manager = CANBusConnectionManager()
         message = MagicMock()
         result = manager.send_reliable_message(message)
         self.assertTrue(result)
         mock_send_with_retry.assert_called_once_with(message)
 
-    @patch("afs_fastapi.equipment.can_bus_manager.CanBusManager._send_message_with_retry")
+    @patch("afs_fastapi.equipment.can_bus_manager.CANBusConnectionManager._send_message_with_retry")
     def test_send_reliable_message_circuit_open(self, mock_send_with_retry):
         """Test that send_reliable_message returns False when the circuit is open."""
-        manager = CanBusManager()
+        manager = CANBusConnectionManager()
         manager.breaker.open()
         message = MagicMock()
         result = manager.send_reliable_message(message)
@@ -62,7 +62,7 @@ class TestCanBusManager(unittest.TestCase):
     @patch("can.Notifier")
     def test_add_listener(self, mock_notifier):
         """Test adding a listener."""
-        manager = CanBusManager()
+        manager = CANBusConnectionManager()
         manager.bus = MagicMock()
         listener = MagicMock()
         manager.add_listener(listener)
@@ -71,7 +71,7 @@ class TestCanBusManager(unittest.TestCase):
 
     def test_add_listener_no_bus(self):
         """Test adding a listener when the bus is not connected."""
-        manager = CanBusManager()
+        manager = CANBusConnectionManager()
         listener = MagicMock()
         manager.add_listener(listener)
         self.assertIsNone(manager.notifier)
@@ -79,7 +79,7 @@ class TestCanBusManager(unittest.TestCase):
     @patch("can.Notifier")
     def test_add_listener_existing_notifier(self, mock_notifier):
         """Test adding a listener when a notifier already exists."""
-        manager = CanBusManager()
+        manager = CANBusConnectionManager()
         manager.bus = MagicMock()
         manager.notifier = mock_notifier
         listener = MagicMock()
@@ -88,7 +88,7 @@ class TestCanBusManager(unittest.TestCase):
 
     def test_remove_listener(self):
         """Test removing a listener."""
-        manager = CanBusManager()
+        manager = CANBusConnectionManager()
         listener = MagicMock()
         notifier_mock = MagicMock()
         notifier_mock.listeners = [listener, MagicMock()]
@@ -99,7 +99,7 @@ class TestCanBusManager(unittest.TestCase):
 
     def test_remove_listener_last(self):
         """Test removing the last listener stops the notifier."""
-        manager = CanBusManager()
+        manager = CANBusConnectionManager()
         listener = MagicMock()
         notifier_mock = MagicMock()
         # Configure the mock so that after removing the listener, the list is empty
@@ -114,7 +114,7 @@ class TestCanBusManager(unittest.TestCase):
 
     def test_remove_listener_no_notifier(self):
         """Test removing a listener when there is no notifier."""
-        manager = CanBusManager()
+        manager = CANBusConnectionManager()
         listener = MagicMock()
         manager.remove_listener(listener)
         self.assertIsNone(manager.notifier)

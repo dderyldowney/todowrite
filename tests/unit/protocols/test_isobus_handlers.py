@@ -933,4 +933,5 @@ class TestIntegrationScenarios:
 
         # Original device should still own the address
         current_device = manager.address_claim.get_device_by_address(0x25)
+        assert current_device is not None
         assert current_device.identity_number == 11111  # Original device retained

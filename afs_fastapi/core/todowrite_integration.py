@@ -9,15 +9,19 @@ fulfilling the user requirement for "as few steps as possible" saving.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, TypedDict
 
-from .todos_manager import (
-    auto_save_todowrite,
-    get_active_phase,
-    get_active_step,
-    save_todowrite_to_phase,
-    save_todowrite_to_step,
-)
+
+class Context(TypedDict):
+    active_goal: str | None
+    active_phase: str | None
+    active_step: str | None
+    active_task: str | None
+    suggested_agricultural_contexts: list[str]
+    available_levels: list[str]
+
+
+from .todos_manager import add_step, add_subtask, add_task, get_active_items  # noqa: E402
 
 
 class TodoWriteIntegration:
@@ -34,47 +38,145 @@ class TodoWriteIntegration:
         Args:
             todowrite_tasks: List of TodoWrite task dictionaries with 'content', 'status', etc.
             agricultural_context: Optional context for agricultural robotics domain
-            target_level: 'auto', 'step', 'phase', or 'strategic' (default: 'auto')
+            target_level: 'auto', 'task', 'step', or 'phase' (default: 'auto')
 
         Returns:
             Tuple of (success_message, error_message)
         """
         if not todowrite_tasks:
-            return "No TodoWrite tasks to save", None
+            return "No tasks to save", None
 
-        # Automatic level detection (default)
+        active_items = get_active_items()
+        active_phase = active_items.get("phase")
+        active_step = active_items.get("step")
+        active_task = active_items.get("task")
+
+        created_count = 0
+        error_message = None
+
         if target_level == "auto":
-            return auto_save_todowrite(todowrite_tasks, agricultural_context)
-
-        # Explicit level targeting
-        if target_level == "step":
-            active_step = get_active_step()
-            if active_step:
-                created_tasks, error = save_todowrite_to_step(active_step["id"], todowrite_tasks)
-                if not error:
-                    return f"Saved {len(created_tasks)} tasks to step: {active_step['name']}", None
-                return "", error
-            return "", "No active step found. Use 'auto' or 'phase' level."
-
-        if target_level == "phase":
-            active_phase = get_active_phase()
-            if active_phase:
-                step_name = "TodoWrite Tasks"
-                if agricultural_context:
-                    step_name = f"{agricultural_context} - TodoWrite Tasks"
-
-                new_step, error = save_todowrite_to_phase(
-                    active_phase["id"], todowrite_tasks, step_name
-                )
-                if not error and new_step:
-                    return (
-                        f"Created step '{new_step['name']}' with {len(todowrite_tasks)} tasks",
-                        None,
+            if active_task:
+                for task_data in todowrite_tasks:
+                    subtask, err = add_subtask(
+                        task_id=active_task["id"],
+                        title=task_data.get("content", "New SubTask"),
+                        description=task_data.get("content", "No description provided."),
+                        command=task_data.get("command", "todo"),
+                        command_type=task_data.get("command_type", "bash"),
                     )
-                return "", error or "Failed to create step in active phase"
-            return "", "No active phase found. Use 'auto' level."
+                    if subtask:
+                        created_count += 1
+                    if err:
+                        error_message = err
+                        break
+                if created_count > 0:
+                    return (
+                        f"Saved {created_count} subtasks to active task: {active_task['title']}",
+                        error_message,
+                    )
+            elif active_step:
+                for task_data in todowrite_tasks:
+                    task, err = add_task(
+                        step_id=active_step["id"],
+                        title=task_data.get("content", "New Task"),
+                        description=task_data.get("content", "No description provided."),
+                    )
+                    if task:
+                        created_count += 1
+                    if err:
+                        error_message = err
+                        break
+                if created_count > 0:
+                    return (
+                        f"Saved {created_count} tasks to active step: {active_step['title']}",
+                        error_message,
+                    )
+            elif active_phase:
+                for task_data in todowrite_tasks:
+                    step, err = add_step(
+                        phase_id=active_phase["id"],
+                        title=task_data.get("content", "New Step"),
+                        description=task_data.get("content", "No description provided."),
+                    )
+                    if step:
+                        created_count += 1
+                    if err:
+                        error_message = err
+                        break
+                if created_count > 0:
+                    return (
+                        f"Saved {created_count} steps to active phase: {active_phase['title']}",
+                        error_message,
+                    )
+            else:
+                return "", "No active goal, phase, step, or task found for auto-saving."
 
-        return "", f"Unknown target level: {target_level}. Use 'auto', 'step', or 'phase'."
+        elif target_level == "task":
+            if active_task:
+                for task_data in todowrite_tasks:
+                    subtask, err = add_subtask(
+                        task_id=active_task["id"],
+                        title=task_data.get("content", "New SubTask"),
+                        description=task_data.get("content", "No description provided."),
+                        command=task_data.get("command", "todo"),
+                        command_type=task_data.get("command_type", "bash"),
+                    )
+                    if subtask:
+                        created_count += 1
+                    if err:
+                        error_message = err
+                        break
+                if created_count > 0:
+                    return (
+                        f"Saved {created_count} subtasks to active task: {active_task['title']}",
+                        error_message,
+                    )
+                return "", error_message or "Failed to save subtasks to active task."
+            return "", "No active task found for saving."
+
+        elif target_level == "step":
+            if active_step:
+                for task_data in todowrite_tasks:
+                    task, err = add_task(
+                        step_id=active_step["id"],
+                        title=task_data.get("content", "New Task"),
+                        description=task_data.get("content", "No description provided."),
+                    )
+                    if task:
+                        created_count += 1
+                    if err:
+                        error_message = err
+                        break
+                if created_count > 0:
+                    return (
+                        f"Saved {created_count} tasks to active step: {active_step['title']}",
+                        error_message,
+                    )
+                return "", error_message or "Failed to save tasks to active step."
+            return "", "No active step found for saving."
+
+        elif target_level == "phase":
+            if active_phase:
+                for task_data in todowrite_tasks:
+                    step, err = add_step(
+                        phase_id=active_phase["id"],
+                        title=task_data.get("content", "New Step"),
+                        description=task_data.get("content", "No description provided."),
+                    )
+                    if step:
+                        created_count += 1
+                    if err:
+                        error_message = err
+                        break
+                if created_count > 0:
+                    return (
+                        f"Saved {created_count} steps to active phase: {active_phase['title']}",
+                        error_message,
+                    )
+                return "", error_message or "Failed to save steps to active phase."
+            return "", "No active phase found for saving."
+
+        return "", f"Unknown target level: {target_level}. Use 'auto', 'task', 'step', or 'phase'."
 
     @staticmethod
     def quick_save(
@@ -95,9 +197,9 @@ class TodoWriteIntegration:
         # Convert simple strings to TodoWrite format
         todowrite_tasks = [
             {
-                "content": task_content.strip(),
+                "content": task_content.strip() if task_content else "",
                 "status": "pending",
-                "activeForm": f"Working on {task_content.strip()}",
+                "activeForm": f"Working on {task_content.strip() if task_content else ''}",
             }
             for task_content in content_list
             if task_content.strip()
@@ -124,9 +226,9 @@ class TodoWriteIntegration:
         # Convert to TodoWrite format
         todowrite_tasks = [
             {
-                "content": task.get("content", "").strip(),
-                "status": task.get("status", "pending"),
-                "activeForm": f"Working on {task.get('content', '').strip()}",
+                "content": task.get("content", "").strip() if task.get("content") else "",
+                "status": task.get("status", "planned"),
+                "activeForm": f"Working on {task.get('content', '').strip() if task.get('content') else ''}",
             }
             for task in tasks_with_status
             if task.get("content", "").strip()
@@ -134,19 +236,23 @@ class TodoWriteIntegration:
 
         return TodoWriteIntegration.save_current_todowrite(todowrite_tasks, agricultural_context)
 
-    @staticmethod
-    def get_current_context() -> dict[str, Any]:
+    def get_current_context(self) -> Context:
         """Get current agricultural context for TodoWrite saving.
 
         Returns:
             Dictionary with current phase, step, and suggested contexts
         """
-        active_phase = get_active_phase()
-        active_step = get_active_step()
+        active_items = get_active_items()
+        active_goal = active_items.get("goal")
+        active_phase = active_items.get("phase")
+        active_step = active_items.get("step")
+        active_task = active_items.get("task")
 
-        context = {
-            "active_phase": active_phase["name"] if active_phase else None,
-            "active_step": active_step["name"] if active_step else None,
+        context: Context = {
+            "active_goal": active_goal["title"] if active_goal else None,
+            "active_phase": active_phase["title"] if active_phase else None,
+            "active_step": active_step["title"] if active_step else None,
+            "active_task": active_task["title"] if active_task else None,
             "suggested_agricultural_contexts": [
                 "CAN Bus Integration",
                 "Agricultural Robotics Testing",
@@ -159,6 +265,8 @@ class TodoWriteIntegration:
         }
 
         # Determine available save levels
+        if active_task:
+            context["available_levels"].append("task")
         if active_step:
             context["available_levels"].append("step")
         if active_phase:
@@ -185,6 +293,6 @@ def quick_save_tasks(task_list: list[str], context: str | None = None) -> tuple[
     return TodoWriteIntegration.quick_save(task_list, context)
 
 
-def get_save_context() -> dict[str, Any]:
+def get_save_context() -> Context:
     """Get current context for TodoWrite saving decisions."""
-    return TodoWriteIntegration.get_current_context()
+    return TodoWriteIntegration().get_current_context()

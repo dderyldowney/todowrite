@@ -41,6 +41,7 @@ class TestTodoWriteValidation(unittest.TestCase):
             "phases": [],
             "category": "test",
             "priority": "high",
+            "date_completed": None,
         }
         errors = validate_hierarchy_order(goal, "Goal")
         self.assertEqual(len(errors), 1)
@@ -59,6 +60,7 @@ class TestTodoWriteValidation(unittest.TestCase):
             "status": "planned",
             "validation_log": [],
             "steps": [],
+            "date_completed": None,
         }
         errors = validate_hierarchy_order(phase, "Phase")
         self.assertEqual(len(errors), 1)
@@ -77,6 +79,7 @@ class TestTodoWriteValidation(unittest.TestCase):
             "status": "planned",
             "validation_log": [],
             "steps": [],
+            "date_completed": None,
         }
         errors = validate_hierarchy_order(phase_with_wrong_level, "Phase")  # Expecting a Phase
         self.assertEqual(len(errors), 1)
@@ -94,6 +97,7 @@ class TestTodoWriteValidation(unittest.TestCase):
             "dependencies": [],
             "status": "planned",
             "validation_log": [],
+            "date_completed": None,
         }
         errors = validate_single_concern(item)
         self.assertEqual(len(errors), 2)  # Two verbs and a conjunction
@@ -111,6 +115,7 @@ class TestTodoWriteValidation(unittest.TestCase):
             "dependencies": [],
             "status": "planned",
             "validation_log": [],
+            "date_completed": None,
         }
         errors = validate_single_concern(item)
         self.assertEqual(len(errors), 2)
@@ -129,6 +134,7 @@ class TestTodoWriteValidation(unittest.TestCase):
             "status": "planned",
             "validation_log": [],
             "tasks": [],
+            "date_completed": None,
         }
         task: TaskItem = {
             "id": "task-1",
@@ -141,6 +147,7 @@ class TestTodoWriteValidation(unittest.TestCase):
             "status": "planned",
             "validation_log": [],
             "subtasks": [],
+            "date_completed": None,
         }
         all_items = {"step-1": step, "task-1": task}
         errors = validate_granularity(step, all_items)
@@ -159,6 +166,7 @@ class TestTodoWriteValidation(unittest.TestCase):
             "dependencies": ["item-2"],  # item-2 does not exist
             "status": "planned",
             "validation_log": [],
+            "date_completed": None,
         }
         all_items = {"item-1": item}
         errors = validate_dependencies(item, all_items)
@@ -177,6 +185,7 @@ class TestTodoWriteValidation(unittest.TestCase):
             "dependencies": ["item-2"],
             "status": "planned",
             "validation_log": [],
+            "date_completed": None,
         }
         item2: BaseItem = {
             "id": "item-2",
@@ -188,6 +197,7 @@ class TestTodoWriteValidation(unittest.TestCase):
             "dependencies": ["item-1"],  # Circular dependency
             "status": "planned",
             "validation_log": [],
+            "date_completed": None,
         }
         all_items = {"item-1": item1, "item-2": item2}
         errors = validate_dependencies(item1, all_items)
@@ -209,6 +219,7 @@ class TestTodoWriteValidation(unittest.TestCase):
             "command": "echo 'hello' && echo 'world'",
             "command_type": "bash",
             "execution_log": [],
+            "date_completed": None,
         }
         errors = validate_subtask_atomicity(subtask)
         self.assertEqual(len(errors), 1)
@@ -229,6 +240,7 @@ class TestTodoWriteValidation(unittest.TestCase):
             "command": "",
             "command_type": "bash",
             "execution_log": [],
+            "date_completed": None,
         }
         errors = validate_subtask_atomicity(subtask)
         self.assertEqual(len(errors), 1)
@@ -246,6 +258,7 @@ class TestTodoWriteValidation(unittest.TestCase):
             "dependencies": [],
             "status": "done",  # This should be an error
             "validation_log": [],
+            "date_completed": None,
         }
         child: BaseItem = {
             "id": "child-1",
@@ -257,6 +270,7 @@ class TestTodoWriteValidation(unittest.TestCase):
             "dependencies": [],
             "status": "planned",
             "validation_log": [],
+            "date_completed": None,
         }
         all_items = {"parent-1": parent, "child-1": child}
         errors = validate_status_rules(parent, all_items)
@@ -277,6 +291,7 @@ class TestTodoWriteValidation(unittest.TestCase):
             "dependencies": [],
             "status": "in_progress",  # This should be an error
             "validation_log": [],
+            "date_completed": None,
         }
         child: BaseItem = {
             "id": "child-1",
@@ -288,6 +303,7 @@ class TestTodoWriteValidation(unittest.TestCase):
             "dependencies": [],
             "status": "blocked",
             "validation_log": [],
+            "date_completed": None,
         }
         all_items = {"parent-1": parent, "child-1": child}
         errors = validate_status_rules(parent, all_items)

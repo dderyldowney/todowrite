@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict, cast
 
 import pandas as pd
 from sqlalchemy import text
@@ -25,6 +25,36 @@ from afs_fastapi.database.can_time_series_storage import CANTimeSeriesStorage
 
 # Configure logging for data retention
 logger = logging.getLogger(__name__)
+
+
+class RetentionStats(TypedDict):
+    total_archived: int
+    total_deleted: int
+    total_compressed: int
+    last_cleanup: datetime | None
+    archive_size_mb: float
+    cleanup_duration: float
+
+
+class CleanupResult(TypedDict):
+    start_time: datetime
+    rules_processed: int
+    records_archived: int
+    records_deleted: int
+    errors: list[str]
+    end_time: datetime | None
+    duration_seconds: float | None
+
+
+class DeletionImpact(TypedDict):
+    records: int
+    table_size: int
+
+
+class ImpactResult(TypedDict):
+    estimated_deletions: dict[str, DeletionImpact]
+    estimated_archives: dict[str, Any]
+    total_size_affected: int
 
 
 class RetentionPolicy(Enum):
@@ -110,7 +140,7 @@ class CANDataRetentionManager:
         self._running = False
 
         # Statistics
-        self.stats = {
+        self.stats: RetentionStats = {
             "total_archived": 0,
             "total_deleted": 0,
             "total_compressed": 0,
@@ -243,21 +273,22 @@ class CANDataRetentionManager:
 
         logger.info("Data retention manager stopped")
 
-    async def run_cleanup_cycle(self) -> dict[str, Any]:
+    async def run_cleanup_cycle(self) -> CleanupResult:
         """Execute a complete data cleanup cycle.
 
         Returns
         -------
-        Dict[str, Any]
-            Cleanup results and statistics
+        CleanupResult
         """
         start_time = datetime.utcnow()
-        results = {
+        results: CleanupResult = {
             "start_time": start_time,
             "rules_processed": 0,
             "records_archived": 0,
             "records_deleted": 0,
             "errors": [],
+            "end_time": None,
+            "duration_seconds": None,
         }
 
         try:
@@ -574,7 +605,7 @@ class CANDataRetentionManager:
                 )
 
                 await session.commit()
-                deleted_count = result.rowcount or 0
+                deleted_count = cast(Any, result).rowcount or 0
 
                 if deleted_count > 0:
                     logger.debug(f"Deleted {deleted_count} records from {table}")
@@ -635,25 +666,25 @@ class CANDataRetentionManager:
                 return True
         return False
 
-    def get_retention_statistics(self) -> dict[str, Any]:
+    def get_retention_statistics(self) -> RetentionStats:
         """Get retention and archival statistics.
 
         Returns
         -------
-        Dict[str, Any]
+        RetentionStats
             Statistics dictionary
         """
         return self.stats.copy()
 
-    async def estimate_cleanup_impact(self) -> dict[str, Any]:
+    async def estimate_cleanup_impact(self) -> ImpactResult:
         """Estimate the impact of running cleanup (for planning).
 
         Returns
         -------
-        Dict[str, Any]
+        ImpactResult
             Estimated cleanup impact
         """
-        impact = {
+        impact: ImpactResult = {
             "estimated_deletions": {},
             "estimated_archives": {},
             "total_size_affected": 0,
@@ -689,9 +720,9 @@ class CANDataRetentionManager:
                         )
 
                         row = result.first()
-                        if row and row.count > 0:
+                        if row and row[0] > 0:
                             impact["estimated_deletions"][f"{table}_{rule.name}"] = {
-                                "records": row.count,
+                                "records": row[0],
                                 "table_size": row.table_size,
                             }
 

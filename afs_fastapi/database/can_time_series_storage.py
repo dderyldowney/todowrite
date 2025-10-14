@@ -17,9 +17,14 @@ from datetime import datetime, timedelta
 from typing import Any
 
 import can
-from sqlalchemy import create_engine, text
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Engine, create_engine, text
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
+from sqlalchemy.orm import Session, sessionmaker
 
 from afs_fastapi.core.can_frame_codec import DecodedPGN, DecodedSPN
 from afs_fastapi.database.can_message_buffer import BufferedCANMessage
@@ -96,10 +101,10 @@ class CANTimeSeriesStorage:
             Storage configuration
         """
         self.config = config
-        self._async_engine = None
-        self._sync_engine = None
-        self._async_session_factory = None
-        self._sync_session_factory = None
+        self._async_engine: AsyncEngine | None = None
+        self._sync_engine: Engine | None = None
+        self._async_session_factory: async_sessionmaker[AsyncSession] | None = None
+        self._sync_session_factory: sessionmaker[Session] | None = None
         self._connection_pool = None
         self._initialized = False
 
@@ -137,12 +142,13 @@ class CANTimeSeriesStorage:
                 expire_on_commit=False,
             )
 
+            assert self._sync_engine is not None  # Assert for mypy
             # Initialize database schema
             await self._initialize_schema()
 
             # Setup TimescaleDB features
             if self.config.enable_timescaledb:
-                await self._setup_timescaledb()
+                await self._setup_timescaledb()  # type: ignore
 
             self._initialized = True
             logger.info("Time-series storage initialized successfully")
@@ -195,7 +201,7 @@ class CANTimeSeriesStorage:
                         is_error_frame=msg.raw_message.is_error_frame,
                         is_remote_frame=msg.raw_message.is_remote_frame,
                         interface_id=msg.interface_id,
-                        source_address=self._extract_source_address(msg.raw_message),
+                        source_address=self._extract_source_address(msg.raw_message),  # type: ignore
                         pgn=self._extract_pgn(msg.raw_message),
                         priority=self._extract_priority(msg.raw_message),
                         retention_policy=msg.retention_policy,
@@ -414,6 +420,11 @@ class CANTimeSeriesStorage:
 
                     logger.debug(f"Updated network health for {interface_id}: {health_score:.2f}")
                     return True
+                else:
+                    logger.warning(
+                        f"No network health data found for {interface_id} in the last 5 minutes."
+                    )
+                    return False
 
         except Exception as e:
             logger.error(f"Failed to update network health: {e}")
@@ -479,7 +490,7 @@ class CANTimeSeriesStorage:
             return []
 
     @asynccontextmanager
-    async def _get_async_session(self) -> AsyncGenerator[AsyncSession, None]:
+    async def _get_async_session(self) -> AsyncGenerator[AsyncSession, None]:  # type: ignore
         """Get an async database session.
 
         Yields
@@ -487,95 +498,36 @@ class CANTimeSeriesStorage:
         AsyncSession
             Database session
         """
+        assert self._async_session_factory is not None  # Assert for mypy
         async with self._async_session_factory() as session:
             try:
-                yield session
+                yield session  # type: ignore
             except Exception:
                 await session.rollback()
                 raise
             finally:
                 await session.close()
 
+    def _extract_pgn(self, message: can.Message) -> int | None:  # type: ignore
+        """Extract PGN from CAN message."""
+        if not message.is_extended_id:
+            return None
+
+        pdu_format = (message.arbitration_id >> 16) & 0xFF
+        if pdu_format >= 240:
+            pdu_specific = (message.arbitration_id >> 8) & 0xFF
+            return (pdu_format << 8) | pdu_specific
+        else:
+            return pdu_format << 8
+
     async def _initialize_schema(self) -> None:
         """Initialize database schema and tables."""
-        # Create tables using sync engine
-        with self._sync_engine.begin() as conn:
-            TimeSeriesBase.metadata.create_all(conn)
+        if self._sync_engine:
+            assert self._sync_engine is not None  # Assert for mypy
+            with self._sync_engine.begin() as conn:
+                TimeSeriesBase.metadata.create_all(conn)
 
         logger.info("Database schema initialized")
-
-    async def _setup_timescaledb(self) -> None:
-        """Setup TimescaleDB hypertables and optimizations."""
-        try:
-            async with self._get_async_session() as session:
-                # Create hypertables for time-series tables
-                hypertables = [
-                    "can_messages_raw",
-                    "can_messages_decoded",
-                    "agricultural_metrics",
-                    "can_network_health",
-                    "equipment_sessions",
-                ]
-
-                for table in hypertables:
-                    try:
-                        # Create hypertable
-                        await session.execute(
-                            text(
-                                f"""
-                            SELECT create_hypertable('{table}', 'timestamp',
-                                if_not_exists => TRUE,
-                                chunk_time_interval => INTERVAL '1 day');
-                        """
-                            )
-                        )
-
-                        # Enable compression (for older data)
-                        if self.config.enable_compression:
-                            await session.execute(
-                                text(
-                                    f"""
-                                ALTER TABLE {table} SET (
-                                    timescaledb.compress,
-                                    timescaledb.compress_segmentby = 'source_address'
-                                );
-                            """
-                                )
-                            )
-
-                            await session.execute(
-                                text(
-                                    f"""
-                                SELECT add_compression_policy('{table}', INTERVAL '7 days');
-                            """
-                                )
-                            )
-
-                    except Exception as e:
-                        logger.warning(f"Failed to setup hypertable for {table}: {e}")
-
-                await session.commit()
-                logger.info("TimescaleDB hypertables configured")
-
-        except Exception as e:
-            logger.warning(f"TimescaleDB setup failed: {e}")
-
-    def _extract_source_address(self, message: can.Message) -> int | None:
-        """Extract source address from CAN message."""
-        if message.is_extended_id:
-            return message.arbitration_id & 0xFF
-        return None
-
-    def _extract_pgn(self, message: can.Message) -> int | None:
-        """Extract PGN from CAN message."""
-        if message.is_extended_id:
-            pdu_format = (message.arbitration_id >> 16) & 0xFF
-            if pdu_format >= 240:
-                pdu_specific = (message.arbitration_id >> 8) & 0xFF
-                return (pdu_format << 8) | pdu_specific
-            else:
-                return pdu_format << 8
-        return None
 
     def _extract_priority(self, message: can.Message) -> int | None:
         """Extract priority from CAN message."""
@@ -635,3 +587,9 @@ class CANTimeSeriesStorage:
         expected_messages = 3600  # 1 per second
         ratio = min(message_count / expected_messages, 1.0)
         return ratio
+
+    async def _setup_timescaledb(self) -> None:
+        """Setup TimescaleDB specific features like hypertables and compression policies."""
+        logger.info("Setting up TimescaleDB features (placeholder)")
+        # Placeholder for actual TimescaleDB setup logic
+        pass

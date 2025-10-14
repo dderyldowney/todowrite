@@ -567,7 +567,10 @@ class TestAgriculturalMessageScenarios:
         decoded_gps = codec.decode_message(gps_msg)
         decoded_fuel = codec.decode_message(fuel_msg)
 
-        assert all([decoded_engine, decoded_speed, decoded_gps, decoded_fuel])
+        assert decoded_engine is not None
+        assert decoded_speed is not None
+        assert decoded_gps is not None
+        assert decoded_fuel is not None
 
         # Verify source addresses match expected ECUs
         assert decoded_engine.source_address == 0x00

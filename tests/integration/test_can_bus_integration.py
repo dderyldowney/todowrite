@@ -1,6 +1,6 @@
 import unittest
 
-from afs_fastapi.equipment.can_bus_manager import CanBusManager
+from afs_fastapi.equipment.can_bus_manager import CANBusConnectionManager
 
 
 class TestCanBusIntegration(unittest.TestCase):
@@ -8,7 +8,7 @@ class TestCanBusIntegration(unittest.TestCase):
         """
         Tests that the CanBusManager can connect to a virtual CAN bus.
         """
-        manager = CanBusManager(interface="virtual", channel="vcan0")
+        manager = CANBusConnectionManager(interface="virtual", channel="vcan0")
         manager.connect()
         self.assertIsNotNone(manager.bus)
         manager.disconnect()
