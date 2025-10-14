@@ -1,4 +1,5 @@
 import json
+import subprocess
 from datetime import datetime
 from typing import Literal, TypedDict
 
@@ -21,6 +22,7 @@ class BaseItem(TypedDict):
     dependencies: list[str]
     status: StatusType
     validation_log: list[str]
+    date_completed: str | None
 
 
 class SubTaskItem(BaseItem):
@@ -87,7 +89,7 @@ def validate_single_concern(item: BaseItem) -> list[str]:
     """V2: SoC check: title+description MUST express one concern; if multiple verbs/concerns, split."""
     errors = []
 
-    # Check for multiple action verbs in title
+    # Action verbs and conjunctions for strict checking
     action_verbs = [
         "implement",
         "create",
@@ -99,27 +101,43 @@ def validate_single_concern(item: BaseItem) -> list[str]:
         "configure",
         "setup",
         "analyze",
+        "fix",
+        "repair",
+        "locate",
+        "identify",
+        "improve",
+        "enhance",
     ]
-    title_lower = item["title"].lower()
-    found_verbs = [verb for verb in action_verbs if verb in title_lower]
-
-    if len(found_verbs) > 1:
-        errors.append(
-            f"Multiple concerns in title: contains {found_verbs}. Split into separate items."
-        )
-
-    # Check for coordination conjunctions indicating multiple concerns
     conjunctions = [" and ", " or ", " plus ", " also ", " as well as "]
-    if any(conj in title_lower for conj in conjunctions):
-        errors.append(
-            "Title contains conjunctions suggesting multiple concerns. Split into separate items."
-        )
 
-    # Check description for multiple concerns
+    title_lower = item["title"].lower()
     desc_lower = item["description"].lower()
-    desc_verbs = [verb for verb in action_verbs if verb in desc_lower]
-    if len(desc_verbs) > 2:  # Allow some flexibility in description
-        errors.append(f"Description may contain multiple concerns: {desc_verbs}")
+
+    if item["level"] != "Goal":
+        # Apply strict checks for non-Goal items (Phase, Step, Task, SubTask)
+        found_verbs_title = [verb for verb in action_verbs if verb in title_lower]
+        if len(found_verbs_title) > 1:
+            errors.append(
+                f"Multiple concerns in title: contains {found_verbs_title}. Split into separate items."
+            )
+        if any(conj in title_lower for conj in conjunctions):
+            errors.append(
+                "Title contains conjunctions suggesting multiple concerns. Split into separate items."
+            )
+
+        found_verbs_desc = [verb for verb in action_verbs if verb in desc_lower]
+        if len(found_verbs_desc) > 2:
+            errors.append(f"Description may contain multiple concerns: {found_verbs_desc}")
+    else:
+        # For Goal level items, apply a more relaxed check on description
+        # Only flag if description is excessively long or contains too many distinct concerns
+        found_verbs_desc = [verb for verb in action_verbs if verb in desc_lower]
+        if len(found_verbs_desc) > 4:  # Allow more verbs for high-level goals
+            errors.append(f"Goal description may contain too many concerns: {found_verbs_desc}")
+        if any(conj in desc_lower for conj in conjunctions):
+            errors.append(
+                "Goal description contains conjunctions suggesting multiple concerns. Consider simplifying."
+            )
 
     # Update single_concern flag
     if not errors:
@@ -347,7 +365,7 @@ def add_goal(
 ) -> GoalItem:
     """Add a new goal according to TodoWrite.md schema."""
     todos = load_todos()
-    new_id = f"goal-{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    new_id = f"goal-{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}"
 
     new_goal: GoalItem = {
         "id": new_id,
@@ -362,6 +380,7 @@ def add_goal(
         "phases": [],
         "category": category,
         "priority": priority,
+        "date_completed": None,
     }
 
     # Validate new goal
@@ -403,6 +422,7 @@ def add_phase(goal_id: str, title: str, description: str) -> tuple[PhaseItem | N
         "status": "planned",
         "validation_log": [f"{datetime.now().isoformat()}: Created"],
         "steps": [],
+        "date_completed": None,
     }
 
     # Validate new phase
@@ -445,6 +465,7 @@ def add_step(phase_id: str, title: str, description: str) -> tuple[StepItem | No
         "status": "planned",
         "validation_log": [f"{datetime.now().isoformat()}: Created"],
         "tasks": [],
+        "date_completed": None,
     }
 
     # Validate new step
@@ -488,6 +509,7 @@ def add_task(step_id: str, title: str, description: str) -> tuple[TaskItem | Non
         "status": "planned",
         "validation_log": [f"{datetime.now().isoformat()}: Created"],
         "subtasks": [],
+        "date_completed": None,
     }
 
     # Validate new task
@@ -536,6 +558,7 @@ def add_subtask(
         "command": command,
         "command_type": command_type,
         "execution_log": [],
+        "date_completed": None,
     }
 
     # Validate new subtask
@@ -575,23 +598,45 @@ def execute_subtask(subtask_id: str) -> tuple[bool, str | None]:
     # Mark as in progress
     target_subtask["status"] = "in_progress"
     target_subtask["execution_log"].append(f"{datetime.now().isoformat()}: Execution started")
+    save_todos(todos)
 
     try:
-        # This is where actual command execution would happen
-        # For now, we'll just simulate execution
-        if target_subtask["command_type"] == "todo":
+        command = target_subtask["command"]
+        command_type = target_subtask.get("command_type", "bash")
+
+        if command_type == "bash":
+            result = subprocess.run(command, shell=True, capture_output=True, text=True)
+            if result.returncode == 0:
+                target_subtask["execution_log"].append(
+                    f"{datetime.now().isoformat()}: Execution successful"
+                )
+                target_subtask["execution_log"].append(f"stdout:\n{result.stdout}")
+                target_subtask["status"] = "done"
+                save_todos(todos)
+                return True, "SubTask executed successfully"
+            else:
+                target_subtask["execution_log"].append(
+                    f"{datetime.now().isoformat()}: Execution failed"
+                )
+                target_subtask["execution_log"].append(f"stderr:\n{result.stderr}")
+                target_subtask["status"] = "blocked"
+                save_todos(todos)
+                return False, f"SubTask execution failed: {result.stderr}"
+        elif command_type == "todo":
             target_subtask["execution_log"].append(
                 f"{datetime.now().isoformat()}: TODO command - requires manual completion"
             )
+            # Not changing status, as it requires manual intervention.
+            save_todos(todos)
             return True, "SubTask marked for manual completion (TODO command)"
         else:
-            # TODO: Implement actual command execution based on command_type
+            # TODO: Implement other command types
             target_subtask["execution_log"].append(
-                f"{datetime.now().isoformat()}: Command execution not yet implemented"
+                f"{datetime.now().isoformat()}: Command execution for type '{command_type}' not yet implemented"
             )
-            target_subtask["status"] = "done"
+            target_subtask["status"] = "blocked"
             save_todos(todos)
-            return True, "SubTask execution simulated successfully"
+            return False, f"Command execution for type '{command_type}' not yet implemented"
 
     except Exception as e:
         target_subtask["status"] = "blocked"
@@ -633,6 +678,40 @@ def activate_phase(phase_id: str) -> tuple[PhaseItem | None, str | None]:
 
     save_todos(todos)
     return target_phase, None
+
+
+def get_active_phase() -> PhaseItem | None:
+    """Get the currently active phase."""
+    active_items = get_active_items()
+    phase = active_items.get("phase")
+    if phase and isinstance(phase, dict):
+        # This is a hack to make mypy happy
+        return phase  # type: ignore
+    return None
+
+
+def end_phase(force: bool = False) -> tuple[PhaseItem | None, str | None]:
+    """End the active phase."""
+    todos = load_todos()
+    active_phase = get_active_phase()
+
+    if not active_phase:
+        return None, "No active phase found."
+
+    if not force:
+        for step in active_phase.get("steps", []):
+            if step.get("status") != "done":
+                return None, "Phase has incomplete steps."
+
+    for goal in todos.get("goals", []):
+        for phase in goal.get("phases", []):
+            if phase.get("id") == active_phase.get("id"):
+                phase["status"] = "done"
+                phase["date_completed"] = datetime.now().isoformat()
+                save_todos(todos)
+                return phase, None
+
+    return None, "Active phase not found in todos data."
 
 
 def get_active_items() -> dict[str, BaseItem | None]:
