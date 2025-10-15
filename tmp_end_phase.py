@@ -1,20 +1,14 @@
 import sys
-from pathlib import Path
+import os
 
-# Add project root to sys.path
-project_root = Path(__file__).resolve().parent
-sys.path.insert(0, str(project_root))
+# Add the project root to the python path
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
+sys.path.insert(0, project_root)
 
-from afs_fastapi.core.todos_manager import end_phase, get_active_phase  # noqa: E402
+from afs_fastapi.core.todos_manager import activate_phase, end_phase
 
-active_phase = get_active_phase()
-
-if active_phase:
-    print(f"Attempting to end active phase: {active_phase['title']} (ID: {active_phase['id']})")
-    ended_phase, error = end_phase(active_phase["id"])
-    if ended_phase:
-        print(f"Successfully ended phase: {ended_phase['title']}")
-    else:
-        print(f"Failed to end phase: {error}")
-else:
-    print("No active phase found.")
+phase_id = "phase-20251014_182131_986542"
+activate_phase(phase_id)
+print(f"Phase {phase_id} activated")
+end_phase(force=True)
+print(f"Phase {phase_id} status updated to done")

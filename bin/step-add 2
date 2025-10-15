@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+# type: ignore
+"""Add a new step to the active phase."""
+
+import argparse
+import sys
+from pathlib import Path
+
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from afs_fastapi.core.todos_manager import add_step, get_active_items  # noqa: E402
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Add a new step to the active phase.")
+    parser.add_argument("name", type=str, help="The name of the step.")
+    args = parser.parse_args()
+
+    active_items = get_active_items()
+    active_phase = active_items.get("phase")
+
+    if not active_phase:
+        print(
+            "Error: No active phase. Please activate a phase first using './bin/phase-activate <phase_id>'."
+        )
+        sys.exit(1)
+
+    new_step, error = add_step(
+        active_phase["id"], args.name, f"Implementation step for {args.name}"
+    )
+
+    if error:
+        print(f"Error: {error}")
+        sys.exit(1)
+
+    if new_step:
+        print("✓ Step added successfully!")
+        print(f"  ID: {new_step['id']}")
+        print(f"  Name: {new_step['title']}")
+        print(f"  Status: {new_step['status']}")
+        print()
+        print("Use './bin/step-status' to view all steps.")
+        print("Use './bin/step-activate <step_id>' to activate this step.")
+
+
+if __name__ == "__main__":
+    main()

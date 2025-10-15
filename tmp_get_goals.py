@@ -1,17 +1,12 @@
-import json
 import sys
-from pathlib import Path
+import os
+import json
 
-# Add project root to sys.path
-project_root = Path(__file__).resolve().parent
-sys.path.insert(0, str(project_root))
+# Add the project root to the python path
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
+sys.path.insert(0, project_root)
 
-from afs_fastapi.core.todos_manager import get_goals  # noqa: E402
+from afs_fastapi.core.todos_manager import get_goals
 
 goals = get_goals()
-# Convert GoalItem objects (TypedDicts) to a JSON-serializable format
-serializable_goals = []
-for goal in goals:
-    serializable_goals.append(goal)
-
-print(json.dumps(serializable_goals, indent=2))
+print(json.dumps(goals, indent=2))

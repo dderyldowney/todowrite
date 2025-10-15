@@ -994,6 +994,39 @@ def update_subtask_status(
     return target_subtask, None
 
 
+def update_subtask_details(
+    subtask_id: str, new_command: str, new_command_type: str
+) -> tuple[SubTaskItem | None, str | None]:
+    """Update the command and command_type of a specific subtask."""
+    todos = load_todos()
+    target_subtask = None
+
+    for goal in todos["goals"]:
+        for phase in goal["phases"]:
+            for step in phase["steps"]:
+                for task in step["tasks"]:
+                    for subtask in task["subtasks"]:
+                        if subtask["id"] == subtask_id:
+                            target_subtask = subtask
+                            break
+                    if target_subtask:
+                        break
+                if target_subtask:
+                    break
+            if target_subtask:
+                break
+        if target_subtask:
+            break
+
+    if not target_subtask:
+        return None, f"SubTask with ID '{subtask_id}' not found."
+
+    target_subtask["command"] = new_command
+    target_subtask["command_type"] = new_command_type
+    save_todos(todos)
+    return target_subtask, None
+
+
 def get_execution_ready_subtasks() -> list[SubTaskItem]:
     """Get all SubTasks that are ready for execution."""
     todos = load_todos()
