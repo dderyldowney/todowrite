@@ -10,7 +10,7 @@ Implementation follows Test-First Development (TDD) validation.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
 import pytest
@@ -64,7 +64,7 @@ class TestSpeedDataHandler:
             source_address=0x81,
             destination_address=0xFF,
             priority=6,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             spn_values=[speed_spn],
             raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00",
             data_length=8,
@@ -204,7 +204,7 @@ class TestFuelDataHandler:
             source_address=0x81,
             destination_address=0xFF,
             priority=6,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             spn_values=[fuel_rate_spn],
             raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00",
             data_length=8,
@@ -335,7 +335,7 @@ class TestGPSDataHandler:
             source_address=0x81,
             destination_address=0xFF,
             priority=6,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             spn_values=[lat_spn, lon_spn],
             raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00",
             data_length=8,
@@ -400,7 +400,7 @@ class TestGPSDataHandler:
             "afs_fastapi.equipment.critical_tractor_data_handlers.datetime"
         ) as mock_datetime:
             # Simulate 1 second later
-            mock_datetime.utcnow.return_value = datetime.utcnow() + timedelta(seconds=1)
+            mock_datetime.now.return_value = datetime.now(UTC) + timedelta(seconds=1)
 
             gps_message.spn_values[0].value = 40.124456  # Moved ~111 meters north
             result2 = gps_handler.process_gps_message(gps_message)
@@ -483,7 +483,7 @@ class TestCriticalDataAggregator:
             source_address=0x81,
             destination_address=0xFF,
             priority=6,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             spn_values=[speed_spn],
             raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00",
             data_length=8,
@@ -586,7 +586,7 @@ class TestCriticalDataAggregator:
             source_address=0x81,
             destination_address=0xFF,
             priority=6,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             spn_values=[fuel_spn],
             raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00",
             data_length=8,
@@ -614,12 +614,12 @@ class TestCriticalDataAggregator:
             is_error=False,
         )
         gps_message = DecodedPGN(
-            pgn=0xFEF3,
+            pgn=0xFEF3,  # Vehicle Position
             name="Vehicle Position",
             source_address=0x81,
             destination_address=0xFF,
             priority=6,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             spn_values=[lat_spn, lon_spn],
             raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00",
             data_length=8,
@@ -676,7 +676,7 @@ class TestCriticalDataIntegration:
             source_address=tractor_address,
             destination_address=0xFF,
             priority=6,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             spn_values=[speed_spn],
             raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00",
             data_length=8,
@@ -699,7 +699,7 @@ class TestCriticalDataIntegration:
             source_address=tractor_address,
             destination_address=0xFF,
             priority=6,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             spn_values=[fuel_spn],
             raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00",
             data_length=8,
@@ -732,7 +732,7 @@ class TestCriticalDataIntegration:
             source_address=tractor_address,
             destination_address=0xFF,
             priority=6,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             spn_values=[lat_spn, lon_spn],
             raw_data=b"\x00\x00\x00\x00\x00\x00\x00\x00",
             data_length=8,

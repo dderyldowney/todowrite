@@ -140,7 +140,6 @@ class TestAgriculturalDatabaseSchemas:
                 destination_address=0xFF,
                 data_payload={"speed": 12.5 + i * 0.1, "fuel": 78.3 - i * 0.05},
                 priority_level=2,  # FIELD_COORDINATION priority
-                message_size=8,
             )
             messages.append(message)
 

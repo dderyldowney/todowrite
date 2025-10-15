@@ -14,7 +14,7 @@ import gzip
 import json
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from typing import Any
 
@@ -98,9 +98,9 @@ class DataRetentionPolicy:
     def __post_init__(self) -> None:
         """Initialize policy timestamps."""
         if self.created_at is None:
-            self.created_at = datetime.utcnow()
+            self.created_at = datetime.now(UTC)
         if self.updated_at is None:
-            self.updated_at = datetime.utcnow()
+            self.updated_at = datetime.now(UTC)
 
 
 @dataclass
@@ -275,7 +275,7 @@ class ArchivalManager:
         if retention_policy.retention_period == RetentionPeriod.PERMANENT:
             return []  # Permanent data never expires
 
-        cutoff_date = datetime.utcnow() - timedelta(days=retention_policy.retention_period.days)
+        cutoff_date = datetime.now(UTC) - timedelta(days=retention_policy.retention_period.days)
 
         # Get appropriate model class
         model_mapping = {
@@ -316,7 +316,7 @@ class ArchivalManager:
         ArchivalResult
             Result of archival operation
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(UTC)
 
         try:
             # Identify expired data
@@ -367,9 +367,7 @@ class ArchivalManager:
             # Remove archived records from active database
             for record in expired_records:
                 self.database_session.delete(record)
-            self.database_session.commit()
-
-            execution_time = (datetime.utcnow() - start_time).total_seconds()
+            execution_time = (datetime.now(UTC) - start_time).total_seconds()
 
             logger.info(
                 f"Successfully archived {len(expired_records)} records for policy {retention_policy.policy_id}"
@@ -388,7 +386,7 @@ class ArchivalManager:
             )
 
         except Exception as e:
-            execution_time = (datetime.utcnow() - start_time).total_seconds()
+            execution_time = (datetime.now(UTC) - start_time).total_seconds()
             logger.error(f"Archival failed for policy {retention_policy.policy_id}: {e}")
 
             return ArchivalResult(
@@ -459,7 +457,7 @@ class ArchivalManager:
         str
             Final storage location
         """
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
         filename = f"{policy_id}_{timestamp}.archive"
 
         if self.storage_backend == "local":
@@ -607,11 +605,11 @@ class ArchivalManager:
         RecoveryResult
             Result of recovery operation
         """
-        restoration_id = f"restore_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+        restoration_id = f"restore_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}"
 
         # Simulate recovery process for testing
         estimated_records = 1000  # Would be calculated based on archive metadata
-        estimated_completion = datetime.utcnow() + timedelta(hours=2)
+        estimated_completion = datetime.now(UTC) + timedelta(hours=2)
 
         logger.info(
             f"Starting data recovery {restoration_id} for archive {recovery_request.get('archive_id')}"
@@ -643,7 +641,7 @@ class ArchivalManager:
             restoration_id=restoration_id,
             progress_percentage=75.0,
             current_stage="restoration",
-            estimated_completion=datetime.utcnow() + timedelta(minutes=30),
+            estimated_completion=datetime.now(UTC) + timedelta(minutes=30),
         )
 
 

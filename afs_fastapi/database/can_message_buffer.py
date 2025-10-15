@@ -1,5 +1,4 @@
-"""
-High-performance CAN message buffering and batch processing for time-series storage.
+"""High-performance CAN message buffering and batch processing for time-series storage.
 
 This module provides memory-efficient buffering of CAN messages with configurable
 batch processing for optimal database write performance in high-throughput
@@ -16,7 +15,7 @@ import time
 from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 
 import can
@@ -94,7 +93,7 @@ class BufferedCANMessage:
     reception_time: datetime
 
     # Processing metadata
-    buffer_time: datetime = field(default_factory=datetime.utcnow)
+    buffer_time: datetime = field(default_factory=lambda: datetime.now(UTC))
     priority: CANMessagePriority = CANMessagePriority.NORMAL
     processing_attempts: int = 0
 
@@ -182,8 +181,8 @@ class CANMessageBuffer:
 
         # Statistics and monitoring
         self.stats = BufferStatistics()
-        self._start_time = datetime.utcnow()
-        self._last_stats_update = datetime.utcnow()
+        self._start_time = datetime.now(UTC)
+        self._last_stats_update = datetime.now(UTC)
 
         # Async processing
         self._flush_task: asyncio.Task | None = None
@@ -197,7 +196,7 @@ class CANMessageBuffer:
             return
 
         self._running = True
-        self._start_time = datetime.utcnow()
+        self._start_time = datetime.now(UTC)
 
         # Start background tasks
         self._flush_task = asyncio.create_task(self._flush_loop())
@@ -325,7 +324,7 @@ class CANMessageBuffer:
         self.stats.current_buffer_size = len(self._buffer) + sum(
             len(pb) for pb in self._priority_buffers.values()
         )
-        self.stats.uptime = datetime.utcnow() - self._start_time
+        self.stats.uptime = datetime.now(UTC) - self._start_time
         self.stats.buffer_utilization = (
             self.stats.current_buffer_size / self.config.max_buffer_size * 100
         )
@@ -361,7 +360,7 @@ class CANMessageBuffer:
         bool
             True if buffer should be flushed
         """
-        current_time = datetime.utcnow()
+        current_time = datetime.now(UTC)
         time_since_last_flush = (
             current_time - (self.stats.last_flush_time or self._start_time)
         ).total_seconds()
@@ -425,7 +424,7 @@ class CANMessageBuffer:
 
             if success:
                 self.stats.total_flushed += len(messages_to_flush)
-                self.stats.last_flush_time = datetime.utcnow()
+                self.stats.last_flush_time = datetime.now(UTC)
 
                 # Update performance metrics
                 flush_time = time.time() - start_time
@@ -579,7 +578,7 @@ class CANMessageBuffer:
         bool
             True if message is duplicate
         """
-        current_time = datetime.utcnow()
+        current_time = datetime.now(UTC)
 
         # Clean old hashes
         cutoff_time = current_time - timedelta(seconds=self.config.dedup_window_seconds)
@@ -638,10 +637,11 @@ class CANMessageBuffer:
                 break
             except Exception as e:
                 logger.error(f"Stats loop error: {e}")
+                await asyncio.sleep(1.0)
 
     async def _update_performance_stats(self) -> None:
         """Update performance statistics."""
-        current_time = datetime.utcnow()
+        current_time = datetime.now(UTC)
         time_delta = (current_time - self._last_stats_update).total_seconds()
 
         if time_delta > 0:

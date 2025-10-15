@@ -11,7 +11,7 @@ Implementation follows Test-First Development (TDD) GREEN phase.
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy import (
@@ -75,8 +75,8 @@ class Equipment(Base):  # type: ignore[misc, valid-type]
     firmware_version = Column(String(20), nullable=True)
     installation_date = Column(DateTime, nullable=True)
     status = Column(String(20), default="active")  # active, maintenance, retired
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
+    updated_at = Column(DateTime, onupdate=lambda: datetime.now(UTC))
 
     # Relationships
     isobus_messages = relationship("ISOBUSMessageRecord", back_populates="equipment")
@@ -110,8 +110,8 @@ class Field(Base):  # type: ignore[misc, valid-type]
     drainage_class = Column(String(30), nullable=True)
     elevation_meters = Column(Float, nullable=True)
     slope_percentage = Column(Float, nullable=True)
-    created_date = Column(DateTime, default=datetime.utcnow)
-    last_updated = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_date = Column(DateTime, default=lambda: datetime.now(UTC))
+    last_updated = Column(DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
 
     # Relationships
     sensor_records = relationship("AgriculturalSensorRecord", back_populates="field")
@@ -135,6 +135,7 @@ class ISOBUSMessageRecord(Base):  # type: ignore[misc, valid-type]
     __tablename__ = "isobus_messages"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+
     timestamp = Column(DateTime, nullable=False, index=True)
     equipment_id = Column(String(50), ForeignKey("equipment.equipment_id"), nullable=False)
     pgn = Column(Integer, nullable=False)  # Parameter Group Number
@@ -142,8 +143,7 @@ class ISOBUSMessageRecord(Base):  # type: ignore[misc, valid-type]
     destination_address = Column(Integer, nullable=False)
     data_payload = Column(JSONType, nullable=True)  # Parsed message data
     priority_level = Column(Integer, nullable=False, default=0)
-    message_size = Column(Integer, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
 
     # Relationships
     equipment = relationship("Equipment", back_populates="isobus_messages")
@@ -166,6 +166,7 @@ class AgriculturalSensorRecord(Base):  # type: ignore[misc, valid-type]
     __tablename__ = "agricultural_sensor_data"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+
     timestamp = Column(DateTime, nullable=False, index=True)
     equipment_id = Column(String(50), ForeignKey("equipment.equipment_id"), nullable=False)
     field_id = Column(String(50), ForeignKey("fields.field_id"), nullable=True)
@@ -176,7 +177,7 @@ class AgriculturalSensorRecord(Base):  # type: ignore[misc, valid-type]
     gps_longitude = Column(Float, nullable=True)
     quality_indicator = Column(String(20), default="good")  # good, warning, error
     calibration_date = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
 
     # Relationships
     equipment = relationship("Equipment", back_populates="sensor_records")
@@ -201,6 +202,7 @@ class TractorTelemetryRecord(Base):  # type: ignore[misc, valid-type]
     __tablename__ = "tractor_telemetry"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+
     timestamp = Column(DateTime, nullable=False, index=True)
     equipment_id = Column(String(50), ForeignKey("equipment.equipment_id"), nullable=False)
     vehicle_speed = Column(Float, nullable=False)  # km/h
@@ -211,8 +213,7 @@ class TractorTelemetryRecord(Base):  # type: ignore[misc, valid-type]
     operational_mode = Column(String(30), nullable=False)
     engine_hours = Column(Float, nullable=True)
     hydraulic_pressure = Column(Float, nullable=True)  # bar
-    pto_speed = Column(Float, nullable=True)  # rpm
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
 
     # Relationships
     equipment = relationship("Equipment", back_populates="telemetry_records")
@@ -247,8 +248,7 @@ class YieldMonitorRecord(Base):  # type: ignore[misc, valid-type]
     harvest_width = Column(Float, nullable=False)  # meters
     harvest_speed = Column(Float, nullable=False)  # km/h
     grain_temperature = Column(Float, nullable=True)  # celsius
-    test_weight = Column(Float, nullable=True)  # kg/hectoliter
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
 
     # Relationships
     equipment = relationship("Equipment", back_populates="yield_records")
@@ -287,8 +287,8 @@ class OperationalSession(Base):  # type: ignore[misc, valid-type]
     soil_conditions = Column(String(100), nullable=True)
     notes = Column(Text, nullable=True)
     session_status = Column(String(20), default="active")  # active, completed, aborted
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
+    updated_at = Column(DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
 
     # Relationships
     equipment = relationship("Equipment", back_populates="operational_sessions")

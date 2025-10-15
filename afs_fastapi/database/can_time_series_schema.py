@@ -10,7 +10,7 @@ Implementation follows Test-First Development (TDD) GREEN phase.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 
 from sqlalchemy import (
@@ -70,7 +70,7 @@ class CANMessageRaw(TimeSeriesBase):  # type: ignore
     priority = Column(Integer, nullable=True)  # Message priority (0-7)
 
     # Storage metadata
-    ingestion_time = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
+    ingestion_time = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC))
     retention_policy = Column(String(20), nullable=False, default="standard")
 
     # Indexes for time-series queries
@@ -96,7 +96,7 @@ class CANMessageDecoded(TimeSeriesBase):  # type: ignore
 
     # Timestamp information
     timestamp = Column(DateTime(timezone=True), nullable=False, index=True)
-    ingestion_time = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
+    ingestion_time = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC))
 
     # Message identification
     pgn = Column(Integer, nullable=False, index=True)
@@ -168,7 +168,7 @@ class AgriculturalMetrics(TimeSeriesBase):  # type: ignore
     uptime_percentage = Column(Float, nullable=True)
 
     # Computed timestamp
-    computation_time = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
+    computation_time = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC))
 
     # Indexes for dashboard queries
     __table_args__ = (

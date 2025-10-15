@@ -10,7 +10,7 @@ Implementation follows Test-First Development (TDD) RED phase.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from sqlalchemy import create_engine
@@ -184,7 +184,7 @@ class TestAgriculturalDataArchiving:
         archival_manager = ArchivalManager(database_session=db_session)
 
         # Create old ISOBUS message records (older than 30 days)
-        old_time = datetime.utcnow() - timedelta(days=35)
+        old_time = datetime.now(UTC) - timedelta(days=35)
         old_messages = []
 
         for i in range(20):
@@ -200,7 +200,7 @@ class TestAgriculturalDataArchiving:
             old_messages.append(message)
 
         # Create recent ISOBUS message records (within 30 days)
-        recent_time = datetime.utcnow() - timedelta(days=10)
+        recent_time = datetime.now(UTC) - timedelta(days=10)
         recent_messages = []
 
         for i in range(10):
@@ -230,7 +230,7 @@ class TestAgriculturalDataArchiving:
 
         # Should identify old messages but not recent ones
         assert len(expired_data) == 20  # All old messages
-        assert all(msg.timestamp < datetime.utcnow() - timedelta(days=30) for msg in expired_data)
+        assert all(msg.timestamp < datetime.now() - timedelta(days=30) for msg in expired_data)
 
     def test_data_archival_process(self, db_session, sample_equipment) -> None:
         """Test complete data archival process for agricultural records."""
@@ -254,7 +254,7 @@ class TestAgriculturalDataArchiving:
         db_session.commit()
 
         # Create old sensor data records
-        old_time = datetime.utcnow() - timedelta(days=400)  # Older than 1 year
+        old_time = datetime.now(UTC) - timedelta(days=400)  # Older than 1 year
         old_sensor_records = []
 
         for i in range(50):
@@ -309,7 +309,7 @@ class TestAgriculturalDataArchiving:
         archival_manager = ArchivalManager(database_session=db_session)
 
         # Create various types of agricultural data for statistics
-        current_time = datetime.utcnow()
+        current_time = datetime.now(UTC)
 
         # Add telemetry records
         telemetry_records = []
@@ -375,8 +375,8 @@ class TestAgriculturalDataArchiving:
             equipment_id="COMPLIANCE_TRACTOR",
             field_id="COMPLIANCE_FIELD",
             operation_type="emergency_stop",
-            start_time=datetime.utcnow() - timedelta(days=1000),  # Very old
-            end_time=datetime.utcnow() - timedelta(days=1000, hours=1),
+            start_time=datetime.now(UTC) - timedelta(days=1000),  # Very old
+            end_time=datetime.now(UTC) - timedelta(days=1000, hours=1),
             notes="Emergency stop activated - safety incident",
             session_status="completed",
         )

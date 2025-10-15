@@ -13,7 +13,7 @@ from __future__ import annotations
 import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import can
@@ -362,7 +362,7 @@ class CANTimeSeriesStorage:
         """
         try:
             async with self._get_async_session() as session:
-                current_time = datetime.utcnow()
+                current_time = datetime.now(UTC)
                 window_start = current_time.replace(
                     minute=(current_time.minute // 5) * 5, second=0, microsecond=0
                 )

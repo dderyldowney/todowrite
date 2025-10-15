@@ -14,7 +14,7 @@ import logging
 import math
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from typing import Any
 
@@ -285,7 +285,7 @@ class SpeedDataHandler:
         history.append(speed_data)
 
         # Cleanup old data
-        cutoff_time = datetime.utcnow() - self.history_window
+        cutoff_time = datetime.now(UTC) - self.history_window
         self._speed_history[source_address] = [
             data for data in history if data.timestamp > cutoff_time
         ]
@@ -563,7 +563,7 @@ class FuelDataHandler:
         history.append(fuel_data)
 
         # Cleanup old data
-        cutoff_time = datetime.utcnow() - self.history_window
+        cutoff_time = datetime.now(UTC) - self.history_window
         self._fuel_history[source_address] = [
             data for data in history if data.timestamp > cutoff_time
         ]
@@ -770,7 +770,7 @@ class GPSDataHandler:
 
         # Get most recent position
         last_pos = history[-1]
-        time_delta = (datetime.utcnow() - last_pos.timestamp).total_seconds()
+        time_delta = (datetime.now(UTC) - last_pos.timestamp).total_seconds()
 
         if time_delta <= 0:
             return None
@@ -944,7 +944,7 @@ class GPSDataHandler:
         history.append(gps_data)
 
         # Cleanup old data
-        cutoff_time = datetime.utcnow() - self.history_window
+        cutoff_time = datetime.now(UTC) - self.history_window
         self._gps_history[source_address] = [
             data for data in history if data.timestamp > cutoff_time
         ]
@@ -1070,7 +1070,7 @@ class CriticalDataAggregator:
             # Ensure source address is tracked
             if source_address not in self._current_data:
                 self._current_data[source_address] = {
-                    "last_update": datetime.utcnow(),
+                    "last_update": datetime.now(UTC),
                     "speed": None,
                     "fuel": None,
                     "gps": None,
@@ -1096,7 +1096,7 @@ class CriticalDataAggregator:
                     processed = True
 
             if processed:
-                self._current_data[source_address]["last_update"] = datetime.utcnow()
+                self._current_data[source_address]["last_update"] = datetime.now(UTC)
                 self._notify_data_update(source_address)
 
             return processed
@@ -1202,7 +1202,7 @@ class CriticalDataAggregator:
         if not last_update:
             return False
 
-        return (datetime.utcnow() - last_update).total_seconds() < 30.0  # 30 second timeout
+        return (datetime.now(UTC) - last_update).total_seconds() < 30.0  # 30 second timeout
 
     def _get_active_alerts(self, source_address: int) -> list[dict[str, Any]]:
         """Get active alerts for equipment.
@@ -1218,7 +1218,7 @@ class CriticalDataAggregator:
             Active alerts
         """
         # Get recent alerts (last 5 minutes)
-        cutoff_time = datetime.utcnow() - timedelta(minutes=5)
+        cutoff_time = datetime.now(UTC) - timedelta(minutes=5)
         recent_alerts = [
             alert
             for alert in self._alert_history

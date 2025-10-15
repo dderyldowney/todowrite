@@ -13,7 +13,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from pathlib import Path
 from typing import Any, TypedDict, cast
@@ -280,7 +280,7 @@ class CANDataRetentionManager:
         -------
         CleanupResult
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(UTC)
         results: CleanupResult = {
             "start_time": start_time,
             "rules_processed": 0,
@@ -316,7 +316,7 @@ class CANDataRetentionManager:
                     logger.error(error_msg)
 
             # Update statistics
-            end_time = datetime.utcnow()
+            end_time = datetime.now(UTC)
             duration = (end_time - start_time).total_seconds()
 
             self.stats["total_archived"] += results["records_archived"]
@@ -359,7 +359,7 @@ class CANDataRetentionManager:
 
         for table in tables:
             # Calculate cutoff dates
-            current_time = datetime.utcnow()
+            current_time = datetime.now(UTC)
             deletion_cutoff = current_time - rule.retention_period
             archive_cutoff = None
 
@@ -700,7 +700,7 @@ class CANDataRetentionManager:
 
                     for table in tables:
                         # Estimate deletions
-                        deletion_cutoff = datetime.utcnow() - rule.retention_period
+                        deletion_cutoff = datetime.now(UTC) - rule.retention_period
 
                         query = text(
                             f"""
