@@ -1,5 +1,5 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 """TodoWrite Quick Save Command.
 
 Provides "as few steps as possible" saving of TodoWrite tasks to the

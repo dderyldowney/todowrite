@@ -1,16 +1,14 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 
-import json
-import sys
-from datetime import datetime
+
 from pathlib import Path
 
 # Add project root to sys.path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from afs_fastapi.core.todos_manager import get_active_items, load_todos, save_todos, GoalItem  # noqa: E402
+from afs_fastapi.core.todos_manager import get_active_items, load_todos  # noqa: E402
 
 
 def main():
@@ -23,10 +21,12 @@ def main():
     goals = todos_data["goals"]
     active_items = get_active_items()
     active_phase = active_items["phase"]
-    
+
     # Calculate counts for strategic goals
     total_goals = len(goals)
-    pending_goals = len([g for g in goals if g["status"] == "planned" or g["status"] == "in_progress"])
+    pending_goals = len(
+        [g for g in goals if g["status"] == "planned" or g["status"] == "in_progress"]
+    )
     completed_goals = len([g for g in goals if g["status"] == "done"])
 
     # Calculate counts for active phase tasks
@@ -57,11 +57,12 @@ def main():
 
     # Save summary to file
     summary_file = project_root / "SESSION_SUMMARY.md"
-    with open(summary_file, 'w') as f:
+    with open(summary_file, "w") as f:
         f.write(summary)
 
     print(f"✅ Session summary saved to {summary_file}")
     print()
+
 
 if __name__ == "__main__":
     main()

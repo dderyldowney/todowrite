@@ -1,5 +1,5 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 """Add a new task directly to the currently active step."""
 
 import argparse

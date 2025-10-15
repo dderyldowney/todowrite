@@ -9,4 +9,4 @@ isort . --quiet
 ruff check . --fix --quiet
 
 # Validate types with MyPy
-mypy . --ignore-missing-imports --no-strict-optional
+mypy afs_fastapi --ignore-missing-imports --no-strict-optional

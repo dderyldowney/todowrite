@@ -1,9 +1,8 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 
 import sys
 from pathlib import Path
-import json
 
 # Add project root to sys.path
 project_root = Path(__file__).resolve().parent.parent
@@ -21,6 +20,7 @@ def get_priority_emoji(priority):
         return "🌱"
     return "⚪️"
 
+
 def get_status_emoji(status):
     if status == "done":
         return "✅"
@@ -33,6 +33,7 @@ def get_status_emoji(status):
     elif status == "rejected":
         return "❌"
     return "?"
+
 
 def display_strategic_todos():
     goals = get_goals()
@@ -57,19 +58,24 @@ def display_strategic_todos():
     if completed_goals:
         print("-" * 20)
         print("Completed Goals:")
-        for i, goal in enumerate(completed_goals, 1):
+        for _i, goal in enumerate(completed_goals, 1):
             status_emoji = get_status_emoji(goal.get("status", "done"))
             print(f"{status_emoji} {goal.get('title', 'No title')} - COMPLETE")
-            print(f"  ID: {goal.get('id')} | Category: {goal.get('category', 'general')}") # Removed date_completed as it's not in new schema
+            print(
+                f"  ID: {goal.get('id')} | Category: {goal.get('category', 'general')}"
+            )  # Removed date_completed as it's not in new schema
             print()
-
 
     print("=== Summary ===")
     print(f"Total Strategic Goals: {len(goals)}")
     print(f"Pending: {len(pending_goals)} | Completed: {len(completed_goals)}")
     print()
-    print("Use 'add_goal(\"Title\", \"Description\", category=\"category\", priority=\"priority\")' to add new strategic goals.")
-    print("Use 'complete_goal(\"goal_id\")' to mark goals as completed. (Function not yet implemented)") # Placeholder for future implementation
+    print(
+        'Use \'add_goal("Title", "Description", category="category", priority="priority")\' to add new strategic goals.'
+    )
+    print(
+        "Use 'complete_goal(\"goal_id\")' to mark goals as completed. (Function not yet implemented)"
+    )  # Placeholder for future implementation
 
 
 if __name__ == "__main__":

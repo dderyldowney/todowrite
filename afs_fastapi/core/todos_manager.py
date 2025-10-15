@@ -133,7 +133,7 @@ def validate_single_concern(item: BaseItem) -> list[str]:
 
 def validate_granularity(item: BaseItem, all_items: dict[str, BaseItem]) -> list[str]:
     """V3: Granularity check: Steps MUST only contain Tasks serving the Step's concern; Tasks MUST only contain SubTasks serving the Task's concern."""
-    errors = []
+    errors: list[str] = []
 
     if item["level"] in ["Step", "Task"]:
         # Get children

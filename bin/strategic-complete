@@ -1,5 +1,5 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 
 import argparse
 import sys
@@ -9,11 +9,7 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from afs_fastapi.core.todos_manager import (  # noqa: E402
-    get_goals,
-    load_todos,
-    save_todos,
-)
+from afs_fastapi.core.todos_manager import load_todos, save_todos  # noqa: E402
 
 
 def main():

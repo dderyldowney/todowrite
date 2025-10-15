@@ -1,5 +1,5 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 """Complete a step and mark all its tasks as completed."""
 
 import argparse

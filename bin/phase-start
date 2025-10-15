@@ -1,5 +1,5 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 
 import argparse
 import sys
@@ -9,13 +9,15 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from afs_fastapi.core.todos_manager import get_goals, add_phase  # noqa: E402
+from afs_fastapi.core.todos_manager import add_phase, get_goals  # noqa: E402
 
 
 def main():
     parser = argparse.ArgumentParser(description="Start a new development phase.")
     parser.add_argument("name", type=str, help="The name of the new phase.")
-    parser.add_argument("--strategic-id", type=str, help="The ID of the strategic goal to align with.")
+    parser.add_argument(
+        "--strategic-id", type=str, help="The ID of the strategic goal to align with."
+    )
     args = parser.parse_args()
 
     strategic_id = args.strategic_id
@@ -25,7 +27,9 @@ def main():
         print()
 
         goals = get_goals()
-        pending_goals = [g for g in goals if g['status'] == 'planned' or g['status'] == 'in_progress']
+        pending_goals = [
+            g for g in goals if g["status"] == "planned" or g["status"] == "in_progress"
+        ]
 
         if pending_goals:
             print("Available Goals (for alignment):")
@@ -35,7 +39,7 @@ def main():
             strategic_id = input("Enter goal ID for alignment (optional, press Enter to skip): ")
         else:
             print("No pending goals found.")
-    
+
     if not strategic_id:
         print("Error: Goal ID is required to start a new phase.")
         sys.exit(1)
@@ -45,24 +49,27 @@ def main():
     if error:
         print(f"Error: {error}")
         sys.exit(1)
-    
+
     if new_phase:
         print("✓ New development phase started!")
         print(f"  Phase: {new_phase['title']}")
         print(f"  ID: {new_phase['id']}")
-        
+
         goals = get_goals()
         for goal in goals:
-            if goal['id'] == strategic_id:
+            if goal["id"] == strategic_id:
                 print(f"  Aligned with: {goal['title']}")
                 break
-        
+
         print()
         print("Next steps:")
-        print('1. Use "add_step(\"phase_id\", \"Title\", \"Description\")" to add phase implementation steps')
+        print(
+            '1. Use "add_step("phase_id", "Title", "Description")" to add phase implementation steps'
+        )
         print("2. Follow TDD methodology: Investigation → RED → GREEN → REFACTOR")
         print('3. Use "phase-status" to track progress')
         print('4. Use "phase-end" when phase is complete')
+
 
 if __name__ == "__main__":
     main()

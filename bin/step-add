@@ -1,5 +1,5 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 """Add a new step to the active phase."""
 
 import argparse
@@ -22,10 +22,14 @@ def main():
     active_phase = active_items.get("phase")
 
     if not active_phase:
-        print("Error: No active phase. Please activate a phase first using './bin/phase-activate <phase_id>'.")
+        print(
+            "Error: No active phase. Please activate a phase first using './bin/phase-activate <phase_id>'."
+        )
         sys.exit(1)
 
-    new_step, error = add_step(active_phase["id"], args.name, f"Implementation step for {args.name}")
+    new_step, error = add_step(
+        active_phase["id"], args.name, f"Implementation step for {args.name}"
+    )
 
     if error:
         print(f"Error: {error}")

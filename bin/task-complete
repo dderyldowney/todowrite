@@ -1,5 +1,5 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 
 import argparse
 import sys
@@ -14,7 +14,9 @@ from afs_fastapi.core.todos_manager import complete_task_in_active_phase  # noqa
 
 def main():
     parser = argparse.ArgumentParser(description="Mark a task in the active phase as complete.")
-    parser.add_argument("search_term", type=str, help="The ID or description of the task to complete.")
+    parser.add_argument(
+        "search_term", type=str, help="The ID or description of the task to complete."
+    )
     args = parser.parse_args()
 
     completed_task, error = complete_task_in_active_phase(args.search_term)
@@ -22,7 +24,7 @@ def main():
     if error:
         print(f"Error: {error}")
         sys.exit(1)
-    
+
     if completed_task:
         print("✓ Task marked as completed!")
         print(f"  ID: {completed_task['id']}")
@@ -30,6 +32,7 @@ def main():
         print(f"  Completed at: {completed_task['date_completed']}")
         print()
         print("Use './bin/phase-status' to view updated phase progress.")
+
 
 if __name__ == "__main__":
     main()

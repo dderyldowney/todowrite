@@ -1,5 +1,5 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 
 import argparse
 import sys
@@ -23,9 +23,10 @@ def main():
     if error:
         print(f"Error: {error}")
         sys.exit(1)
-    
+
     if success:
         print(f"✓ Phase ''{args.phase_id}'' moved successfully to position {args.new_position}.")
+
 
 if __name__ == "__main__":
     main()

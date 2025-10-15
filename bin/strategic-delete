@@ -1,5 +1,5 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 
 import argparse
 import sys
@@ -25,13 +25,14 @@ def main():
             goals.pop(i)
             goal_found = True
             break
-    
+
     if not goal_found:
         print(f"Error: Goal with ID '{args.goal_id}' not found.")
         sys.exit(1)
 
     save_todos(todos)
     print(f"✓ Goal '{args.goal_id}' deleted successfully!")
+
 
 if __name__ == "__main__":
     main()

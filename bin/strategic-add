@@ -1,5 +1,5 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 
 import argparse
 import sys
@@ -15,8 +15,16 @@ from afs_fastapi.core.todos_manager import add_goal  # noqa: E402
 def main():
     parser = argparse.ArgumentParser(description="Add a new strategic goal.")
     parser.add_argument("description", type=str, help="The description of the strategic goal.")
-    parser.add_argument("--category", type=str, default="general", help="The category of the strategic goal.")
-    parser.add_argument("--priority", type=str, default="medium", choices=["low", "medium", "high"], help="The priority of the strategic goal.")
+    parser.add_argument(
+        "--category", type=str, default="general", help="The category of the strategic goal."
+    )
+    parser.add_argument(
+        "--priority",
+        type=str,
+        default="medium",
+        choices=["low", "medium", "high"],
+        help="The priority of the strategic goal.",
+    )
     args = parser.parse_args()
 
     new_goal = add_goal(args.description, args.description, args.category, args.priority)
@@ -27,7 +35,10 @@ def main():
     print(f"  Priority: {new_goal['priority']}")
     print(f"  Category: {new_goal['category']}")
     print()
-    print("Strategic goal added successfully. Use './bin/strategic-list' to view all strategic goals.")
+    print(
+        "Strategic goal added successfully. Use './bin/strategic-list' to view all strategic goals."
+    )
+
 
 if __name__ == "__main__":
     main()
