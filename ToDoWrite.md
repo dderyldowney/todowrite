@@ -13,7 +13,8 @@ HIERARCHY:
 
 SEPARATION_OF_CONCERNS (SoC):
   - Every Phase/Step/Task/SubTask MUST address exactly one concern.
-  - If any item spans multiple concerns, split it into multiple sibling items at the same level.
+  - Use language that expresses exactly one concern in descriptions and commit messages.
+  - If any item *does* span multiple concerns, split it into multiple sibling items at the same level.
   - No item may include actions that belong to a different item/concern.
   - Validation MUST reject mixed-concern items (“git pre-commit” style block).
 
