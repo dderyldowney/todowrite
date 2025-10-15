@@ -1,13 +1,29 @@
+# SESSION_SUMMARY.md
 
-# AFS FastAPI Session Summary
+## Agricultural Robotics Context
 
-## TODOs Summary
+## Universal Session Management Commands
 
-### Strategic Goals
-- Total: 0
-- Pending: 0
-- Completed: 0
+## Mandatory Requirements for All AI Agents
 
-### Active Phase
-- Name: None
-- Status: 0/N/A tasks completed
+## Mandatory TDD and Explanation Workflow
+
+## Mandatory Git Commit Message Format
+
+## Mandatory Type Hinting and Annotation
+
+## Configuration
+
+## Dependencies
+
+## Examples
+
+## VS Code & CLI Workflows
+
+## Recommended VS Code Settings (optional)
+
+## Pre-commit Hooks (Required Enforcement)
+
+## Recent TDD Enforcement Implementation
+
+## Coding Conventions (Agricultural Robotics Standards)
