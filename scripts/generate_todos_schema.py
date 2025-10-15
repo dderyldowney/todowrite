@@ -24,5 +24,6 @@ def generate_schema():
 
     print(f"JSON schema for TodosData saved to {schema_file_path}")
 
+
 if __name__ == "__main__":
     generate_schema()

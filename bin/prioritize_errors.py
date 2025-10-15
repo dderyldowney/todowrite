@@ -1,7 +1,7 @@
 
+import os
 import re
 from collections import Counter
-import os
 
 LOG_FILE = "logs/static_analysis.log"
 ERROR_PATTERN = re.compile(r"^([A-Z]+\d+)\s")

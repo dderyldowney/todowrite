@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+
 from afs_fastapi.core.todos_manager import add_goal
 
 # Add project root to sys.path

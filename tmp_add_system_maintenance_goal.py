@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+
 from afs_fastapi.core.todos_manager import add_goal
 
 project_root = Path(__file__).resolve().parent
