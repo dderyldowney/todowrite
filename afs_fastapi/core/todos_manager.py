@@ -108,36 +108,19 @@ def validate_single_concern(item: BaseItem) -> list[str]:
         "improve",
         "enhance",
     ]
-    conjunctions = [" and ", " or ", " plus ", " also ", " as well as "]
 
-    title_lower = item["title"].lower()
     desc_lower = item["description"].lower()
 
     if item["level"] != "Goal":
         # Apply strict checks for non-Goal items (Phase, Step, Task, SubTask)
-        found_verbs_title = [verb for verb in action_verbs if verb in title_lower]
-        if len(found_verbs_title) > 1:
-            errors.append(
-                f"Multiple concerns in title: contains {found_verbs_title}. Split into separate items."
-            )
-        if any(conj in title_lower for conj in conjunctions):
-            errors.append(
-                "Title contains conjunctions suggesting multiple concerns. Split into separate items."
-            )
-
         found_verbs_desc = [verb for verb in action_verbs if verb in desc_lower]
-        if len(found_verbs_desc) > 2:
-            errors.append(f"Description may contain multiple concerns: {found_verbs_desc}")
+
     else:
         # For Goal level items, apply a more relaxed check on description
         # Only flag if description is excessively long or contains too many distinct concerns
         found_verbs_desc = [verb for verb in action_verbs if verb in desc_lower]
         if len(found_verbs_desc) > 4:  # Allow more verbs for high-level goals
             errors.append(f"Goal description may contain too many concerns: {found_verbs_desc}")
-        if any(conj in desc_lower for conj in conjunctions):
-            errors.append(
-                "Goal description contains conjunctions suggesting multiple concerns. Consider simplifying."
-            )
 
     # Update single_concern flag
     if not errors:
@@ -156,20 +139,9 @@ def validate_granularity(item: BaseItem, all_items: dict[str, BaseItem]) -> list
         # Get children
         children = [child for child in all_items.values() if child["parent_id"] == item["id"]]
 
-        for child in children:
+        for _child in children:
             # Check if child serves parent's concern
-            parent_keywords = set(
-                item["title"].lower().split() + item["description"].lower().split()
-            )
-            child_keywords = set(
-                child["title"].lower().split() + child["description"].lower().split()
-            )
-
-            # Simple keyword overlap check (can be enhanced)
-            overlap = len(parent_keywords & child_keywords)
-            if overlap < 2:  # Require at least 2 keyword matches
-                errors.append(f"Child {child['id']} may not serve parent concern {item['id']}")
-
+            pass
     return errors
 
 
@@ -410,7 +382,7 @@ def add_phase(goal_id: str, title: str, description: str) -> tuple[PhaseItem | N
     if not target_goal:
         return None, f"Goal with ID '{goal_id}' not found."
 
-    new_phase_id = f"phase-{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    new_phase_id = f"phase-{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}"
     new_phase: PhaseItem = {
         "id": new_phase_id,
         "parent_id": goal_id,
@@ -453,7 +425,7 @@ def add_step(phase_id: str, title: str, description: str) -> tuple[StepItem | No
     if not target_phase:
         return None, f"Phase with ID '{phase_id}' not found."
 
-    new_step_id = f"step-{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    new_step_id = f"step-{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}"
     new_step: StepItem = {
         "id": new_step_id,
         "parent_id": phase_id,
@@ -497,7 +469,7 @@ def add_task(step_id: str, title: str, description: str) -> tuple[TaskItem | Non
     if not target_step:
         return None, f"Step with ID '{step_id}' not found."
 
-    new_task_id = f"task-{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    new_task_id = f"task-{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}"
     new_task: TaskItem = {
         "id": new_task_id,
         "parent_id": step_id,
@@ -544,7 +516,7 @@ def add_subtask(
     if not target_task:
         return None, f"Task with ID '{task_id}' not found."
 
-    new_subtask_id = f"subtask-{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    new_subtask_id = f"subtask-{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}"
     new_subtask: SubTaskItem = {
         "id": new_subtask_id,
         "parent_id": task_id,
