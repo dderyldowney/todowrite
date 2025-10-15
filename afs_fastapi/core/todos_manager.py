@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 from datetime import datetime
 from typing import Literal, TypedDict
@@ -64,6 +65,7 @@ class TodosData(TypedDict):
 
 
 TODOS_FILE = ".claude/todos.json"
+TODOS_SCHEMA_FILE = ".claude/todos_schema.json"
 
 
 # TodoWrite.md Validation Pipeline Implementation
@@ -282,6 +284,13 @@ def create_flat_item_dict(todos: TodosData) -> dict[str, BaseItem]:
 
 def load_todos() -> TodosData:
     """Load TodoWrite.md format data."""
+    if not os.path.exists(TODOS_FILE) or os.stat(TODOS_FILE).st_size == 0:
+        # If todos.json doesn't exist or is empty, create a blank one from schema
+        print(f"Creating blank {TODOS_FILE} from schema.")
+        initial_todos_data: TodosData = {"goals": []}
+        with open(TODOS_FILE, "w") as f:
+            json.dump(initial_todos_data, f, indent=2)
+
     try:
         with open(TODOS_FILE) as f:
             data = json.load(f)
@@ -302,6 +311,8 @@ def load_todos() -> TodosData:
                 return TodosData(goals=[])
 
     except FileNotFoundError:
+        # This should ideally not happen after the os.path.exists check,
+        # but keeping it for robustness against race conditions or other issues.
         return TodosData(goals=[])
 
 
