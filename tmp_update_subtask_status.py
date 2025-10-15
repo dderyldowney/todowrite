@@ -1,12 +1,11 @@
 
 import sys
 import os
+from afs_fastapi.core.todos_manager import update_subtask_status
 
 # Add the project root to the python path
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
 sys.path.insert(0, project_root)
-
-from afs_fastapi.core.todos_manager import update_subtask_status
 
 subtask_id = "subtask-20251014_182131_975074"
 new_status = "done"

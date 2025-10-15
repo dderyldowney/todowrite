@@ -1,11 +1,10 @@
 import sys
 from pathlib import Path
+from afs_fastapi.core.todos_manager import add_goal
 
 # Add project root to sys.path
 project_root = Path(__file__).resolve().parent
 sys.path.insert(0, str(project_root))
-
-from afs_fastapi.core.todos_manager import add_goal  # noqa: E402
 
 # Add new goal for system errors
 new_goal_errors = add_goal(

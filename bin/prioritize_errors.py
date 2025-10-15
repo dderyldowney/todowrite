@@ -11,7 +11,7 @@ def prioritize_errors():
         print(f"Log file '{LOG_FILE}' not found.")
         return
 
-    with open(LOG_FILE, "r") as f:
+    with open(LOG_FILE) as f:
         content = f.readlines()
 
     errors = []
