@@ -101,7 +101,7 @@ class TestTodoWriteValidation(unittest.TestCase):
         }
         errors = validate_single_concern(item)
         self.assertEqual(len(errors), 2)  # Two verbs and a conjunction
-        self.assertIn("Multiple concerns in title", errors[0])
+        self.assertIn("Title contains conjunctions suggesting multiple concerns", errors[0])
 
     def test_validate_single_concern_conjunction(self) -> None:
         """Test that a title with a conjunction fails single concern validation."""
@@ -119,7 +119,7 @@ class TestTodoWriteValidation(unittest.TestCase):
         }
         errors = validate_single_concern(item)
         self.assertEqual(len(errors), 2)
-        self.assertIn("Multiple concerns in title", errors[0])
+        self.assertIn("Title contains conjunctions suggesting multiple concerns", errors[0])
 
     def test_validate_granularity(self) -> None:
         """Test that a child item that does not serve the parent's concern fails granularity validation."""

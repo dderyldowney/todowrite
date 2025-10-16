@@ -229,6 +229,7 @@ class TestTodosManager(unittest.TestCase):
                                                 {
                                                     "id": "subtask-1",
                                                     "status": "planned",
+                                                    "command": "echo 'test'",
                                                     "command_type": "bash",
                                                     "execution_log": [],
                                                 }
