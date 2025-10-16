@@ -478,7 +478,7 @@ class TestCANBusConnectionManager:
         mock_interface.send_message = AsyncMock(return_value=True)
 
         with patch.object(can_manager.physical_manager, "_interfaces", {"can0": mock_interface}):
-            results = await can_manager.send_message(message, target_interfaces=["can0"])
+            results = await can_manager.send_message(message, ["can0"])
 
             assert results["can0"] is True
 
