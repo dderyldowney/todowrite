@@ -12,10 +12,10 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from bin.common.json_operations import load_json, save_json
-
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
+
+from bin.common.json_operations import load_json, save_json
 
 
 def create_pause_point(reason: str, next_action: str = "", enforce_quality: bool = True) -> None:
