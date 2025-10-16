@@ -111,11 +111,32 @@ def validate_single_concern(item: BaseItem) -> list[str]:
         "enhance",
     ]
 
+    title_lower = item["title"].lower()
     desc_lower = item["description"].lower()
 
     if item["level"] != "Goal":
         # Apply strict checks for non-Goal items (Phase, Step, Task, SubTask)
+        found_verbs_title = [verb for verb in action_verbs if verb in title_lower]
         found_verbs_desc = [verb for verb in action_verbs if verb in desc_lower]
+
+        # Check for conjunctions in title
+        conjunctions = [" and ", " or ", " & "]
+        for conjunction in conjunctions:
+            if conjunction in title_lower:
+                errors.append(
+                    "Title contains conjunctions suggesting multiple concerns. Split into separate items."
+                )
+                break
+
+        # Check for multiple verbs in title
+        if len(found_verbs_title) > 1:
+            errors.append(
+                f"Multiple concerns in title: contains {found_verbs_title}. Split into separate items."
+            )
+
+        # Check for multiple verbs in description
+        if len(found_verbs_desc) > 1:
+            errors.append(f"Description may contain multiple concerns: {found_verbs_desc}")
 
     else:
         # For Goal level items, apply a more relaxed check on description
@@ -141,9 +162,85 @@ def validate_granularity(item: BaseItem, all_items: dict[str, BaseItem]) -> list
         # Get children
         children = [child for child in all_items.values() if child["parent_id"] == item["id"]]
 
-        for _child in children:
+        for child in children:
             # Check if child serves parent's concern
-            pass
+            parent_concern = item["title"].lower()
+            child_concern = child["title"].lower()
+
+            # Extract meaningful nouns/concepts from parent and child titles
+            # Filter out common action verbs that don't indicate domain
+            action_verbs = {
+                "implement",
+                "create",
+                "design",
+                "develop",
+                "build",
+                "test",
+                "validate",
+                "configure",
+                "setup",
+                "analyze",
+                "fix",
+                "repair",
+                "locate",
+                "identify",
+                "improve",
+                "enhance",
+                "add",
+                "update",
+                "execute",
+                "run",
+                "handle",
+                "process",
+                "manage",
+                "ensure",
+            }
+
+            # Extract content words (nouns/concepts) by removing action verbs and common words
+            def extract_content_words(text: str, action_verbs_set: set[str]) -> set[str]:
+                words = set(text.split())
+                # Remove action verbs, articles, prepositions, and short words
+                common_words = {
+                    "the",
+                    "a",
+                    "an",
+                    "and",
+                    "or",
+                    "for",
+                    "with",
+                    "in",
+                    "on",
+                    "at",
+                    "to",
+                    "from",
+                }
+                content_words = {
+                    word
+                    for word in words
+                    if len(word) > 3 and word not in action_verbs_set and word not in common_words
+                }
+                return content_words
+
+            parent_content = extract_content_words(parent_concern, action_verbs)
+            child_content = extract_content_words(child_concern, action_verbs)
+
+            # Check if child has any content overlap with parent
+            if parent_content and child_content:
+                # Look for direct word matches or semantic relationships
+                has_overlap = bool(parent_content.intersection(child_content))
+
+                # Also check for partial word matches (e.g., "login" in "login_form")
+                partial_matches = any(
+                    any(
+                        parent_word in child_word or child_word in parent_word
+                        for child_word in child_content
+                    )
+                    for parent_word in parent_content
+                )
+
+                if not has_overlap and not partial_matches:
+                    errors.append(f"Child {child['id']} may not serve parent concern {item['id']}")
+
     return errors
 
 

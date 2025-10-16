@@ -116,23 +116,10 @@ class LinuxSocketCANManager:
 
         try:
             # Use ip command to discover CAN interfaces
-            result = await asyncio.create_subprocess_exec(
-                "ip",
-                "link",
-                "show",
-                "type",
-                "can",
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-            )
-            stdout, stderr = await result.communicate()
-
-            if result.returncode != 0:
-                logger.warning(f"Failed to discover CAN interfaces: {stderr.decode()}")
-                return interfaces
+            stdout, stderr = await self._run_command(["ip", "link", "show", "type", "can"])
 
             # Parse ip link output
-            output = stdout.decode()
+            output = stdout
             interface_blocks = re.split(r"\n(?=\d+:)", output)
 
             for block in interface_blocks:
@@ -182,7 +169,7 @@ class LinuxSocketCANManager:
 
             # Determine state
             state = SocketCANState.DOWN
-            if "UP" in flags:
+            if "UP" in flags and "NO-CARRIER" not in flags:
                 if "ERROR-PASSIVE" in flags:
                     state = SocketCANState.ERROR_PASSIVE
                 elif "ERROR-WARNING" in flags:

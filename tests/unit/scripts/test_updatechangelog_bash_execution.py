@@ -194,9 +194,12 @@ class TestUpdateChangelogCommandLineRobustness:
         """
         # Arrange: Mock subprocess.run to simulate git not found
         with patch("subprocess.run") as mock_subprocess_run:
+
             def side_effect(cmd, *args, **kwargs):
                 if "command -v python3" in cmd or "command -v python" in cmd:
-                    return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="/usr/bin/python3", stderr="")
+                    return subprocess.CompletedProcess(
+                        args=cmd, returncode=0, stdout="/usr/bin/python3", stderr=""
+                    )
                 if "command -v git" in cmd:
                     return subprocess.CompletedProcess(args=cmd, returncode=1, stdout="", stderr="")
                 if "./bin/updatechangelog" in cmd:
@@ -218,8 +221,10 @@ class TestUpdateChangelogCommandLineRobustness:
 
             # Assert: Script should fail with a specific error message for missing git
             assert result.returncode == 1
-            assert "Error: Git command not found. Please ensure Git is installed and available in your PATH." in result.stderr
-
+            assert (
+                "Error: Git command not found. Please ensure Git is installed and available in your PATH."
+                in result.stderr
+            )
 
     def test_provides_clear_error_messages_for_missing_python(self) -> None:
         """Test clear error messages when neither python3 nor python is found.

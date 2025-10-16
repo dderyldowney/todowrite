@@ -111,7 +111,9 @@ class Field(Base):  # type: ignore[misc, valid-type]
     elevation_meters = Column(Float, nullable=True)
     slope_percentage = Column(Float, nullable=True)
     created_date = Column(DateTime, default=lambda: datetime.now(UTC))
-    last_updated = Column(DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
+    last_updated = Column(
+        DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC)
+    )
 
     # Relationships
     sensor_records = relationship("AgriculturalSensorRecord", back_populates="field")
@@ -288,7 +290,9 @@ class OperationalSession(Base):  # type: ignore[misc, valid-type]
     notes = Column(Text, nullable=True)
     session_status = Column(String(20), default="active")  # active, completed, aborted
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
-    updated_at = Column(DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
+    updated_at = Column(
+        DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC)
+    )
 
     # Relationships
     equipment = relationship("Equipment", back_populates="operational_sessions")
