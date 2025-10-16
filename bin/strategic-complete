@@ -9,7 +9,7 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from afs_fastapi.core.todos_manager import load_todos, save_todos  # noqa: E402
+from afs_fastapi.core.todos_manager import load_todos, save_todos, complete_goal  # noqa: E402
 
 
 def main():
@@ -34,16 +34,20 @@ def main():
         print(f"Goal already completed: {matched_goal['title']}")
         sys.exit(0)
 
-    # Update the status and save
-    matched_goal['status'] = 'done'
-    save_todos(todos)
+    # Use complete_goal function for enhanced functionality
+    completed_goal, error = complete_goal(matched_goal['id'])
+
+    if error:
+        print(f"Error: {error}")
+        sys.exit(1)
 
     print("✓ Goal marked as completed!")
-    print(f"  ID: {matched_goal['id']}")
-    print(f"  Title: {matched_goal['title']}")
-    print("  Status: done")
-    print()
-    print("Goal completed successfully. Use 'get_goals()' to view updated goals.")
+    print(f"  ID: {completed_goal['id']}")
+    print(f"  Title: {completed_goal['title']}")
+    print(f"  Status: {completed_goal['status']}")
+    if 'date_completed' in completed_goal:
+        print(f"  Date completed: {completed_goal['date_completed']}")
+    print("  Enhanced: Validation log updated")
 
 
 if __name__ == "__main__":
