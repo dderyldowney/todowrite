@@ -1050,3 +1050,85 @@ class CANFrameCodec:
             List of supported SPN numbers
         """
         return list(self.decoder.spn_definitions.keys())
+
+    # Test compatibility methods
+    def decode_can_message(self, message: can.Message) -> DecodedPGN | None:
+        """Decode a CAN message (alias for decode_message for test compatibility).
+
+        Parameters
+        ----------
+        message : can.Message
+            Message to decode
+
+        Returns
+        -------
+        Optional[DecodedPGN]
+            Decoded message data
+        """
+        return self.decode_message(message)
+
+    def encode_engine_data(self, engine_data, source_address: int) -> can.Message | None:
+        """Encode engine data object to CAN message (for test compatibility).
+
+        Parameters
+        ----------
+        engine_data
+            Engine data object with attributes: rpm, torque, fuel_rate, coolant_temp,
+            oil_pressure, air_intake_temp
+        source_address : int
+            Source address
+
+        Returns
+        -------
+        Optional[can.Message]
+            Encoded CAN message
+        """
+        try:
+            # Convert engine data object to SPN values
+            spn_values = {}
+
+            if hasattr(engine_data, 'rpm') and engine_data.rpm is not None:
+                spn_values[190] = engine_data.rpm  # Engine Speed
+            if hasattr(engine_data, 'torque') and engine_data.torque is not None:
+                spn_values[61] = engine_data.torque  # Engine Percent Torque
+            if hasattr(engine_data, 'fuel_rate') and engine_data.fuel_rate is not None:
+                spn_values[183] = engine_data.fuel_rate  # Engine Fuel Rate
+
+            # Use the existing encoder method
+            return self.encoder.encode_pgn_message(0xF004, source_address, spn_values)
+
+        except Exception as e:
+            logger.error(f"Failed to encode engine data: {e}")
+            return None
+
+    def encode_vehicle_position(self, position_data, source_address: int) -> can.Message | None:
+        """Encode vehicle position object to CAN message (for test compatibility).
+
+        Parameters
+        ----------
+        position_data
+            Position data object with attributes: latitude, longitude, altitude
+        source_address : int
+            Source address
+
+        Returns
+        -------
+        Optional[can.Message]
+            Encoded CAN message
+        """
+        try:
+            # Convert position data object to SPN values
+            spn_values = {}
+
+            if hasattr(position_data, 'latitude') and position_data.latitude is not None:
+                spn_values[584] = position_data.latitude  # Latitude
+            if hasattr(position_data, 'longitude') and position_data.longitude is not None:
+                spn_values[585] = position_data.longitude  # Longitude
+            # Note: altitude is not included in standard Vehicle Position PGN (0xFEF3)
+
+            # Use the existing encoder method for Vehicle Position (VP)
+            return self.encoder.encode_pgn_message(0xFEF3, source_address, spn_values)
+
+        except Exception as e:
+            logger.error(f"Failed to encode vehicle position: {e}")
+            return None

@@ -27,7 +27,11 @@ from afs_fastapi.equipment.physical_can_interface import (
     InterfaceConfiguration,
     InterfaceState,
 )
-from afs_fastapi.protocols.isobus_handlers import ISOBUSProtocolManager
+from afs_fastapi.protocols.isobus_handlers import (
+    ISOBUSDevice,
+    ISOBUSFunction,
+    ISOBUSProtocolManager,
+)
 
 
 @dataclass
@@ -127,7 +131,7 @@ class TestCANInterfaceIntegration:
         error_handler = CANErrorHandler()
         return ISOBUSProtocolManager(codec, error_handler)
 
-    @pytest.mark.skip(reason="Test interface mismatch - requires updated CAN manager API")
+    @pytest.mark.asyncio
     async def test_complete_tractor_communication_workflow(
         self, can_manager, isobus_manager, mock_can_bus
     ):
@@ -166,26 +170,31 @@ class TestCANInterfaceIntegration:
             await can_manager.initialize_interface("tractor_2", tractor_2_config)
 
             # Test Address Claim procedure
-            address_claim_msg = AddressClaimMessage(
-                source_address=0x81,
-                name=0x8000000000000001,  # Tractor 1 NAME
-                function_code=0x19,  # Tractor function
-                vehicle_system=0x00,
+            # Create proper ISOBUSDevice for address claim
+            tractor_device = ISOBUSDevice(
+                name="Tractor_1",
+                address=0x81,
+                function=ISOBUSFunction.TRACTOR,
+                manufacturer_code=0x123,
+                device_class=0x00,
+                device_class_instance=0x00,
+                ecu_instance=0x00,
+                identity_number=0x8001,
+                preferred_address=0x81,
             )
 
             # Simulate address claim exchange
-            claim_frame = isobus_manager.address_claim.create_address_claim_message(
-                address_claim_msg
-            )
+            claim_frame = isobus_manager.address_claim.create_address_claim_message(tractor_device)
 
             # Verify address claim processing
             assert claim_frame is not None
             assert claim_frame.arbitration_id & 0xFF == 0x81  # Source address
 
             # Process the claim on the receiving tractor
-            decoded_claim = isobus_manager.address_claim.process_address_claim(claim_frame)
+            decoded_claim = isobus_manager.address_claim.handle_address_claim(claim_frame)
             assert decoded_claim is not None
-            assert decoded_claim.source_address == 0x81
+            assert decoded_claim.address == 0x81
+            assert decoded_claim.function == ISOBUSFunction.TRACTOR
 
             # Test engine data exchange
             engine_data = EngineData(
@@ -212,10 +221,18 @@ class TestCANInterfaceIntegration:
             decoded_engine = can_manager.codec.decode_can_message(received_frame)
             assert decoded_engine is not None
             assert decoded_engine.pgn == 0xF004  # Engine data PGN
-            assert "rpm" in decoded_engine.data
-            assert decoded_engine.data["rpm"] == 1800
 
-    @pytest.mark.skip(reason="Test interface mismatch - requires updated CAN manager API")
+            # Find the RPM value in the SPN values
+            rpm_spn = None
+            for spn in decoded_engine.spn_values:
+                if spn.spn == 190:  # Engine Speed SPN
+                    rpm_spn = spn
+                    break
+
+            assert rpm_spn is not None, "Engine Speed SPN (190) not found in decoded message"
+            assert rpm_spn.value == 1800, f"Expected RPM 1800, got {rpm_spn.value}"
+
+    @pytest.mark.asyncio
     async def test_multi_tractor_field_coordination_scenario(self, can_manager, isobus_manager):
         """Test realistic multi-tractor field coordination scenario."""
         # Simulate 3 tractors performing coordinated field operation
@@ -301,7 +318,7 @@ class TestCANInterfaceIntegration:
             for mock_interface in mock_interfaces:
                 assert mock_interface.send_message.call_count >= 1
 
-    @pytest.mark.skip(reason="Test interface mismatch - requires updated CAN manager API")
+    @pytest.mark.asyncio
     async def test_error_handling_and_recovery_integration(self, can_manager, isobus_manager):
         """Test comprehensive error handling and recovery scenarios."""
         config = InterfaceConfiguration(
@@ -348,7 +365,7 @@ class TestCANInterfaceIntegration:
             assert len(decoded_dm1.dtcs) == 2
             assert decoded_dm1.dtcs[0]["spn"] == 110
 
-    @pytest.mark.skip(reason="Test interface mismatch - requires updated CAN manager API")
+    @pytest.mark.asyncio
     async def test_high_throughput_message_processing(self, can_manager, isobus_manager):
         """Test system performance with high message throughput."""
         config = InterfaceConfiguration(
@@ -398,7 +415,7 @@ class TestCANInterfaceIntegration:
             throughput = total_messages / processing_time
             assert throughput > 50  # Minimum 50 messages/second
 
-    @pytest.mark.skip(reason="Test interface mismatch - requires updated CAN manager API")
+    @pytest.mark.asyncio
     async def test_real_world_agricultural_protocol_compliance(self, can_manager, isobus_manager):
         """Test compliance with real-world agricultural protocols."""
         config = InterfaceConfiguration(
@@ -473,7 +490,7 @@ class TestCANInterfaceIntegration:
             # Verify all compliance messages were sent
             assert mock_interface.send_message.call_count >= 3
 
-    @pytest.mark.skip(reason="Test interface mismatch - requires updated CAN manager API")
+    @pytest.mark.asyncio
     async def test_failover_and_redundancy_integration(self, can_manager):
         """Test failover and redundancy mechanisms."""
         # Configure primary and backup interfaces
@@ -526,7 +543,7 @@ class TestCANInterfaceIntegration:
             # Note: This would require implementing actual failover logic in the manager
             assert mock_backup.connect.called
 
-    @pytest.mark.skip(reason="Test interface mismatch - requires updated CAN manager API")
+    @pytest.mark.asyncio
     async def test_memory_and_resource_management(self, can_manager):
         """Test memory usage and resource cleanup."""
         # This test uses old API methods that don't exist in current implementation
