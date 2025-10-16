@@ -45,7 +45,7 @@ EXECUTION_RULES:
 VALIDATION_PIPELINE (run on every write/update):
   - V1: Require hierarchy order: Goal>Phase>Step>Task>SubTask; reject skips/misplacements.
   - V2: SoC check: title+description MUST express one concern; if multiple verbs/concerns, split.
-  - V3: Granularity check: Steps MUST only contain Tasks serving the Step’s concern; Tasks MUST only contain SubTasks serving the Task’s concern.
+  - V3: Granularity check: Goals MUST only contain Phases serving the Goal's concern. Phases MUST only contain Steps serving the Phase's concern. Steps MUST only contain Tasks serving the Step’s concern; Tasks MUST only contain SubTasks serving the Task’s concern.
   - V4: Dependency check: no cycles; deps reference existing items; no cross-concern leakage.
   - V5: SubTask atomicity: 1 SubTask → 1 Command; no composite/multi-action commands.
   - V6: Status rules: parents cannot be done unless all children are done; blocked bubbles upward.
