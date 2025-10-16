@@ -341,6 +341,7 @@ pytest.xml
 .claude/.universal_access_enabled
 .claude/session_optimization_tracking.json
 .claude/optimization_monitoring.json
+.claude/current_session.json
 
 # AI Agent scratch files (not committed to repository)
 AGENT_TODOS.md
