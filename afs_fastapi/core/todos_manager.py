@@ -1152,3 +1152,49 @@ def get_execution_ready_subtasks() -> list[SubTaskItem]:
                             ready_subtasks.append(subtask)
 
     return ready_subtasks
+
+
+def complete_goal(goal_id: str) -> tuple[GoalItem | None, str | None]:
+    """Mark a goal as completed by ID.
+
+    Parameters
+    ----------
+    goal_id : str
+        The unique identifier of the goal to complete
+
+    Returns
+    -------
+    Tuple[GoalItem | None, str | None]
+        (completed_goal, error_message) - goal is None if not found or error occurred
+    """
+    todos = load_todos()
+    target_goal = None
+
+    # Find the goal by ID
+    for goal in todos["goals"]:
+        if goal["id"] == goal_id:
+            target_goal = goal
+            break
+
+    if not target_goal:
+        return None, f"Goal with ID '{goal_id}' not found."
+
+    # If already completed, return it without modifying
+    if target_goal["status"] == "done":
+        return target_goal, None
+
+    # Mark goal as completed
+    target_goal["status"] = "done"
+    target_goal["date_completed"] = datetime.now().isoformat()
+
+    # Update validation log (ensure it exists)
+    if "validation_log" not in target_goal:
+        target_goal["validation_log"] = []
+    target_goal["validation_log"].append(
+        f"{datetime.now().isoformat()}: Goal completed"
+    )
+
+    # Save the updated todos
+    save_todos(todos)
+
+    return target_goal, None

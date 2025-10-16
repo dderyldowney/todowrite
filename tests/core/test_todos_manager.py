@@ -14,6 +14,7 @@ from afs_fastapi.core.todos_manager import (  # noqa: E402
     add_step,
     add_subtask,
     add_task,
+    complete_goal,
     execute_subtask,
     get_active_items,
     get_execution_ready_subtasks,
@@ -722,6 +723,190 @@ class TestTodosManager(unittest.TestCase):
         all_items = {"g1": goal, "p1": phase}
         errors = validate_status_rules(goal, all_items)
         self.assertIn("Parent g1 should be blocked due to blocked children", errors)
+
+    @patch("afs_fastapi.core.todos_manager.load_todos")
+    @patch("afs_fastapi.core.todos_manager.save_todos")
+    @patch("afs_fastapi.core.todos_manager.datetime")
+    def test_complete_goal_success(self, mock_datetime, mock_save_todos, mock_load_todos):
+        """Test RED: complete_goal successfully marks a goal as completed."""
+        # Arrange
+        mock_datetime.now.return_value.isoformat.return_value = "2025-10-16T12:00:00"
+
+        mock_load_todos.return_value = {
+            "goals": [
+                {
+                    "id": "goal-123",
+                    "parent_id": None,
+                    "level": "Goal",
+                    "title": "Test Goal",
+                    "description": "Test Description",
+                    "single_concern": True,
+                    "dependencies": [],
+                    "status": "in_progress",
+                    "validation_log": [],
+                    "phases": [],
+                    "category": "general",
+                    "priority": "medium",
+                    "date_completed": None,
+                }
+            ]
+        }
+
+        # Act
+        result, error = complete_goal("goal-123")
+
+        # Assert
+        self.assertIsNotNone(result)
+        self.assertIsNone(error)
+        self.assertEqual(result["status"], "done")
+        self.assertEqual(result["date_completed"], "2025-10-16T12:00:00")
+        self.assertTrue(mock_save_todos.called)
+
+        # Verify saved data
+        saved_data = mock_save_todos.call_args[0][0]
+        self.assertEqual(saved_data["goals"][0]["status"], "done")
+        self.assertEqual(saved_data["goals"][0]["date_completed"], "2025-10-16T12:00:00")
+
+    @patch("afs_fastapi.core.todos_manager.load_todos")
+    @patch("afs_fastapi.core.todos_manager.save_todos")
+    def test_complete_goal_not_found(self, mock_save_todos, mock_load_todos):
+        """Test RED: complete_goal handles non-existent goal ID."""
+        # Arrange
+        mock_load_todos.return_value = {
+            "goals": [
+                {
+                    "id": "goal-456",
+                    "status": "planned",
+                    "title": "Other Goal",
+                }
+            ]
+        }
+
+        # Act
+        result, error = complete_goal("goal-123-nonexistent")
+
+        # Assert
+        self.assertIsNone(result)
+        self.assertIsNotNone(error)
+        self.assertIn("Goal with ID 'goal-123-nonexistent' not found", error)
+        self.assertFalse(mock_save_todos.called)
+
+    @patch("afs_fastapi.core.todos_manager.load_todos")
+    @patch("afs_fastapi.core.todos_manager.save_todos")
+    def test_complete_goal_already_completed(self, mock_save_todos, mock_load_todos):
+        """Test RED: complete_goal handles already completed goal gracefully."""
+        # Arrange
+        mock_load_todos.return_value = {
+            "goals": [
+                {
+                    "id": "goal-123",
+                    "parent_id": None,
+                    "level": "Goal",
+                    "title": "Test Goal",
+                    "description": "Test Description",
+                    "single_concern": True,
+                    "dependencies": [],
+                    "status": "done",
+                    "validation_log": [],
+                    "phases": [],
+                    "category": "general",
+                    "priority": "medium",
+                    "date_completed": "2025-10-15T10:00:00",
+                }
+            ]
+        }
+
+        # Act
+        result, error = complete_goal("goal-123")
+
+        # Assert
+        self.assertIsNotNone(result)
+        self.assertIsNone(error)
+        self.assertEqual(result["status"], "done")
+        self.assertEqual(result["date_completed"], "2025-10-15T10:00:00")  # Should preserve original completion date
+        self.assertFalse(mock_save_todos.called)  # Should not save if already completed
+
+    @patch("afs_fastapi.core.todos_manager.load_todos")
+    @patch("afs_fastapi.core.todos_manager.save_todos")
+    @patch("afs_fastapi.core.todos_manager.datetime")
+    def test_complete_goal_multiple_goals(self, mock_datetime, mock_save_todos, mock_load_todos):
+        """Test RED: complete_goal correctly identifies and completes the right goal among multiple goals."""
+        # Arrange
+        mock_datetime.now.return_value.isoformat.return_value = "2025-10-16T12:00:00"
+
+        mock_load_todos.return_value = {
+            "goals": [
+                {
+                    "id": "goal-111",
+                    "status": "planned",
+                    "title": "First Goal",
+                    "date_completed": None,
+                },
+                {
+                    "id": "goal-222",
+                    "status": "in_progress",
+                    "title": "Target Goal",
+                    "date_completed": None,
+                },
+                {
+                    "id": "goal-333",
+                    "status": "blocked",
+                    "title": "Third Goal",
+                    "date_completed": None,
+                }
+            ]
+        }
+
+        # Act
+        result, error = complete_goal("goal-222")
+
+        # Assert
+        self.assertIsNotNone(result)
+        self.assertIsNone(error)
+        self.assertEqual(result["id"], "goal-222")
+        self.assertEqual(result["status"], "done")
+        self.assertEqual(result["date_completed"], "2025-10-16T12:00:00")
+        self.assertTrue(mock_save_todos.called)
+
+        # Verify other goals unchanged
+        saved_data = mock_save_todos.call_args[0][0]
+        self.assertEqual(saved_data["goals"][0]["status"], "planned")  # goal-111 unchanged
+        self.assertEqual(saved_data["goals"][1]["status"], "done")     # goal-222 completed
+        self.assertEqual(saved_data["goals"][2]["status"], "blocked")  # goal-333 unchanged
+
+    @patch("afs_fastapi.core.todos_manager.load_todos")
+    @patch("afs_fastapi.core.todos_manager.save_todos")
+    @patch("afs_fastapi.core.todos_manager.datetime")
+    def test_complete_goal_updates_validation_log(self, mock_datetime, mock_save_todos, mock_load_todos):
+        """Test RED: complete_goal adds completion entry to validation log."""
+        # Arrange
+        mock_datetime.now.return_value.isoformat.return_value = "2025-10-16T12:00:00"
+
+        mock_load_todos.return_value = {
+            "goals": [
+                {
+                    "id": "goal-123",
+                    "status": "in_progress",
+                    "title": "Test Goal",
+                    "validation_log": ["2025-10-15T10:00:00: Created"],
+                    "date_completed": None,
+                }
+            ]
+        }
+
+        # Act
+        result, error = complete_goal("goal-123")
+
+        # Assert
+        self.assertIsNotNone(result)
+        self.assertIsNone(error)
+        self.assertTrue(mock_save_todos.called)
+
+        # Verify validation log updated
+        saved_data = mock_save_todos.call_args[0][0]
+        validation_log = saved_data["goals"][0]["validation_log"]
+        self.assertIn("2025-10-15T10:00:00: Created", validation_log)
+        self.assertIn("2025-10-16T12:00:00: Goal completed", validation_log)
 
 
 if __name__ == "__main__":
