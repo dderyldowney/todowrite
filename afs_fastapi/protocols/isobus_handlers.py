@@ -898,6 +898,9 @@ class ISOBUSProtocolManager:
             if pdu_format < 0xF0:  # PDU1 format
                 pdu_specific = pgn_full & 0xFF
                 pgn = (pdu_format << 8) | pdu_specific
+            elif pdu_format < 0xFF:  # PDU1 format for diagnostic messages (0xF0-0xFE)
+                pdu_specific = pgn_full & 0xFF
+                pgn = (pdu_format << 8) | pdu_specific
             else:  # PDU2 format
                 pgn = pdu_format << 8
 
