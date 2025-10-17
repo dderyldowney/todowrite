@@ -762,7 +762,7 @@ class DiagnosticHandler:
             spn = dtc_bytes[0] | (dtc_bytes[1] << 8) | ((dtc_bytes[2] & 0x03) << 16)
 
             # Parse FMI (Failure Mode Indicator) - bits 19-23
-            fmi = (dtc_bytes[2] >> 5) & 0x1F
+            fmi = (dtc_bytes[2] >> 3) & 0x1F
 
             # Parse occurrence count - byte 4
             occurrence_count = dtc_bytes[3] & 0x7F
