@@ -1087,11 +1087,11 @@ class CANFrameCodec:
             # Convert engine data object to SPN values
             spn_values = {}
 
-            if hasattr(engine_data, 'rpm') and engine_data.rpm is not None:
+            if hasattr(engine_data, "rpm") and engine_data.rpm is not None:
                 spn_values[190] = engine_data.rpm  # Engine Speed
-            if hasattr(engine_data, 'torque') and engine_data.torque is not None:
+            if hasattr(engine_data, "torque") and engine_data.torque is not None:
                 spn_values[61] = engine_data.torque  # Engine Percent Torque
-            if hasattr(engine_data, 'fuel_rate') and engine_data.fuel_rate is not None:
+            if hasattr(engine_data, "fuel_rate") and engine_data.fuel_rate is not None:
                 spn_values[183] = engine_data.fuel_rate  # Engine Fuel Rate
 
             # Use the existing encoder method
@@ -1120,9 +1120,9 @@ class CANFrameCodec:
             # Convert position data object to SPN values
             spn_values = {}
 
-            if hasattr(position_data, 'latitude') and position_data.latitude is not None:
+            if hasattr(position_data, "latitude") and position_data.latitude is not None:
                 spn_values[584] = position_data.latitude  # Latitude
-            if hasattr(position_data, 'longitude') and position_data.longitude is not None:
+            if hasattr(position_data, "longitude") and position_data.longitude is not None:
                 spn_values[585] = position_data.longitude  # Longitude
             # Note: altitude is not included in standard Vehicle Position PGN (0xFEF3)
 

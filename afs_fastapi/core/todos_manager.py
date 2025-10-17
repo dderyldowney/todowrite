@@ -1190,9 +1190,7 @@ def complete_goal(goal_id: str) -> tuple[GoalItem | None, str | None]:
     # Update validation log (ensure it exists)
     if "validation_log" not in target_goal:
         target_goal["validation_log"] = []
-    target_goal["validation_log"].append(
-        f"{datetime.now().isoformat()}: Goal completed"
-    )
+    target_goal["validation_log"].append(f"{datetime.now().isoformat()}: Goal completed")
 
     # Save the updated todos
     save_todos(todos)
