@@ -321,7 +321,9 @@ class SocketCANInterface(PhysicalCANInterface):
                 )
 
                 # Start message reception task
-                self._message_reception_task = asyncio.create_task(self._message_reception_loop(listener))
+                self._message_reception_task = asyncio.create_task(
+                    self._message_reception_loop(listener)
+                )
 
                 return True
 

@@ -64,7 +64,7 @@ class TestAddressClaimHandler:
         name_data = bytearray(8)
 
         # Identity number (21 bits): 12345
-        identity_number = 12345 # Explicitly define identity_number for clarity in this section
+        identity_number = 12345  # Explicitly define identity_number for clarity in this section
         identity_bytes = struct.pack("<I", identity_number)
         name_data[0:3] = identity_bytes[0:3]
 

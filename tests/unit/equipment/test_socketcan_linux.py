@@ -29,16 +29,18 @@ from afs_fastapi.equipment.socketcan_linux import (
 )
 
 
-class TestLinuxSocketCANManager: # Reverted to original name
+class TestLinuxSocketCANManager:  # Reverted to original name
     """Test Linux-specific SocketCAN management functionality."""
 
     @pytest.fixture
-    def linux_manager(self) -> LinuxSocketCANManager: # Reverted to original name
+    def linux_manager(self) -> LinuxSocketCANManager:  # Reverted to original name
         """Create Linux SocketCAN manager for testing."""
-        return LinuxSocketCANManager() # Reverted to original name
+        return LinuxSocketCANManager()  # Reverted to original name
 
     @pytest.mark.asyncio
-    async def test_interface_discovery(self, linux_manager: LinuxSocketCANManager) -> None: # Reverted to original name
+    async def test_interface_discovery(
+        self, linux_manager: LinuxSocketCANManager
+    ) -> None:  # Reverted to original name
         """Test automatic CAN interface discovery on Linux systems."""
         # Mock ip link show output
         mock_output = """2: can0: <UP,LOWER_UP> mtu 16 qdisc pfifo_fast state UP qlen 10
@@ -72,7 +74,9 @@ class TestLinuxSocketCANManager: # Reverted to original name
             assert can1.mtu == 16
 
     @pytest.mark.asyncio
-    async def test_interface_discovery_failure(self, linux_manager: LinuxSocketCANManager) -> None: # Reverted to original name
+    async def test_interface_discovery_failure(
+        self, linux_manager: LinuxSocketCANManager
+    ) -> None:  # Reverted to original name
         """Test handling of interface discovery failures."""
         with patch.object(
             linux_manager,
@@ -84,7 +88,9 @@ class TestLinuxSocketCANManager: # Reverted to original name
             assert len(interfaces) == 0
 
     @pytest.mark.asyncio
-    async def test_interface_configuration(self, linux_manager: LinuxSocketCANManager) -> None: # Reverted to original name
+    async def test_interface_configuration(
+        self, linux_manager: LinuxSocketCANManager
+    ) -> None:  # Reverted to original name
         """Test CAN interface configuration on Linux."""
         mock_run_command = AsyncMock(return_value=("", ""))
 
@@ -127,7 +133,7 @@ class TestLinuxSocketCANManager: # Reverted to original name
 
     @pytest.mark.asyncio
     async def test_interface_configuration_with_fd(
-        self, linux_manager: LinuxSocketCANManager # Reverted to original name
+        self, linux_manager: LinuxSocketCANManager  # Reverted to original name
     ) -> None:
         """Test CAN FD interface configuration."""
         mock_run_command = AsyncMock(return_value=("", ""))
@@ -161,7 +167,7 @@ class TestLinuxSocketCANManager: # Reverted to original name
 
     @pytest.mark.asyncio
     async def test_interface_configuration_failure(
-        self, linux_manager: LinuxSocketCANManager # Reverted to original name
+        self, linux_manager: LinuxSocketCANManager  # Reverted to original name
     ) -> None:
         """Test handling of interface configuration failures."""
         with patch.object(
@@ -175,7 +181,7 @@ class TestLinuxSocketCANManager: # Reverted to original name
 
     @pytest.mark.asyncio
     async def test_statistics_parsing_from_ip_command(
-        self, linux_manager: LinuxSocketCANManager # Reverted to original name
+        self, linux_manager: LinuxSocketCANManager  # Reverted to original name
     ) -> None:
         """Test parsing statistics from ip command output."""
         mock_ip_output = """3: can0: <UP,LOWER_UP> mtu 16 qdisc pfifo_fast state UP qlen 10
@@ -200,7 +206,9 @@ class TestLinuxSocketCANManager: # Reverted to original name
             assert stats.tx_dropped == 1
 
     @pytest.mark.asyncio
-    async def test_statistics_parsing_from_proc(self, linux_manager: LinuxSocketCANManager) -> None: # Reverted to original name
+    async def test_statistics_parsing_from_proc(
+        self, linux_manager: LinuxSocketCANManager
+    ) -> None:  # Reverted to original name
         """Test parsing statistics from /proc/net/can/stats."""
         mock_proc_content = """rx_packets: 1250
 tx_packets: 980
@@ -225,7 +233,9 @@ tx_dropped: 1"""
             assert stats.rx_errors == 5
             assert stats.tx_errors == 2
 
-    def test_can_filter_creation(self, linux_manager: LinuxSocketCANManager) -> None: # Reverted to original name
+    def test_can_filter_creation(
+        self, linux_manager: LinuxSocketCANManager
+    ) -> None:  # Reverted to original name
         """Test creation of CAN message filters."""
         filter_specs = [
             (0x123, 0x7FF, False),  # Standard frame filter
@@ -246,7 +256,9 @@ tx_dropped: 1"""
         assert filters[1].can_mask == 0x1FFFF00
         assert filters[1].extended is True
 
-    def test_agricultural_filters_creation(self, linux_manager: LinuxSocketCANManager) -> None: # Reverted to original name
+    def test_agricultural_filters_creation(
+        self, linux_manager: LinuxSocketCANManager
+    ) -> None:  # Reverted to original name
         """Test creation of standard agricultural CAN filters."""
         agricultural_filters = linux_manager.create_agricultural_filters()
 
@@ -264,7 +276,9 @@ tx_dropped: 1"""
         assert eec1_filter.extended is True
 
     @pytest.mark.asyncio
-    async def test_monitoring_lifecycle(self, linux_manager: LinuxSocketCANManager) -> None: # Reverted to original name
+    async def test_monitoring_lifecycle(
+        self, linux_manager: LinuxSocketCANManager
+    ) -> None:  # Reverted to original name
         """Test starting and stopping interface monitoring."""
         mock_stats = CANStatistics(
             interface_name="can0",
@@ -292,7 +306,9 @@ tx_dropped: 1"""
             assert "can0" not in linux_manager._monitoring_tasks
 
     @pytest.mark.asyncio
-    async def test_queue_optimization(self, linux_manager: LinuxSocketCANManager) -> None: # Reverted to original name
+    async def test_queue_optimization(
+        self, linux_manager: LinuxSocketCANManager
+    ) -> None:  # Reverted to original name
         """Test interface queue optimization."""
         mock_run_command = AsyncMock(return_value=("", ""))
 
@@ -313,7 +329,9 @@ tx_dropped: 1"""
             )
 
     @pytest.mark.asyncio
-    async def test_bus_health_check_healthy(self, linux_manager: LinuxSocketCANManager) -> None: # Reverted to original name
+    async def test_bus_health_check_healthy(
+        self, linux_manager: LinuxSocketCANManager
+    ) -> None:  # Reverted to original name
         """Test bus health check for healthy interface."""
         # Mock healthy interface info
         mock_interface = LinuxCANInterfaceInfo(
@@ -355,7 +373,9 @@ tx_dropped: 1"""
             assert len(health_report["issues"]) == 0
 
     @pytest.mark.asyncio
-    async def test_bus_health_check_critical(self, linux_manager: LinuxSocketCANManager) -> None: # Reverted to original name
+    async def test_bus_health_check_critical(
+        self, linux_manager: LinuxSocketCANManager
+    ) -> None:  # Reverted to original name
         """Test bus health check for critical interface conditions."""
         # Mock unhealthy interface info
         mock_interface = LinuxCANInterfaceInfo(
@@ -415,9 +435,11 @@ class TestEnhancedSocketCANInterface:
         return CANErrorHandler()
 
     @pytest.fixture
-    def linux_manager(self, error_handler: CANErrorHandler) -> LinuxSocketCANManager: # Reverted to original name
+    def linux_manager(
+        self, error_handler: CANErrorHandler
+    ) -> LinuxSocketCANManager:  # Reverted to original name
         """Create Linux manager for testing."""
-        return LinuxSocketCANManager(error_handler) # Reverted to original name
+        return LinuxSocketCANManager(error_handler)  # Reverted to original name
 
     @pytest.fixture
     def enhanced_config(self) -> InterfaceConfiguration:
@@ -434,7 +456,7 @@ class TestEnhancedSocketCANInterface:
         self,
         enhanced_config: InterfaceConfiguration,
         error_handler: CANErrorHandler,
-        linux_manager: LinuxSocketCANManager, # Reverted to original name
+        linux_manager: LinuxSocketCANManager,  # Reverted to original name
     ) -> EnhancedSocketCANInterface:
         """Create enhanced SocketCAN interface for testing."""
         return EnhancedSocketCANInterface(
@@ -453,15 +475,17 @@ class TestEnhancedSocketCANInterface:
         mock_configure = AsyncMock(return_value=True)
         mock_start_monitoring = AsyncMock()
         mock_bus_instance = AsyncMock(spec=can.BusABC)  # Mock the BusABC interface
-        mock_create_task = MagicMock(spec=asyncio.create_task) # Mock asyncio.create_task
+        mock_create_task = MagicMock(spec=asyncio.create_task)  # Mock asyncio.create_task
 
         with (
             patch.object(enhanced_interface.linux_manager, "configure_interface", mock_configure),
             patch.object(
                 enhanced_interface.linux_manager, "start_monitoring", mock_start_monitoring
             ),
-            patch("can.interface.Bus", return_value=mock_bus_instance), # Mock the class to return our mock instance
-            patch("asyncio.create_task", mock_create_task), # Mock create_task
+            patch(
+                "can.interface.Bus", return_value=mock_bus_instance
+            ),  # Mock the class to return our mock instance
+            patch("asyncio.create_task", mock_create_task),  # Mock create_task
         ):
             # Test connection
             result = await enhanced_interface.connect()
@@ -497,9 +521,15 @@ class TestEnhancedSocketCANInterface:
 
         with (
             patch.object(enhanced_interface.linux_manager, "stop_monitoring", mock_stop_monitoring),
-            patch.object(enhanced_interface, "connect", AsyncMock(return_value=True)), # Mock connect to set up _bus
-            patch.object(enhanced_interface, "_bus", new=mock_bus_instance), # Ensure _bus is our mock
-            patch("asyncio.create_task"), # Mock create_task to prevent actual task creation during connect
+            patch.object(
+                enhanced_interface, "connect", AsyncMock(return_value=True)
+            ),  # Mock connect to set up _bus
+            patch.object(
+                enhanced_interface, "_bus", new=mock_bus_instance
+            ),  # Ensure _bus is our mock
+            patch(
+                "asyncio.create_task"
+            ),  # Mock create_task to prevent actual task creation during connect
         ):
 
             # First connect (with mocked bus and tasks)
@@ -514,7 +544,6 @@ class TestEnhancedSocketCANInterface:
             mock_stop_monitoring.assert_called_once_with("can0")
             # Verify bus shutdown was called
             mock_bus_instance.shutdown.assert_called_once()
-
 
     @pytest.mark.asyncio
     async def test_agricultural_optimization(
@@ -591,7 +620,7 @@ class TestIntegrationScenarios:
     @pytest.mark.asyncio
     async def test_agricultural_field_network_setup(self) -> None:
         """Test setting up a complete agricultural field CAN network."""
-        linux_manager = LinuxSocketCANManager() # Reverted to original name
+        linux_manager = LinuxSocketCANManager()  # Reverted to original name
 
         # Mock multiple CAN interfaces discovery
         mock_interfaces = [
@@ -662,7 +691,7 @@ class TestIntegrationScenarios:
     @pytest.mark.asyncio
     async def test_production_monitoring_and_alerting(self) -> None:
         """Test production monitoring with health checks and alerting."""
-        linux_manager = LinuxSocketCANManager() # Reverted to original name
+        linux_manager = LinuxSocketCANManager()  # Reverted to original name
 
         # Mock interface with escalating health issues
         critical_interface = LinuxCANInterfaceInfo(
@@ -722,7 +751,7 @@ class TestIntegrationScenarios:
     @pytest.mark.asyncio
     async def test_high_throughput_filtering_optimization(self) -> None:
         """Test filtering optimization for high-throughput agricultural operations."""
-        linux_manager = LinuxSocketCANManager() # Reverted to original name
+        linux_manager = LinuxSocketCANManager()  # Reverted to original name
 
         # Create comprehensive filter set for precision agriculture
         precision_ag_filters = [
