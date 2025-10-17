@@ -182,11 +182,11 @@ class TestSafetyHeartbeatMonitor:
         response_time1 = heartbeat_monitor.heartbeat("collision_detection")
         assert response_time1 <= 10.0  # First heartbeat should be very small (< 10ms)
 
-        # Second heartbeat after short delay
-        time.sleep(0.1)  # 100ms delay
+        # Second heartbeat after short delay - optimized for test performance
+        time.sleep(0.01)  # 10ms delay (90% faster while maintaining timing validation)
         response_time2 = heartbeat_monitor.heartbeat("collision_detection")
 
-        assert 90 <= response_time2 <= 150  # Should be around 100ms ± tolerance
+        assert 5 <= response_time2 <= 25  # Should be around 10ms ± tolerance (optimized timing)
         status = heartbeat_monitor.heartbeat_status["collision_detection"]
         assert status.missed_heartbeats == 0
         assert status.emergency_escalation_triggered is False
@@ -233,12 +233,12 @@ class TestSafetyHeartbeatMonitor:
         # Start monitoring in background
         monitoring_task = asyncio.create_task(heartbeat_monitor.start_monitoring())
 
-        # Wait a short time for monitoring to start
-        await asyncio.sleep(0.2)
+        # Wait a short time for monitoring to start - optimized for test performance
+        await asyncio.sleep(0.01)  # 10ms (95% faster while maintaining async task startup)
 
         # Stop monitoring
         heartbeat_monitor.stop_monitoring()
-        await asyncio.sleep(0.1)  # Allow task to complete
+        await asyncio.sleep(0.005)  # Allow task to complete - optimized (95% faster)
 
         # Clean up
         monitoring_task.cancel()
@@ -269,12 +269,12 @@ class TestSafetyPerformanceMonitor:
     ) -> None:
         """Test function timing within ISO 25119 limits."""
         start_time = performance_monitor.start_function_timing("collision_detection")
-        time.sleep(0.05)  # 50ms execution
+        time.sleep(0.005)  # 5ms execution (90% faster while maintaining timing validation)
         metrics = performance_monitor.end_function_timing("collision_detection", start_time)
 
         assert metrics.function_name == "collision_detection"
         assert metrics.execution_count == 1
-        assert 40 <= metrics.average_execution_time_ms <= 80  # Around 50ms ± tolerance
+        assert 2 <= metrics.average_execution_time_ms <= 15  # Around 5ms ± tolerance (optimized timing)
         assert metrics.iso25119_compliant is True  # Within 100ms limit
         assert metrics.failures == 0
 
@@ -287,7 +287,7 @@ class TestSafetyPerformanceMonitor:
         performance_monitor.performance_thresholds["emergency_stop"] = 50.0  # 50ms threshold
 
         start_time = performance_monitor.start_function_timing("emergency_stop")
-        time.sleep(0.1)  # 100ms execution - exceeds 50ms test limit
+        time.sleep(0.06)  # 60ms execution - exceeds 50ms test limit (40% faster)
         metrics = performance_monitor.end_function_timing("emergency_stop", start_time)
 
         assert metrics.iso25119_compliant is False
@@ -321,7 +321,7 @@ class TestSafetyPerformanceMonitor:
         performance_monitor.performance_thresholds["emergency_stop"] = 50.0  # 50ms threshold
 
         start_time2 = performance_monitor.start_function_timing("emergency_stop")
-        time.sleep(0.1)  # 100ms - exceeds 50ms test limit
+        time.sleep(0.06)  # 60ms - exceeds 50ms test limit (40% faster)
         performance_monitor.end_function_timing("emergency_stop", start_time2)
 
         assert performance_monitor.is_system_compliant() is False
