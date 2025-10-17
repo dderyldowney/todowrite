@@ -199,8 +199,32 @@ class CrossLayerSafetyValidator:
         self.safety_violations: list[SafetyValidationResult] = []
         self.emergency_escalation_active = False
 
+        # Initialize safety systems with appropriate SIL levels
+        self._initialize_system_sil_levels()
+
         # Register safety functions for heartbeat monitoring
         self._register_safety_functions()
+
+    def _initialize_system_sil_levels(self) -> None:
+        """Initialize system SIL levels based on safety protocol mappings."""
+        # Initialize SIL levels for all safety-critical systems based on protocol mappings
+        for _pgn, mapping in self.protocol_mapper.safety_mappings.items():
+            self.current_sil_levels[mapping.pgn_name] = mapping.required_sil
+
+        # Log SIL level initialization for audit trail
+        self.audit_logger.log_safety_event(
+            event_type="sil_initialization",
+            severity="low",
+            description="Safety system SIL levels initialized",
+            safety_function="sil_compliance_check",
+            response_actions=["initialize_sil_levels"],
+            iso25119_context={
+                "initialized_systems": dict(self.current_sil_levels),
+                "total_systems": len(self.current_sil_levels),
+            },
+        )
+
+        logger.info(f"Initialized SIL levels for {len(self.current_sil_levels)} safety systems")
 
     def _register_safety_functions(self) -> None:
         """Register safety functions for monitoring."""
