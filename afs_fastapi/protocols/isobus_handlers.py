@@ -892,7 +892,7 @@ class ISOBUSProtocolManager:
             # Extract PGN from CAN ID
             pdu_format = (message.arbitration_id >> 16) & 0xFF
 
-            if pdu_format >= 240:
+            if pdu_format < 240:
                 # PDU1 format
                 pdu_specific = (message.arbitration_id >> 8) & 0xFF
                 pgn = (pdu_format << 8) | pdu_specific
