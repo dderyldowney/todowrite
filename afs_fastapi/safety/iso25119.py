@@ -229,19 +229,26 @@ class ISO25119HazardAnalyzer:
 
         # S3 (Life-threatening) - Direct collision terms or multi-equipment collision scenarios
         collision_indicators = [
-            "collision", "life", "crash", "impact",
-            "two autonomous tractors operating in same", "multi-tractor",
-            "equipment collision", "vehicle collision"
+            "collision",
+            "life",
+            "crash",
+            "impact",
+            "two autonomous tractors operating in same",
+            "multi-tractor",
+            "equipment collision",
+            "vehicle collision",
         ]
 
         if any(indicator in description_lower for indicator in collision_indicators):
             return "S3"  # Life-threatening injuries
 
         # S3 (Life-threatening) - Multi-equipment scenarios that imply collision risk
-        if ("equipment_types" in context and
-            isinstance(context["equipment_types"], list) and
-            len(context["equipment_types"]) > 1 and
-            all("tractor" in eq_type for eq_type in context["equipment_types"])):
+        if (
+            "equipment_types" in context
+            and isinstance(context["equipment_types"], list)
+            and len(context["equipment_types"]) > 1
+            and all("tractor" in eq_type for eq_type in context["equipment_types"])
+        ):
             return "S3"  # Multi-tractor scenarios are inherently life-threatening
 
         # S2 (Severe injuries) - Other severe scenarios

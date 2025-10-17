@@ -274,7 +274,9 @@ class TestSafetyPerformanceMonitor:
 
         assert metrics.function_name == "collision_detection"
         assert metrics.execution_count == 1
-        assert 2 <= metrics.average_execution_time_ms <= 15  # Around 5ms ± tolerance (optimized timing)
+        assert (
+            2 <= metrics.average_execution_time_ms <= 15
+        )  # Around 5ms ± tolerance (optimized timing)
         assert metrics.iso25119_compliant is True  # Within 100ms limit
         assert metrics.failures == 0
 
