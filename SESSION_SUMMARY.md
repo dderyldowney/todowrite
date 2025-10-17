@@ -4,10 +4,10 @@
 ## TODOs Summary
 
 ### Strategic Goals
-- Total: 3
-- Pending: 0
-- Completed: 3
+- Total: 2
+- Pending: 2
+- Completed: 0
 
 ### Active Phase
-- Name: None
-- Status: 0/N/A tasks completed
+- Name: Repair slow tests
+- Status: 0/3 tasks completed
