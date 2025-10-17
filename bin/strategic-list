@@ -1,5 +1,5 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 
 import sys
 from pathlib import Path
@@ -8,31 +8,35 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from afs_fastapi.core.todos_manager import get_strategic_goals  # noqa: E402
+from afs_fastapi.core.todos_manager import get_goals  # noqa: E402
 
 
 def get_priority_emoji(priority):
     if priority == "high":
-        return ""
+        return "🔥"
     elif priority == "medium":
-        return ""
+        return "💡"
     elif priority == "low":
-        return ""
+        return "🌱"
     return "⚪️"
 
+
 def get_status_emoji(status):
-    if status == "completed":
-        return "●"
-    elif status == "in progress":
+    if status == "done":
+        return "✅"
+    elif status == "in_progress":
         return "◌"
-    elif status == "pending":
-        return "○"
-    elif status == "paused":
+    elif status == "planned":
+        return "⚪️"
+    elif status == "blocked":
         return "⏸️"
+    elif status == "rejected":
+        return "❌"
     return "?"
 
+
 def display_strategic_todos():
-    goals = get_strategic_goals()
+    goals = get_goals()
 
     if not goals:
         print("No strategic goals found.")
@@ -41,31 +45,37 @@ def display_strategic_todos():
     print("=== AFS FastAPI Strategic Goals ===")
     print()
 
-    pending_goals = [g for g in goals if g.get("status") != "completed"]
-    completed_goals = [g for g in goals if g.get("status") == "completed"]
+    pending_goals = [g for g in goals if g.get("status") not in ["done", "rejected"]]
+    completed_goals = [g for g in goals if g.get("status") == "done"]
 
     for i, goal in enumerate(pending_goals, 1):
         priority_emoji = get_priority_emoji(goal.get("priority", "medium"))
-        status_emoji = get_status_emoji(goal.get("status", "pending"))
-        print(f"{i:2d}. {status_emoji} [{priority_emoji}] {goal.get("description", "No description")}")
-        print(f"     ID: {goal.get("id")} | Category: {goal.get("category", "general")}")
+        status_emoji = get_status_emoji(goal.get("status", "planned"))
+        print(f"{i:2d}. {status_emoji} [{priority_emoji}] {goal.get('title', 'No title')}")
+        print(f"     ID: {goal.get('id')} | Category: {goal.get('category', 'general')}")
         print()
 
     if completed_goals:
         print("-" * 20)
-        for i, goal in enumerate(completed_goals, 1):
-            status_emoji = get_status_emoji(goal.get("status", "pending"))
-            print(f"{status_emoji} {goal.get("description", "No description")} - COMPLETE")
-            print(f"  ID: {goal.get("id")} | Completed: {goal.get("date_completed")}")
+        print("Completed Goals:")
+        for _i, goal in enumerate(completed_goals, 1):
+            status_emoji = get_status_emoji(goal.get("status", "done"))
+            print(f"{status_emoji} {goal.get('title', 'No title')} - COMPLETE")
+            print(
+                f"  ID: {goal.get('id')} | Category: {goal.get('category', 'general')}"
+            )  # Removed date_completed as it's not in new schema
             print()
-
 
     print("=== Summary ===")
     print(f"Total Strategic Goals: {len(goals)}")
     print(f"Pending: {len(pending_goals)} | Completed: {len(completed_goals)}")
     print()
-    print("Use './bin/strategic-add \"Description\"' to add new strategic goals.")
-    print("Use './bin/strategic-complete \"Objective\"' to mark goals as completed.")
+    print(
+        'Use \'add_goal("Title", "Description", category="category", priority="priority")\' to add new strategic goals.'
+    )
+    print(
+        "Use 'complete_goal(\"goal_id\")' to mark goals as completed. (Function not yet implemented)"
+    )  # Placeholder for future implementation
 
 
 if __name__ == "__main__":

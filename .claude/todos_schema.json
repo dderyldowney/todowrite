@@ -1,0 +1,432 @@
+{
+  "$defs": {
+    "GoalItem": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "parent_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "level": {
+          "enum": [
+            "Goal",
+            "Phase",
+            "Step",
+            "Task",
+            "SubTask"
+          ],
+          "type": "string"
+        },
+        "single_concern": {
+          "type": "boolean"
+        },
+        "dependencies": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "planned",
+            "in_progress",
+            "blocked",
+            "done",
+            "rejected"
+          ],
+          "type": "string"
+        },
+        "validation_log": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "date_completed": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "phases": {
+          "items": {
+            "$ref": "#/$defs/PhaseItem"
+          },
+          "type": "array"
+        },
+        "category": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "parent_id",
+        "level",
+        "single_concern",
+        "dependencies",
+        "status",
+        "validation_log",
+        "date_completed",
+        "phases",
+        "category",
+        "priority"
+      ],
+      "type": "object"
+    },
+    "PhaseItem": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "parent_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "level": {
+          "enum": [
+            "Goal",
+            "Phase",
+            "Step",
+            "Task",
+            "SubTask"
+          ],
+          "type": "string"
+        },
+        "single_concern": {
+          "type": "boolean"
+        },
+        "dependencies": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "planned",
+            "in_progress",
+            "blocked",
+            "done",
+            "rejected"
+          ],
+          "type": "string"
+        },
+        "validation_log": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "date_completed": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/$defs/StepItem"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "parent_id",
+        "level",
+        "single_concern",
+        "dependencies",
+        "status",
+        "validation_log",
+        "date_completed",
+        "steps"
+      ],
+      "type": "object"
+    },
+    "StepItem": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "parent_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "level": {
+          "enum": [
+            "Goal",
+            "Phase",
+            "Step",
+            "Task",
+            "SubTask"
+          ],
+          "type": "string"
+        },
+        "single_concern": {
+          "type": "boolean"
+        },
+        "dependencies": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "planned",
+            "in_progress",
+            "blocked",
+            "done",
+            "rejected"
+          ],
+          "type": "string"
+        },
+        "validation_log": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "date_completed": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tasks": {
+          "items": {
+            "$ref": "#/$defs/TaskItem"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "parent_id",
+        "level",
+        "single_concern",
+        "dependencies",
+        "status",
+        "validation_log",
+        "date_completed",
+        "tasks"
+      ],
+      "type": "object"
+    },
+    "SubTaskItem": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "parent_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "level": {
+          "enum": [
+            "Goal",
+            "Phase",
+            "Step",
+            "Task",
+            "SubTask"
+          ],
+          "type": "string"
+        },
+        "single_concern": {
+          "type": "boolean"
+        },
+        "dependencies": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "planned",
+            "in_progress",
+            "blocked",
+            "done",
+            "rejected"
+          ],
+          "type": "string"
+        },
+        "validation_log": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "date_completed": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "command": {
+          "type": "string"
+        },
+        "command_type": {
+          "type": "string"
+        },
+        "execution_log": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "parent_id",
+        "level",
+        "single_concern",
+        "dependencies",
+        "status",
+        "validation_log",
+        "date_completed",
+        "command",
+        "command_type",
+        "execution_log"
+      ],
+      "type": "object"
+    },
+    "TaskItem": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "parent_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "level": {
+          "enum": [
+            "Goal",
+            "Phase",
+            "Step",
+            "Task",
+            "SubTask"
+          ],
+          "type": "string"
+        },
+        "single_concern": {
+          "type": "boolean"
+        },
+        "dependencies": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "planned",
+            "in_progress",
+            "blocked",
+            "done",
+            "rejected"
+          ],
+          "type": "string"
+        },
+        "validation_log": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "date_completed": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "subtasks": {
+          "items": {
+            "$ref": "#/$defs/SubTaskItem"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "parent_id",
+        "level",
+        "single_concern",
+        "dependencies",
+        "status",
+        "validation_log",
+        "date_completed",
+        "subtasks"
+      ],
+      "type": "object"
+    }
+  },
+  "properties": {
+    "goals": {
+      "items": {
+        "$ref": "#/$defs/GoalItem"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "goals"
+  ],
+  "type": "object"
+}

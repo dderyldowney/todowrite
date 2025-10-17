@@ -1,4 +1,3 @@
-
 # AFS FastAPI Agent Configuration
 
 ## Agent Information
@@ -36,9 +35,10 @@ MIT (project license)
 - End sessions: `./bin/savesession` (capture state before ending)
 - Strategic assessment: `./bin/whereweare` (display) or `./bin/whereweare --generate` (regenerate)
 
-**Six Mandatory Requirements** (see [SESSION_SUMMARY.md](SESSION_SUMMARY.md#mandatory-requirements-for-all-ai-agents) for complete details):
-- Test-First Development, Structured Investigation Pattern, Standardized Test Reporting, CHANGELOG Loop Protection, Git Commit Separation, Cross-Agent Infrastructure Sharing
-- Strict Red-Green-Refactor (RGR) adherence: Green status must only be achieved through actual working implementation code; 'pass' is prohibited as a means to gain green status. No code is to be generated until a well-defined and detailed set of tests defining the expected behavior(s) have been generated and their logic verified.
+**Seven Mandatory Requirements** (see [SESSION_SUMMARY.md](SESSION_SUMMARY.md#mandatory-requirements-for-all-ai-agents) for complete details):
+- Test-First Development, Structured Investigation Pattern, Standardized Test Reporting, CHANGELOG Loop Protection, Git Commit Separation, Cross-Agent Infrastructure Sharing, **Mandatory Pause Structure Enforcement**
+- **ABSOLUTE Red-Green-Refactor (RGR) adherence**: See [RED_GREEN_REFACTOR_ABSOLUTE_ENFORCEMENT.md](RED_GREEN_REFACTOR_ABSOLUTE_ENFORCEMENT.md) for zero-exceptions policy. Green status must only be achieved through actual working implementation code; 'pass' is prohibited as a means to gain green status. No code is to be generated until a well-defined and detailed set of tests defining the expected behavior(s) have been generated and their logic verified.
+- **MANDATORY Pause Structure Compliance**: See [PAUSE_STRUCTURE_SPECIFICATION.md](PAUSE_STRUCTURE_SPECIFICATION.md) for complete requirements. ALL AI agents MUST implement the "Recommended Pause Structure for Session Optimization" with zero exceptions. This includes task-level pauses (every 2-3 tasks), phase-level pauses (phase completion), and strategic milestone pauses (strategic goal completion). Session limits of 3 hours MUST be enforced with automatic pause triggers.
 
 **Essential documentation**:
 - Session architecture: `docs/EXECUTION_ORDER.md` (6-phase initialization, 28+ files)
@@ -46,6 +46,76 @@ MIT (project license)
 - Synchronization specs: `SYNCHRONIZATION_INFRASTRUCTURE.md`, `STATE_OF_AFFAIRS.md`
 - Platform standards: `CLAUDE.md` (professional tone and documentation requirements)
 - Test validation: Ensure all 214 tests pass (see `WORKFLOW.md`)
+
+## Mandatory TodoWrite.md Task Management System
+
+**CRITICAL REQUIREMENT**: All AI agents MUST use the `TodoWrite.md` system for all task management, planning, and execution. This system is the single source of truth for all work items in the project.
+
+### The `TodoWrite.md` Specification
+
+The `TodoWrite.md` system is a hierarchical task management system with a 5-level structure: **Goal → Phase → Step → Task → SubTask**. It enforces strict rules for single concern, traceability, and validation.
+
+All agents MUST adhere to the full specification defined in the `ToDoWrite.md` file.
+
+### Key Principles of `TodoWrite.md`
+
+- **Hierarchical Decomposition**: All work MUST be decomposed through the 5-level hierarchy.
+- **Single Concern Principle (SoC)**: Every item at every level MUST address exactly one concern.
+- **Atomicity**: The lowest level, `SubTask`, MUST map to a single, executable command.
+- **Validation**: All items are subject to a strict validation pipeline, as implemented in `afs_fastapi/core/todos_manager.py`.
+
+### Reference Implementation
+
+The `afs_fastapi/core/todos_manager.py` module provides the reference implementation for the `TodoWrite.md` system, including data structures, validation logic, and migration from legacy formats. All agents MUST use the functions provided in this module for all task management operations.
+
+### Enforcement
+
+- All task creation, modification, and execution MUST be done through the `todos_manager.py` API.
+- The validation pipeline in `todos_manager.py` will be enforced.
+- Agents MUST NOT use any other task management system or format.
+- The legacy task management system is deprecated and MUST NOT be used.
+
+## Mandatory Git Commit Message Format
+
+**CRITICAL REQUIREMENT**: All AI agents MUST create git commit messages using HEREDOCs. This ensures that commit messages are well-formatted, multi-line, and easy to read.
+
+### HEREDOC Format
+
+The commit message MUST be formatted as a HEREDOC, like this:
+
+```bash
+git commit -F - <<EOF
+feat(scope): Short description of the change
+
+Longer description of the change, explaining the what and the why.
+Can be multiple lines.
+
+- Bullet points are also good.
+
+Co-authored-by: Agent Name <agent@email.com>
+EOF
+```
+
+### Enforcement
+
+- All `git commit` commands MUST use the `-F -` option to read the commit message from stdin.
+- The commit message MUST be provided as a HEREDOC.
+- Pre-commit hooks MAY be used to validate the commit message format.
+
+## Mandatory Type Hinting and Annotation
+
+**CRITICAL REQUIREMENT**: All AI agents MUST use type hints and annotations for all code and tests they generate. This is a critical requirement and any violation will be considered a failure.
+
+### Rationale
+
+This project enforces strict type safety to ensure the reliability and maintainability of the agricultural robotics platform. Type hints and annotations are essential for static analysis, code completion, and overall code quality.
+
+### Enforcement
+
+- All function and method signatures MUST include type hints for all arguments and the return value.
+- All variables MUST be annotated with their type when they are defined.
+- The `mypy` pre-commit hook is enabled and MUST pass for all commits.
+- Agents MUST NOT generate any code or tests without proper type hinting and annotation.
 
 ## Configuration
 
@@ -129,7 +199,7 @@ MIT (project license)
 - **Enforced on every commit** (blocks non-compliant code):
   - **Code quality**: Ruff (lint), Black (format check), isort (imports), MyPy (types)
   - **TDD enforcement**: `.claude/hooks/tdd_enforcement.py` - Validates Test-First Development
-  - **Safety validation**: `.claude/hooks/safety_validation.py` - Ensures agricultural safety compliance
+  - **Safety validation**: `.claude/hooks/safety_validation.py` - Ensures agricultural safety standards compliance
   - **Commit separation**: `.claude/hooks/commit_separation_enforcement.py` - Enforces single concern per commit
 - **Installation**: `make precommit-install` (installs pre-commit and registers hooks)
 - **Manual execution**: `make precommit-run` (run all hooks without committing)
@@ -159,3 +229,19 @@ MIT (project license)
 - **Documentation standards**: Professional tone with concrete agricultural examples and educational context
 - **Safety compliance**: All equipment and coordination code must include safety considerations (see [SESSION_SUMMARY.md - Agricultural Robotics Context](SESSION_SUMMARY.md#agricultural-robotics-context))
 - **Performance constraints**: Code must meet embedded agricultural equipment limitations (<1ms coordination operations)
+
+---
+
+## Mandatory TDD and Explanation Workflow
+
+All agents must adhere to a strict Test-Driven Development (TDD) workflow, specifically the Red-Green-Refactor cycle. This process is mandatory and serves as a foundational development practice.
+
+1.  **Educate and Explain:** For every significant action, you must first educate on the **WHY** of your choices (the reasoning and strategic decisions) and then explain the **HOW** of your implementation (the technical details of the code generation).
+
+2.  **Red Phase (Write a Failing Test):** Before writing any implementation code, you MUST first write a test. This test must initially fail (be 'Red'). The failure must be for a valid reason, such as an `AssertionError` because the expected output does not match the actual output of the unimplemented feature. Tests that fail simply because a module or function is not yet defined are insufficient. The test itself is a piece of living documentation and must be clear and purposeful.
+
+3.  **Green Phase (Write Code to Pass the Test):** After creating a failing test, you will write the minimum amount of implementation code necessary to make the test pass (turn 'Green'). When presenting this code, you MUST explain **WHY** you chose that specific implementation and **HOW** it directly fulfills the requirements defined by the test.
+
+4.  **Refactor Phase:** Once the test is passing, you may refactor the code for clarity, efficiency, and maintainability. You must explain the refactoring changes and the reasoning behind them.
+
+All generated code, tests, and documentation must be of professional quality, well-commented, and serve as a clear record of the system's functionality. The tests themselves are considered living documentation.

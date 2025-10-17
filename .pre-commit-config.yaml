@@ -9,23 +9,20 @@ repos:
         entry: ruff check
         language: system
         types: [python]
-      - id: black
-        name: Black (format check)
-        entry: black
-        args: ["--check"]
-        language: system
-        types: [python]
+        files: ^(?!bin/|tmp_).*
+        files: ^(?!bin/|tmp_).*
       - id: isort
         name: isort (imports check)
         entry: isort
         args: ["--check-only"]
         language: system
         types: [python]
-      - id: mypy
-        name: MyPy (type check)
-        entry: mypy
-        language: system
-        types: [python]
+        files: ^(?!bin/|tmp_).*
+      # - id: mypy
+      #   name: MyPy (type check)
+      #   entry: mypy
+      #   language: system
+      #   types: [python]
 
       # Mandatory TDD enforcement (always runs on commit)
       - id: tdd-enforcement

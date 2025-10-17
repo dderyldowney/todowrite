@@ -1,0 +1,185 @@
+#!/usr/bin/env python3
+"""
+Resume work tool for agricultural robotics development.
+
+Helps resume work from specific checkpoints or pause points with full context.
+Displays saved state and next actions for seamless continuation.
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from bin.common.json_operations import load_json
+
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+
+def resume_from_point(point_id: str) -> None:
+    """Resume work from a specific checkpoint or pause point.
+
+    Parameters
+    ----------
+    point_id : str
+        ID of the checkpoint or pause point to resume from
+    """
+    print(f"🔄 Resuming from: {point_id}")
+
+    # Load checkpoint data
+    checkpoints_file = project_root / ".claude" / "checkpoints.json"
+    pause_points_file = project_root / ".claude" / "pause_points.json"
+
+    checkpoints = load_json(checkpoints_file, default=[])
+    pause_points = load_json(pause_points_file, default=[])
+
+    # Find the specified point
+    target_point = None
+    point_type = None
+
+    for checkpoint in checkpoints:
+        if checkpoint["id"] == point_id:
+            target_point = checkpoint
+            point_type = "checkpoint"
+            break
+
+    if not target_point:
+        for pause_point in pause_points:
+            if pause_point["id"] == point_id:
+                target_point = pause_point
+                point_type = "pause_point"
+                break
+
+    if not target_point:
+        print(f"❌ Point '{point_id}' not found")
+        print("\n📍 Available points:")
+        print("Checkpoints:")
+        for cp in checkpoints[-5:]:  # Show last 5
+            print(f"  - {cp['id']}: {cp['description']}")
+        print("Pause Points:")
+        for pp in pause_points[-5:]:  # Show last 5
+            print(f"  - {pp['id']}: {pp['reason']}")
+        return
+
+    print(f"✅ Found {point_type}: {target_point['id']}")
+    print(f"📅 Created: {target_point['timestamp']}")
+    print(f"🔗 Git Hash: {target_point['git_hash']}")
+
+    # Display context based on type
+    if point_type == "checkpoint":
+        print(f"📝 Description: {target_point['description']}")
+    else:  # pause_point
+        print(f"⏸️  Reason: {target_point['reason']}")
+        if target_point.get("next_action"):
+            print(f"➡️  Next Action: {target_point['next_action']}")
+        if target_point.get("current_phase"):
+            print(f"🚀 Phase: {target_point['current_phase']}")
+
+    # Check git status
+    import subprocess
+
+    try:
+        # Check if we're at the right commit
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=project_root, capture_output=True, text=True
+        )
+        current_hash = result.stdout.strip()
+
+        if current_hash == target_point["git_hash"]:
+            print("✅ Already at the correct git commit")
+        else:
+            print(f"⚠️  Current commit: {current_hash}")
+            print(f"📍 Target commit: {target_point['git_hash']}")
+            print(f"💡 To checkout: git checkout {target_point['git_hash']}")
+
+        # Check for uncommitted changes
+        result = subprocess.run(
+            ["git", "status", "--porcelain"], cwd=project_root, capture_output=True, text=True
+        )
+
+        if result.stdout.strip():
+            print("⚠️  You have uncommitted changes:")
+            uncommitted = result.stdout.strip().split("\n")
+            for line in uncommitted[:5]:  # Show first 5
+                print(f"    {line}")
+            if len(uncommitted) > 5:
+                print(f"    ... and {len(uncommitted) - 5} more")
+        else:
+            print("✅ No uncommitted changes")
+
+    except Exception as e:
+        print(f"❌ Git status check failed: {e}")
+
+    # Show context file if it exists (for pause points)
+    if point_type == "pause_point":
+        context_file = project_root / ".claude" / f"pause_context_{point_id}.md"
+        if context_file.exists():
+            print(f"\n📄 Detailed context available in: {context_file}")
+            print(f"💡 View with: cat .claude/pause_context_{point_id}.md")
+
+    # Show current phase status
+    print("\n🚀 Current Phase Status:")
+    import subprocess
+
+    try:
+        result = subprocess.run(
+            ["python", "bin/phase-status"],
+            cwd=project_root,
+            capture_output=True,
+            text=True,
+            env={"PYTHONPATH": str(project_root)},
+        )
+        if result.returncode == 0:
+            # Show just the key info
+            lines = result.stdout.split("\n")
+            for line in lines:
+                if "Current Phase:" in line or "Progress:" in line or "Completed:" in line:
+                    print(f"  {line.strip()}")
+        else:
+            print("  ❌ Could not get phase status")
+    except Exception:
+        print("  ❌ Phase status unavailable")
+
+    print(f"\n🎯 Ready to resume work from {point_id}")
+
+
+def list_recent_points() -> None:
+    """List recent checkpoints and pause points."""
+    checkpoints_file = project_root / ".claude" / "checkpoints.json"
+    pause_points_file = project_root / ".claude" / "pause_points.json"
+
+    checkpoints = load_json(checkpoints_file, default=[])
+    pause_points = load_json(pause_points_file, default=[])
+
+    print("📍 Recent Checkpoints (last 5):")
+    for cp in checkpoints[-5:]:
+        print(f"  {cp['id']}: {cp['description']} ({cp['timestamp'][:10]})")
+
+    print("\n⏸️  Recent Pause Points (last 5):")
+    for pp in pause_points[-5:]:
+        next_info = f" → {pp['next_action']}" if pp.get("next_action") else ""
+        print(f"  {pp['id']}: {pp['reason']}{next_info} ({pp['timestamp'][:10]})")
+
+
+def main() -> None:
+    """Main resume function."""
+    if len(sys.argv) != 2:
+        print("Usage: ./bin/resume-from <point_id>")
+        print("       ./bin/resume-from list")
+        print("\nExamples:")
+        print("  ./bin/resume-from checkpoint_3")
+        print("  ./bin/resume-from pause_1")
+        print("  ./bin/resume-from list")
+        sys.exit(1)
+
+    point_id = sys.argv[1]
+
+    if point_id == "list":
+        list_recent_points()
+    else:
+        resume_from_point(point_id)
+
+
+if __name__ == "__main__":
+    main()

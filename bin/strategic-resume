@@ -1,5 +1,5 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 
 import argparse
 import sys
@@ -9,7 +9,7 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from afs_fastapi.core.todos_manager import resume_strategic_goal  # noqa: E402
+from afs_fastapi.core.todos_manager import load_todos, save_todos  # noqa: E402
 
 
 def main():
@@ -17,14 +17,30 @@ def main():
     parser.add_argument("goal_id", type=str, help="The ID of the strategic goal to resume.")
     args = parser.parse_args()
 
-    success, error = resume_strategic_goal(args.goal_id)
+    todos = load_todos()
+    goals = todos["goals"]
+    goal_found = False
+    for goal in goals:
+        if goal["id"] == args.goal_id:
+            if goal["status"] == "done":
+                print(f"Error: Goal '{args.goal_id}' is already done and cannot be resumed.")
+                sys.exit(1)
+            if goal["status"] != "blocked":
+                print(
+                    f"Error: Goal '{args.goal_id}' is not paused. Current status: {goal['status']}."
+                )
+                sys.exit(1)
+            goal["status"] = "planned"
+            goal_found = True
+            break
 
-    if error:
-        print(f"Error: {error}")
+    if not goal_found:
+        print(f"Error: Goal with ID '{args.goal_id}' not found.")
         sys.exit(1)
-    
-    if success:
-        print(f"✓ Strategic goal ''{args.goal_id}'' resumed successfully!")
+
+    save_todos(todos)
+    print(f"✓ Goal '{args.goal_id}' resumed successfully!")
+
 
 if __name__ == "__main__":
     main()

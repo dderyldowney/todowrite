@@ -34,12 +34,19 @@ class TestSessionInitializationHook:
         claude_dir = project_root / ".claude"
         claude_dir.mkdir()
 
-        # Create bin directory with mock loadsession script
+        # Create bin directory with mock loadsession scripts
         bin_dir = project_root / "bin"
         bin_dir.mkdir()
+
+        # Create the actual loadsession Python script
         loadsession_script = bin_dir / "loadsession"
-        loadsession_script.write_text("#!/bin/bash\necho 'Session loaded'")
+        loadsession_script.write_text("#!/usr/bin/env python3\nprint('Session loaded')")
         loadsession_script.chmod(0o755)
+
+        # Create the wrapper script that the hook expects
+        wrapper_script = bin_dir / "run_loadsession.sh"
+        wrapper_script.write_text('#!/bin/bash\npython3 "$(dirname "$0")"/loadsession "$@"')
+        wrapper_script.chmod(0o755)
 
         return project_root
 
@@ -254,9 +261,9 @@ class TestSessionInitializationHook:
         Agricultural scenario: Graceful degradation if loadsession script
         unavailable during development environment setup.
         """
-        # Remove loadsession script
-        loadsession_script = temp_project_root / "bin" / "loadsession"
-        loadsession_script.unlink()
+        # Remove wrapper script that the hook expects
+        wrapper_script = temp_project_root / "bin" / "run_loadsession.sh"
+        wrapper_script.unlink()
 
         # Should fail gracefully
         result = session_hook.execute_loadsession()

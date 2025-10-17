@@ -1,5 +1,5 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 
 import argparse
 import sys
@@ -9,27 +9,38 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from afs_fastapi.core.todos_manager import add_task_to_active_phase  # noqa: E402
+from afs_fastapi.core.todos_manager import add_task, get_active_items  # noqa: E402
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Add a new task to the active phase.")
-    parser.add_argument("description", type=str, help="The description of the task.")
+    parser = argparse.ArgumentParser(description="Add a new task to the active step.")
+    parser.add_argument("title", type=str, help="The title of the task.")
+    parser.add_argument("--description", type=str, default="", help="The description of the task.")
     args = parser.parse_args()
 
-    new_task, error = add_task_to_active_phase(args.description)
+    active_items = get_active_items()
+    active_step = active_items.get("step")
+
+    if not active_step:
+        print(
+            "Error: No active step. Please activate a step first using './bin/step-activate <step_id>'."
+        )
+        sys.exit(1)
+
+    new_task, error = add_task(active_step["id"], args.title, args.description)
 
     if error:
         print(f"Error: {error}")
         sys.exit(1)
-    
+
     if new_task:
         print("✓ Task added successfully!")
         print(f"  ID: {new_task['id']}")
-        print(f"  Description: {new_task['description']}")
+        print(f"  Title: {new_task['title']}")
         print(f"  Status: {new_task['status']}")
         print()
-        print("Use './bin/phase-status' to view all tasks in the active phase.")
+        print("Use './bin/step-status' to view all tasks in the active step.")
+
 
 if __name__ == "__main__":
     main()

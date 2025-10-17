@@ -1,607 +1,1198 @@
 import json
+import os
+import subprocess
 from datetime import datetime
-from typing import TypedDict
+from typing import Literal, TypedDict
+
+# TodoWrite.md Schema Implementation
+# 5-level hierarchy: Goal → Phase → Step → Task → SubTask
+
+LevelType = Literal["Goal", "Phase", "Step", "Task", "SubTask"]
+StatusType = Literal["planned", "in_progress", "blocked", "done", "rejected"]
 
 
-class TaskItem(TypedDict):
+class BaseItem(TypedDict):
+    """Base schema for all TodoWrite levels according to TodoWrite.md specification."""
+
     id: str
+    parent_id: str | None
+    level: LevelType
+    title: str
     description: str
-    status: str
+    single_concern: bool
+    dependencies: list[str]
+    status: StatusType
+    validation_log: list[str]
     date_completed: str | None
 
 
-class PhaseItem(TypedDict):
-    id: str
-    name: str
-    status: str
-    date_started: str
-    date_completed: str | None
+class SubTaskItem(BaseItem):
+    """SubTask: Maps 1:1 to an executable Command."""
+
+    command: str  # The actual executable command
+    command_type: str  # e.g., "bash", "python", "api_call"
+    execution_log: list[str]  # Execution history
+
+
+class TaskItem(BaseItem):
+    """Task: Contains SubTasks serving the Task's concern."""
+
+    subtasks: list[SubTaskItem]
+
+
+class StepItem(BaseItem):
+    """Step: Contains Tasks serving the Step's concern."""
+
     tasks: list[TaskItem]
-    paused_at: str | None
-    resumed_at: str | None
-    strategic_goal_id: str
 
 
-class StrategicGoal(TypedDict):
-    id: str
-    description: str
-    category: str
-    priority: str
-    status: str
-    date_added: str
-    date_completed: str | None
+class PhaseItem(BaseItem):
+    """Phase: Contains Steps serving the Phase's concern."""
+
+    steps: list[StepItem]
+
+
+class GoalItem(BaseItem):
+    """Goal: Contains Phases (each Phase = one concern)."""
+
     phases: list[PhaseItem]
+    category: str  # Maintain compatibility with existing system
+    priority: str  # Maintain compatibility with existing system
 
 
 class TodosData(TypedDict):
-    strategic_goals: list[StrategicGoal]
+    goals: list[GoalItem]
 
 
 TODOS_FILE = ".claude/todos.json"
+TODOS_SCHEMA_FILE = ".claude/todos_schema.json"
+
+
+# TodoWrite.md Validation Pipeline Implementation
+
+
+def validate_hierarchy_order(item: BaseItem, expected_level: LevelType) -> list[str]:
+    """V1: Require hierarchy order: Goal>Phase>Step>Task>SubTask; reject skips/misplacements."""
+    errors = []
+
+    if item["level"] != expected_level:
+        errors.append(f"Hierarchy violation: Expected {expected_level}, got {item['level']}")
+
+    # Check parent relationship
+    if expected_level == "Goal" and item["parent_id"] is not None:
+        errors.append("Goal must have parent_id=null")
+    elif expected_level != "Goal" and item["parent_id"] is None:
+        errors.append(f"{expected_level} must have a parent_id")
+
+    return errors
+
+
+def validate_single_concern(item: BaseItem) -> list[str]:
+    """V2: SoC check: title+description MUST express one concern; if multiple verbs/concerns, split."""
+    errors = []
+
+    # Action verbs and conjunctions for strict checking
+    action_verbs = [
+        "implement",
+        "create",
+        "design",
+        "develop",
+        "build",
+        "test",
+        "validate",
+        "configure",
+        "setup",
+        "analyze",
+        "fix",
+        "repair",
+        "locate",
+        "identify",
+        "improve",
+        "enhance",
+    ]
+
+    title_lower = item["title"].lower()
+    desc_lower = item["description"].lower()
+
+    if item["level"] != "Goal":
+        # Apply strict checks for non-Goal items (Phase, Step, Task, SubTask)
+        found_verbs_title = [verb for verb in action_verbs if verb in title_lower]
+        found_verbs_desc = [verb for verb in action_verbs if verb in desc_lower]
+
+        # Check for conjunctions in title
+        conjunctions = [" and ", " or ", " & "]
+        for conjunction in conjunctions:
+            if conjunction in title_lower:
+                errors.append(
+                    "Title contains conjunctions suggesting multiple concerns. Split into separate items."
+                )
+                break
+
+        # Check for multiple verbs in title
+        if len(found_verbs_title) > 1:
+            errors.append(
+                f"Multiple concerns in title: contains {found_verbs_title}. Split into separate items."
+            )
+
+        # Check for multiple verbs in description
+        if len(found_verbs_desc) > 1:
+            errors.append(f"Description may contain multiple concerns: {found_verbs_desc}")
+
+    else:
+        # For Goal level items, apply a more relaxed check on description
+        # Only flag if description is excessively long or contains too many distinct concerns
+        found_verbs_desc = [verb for verb in action_verbs if verb in desc_lower]
+        if len(found_verbs_desc) > 4:  # Allow more verbs for high-level goals
+            errors.append(f"Goal description may contain too many concerns: {found_verbs_desc}")
+
+    # Update single_concern flag
+    if not errors:
+        item["single_concern"] = True
+    else:
+        item["single_concern"] = False
+
+    return errors
+
+
+def validate_granularity(item: BaseItem, all_items: dict[str, BaseItem]) -> list[str]:
+    """V3: Granularity check: Steps MUST only contain Tasks serving the Step's concern; Tasks MUST only contain SubTasks serving the Task's concern."""
+    errors: list[str] = []
+
+    if item["level"] in ["Step", "Task"]:
+        # Get children
+        children = [child for child in all_items.values() if child["parent_id"] == item["id"]]
+
+        for child in children:
+            # Check if child serves parent's concern
+            parent_concern = item["title"].lower()
+            child_concern = child["title"].lower()
+
+            # Extract meaningful nouns/concepts from parent and child titles
+            # Filter out common action verbs that don't indicate domain
+            action_verbs = {
+                "implement",
+                "create",
+                "design",
+                "develop",
+                "build",
+                "test",
+                "validate",
+                "configure",
+                "setup",
+                "analyze",
+                "fix",
+                "repair",
+                "locate",
+                "identify",
+                "improve",
+                "enhance",
+                "add",
+                "update",
+                "execute",
+                "run",
+                "handle",
+                "process",
+                "manage",
+                "ensure",
+            }
+
+            # Extract content words (nouns/concepts) by removing action verbs and common words
+            def extract_content_words(text: str, action_verbs_set: set[str]) -> set[str]:
+                words = set(text.split())
+                # Remove action verbs, articles, prepositions, and short words
+                common_words = {
+                    "the",
+                    "a",
+                    "an",
+                    "and",
+                    "or",
+                    "for",
+                    "with",
+                    "in",
+                    "on",
+                    "at",
+                    "to",
+                    "from",
+                }
+                content_words = {
+                    word
+                    for word in words
+                    if len(word) > 3 and word not in action_verbs_set and word not in common_words
+                }
+                return content_words
+
+            parent_content = extract_content_words(parent_concern, action_verbs)
+            child_content = extract_content_words(child_concern, action_verbs)
+
+            # Check if child has any content overlap with parent
+            if parent_content and child_content:
+                # Look for direct word matches or semantic relationships
+                has_overlap = bool(parent_content.intersection(child_content))
+
+                # Also check for partial word matches (e.g., "login" in "login_form")
+                partial_matches = any(
+                    any(
+                        parent_word in child_word or child_word in parent_word
+                        for child_word in child_content
+                    )
+                    for parent_word in parent_content
+                )
+
+                if not has_overlap and not partial_matches:
+                    errors.append(f"Child {child['id']} may not serve parent concern {item['id']}")
+
+    return errors
+
+
+def validate_dependencies(item: BaseItem, all_items: dict[str, BaseItem]) -> list[str]:
+    """V4: Dependency check: no cycles; deps reference existing items; no cross-concern leakage."""
+    errors = []
+
+    # Check if all dependencies exist
+    for dep_id in item["dependencies"]:
+        if dep_id not in all_items:
+            errors.append(f"Dependency {dep_id} does not exist")
+
+    # Check for circular dependencies (simplified check)
+    visited = set()
+
+    def check_cycle(current_id: str, path: set[str]) -> bool:
+        if current_id in path:
+            return True
+        if current_id in visited:
+            return False
+
+        visited.add(current_id)
+        path.add(current_id)
+
+        current_item = all_items.get(current_id)
+        if current_item:
+            for dep in current_item["dependencies"]:
+                if check_cycle(dep, path.copy()):
+                    return True
+
+        path.remove(current_id)
+        return False
+
+    if check_cycle(item["id"], set()):
+        errors.append(f"Circular dependency detected for {item['id']}")
+
+    return errors
+
+
+def validate_subtask_atomicity(item: SubTaskItem) -> list[str]:
+    """V5: SubTask atomicity: 1 SubTask → 1 Command; no composite/multi-action commands."""
+    errors: list[str] = []
+
+    if item["level"] != "SubTask":
+        return errors
+
+    command = item.get("command", "")
+
+    # Check for multiple commands (simplified)
+    command_separators = [" && ", " || ", " ; ", " | "]
+    if any(sep in command for sep in command_separators):
+        errors.append("SubTask contains multiple commands. Split into separate SubTasks.")
+
+    # Check for empty command
+    if not command.strip():
+        errors.append("SubTask must have a non-empty command")
+
+    return errors
+
+
+def validate_status_rules(item: BaseItem, all_items: dict[str, BaseItem]) -> list[str]:
+    """V6: Status rules: parents cannot be done unless all children are done; blocked bubbles upward."""
+    errors = []
+
+    # Get children
+    children = [child for child in all_items.values() if child["parent_id"] == item["id"]]
+
+    if item["status"] == "done" and children:
+        # Check if all children are done
+        incomplete_children = [child for child in children if child["status"] != "done"]
+        if incomplete_children:
+            child_ids = [child["id"] for child in incomplete_children]
+            errors.append(
+                f"Parent {item['id']} cannot be done while children {child_ids} are incomplete"
+            )
+
+    # Check blocked propagation
+    blocked_children = [child for child in children if child["status"] == "blocked"]
+    if blocked_children and item["status"] not in ["blocked", "rejected"]:
+        errors.append(f"Parent {item['id']} should be blocked due to blocked children")
+
+    return errors
+
+
+def run_validation_pipeline(
+    item: BaseItem, all_items: dict[str, BaseItem], expected_level: LevelType | None = None
+) -> list[str]:
+    """Run the complete validation pipeline on an item."""
+    all_errors = []
+
+    # V1: Hierarchy order
+    if expected_level:
+        all_errors.extend(validate_hierarchy_order(item, expected_level))
+
+    # V2: Single concern
+    all_errors.extend(validate_single_concern(item))
+
+    # V3: Granularity
+    all_errors.extend(validate_granularity(item, all_items))
+
+    # V4: Dependencies
+    all_errors.extend(validate_dependencies(item, all_items))
+
+    # V5: SubTask atomicity
+    if item["level"] == "SubTask":
+        all_errors.extend(validate_subtask_atomicity(item))  # type: ignore
+
+    # V6: Status rules
+    all_errors.extend(validate_status_rules(item, all_items))
+
+    # Update validation log
+    timestamp = datetime.now().isoformat()
+    if all_errors:
+        item["validation_log"].extend([f"{timestamp}: {error}" for error in all_errors])
+    else:
+        item["validation_log"].append(f"{timestamp}: Validation passed")
+
+    return all_errors
+
+
+def create_flat_item_dict(todos: TodosData) -> dict[str, BaseItem]:
+    """Create a flat dictionary of all items for validation."""
+    items: dict[str, BaseItem] = {}
+
+    for goal in todos["goals"]:
+        items[goal["id"]] = goal
+        for phase in goal["phases"]:
+            items[phase["id"]] = phase
+            for step in phase["steps"]:
+                items[step["id"]] = step
+                for task in step["tasks"]:
+                    items[task["id"]] = task
+                    for subtask in task["subtasks"]:
+                        items[subtask["id"]] = subtask
+
+    return items
 
 
 def load_todos() -> TodosData:
+    """Load TodoWrite.md format data."""
+    if not os.path.exists(TODOS_FILE) or os.stat(TODOS_FILE).st_size == 0:
+        # If todos.json doesn't exist or is empty, create a blank one from schema
+        print(f"Creating blank {TODOS_FILE} from schema.")
+        initial_todos_data: TodosData = {"goals": []}
+        with open(TODOS_FILE, "w") as f:
+            json.dump(initial_todos_data, f, indent=2)
+
     try:
         with open(TODOS_FILE) as f:
-            todos: TodosData = json.load(f)
-            return todos
+            data = json.load(f)
+
+            if "goals" in data:
+                # New TodoWrite.md format
+                todos = TodosData(goals=data["goals"])
+
+                # Run validation pipeline
+                all_items = create_flat_item_dict(todos)
+                for item in all_items.values():
+                    run_validation_pipeline(item, all_items)
+
+                return todos
+
+            else:
+                # Empty or invalid file
+                return TodosData(goals=[])
+
     except FileNotFoundError:
-        return TodosData(strategic_goals=[])
+        # This should ideally not happen after the os.path.exists check,
+        # but keeping it for robustness against race conditions or other issues.
+        return TodosData(goals=[])
 
 
 def save_todos(todos: TodosData) -> None:
+    """Save TodoWrite.md format data with validation."""
+    # Run validation pipeline before saving
+    all_items = create_flat_item_dict(todos)
+    validation_errors = []
+
+    for item in all_items.values():
+        errors = run_validation_pipeline(item, all_items)
+        validation_errors.extend(errors)
+
+    # Log validation results but don't block saving
+    if validation_errors:
+        print(f"Warning: {len(validation_errors)} validation errors found during save")
+
     with open(TODOS_FILE, "w") as f:
         json.dump(todos, f, indent=2)
 
 
-def get_strategic_goals() -> list[StrategicGoal]:
-    todos = load_todos()
-    return todos["strategic_goals"]
+# New TodoWrite.md API Functions
 
 
-def add_strategic_goal(description: str, category: str, priority: str) -> StrategicGoal:
+def get_goals() -> list[GoalItem]:
+    """Get all goals in TodoWrite.md format."""
     todos = load_todos()
-    new_id = f"strategic-{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-    new_goal: StrategicGoal = {
+    return todos["goals"]
+
+
+def add_goal(
+    title: str, description: str, category: str = "general", priority: str = "medium"
+) -> GoalItem:
+    """Add a new goal according to TodoWrite.md schema."""
+    todos = load_todos()
+    new_id = f"goal-{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}"
+
+    new_goal: GoalItem = {
         "id": new_id,
+        "parent_id": None,
+        "level": "Goal",
+        "title": title,
         "description": description,
+        "single_concern": True,
+        "dependencies": [],
+        "status": "planned",
+        "validation_log": [f"{datetime.now().isoformat()}: Created"],
+        "phases": [],
         "category": category,
         "priority": priority,
-        "status": "pending",
-        "date_added": datetime.now().isoformat(timespec="seconds") + "Z",
         "date_completed": None,
-        "phases": [],
     }
-    todos["strategic_goals"].append(new_goal)
+
+    # Validate new goal
+    all_items = create_flat_item_dict(todos)
+    all_items[new_goal["id"]] = new_goal
+    errors = run_validation_pipeline(new_goal, all_items, "Goal")
+
+    if errors:
+        print(f"Warning: Goal validation errors: {errors}")
+
+    todos["goals"].append(new_goal)
     save_todos(todos)
     return new_goal
 
 
-def complete_strategic_goal(goal_id: str) -> bool:
+def add_phase(goal_id: str, title: str, description: str) -> tuple[PhaseItem | None, str | None]:
+    """Add a new phase to a goal."""
     todos = load_todos()
-    for goal in todos["strategic_goals"]:
+
+    # Find the goal
+    target_goal = None
+    for goal in todos["goals"]:
         if goal["id"] == goal_id:
-            goal["status"] = "completed"
-            goal["date_completed"] = datetime.now().isoformat(timespec="seconds") + "Z"
-            save_todos(todos)
-            return True
-    return False
-
-
-def reorder_strategic_goals(goal_id: str, new_position: int) -> bool:
-    todos = load_todos()
-    goals: list[StrategicGoal] = todos["strategic_goals"]
-
-    goal_to_move = None
-    for i, goal in enumerate(goals):
-        if goal["id"] == goal_id:
-            goal_to_move = goals.pop(i)
+            target_goal = goal
             break
 
-    if not goal_to_move:
-        return False
+    if not target_goal:
+        return None, f"Goal with ID '{goal_id}' not found."
 
-    if new_position < 1:
-        new_position = 1
-    if new_position > len(goals) + 1:
-        new_position = len(goals) + 1
-
-    goals.insert(new_position - 1, goal_to_move)
-    todos["strategic_goals"] = goals
-    save_todos(todos)
-    return True
-
-
-def get_all_phases() -> list[PhaseItem]:
-    todos = load_todos()
-    all_phases: list[PhaseItem] = []
-    for goal in todos["strategic_goals"]:
-        for phase in goal["phases"]:
-            phase["strategic_goal_id"] = goal["id"]
-            all_phases.append(phase)
-    return all_phases
-
-
-def get_active_phase() -> PhaseItem | None:
-    todos = load_todos()
-    for goal in todos["strategic_goals"]:
-        for phase in goal["phases"]:
-            if phase.get("status") in ["active", "partially-paused"]:
-                phase["strategic_goal_id"] = goal["id"]
-                return phase
-    return None
-
-
-def start_phase(name: str, strategic_goal_id: str) -> tuple[PhaseItem | None, str | None]:
-    todos = load_todos()
-
-    # Check for existing active phase
-    for goal in todos["strategic_goals"]:
-        for phase in goal["phases"]:
-            if phase.get("status") == "active":
-                return None, f"Phase already active: {phase.get('name', 'Unknown Phase')}"
-
-    new_phase_id = f"phase-{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    new_phase_id = f"phase-{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}"
     new_phase: PhaseItem = {
         "id": new_phase_id,
-        "name": name,
-        "status": "active",
-        "date_started": datetime.now().isoformat(timespec="seconds") + "Z",
+        "parent_id": goal_id,
+        "level": "Phase",
+        "title": title,
+        "description": description,
+        "single_concern": True,
+        "dependencies": [],
+        "status": "planned",
+        "validation_log": [f"{datetime.now().isoformat()}: Created"],
+        "steps": [],
         "date_completed": None,
-        "tasks": [],
-        "paused_at": None,
-        "resumed_at": None,
-        "strategic_goal_id": strategic_goal_id,
     }
 
-    goal_found = False
-    for goal in todos["strategic_goals"]:
-        if goal["id"] == strategic_goal_id:
-            goal["phases"].append(new_phase)
-            goal_found = True
-            break
+    # Validate new phase
+    all_items = create_flat_item_dict(todos)
+    all_items[new_phase["id"]] = new_phase
+    errors = run_validation_pipeline(new_phase, all_items, "Phase")
 
-    if not goal_found:
-        return None, f"Strategic goal with ID ''{strategic_goal_id}'' not found."
+    if errors:
+        print(f"Warning: Phase validation errors: {errors}")
 
+    target_goal["phases"].append(new_phase)
     save_todos(todos)
     return new_phase, None
 
 
-def end_phase(force: bool = False) -> tuple[PhaseItem | None, str | None]:
+def add_step(phase_id: str, title: str, description: str) -> tuple[StepItem | None, str | None]:
+    """Add a new step to a phase."""
     todos = load_todos()
-    active_phase: PhaseItem | None = None
-    active_goal: StrategicGoal | None = None
 
-    for goal in todos["strategic_goals"]:
+    # Find the phase
+    target_phase = None
+    for goal in todos["goals"]:
         for phase in goal["phases"]:
-            if phase.get("status") == "active":
-                active_phase = phase
-                active_goal = goal
+            if phase["id"] == phase_id:
+                target_phase = phase
                 break
-        if active_phase:
-            break
 
-    if not active_phase:
-        return None, "No active phase found."
+    if not target_phase:
+        return None, f"Phase with ID '{phase_id}' not found."
 
-    tasks: list[TaskItem] = active_phase.get("tasks", [])
-    pending_tasks = [t for t in tasks if t.get("status") == "pending"]
-
-    if pending_tasks and not force:
-        return None, f"Phase has {len(pending_tasks)} pending tasks. Use --force to end anyway."
-
-    active_phase["status"] = "completed"
-    active_phase["date_completed"] = datetime.now().isoformat(timespec="seconds") + "Z"
-
-    # Only complete the strategic goal if the phase is completed without forcing
-    if not pending_tasks and active_goal:
-        active_goal["status"] = "completed"
-        active_goal["date_completed"] = datetime.now().isoformat(timespec="seconds") + "Z"
-
-    save_todos(todos)
-    return active_phase, None
-
-
-def add_task_to_active_phase(description: str) -> tuple[TaskItem | None, str | None]:
-    todos = load_todos()
-    active_phase: PhaseItem | None = None
-
-    for goal in todos["strategic_goals"]:
-        for phase in goal["phases"]:
-            if phase.get("status") == "active":
-                active_phase = phase
-                break
-        if active_phase:
-            break
-
-    if not active_phase:
-        return None, "No active phase found."
-
-    new_task_id = f"task-{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-    new_task: TaskItem = {
-        "id": new_task_id,
+    new_step_id = f"step-{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}"
+    new_step: StepItem = {
+        "id": new_step_id,
+        "parent_id": phase_id,
+        "level": "Step",
+        "title": title,
         "description": description,
-        "status": "pending",
+        "single_concern": True,
+        "dependencies": [],
+        "status": "planned",
+        "validation_log": [f"{datetime.now().isoformat()}: Created"],
+        "tasks": [],
         "date_completed": None,
     }
 
-    if "tasks" not in active_phase:
-        active_phase["tasks"] = []
+    # Validate new step
+    all_items = create_flat_item_dict(todos)
+    all_items[new_step["id"]] = new_step
+    errors = run_validation_pipeline(new_step, all_items, "Step")
 
-    active_phase["tasks"].append(new_task)
+    if errors:
+        print(f"Warning: Step validation errors: {errors}")
+
+    target_phase["steps"].append(new_step)
+    save_todos(todos)
+    return new_step, None
+
+
+def add_task(step_id: str, title: str, description: str) -> tuple[TaskItem | None, str | None]:
+    """Add a new task to a step."""
+    todos = load_todos()
+
+    # Find the step
+    target_step = None
+    for goal in todos["goals"]:
+        for phase in goal["phases"]:
+            for step in phase["steps"]:
+                if step["id"] == step_id:
+                    target_step = step
+                    break
+
+    if not target_step:
+        return None, f"Step with ID '{step_id}' not found."
+
+    new_task_id = f"task-{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}"
+    new_task: TaskItem = {
+        "id": new_task_id,
+        "parent_id": step_id,
+        "level": "Task",
+        "title": title,
+        "description": description,
+        "single_concern": True,
+        "dependencies": [],
+        "status": "planned",
+        "validation_log": [f"{datetime.now().isoformat()}: Created"],
+        "subtasks": [],
+        "date_completed": None,
+    }
+
+    # Validate new task
+    all_items = create_flat_item_dict(todos)
+    all_items[new_task["id"]] = new_task
+    errors = run_validation_pipeline(new_task, all_items, "Task")
+
+    if errors:
+        print(f"Warning: Task validation errors: {errors}")
+
+    target_step["tasks"].append(new_task)
     save_todos(todos)
     return new_task, None
 
 
-def complete_task_in_active_phase(search_term: str) -> tuple[TaskItem | None, str | None]:
+def add_subtask(
+    task_id: str, title: str, description: str, command: str, command_type: str = "bash"
+) -> tuple[SubTaskItem | None, str | None]:
+    """Add a new subtask to a task. SubTasks are the only executable level."""
     todos = load_todos()
-    active_phase: PhaseItem | None = None
 
-    for goal in todos["strategic_goals"]:
+    # Find the task
+    target_task = None
+    for goal in todos["goals"]:
         for phase in goal["phases"]:
-            if phase.get("status") == "active":
-                active_phase = phase
-                break
-        if active_phase:
-            break
+            for step in phase["steps"]:
+                for task in step["tasks"]:
+                    if task["id"] == task_id:
+                        target_task = task
+                        break
+
+    if not target_task:
+        return None, f"Task with ID '{task_id}' not found."
+
+    new_subtask_id = f"subtask-{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}"
+    new_subtask: SubTaskItem = {
+        "id": new_subtask_id,
+        "parent_id": task_id,
+        "level": "SubTask",
+        "title": title,
+        "description": description,
+        "single_concern": True,
+        "dependencies": [],
+        "status": "planned",
+        "validation_log": [f"{datetime.now().isoformat()}: Created"],
+        "command": command,
+        "command_type": command_type,
+        "execution_log": [],
+        "date_completed": None,
+    }
+
+    # Validate new subtask
+    all_items = create_flat_item_dict(todos)
+    all_items[new_subtask["id"]] = new_subtask
+    errors = run_validation_pipeline(new_subtask, all_items, "SubTask")
+
+    if errors:
+        print(f"Warning: SubTask validation errors: {errors}")
+
+    target_task["subtasks"].append(new_subtask)
+    save_todos(todos)
+    return new_subtask, None
+
+
+def execute_subtask(subtask_id: str) -> tuple[bool, str | None]:
+    """Execute a SubTask command. Only SubTasks can be executed per TodoWrite.md."""
+    todos = load_todos()
+
+    # Find the subtask
+    target_subtask = None
+    for goal in todos["goals"]:
+        for phase in goal["phases"]:
+            for step in phase["steps"]:
+                for task in step["tasks"]:
+                    for subtask in task["subtasks"]:
+                        if subtask["id"] == subtask_id:
+                            target_subtask = subtask
+                            break
+
+    if not target_subtask:
+        return False, f"SubTask with ID '{subtask_id}' not found."
+
+    if target_subtask["status"] not in ["planned", "in_progress"]:
+        return False, f"SubTask status '{target_subtask['status']}' is not executable."
+
+    # Mark as in progress
+    target_subtask["status"] = "in_progress"
+    target_subtask["execution_log"].append(f"{datetime.now().isoformat()}: Execution started")
+    save_todos(todos)
+
+    try:
+        command = target_subtask["command"]
+        command_type = target_subtask.get("command_type", "bash")
+
+        if command_type == "bash":
+            result = subprocess.run(command, shell=True, capture_output=True, text=True)
+            if result.returncode == 0:
+                target_subtask["execution_log"].append(
+                    f"{datetime.now().isoformat()}: Execution successful"
+                )
+                target_subtask["execution_log"].append(f"stdout:\n{result.stdout}")
+                target_subtask["status"] = "done"
+                save_todos(todos)
+                return True, "SubTask executed successfully"
+            else:
+                target_subtask["execution_log"].append(
+                    f"{datetime.now().isoformat()}: Execution failed"
+                )
+                target_subtask["execution_log"].append(f"stderr:\n{result.stderr}")
+                target_subtask["status"] = "blocked"
+                save_todos(todos)
+                return False, f"SubTask execution failed: {result.stderr}"
+        elif command_type == "todo":
+            target_subtask["execution_log"].append(
+                f"{datetime.now().isoformat()}: TODO command - requires manual completion"
+            )
+            # Not changing status, as it requires manual intervention.
+            save_todos(todos)
+            return True, "SubTask marked for manual completion (TODO command)"
+        else:
+            # TODO: Implement other command types
+            target_subtask["execution_log"].append(
+                f"{datetime.now().isoformat()}: Command execution for type '{command_type}' not yet implemented"
+            )
+            target_subtask["status"] = "blocked"
+            save_todos(todos)
+            return False, f"Command execution for type '{command_type}' not yet implemented"
+
+    except Exception as e:
+        target_subtask["status"] = "blocked"
+        target_subtask["execution_log"].append(
+            f"{datetime.now().isoformat()}: Execution failed: {str(e)}"
+        )
+        save_todos(todos)
+        return False, f"SubTask execution failed: {str(e)}"
+
+
+def activate_phase(phase_id: str) -> tuple[PhaseItem | None, str | None]:
+    """Activate a phase, setting all other phases to planned."""
+    todos = load_todos()
+    target_phase = None
+    target_goal = None
+
+    # Deactivate all other phases and find the target phase and its goal
+    for goal in todos["goals"]:
+        for phase in goal["phases"]:
+            if phase["id"] == phase_id:
+                target_phase = phase
+                target_goal = goal
+            else:
+                if phase["status"] == "in_progress":
+                    phase["status"] = "planned"
+
+    if not target_phase:
+        return None, f"Phase with ID '{phase_id}' not found."
+
+    # Activate the target phase and its goal
+    target_phase["status"] = "in_progress"
+    if target_goal:
+        target_goal["status"] = "in_progress"
+
+    # Deactivate other goals
+    for goal in todos["goals"]:
+        if target_goal and goal["id"] != target_goal["id"] and goal["status"] == "in_progress":
+            goal["status"] = "planned"
+
+    save_todos(todos)
+    return target_phase, None
+
+
+def get_active_phase() -> PhaseItem | None:
+    """Get the currently active phase."""
+    active_items = get_active_items()
+    phase = active_items.get("phase")
+    if phase and isinstance(phase, dict):
+        # This is a hack to make mypy happy
+        return phase  # type: ignore
+    return None
+
+
+def end_phase(force: bool = False) -> tuple[PhaseItem | None, str | None]:
+    """End the active phase."""
+    todos = load_todos()
+    active_phase = get_active_phase()
 
     if not active_phase:
         return None, "No active phase found."
 
-    tasks: list[TaskItem] = active_phase.get("tasks", [])
-    matched_task: TaskItem | None = None
-    for task in tasks:
-        if task["id"] == search_term or search_term.lower() in task["description"].lower():
-            matched_task = task
-            break
+    if not force:
+        for step in active_phase.get("steps", []):
+            if step.get("status") != "done":
+                return None, "Phase has incomplete steps."
 
-    if not matched_task:
-        return None, f"Task not found matching ''{search_term}''"
+    for goal in todos.get("goals", []):
+        for phase in goal.get("phases", []):
+            if phase.get("id") == active_phase.get("id"):
+                phase["status"] = "done"
+                phase["date_completed"] = datetime.now().isoformat()
+                save_todos(todos)
+                return phase, None
 
-    if matched_task["status"] == "completed":
-        return None, f"Task already completed: {matched_task['description']}"
-
-    matched_task["status"] = "completed"
-    matched_task["date_completed"] = datetime.now().isoformat(timespec="seconds") + "Z"
-
-    save_todos(todos)
-    return matched_task, None
+    return None, "Active phase not found in todos data."
 
 
-def activate_phase(phase_id: str) -> tuple[PhaseItem | None, str | None]:
+def get_active_items() -> dict[str, BaseItem | None]:
+    """Get currently active items at each level."""
     todos = load_todos()
+    active_items: dict[str, BaseItem | None] = {
+        "goal": None,
+        "phase": None,
+        "step": None,
+        "task": None,
+        "subtask": None,
+    }
 
-    # Find the phase to activate and the current active phase
-    phase_to_activate: PhaseItem | None = None
-    current_active_phase: PhaseItem | None = None
-    for goal in todos["strategic_goals"]:
-        for phase in goal["phases"]:
-            if phase.get("id") == phase_id:
-                phase_to_activate = phase
-            if phase.get("status") == "active":
-                current_active_phase = phase
-
-    if not phase_to_activate:
-        return None, f"Phase with ID ''{phase_id}'' not found."
-
-    if current_active_phase and current_active_phase["id"] == phase_id:
-        return phase_to_activate, "Phase is already active."
-
-    # Deactivate current active phase
-    if current_active_phase:
-        current_active_phase["status"] = "paused"
-
-    # Activate the new phase
-    phase_to_activate["status"] = "active"
-
-    save_todos(todos)
-    return phase_to_activate, None
-
-
-def pause_active_phase() -> tuple[PhaseItem | None, str | None]:
-    todos = load_todos()
-    active_phase: PhaseItem | None = None
-
-    for goal in todos["strategic_goals"]:
-        for phase in goal["phases"]:
-            if phase.get("status") == "active":
-                active_phase = phase
-                break
-        if active_phase:
-            break
-
-    if not active_phase:
-        return None, "No active phase found to pause."
-
-    active_phase["status"] = "paused"
-    active_phase["paused_at"] = datetime.now().isoformat(timespec="seconds") + "Z"
-
-    save_todos(todos)
-    return active_phase, None
-
-
-def resume_paused_phase() -> tuple[PhaseItem | None, str | None]:
-    todos = load_todos()
-    paused_phase: PhaseItem | None = None
-
-    for goal in todos["strategic_goals"]:
-        for phase in goal["phases"]:
-            if phase.get("status") == "paused":
-                paused_phase = phase
-                break
-        if paused_phase:
-            break
-
-    if not paused_phase:
-        return None, "No paused phase found to resume."
-
-    # Check for existing active phase
-    for goal in todos["strategic_goals"]:
-        for phase in goal["phases"]:
-            if phase.get("status") == "active":
-                return (
-                    None,
-                    f"Another phase is already active: {phase.get('name', 'Unknown Phase')}",
-                )
-
-    paused_phase["status"] = "active"
-    paused_phase["resumed_at"] = datetime.now().isoformat(timespec="seconds") + "Z"
-
-    save_todos(todos)
-    return paused_phase, None
-
-
-def delete_strategic_goal(goal_id: str) -> tuple[bool, str | None]:
-    todos = load_todos()
-    goals: list[StrategicGoal] = todos["strategic_goals"]
-
-    goal_found = False
-    for i, goal in enumerate(goals):
-        if goal["id"] == goal_id:
-            goals.pop(i)
-            goal_found = True
-            break
-
-    if not goal_found:
-        return False, f"Strategic goal with ID ''{goal_id}'' not found."
-
-    todos["strategic_goals"] = goals
-    save_todos(todos)
-    return True, None
-
-
-def delete_phase(phase_id: str) -> tuple[bool, str | None]:
-    todos = load_todos()
-
-    phase_found = False
-    for goal in todos["strategic_goals"]:
-        phases: list[PhaseItem] = goal["phases"]
-        for i, phase in enumerate(phases):
-            if phase["id"] == phase_id:
-                phases.pop(i)
-                phase_found = True
-                break
-        if phase_found:
-            break
-
-    if not phase_found:
-        return False, f"Phase with ID ''{phase_id}'' not found."
-
-    save_todos(todos)
-    return True, None
-
-
-def delete_task(task_id: str) -> tuple[bool, str | None]:
-    todos = load_todos()
-
-    task_found = False
-    for goal in todos["strategic_goals"]:
-        for phase in goal["phases"]:
-            tasks: list[TaskItem] = phase["tasks"]
-            for i, task in enumerate(tasks):
-                if task["id"] == task_id:
-                    tasks.pop(i)
-                    task_found = True
+    for goal in todos["goals"]:
+        if goal["status"] == "in_progress":
+            active_items["goal"] = goal
+            for phase in goal["phases"]:
+                if phase["status"] == "in_progress":
+                    active_items["phase"] = phase
+                    for step in phase["steps"]:
+                        if step["status"] == "in_progress":
+                            active_items["step"] = step
+                            for task in step["tasks"]:
+                                if task["status"] == "in_progress":
+                                    active_items["task"] = task
+                                    for subtask in task["subtasks"]:
+                                        if subtask["status"] == "in_progress":
+                                            active_items["subtask"] = subtask
+                                            break
+                                    break
+                            break
                     break
-            if task_found:
-                break
-        if task_found:
             break
 
-    if not task_found:
-        return False, f"Task with ID ''{task_id}'' not found."
-
-    save_todos(todos)
-    return True, None
+    return active_items
 
 
-def reorder_phases(phase_id: str, new_position: int) -> tuple[bool, str | None]:
+def validate_all_items() -> dict[str, list[str]]:
+    """Run validation pipeline on all items and return results."""
     todos = load_todos()
+    all_items = create_flat_item_dict(todos)
+    validation_results = {}
 
-    phase_to_move: PhaseItem | None = None
-    goal_of_phase: StrategicGoal | None = None
-    for goal in todos["strategic_goals"]:
-        for i, phase in enumerate(goal["phases"]):
-            if phase["id"] == phase_id:
-                phase_to_move = goal["phases"].pop(i)
-                goal_of_phase = goal
-                break
-        if phase_to_move:
-            break
+    for item_id, item in all_items.items():
+        errors = run_validation_pipeline(item, all_items)
+        if errors:
+            validation_results[item_id] = errors
 
-    if not phase_to_move:
-        return False, f"Phase with ID ''{phase_id}'' not found."
-
-    if new_position < 1:
-        new_position = 1
-    if goal_of_phase and new_position > len(goal_of_phase["phases"]) + 1:
-        new_position = len(goal_of_phase["phases"]) + 1
-
-    if goal_of_phase:
-        goal_of_phase["phases"].insert(new_position - 1, phase_to_move)
-
-    save_todos(todos)
-    return True, None
+    return validation_results
 
 
-def reorder_tasks(task_id: str, new_position: int) -> tuple[bool, str | None]:
+def activate_step(step_id: str) -> tuple[StepItem | None, str | None]:
+    """Activate a step, setting all other steps in the same phase to planned."""
     todos = load_todos()
+    target_step = None
+    target_phase = None
+    target_goal = None
 
-    task_to_move: TaskItem | None = None
-    phase_of_task: PhaseItem | None = None
-    for goal in todos["strategic_goals"]:
+    for goal in todos["goals"]:
         for phase in goal["phases"]:
-            tasks: list[TaskItem] = phase["tasks"]
-            for i, task in enumerate(tasks):
-                if task["id"] == task_id:
-                    task_to_move = phase["tasks"].pop(i)
-                    phase_of_task = phase
+            for step in phase["steps"]:
+                if step["id"] == step_id:
+                    target_step = step
+                    target_phase = phase
+                    target_goal = goal
+                else:
+                    if step["status"] == "in_progress":
+                        step["status"] = "planned"
+
+    if not target_step:
+        return None, f"Step with ID '{step_id}' not found."
+
+    target_step["status"] = "in_progress"
+    if target_phase:
+        target_phase["status"] = "in_progress"
+    if target_goal:
+        target_goal["status"] = "in_progress"
+
+    save_todos(todos)
+    return target_step, None
+
+
+def activate_task(task_id: str) -> tuple[TaskItem | None, str | None]:
+    """Activate a task, setting all other tasks in the same step to planned."""
+    todos = load_todos()
+    target_task = None
+    target_step = None
+    target_phase = None
+    target_goal = None
+
+    for goal in todos["goals"]:
+        for phase in goal["phases"]:
+            for step in phase["steps"]:
+                for task in step["tasks"]:
+                    if task["id"] == task_id:
+                        target_task = task
+                        target_step = step
+                        target_phase = phase
+                        target_goal = goal
+                    else:
+                        if task["status"] == "in_progress":
+                            task["status"] = "planned"
+
+    if not target_task:
+        return None, f"Task with ID '{task_id}' not found."
+
+    target_task["status"] = "in_progress"
+    if target_step:
+        target_step["status"] = "in_progress"
+    if target_phase:
+        target_phase["status"] = "in_progress"
+    if target_goal:
+        target_goal["status"] = "in_progress"
+
+    save_todos(todos)
+    return target_task, None
+
+
+def activate_subtask(subtask_id: str) -> tuple[SubTaskItem | None, str | None]:
+    """Activate a subtask, setting all other subtasks in the same task to planned."""
+    todos = load_todos()
+    target_subtask = None
+    target_task = None
+    target_step = None
+    target_phase = None
+    target_goal = None
+
+    for goal in todos["goals"]:
+        for phase in goal["phases"]:
+            for step in phase["steps"]:
+                for task in step["tasks"]:
+                    for subtask in task["subtasks"]:
+                        if subtask["id"] == subtask_id:
+                            target_subtask = subtask
+                            target_task = task
+                            target_step = step
+                            target_phase = phase
+                            target_goal = goal
+                        else:
+                            if subtask["status"] == "in_progress":
+                                subtask["status"] = "planned"
+
+    if not target_subtask:
+        return None, f"SubTask with ID '{subtask_id}' not found."
+
+    target_subtask["status"] = "in_progress"
+    if target_task:
+        target_task["status"] = "in_progress"
+    if target_step:
+        target_step["status"] = "in_progress"
+    if target_phase:
+        target_phase["status"] = "in_progress"
+    if target_goal:
+        target_goal["status"] = "in_progress"
+
+    save_todos(todos)
+    return target_subtask, None
+
+
+def update_goal_status(goal_id: str, new_status: StatusType) -> tuple[GoalItem | None, str | None]:
+    """Update the status of a specific goal."""
+    todos = load_todos()
+    target_goal = None
+
+    for goal in todos["goals"]:
+        if goal["id"] == goal_id:
+            target_goal = goal
+            break
+
+    if not target_goal:
+        return None, f"Goal with ID '{goal_id}' not found."
+
+    target_goal["status"] = new_status
+    save_todos(todos)
+    return target_goal, None
+
+
+def clear_goal_children(goal_id: str) -> tuple[bool, str | None]:
+    """Clears all phases, steps, tasks, and subtasks under a given goal."""
+    todos = load_todos()
+    target_goal = None
+
+    for goal in todos["goals"]:
+        if goal["id"] == goal_id:
+            target_goal = goal
+            break
+
+    if not target_goal:
+        return False, f"Goal with ID '{goal_id}' not found."
+
+    target_goal["phases"] = []
+    save_todos(todos)
+    return True, None
+
+
+def update_step_status(step_id: str, new_status: StatusType) -> tuple[StepItem | None, str | None]:
+    """Update the status of a specific step."""
+    todos = load_todos()
+    target_step = None
+
+    for goal in todos["goals"]:
+        for phase in goal["phases"]:
+            for step in phase["steps"]:
+                if step["id"] == step_id:
+                    target_step = step
                     break
-            if task_to_move:
+            if target_step:
                 break
-        if task_to_move:
+        if target_step:
             break
 
-    if not task_to_move:
-        return False, f"Task with ID ''{task_id}'' not found."
+    if not target_step:
+        return None, f"Step with ID '{step_id}' not found."
 
-    if not phase_of_task:
-        return False, "Internal error: Phase of task not found."
-
-    if new_position < 1:
-        new_position = 1
-    if new_position > len(phase_of_task["tasks"]) + 1:
-        new_position = len(phase_of_task["tasks"]) + 1
-
-    phase_of_task["tasks"].insert(new_position - 1, task_to_move)
-
+    target_step["status"] = new_status
     save_todos(todos)
-    return True, None
+    return target_step, None
 
 
-def pause_strategic_goal(goal_id: str) -> tuple[bool | None, str | None]:
+def update_task_status(task_id: str, new_status: StatusType) -> tuple[TaskItem | None, str | None]:
+    """Update the status of a specific task."""
     todos = load_todos()
+    target_task = None
 
-    goal_found = False
-    for goal in todos["strategic_goals"]:
-        if goal["id"] == goal_id:
-            if goal["status"] == "pending":
-                goal["status"] = "paused"
-                goal_found = True
-                break
-            else:
-                return None, f"Goal is not pending. Current status: {goal['status']}"
-
-    if not goal_found:
-        return None, f"Strategic goal with ID ''{goal_id}'' not found."
-
-    save_todos(todos)
-    return True, None
-
-
-def resume_strategic_goal(goal_id: str) -> tuple[bool | None, str | None]:
-    todos = load_todos()
-
-    goal_found = False
-    for goal in todos["strategic_goals"]:
-        if goal["id"] == goal_id:
-            if goal["status"] == "paused":
-                goal["status"] = "pending"
-                goal_found = True
-                break
-            else:
-                return None, f"Goal is not paused. Current status: {goal['status']}"
-
-    if not goal_found:
-        return None, f"Strategic goal with ID ''{goal_id}'' not found."
-
-    save_todos(todos)
-    return True, None
-
-
-def update_parent_statuses() -> None:
-    todos = load_todos()
-
-    strategic_goals: list[StrategicGoal] = todos["strategic_goals"]
-    for goal in strategic_goals:
-        has_paused_phase = False
-        phases: list[PhaseItem] = goal["phases"]
-        for phase in phases:
-            tasks: list[TaskItem] = phase["tasks"]
-            has_paused_task = any(t.get("status") == "paused" for t in tasks)
-            if has_paused_task:
-                if phase.get("status") == "active":
-                    phase["status"] = "partially-paused"
-                has_paused_phase = True
-            else:
-                if phase.get("status") == "partially-paused":
-                    phase["status"] = "active"
-
-        if has_paused_phase:
-            if goal.get("status") == "pending":
-                goal["status"] = "partially-paused"
-        else:
-            if goal.get("status") == "partially-paused":
-                goal["status"] = "pending"
-    save_todos(todos)
-
-
-def pause_task(task_id: str) -> tuple[bool | None, str | None]:
-    todos = load_todos()
-
-    task_found = False
-    strategic_goals: list[StrategicGoal] = todos["strategic_goals"]
-    for goal in strategic_goals:
-        phases: list[PhaseItem] = goal["phases"]
-        for phase in phases:
-            tasks: list[TaskItem] = phase["tasks"]
-            for task in tasks:
-                if task["id"] == task_id:
-                    if task.get("status") == "pending":
-                        task["status"] = "paused"
-                        task_found = True
+    for goal in todos["goals"]:
+        for phase in goal["phases"]:
+            for step in phase["steps"]:
+                for task in step["tasks"]:
+                    if task["id"] == task_id:
+                        target_task = task
                         break
-                    else:
-                        return None, f"Task is not pending. Current status: {task.get('status')}"
-            if task_found:
+                if target_task:
+                    break
+            if target_task:
                 break
-        if task_found:
+        if target_task:
             break
 
-    if not task_found:
-        return None, f"Task with ID ''{task_id}'' not found."
+    if not target_task:
+        return None, f"Task with ID '{task_id}' not found."
 
+    target_task["status"] = new_status
     save_todos(todos)
-    update_parent_statuses()
-    return True, None
+    return target_task, None
 
 
-def resume_task(task_id: str) -> tuple[bool | None, str | None]:
+def update_subtask_command(
+    subtask_id: str, new_command: str
+) -> tuple[SubTaskItem | None, str | None]:
+    """Update the command of a specific subtask."""
     todos = load_todos()
+    target_subtask = None
 
-    task_found = False
-    strategic_goals: list[StrategicGoal] = todos["strategic_goals"]
-    for goal in strategic_goals:
-        phases: list[PhaseItem] = goal["phases"]
-        for phase in phases:
-            tasks: list[TaskItem] = phase["tasks"]
-            for task in tasks:
-                if task["id"] == task_id:
-                    if task.get("status") == "paused":
-                        task["status"] = "pending"
-                        task_found = True
+    for goal in todos["goals"]:
+        for phase in goal["phases"]:
+            for step in phase["steps"]:
+                for task in step["tasks"]:
+                    for subtask in task["subtasks"]:
+                        if subtask["id"] == subtask_id:
+                            target_subtask = subtask
+                            break
+                    if target_subtask:
                         break
-                    else:
-                        return None, f"Task is not paused. Current status: {task.get('status')}"
-            if task_found:
+                if target_subtask:
+                    break
+            if target_subtask:
                 break
-        if task_found:
+        if target_subtask:
             break
 
-    if not task_found:
-        return None, f"Task with ID ''{task_id}'' not found."
+    if not target_subtask:
+        return None, f"SubTask with ID '{subtask_id}' not found."
 
+    target_subtask["command"] = new_command
     save_todos(todos)
-    update_parent_statuses()
-    return True, None
+    return target_subtask, None
+
+
+def update_subtask_status(
+    subtask_id: str, new_status: StatusType
+) -> tuple[SubTaskItem | None, str | None]:
+    """Update the status of a specific subtask."""
+    todos = load_todos()
+    target_subtask = None
+
+    for goal in todos["goals"]:
+        for phase in goal["phases"]:
+            for step in phase["steps"]:
+                for task in step["tasks"]:
+                    for subtask in task["subtasks"]:
+                        if subtask["id"] == subtask_id:
+                            target_subtask = subtask
+                            break
+                    if target_subtask:
+                        break
+                if target_subtask:
+                    break
+            if target_subtask:
+                break
+        if target_subtask:
+            break
+
+    if not target_subtask:
+        return None, f"SubTask with ID '{subtask_id}' not found."
+
+    target_subtask["status"] = new_status
+    save_todos(todos)
+    return target_subtask, None
+
+
+def update_subtask_details(
+    subtask_id: str, new_command: str, new_command_type: str
+) -> tuple[SubTaskItem | None, str | None]:
+    """Update the command and command_type of a specific subtask."""
+    todos = load_todos()
+    target_subtask = None
+
+    for goal in todos["goals"]:
+        for phase in goal["phases"]:
+            for step in phase["steps"]:
+                for task in step["tasks"]:
+                    for subtask in task["subtasks"]:
+                        if subtask["id"] == subtask_id:
+                            target_subtask = subtask
+                            break
+                    if target_subtask:
+                        break
+                if target_subtask:
+                    break
+            if target_subtask:
+                break
+        if target_subtask:
+            break
+
+    if not target_subtask:
+        return None, f"SubTask with ID '{subtask_id}' not found."
+
+    target_subtask["command"] = new_command
+    target_subtask["command_type"] = new_command_type
+    save_todos(todos)
+    return target_subtask, None
+
+
+def get_execution_ready_subtasks() -> list[SubTaskItem]:
+    """Get all SubTasks that are ready for execution."""
+    todos = load_todos()
+    ready_subtasks = []
+
+    for goal in todos["goals"]:
+        for phase in goal["phases"]:
+            for step in phase["steps"]:
+                for task in step["tasks"]:
+                    for subtask in task["subtasks"]:
+                        if (
+                            subtask["status"] in ["planned", "in_progress"]
+                            and subtask["command_type"] != "todo"
+                        ):
+                            ready_subtasks.append(subtask)
+
+    return ready_subtasks
+
+
+def complete_goal(goal_id: str) -> tuple[GoalItem | None, str | None]:
+    """Mark a goal as completed by ID.
+
+    Parameters
+    ----------
+    goal_id : str
+        The unique identifier of the goal to complete
+
+    Returns
+    -------
+    Tuple[GoalItem | None, str | None]
+        (completed_goal, error_message) - goal is None if not found or error occurred
+    """
+    todos = load_todos()
+    target_goal = None
+
+    # Find the goal by ID
+    for goal in todos["goals"]:
+        if goal["id"] == goal_id:
+            target_goal = goal
+            break
+
+    if not target_goal:
+        return None, f"Goal with ID '{goal_id}' not found."
+
+    # If already completed, return it without modifying
+    if target_goal["status"] == "done":
+        return target_goal, None
+
+    # Mark goal as completed
+    target_goal["status"] = "done"
+    target_goal["date_completed"] = datetime.now().isoformat()
+
+    # Update validation log (ensure it exists)
+    if "validation_log" not in target_goal:
+        target_goal["validation_log"] = []
+    target_goal["validation_log"].append(f"{datetime.now().isoformat()}: Goal completed")
+
+    # Save the updated todos
+    save_todos(todos)
+
+    return target_goal, None

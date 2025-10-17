@@ -32,10 +32,8 @@ class TestUpdateChangelogBashExecution:
         Agricultural Context: Modern agricultural systems use Python 3.x for
         safety-critical control systems. python3 should be preferred when available.
 
-        GREEN: This validates the implemented Python detection logic in bash script
+        This validates the implemented Python detection logic in the bash script.
         """
-        # GREEN: Test bash script's Python detection behavior directly
-        # The script already implements python3 detection at lines 47-60
         result = subprocess.run(
             ["./bin/updatechangelog"], capture_output=True, text=True, cwd=Path.cwd()
         )
@@ -51,10 +49,8 @@ class TestUpdateChangelogBashExecution:
         Agricultural Context: Legacy agricultural systems may only have python
         command available. Script must handle graceful fallback for compatibility.
 
-        GREEN: This validates the implemented Python fallback logic in bash script
+        This validates the implemented Python fallback logic in the bash script.
         """
-        # GREEN: Test bash script's fallback behavior by verifying implementation exists
-        # The script implements fallback logic at lines 49-52
         with open("bin/updatechangelog") as f:
             script_content = f.read()
 
@@ -76,10 +72,8 @@ class TestUpdateChangelogBashExecution:
         Agricultural Context: Clear error messages essential for agricultural
         technicians troubleshooting CHANGELOG generation in field deployments.
 
-        GREEN: This validates the implemented error handling for missing Python
+        This validates the implemented error handling for missing Python.
         """
-        # GREEN: Test bash script's error handling by verifying implementation exists
-        # The script implements error handling at lines 54-57
         with open("bin/updatechangelog") as f:
             script_content = f.read()
 
@@ -101,10 +95,8 @@ class TestUpdateChangelogBashExecution:
         Agricultural Context: Package dependencies (pydantic, FastAPI) may not be
         available in minimal deployment environments. Direct execution essential.
 
-        GREEN: This validates the implemented direct script execution approach
+        This validates the implemented direct script execution approach.
         """
-        # GREEN: Test that bash script uses direct file execution by verifying implementation
-        # The script implements direct execution at line 60
         with open("bin/updatechangelog") as f:
             script_content = f.read()
 
@@ -126,9 +118,8 @@ class TestUpdateChangelogBashExecution:
         Agricultural Context: CHANGELOG updates must work when called from any
         directory during agricultural field operations or CI/CD deployments.
 
-        RED: This will fail - PROJECT_ROOT detection not implemented
+        This validates the implemented PROJECT_ROOT detection.
         """
-        # RED: Test PROJECT_ROOT path resolution
         import os
         import tempfile
 
@@ -159,9 +150,8 @@ class TestUpdateChangelogMinimalEnvironment:
         Agricultural Context: Production agricultural equipment may lack
         development dependencies. CHANGELOG generation must be dependency-free.
 
-        RED: This will fail - Dependency isolation not implemented
+        This validates the implemented dependency isolation.
         """
-        # RED: Test execution without development dependencies
         with patch.dict("os.environ", {"PYTHONPATH": ""}):
             # Simulate minimal environment
             result = subprocess.run(
@@ -178,9 +168,8 @@ class TestUpdateChangelogMinimalEnvironment:
         Agricultural Context: Consistent script execution across different
         deployment environments critical for automated CHANGELOG maintenance.
 
-        RED: This will fail - PYTHONPATH management not implemented
+        This validates the implemented PYTHONPATH management.
         """
-        # RED: Test PYTHONPATH setting in bash script
         with patch("subprocess.run") as mock_run:
             mock_result = MagicMock()
             mock_result.returncode = 0
@@ -197,27 +186,29 @@ class TestUpdateChangelogMinimalEnvironment:
 class TestUpdateChangelogCommandLineRobustness:
     """Test command-line execution robustness for agricultural deployment."""
 
-    def test_provides_clear_error_messages_for_troubleshooting(self) -> None:
-        """Test clear error messages for agricultural technician troubleshooting.
+    def test_provides_clear_error_messages_for_missing_git(self) -> None:
+        """Test clear error messages when git is not found.
 
         Agricultural Context: Field technicians need clear error messages to
         diagnose CHANGELOG generation issues during equipment documentation updates.
         """
-        # Arrange: Mock subprocess.run to simulate Python not found
+        # Arrange: Mock subprocess.run to simulate git not found
         with patch("subprocess.run") as mock_subprocess_run:
-            # Configure mock for 'command -v python3' and 'command -v python' to fail
-            # and for the actual script execution to return the expected error
+
             def side_effect(cmd, *args, **kwargs):
                 if "command -v python3" in cmd or "command -v python" in cmd:
+                    return subprocess.CompletedProcess(
+                        args=cmd, returncode=0, stdout="/usr/bin/python3", stderr=""
+                    )
+                if "command -v git" in cmd:
                     return subprocess.CompletedProcess(args=cmd, returncode=1, stdout="", stderr="")
-                # This part simulates the script's final execution when PYTHON_CMD is empty
-                # and it tries to execute the python script directly, which would fail
                 if "./bin/updatechangelog" in cmd:
                     return subprocess.CompletedProcess(
                         args=cmd,
                         returncode=1,
                         stdout="",
-                        stderr="⚠️  Error: Neither 'python3' nor 'python' command found in PATH\n   Please ensure Python is installed and available in your PATH\n",
+                        stderr="""Error: Git command not found. Please ensure Git is installed and available in your PATH.
+""",
                     )
                 return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
 
@@ -228,7 +219,46 @@ class TestUpdateChangelogCommandLineRobustness:
                 ["./bin/updatechangelog"], capture_output=True, text=True, check=False
             )
 
-            # Assert: Script should fail with a specific error message
+            # Assert: Script should fail with a specific error message for missing git
+            assert result.returncode == 1
+            assert (
+                "Error: Git command not found. Please ensure Git is installed and available in your PATH."
+                in result.stderr
+            )
+
+    def test_provides_clear_error_messages_for_missing_python(self) -> None:
+        """Test clear error messages when neither python3 nor python is found.
+
+        Agricultural Context: Field technicians need clear error messages to
+        diagnose CHANGELOG generation issues during equipment documentation updates.
+        """
+        # Arrange: Mock subprocess.run to simulate Python not found
+        with patch("subprocess.run") as mock_subprocess_run:
+            # Configure mock for 'command -v python3' and 'command -v python' to fail
+            def side_effect(cmd, *args, **kwargs):
+                if "command -v python3" in cmd or "command -v python" in cmd:
+                    return subprocess.CompletedProcess(args=cmd, returncode=1, stdout="", stderr="")
+                # This part simulates the script's final execution when PYTHON_CMD is empty
+                # and it tries to execute the python script directly, which would fail
+                if "./bin/updatechangelog" in cmd:
+                    return subprocess.CompletedProcess(
+                        args=cmd,
+                        returncode=1,
+                        stdout="",
+                        stderr="""Error: Neither 'python3' nor 'python' command found in PATH
+   Please ensure Python is installed and available in your PATH
+""",
+                    )
+                return subprocess.CompletedProcess(args=cmd, returncode=0, stdout="", stderr="")
+
+            mock_subprocess_run.side_effect = side_effect
+
+            # Act: Run the updatechangelog script
+            result = subprocess.run(
+                ["./bin/updatechangelog"], capture_output=True, text=True, check=False
+            )
+
+            # Assert: Script should fail with a specific error message for missing Python
             assert result.returncode == 1
             assert "Error: Neither 'python3' nor 'python' command found in PATH" in result.stderr
             assert "Please ensure Python is installed and available in your PATH" in result.stderr

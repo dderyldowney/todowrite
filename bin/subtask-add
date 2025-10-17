@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+
+import argparse
+import sys
+from pathlib import Path
+
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from afs_fastapi.core.todos_manager import add_subtask, get_active_items  # noqa: E402
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Add a new subtask to the active task.")
+    parser.add_argument("title", type=str, help="The title of the subtask.")
+    parser.add_argument(
+        "--description", type=str, default="", help="The description of the subtask."
+    )
+    parser.add_argument("command", type=str, help="The command to execute for the subtask.")
+    parser.add_argument(
+        "--command-type",
+        type=str,
+        default="bash",
+        help="The type of the command (e.g., bash, python, api_call).",
+    )
+    args = parser.parse_args()
+
+    active_items = get_active_items()
+    active_task = active_items.get("task")
+
+    if not active_task:
+        print("Error: No active task. Please activate a task first.")
+        sys.exit(1)
+
+    new_subtask, error = add_subtask(
+        active_task["id"], args.title, args.description, args.command, args.command_type
+    )
+
+    if error:
+        print(f"Error: {error}")
+        sys.exit(1)
+
+    if new_subtask:
+        print("✓ SubTask added successfully!")
+        print(f"  ID: {new_subtask['id']}")
+        print(f"  Title: {new_subtask['title']}")
+        print(f"  Status: {new_subtask['status']}")
+        print(f"  Command: {new_subtask['command']}")
+        print()
+        print("Use './bin/task-status' to view all subtasks in the active task.")
+
+
+if __name__ == "__main__":
+    main()

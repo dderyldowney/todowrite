@@ -1,121 +1,144 @@
-import unittest
 from unittest.mock import MagicMock, patch
 
-from equipment.can_interface import CanBusManager
+import can
+import pytest
+
+from afs_fastapi.equipment.can_bus_manager import CANBusConnectionManager, ConnectionPoolConfig
+from afs_fastapi.equipment.physical_can_interface import InterfaceConfiguration
 
 
-class TestCanBusManager(unittest.TestCase):
-    @patch("can.interface.Bus")
-    def test_connect_success(self, mock_bus):
-        """Test successful connection to the CAN bus."""
-        manager = CanBusManager()
-        manager.connect()
-        mock_bus.assert_called_once_with(interface="socketcan", channel="can0", bitrate=500000)
-        self.assertIsNotNone(manager.bus)
-        self.assertEqual(manager.breaker.current_state, "closed")
+class TestCANBusConnectionManager:
+    @pytest.fixture
+    def pool_config(self):
+        """Set up test fixtures."""
+        return ConnectionPoolConfig(
+            primary_interfaces=["can0", "can1"],
+            backup_interfaces=["can2"],
+            max_connections_per_interface=1,
+            health_check_interval=5.0,
+            failover_timeout=30.0,
+            auto_recovery=True,
+        )
 
-    @patch("can.interface.Bus", side_effect=Exception("Connection failed"))
-    def test_connect_failure(self, mock_bus):
-        """Test failed connection to the CAN bus."""
-        manager = CanBusManager()
-        manager.connect()
-        mock_bus.assert_called_once_with(interface="socketcan", channel="can0", bitrate=500000)
-        self.assertIsNone(manager.bus)
-        self.assertEqual(manager.breaker.current_state, "open")
+    @pytest.mark.asyncio
+    async def test_manager_initialization(self, pool_config):
+        """Test successful manager initialization."""
+        manager = CANBusConnectionManager(pool_config)
 
-    def test_disconnect(self):
-        """Test disconnection from the CAN bus."""
-        manager = CanBusManager()
-        bus_mock = MagicMock()
-        notifier_mock = MagicMock()
-        manager.bus = bus_mock
-        manager.notifier = notifier_mock
-        manager.disconnect()
-        bus_mock.shutdown.assert_called_once()
-        notifier_mock.stop.assert_called_once()
-        self.assertIsNone(manager.bus)
-        self.assertIsNone(manager.notifier)
-        self.assertEqual(manager.breaker.current_state, "open")
+        # Mock the connection pool initialization
+        with patch.object(manager.connection_pool, "initialize", return_value=True):
+            success = await manager.initialize()
+            assert success is True
 
-    @patch("equipment.can_interface.CanBusManager._send_message_with_retry", return_value=True)
-    def test_send_reliable_message_success(self, mock_send_with_retry):
-        """Test sending a reliable message successfully."""
-        manager = CanBusManager()
-        message = MagicMock()
-        result = manager.send_reliable_message(message)
-        self.assertTrue(result)
-        mock_send_with_retry.assert_called_once_with(message)
+        await manager.shutdown()
 
-    @patch("equipment.can_interface.CanBusManager._send_message_with_retry")
-    def test_send_reliable_message_circuit_open(self, mock_send_with_retry):
-        """Test that send_reliable_message returns False when the circuit is open."""
-        manager = CanBusManager()
-        manager.breaker.open()
-        message = MagicMock()
-        result = manager.send_reliable_message(message)
-        self.assertFalse(result)
-        mock_send_with_retry.assert_not_called()
+    @pytest.mark.asyncio
+    async def test_manager_initialization_failure(self, pool_config):
+        """Test failed manager initialization."""
+        manager = CANBusConnectionManager(pool_config)
 
-    @patch("can.Notifier")
-    def test_add_listener(self, mock_notifier):
-        """Test adding a listener."""
-        manager = CanBusManager()
-        manager.bus = MagicMock()
-        listener = MagicMock()
-        manager.add_listener(listener)
-        self.assertIsNotNone(manager.notifier)
-        mock_notifier.assert_called_once_with(manager.bus, [listener])
+        # Mock the connection pool initialization to fail
+        with patch.object(manager.connection_pool, "initialize", return_value=False):
+            success = await manager.initialize()
+            assert success is False
 
-    def test_add_listener_no_bus(self):
-        """Test adding a listener when the bus is not connected."""
-        manager = CanBusManager()
-        listener = MagicMock()
-        manager.add_listener(listener)
-        self.assertIsNone(manager.notifier)
+    @pytest.mark.asyncio
+    async def test_send_message_legacy_api(self, pool_config):
+        """Test sending a message using legacy API."""
+        manager = CANBusConnectionManager(pool_config)
 
-    @patch("can.Notifier")
-    def test_add_listener_existing_notifier(self, mock_notifier):
-        """Test adding a listener when a notifier already exists."""
-        manager = CanBusManager()
-        manager.bus = MagicMock()
-        manager.notifier = mock_notifier
-        listener = MagicMock()
-        manager.add_listener(listener)
-        mock_notifier.add_listener.assert_called_once_with(listener)
+        # Create a mock interface with async send_message
+        mock_interface = MagicMock()
 
-    def test_remove_listener(self):
-        """Test removing a listener."""
-        manager = CanBusManager()
-        listener = MagicMock()
-        notifier_mock = MagicMock()
-        notifier_mock.listeners = [listener, MagicMock()]
-        manager.notifier = notifier_mock
-        manager.remove_listener(listener)
-        notifier_mock.remove_listener.assert_called_once_with(listener)
-        notifier_mock.stop.assert_not_called()
+        async def mock_send_message(msg):
+            return True
 
-    def test_remove_listener_last(self):
-        """Test removing the last listener stops the notifier."""
-        manager = CanBusManager()
-        listener = MagicMock()
-        notifier_mock = MagicMock()
-        # Configure the mock so that after removing the listener, the list is empty
-        notifier_mock.listeners = []
-        manager.notifier = notifier_mock
+        mock_interface.send_message = mock_send_message
+        manager.physical_manager._interfaces["can0"] = mock_interface
 
-        manager.remove_listener(listener)
+        message = can.Message(arbitration_id=0x123, data=[1, 2, 3, 4])
+        result = await manager.send_message("can0", message)
+        assert result is True
 
-        notifier_mock.remove_listener.assert_called_once_with(listener)
-        notifier_mock.stop.assert_called_once()
-        self.assertIsNone(manager.notifier)
+    @pytest.mark.asyncio
+    async def test_send_message_new_api(self, pool_config):
+        """Test sending a message using new API with routing."""
+        manager = CANBusConnectionManager(pool_config)
 
-    def test_remove_listener_no_notifier(self):
-        """Test removing a listener when there is no notifier."""
-        manager = CanBusManager()
-        listener = MagicMock()
-        manager.remove_listener(listener)
-        self.assertIsNone(manager.notifier)
+        # Mock connection pool to return active interfaces
+        with patch.object(
+            manager.connection_pool, "get_active_interfaces", return_value=["can0", "can1"]
+        ):
+            # Create mock interfaces with async send_message
+            mock_interface0 = MagicMock()
 
+            async def mock_send_message0(msg):
+                return True
 
-if __name__ == "__main__":
-    unittest.main()
+            mock_interface0.send_message = mock_send_message0
+
+            mock_interface1 = MagicMock()
+
+            async def mock_send_message1(msg):
+                return True
+
+            mock_interface1.send_message = mock_send_message1
+
+            manager.physical_manager._interfaces["can0"] = mock_interface0
+            manager.physical_manager._interfaces["can1"] = mock_interface1
+
+            message = can.Message(arbitration_id=0x123, data=[1, 2, 3, 4])
+            results = await manager.send_message(message)
+
+            # Should return results for both interfaces
+            assert isinstance(results, dict)
+            assert all(results.values())
+
+    def test_get_manager_status(self, pool_config):
+        """Test getting manager status."""
+        manager = CANBusConnectionManager(pool_config)
+        status = manager.get_manager_status()
+
+        assert isinstance(status, dict)
+        assert "state" in status
+        assert "statistics" in status
+        assert "connection_pool" in status
+        assert "routing" in status
+
+    def test_get_active_interfaces(self, pool_config):
+        """Test getting active interfaces."""
+        manager = CANBusConnectionManager(pool_config)
+
+        with patch.object(manager.connection_pool, "get_active_interfaces", return_value=["can0"]):
+            active = manager.get_active_interfaces()
+            assert active == ["can0"]
+
+    @pytest.mark.asyncio
+    async def test_create_interface(self, pool_config):
+        """Test creating a new interface."""
+        manager = CANBusConnectionManager(pool_config)
+
+        config = InterfaceConfiguration(
+            interface_type="socketcan",
+            channel="can0",
+            bitrate=500000,
+        )
+
+        with patch.object(manager.physical_manager, "create_interface", return_value=MagicMock()):
+            success = await manager.create_interface("test_interface", config)
+            assert success is True
+
+    def test_message_callback_management(self, pool_config):
+        """Test adding and removing message callbacks."""
+        manager = CANBusConnectionManager(pool_config)
+
+        def test_callback(decoded_message, interface_id):
+            pass
+
+        # Test adding callback
+        manager.add_message_callback(test_callback)
+        assert test_callback in manager._message_callbacks
+
+        # Test removing callback
+        manager.remove_message_callback(test_callback)
+        assert test_callback not in manager._message_callbacks

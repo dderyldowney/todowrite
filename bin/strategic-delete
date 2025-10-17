@@ -1,5 +1,5 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 
 import argparse
 import sys
@@ -9,7 +9,7 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from afs_fastapi.core.todos_manager import delete_strategic_goal  # noqa: E402
+from afs_fastapi.core.todos_manager import load_todos, save_todos  # noqa: E402
 
 
 def main():
@@ -17,14 +17,22 @@ def main():
     parser.add_argument("goal_id", type=str, help="The ID of the strategic goal to delete.")
     args = parser.parse_args()
 
-    success, error = delete_strategic_goal(args.goal_id)
+    todos = load_todos()
+    goals = todos["goals"]
+    goal_found = False
+    for i, goal in enumerate(goals):
+        if goal["id"] == args.goal_id:
+            goals.pop(i)
+            goal_found = True
+            break
 
-    if error:
-        print(f"Error: {error}")
+    if not goal_found:
+        print(f"Error: Goal with ID '{args.goal_id}' not found.")
         sys.exit(1)
-    
-    if success:
-        print(f"✓ Strategic goal ''{args.goal_id}'' deleted successfully!")
+
+    save_todos(todos)
+    print(f"✓ Goal '{args.goal_id}' deleted successfully!")
+
 
 if __name__ == "__main__":
     main()

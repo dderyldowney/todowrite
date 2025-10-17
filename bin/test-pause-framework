@@ -1,0 +1,302 @@
+#!/usr/bin/env python3
+"""Comprehensive test suite for the universal pause enforcement framework.
+
+Tests all components of the mandatory pause structure implementation including
+session monitoring, quality gates, automation scripts, and integration with
+existing session management tools.
+"""
+
+from __future__ import annotations
+
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any
+
+
+class PauseFrameworkTester:
+    """Test suite for pause structure enforcement framework."""
+
+    def __init__(self) -> None:
+        """Initialize the test framework."""
+        self.project_root = Path(__file__).resolve().parent.parent
+        self.test_results: list[tuple[str, bool, str]] = []
+
+    def run_test(self, test_name: str, test_func: callable) -> bool:
+        """Run a single test and record results."""
+        print(f"\n🧪 Testing: {test_name}")
+        try:
+            result = test_func()
+            if result:
+                print(f"  ✅ PASSED: {test_name}")
+                self.test_results.append((test_name, True, ""))
+                return True
+            else:
+                print(f"  ❌ FAILED: {test_name}")
+                self.test_results.append((test_name, False, "Test returned False"))
+                return False
+        except Exception as e:
+            print(f"  💥 ERROR: {test_name} - {e}")
+            self.test_results.append((test_name, False, str(e)))
+            return False
+
+    def test_pause_specification_exists(self) -> bool:
+        """Test that the pause structure specification document exists."""
+        spec_file = self.project_root / "PAUSE_STRUCTURE_SPECIFICATION.md"
+        return spec_file.exists() and spec_file.stat().st_size > 1000
+
+    def test_agents_md_compliance(self) -> bool:
+        """Test that AGENTS.md contains mandatory pause structure requirements."""
+        agents_file = self.project_root / "AGENTS.md"
+        if not agents_file.exists():
+            return False
+
+        content = agents_file.read_text()
+        required_elements = [
+            "Mandatory Pause Structure Enforcement",
+            "PAUSE_STRUCTURE_SPECIFICATION.md",
+            "Seven Mandatory Requirements",
+        ]
+        return all(element in content for element in required_elements)
+
+    def test_claude_md_compliance(self) -> bool:
+        """Test that CLAUDE.md contains Claude-specific pause requirements."""
+        claude_file = self.project_root / "CLAUDE.md"
+        if not claude_file.exists():
+            return False
+
+        content = claude_file.read_text()
+        required_elements = [
+            "Mandatory Pause Structure for Claude Code",
+            "3 hours",
+            "quality gates",
+            "session monitoring",
+        ]
+        return all(element in content for element in required_elements)
+
+    def test_session_monitor_executable(self) -> bool:
+        """Test that session-monitor script exists and is executable."""
+        script = self.project_root / "bin" / "session-monitor"
+        return script.exists() and script.stat().st_mode & 0o111
+
+    def test_quality_check_pause_executable(self) -> bool:
+        """Test that quality-check-and-pause script exists and is executable."""
+        script = self.project_root / "bin" / "quality-check-and-pause"
+        return script.exists() and script.stat().st_mode & 0o111
+
+    def test_emergency_pause_executable(self) -> bool:
+        """Test that emergency-pause script exists and is executable."""
+        script = self.project_root / "bin" / "emergency-pause"
+        return script.exists() and script.stat().st_mode & 0o111
+
+    def test_strategic_milestone_pause_executable(self) -> bool:
+        """Test that strategic-milestone-pause script exists and is executable."""
+        script = self.project_root / "bin" / "strategic-milestone-pause"
+        return script.exists() and script.stat().st_mode & 0o111
+
+    def test_enhanced_pause_here(self) -> bool:
+        """Test that pause-here has been enhanced with pause structure compliance."""
+        script = self.project_root / "bin" / "pause-here"
+        if not script.exists():
+            return False
+
+        content = script.read_text()
+        required_elements = [
+            "enforce_quality",
+            "Session monitoring integration",
+            "Quality gate enforcement",
+            "PAUSE_STRUCTURE_SPECIFICATION.md",
+        ]
+        return all(element in content for element in required_elements)
+
+    def test_enhanced_loadsession(self) -> bool:
+        """Test that loadsession has been enhanced with pause structure integration."""
+        script = self.project_root / "bin" / "loadsession"
+        if not script.exists():
+            return False
+
+        content = script.read_text()
+        required_elements = [
+            "session-monitor",
+            "Pause Structure Compliance",
+            "quality-check-and-pause",
+            "Mandatory Pause Structure Commands",
+        ]
+        return all(element in content for element in required_elements)
+
+    def test_session_monitor_functionality(self) -> bool:
+        """Test basic session-monitor functionality."""
+        try:
+            # Test help output
+            result = subprocess.run(
+                ["./bin/session-monitor"],
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            return "Commands:" in result.stdout and "start" in result.stdout
+
+        except Exception:
+            return False
+
+    def test_pause_here_help(self) -> bool:
+        """Test that pause-here shows enhanced help with pause structure info."""
+        try:
+            result = subprocess.run(
+                ["./bin/pause-here"],
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            return (
+                "Mandatory Pause Structure Compliance" in result.stdout
+                and "quality-check-and-pause" in result.stdout
+            )
+
+        except Exception:
+            return False
+
+    def test_quality_check_pause_help(self) -> bool:
+        """Test that quality-check-and-pause shows proper usage."""
+        try:
+            result = subprocess.run(
+                ["./bin/quality-check-and-pause"],
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            return "Usage:" in result.stdout and "Quality-Validated Pause" in result.stdout
+
+        except Exception:
+            return False
+
+    def test_integration_with_existing_tools(self) -> bool:
+        """Test integration with existing session management tools."""
+        required_scripts = [
+            "bin/loadsession",
+            "bin/savesession",
+            "bin/pause-here",
+            "bin/resume-from",
+        ]
+
+        for script_path in required_scripts:
+            script = self.project_root / script_path
+            if not script.exists():
+                print(f"  Missing required script: {script_path}")
+                return False
+
+        return True
+
+    def test_documentation_completeness(self) -> bool:
+        """Test that all required documentation exists and is complete."""
+        required_docs = [
+            ("PAUSE_STRUCTURE_SPECIFICATION.md", 5000),  # Minimum 5KB
+            ("AGENTS.md", 1000),
+            ("CLAUDE.md", 1000),
+        ]
+
+        for doc_name, min_size in required_docs:
+            doc_path = self.project_root / doc_name
+            if not doc_path.exists():
+                print(f"  Missing required documentation: {doc_name}")
+                return False
+
+            if doc_path.stat().st_size < min_size:
+                print(
+                    f"  Documentation too small: {doc_name} ({doc_path.stat().st_size} < {min_size} bytes)"
+                )
+                return False
+
+        return True
+
+    def run_all_tests(self) -> dict[str, Any]:
+        """Run all pause framework tests."""
+        print("🧪 AFS FastAPI Pause Framework Test Suite")
+        print("=" * 50)
+
+        # Core framework tests
+        self.run_test("Pause Structure Specification Exists", self.test_pause_specification_exists)
+        self.run_test("AGENTS.md Compliance", self.test_agents_md_compliance)
+        self.run_test("CLAUDE.md Compliance", self.test_claude_md_compliance)
+
+        # Script existence and executability tests
+        self.run_test("Session Monitor Executable", self.test_session_monitor_executable)
+        self.run_test("Quality Check Pause Executable", self.test_quality_check_pause_executable)
+        self.run_test("Emergency Pause Executable", self.test_emergency_pause_executable)
+        self.run_test(
+            "Strategic Milestone Pause Executable", self.test_strategic_milestone_pause_executable
+        )
+
+        # Enhancement tests
+        self.run_test("Enhanced pause-here", self.test_enhanced_pause_here)
+        self.run_test("Enhanced loadsession", self.test_enhanced_loadsession)
+
+        # Functionality tests
+        self.run_test("Session Monitor Functionality", self.test_session_monitor_functionality)
+        self.run_test("Pause Here Help", self.test_pause_here_help)
+        self.run_test("Quality Check Pause Help", self.test_quality_check_pause_help)
+
+        # Integration tests
+        self.run_test("Integration with Existing Tools", self.test_integration_with_existing_tools)
+        self.run_test("Documentation Completeness", self.test_documentation_completeness)
+
+        # Calculate results
+        total_tests = len(self.test_results)
+        passed_tests = sum(1 for _, passed, _ in self.test_results if passed)
+        failed_tests = total_tests - passed_tests
+        success_rate = (passed_tests / total_tests) * 100 if total_tests > 0 else 0
+
+        print("\n📊 TEST RESULTS SUMMARY")
+        print("=" * 30)
+        print(f"Total Tests:    {total_tests}")
+        print(f"Passed:         {passed_tests}")
+        print(f"Failed:         {failed_tests}")
+        print(f"Success Rate:   {success_rate:.1f}%")
+
+        if failed_tests > 0:
+            print("\n❌ FAILED TESTS:")
+            for name, passed, error in self.test_results:
+                if not passed:
+                    print(f"  • {name}: {error}")
+
+        if success_rate >= 90:
+            print("\n✅ PAUSE FRAMEWORK VALIDATION: EXCELLENT")
+            print("   Framework is ready for production use")
+        elif success_rate >= 75:
+            print("\n⚠️  PAUSE FRAMEWORK VALIDATION: GOOD")
+            print("   Framework mostly ready, minor issues to address")
+        else:
+            print("\n❌ PAUSE FRAMEWORK VALIDATION: NEEDS WORK")
+            print("   Significant issues require attention before use")
+
+        return {
+            "total_tests": total_tests,
+            "passed_tests": passed_tests,
+            "failed_tests": failed_tests,
+            "success_rate": success_rate,
+            "framework_ready": success_rate >= 90,
+        }
+
+
+def main() -> None:
+    """Main test execution function."""
+    if len(sys.argv) > 1 and sys.argv[1] in ["--help", "-h"]:
+        print("AFS FastAPI Pause Framework Test Suite")
+        print("Usage: ./bin/test-pause-framework")
+        print()
+        print("Tests the complete implementation of the mandatory pause structure")
+        print("including all automation scripts, documentation, and integrations.")
+        return
+
+    tester = PauseFrameworkTester()
+    results = tester.run_all_tests()
+
+    # Exit with appropriate code
+    sys.exit(0 if results["framework_ready"] else 1)
+
+
+if __name__ == "__main__":
+    main()

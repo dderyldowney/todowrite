@@ -1,13 +1,13 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 
-import sys
+import subprocess
 from pathlib import Path
 
 
 def main():
-    print("🚀 AFS FastAPI Session Context Loader")
-    print("=====================================")
+    print("🚀 AFS FastAPI Enhanced Session Context Loader")
+    print("===============================================")
     print()
 
     project_root = Path(__file__).resolve().parent.parent
@@ -18,33 +18,91 @@ def main():
         print("   Run './bin/savesession' to create it.")
         return
 
+    # Enhanced: Initialize session monitoring
+    print("📊 Initializing Session Monitoring...")
+    try:
+        subprocess.run(
+            ["./bin/session-monitor", "start"], cwd=project_root, check=True, capture_output=True
+        )
+        print("✅ Session monitoring initialized")
+    except subprocess.CalledProcessError:
+        print("⚠️  Session monitoring initialization failed (continuing)")
+    print()
+
+    # Enhanced: Check for pause structure compliance
+    print("📋 Validating Pause Structure Compliance...")
+    pause_spec_file = project_root / "PAUSE_STRUCTURE_SPECIFICATION.md"
+    if pause_spec_file.exists():
+        print("✅ Pause structure specification found")
+        print("✅ Mandatory pause structure will be enforced")
+    else:
+        print("⚠️  Pause structure specification missing")
+    print()
+
     print("📋 Loading Project Context from SESSION_SUMMARY.md...")
     print()
-    
-    with open(summary_file, 'r') as f:
+
+    with open(summary_file) as f:
         summary_content = f.read()
-    
+
     print(summary_content)
 
     print()
     print("🎉 Session Context Successfully Restored!")
     print()
-    print("Ready for sophisticated agricultural robotics development.")
+
+    # Enhanced: Session monitoring status check
+    print("📊 Current Session Status:")
+    try:
+        result = subprocess.run(
+            ["./bin/session-monitor", "status"], cwd=project_root, capture_output=True, text=True
+        )
+        if result.returncode == 0:
+            # Extract key status lines
+            for line in result.stdout.split("\n"):
+                if any(keyword in line for keyword in ["Duration:", "State:", "Action:"]):
+                    print(f"   {line.strip()}")
+        else:
+            print("   Session monitoring unavailable")
+    except Exception:
+        print("   Session monitoring error")
     print()
 
-    # Show current git status for context
+    # Enhanced: Git status and quality reminder
     print("📋 Current Git Status:")
-    # I cannot run git status from here, as it's a shell command.
-    # I will just print a message to the user.
-    print("   (Run 'git status' to see the current git status)")
+    try:
+        git_result = subprocess.run(
+            ["git", "status", "--porcelain"], cwd=project_root, capture_output=True, text=True
+        )
+        if git_result.stdout.strip():
+            print("   ⚠️  Uncommitted changes detected")
+            print("   📝 Remember: Quality gates must pass before pausing")
+        else:
+            print("   ✅ Working tree clean")
+    except Exception:
+        print("   ❌ Git status check failed")
     print()
 
-    print("💾 Session Management Commands:")
+    print("💾 Enhanced Session Management Commands:")
     print("   • ./bin/savesession - Save session state before ending")
     print("   • ./bin/loadsession - Restore session context")
     print()
+    print("⏸️  Mandatory Pause Structure Commands:")
+    print('   • ./bin/quality-check-and-pause "[reason]" "[next]" - Quality-validated pause')
+    print('   • ./bin/emergency-pause "[reason]" - Emergency pause (bypasses quality gates)')
+    print('   • ./bin/strategic-milestone-pause "[goal]" "complete" - Strategic milestone')
+    print("   • ./bin/session-monitor check - Check session duration and warnings")
+    print()
+    print("🔧 Development Workflow Reminders:")
+    print("   • Follow TDD: RED → GREEN → REFACTOR → Quality Check → Commit")
+    print("   • Pause every 2-3 completed tasks or at 2.5-hour session mark")
+    print("   • All pauses must pass quality gates (unless emergency)")
+    print("   • Use TodoWrite tool to track progress within sessions")
+    print()
 
-    print("✨ AFS FastAPI Enterprise Platform Ready")
+    print("✨ AFS FastAPI Enterprise Platform Ready with Mandatory Pause Structure")
+    print("🚨 CRITICAL: Follow pause structure compliance - see PAUSE_STRUCTURE_SPECIFICATION.md")
+
 
 if __name__ == "__main__":
     main()

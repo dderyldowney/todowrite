@@ -1,5 +1,5 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 
 import argparse
 import sys
@@ -24,7 +24,7 @@ def main():
 
     print("=== Completing Development Phase ===")
     print()
-    print(f"Phase: {active_phase.get('name', 'Unknown Phase')}")
+    print(f"Phase: {active_phase.get('title', 'Unknown Phase')}")
     
     tasks = active_phase.get('tasks', [])
     pending_tasks = [t for t in tasks if t.get('status') == 'pending']
@@ -54,7 +54,7 @@ def main():
     if ended_phase:
         print()
         print("🎉 Phase completed and archived!")
-        print(f"   Phase: {ended_phase['name']}")
+        print(f"   Phase: {ended_phase['title']}")
         print(f"   Completed at: {ended_phase['date_completed']}")
         print()
         print("Next steps:")

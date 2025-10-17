@@ -1,5 +1,5 @@
-# type: ignore
 #!/usr/bin/env python3
+# type: ignore
 
 import argparse
 import sys
@@ -9,7 +9,7 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from afs_fastapi.core.todos_manager import reorder_strategic_goals  # noqa: E402
+from afs_fastapi.core.todos_manager import load_todos, save_todos  # noqa: E402
 
 
 def main():
@@ -18,11 +18,30 @@ def main():
     parser.add_argument("new_position", type=int, help="The new position of the strategic goal.")
     args = parser.parse_args()
 
-    if reorder_strategic_goals(args.goal_id, args.new_position):
-        print(f"✓ Successfully moved goal ''{args.goal_id}'' to position {args.new_position}.")
-    else:
-        print(f"Error: Goal with ID ''{args.goal_id}'' not found.")
+    todos = load_todos()
+    goals = todos["goals"]
+
+    goal_to_move = None
+    for i, goal in enumerate(goals):
+        if goal["id"] == args.goal_id:
+            goal_to_move = goals.pop(i)
+            break
+
+    if not goal_to_move:
+        print(f"Error: Goal with ID '{args.goal_id}' not found.")
         sys.exit(1)
+
+    new_position = args.new_position - 1  # Adjust for 0-based indexing
+    if new_position < 0:
+        new_position = 0
+    if new_position > len(goals):
+        new_position = len(goals)
+
+    goals.insert(new_position, goal_to_move)
+    save_todos(todos)
+
+    print(f"✓ Successfully moved goal '{args.goal_id}' to position {args.new_position}.")
+
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+# type: ignore
+"""Complete a step and mark all its tasks as completed."""
+
+import argparse
+import sys
+from pathlib import Path
+
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from afs_fastapi.core.todos_manager import update_step_status  # noqa: E402
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Complete a step and mark all its tasks as completed."
+    )
+    parser.add_argument("step_id", type=str, help="The ID of the step to complete.")
+    args = parser.parse_args()
+
+    updated_step, error = update_step_status(args.step_id, "done")
+
+    if error:
+        print(f"Error: {error}")
+        sys.exit(1)
+
+    if updated_step:
+        print("✓ Step status updated to 'done' successfully!")
+        print(f"  ID: {updated_step['id']}")
+        print(f"  Name: {updated_step['title']}")
+        print(f"  Status: {updated_step['status']}")
+        print()
+        print("Use './bin/step-status' to view all steps.")
+
+
+if __name__ == "__main__":
+    main()

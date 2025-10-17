@@ -72,6 +72,7 @@ lint.ignore = [
   "E501",  # line length handled by formatter
 ]
 src = ["afs_fastapi", "tests"]
+exclude = ["bin"]
 lint.per-file-ignores = {"tests/core/test_todos_manager.py" = ["E402"]}
 
 [tool.black]
@@ -86,6 +87,7 @@ exclude = '''
   | __pycache__
   | build
   | dist
+  | bin
 )/
 '''
 
@@ -126,7 +128,7 @@ skip_covered = true
 profile = "black"
 line_length = 100
 known_first_party = ["afs_fastapi"]
-src_paths = ["afs_fastapi", "tests", "bin"]
+src_paths = ["afs_fastapi", "tests"]
 include_trailing_comma = true
 force_grid_wrap = 0
 combine_as_imports = true

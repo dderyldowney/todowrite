@@ -1,0 +1,47 @@
+[
+  {
+    "id": "pause_1",
+    "reason": "Testing pause functionality",
+    "next_action": "Continue with resume testing",
+    "timestamp": "2025-10-10T10:45:27.860372",
+    "git_hash": "a04c0b69dc82ff580d8da20d3d86628225cb8223",
+    "current_phase": "unknown",
+    "type": "pause_point"
+  },
+  {
+    "id": "pause_2",
+    "reason": "Time to pause. Session limits reched",
+    "next_action": "",
+    "timestamp": "2025-10-10T10:49:51.042825",
+    "git_hash": "6edec87894003e75833349e536a98c4b01bd3a19",
+    "current_phase": "unknown",
+    "type": "pause_point"
+  },
+  {
+    "id": "pause_3",
+    "reason": "Strategic Pause Point Analysis - CAN Traffic Management Phase Structure",
+    "next_action": "Ready to implement network congestion detection with strategic pause framework",
+    "timestamp": "2025-10-10T11:08:29.191126",
+    "git_hash": "4f5ddb1940eb543c0dc2c800cc5aec8d2d5b2889",
+    "current_phase": "unknown",
+    "type": "pause_point"
+  },
+  {
+    "id": "pause_4",
+    "reason": "Universal Pause Framework Implementation Complete - 100% validated",
+    "next_action": "Framework ready for production use by all agents and humans",
+    "timestamp": "2025-10-10T14:20:02.375289",
+    "git_hash": "93a68680992dfd7e8ce3cf5b37363a37b3c55b51",
+    "current_phase": "unknown",
+    "type": "pause_point"
+  },
+  {
+    "id": "pause_5",
+    "reason": "Development handoff",
+    "next_action": "Resume CAN network traffic management",
+    "timestamp": "2025-10-10T14:34:49.339791",
+    "git_hash": "8787fb0e1e3ad01098f0cab318c5c1867cc2f7ca",
+    "current_phase": "unknown",
+    "type": "pause_point"
+  }
+]

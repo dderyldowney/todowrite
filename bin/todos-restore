@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+import os
+import sys
+
+
+def format_as_markdown(todos_data):
+    markdown = ""
+    for goal in todos_data.get("goals", []):
+        markdown += f"# {goal['title']}\n"
+        markdown += f"**ID:** {goal['id']}\n"
+        markdown += f"**Status:** {goal['status']}\n"
+        markdown += f"**Description:** {goal['description']}\n\n"
+
+        for phase in goal.get("phases", []):
+            markdown += f"## {phase['title']}\n"
+            markdown += f"**ID:** {phase['id']}\n"
+            markdown += f"**Status:** {phase['status']}\n"
+            markdown += f"**Description:** {phase['description']}\n\n"
+
+            for step in phase.get("steps", []):
+                markdown += f"### {step['title']}\n"
+                markdown += f"**ID:** {step['id']}\n"
+                markdown += f"**Status:** {step['status']}\n"
+                markdown += f"**Description:** {step['description']}\n\n"
+
+                for task in step.get("tasks", []):
+                    markdown += f"#### {task['title']}\n"
+                    markdown += f"**ID:** {task['id']}\n"
+                    markdown += f"**Status:** {task['status']}\n"
+                    markdown += f"**Description:** {task['description']}\n\n"
+
+                    for subtask in task.get("subtasks", []):
+                        markdown += f"- **SubTask:** {subtask['title']}\n"
+                        markdown += f"  - **ID:** {subtask['id']}\n"
+                        markdown += f"  - **Status:** {subtask['status']}\n"
+                        markdown += f"  - **Command:** `{subtask['command']}`\n\n"
+    return markdown
+
+
+def main():
+    # Add project root to sys.path
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.insert(0, project_root)
+
+    from afs_fastapi.core.todos_manager import load_todos
+
+    todos_data = load_todos()
+    markdown_output = format_as_markdown(todos_data)
+    print(markdown_output)
+
+
+if __name__ == "__main__":
+    main()

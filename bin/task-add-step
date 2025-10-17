@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+# type: ignore
+"""Add a new task directly to the currently active step."""
+
+import argparse
+import sys
+from pathlib import Path
+
+# Add project root to sys.path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from afs_fastapi.core.todos_manager import add_task_to_active_step  # noqa: E402
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Add a new task to the currently active step.")
+    parser.add_argument("description", type=str, help="The description of the task.")
+    args = parser.parse_args()
+
+    new_task, error = add_task_to_active_step(args.description)
+
+    if error:
+        print(f"Error: {error}")
+        if "No active step found" in error:
+            print()
+            print("Try:")
+            print("  ./bin/step-activate <step_id>    - Activate a specific step")
+            print("  ./bin/task-add <description>     - Add task to phase (creates step if needed)")
+        sys.exit(1)
+
+    if new_task:
+        print("✓ Task added to active step successfully!")
+        print(f"  ID: {new_task['id']}")
+        print(f"  Description: {new_task['description']}")
+        print(f"  Status: {new_task['status']}")
+        print()
+        print("Use './bin/step-status' to view all steps and tasks.")
+
+
+if __name__ == "__main__":
+    main()
