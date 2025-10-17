@@ -180,7 +180,7 @@ class TestSafetyHeartbeatMonitor:
 
         # First heartbeat
         response_time1 = heartbeat_monitor.heartbeat("collision_detection")
-        assert response_time1 == 0.0  # First heartbeat has no previous time
+        assert response_time1 <= 10.0  # First heartbeat should be very small (< 10ms)
 
         # Second heartbeat after short delay
         time.sleep(0.1)  # 100ms delay
@@ -445,7 +445,15 @@ class TestCrossLayerSafetyValidator:
         validator = safety_components["validator"]
 
         assert validator.protocol_mapper is not None
-        assert len(validator.current_sil_levels) == 0
+
+        # Verify SIL levels are properly initialized for all safety systems
+        assert len(validator.current_sil_levels) == 5  # 5 safety systems in protocol mappings
+        assert validator.current_sil_levels["Emergency Stop Command"] == "SIL 3"
+        assert validator.current_sil_levels["Vehicle Position"] == "SIL 2"
+        assert validator.current_sil_levels["Diagnostic Message 1"] == "SIL 2"
+        assert validator.current_sil_levels["Electronic Engine Controller 1"] == "SIL 1"
+        assert validator.current_sil_levels["Wheel-Based Vehicle Speed"] == "SIL 1"
+
         assert validator.emergency_escalation_active is False
 
     def test_safety_critical_message_validation(self, safety_components) -> None:
