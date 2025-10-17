@@ -197,10 +197,10 @@ class TestSocketCANInterface:
         socketcan_interface: SocketCANInterface,
     ) -> None:
         """Test successful interface disconnection."""
-        # First establish connection with mocks
         mock_bus = MagicMock()
         mock_notifier = MagicMock()
-        mock_heartbeat_task = MagicMock()
+        mock_heartbeat_task_instance = AsyncMock()
+        mock_message_reception_task_instance = AsyncMock()
 
         with (
             patch("can.interface.Bus", return_value=mock_bus),
@@ -208,10 +208,12 @@ class TestSocketCANInterface:
             patch("can.Notifier", return_value=mock_notifier),
             patch.object(socketcan_interface, "_heartbeat_loop", new_callable=AsyncMock),
             patch.object(socketcan_interface, "_message_reception_loop", new_callable=AsyncMock),
-            patch("asyncio.create_task", return_value=mock_heartbeat_task),
         ):
-            # Connect first
+            # Manually set the task mocks after connect, as create_task is not mocked here
             await socketcan_interface.connect()
+            socketcan_interface._heartbeat_task = mock_heartbeat_task_instance
+            socketcan_interface._message_reception_task = mock_message_reception_task_instance
+
             assert socketcan_interface.state == InterfaceState.CONNECTED
 
             # Test disconnection
@@ -221,7 +223,8 @@ class TestSocketCANInterface:
             assert socketcan_interface.state == InterfaceState.DISCONNECTED
 
             # Verify cleanup was called
-            mock_heartbeat_task.cancel.assert_called_once()
+            mock_heartbeat_task_instance.cancel.assert_called_once()
+            mock_message_reception_task_instance.cancel.assert_called_once()
             mock_notifier.stop.assert_called_once()
             mock_bus.shutdown.assert_called_once()
 
