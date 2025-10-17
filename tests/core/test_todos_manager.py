@@ -823,7 +823,9 @@ class TestTodosManager(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertIsNone(error)
         self.assertEqual(result["status"], "done")
-        self.assertEqual(result["date_completed"], "2025-10-15T10:00:00")  # Should preserve original completion date
+        self.assertEqual(
+            result["date_completed"], "2025-10-15T10:00:00"
+        )  # Should preserve original completion date
         self.assertFalse(mock_save_todos.called)  # Should not save if already completed
 
     @patch("afs_fastapi.core.todos_manager.load_todos")
@@ -853,7 +855,7 @@ class TestTodosManager(unittest.TestCase):
                     "status": "blocked",
                     "title": "Third Goal",
                     "date_completed": None,
-                }
+                },
             ]
         }
 
@@ -871,13 +873,15 @@ class TestTodosManager(unittest.TestCase):
         # Verify other goals unchanged
         saved_data = mock_save_todos.call_args[0][0]
         self.assertEqual(saved_data["goals"][0]["status"], "planned")  # goal-111 unchanged
-        self.assertEqual(saved_data["goals"][1]["status"], "done")     # goal-222 completed
+        self.assertEqual(saved_data["goals"][1]["status"], "done")  # goal-222 completed
         self.assertEqual(saved_data["goals"][2]["status"], "blocked")  # goal-333 unchanged
 
     @patch("afs_fastapi.core.todos_manager.load_todos")
     @patch("afs_fastapi.core.todos_manager.save_todos")
     @patch("afs_fastapi.core.todos_manager.datetime")
-    def test_complete_goal_updates_validation_log(self, mock_datetime, mock_save_todos, mock_load_todos):
+    def test_complete_goal_updates_validation_log(
+        self, mock_datetime, mock_save_todos, mock_load_todos
+    ):
         """Test RED: complete_goal adds completion entry to validation log."""
         # Arrange
         mock_datetime.now.return_value.isoformat.return_value = "2025-10-16T12:00:00"

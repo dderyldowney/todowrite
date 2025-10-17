@@ -36,12 +36,15 @@ class TestStrategicCompleteScript(unittest.TestCase):
             mock_run.return_value = MagicMock(
                 returncode=0,
                 stdout="✓ Goal marked as completed!\n  ID: goal-123\n  Title: Test Goal\n  Status: done\n  Date completed: 2025-10-16T12:00:00\n",
-                stderr=""
+                stderr="",
             )
 
-            subprocess.run([
-                "python", str(self.script_path), "goal-123"
-            ], capture_output=True, text=True, cwd=project_root)
+            subprocess.run(
+                ["python", str(self.script_path), "goal-123"],
+                capture_output=True,
+                text=True,
+                cwd=project_root,
+            )
 
             # Should call the script successfully
             mock_run.assert_called_once()
@@ -52,12 +55,15 @@ class TestStrategicCompleteScript(unittest.TestCase):
             mock_run.return_value = MagicMock(
                 returncode=0,
                 stdout="✓ Goal marked as completed!\n  ID: goal-456\n  Title: Clear Technical Issues\n  Status: done\n  Date completed: 2025-10-16T12:00:00\n",
-                stderr=""
+                stderr="",
             )
 
-            subprocess.run([
-                "python", str(self.script_path), "technical"
-            ], capture_output=True, text=True, cwd=project_root)
+            subprocess.run(
+                ["python", str(self.script_path), "technical"],
+                capture_output=True,
+                text=True,
+                cwd=project_root,
+            )
 
             mock_run.assert_called_once()
 
@@ -67,12 +73,15 @@ class TestStrategicCompleteScript(unittest.TestCase):
             mock_run.return_value = MagicMock(
                 returncode=1,
                 stdout="",
-                stderr="Error: No goal found matching \"nonexistent-goal\"\nUse 'get_goals()' to see available goals.\n"
+                stderr="Error: No goal found matching \"nonexistent-goal\"\nUse 'get_goals()' to see available goals.\n",
             )
 
-            subprocess.run([
-                "python", str(self.script_path), "nonexistent-goal"
-            ], capture_output=True, text=True, cwd=project_root)
+            subprocess.run(
+                ["python", str(self.script_path), "nonexistent-goal"],
+                capture_output=True,
+                text=True,
+                cwd=project_root,
+            )
 
             mock_run.assert_called_once()
 
@@ -80,14 +89,15 @@ class TestStrategicCompleteScript(unittest.TestCase):
         """Test RED: Script handles already completed goal gracefully."""
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
-                returncode=0,
-                stdout="Goal already completed: Test Goal\n",
-                stderr=""
+                returncode=0, stdout="Goal already completed: Test Goal\n", stderr=""
             )
 
-            subprocess.run([
-                "python", str(self.script_path), "goal-123"
-            ], capture_output=True, text=True, cwd=project_root)
+            subprocess.run(
+                ["python", str(self.script_path), "goal-123"],
+                capture_output=True,
+                text=True,
+                cwd=project_root,
+            )
 
             mock_run.assert_called_once()
 
@@ -105,15 +115,14 @@ class TestStrategicCompleteScript(unittest.TestCase):
                 "  Date completed: 2025-10-16T12:00:00.123456\n"
                 "  Enhanced: Validation log updated\n"
             )
-            mock_run.return_value = MagicMock(
-                returncode=0,
-                stdout=enhanced_output,
-                stderr=""
-            )
+            mock_run.return_value = MagicMock(returncode=0, stdout=enhanced_output, stderr="")
 
-            subprocess.run([
-                "python", str(self.script_path), "goal-123"
-            ], capture_output=True, text=True, cwd=project_root)
+            subprocess.run(
+                ["python", str(self.script_path), "goal-123"],
+                capture_output=True,
+                text=True,
+                cwd=project_root,
+            )
 
             mock_run.assert_called_once()
 
@@ -123,12 +132,12 @@ class TestStrategicCompleteScript(unittest.TestCase):
             mock_run.return_value = MagicMock(
                 returncode=2,
                 stdout="",
-                stderr="usage: strategic-complete [-h] search_term\nstrategic-complete: error: the following arguments are required: search_term\n"
+                stderr="usage: strategic-complete [-h] search_term\nstrategic-complete: error: the following arguments are required: search_term\n",
             )
 
-            subprocess.run([
-                "python", str(self.script_path)
-            ], capture_output=True, text=True, cwd=project_root)
+            subprocess.run(
+                ["python", str(self.script_path)], capture_output=True, text=True, cwd=project_root
+            )
 
             mock_run.assert_called_once()
 
@@ -146,9 +155,12 @@ class TestStrategicCompleteDirectLogic(unittest.TestCase):
         # which is only available when using complete_goal function
 
         # Create a test script that should trigger enhanced output
-        result = subprocess.run([
-            "python", str(self.script_path), "--help"
-        ], capture_output=True, text=True, cwd=project_root)
+        result = subprocess.run(
+            ["python", str(self.script_path), "--help"],
+            capture_output=True,
+            text=True,
+            cwd=project_root,
+        )
 
         # Verify script loads successfully (imports work)
         self.assertEqual(result.returncode, 0)
@@ -159,9 +171,12 @@ class TestStrategicCompleteDirectLogic(unittest.TestCase):
         # Test the script handles non-existent goals properly
         # (enhanced error handling from complete_goal function)
 
-        result = subprocess.run([
-            "python", str(self.script_path), "nonexistent-goal-xyz"
-        ], capture_output=True, text=True, cwd=project_root)
+        result = subprocess.run(
+            ["python", str(self.script_path), "nonexistent-goal-xyz"],
+            capture_output=True,
+            text=True,
+            cwd=project_root,
+        )
 
         # Verify enhanced error handling from complete_goal function
         self.assertEqual(result.returncode, 1)
@@ -175,8 +190,11 @@ class TestStrategicCompleteDirectLogic(unittest.TestCase):
 
         # This test will fail until we refactor the script to import complete_goal
         self.assertIn("from afs_fastapi.core.todos_manager import", script_content)
-        self.assertIn("complete_goal", script_content,
-                     "Script should import complete_goal function for enhanced functionality")
+        self.assertIn(
+            "complete_goal",
+            script_content,
+            "Script should import complete_goal function for enhanced functionality",
+        )
 
 
 if __name__ == "__main__":

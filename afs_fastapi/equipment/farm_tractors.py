@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -401,6 +402,9 @@ class FarmTractor(
     A class representing a farm tractor with various functionalities,
     such as engine control, gear changes, and hydraulic systems.
     """
+
+    # Logger for safety-critical agricultural operations
+    logger: ClassVar[logging.Logger] = logging.getLogger("afs_fastapi.equipment.farm_tractors")
 
     MAX_SPEED: ClassVar[int] = 40  # Maximum speed limit for the tractor.
     MIN_GEAR: ClassVar[int] = 0  # Minimum gear value (e.g., reverse support can be added here).
@@ -1170,7 +1174,9 @@ class FarmTractor(
             }
         )
 
-        print("ISO 18497 EMERGENCY STOP ACTIVATED")
+        self.logger.critical(
+            "ISO 18497 EMERGENCY STOP ACTIVATED - Tractor %s %s", self.make, self.model
+        )
         return True
 
     def validate_safety_zone(self, position: tuple[float, float]) -> bool:

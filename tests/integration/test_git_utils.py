@@ -28,7 +28,7 @@ def test_git_working_directory_cleanliness():
         if not file_list.strip():
             return file_list
 
-        lines = file_list.strip().split('\n')
+        lines = file_list.strip().split("\n")
         filtered_lines = []
 
         for line in lines:
@@ -39,14 +39,14 @@ def test_git_working_directory_cleanliness():
             # Check if this line matches any temporary file pattern
             is_temp = False
             for pattern in temp_file_patterns:
-                if pattern in line or line.endswith(pattern.replace('*', '')):
+                if pattern in line or line.endswith(pattern.replace("*", "")):
                     is_temp = True
                     break
 
             if not is_temp:
                 filtered_lines.append(line)
 
-        return '\n'.join(filtered_lines)
+        return "\n".join(filtered_lines)
 
     # Retry logic to handle timing issues during test execution
     max_retries = 3
@@ -94,20 +94,32 @@ def test_git_working_directory_cleanliness():
         # Also show what was filtered out for debugging
         original_status = result.stdout.strip()
         original_untracked = result_untracked.stdout.strip()
-        if original_status != filtered_status.strip() or original_untracked != filtered_untracked.strip():
+        if (
+            original_status != filtered_status.strip()
+            or original_untracked != filtered_untracked.strip()
+        ):
             error_parts.append("\nFiltered out temporary files:")
             if original_status != filtered_status.strip():
-                temp_status = '\n'.join(line for line in original_status.split('\n')
-                                      if line not in filtered_status.split('\n') and line.strip())
+                temp_status = "\n".join(
+                    line
+                    for line in original_status.split("\n")
+                    if line not in filtered_status.split("\n") and line.strip()
+                )
                 if temp_status:
                     error_parts.append(f"  Temp status files: {temp_status}")
             if original_untracked != filtered_untracked.strip():
-                temp_untracked = '\n'.join(line for line in original_untracked.split('\n')
-                                         if line not in filtered_untracked.split('\n') and line.strip())
+                temp_untracked = "\n".join(
+                    line
+                    for line in original_untracked.split("\n")
+                    if line not in filtered_untracked.split("\n") and line.strip()
+                )
                 if temp_untracked:
                     error_parts.append(f"  Temp untracked files: {temp_untracked}")
 
-        error_message = f"Git working directory is not clean after {max_retries} attempts:\n" + '\n'.join(error_parts)
+        error_message = (
+            f"Git working directory is not clean after {max_retries} attempts:\n"
+            + "\n".join(error_parts)
+        )
         raise AssertionError(error_message)
 
 

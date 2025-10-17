@@ -26,7 +26,7 @@ class TestCANBusConnectionManager:
         manager = CANBusConnectionManager(pool_config)
 
         # Mock the connection pool initialization
-        with patch.object(manager.connection_pool, 'initialize', return_value=True):
+        with patch.object(manager.connection_pool, "initialize", return_value=True):
             success = await manager.initialize()
             assert success is True
 
@@ -38,7 +38,7 @@ class TestCANBusConnectionManager:
         manager = CANBusConnectionManager(pool_config)
 
         # Mock the connection pool initialization to fail
-        with patch.object(manager.connection_pool, 'initialize', return_value=False):
+        with patch.object(manager.connection_pool, "initialize", return_value=False):
             success = await manager.initialize()
             assert success is False
 
@@ -49,8 +49,10 @@ class TestCANBusConnectionManager:
 
         # Create a mock interface with async send_message
         mock_interface = MagicMock()
+
         async def mock_send_message(msg):
             return True
+
         mock_interface.send_message = mock_send_message
         manager.physical_manager._interfaces["can0"] = mock_interface
 
@@ -64,16 +66,22 @@ class TestCANBusConnectionManager:
         manager = CANBusConnectionManager(pool_config)
 
         # Mock connection pool to return active interfaces
-        with patch.object(manager.connection_pool, 'get_active_interfaces', return_value=["can0", "can1"]):
+        with patch.object(
+            manager.connection_pool, "get_active_interfaces", return_value=["can0", "can1"]
+        ):
             # Create mock interfaces with async send_message
             mock_interface0 = MagicMock()
+
             async def mock_send_message0(msg):
                 return True
+
             mock_interface0.send_message = mock_send_message0
 
             mock_interface1 = MagicMock()
+
             async def mock_send_message1(msg):
                 return True
+
             mock_interface1.send_message = mock_send_message1
 
             manager.physical_manager._interfaces["can0"] = mock_interface0
@@ -101,7 +109,7 @@ class TestCANBusConnectionManager:
         """Test getting active interfaces."""
         manager = CANBusConnectionManager(pool_config)
 
-        with patch.object(manager.connection_pool, 'get_active_interfaces', return_value=["can0"]):
+        with patch.object(manager.connection_pool, "get_active_interfaces", return_value=["can0"]):
             active = manager.get_active_interfaces()
             assert active == ["can0"]
 
@@ -116,7 +124,7 @@ class TestCANBusConnectionManager:
             bitrate=500000,
         )
 
-        with patch.object(manager.physical_manager, 'create_interface', return_value=MagicMock()):
+        with patch.object(manager.physical_manager, "create_interface", return_value=MagicMock()):
             success = await manager.create_interface("test_interface", config)
             assert success is True
 
@@ -134,4 +142,3 @@ class TestCANBusConnectionManager:
         # Test removing callback
         manager.remove_message_callback(test_callback)
         assert test_callback not in manager._message_callbacks
-

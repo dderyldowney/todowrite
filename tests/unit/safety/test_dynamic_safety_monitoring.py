@@ -282,12 +282,19 @@ class TestSafetyPerformanceMonitor:
         self, performance_monitor: SafetyPerformanceMonitor
     ) -> None:
         """Test function timing that exceeds ISO 25119 limits."""
+        # Temporarily lower threshold for faster test execution
+        original_threshold = performance_monitor.performance_thresholds["emergency_stop"]
+        performance_monitor.performance_thresholds["emergency_stop"] = 50.0  # 50ms threshold
+
         start_time = performance_monitor.start_function_timing("emergency_stop")
-        time.sleep(1.1)  # 1100ms execution - exceeds 1000ms limit
+        time.sleep(0.1)  # 100ms execution - exceeds 50ms test limit
         metrics = performance_monitor.end_function_timing("emergency_stop", start_time)
 
         assert metrics.iso25119_compliant is False
-        assert metrics.average_execution_time_ms > 1000.0
+        assert metrics.average_execution_time_ms > 50.0
+
+        # Restore original threshold
+        performance_monitor.performance_thresholds["emergency_stop"] = original_threshold
 
     def test_failure_tracking(self, performance_monitor: SafetyPerformanceMonitor) -> None:
         """Test tracking of function failures."""
@@ -309,12 +316,18 @@ class TestSafetyPerformanceMonitor:
 
         assert performance_monitor.is_system_compliant() is True
 
-        # Add non-compliant function
+        # Add non-compliant function with lowered threshold for fast testing
+        original_threshold = performance_monitor.performance_thresholds["emergency_stop"]
+        performance_monitor.performance_thresholds["emergency_stop"] = 50.0  # 50ms threshold
+
         start_time2 = performance_monitor.start_function_timing("emergency_stop")
-        time.sleep(1.1)  # Exceeds limit
+        time.sleep(0.1)  # 100ms - exceeds 50ms test limit
         performance_monitor.end_function_timing("emergency_stop", start_time2)
 
         assert performance_monitor.is_system_compliant() is False
+
+        # Restore original threshold
+        performance_monitor.performance_thresholds["emergency_stop"] = original_threshold
 
 
 class TestSafetyAuditLogger:

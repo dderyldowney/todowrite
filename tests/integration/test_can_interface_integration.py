@@ -602,7 +602,9 @@ class TestCANInterfaceIntegration:
             # TODO: Implement automatic failover logic in CANBusConnectionManager
             # For now, verify that backup interface exists and is initialized
             # Note: Current implementation may not initialize backup interface until needed
-            assert mock_backup.connect.call_count >= 0  # May or may not be called during initialization
+            assert (
+                mock_backup.connect.call_count >= 0
+            )  # May or may not be called during initialization
             assert not mock_backup.send_message.called  # No automatic failover occurred
 
     @pytest.mark.asyncio
