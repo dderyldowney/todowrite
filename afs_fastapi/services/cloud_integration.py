@@ -52,13 +52,14 @@ class CloudIntegrationService:
     def disconnect(self) -> bool:
         """
         Closes the connection to the cloud platform.
+        Returns True if disconnection successful or already disconnected.
         """
         if self.connected:
             self.connected = False
             logger.info("Disconnected from cloud platform.")
             return True
-        logger.info("Not connected to disconnect.")
-        return False
+        logger.info("Already disconnected from cloud platform.")
+        return True  # Return True as we're already in the desired state
 
     def send_telemetry_data(self, data: dict[str, Any]) -> bool:
         """
