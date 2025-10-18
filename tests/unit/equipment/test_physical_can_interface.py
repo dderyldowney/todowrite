@@ -208,8 +208,12 @@ class TestSocketCANInterface:
             patch("can.interface.Bus", return_value=mock_bus),
             patch("can.BufferedReader"),
             patch("can.Notifier", return_value=mock_notifier),
-            patch.object(SocketCANInterface, 'state', new_callable=PropertyMock) as mock_state_property,
-            patch("asyncio.create_task", return_value=MagicMock(cancel=AsyncMock())) as mock_create_task,
+            patch.object(
+                SocketCANInterface, "state", new_callable=PropertyMock
+            ) as mock_state_property,
+            patch(
+                "asyncio.create_task", return_value=MagicMock(cancel=AsyncMock())
+            ) as mock_create_task,
         ):
             # Simulate a connected state by setting the internal tasks and state property
             socketcan_interface._bus = mock_bus
