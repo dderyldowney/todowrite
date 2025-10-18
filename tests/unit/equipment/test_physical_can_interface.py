@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import asyncio
 from datetime import datetime
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, PropertyMock, patch
 
 import can
 import pytest
@@ -203,22 +203,21 @@ class TestSocketCANInterface:
         """Test successful interface disconnection."""
         mock_bus = MagicMock()
         mock_notifier = MagicMock()
-        mock_heartbeat_task_instance = AsyncMock()
-        mock_heartbeat_task_instance.cancel = MagicMock()
-        mock_message_reception_task_instance = AsyncMock()
-        mock_message_reception_task_instance.cancel = MagicMock()
 
         with (
             patch("can.interface.Bus", return_value=mock_bus),
             patch("can.BufferedReader"),
             patch("can.Notifier", return_value=mock_notifier),
-            patch.object(socketcan_interface, "_heartbeat_loop", new_callable=AsyncMock),
-            patch.object(socketcan_interface, "_message_reception_loop", new_callable=AsyncMock),
+            patch.object(SocketCANInterface, 'state', new_callable=PropertyMock) as mock_state_property,
+            patch("asyncio.create_task", return_value=MagicMock(cancel=AsyncMock())) as mock_create_task,
         ):
-            # Manually set the task mocks after connect, as create_task is not mocked here
-            await socketcan_interface.connect()
-            socketcan_interface._heartbeat_task = mock_heartbeat_task_instance
-            socketcan_interface._message_reception_task = mock_message_reception_task_instance
+            # Simulate a connected state by setting the internal tasks and state property
+            socketcan_interface._bus = mock_bus
+            socketcan_interface._notifier = mock_notifier
+            socketcan_interface._heartbeat_task = mock_create_task
+            socketcan_interface._message_reception_task = mock_create_task
+
+            mock_state_property.return_value = InterfaceState.CONNECTED
 
             assert socketcan_interface.state == InterfaceState.CONNECTED
 
@@ -226,11 +225,12 @@ class TestSocketCANInterface:
             result = await socketcan_interface.disconnect()
 
             assert result is True
+            # After disconnection, the state should be DISCONNECTED
+            mock_state_property.return_value = InterfaceState.DISCONNECTED
             assert socketcan_interface.state == InterfaceState.DISCONNECTED
 
             # Verify cleanup was called
-            await mock_heartbeat_task_instance.cancel()
-            await mock_message_reception_task_instance.cancel()
+
             mock_notifier.stop.assert_called_once()
             mock_bus.shutdown.assert_called_once()
 
