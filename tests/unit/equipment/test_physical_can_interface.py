@@ -199,8 +199,10 @@ class TestSocketCANInterface:
         """Test successful interface disconnection."""
         mock_bus = MagicMock()
         mock_notifier = MagicMock()
-        mock_heartbeat_task_instance = MagicMock()
-        mock_message_reception_task_instance = MagicMock()
+        mock_heartbeat_task_instance = AsyncMock()
+        mock_heartbeat_task_instance.cancel = MagicMock()
+        mock_message_reception_task_instance = AsyncMock()
+        mock_message_reception_task_instance.cancel = MagicMock()
 
         with (
             patch("can.interface.Bus", return_value=mock_bus),
