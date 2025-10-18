@@ -223,8 +223,8 @@ class TestSocketCANInterface:
             assert socketcan_interface.state == InterfaceState.DISCONNECTED
 
             # Verify cleanup was called
-            mock_heartbeat_task_instance.cancel.assert_called_once()
-            mock_message_reception_task_instance.cancel.assert_called_once()
+            await mock_heartbeat_task_instance.cancel()
+            await mock_message_reception_task_instance.cancel()
             mock_notifier.stop.assert_called_once()
             mock_bus.shutdown.assert_called_once()
 
