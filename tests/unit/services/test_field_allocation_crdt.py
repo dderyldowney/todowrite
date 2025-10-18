@@ -14,13 +14,10 @@ Notes
 
 from __future__ import annotations
 
-import pytest
-
 # Planned API location
 from afs_fastapi.services.field_allocation import FieldAllocationCRDT
 
 
-@pytest.mark.xfail(reason="RED Phase: FieldAllocationCRDT not yet implemented.")
 def test_field_allocation_crdt_convergence():
     """Replicas with disjoint claims converge to the same state.
 
@@ -43,7 +40,6 @@ def test_field_allocation_crdt_convergence():
     assert a.owner_of("cell_B1") == "tractor_002"
 
 
-@pytest.mark.xfail(reason="RED Phase: FieldAllocationCRDT not yet implemented.")
 def test_field_allocation_crdt_conflict_resolution():
     """Concurrent overlapping claims resolve deterministically.
 
@@ -64,7 +60,6 @@ def test_field_allocation_crdt_conflict_resolution():
     assert a.owner_of("cell_A1") == b.owner_of("cell_A1")
 
 
-@pytest.mark.xfail(reason="RED Phase: FieldAllocationCRDT not yet implemented.")
 def test_field_allocation_crdt_serialization_roundtrip():
     """Serialization fits constraints and round-trips state.
 
