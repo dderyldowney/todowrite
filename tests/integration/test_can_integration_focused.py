@@ -7,7 +7,7 @@ agricultural scenarios, using the actual implemented components.
 from __future__ import annotations
 
 from datetime import datetime
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 import can
 import pytest
@@ -207,6 +207,7 @@ class TestCANIntegrationFocused:
         manager.physical_manager.connect_interface = AsyncMock(return_value=True)
         manager.physical_manager.disconnect_all = AsyncMock(return_value={})
         manager.physical_manager.get_interface_status = AsyncMock(return_value=None)
+        manager.physical_manager.add_global_callback = MagicMock()
 
         # Test initialization
         success = await manager.initialize()
