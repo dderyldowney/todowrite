@@ -379,10 +379,39 @@ def create_flat_item_dict(todos: TodosData) -> dict[str, BaseItem]:
     return items
 
 
+def _reset_incomplete_parent_status(item: BaseItem, all_items: dict[str, BaseItem]) -> None:
+    """
+    Recursively resets the status of a parent item from 'done' if any of its children
+    are not 'done'. If any child is 'in_progress', the parent becomes 'in_progress',
+    otherwise 'planned'.
+    """
+    children = [child for child in all_items.values() if child["parent_id"] == item["id"]]
+
+    if not children:
+        return  # No children to check
+
+    # Recursively check children first
+    for child in children:
+        _reset_incomplete_parent_status(child, all_items)
+
+    # After checking children, evaluate parent's status
+    if item["status"] == "done":
+        all_children_done = all(child["status"] == "done" for child in children)
+        if not all_children_done:
+            any_child_in_progress = any(child["status"] == "in_progress" for child in children)
+            if any_child_in_progress:
+                item["status"] = "in_progress"
+            else:
+                item["status"] = "planned"
+            item["validation_log"].append(
+                f"{datetime.now().isoformat()}: Status automatically reset from 'done' due to incomplete children."
+            )
+
+
 def load_todos() -> TodosData:
     """Load TodoWrite.md format data."""
     if not os.path.exists(TODOS_FILE) or os.stat(TODOS_FILE).st_size == 0:
-        # If todos.json doesn't exist or is empty, create a blank one from schema
+        # If todos.json doesn't exist or is empty, create a blank one from schema.
         print(f"Creating blank {TODOS_FILE} from schema.")
         initial_todos_data: TodosData = {"goals": []}
         with open(TODOS_FILE, "w") as f:
@@ -396,8 +425,14 @@ def load_todos() -> TodosData:
                 # New TodoWrite.md format
                 todos = TodosData(goals=data["goals"])
 
-                # Run validation pipeline
+                # Create a flat dictionary for easy access during validation and status reset
                 all_items = create_flat_item_dict(todos)
+
+                # Apply recursive status reset for incomplete parents
+                for goal in todos["goals"]:
+                    _reset_incomplete_parent_status(goal, all_items)
+
+                # Run validation pipeline on all items
                 for item in all_items.values():
                     run_validation_pipeline(item, all_items)
 
