@@ -432,8 +432,8 @@ class TestFleetCoordinationIntegration:
             await clearing_engine.claim_section(field_section)
             clearing_clock_before = clearing_engine._vector_clock.to_dict().copy()
 
-            # Simulate clearing work completion
-            await asyncio.sleep(0.1)  # Simulate work time
+            # Simulate clearing work completion - optimized for test performance
+            await asyncio.sleep(0.005)  # Simulate work time (95% faster)
             await clearing_engine.release_section(field_section)
             clearing_clock_after = clearing_engine._vector_clock.to_dict().copy()
 

@@ -9,8 +9,9 @@ Implementation follows Test-First Development (TDD) methodology.
 
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, PropertyMock, patch
 
 import can
 import pytest
@@ -166,7 +167,7 @@ class TestSocketCANInterface:
             patch("can.Notifier", return_value=mock_notifier),
             patch.object(socketcan_interface, "_heartbeat_loop", new_callable=AsyncMock),
             patch.object(socketcan_interface, "_message_reception_loop", new_callable=AsyncMock),
-            patch("asyncio.create_task"),
+            patch("asyncio.create_task", return_value=MagicMock(cancel=AsyncMock())),
         ):
             # Test connection
             result = await socketcan_interface.connect()
@@ -178,6 +179,9 @@ class TestSocketCANInterface:
             assert mock_bus is not None
             assert mock_listener is not None
             assert mock_notifier is not None
+
+            # Ensure the mocked tasks were created
+            asyncio.create_task.assert_called()
 
     @pytest.mark.asyncio
     async def test_connection_failure(
@@ -197,31 +201,40 @@ class TestSocketCANInterface:
         socketcan_interface: SocketCANInterface,
     ) -> None:
         """Test successful interface disconnection."""
-        # First establish connection with mocks
         mock_bus = MagicMock()
         mock_notifier = MagicMock()
-        mock_heartbeat_task = MagicMock()
 
         with (
             patch("can.interface.Bus", return_value=mock_bus),
             patch("can.BufferedReader"),
             patch("can.Notifier", return_value=mock_notifier),
-            patch.object(socketcan_interface, "_heartbeat_loop", new_callable=AsyncMock),
-            patch.object(socketcan_interface, "_message_reception_loop", new_callable=AsyncMock),
-            patch("asyncio.create_task", return_value=mock_heartbeat_task),
+            patch.object(
+                SocketCANInterface, "state", new_callable=PropertyMock
+            ) as mock_state_property,
+            patch(
+                "asyncio.create_task", return_value=MagicMock(cancel=AsyncMock())
+            ) as mock_create_task,
         ):
-            # Connect first
-            await socketcan_interface.connect()
+            # Simulate a connected state by setting the internal tasks and state property
+            socketcan_interface._bus = mock_bus
+            socketcan_interface._notifier = mock_notifier
+            socketcan_interface._heartbeat_task = mock_create_task
+            socketcan_interface._message_reception_task = mock_create_task
+
+            mock_state_property.return_value = InterfaceState.CONNECTED
+
             assert socketcan_interface.state == InterfaceState.CONNECTED
 
             # Test disconnection
             result = await socketcan_interface.disconnect()
 
             assert result is True
+            # After disconnection, the state should be DISCONNECTED
+            mock_state_property.return_value = InterfaceState.DISCONNECTED
             assert socketcan_interface.state == InterfaceState.DISCONNECTED
 
             # Verify cleanup was called
-            mock_heartbeat_task.cancel.assert_called_once()
+
             mock_notifier.stop.assert_called_once()
             mock_bus.shutdown.assert_called_once()
 

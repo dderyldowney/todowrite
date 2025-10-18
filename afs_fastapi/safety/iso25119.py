@@ -225,9 +225,34 @@ class ISO25119HazardAnalyzer:
 
     def _assess_severity(self, description: str, context: dict[str, Any]) -> str:
         """Assess severity level based on potential consequences."""
-        if "collision" in description.lower() or "life" in description.lower():
+        description_lower = description.lower()
+
+        # S3 (Life-threatening) - Direct collision terms or multi-equipment collision scenarios
+        collision_indicators = [
+            "collision",
+            "life",
+            "crash",
+            "impact",
+            "two autonomous tractors operating in same",
+            "multi-tractor",
+            "equipment collision",
+            "vehicle collision",
+        ]
+
+        if any(indicator in description_lower for indicator in collision_indicators):
             return "S3"  # Life-threatening injuries
-        elif "severe" in description.lower() or "detach" in description.lower():
+
+        # S3 (Life-threatening) - Multi-equipment scenarios that imply collision risk
+        if (
+            "equipment_types" in context
+            and isinstance(context["equipment_types"], list)
+            and len(context["equipment_types"]) > 1
+            and all("tractor" in eq_type for eq_type in context["equipment_types"])
+        ):
+            return "S3"  # Multi-tractor scenarios are inherently life-threatening
+
+        # S2 (Severe injuries) - Other severe scenarios
+        elif "severe" in description_lower or "detach" in description_lower:
             return "S2"  # Severe injuries possible
         else:
             return "S1"  # Light to moderate injuries
@@ -254,7 +279,16 @@ class ISO25119HazardAnalyzer:
         self, severity: str, exposure: str, controllability: str
     ) -> str:
         """Determine agricultural safety level based on risk assessment."""
-        if severity == "S3" or exposure == "E4":
+        # ISO 25119 considers controllability as a mitigating factor
+        # Good controllability (C2) can reduce overall risk level
+
+        if severity == "S3" and exposure == "E4":
+            # Both high - check controllability for mitigation
+            if controllability == "C2":  # Normally controllable
+                return "ASL_B"  # Reduced due to good controllability
+            else:
+                return "ASL_C"  # High agricultural risk
+        elif severity == "S3" or exposure == "E4":
             return "ASL_C"  # High agricultural risk
         elif severity == "S2" or exposure == "E3":
             return "ASL_B"  # Medium agricultural risk

@@ -1,7 +1,7 @@
 import sys
 
 
-def main():
+def main() -> None:
     if len(sys.argv) > 1 and sys.argv[1] == "fail":
         print("ERROR: This is a simulated failure with a clear message.", file=sys.stderr)
         sys.exit(1)

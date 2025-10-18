@@ -969,10 +969,12 @@ class CANBusConnectionManager:
         PhysicalCANInterface | Any
             Created interface instance (or mock for testing)
         """
+
         # This method is primarily for test mocking support
         # Return a mock interface for compatibility with existing tests
         class MockCANInterface:
             """Mock CAN interface for testing."""
+
             def __init__(self):
                 self.state = InterfaceState.CONNECTED
 

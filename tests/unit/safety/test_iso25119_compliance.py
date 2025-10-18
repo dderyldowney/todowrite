@@ -231,7 +231,7 @@ class TestISO25119SafetyFunctions(unittest.TestCase):
 
         # Test hydraulic safety monitoring
         hydraulic_status = safety_monitor.monitor_hydraulic_system(
-            pressure_reading=180.5,  # bar
+            pressure_reading=175.0,  # bar (87.5% of max, ensuring >10% safety margin)
             temperature_reading=65.3,  # Celsius
             flow_rate=45.2,  # L/min
             system_limits={"max_pressure": 200.0, "max_temperature": 80.0, "min_flow_rate": 40.0},

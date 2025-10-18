@@ -155,6 +155,7 @@ class PhysicalCANInterface(ABC):
         # Connection management
         self._connection_lock = asyncio.Lock()
         self._heartbeat_task: asyncio.Task | None = None
+        self._message_reception_task: asyncio.Task | None = None  # Task for message reception loop
         self._auto_recovery_enabled = True
 
     @property
@@ -320,7 +321,9 @@ class SocketCANInterface(PhysicalCANInterface):
                 )
 
                 # Start message reception task
-                asyncio.create_task(self._message_reception_loop(listener))
+                self._message_reception_task = asyncio.create_task(
+                    self._message_reception_loop(listener)
+                )
 
                 return True
 
@@ -344,6 +347,11 @@ class SocketCANInterface(PhysicalCANInterface):
                 if self._heartbeat_task:
                     self._heartbeat_task.cancel()
                     self._heartbeat_task = None
+
+                # Stop message reception task
+                if self._message_reception_task:
+                    self._message_reception_task.cancel()
+                    self._message_reception_task = None
 
                 # Stop notifier
                 if self._notifier:

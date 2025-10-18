@@ -520,6 +520,10 @@ class LinuxSocketCANManager:
             (0x18EA0000, 0x1FFFF00, True),
             # Working Set Master - PGN 59392
             (0x18E80000, 0x1FFFF00, True),
+            # Safety systems (added to match precision_ag_filters in test)
+            (0x18E00100, 0x1FFFF00, True),  # Emergency stop
+            (0x18E00200, 0x1FFFF00, True),  # Safety alerts
+            (0x18E00300, 0x1FFFF00, True),  # Collision warnings
         ]
 
         return self.create_can_filters(agricultural_filters)

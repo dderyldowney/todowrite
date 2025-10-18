@@ -64,12 +64,18 @@ class TestAddressClaimHandler:
         name_data = bytearray(8)
 
         # Identity number (21 bits): 12345
-        identity_bytes = struct.pack("<I", 12345)
+        identity_number = 12345  # Explicitly define identity_number for clarity in this section
+        identity_bytes = struct.pack("<I", identity_number)
         name_data[0:3] = identity_bytes[0:3]
 
         # Manufacturer code (11 bits) at bits 21-31: 123
-        name_data[3] = identity_bytes[3] | ((123 & 0x1F) << 3)
-        name_data[4] = (123 >> 5) & 0x3F
+        # The manufacturer code is part of the 16-bit field spanning name_data[3] and name_data[4].
+        # It occupies bits 5-15 of this 16-bit field.
+        # The lower 5 bits (0-4) of this 16-bit field are part of the identity number.
+        manufacturer_and_identity = (123 << 5) | ((identity_number >> 16) & 0x1F)
+        packed_manufacturer = struct.pack("<H", manufacturer_and_identity)
+        name_data[3] = packed_manufacturer[0]
+        name_data[4] = packed_manufacturer[1]
 
         # Function: TRACTOR (0)
         name_data[5] = ISOBUSFunction.TRACTOR.value

@@ -5,16 +5,18 @@ set -euo pipefail
 PROJECT_ROOT=$(git rev-parse --show-toplevel)
 cd "$PROJECT_ROOT"
 
-PYTEST_ARGS="-v --tb=short"
+PYTEST_ARGS="-v --tb=short -n auto"
 TIMEOUT=60
 COVERAGE=false
+SERIAL=false
 PATHS=()
 
 print_usage() {
-    echo "Usage: $(basename "$0") [-h] [-q] [-c] [-t TIMEOUT] [PATHS...]"
+    echo "Usage: $(basename "$0") [-h] [-q] [-c] [-s] [-t TIMEOUT] [PATHS...]"
     echo "  -h, --help      Show this help message and exit."
     echo "  -q, --quiet     Run pytest in quiet mode."
     echo "  -c, --coverage  Generate a coverage report."
+    echo "  -s, --serial    Run tests serially (disable parallelization)."
 
 }
 
@@ -33,6 +35,10 @@ while [[ $# -gt 0 ]]; do
             COVERAGE=true
             shift
             ;;
+        -s|--serial)
+            SERIAL=true
+            shift
+            ;;
 
         *)
             PATHS+=("$1")
@@ -42,6 +48,10 @@ while [[ $# -gt 0 ]]; do
 done
 
 FINAL_CMD="pytest $PYTEST_ARGS"
+
+if [ "$SERIAL" = true ]; then
+    FINAL_CMD="${FINAL_CMD// -n auto/}"  # Remove parallelization for serial mode
+fi
 
 if [ "$COVERAGE" = true ]; then
     FINAL_CMD+=" --cov=afs_fastapi --cov-report=html"

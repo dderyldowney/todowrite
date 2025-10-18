@@ -762,7 +762,7 @@ class DiagnosticHandler:
             spn = dtc_bytes[0] | (dtc_bytes[1] << 8) | ((dtc_bytes[2] & 0x03) << 16)
 
             # Parse FMI (Failure Mode Indicator) - bits 19-23
-            fmi = (dtc_bytes[2] >> 2) & 0x1F
+            fmi = (dtc_bytes[2] >> 3) & 0x1F
 
             # Parse occurrence count - byte 4
             occurrence_count = dtc_bytes[3] & 0x7F
@@ -890,14 +890,18 @@ class ISOBUSProtocolManager:
                 return False
 
             # Extract PGN from CAN ID
-            pdu_format = (message.arbitration_id >> 16) & 0xFF
+            # PGN is bits 8-23 of the 29-bit arbitration ID
+            pgn_full = (message.arbitration_id >> 8) & 0xFFFF
 
-            if pdu_format >= 240:
-                # PDU1 format
-                pdu_specific = (message.arbitration_id >> 8) & 0xFF
+            pdu_format = (pgn_full >> 8) & 0xFF
+
+            if pdu_format < 0xF0:  # PDU1 format
+                pdu_specific = pgn_full & 0xFF
                 pgn = (pdu_format << 8) | pdu_specific
-            else:
-                # PDU2 format
+            elif pdu_format < 0xFF:  # PDU1 format for diagnostic messages (0xF0-0xFE)
+                pdu_specific = pgn_full & 0xFF
+                pgn = (pdu_format << 8) | pdu_specific
+            else:  # PDU2 format
                 pgn = pdu_format << 8
 
             # Route to appropriate handler

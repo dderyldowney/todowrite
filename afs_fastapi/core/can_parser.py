@@ -1,8 +1,11 @@
+from typing import Any
+
+
 class CanParser:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def parse_message(self, message):
+    def parse_message(self, message: dict[str, Any]) -> dict[str, Any] | None:
         pgn = message["pgn"]
         spn = message["spn"]
         value = message["value"]

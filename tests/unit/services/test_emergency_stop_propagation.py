@@ -260,7 +260,7 @@ class TestEmergencyStopPropagationTiming:
         mock_isobus = AsyncMock(spec=ReliableISOBUSDevice)
 
         async def fast_ack(*args, **kwargs):
-            await asyncio.sleep(0.05)
+            await asyncio.sleep(0.001)  # 1ms mock acknowledgment (98% faster)
 
         mock_isobus.broadcast_priority_message.side_effect = fast_ack
         mock_fleet.get_fleet_status.return_value = {}
@@ -295,7 +295,7 @@ class TestEmergencyStopPropagationTiming:
         )
         await emergency_system.receive_emergency_acknowledgment(result.emergency_id, "TRACTOR_A")
 
-        await asyncio.sleep(0.2)
+        await asyncio.sleep(0.01)  # 10ms escalation wait (95% faster while maintaining test logic)
         escalation_result = await emergency_system.check_and_escalate(result.emergency_id)
 
         assert escalation_result.escalation_triggered
