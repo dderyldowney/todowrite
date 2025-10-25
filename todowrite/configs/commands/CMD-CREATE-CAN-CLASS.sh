@@ -21,7 +21,7 @@ echo "🚜 Creating CANMessageHandler class for ISO 11783 communication"
 mkdir -p results/CMD-CREATE-CAN-CLASS
 
 # Generate CAN message handler class
-cat > afs_fastapi/equipment/can_message_handler.py << 'EOF'
+cat > equipment/can_message_handler.py << 'EOF'
 """
 CAN Message Handler for ISO 11783 Agricultural Communication
 
@@ -177,7 +177,7 @@ from datetime import datetime
 
 # Validate class creation
 try:
-    from afs_fastapi.equipment.can_message_handler import CANMessageHandler
+    from equipment.can_message_handler import CANMessageHandler
 
     # Create test instance
     handler = CANMessageHandler()
