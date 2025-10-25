@@ -1,0 +1,19 @@
+[project]
+name = "todowrite"
+version = "0.1.0"
+description = "A standalone package for managing ToDos."
+authors = [
+    { name = "dderyldowney", email = "dderyldowney@gmail.com" }
+]
+requires-python = ">=3.9"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["todowrite*"]
+
+[project.scripts]
+todowrite = "todowrite.main:main"
