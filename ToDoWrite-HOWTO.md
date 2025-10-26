@@ -201,13 +201,13 @@ manager.save_node(goal)
 
 # Create child requirement
 requirement = Requirement(
-    id="R-CAN-COMM-001",
-    title="CAN bus communication protocol",
-    description="Implement ISO 11783 CAN bus communication",
+    id="R-BUS-COMM-001",
+    title="Bus communication protocol",
+    description="Implement ISO 11783 bus communication",
     parents=[goal.id],
     metadata={
         "owner": "firmware-team",
-        "labels": ["can", "iso11783", "communication"],
+        "labels": ["iso11783", "communication"],
         "work_type": "spec"
     }
 )
@@ -246,15 +246,15 @@ class AgriculturalGoal(Goal):
 class TractorRequirement(Requirement):
     """Requirement for tractor-specific functionality"""
     tractor_models: List[str] = None
-    can_bus_speed: Optional[str] = None
+    bus_speed: Optional[str] = None
     iso_compliance: List[str] = None
 
     def __post_init__(self):
         super().__post_init__()
         if self.tractor_models:
             self.metadata["tractor_models"] = self.tractor_models
-        if self.can_bus_speed:
-            self.metadata["can_bus_speed"] = self.can_bus_speed
+        if self.bus_speed:
+            self.metadata["bus_speed"] = self.bus_speed
 
 # Usage
 class AgriculturalToDoWriteManager(ToDoWriteManager):
@@ -275,11 +275,11 @@ class AgriculturalToDoWriteManager(ToDoWriteManager):
     def create_tractor_communication_requirement(self, parent_goal: str) -> TractorRequirement:
         req = TractorRequirement(
             id="R-TRACTOR-COMM-001",
-            title="Tractor CAN bus communication",
-            description="Implement reliable CAN bus communication between tractors",
+            title="Tractor bus communication",
+            description="Implement reliable bus communication between tractors",
             parents=[parent_goal],
             tractor_models=["John Deere 8R", "Case IH Magnum"],
-            can_bus_speed="250kbps",
+            bus_speed="250kbps",
             iso_compliance=["ISO 11783", "J1939"]
         )
         self.save_node(req)
@@ -488,7 +488,7 @@ todowrite batch create --file requirements.csv --type requirement
 todowrite batch update --query "layer:requirement" --set-label "sprint:2"
 
 # Bulk validation
-todowrite batch validate --pattern "R-CAN-*"
+todowrite batch validate --pattern "R-COMM-*"
 ```
 
 #### Query and Filtering
@@ -496,7 +496,7 @@ todowrite batch validate --pattern "R-CAN-*"
 ```bash
 # Query by metadata
 todowrite query --owner "firmware-team"
-todowrite query --label "can" --label "critical"
+todowrite query --label "critical"
 todowrite query --work-type "implementation"
 
 # Complex queries
