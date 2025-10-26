@@ -57,7 +57,7 @@ def create(layer: str, title: str, description: str, parent: str | None):
         click.echo(f"Error: Could not find prefix for layer '{layer}'.")
         return
 
-    node_id = f"{prefix}-{uuid.uuid4().hex[:12]}"
+    node_id = f"{prefix}-{uuid.uuid4().hex[:12].upper()}"
     node_data = {
         "id": node_id,
         "layer": layer,
@@ -68,12 +68,16 @@ def create(layer: str, title: str, description: str, parent: str | None):
         "metadata": {
             "owner": "system",
             "labels": [],
-            "severity": "",
-            "work_type": "",
         },
     }
-    node = app.create_node(node_data)
-    click.echo(f"Node created: {node.id}")
+    try:
+        node = app.create_node(node_data)
+        click.echo(f"Node created: {node.id}")
+    except Exception as e:
+        click.echo(f"Error creating node: {e}", err=True)
+        import traceback
+        click.echo(traceback.format_exc(), err=True)
+        exit(1)
 
 
 @cli.command()

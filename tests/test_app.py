@@ -48,7 +48,7 @@ class TestApp(unittest.TestCase):
     def test_create_node(self):
         """Test that create_node creates a new node in the database."""
         node_data = {
-            "id": "goal1",
+            "id": "GOAL-TEST1",
             "layer": "Goal",
             "title": "Test Goal",
             "description": "A test goal",
@@ -62,13 +62,13 @@ class TestApp(unittest.TestCase):
             },
         }
         node = self.app.create_node(node_data)
-        self.assertEqual(node.id, "goal1")
+        self.assertEqual(node.id, "GOAL-TEST1")
         self.assertEqual(node.metadata.labels[0], "test")
 
     def test_get_node(self):
         """Test that get_node returns the correct node from the database."""
         node_data = {
-            "id": "goal1",
+            "id": "GOAL-TEST1",
             "layer": "Goal",
             "title": "Test Goal",
             "description": "A test goal",
@@ -82,14 +82,14 @@ class TestApp(unittest.TestCase):
             },
         }
         self.app.create_node(node_data)
-        node = self.app.get_node("goal1")
+        node = self.app.get_node("GOAL-TEST1")
         self.assertIsNotNone(node)
-        self.assertEqual(node.id, "goal1")
+        self.assertEqual(node.id, "GOAL-TEST1")
 
     def test_get_all_nodes(self):
         """Test that get_all_nodes returns all the nodes from the database."""
         node_data1 = {
-            "id": "goal1",
+            "id": "GOAL-TEST1",
             "layer": "Goal",
             "title": "Test Goal 1",
             "description": "A test goal",
@@ -103,7 +103,7 @@ class TestApp(unittest.TestCase):
             },
         }
         node_data2 = {
-            "id": "goal2",
+            "id": "GOAL-TEST2",
             "layer": "Goal",
             "title": "Test Goal 2",
             "description": "A test goal",

@@ -54,6 +54,9 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
 
         result = self.runner.invoke(cli, ["create", "Goal", "Test Goal", "This is a test goal."])
+        if result.exit_code != 0:
+            print(f"CLI Output: {result.output}")
+            print(f"CLI Exception: {result.exception}")
         self.assertEqual(result.exit_code, 0)
         self.assertIn("Node created:", result.output)
 
@@ -63,6 +66,9 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
 
         result = self.runner.invoke(cli, ["create", "Goal", "Test Goal", "This is a test goal."])
+        if result.exit_code != 0:
+            print(f"CLI Output: {result.output}")
+            print(f"CLI Exception: {result.exception}")
         self.assertEqual(result.exit_code, 0)
         node_id = result.output.split(" ")[-1].strip()
 
@@ -76,6 +82,9 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
 
         result = self.runner.invoke(cli, ["create", "Goal", "Test Goal", "This is a test goal."])
+        if result.exit_code != 0:
+            print(f"CLI Output: {result.output}")
+            print(f"CLI Exception: {result.exception}")
         self.assertEqual(result.exit_code, 0)
 
         result = self.runner.invoke(cli, ["list"])
