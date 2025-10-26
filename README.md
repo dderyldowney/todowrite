@@ -63,99 +63,117 @@ pip install -e .
 
 ## 🚀 Usage
 
-### Standalone CLI Application
+### CLI Usage Guide
 
-Execute ToDoWrite directly from the command line:
-
-```bash
-# Initialize the database
-todowrite init
-
-# Create a new goal
-todowrite create Goal "My new goal" "This is a test goal."
-
-# Get a node by its ID
-todowrite get <node_id>
-
-# List all nodes
-todowrite list
-```
+For detailed information on using the `todowrite` command-line interface, refer to the [CLI Reference](docs/cli_reference.md).
 
 ### Python Module Integration
 
-Import and use ToDoWrite in your Python applications:
+ToDoWrite can be seamlessly integrated into your Python applications. Here are some examples:
 
 ```python
 from todowrite.app import ToDoWrite
 
-# Initialize the application
+# Initialize the application (defaults to SQLite)
 app = ToDoWrite()
 
-# Initialize the database
+# Initialize the database (creates tables)
 app.init_database()
 
-# Create a new goal
-node_data = {
-    "id": "goal1",
-    "layer": "Goal",
-    "title": "Test Goal",
-    "description": "A test goal",
-    "status": "in_progress",
-    "links": {"parents": [], "children": []},
-    "metadata": {
-        "owner": "test",
-        "labels": ["test"],
-        "severity": "high",
-        "work_type": "architecture",
-    },
-}
-node = app.create_node(node_data)
-print(f"Created node: {node.id}")
+# Add a new Goal
+goal = app.add_goal(
+    title="Implement Feature X",
+    description="Develop and integrate Feature X into the main product.",
+    owner="Alice",
+    labels=["feature", "backend"]
+)
+print(f"Created Goal: {goal.title} (ID: {goal.id})")
+
+# Add a Phase linked to the Goal
+phase = app.add_phase(
+    parent_id=goal.id,
+    title="Design Phase",
+    description="Outline the architecture and technical specifications.",
+    owner="Bob"
+)
+print(f"Created Phase: {phase.title} (ID: {phase.id})")
+
+# Add a Task linked to the Phase
+task = app.add_task(
+    parent_id=phase.id,
+    title="Database Schema Design",
+    description="Design and implement the database schema for Feature X."
+)
+print(f"Created Task: {task.title} (ID: {task.id})")
 
 # Get a node by its ID
-retrieved_node = app.get_node("goal1")
-print(f"Retrieved node: {retrieved_node.title}")
+retrieved_node = app.get_node(goal.id)
+if retrieved_node:
+    print(f"Retrieved Node: {retrieved_node.title} (Layer: {retrieved_node.layer})")
 
-# Get all nodes
-all_nodes = app.get_all_nodes()
-print(f"All nodes: {all_nodes}")
+# Get all nodes and display active items
+all_nodes = app.load_todos()
+print("\nAll Nodes by Layer:")
+for layer, nodes_list in all_nodes.items():
+    print(f"  --- {layer} ({len(nodes_list)} items) ---")
+    for n in nodes_list:
+        print(f"    - {n.title} (Status: {n.status})")
+
+active_items = app.get_active_items(all_nodes)
+print("\nActive Items:")
+for layer, active_node in active_items.items():
+    print(f"  - {layer}: {active_node.title} (Status: {active_node.status})")
+
+# Update a node's status
+updated_goal = app.update_node(goal.id, {"status": "in_progress"})
+if updated_goal:
+    print(f"\nUpdated Goal {updated_goal.title} status to: {updated_goal.status}")
+
+# Delete a node
+app.delete_node(task.id)
+print(f"\nDeleted Task: {task.title}")
 ```
 
 ## 🗄️ Database Configuration
 
+ToDoWrite supports both SQLite and PostgreSQL. The database connection is configured via the `db_url` parameter in the `ToDoWrite` constructor or by setting the `TODOWRITE_DATABASE_URL` environment variable.
+
 ### SQLite (Default)
-Perfect for development and single-user scenarios:
+
+SQLite is used by default for convenience, especially during development or for single-user scenarios. No explicit configuration is needed.
 
 ```python
-# Uses default SQLite database
-# No configuration needed - works out of the box
 from todowrite.app import ToDoWrite
+
+# Uses default SQLite database (e.g., todowrite.db in the current directory)
 app = ToDoWrite()
 ```
 
-### PostgreSQL (Production)
-For production environments and multi-user access:
+### PostgreSQL
+
+For production environments or multi-user access, PostgreSQL is recommended. You can configure it by providing a PostgreSQL connection string.
+
+**Using Environment Variable (Recommended for Deployment):**
 
 ```bash
-# Set environment variable
 export TODOWRITE_DATABASE_URL="postgresql://user:password@localhost:5432/todowrite_db"
+# Then, initialize ToDoWrite without arguments
+# from todowrite.app import ToDoWrite
+# app = ToDoWrite()
 ```
 
+**Configuring Programmatically:**
+
 ```python
-# Or configure programmatically
 from todowrite.app import ToDoWrite
-db_url = "postgresql://user:password@localhost:5432/todowrite_db"
+
+db_url = "postgresql://user:password@localhost:5432/my_todowrite_db"
 app = ToDoWrite(db_url)
 ```
 
 ## 🏛️ Architecture
 
-### Core Components
-
-- **Application Layer**: High-level API for task management operations
-- **Database Models**: Type-safe SQLAlchemy 2.0 models with relationships
-- **Configuration System**: Environment-based database configuration
-- **CLI Interface**: Simple command-line access to core functionality
+For a detailed overview of the project's architecture, including its core components, data flow, and database agnosticism, please refer to the [Architectural Overview](docs/architecture.md).
 
 ## 🔧 Development
 
@@ -164,6 +182,7 @@ app = ToDoWrite(db_url)
 - SQLAlchemy 2.0+
 - Click 8.0+
 - Psycopg2 (for PostgreSQL support)
+- Docker (for PostgreSQL integration tests)
 
 ### Development Installation
 ```bash
@@ -174,30 +193,17 @@ pip install -e .
 
 ### Testing
 
-Run the tests with `pytest`:
+ToDoWrite includes a comprehensive test suite to ensure functionality and database compatibility. All tests, including PostgreSQL integration tests, can be run using `pytest`.
+
+**Running All Tests:**
+
+To run all tests, including those that require a PostgreSQL database, ensure Docker is running and then execute:
 
 ```bash
 python -m pytest
 ```
 
-To run the PostgreSQL integration tests, you need to have a PostgreSQL database running.
-You can use the provided `docker-compose.yml` file to start a PostgreSQL container:
-
-```bash
-docker-compose up -d
-```
-
-Then, run the tests:
-
-```bash
-python -m pytest
-```
-
-After running the tests, you can stop the container with:
-
-```bash
-docker-compose down
-```
+This command will automatically start a PostgreSQL container, run the tests against it, and then stop the container. If you wish to run tests against SQLite, you can temporarily unset the `TODOWRITE_DATABASE_URL` environment variable or modify the test files directly.
 
 ## 🤝 Contributing
 

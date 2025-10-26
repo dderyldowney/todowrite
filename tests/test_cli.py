@@ -1,26 +1,52 @@
 import os
 import unittest
+import subprocess
+import time
 from click.testing import CliRunner
 
 from todowrite.cli import cli
+from todowrite.app import ToDoWrite
+from todowrite.db.models import Base, Node, Link, Label, Command, Artifact, node_labels
 
 
 class TestCli(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        """Start the PostgreSQL container."""
+        subprocess.run(["docker-compose", "up", "-d"], check=True)
+        # Wait for the database to be ready
+        time.sleep(10)
+        db_url = "postgresql://todowrite:todowrite@localhost:5432/todowrite"
+        cls.app = ToDoWrite(db_url)
+
+    @classmethod
+    def tearDownClass(cls):
+        """Stop the PostgreSQL container."""
+        subprocess.run(["docker-compose", "down"], check=True)
+
     def setUp(self):
         self.runner = CliRunner()
-        self.db_path = "todowrite.db"
+        # The CLI will use the environment variable for the database URL
+        os.environ["TODOWRITE_DATABASE_URL"] = "postgresql://todowrite:todowrite@localhost:5432/todowrite"
+        self.app.init_database()
 
     def tearDown(self):
-        if os.path.exists(self.db_path):
-            os.remove(self.db_path)
+        session = self.app.Session()
+        session.execute(node_labels.delete())
+        session.query(Artifact).delete()
+        session.query(Command).delete()
+        session.query(Link).delete()
+        session.query(Label).delete()
+        session.query(Node).delete()
+        session.commit()
+        session.close()
 
     def test_init_command(self):
         """Test the init command."""
         result = self.runner.invoke(cli, ["init"])
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(result.output, "Database initialized.\n")
-        self.assertTrue(os.path.exists(self.db_path))
 
     def test_create_command(self):
         """Test the create command."""

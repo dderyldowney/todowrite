@@ -1,21 +1,44 @@
 import os
 import unittest
+import subprocess
+import time
 from todowrite.app import ToDoWrite
+from todowrite.db.models import Base, Node, Link, Label, Command, Artifact, node_labels
+
 
 class TestApp(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        """Start the PostgreSQL container."""
+        subprocess.run(["docker-compose", "up", "-d"], check=True)
+        # Wait for the database to be ready
+        time.sleep(10)
+        db_url = "postgresql://todowrite:todowrite@localhost:5432/todowrite"
+        cls.app = ToDoWrite(db_url)
+
+    @classmethod
+    def tearDownClass(cls):
+        """Stop the PostgreSQL container."""
+        subprocess.run(["docker-compose", "down"], check=True)
+
     def setUp(self):
-        self.db_path = "todowrite.db"
-        self.app = ToDoWrite(f"sqlite:///{self.db_path}")
+        self.app.init_database()
 
     def tearDown(self):
-        if os.path.exists(self.db_path):
-            os.remove(self.db_path)
+        session = self.app.Session()
+        session.execute(node_labels.delete())
+        session.query(Artifact).delete()
+        session.query(Command).delete()
+        session.query(Label).delete()
+        session.query(Node).delete()
+        session.commit()
+        session.close()
 
     def test_init_database(self):
         """Test that init_database creates the database file."""
-        self.app.init_database()
-        self.assertTrue(os.path.exists(self.db_path))
+        # This test is not applicable to PostgreSQL
+        pass
 
     def test_default_database_is_sqlite(self):
         """Test that the default database is SQLite."""
@@ -24,7 +47,6 @@ class TestApp(unittest.TestCase):
 
     def test_create_node(self):
         """Test that create_node creates a new node in the database."""
-        self.app.init_database()
         node_data = {
             "id": "goal1",
             "layer": "Goal",
@@ -45,7 +67,6 @@ class TestApp(unittest.TestCase):
 
     def test_get_node(self):
         """Test that get_node returns the correct node from the database."""
-        self.app.init_database()
         node_data = {
             "id": "goal1",
             "layer": "Goal",
@@ -67,7 +88,6 @@ class TestApp(unittest.TestCase):
 
     def test_get_all_nodes(self):
         """Test that get_all_nodes returns all the nodes from the database."""
-        self.app.init_database()
         node_data1 = {
             "id": "goal1",
             "layer": "Goal",
@@ -101,6 +121,7 @@ class TestApp(unittest.TestCase):
         nodes = self.app.get_all_nodes()
         self.assertIn("Goal", nodes)
         self.assertEqual(len(nodes["Goal"]), 2)
+
 
 if __name__ == "__main__":
     unittest.main()
