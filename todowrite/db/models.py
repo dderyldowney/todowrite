@@ -1,10 +1,11 @@
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import Column, ForeignKey, String, Table, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
-class Base(DeclarativeBase):
+class Base(DeclarativeBase):  # type: ignore[misc]
+    __abstract__ = True
     pass
 
 
@@ -25,7 +26,7 @@ class Node(Base):
     labels: Mapped[List["Label"]] = relationship(
         secondary="node_labels", back_populates="nodes"
     )
-    command: Mapped["Command" | None] = relationship(
+    command: Mapped[Optional["Command"]] = relationship(
         uselist=False, back_populates="node"
     )
 
