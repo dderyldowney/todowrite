@@ -76,7 +76,7 @@ def write_default_schema(schema_path: Path) -> None:
     schema_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Copy the schema from the schemas directory
-    default_schema_path = Path("ToDoWrite/configs/schemas/todowrite.schema.json")
+    default_schema_path = Path(__file__).parent.parent.parent / "configs" / "schemas" / "todowrite.schema.json"
     if default_schema_path.exists():
         with open(default_schema_path) as src:
             schema_content = src.read()

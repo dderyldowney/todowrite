@@ -8,7 +8,7 @@ from typing import Any, Literal, cast
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from .db.config import AGRICULTURAL_DB_SETTINGS, DATABASE_URL, is_postgresql
+from .db.config import DB_SETTINGS, DATABASE_URL, is_postgresql
 from .db.models import Base, Node as SQLAModelNode
 from .db.repository import NodeRepository
 
@@ -89,7 +89,7 @@ class Node:
 
 @dataclass
 class GoalItem:
-    """Represents a Goal-layer item for agricultural robotics strategic planning."""
+    """Represents a Goal-layer item for strategic planning."""
 
     id: str
     title: str
@@ -117,7 +117,7 @@ class GoalItem:
 
 @dataclass
 class PhaseItem:
-    """Represents a Phase-layer item for agricultural robotics project phases."""
+    """Represents a Phase-layer item for project phases."""
 
     id: str
     title: str
@@ -143,10 +143,10 @@ class PhaseItem:
 def create_database_engine():
     """Create SQLAlchemy engine with appropriate settings for database type."""
     if is_postgresql():
-        settings = AGRICULTURAL_DB_SETTINGS["postgresql"]
+        settings = DB_SETTINGS["postgresql"]
         return create_engine(DATABASE_URL, **settings)
     else:  # SQLite default
-        settings = AGRICULTURAL_DB_SETTINGS["sqlite"]
+        settings = DB_SETTINGS["sqlite"]
         return create_engine(DATABASE_URL, **settings)
 
 
@@ -161,8 +161,8 @@ def reset_database_engine() -> None:
     This function should be called in test fixtures to ensure proper isolation.
     It disposes of all existing connections and creates a fresh engine and session factory.
 
-    Agricultural Context: Ensures test isolation for agricultural robotics platform
-    where database state must be clean between independent operation scenarios.
+    Context: Ensures test isolation where database state must be clean
+    between independent operation scenarios.
     """
     global engine, SessionLocal
 
@@ -182,10 +182,10 @@ def init_database() -> dict[str, str]:
     Should be called before first use of the TodoWrite system and in test fixtures
     to ensure complete database isolation.
 
-    Supports both SQLite and PostgreSQL for agricultural robotics environments.
+    Supports both SQLite and PostgreSQL for production environments.
 
-    Agricultural Context: Essential for test isolation in agricultural robotics
-    scenarios where clean state between different operation tests is critical.
+    Context: Essential for test isolation where clean state between
+    different operation tests is critical.
     """
     try:
         # Drop all existing tables to clear data
@@ -194,11 +194,11 @@ def init_database() -> dict[str, str]:
         # Create all tables fresh
         Base.metadata.create_all(bind=engine)
 
-        # Log database type for agricultural operations tracking
+        # Log database type for operations tracking
         if is_postgresql():
-            db_type = "PostgreSQL (Production Agricultural Database)"
+            db_type = "PostgreSQL (Production Database)"
         else:
-            db_type = "SQLite (Development/Local Agricultural Database)"
+            db_type = "SQLite (Development/Local Database)"
 
         return {"status": "success", "database_type": db_type, "url": DATABASE_URL}
     except Exception as e:
@@ -217,7 +217,7 @@ def get_database_info() -> dict[str, Any]:
         "database_url": DATABASE_URL,
         "is_production": is_postgresql(),
         "supports_concurrent_access": is_postgresql(),
-        "agricultural_optimized": True,
+        "production_ready": is_postgresql(),
     }
 
     try:
@@ -262,7 +262,7 @@ def _convert_db_node_to_node(db_node: SQLAModelNode) -> Node:
     if db_node.command:
         command = Command(
             ac_ref=str(db_node.command.ac_ref or ""),
-            run=eval(db_node.command.run) if db_node.command.run else {},
+            run=db_node.command.run if isinstance(db_node.command.run, dict) else {},
             artifacts=(
                 [
                     str(artifact.artifact)
@@ -1425,9 +1425,9 @@ def add_command(
     Commands must be direct children of SubTasks. This enforces the hierarchy:
     Phase -> Step -> Task -> SubTask -> Command
 
-    Agricultural Context: Commands represent executable operations in farm
-    automation workflows. Enforcing proper hierarchy ensures command chains
-    are well-defined and traceable through the task structure.
+    Context: Commands represent executable operations in automation workflows.
+    Enforcing proper hierarchy ensures command chains are well-defined and
+    traceable through the task structure.
     """
     try:
         import uuid

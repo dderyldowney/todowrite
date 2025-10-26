@@ -1,11 +1,17 @@
 [project]
 name = "todowrite"
 version = "0.1.0"
-description = "A standalone package for managing ToDos."
+description = "A standalone task management system with hierarchical planning framework."
 authors = [
     { name = "dderyldowney", email = "dderyldowney@gmail.com" }
 ]
 requires-python = ">=3.9"
+dependencies = [
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.8.0",
+    "pydantic>=2.0.0",
+    "typing-extensions>=4.0.0",
+]
 
 [build-system]
 requires = ["setuptools>=61.0"]
