@@ -157,6 +157,8 @@ tests/test_token_usage_temp.db-wal
 
 .claude/settings.local.json
 
-# ToDoWrite standalone module (separate git repository)
-ToDoWrite/
+# ToDoWrite data directory (generated content, not source)
+/ToDoWrite/
+# ToDoWrite database files
 todowrite.db
+*.db
