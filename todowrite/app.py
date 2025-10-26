@@ -5,11 +5,13 @@ This module contains the core ToDoWrite application class.
 import json
 import os
 import uuid
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import Any, Literal, cast
 
+import jsonschema
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import joinedload, sessionmaker
 
 from .db.config import DATABASE_URL
 from .db.models import Artifact as DBArtifact
@@ -43,13 +45,10 @@ StatusType = Literal["planned", "in_progress", "blocked", "done", "rejected"]
 
 
 def _validate_literal(value: str, literal_type: Any) -> str:
-
     if value not in literal_type.__args__:
-
         raise ValueError(
             f"Invalid literal value: {value}. Expected one of {literal_type.__args__}"
         )
-
     return value
 
 
@@ -97,11 +96,43 @@ class Node:
 class ToDoWrite:
     """The main ToDoWrite application class."""
 
+    _SCHEMA = None
+
     def __init__(self, db_url: str | None = None):
         """Initializes the ToDoWrite application."""
         self.db_url = db_url or DATABASE_URL
         self.engine = create_engine(self.db_url)
         self.Session = sessionmaker(bind=self.engine)
+
+        if ToDoWrite._SCHEMA is None:
+            schema_path = os.path.join(
+                os.path.dirname(__file__),
+                "..",
+                "configs",
+                "schemas",
+                "todowrite.schema.json",
+            )
+            with open(schema_path, "r") as f:
+                ToDoWrite._SCHEMA = json.load(f)
+
+    @contextmanager
+    def get_session(self):
+        session = self.Session()
+        try:
+            yield session
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    def _validate_node_data(self, node_data: dict[str, Any]):
+        """Validates node data against the ToDoWrite schema."""
+        try:
+            jsonschema.validate(instance=node_data, schema=ToDoWrite._SCHEMA)
+        except jsonschema.exceptions.ValidationError as e:
+            raise ValueError(f"Node data validation failed: {e.message}") from e
 
     def init_database(self):
         """Creates the database and the tables."""
@@ -115,29 +146,38 @@ class ToDoWrite:
 
     def create_node(self, node_data: dict[str, Any]) -> Node:
         """Creates a new node in the database."""
-        session = self.Session()
-        try:
+        self._validate_node_data(node_data)
+        with self.get_session() as session:
             db_node = self._create_db_node(session, node_data)
             return self._convert_db_node_to_node(db_node)
-        finally:
-            session.close()
 
     def get_node(self, node_id: str) -> Node | None:
         """Retrieves a node from the database."""
-        session = self.Session()
-        try:
-            db_node = session.query(DBNode).filter(DBNode.id == node_id).first()
+        with self.get_session() as session:
+            db_node = (
+                session.query(DBNode)
+                .options(
+                    joinedload(DBNode.labels),
+                    joinedload(DBNode.command).joinedload(DBCommand.artifacts),
+                )
+                .filter(DBNode.id == node_id)
+                .first()
+            )
             if db_node:
                 return self._convert_db_node_to_node(db_node)
             return None
-        finally:
-            session.close()
 
     def get_all_nodes(self) -> dict[str, list[Node]]:
         """Retrieves all the nodes from the database."""
-        session = self.Session()
-        try:
-            db_nodes = session.query(DBNode).all()
+        with self.get_session() as session:
+            db_nodes = (
+                session.query(DBNode)
+                .options(
+                    joinedload(DBNode.labels),
+                    joinedload(DBNode.command).joinedload(DBCommand.artifacts),
+                )
+                .all()
+            )
             nodes: dict[str, list[Node]] = {}
             for db_node in db_nodes:
                 node = self._convert_db_node_to_node(db_node)
@@ -145,13 +185,11 @@ class ToDoWrite:
                     nodes[node.layer] = []
                 nodes[node.layer].append(node)
             return nodes
-        finally:
-            session.close()
 
     def update_node(self, node_id: str, node_data: dict[str, Any]) -> Node | None:
         """Updates an existing node in the database."""
-        session = self.Session()
-        try:
+        self._validate_node_data(node_data)
+        with self.get_session() as session:
             db_node = session.query(DBNode).filter(DBNode.id == node_id).first()
             if db_node:
                 db_node.layer = node_data.get("layer", db_node.layer)
@@ -169,14 +207,45 @@ class ToDoWrite:
                 )
 
                 # Update links
-                session.query(DBLink).filter(DBLink.child_id == node_id).delete()
-                session.query(DBLink).filter(DBLink.parent_id == node_id).delete()
-                for parent_id in node_data["links"].get("parents", []):
+                existing_parent_links = {
+                    link.parent_id
+                    for link in session.query(DBLink)
+                    .filter(DBLink.child_id == node_id)
+                    .all()
+                }
+                existing_child_links = {
+                    link.child_id
+                    for link in session.query(DBLink)
+                    .filter(DBLink.parent_id == node_id)
+                    .all()
+                }
+
+                new_parent_ids = set(node_data["links"].get("parents", []))
+                new_child_ids = set(node_data["links"].get("children", []))
+
+                # Handle parent links
+                parents_to_add = new_parent_ids - existing_parent_links
+                parents_to_remove = existing_parent_links - new_parent_ids
+
+                for parent_id in parents_to_add:
                     link = DBLink(parent_id=parent_id, child_id=db_node.id)
                     session.add(link)
-                for child_id in node_data["links"].get("children", []):
+                for parent_id in parents_to_remove:
+                    session.query(DBLink).filter(
+                        DBLink.parent_id == parent_id, DBLink.child_id == node_id
+                    ).delete()
+
+                # Handle child links
+                children_to_add = new_child_ids - existing_child_links
+                children_to_remove = existing_child_links - new_child_ids
+
+                for child_id in children_to_add:
                     link = DBLink(parent_id=db_node.id, child_id=child_id)
                     session.add(link)
+                for child_id in children_to_remove:
+                    session.query(DBLink).filter(
+                        DBLink.parent_id == node_id, DBLink.child_id == child_id
+                    ).delete()
 
                 # Update labels
                 db_node.labels.clear()
@@ -224,23 +293,16 @@ class ToDoWrite:
                         DBArtifact.command_id == node_id
                     ).delete()
 
-                session.commit()
                 session.refresh(db_node)
                 return self._convert_db_node_to_node(db_node)
             return None
-        finally:
-            session.close()
 
     def delete_node(self, node_id: str) -> None:
         """Deletes a node from the database."""
-        session = self.Session()
-        try:
+        with self.get_session() as session:
             db_node = session.query(DBNode).filter(DBNode.id == node_id).first()
             if db_node:
                 session.delete(db_node)
-                session.commit()
-        finally:
-            session.close()
 
     def add_goal(
         self,
@@ -341,7 +403,7 @@ class ToDoWrite:
         self,
         parent_id: str,
         title: str,
-        description: str = "",
+        description: str,
         owner: str = "system",
         labels: list[str] | None = None,
     ) -> Node:
@@ -496,7 +558,7 @@ class ToDoWrite:
         """Adds a new Acceptance Criteria node."""
         node_data = {
             "id": f"AC-{uuid.uuid4().hex[:12]}",
-            "layer": "Acceptance Criteria",
+            "layer": "AcceptanceCriteria",
             "title": title,
             "description": description,
             "links": {"parents": [parent_id], "children": []},
@@ -520,7 +582,7 @@ class ToDoWrite:
         """Adds a new Interface Contract node."""
         node_data = {
             "id": f"IF-{uuid.uuid4().hex[:12]}",
-            "layer": "Interface Contract",
+            "layer": "InterfaceContract",
             "title": title,
             "description": description,
             "links": {"parents": [parent_id], "children": []},
@@ -599,8 +661,6 @@ class ToDoWrite:
                 )
                 session.add(artifact)
 
-        session.commit()
-        session.refresh(db_node)
         return db_node
 
     def _convert_db_node_to_node(self, db_node: DBNode) -> Node:
