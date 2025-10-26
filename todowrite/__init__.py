@@ -1,5 +1,5 @@
 """ToDoWrite: A standalone package for managing ToDos."""
 
-from . import manager
+from .app import ToDoWrite
 
-__all__ = ["manager"]
+__all__ = ["ToDoWrite"]

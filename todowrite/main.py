@@ -1,10 +1,10 @@
-"""Main CLI for ToDoWrite."""
+"""Main entry point for the ToDoWrite application."""
 
+from .cli import cli
 
 def main():
     """Main function for the ToDoWrite CLI."""
-    print("ToDoWrite CLI")
-
+    cli()
 
 if __name__ == "__main__":
     main()

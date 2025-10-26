@@ -7,16 +7,15 @@ Supports both SQLite (default) and PostgreSQL databases through environment vari
 import os
 
 # Database configuration with environment variable support
-DATABASE_URL = os.getenv("TODOWRITE_DATABASE_URL", "sqlite:///ToDoWrite/todos.db")
+DATABASE_URL = os.getenv("TODOWRITE_DATABASE_URL", "sqlite:///todowrite.db")
 """The URL for the database connection.
 
 Environment Variables:
     TODOWRITE_DATABASE_URL: Full database URL (overrides default SQLite)
 
 Examples:
-    SQLite (default): sqlite:///./todos.db
+    SQLite (default): sqlite:///todowrite.db
     PostgreSQL: postgresql://user:password@localhost:5432/todowrite_db
-    PostgreSQL (production): postgresql://user:password@db.example.com:5432/afs_agricultural_todos
 """
 
 
@@ -26,17 +25,17 @@ def get_postgresql_url(
     password: str,
     host: str = "localhost",
     port: int = 5432,
-    database: str = "todowrite_agricultural",
+    database: str = "todowrite",
 ) -> str:
     """
-    Generate PostgreSQL connection URL for agricultural robotics environments.
+    Generate PostgreSQL connection URL.
 
     Args:
         user: Database username
         password: Database password
         host: Database host (default: localhost)
         port: Database port (default: 5432)
-        database: Database name (default: todowrite_agricultural)
+        database: Database name (default: todowrite)
 
     Returns:
         PostgreSQL connection URL string
@@ -53,19 +52,3 @@ def is_sqlite() -> bool:
 def is_postgresql() -> bool:
     """Check if current configuration uses PostgreSQL."""
     return DATABASE_URL.startswith("postgresql:")
-
-
-# Agricultural robotics specific database settings
-AGRICULTURAL_DB_SETTINGS = {
-    "sqlite": {
-        "pool_pre_ping": True,
-        "echo": False,  # Set to True for SQL debugging
-    },
-    "postgresql": {
-        "pool_size": 10,
-        "max_overflow": 20,
-        "pool_pre_ping": True,
-        "pool_recycle": 3600,  # 1 hour for long-running agricultural operations
-        "echo": False,  # Set to True for SQL debugging
-    },
-}
