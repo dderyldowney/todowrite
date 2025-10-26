@@ -9,9 +9,9 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import Any, Literal, cast
 
-import jsonschema
+import jsonschema  # type: ignore
 from sqlalchemy import create_engine
-from sqlalchemy.orm import joinedload, sessionmaker
+from sqlalchemy.orm import Session, joinedload, sessionmaker
 
 from .db.config import DATABASE_URL
 from .db.models import Artifact as DBArtifact
@@ -137,9 +137,9 @@ class ToDoWrite:
     def init_database(self):
         """Creates the database and the tables."""
         if self.db_url.startswith("sqlite"):
-            db_path = self.db_url.split("///")[1]
+            db_path: str = self.db_url.split("///")[1]
             if db_path and db_path != ":memory:":
-                dirname = os.path.dirname(db_path)
+                dirname: str = os.path.dirname(db_path)
                 if dirname:
                     os.makedirs(dirname, exist_ok=True)
         Base.metadata.create_all(bind=self.engine)
@@ -613,9 +613,9 @@ class ToDoWrite:
                     break
         return active_items
 
-    def _create_db_node(self, session, node_data: dict[str, Any]) -> DBNode:
+    def _create_db_node(self, session: Session, node_data: dict[str, Any]) -> DBNode:
         # Data validation
-        required_fields = ["id", "layer", "title", "description"]
+        required_fields: list[str] = ["id", "layer", "title", "description"]
         for field_name in required_fields:
             if field_name not in node_data:
                 raise ValueError(f"Missing required field: {field_name}")
@@ -646,7 +646,7 @@ class ToDoWrite:
             db_node.labels.append(label)
 
         if "command" in node_data and node_data["command"]:
-            command_data = node_data["command"]
+            command_data: dict[str, Any] = node_data["command"]
             db_command = DBCommand(
                 node_id=db_node.id,
                 ac_ref=command_data["ac_ref"],
