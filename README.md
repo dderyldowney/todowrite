@@ -1,859 +1,633 @@
-# Automated Farming System API
-
-[![AFS Testing](https://github.com/dderyldowney/afs_fastapi/actions/workflows/afs-testing.yml/badge.svg)](https://github.com/dderyldowney/afs_fastapi/actions/workflows/afs-testing.yml) [![Security Review](https://github.com/dderyldowney/afs_fastapi/actions/workflows/security.yml/badge.svg)](https://github.com/dderyldowney/afs_fastapi/actions/workflows/security.yml)
-
-![Automated Farming System API logo](resources/static/images/afs_fastapi-logo.jpg)
-
-## Current Status & Recent Developments
-
-**Agricultural Robotics Platform (v0.1.6)**
-
-AFS FastAPI has evolved into a production-ready multi-tractor coordination system with comprehensive reliability, database persistence, and educational value.
-
-**Recent Major Enhancements:**
-- **TodoWrite v0.1.5 System**: Now a standalone Python package, providing a complete 12-layer declarative planning framework with PostgreSQL database support for task management and session persistence. Integrated as a development-time dependency.
-- **Database Integration**: Full PostgreSQL support with Alembic migrations, enabling production-grade data persistence and agricultural operation tracking
-- **CAN Message Handler**: Enhanced equipment communication interface for agricultural vehicle coordination and real-time data exchange
-- **Test-First Development**: Complete TDD methodology with mandatory Red-Green-Refactor enforcement
-- **Distributed Systems**: Vector Clock implementation for multi-tractor fleet coordination
-- **Enhanced Testing**: Test suite expanded to **846 tests** (100% passing in <3s)
-- **Universal AI Agent Infrastructure**: Automated session management and enforcement for all AI platforms
-- **Professional Documentation**: Comprehensive guides including new ToDoWrite-HOWTO.md user guide
-- **Zero Technical Debt**: No linting warnings across entire codebase
-
-**Strategic Capabilities:**
-- **Multi-tractor coordination**: Conflict-free field operations with real-time synchronization
-- **Database persistence**: PostgreSQL integration with comprehensive data management and migration support
-- **Advanced task management**: 12-layer TodoWrite system for hierarchical agricultural operation planning
-- **ISOBUS compliance**: Full ISO 11783 and ISO 18497 (Safety) implementation
-- **Network resilience**: Handles intermittent rural connectivity scenarios
-- **Educational framework**: Dual-purpose code serving functional and instructional objectives
-
----
-
-## Project Conceptual Goals
-
-### Vision: Agricultural Technology Education Through Real-World Implementation
-
-**Primary Mission**: Build a production-grade agricultural robotics platform that serves dual purposes:
-
-1. **Functional Excellence**: Enterprise-ready multi-tractor coordination system with bulletproof reliability
-2. **Educational Value**: Living codebase demonstrating professional agricultural technology development
-
-### Core Conceptual Objectives
-
-**1. Test-Driven Development as Foundation**
-- ALL code (human and AI-generated) MUST begin with failing tests
-- Tests DRIVE implementation rather than document it
-- Red-Green-Refactor methodology ensures bulletproof reliability for safety-critical systems
-
-**2. Industry Standards Compliance**
-- Complete ISO 11783 (ISOBUS) implementation for tractor-implement communication
-- ISO 18497 (Safety) compliance for agricultural machinery functional safety
-- Professional agricultural equipment interfaces across six major categories
-
-**3. Distributed Systems Excellence**
-- Multi-tractor fleet coordination with conflict-free operations
-- Vector Clock implementation for causal ordering of agricultural events
-- Network resilience handling rural connectivity challenges
-
-**4. Universal AI Agent Development**
-- Identical requirements for ALL AI platforms (Claude, GPT, Gemini, Copilot, CodeWhisperer)
-- Automated enforcement of TDD, commit separation, and documentation standards
-- Cross-session persistence ensuring continuity across development sessions
-
-**5. Educational Framework Integration**
-- Code explanations at architecture and implementation levels
-- Professional agricultural technology concepts embedded throughout
-- Dual-purpose design teaching while building real-world systems
-
-### Success Criteria
-
-**Technical Excellence**:
-- Zero test failures across comprehensive suite (802 tests)
-- Zero code quality warnings (Ruff, MyPy, Black, isort)
-- Sub-second test execution for rapid development feedback
-- Complete industry compliance validation
-
-**Educational Impact**:
-- Developers learn agricultural robotics through functional code
-- Test-First methodology demonstrated with real-world examples
-- Professional standards embedded in development workflow
-- Cross-platform AI agent capabilities consistently applied
-
-**Production Readiness**:
-- Enterprise-grade quality assurance framework
-- Automated enforcement preventing quality regression
-- Comprehensive documentation supporting deployment
-- Real agricultural equipment integration capability
-
----
-
-## Project Context
-
-### Agricultural Robotics Landscape
-
-**Industry Challenge**: Modern agriculture faces increasing demand for automation while maintaining safety, reliability, and regulatory compliance. Traditional agricultural machinery manufacturers provide equipment, but multi-tractor coordination systems remain specialized and proprietary.
-
-**AFS FastAPI Position**: Open platform demonstrating how distributed systems principles apply to agricultural robotics while maintaining educational value for technology professionals entering this specialized field.
-
-### Technical Domain Context
-
-**Distributed Agricultural Systems**:
-- **Multi-Tractor Coordination**: Multiple autonomous tractors working same field require precise synchronization
-- **Rural Connectivity**: Intermittent network availability demands robust offline operation and eventual consistency
-- **Safety-Critical Operations**: ISO 18497 compliance essential for equipment operating near humans
-- **Real-Time Constraints**: Sub-second coordination for collision avoidance and field operation efficiency
-
-**Industry Standards Integration**:
-- **ISO 11783 (ISOBUS)**: Seven-layer communication protocol for tractor-implement interaction
-- **ISO 18497**: Functional safety standard for agricultural machinery with Performance Level requirements
-- **Professional Interfaces**: Six categories including ISOBUS communication, safety systems, motor control, data management, power management, and vision/sensor systems
-
-### Development Methodology Context
-
-**Test-First Development Imperative**:
-- Agricultural robotics demands bulletproof reliability
-- Equipment failures can cause damage or safety incidents
-- ALL code—human or AI-generated—must meet identical rigorous standards
-- Test-Driven Development ensures comprehensive validation from first line of code
-
-**Universal AI Agent Requirements**:
-- Development assistants (Claude, GPT, Gemini, Copilot, CodeWhisperer) must follow identical standards
-- Cross-session persistence maintains context across multiple development sessions
-- Automated enforcement prevents quality regression regardless of contributor type
-- Structured investigation patterns ensure transparent reasoning from all agents
-
-**Cross-Session Continuity**:
-- Session management infrastructure ensures context restoration after interruptions
-- Mandatory requirements embedded permanently in project configuration
-- Automated session initialization for all Claude Code agents
-- Complete state capture with compaction protocol preventing knowledge fragmentation
-
-### Educational Context
-
-**Dual-Purpose Mission**:
-- **Functional**: Production-ready agricultural robotics platform
-- **Instructional**: Living example of professional agricultural technology development
-
-**Learning Objectives**:
-- Modern Python patterns (type hints, dataclasses, union types, Python 3.12+ features)
-- Distributed systems concepts (CRDTs, vector clocks, fleet coordination)
-- Agricultural technology standards (ISOBUS, safety compliance, professional interfaces)
-- Enterprise development practices (TDD, API design, code quality automation, CI/CD)
-
-**Target Audience**:
-- Software engineers entering agricultural technology field
-- Agricultural equipment professionals learning modern software practices
-- Distributed systems developers exploring domain-specific applications
-- AI-assisted development practitioners studying quality assurance
-
----
-
-## Project Strategy
-
-### Strategic Positioning
-
-**Industry Leadership Achievement**:
-- **Only platform** combining multi-tractor coordination with mandatory TDD enforcement
-- Complete standards compliance with ISO 11783 (ISOBUS) and ISO 18497 (Safety)
-- Educational framework integration for professional agricultural technology development
-- Universal AI development standards ensuring consistent quality from all contributors
-
-**Competitive Advantages**:
-- **Distributed Coordination**: Vector Clock implementation enables reliable multi-tractor operations
-- **Test-First Methodology**: Bulletproof reliability through comprehensive validation before implementation
-- **Cross-Session Persistence**: Requirements permanently embedded in development workflow
-- **Professional Standards**: Enterprise-grade quality assurance with automated enforcement
-
-### Development Strategy
-
-**Phase 1: Foundation (Completed - v0.1.5)**
-- Core equipment control with FarmTractor class (40+ attributes, comprehensive methods)
-- FastAPI endpoints with Pydantic models for robust API layer
-- Monitoring systems with pluggable backend architecture
-- Comprehensive test suite (846 tests) with 100% success rate
-
-**Phase 2: Distributed Systems (COMPLETED)**
-- Vector Clock implementation for multi-tractor synchronization (COMPLETED)
-- Test-Driven Development methodology enforcement (COMPLETED)
-- Git commit separation and CHANGELOG automation (COMPLETED)
-- Universal AI agent infrastructure (COMPLETED)
-- CAN Network Traffic Management (COMPLETED)
-- TodoWrite v0.1.5 with 12-layer declarative planning framework (COMPLETED)
-- PostgreSQL database integration with Alembic migrations (COMPLETED)
-
-**Phase 3: Advanced Coordination (Current)**
-- **Current Priority**: CRDT implementation for field allocation conflict resolution
-- **Next Priority**: Enhanced ISOBUS messaging with guaranteed delivery
-- Multi-field operation optimization algorithms
-- Advanced collision avoidance with sensor fusion
-- Production deployment framework
-
-**Phase 4: Hardware Integration (Future)**
-- Real agricultural equipment interface validation
-- Field testing with actual multi-tractor fleets
-- Performance optimization for embedded tractor computers
-- Enterprise scaling for large agricultural operations
-
-### Quality Assurance Strategy
-
-**Automated Enforcement Framework**:
-- **Pre-commit Hooks**: Seven validation gates (Ruff, Black, isort, MyPy, TDD, Safety, CHANGELOG, Commit Separation)
-- **Test-First Validation**: Prevents implementation code without prior failing tests
-- **Commit Separation**: Ensures single-concern commits with agricultural context
-- **CHANGELOG Enforcement**: Automatic documentation validation for audit trails
-
-**Cross-Platform Consistency**:
-- ALL AI agents follow identical TDD requirements (RED-GREEN-REFACTOR)
-- Universal investigation pattern provides transparent reasoning
-- Standardized test reporting format across all platforms
-- Cross-agent infrastructure sharing prevents configuration drift
-
-**Continuous Quality Standards**:
-- Zero test failures maintained across all 846 tests
-- Zero code quality warnings from all validation tools
-- Sub-3-second test execution for rapid feedback
-- Complete agricultural compliance validation
-
-### Documentation Strategy
-
-**Comprehensive Framework**:
-- **Strategic Documents**: TDD_FRAMEWORK_MANDATORY.md, GIT_COMMIT_SEPARATION_MANDATORY.md, INVESTIGATION_PATTERN_MANDATORY.md, TEST_REPORTING_MANDATORY.md
-- **Development Integration**: CLAUDE.md (AI assistant configuration), AGENTS.md (professional agent documentation), SESSION_SUMMARY.md (cross-session context)
-- **[../WORKFLOW.md](../WORKFLOW.md)** - Authoritative testing reference (802 tests)
-- **ISO 11783 Specifications**: Authoritative technical references (iso11783-11-online_data_base.pdf, isoExport_csv.zip, OSI model diagrams)
-
-**Cross-Session Continuity**:
-- `loadsession` command provides immediate context restoration
-- `savesession` command captures complete state with compaction protocol
-- `runtests` command executes comprehensive validation with standardized reporting
-- `updatechangelog` command generates audit-compliant version history
-
-**Professional Standards**:
-- Clear, factual language without marketing superlatives
-- Technical accuracy over promotional rhetoric
-- Measured descriptions appropriate for engineering teams
-- Educational content with professional terminology
-
-### Deployment Strategy
-
-**Development Environment**:
-- Python 3.12+ with comprehensive type annotations
-- FastAPI framework with Pydantic validation
-- Modern development tools (Ruff, MyPy, Black, isort)
-- Universal AI agent support across all platforms
-
-**Testing Environment**:
-- 802 comprehensive tests across 3-layer architecture
-- Feature tests (end-to-end workflows), Unit tests (component validation), Root-level tests (edge cases)
-- Agricultural domain coverage (Equipment, Monitoring, API, Infrastructure)
-- Performance metrics and quality assurance validation
-
-**Production Environment** (Planned):
-- Real agricultural equipment interfaces
-- Embedded tractor computer optimization
-- Multi-tractor fleet coordination at scale
-- Enterprise deployment with ISO compliance validation
-
----
-
-## Architecture Overview
-
-**Enterprise-Grade Agricultural Robotics Platform**
-
-AFS FastAPI implements a sophisticated **3-layer architecture** supporting both individual equipment control and distributed fleet coordination:
-
-### Core Architecture Layers
-
-**1. Equipment Layer**: Individual tractor control with full ISOBUS compliance
-- FarmTractor class with 40+ attributes for comprehensive equipment interface
-- ISOBUS integration implementing ISO 11783 device communication
-- Safety systems providing ISO 18497 compliance (PLc/PLd/PLe levels)
-- Vision systems with LiDAR integration and obstacle detection
-
-**2. Coordination Layer**: Multi-tractor synchronization with conflict-free operations
-- Vector Clock implementation for causal ordering across distributed tractors
-- Network resilience handling intermittent rural connectivity
-- ISOBUS-compatible serialization for ISO 11783 messages
-- Sub-millisecond performance validated for embedded equipment
-
-**3. API Layer**: RESTful interfaces for external systems and human operators
-- FastAPI endpoints with Pydantic models for robust validation
-- Comprehensive equipment status exposure via FarmTractorResponse
-- Monitoring system integration (soil, water, environmental sensors)
-- Professional agricultural standards compliance
-
-### Multi-Tractor Fleet Coordination
-
-**Vector Clock Synchronization**:
-- Ensures proper event ordering across multiple tractors
-- Enables conflict-free operations in shared field spaces
-- Handles network partitions with eventual consistency
-- Real-time coordination with sub-millisecond performance
-
-**Distributed Systems Components**:
-```python
-from afs_fastapi.services.synchronization import VectorClock
-
-# Create vector clock for 3-tractor fleet
-tractors = ["tractor_001", "tractor_002", "tractor_003"]
-clock = VectorClock(tractors)
-
-# Tractor performs local operation (planting section)
-clock.increment("tractor_001")
-
-# Receive coordination message from another tractor
-other_clock = VectorClock(tractors)
-other_clock.increment("tractor_002")
-clock.update_with_received_message("tractor_001", other_clock)
-
-# Check event ordering for coordination
-if clock.happens_before(other_clock):
-    print("Safe to proceed with dependent operation")
-elif clock.is_concurrent_with(other_clock):
-    print("Independent operations - no coordination needed")
+# ToDoWrite: Hierarchical Task Management System
+
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![Version 0.1.5](https://img.shields.io/badge/version-0.1.5-green.svg)](https://github.com/dderyldowney/todowrite)
+[![SQLAlchemy 2.0](https://img.shields.io/badge/SQLAlchemy-2.0-orange.svg)](https://www.sqlalchemy.org/)
+
+**ToDoWrite** is a sophisticated hierarchical task management system designed for complex project planning and execution. Built with a 10-layer declarative framework, it provides both standalone CLI capabilities and Python module integration for developers and project managers who need structured, traceable task management.
+
+## 🎯 Overview
+
+ToDoWrite transforms complex project planning into a structured, hierarchical framework that ensures nothing falls through the cracks. Whether you're managing agricultural robotics operations, software development projects, or any complex multi-stage initiative, ToDoWrite provides the structure and tools to break down goals into actionable commands.
+
+### Key Features
+
+- **10-Layer Hierarchical Framework**: From high-level goals to executable commands
+- **Dual Interface**: Standalone CLI application and Python module
+- **Database Flexibility**: SQLite for development, PostgreSQL for production
+- **Type Safety**: Comprehensive type hints with Python 3.12+ syntax
+- **Agricultural Optimization**: Purpose-built for agricultural robotics but universally applicable
+- **Status Tracking**: Full lifecycle management with status transitions
+- **Relationship Management**: Parent-child relationships with link validation
+
+## 🏗️ Hierarchical Planning Framework
+
+ToDoWrite organizes work into 10 distinct layers, each serving a specific purpose in the planning hierarchy:
+
+### Planning Layers (Strategic)
+1. **Goal** — High-level objectives and strategic outcomes
+2. **Concept** — Core ideas and approaches
+3. **Context** — Environmental factors and constraints
+4. **Constraints** — Limitations and boundaries
+5. **Requirements** — Specific needs and specifications
+6. **Acceptance Criteria** — Success definitions and validation criteria
+7. **Interface Contract** — APIs, schemas, and system interfaces
+
+### Execution Layers (Tactical)
+8. **Phase** — Major project phases and milestones
+9. **Step** — Concrete implementation steps
+10. **Task** — Specific work items
+11. **SubTask** — Granular task breakdown
+12. **Command** — Executable operations and scripts
+
+### Status Types
+Each layer supports comprehensive status tracking:
+- `planned` — Initial state, ready for work
+- `in_progress` — Currently being worked on
+- `blocked` — Waiting for dependencies
+- `done` — Successfully completed
+- `rejected` — Decided not to proceed
+
+## 📦 Installation
+
+### As a Standalone Application
+```bash
+pip install todowrite
 ```
 
----
+### For Development
+```bash
+git clone https://github.com/dderyldowney/todowrite.git
+cd todowrite
+pip install -e .
+```
 
-## Test-First Development & Quality Assurance
+## 🚀 Usage
 
-### Mandatory Test-Driven Development
+### Standalone CLI Application
 
-**ABSOLUTE REQUIREMENT**: ALL code (human and AI-generated) MUST begin with failing tests.
+Execute ToDoWrite directly from the command line:
 
-**Red-Green-Refactor Protocol**:
-1. **RED Phase**: Write failing test describing agricultural robotics behavior
-2. **GREEN Phase**: Implement minimal code meeting test requirements
-3. **REFACTOR Phase**: Enhance code quality while maintaining test coverage
+```bash
+# Run the main CLI
+todowrite
 
-**Test Suite Status: 846 Tests** (100% passing in ~3 seconds)
+# Run as a Python module
+python -m todowrite
+```
 
-**Test Distribution by Domain**:
-- **Unit Tests (693 tests)**: Extensive coverage of individual components, including equipment interfaces, monitoring systems, communication protocols, and safety features.
-- **Integration Tests (35 tests)**: Verification of interactions between different system components, such as CAN bus integration, fleet coordination, and AI processing platform integration.
-- **Feature Tests (28 tests)**: End-to-end validation of key agricultural workflows and API endpoints.
-- **Core Tests (23 tests)**: Testing of the foundational elements of the application, such as the TodosManager.
-- **Root-level Edge Cases (23 tests)**: Ensuring system resilience and proper error handling in various edge cases.
+### Python Module Integration
 
-### Quality Assurance Framework
-
-**Automated Pre-commit Validation**:
-- **Code Quality**: Ruff (lint), Black (format), isort (imports), MyPy (types)
-- **TDD Enforcement**: Validates Test-First Development compliance
-- **Safety Standards**: Ensures ISO 18497 agricultural safety compliance
-- **CHANGELOG Documentation**: Automatic validation for audit trail completeness
-- **Commit Separation**: Single-concern validation with agricultural context
-
-**Performance Metrics**:
-- **Execution Time**: Sub-3-second runtime for complete test suite
-- **Success Rate**: 100% pass rate maintained continuously
-- **Coverage**: Comprehensive validation across all agricultural domains
-- **Quality Standards**: Zero warnings across all validation tools
-
-**Documentation References**:
-- **TDD_FRAMEWORK_MANDATORY.md**: Complete mandatory TDD policy with enforcement details
-- **TDD_WORKFLOW.md**: Complete Test-First development guide with examples
-- **WORKFLOW.md**: Authoritative testing reference with architectural patterns
-- **GIT_COMMIT_SEPARATION_MANDATORY.md**: Separation of concerns policy with validation
-
----
-
-## FarmTractor Class: Core Equipment Interface
-
-### Class Overview
-
-The `FarmTractor` class provides comprehensive agricultural equipment control implementing professional agricultural robotics standards while maintaining complete backwards compatibility.
-
-**Professional Standards Integration**:
-- **ISOBUS Communication**: Full ISO 11783 device communication implementation
-- **Safety Systems**: ISO 18497 compliance with Performance Level (PLc/PLd/PLe) support
-- **Vision & Sensor Systems**: LiDAR integration and obstacle detection capabilities
-- **Motor Control Interfaces**: Precision control for agricultural operations
-- **Data Management Systems**: Comprehensive telemetry and diagnostics
-- **Power Management**: Regenerative systems and efficiency optimization
-
-### Core Attributes (40+ total)
-
-**Core Identification**:
-- `make` (str): The manufacturer of the tractor
-- `model` (str): The model of the tractor
-- `year` (int): The year of manufacture
-- `manual_url` (str | None): URL to the operational manual
-
-**Engine and Basic Controls**:
-- `engine_on` (bool): Whether the engine is currently running
-- `speed` (int): Current speed in mph
-- `gear` (int): Current gear (0-10)
-- `power_takeoff` (bool): Whether the PTO is engaged
-- `hydraulics` (bool): Whether hydraulics are activated
-
-**GPS and Navigation**:
-- `gps_latitude` (float | None): Current GPS latitude coordinate
-- `gps_longitude` (float | None): Current GPS longitude coordinate
-- `auto_steer_enabled` (bool): Whether auto-steer is active
-- `waypoints` (List[Tuple[float, float]]): Navigation waypoints
-- `current_heading` (float): Current heading in degrees
-
-**Implement Controls**:
-- `implement_position` (ImplementPosition): Current implement position (raised/lowered/transport)
-- `implement_depth` (float): Working depth in inches
-- `implement_width` (float): Working width in feet
-
-**Field Operations**:
-- `field_mode` (FieldMode): Current field operation mode
-- `work_rate` (float): Work rate in acres/hour
-- `area_covered` (float): Total area covered in acres
-
-**Engine and Fuel**:
-- `fuel_level` (float): Fuel level percentage
-- `engine_rpm` (int): Engine RPM
-- `engine_temp` (float): Engine temperature in Fahrenheit
-
-**Hydraulics**:
-- `hydraulic_pressure` (float): Hydraulic pressure in PSI
-- `hydraulic_flow` (float): Hydraulic flow in GPM
-
-**Sensors**:
-- `wheel_slip` (float): Wheel slip percentage
-- `ground_speed` (float): Ground speed in mph
-- `draft_load` (float): Draft load in pounds
-
-**Autonomous Features**:
-- `autonomous_mode` (bool): Whether autonomous mode is enabled
-- `obstacle_detection` (bool): Whether obstacle detection is active
-- `emergency_stop_active` (bool): Whether emergency stop is active
-
-### Comprehensive Methods
-
-**Engine Controls**:
-- `start_engine()` -> str: Starts the engine
-- `stop_engine()` -> str: Stops the engine and resets all systems
-
-**Basic Operation**:
-- `change_gear(gear: int | str)` -> str: Changes the gear (0-10)
-- `accelerate(increase: int)` -> str: Increases speed by the specified amount
-- `brake(decrease: int)` -> str: Decreases speed by the specified amount
-
-**Power Systems**:
-- `engage_power_takeoff()` -> str: Engages the power takeoff
-- `disengage_power_takeoff()` -> str: Disengages the power takeoff
-- `activate_hydraulics()` -> str: Activates hydraulic systems
-- `deactivate_hydraulics()` -> str: Deactivates hydraulic systems
-
-**GPS and Navigation**:
-- `set_gps_position(latitude: float, longitude: float)` -> str: Sets GPS coordinates
-- `enable_auto_steer()` -> str: Enables GPS auto-steer system
-- `disable_auto_steer()` -> str: Disables GPS auto-steer system
-- `add_waypoint(latitude: float, longitude: float)` -> str: Adds navigation waypoint
-- `clear_waypoints()` -> str: Clears all waypoints
-- `set_heading(heading: float)` -> str: Sets current heading (0-359 degrees)
-
-**Implement Controls**:
-- `raise_implement()` -> str: Raises the attached implement
-- `lower_implement(depth: float = 6.0)` -> str: Lowers implement to working depth
-- `set_transport_position()` -> str: Sets implement to transport position
-- `set_implement_width(width: float)` -> str: Sets working width (0-80 feet)
-
-**Field Operations**:
-- `set_field_mode(mode: FieldMode)` -> str: Sets field operation mode
-- `start_field_work()` -> str: Begins field work operations
-- `update_work_progress(distance: float)` -> str: Updates work progress tracking
-
-**Autonomous Operations**:
-- `enable_autonomous_mode()` -> str: Enables autonomous operation mode
-- `disable_autonomous_mode()` -> str: Disables autonomous operation mode
-- `emergency_stop()` -> str: Triggers emergency stop - halts all operations
-- `reset_emergency_stop()` -> str: Resets emergency stop condition
-
-**Diagnostic Methods**:
-- `get_engine_diagnostics()` -> Dict[str, float]: Returns engine diagnostic data
-- `get_hydraulic_status()` -> Dict[str, float]: Returns hydraulic system status
-- `get_ground_conditions()` -> Dict[str, float]: Returns ground and traction data
-
-**Utility Methods**:
-- `__str__()` -> str: Returns comprehensive string representation
-- `to_response(tractor_id: str | None = None)` -> FarmTractorResponse: Converts to API response model
-
-### FarmTractorResponse: API Model
-
-**Pydantic model for API responses** containing all FarmTractor attributes plus:
-
-**Enhanced API Fields**:
-- `tractor_id` (str | None): Optional tractor identifier
-- `waypoint_count` (int): Number of navigation waypoints
-- `isobus_address` (int): ISOBUS device address (ISO 11783 compliance)
-- `device_name` (str): ISOBUS device name
-- `safety_system_active` (bool): Safety system activation status
-- `safety_level` (Literal["PLc", "PLd", "PLe"]): ISO 18497 Performance Level
-- `lidar_enabled` (bool): LiDAR sensor status
-- `obstacle_count` (int): Number of detected obstacles
-- `regenerative_mode` (bool): Regenerative power mode status
-- `status` (str): Complete tractor status string
-
-### Example Usage
+Import and use ToDoWrite in your Python applications:
 
 ```python
-from afs_fastapi.equipment.farm_tractors import FarmTractor, FieldMode
+import todowrite
+from todowrite import manager
 
-# Create tractor instance
-tractor = FarmTractor(
-    make="John Deere",
-    model="9RX",
-    year=2023,
-    manual_url="https://www.deere.com/en/parts-and-service/manuals-and-training"
+# Initialize the database
+result = manager.init_database()
+print(f"Database initialized: {result['status']}")
+
+# Create a new goal
+goal, error = manager.add_goal(
+    title="Automate Field Operations",
+    description="Implement autonomous tractor coordination for precision agriculture"
+)
+if goal:
+    print(f"Created goal: {goal['title']} (ID: {goal['id']})")
+
+# Add a phase to the goal
+phase, error = manager.add_phase(
+    goal_id=goal['id'],
+    title="System Integration Phase",
+    description="Integrate all subsystems and test coordination protocols"
 )
 
-# Start engine and configure GPS
-tractor.start_engine()
-tractor.set_gps_position(40.123456, -85.654321)
-tractor.enable_auto_steer()
-tractor.add_waypoint(40.125000, -85.650000)
+# Add a step to the phase
+step, error = manager.add_step(
+    phase_id=phase['id'],
+    name="Database Setup",
+    description="Configure production database with proper schemas"
+)
 
-# Configure for field work
-tractor.change_gear(3)
-tractor.accelerate(12)  # 12 mph working speed
-tractor.activate_hydraulics()
-tractor.set_implement_width(32.0)  # 32-foot implement
-tractor.lower_implement(8.0)  # 8 inches deep
-tractor.set_field_mode(FieldMode.TILLAGE)
+# Create a task
+task, error = manager.add_task(
+    step_id=step['id'],
+    title="Deploy PostgreSQL",
+    description="Set up PostgreSQL database with agricultural schemas"
+)
 
-# Start autonomous field work
-tractor.enable_autonomous_mode()
-tractor.start_field_work()
-print(f"Work rate: {tractor.work_rate:.1f} acres/hour")
-
-# Get diagnostics
-engine_diagnostics = tractor.get_engine_diagnostics()
-hydraulic_status = tractor.get_hydraulic_status()
-ground_conditions = tractor.get_ground_conditions()
-
-print(f"Engine RPM: {engine_diagnostics['rpm']}")
-print(f"Hydraulic pressure: {hydraulic_status['pressure']:.0f} PSI")
-print(f"Ground speed: {ground_conditions['ground_speed']:.1f} mph")
-
-# Convert to API response
-response = tractor.to_response("tractor-001")
-print(f"Safety level: {response.safety_level}")
-print(f"ISOBUS device: {response.device_name}")
-
-# Emergency stop if needed
-# tractor.emergency_stop()
-
-# End operations
-tractor.raise_implement()
-tractor.set_transport_position()
-tractor.disable_autonomous_mode()
-tractor.stop_engine()
+# Add executable subtask with command
+subtask, error = manager.add_subtask(
+    task_id=task['id'],
+    title="Install PostgreSQL",
+    description="Install and configure PostgreSQL server",
+    command="sudo apt-get install postgresql postgresql-contrib",
+    command_type="bash"
+)
 ```
 
----
-
-## Monitoring Systems
-
-### Pluggable Backend Architecture
-
-Monitoring classes accept pluggable backends enabling seamless transition between development simulation and production hardware integration.
-
-**Soil Monitoring Example**:
+### Working with the Hierarchy
 
 ```python
-from afs_fastapi.monitoring.interfaces import SoilSensorBackend
-from afs_fastapi.monitoring.soil_monitor import SoilMonitor
+# Load all todos and inspect the hierarchy
+todos = manager.load_todos()
+for layer, nodes in todos.items():
+    print(f"\n{layer} ({len(nodes)} items):")
+    for node in nodes:
+        print(f"  - {node.title} [{node.status}]")
 
-class MySoilBackend(SoilSensorBackend):
-    def read(self, sensor_id: str):
-        return {
-            "ph": 6.7,
-            "moisture": 0.33,
-            "nitrogen": 1.2,
-            "phosphorus": 0.5,
-            "potassium": 0.7
-        }
+# Get active items across all layers
+active_items = manager.get_active_items(todos)
+for layer, node in active_items.items():
+    print(f"Active {layer}: {node.title}")
 
-monitor = SoilMonitor("SOIL001", backend=MySoilBackend())
-print(monitor.get_soil_composition())
+# Update node status
+updated_node, error = manager.update_node(
+    goal['id'],
+    {"status": "in_progress"}
+)
+
+# Complete a phase
+completed_phase, error = manager.complete_phase(phase['id'])
+if completed_phase:
+    print(f"Phase completed: {completed_phase.title}")
 ```
 
-**Water Monitoring Example**:
+### Database Management
 
 ```python
-from afs_fastapi.monitoring.interfaces import WaterSensorBackend
-from afs_fastapi.monitoring.water_monitor import WaterMonitor
+# Get database information
+db_info = manager.get_database_info()
+print(f"Database type: {db_info['database_type']}")
+print(f"Connection status: {db_info['connection_status']}")
+print(f"Production ready: {db_info['supports_concurrent_access']}")
 
-class MyWaterBackend(WaterSensorBackend):
-    def read(self, sensor_id: str):
-        return {
-            "ph": 7.2,
-            "turbidity": 1.1,
-            "temperature": 18.0,
-            "conductivity": 0.23,
-            "dissolved_oxygen": 8.0
-        }
+# Reset database for testing
+manager.reset_database_engine()
 
-monitor = WaterMonitor("WTR001", backend=MyWaterBackend())
-print(monitor.get_water_quality())
+# Reinitialize with clean state
+init_result = manager.init_database()
 ```
 
+### Advanced Usage Examples
 
+#### Creating a Complete Project Structure
 
----
+```python
+# Create comprehensive project hierarchy
+def create_project_structure() -> str:
+    """Create a complete project structure and return the root goal ID."""
 
-## Database Configuration & TodoWrite System
+    # 1. Strategic Planning
+    goal, _ = manager.add_goal(
+        "Smart Irrigation System",
+        "Develop autonomous irrigation control for precision agriculture"
+    )
 
-### PostgreSQL Integration
+    concept, _ = manager.add_concept(
+        "Sensor-Driven Automation",
+        "Use soil moisture sensors to trigger irrigation events",
+        goal_id=goal['id']
+    )
 
-AFS FastAPI now includes comprehensive PostgreSQL support for production-grade data persistence and agricultural operation tracking.
+    context, _ = manager.add_context(
+        "Field Environment",
+        "Variable soil conditions across 100-acre farm with center pivot system",
+        concept_id=concept['id']
+    )
 
-**Database Features:**
-- **PostgreSQL Support**: Full production database integration with configurable connection parameters
-- **Alembic Migrations**: Complete schema management with version control and automated migrations
-- **TodoWrite Integration**: Persistent task management with 12-layer hierarchical structure storage
-- **Agricultural Context**: Domain-specific data models optimized for farming operations
-- **Local Development**: Standalone database operation for development and testing environments
+    constraint, _ = manager.add_constraint(
+        "Water Usage Limits",
+        "Municipal water restrictions: max 50,000 gallons per week",
+        context_id=context['id']
+    )
 
-### TodoWrite System (Standalone Package)
+    requirement, _ = manager.add_requirement(
+        "Real-time Monitoring",
+        "System must respond to sensor data within 5 minutes",
+        constraint_id=constraint['id']
+    )
 
-**12-Layer Hierarchical Framework (Provided by `todowrite` package):**
+    # 2. Implementation Planning
+    phase, _ = manager.add_phase(
+        goal_id=goal['id'],
+        title="Sensor Network Deployment",
+        description="Install and configure soil moisture sensors"
+    )
+
+    step, _ = manager.add_step(
+        phase_id=phase['id'],
+        name="Hardware Installation",
+        description="Physical deployment of sensors in field"
+    )
+
+    task, _ = manager.add_task(
+        step_id=step['id'],
+        title="Sensor Calibration",
+        description="Configure sensors for local soil conditions"
+    )
+
+    # 3. Executable Commands
+    subtask, _ = manager.add_subtask(
+        task_id=task['id'],
+        title="Run Calibration Script",
+        description="Execute automated sensor calibration",
+        command="python scripts/calibrate_sensors.py --field=north --sensors=all",
+        command_type="python"
+    )
+
+    return goal['id']
+
+# Execute project creation
+project_id = create_project_structure()
+print(f"Created complete project structure with root goal: {project_id}")
 ```
-VISION → MISSION → STRATEGY → INITIATIVE → PROGRAM → PROJECT →
-PHASE → MILESTONE → TASK → SUBTASK → ACTION → COMMAND
+
+#### Status Management and Reporting
+
+```python
+# Track project progress with type safety
+def generate_status_report() -> None:
+    """Generate a comprehensive status report for all goals."""
+    goals = manager.get_goals()
+
+    for goal in goals:
+        print(f"\n📊 Goal: {goal['title']}")
+        print(f"   Status: {goal['status']}")
+        print(f"   Owner: {goal['owner']}")
+        print(f"   Priority: {goal['priority']}")
+
+        # Get all phases for this goal
+        phases = manager.get_phases()
+        goal_phases = [p for p in phases if goal['id'] in p.links.parents]
+
+        for phase in goal_phases:
+            print(f"   📋 Phase: {phase.title} [{phase.status}]")
+
+# Mark items as complete with proper error handling
+def complete_workflow() -> None:
+    """Complete workflow items in proper hierarchical order."""
+    todos = manager.load_todos()
+
+    # Complete all commands first
+    for command in todos.get('Command', []):
+        if command.status == 'in_progress':
+            result, error = manager.complete_command(command.id)
+            if result:
+                print(f"✅ Completed command: {command.title}")
+            elif error:
+                print(f"❌ Failed to complete command {command.title}: {error}")
+
+    # Then complete higher-level items
+    completion_layers = ['SubTask', 'Task', 'Step', 'Phase', 'Goal']
+
+    for layer in completion_layers:
+        for item in todos.get(layer, []):
+            if item.status == 'in_progress':
+                match layer:
+                    case 'Goal':
+                        result, error = manager.complete_goal(item.id)
+                    case 'Phase':
+                        result, error = manager.complete_phase(item.id)
+                    case _:
+                        # Add other completion functions as needed
+                        continue
+
+                if result:
+                    print(f"✅ Completed {layer}: {item.title}")
+                elif error:
+                    print(f"❌ Failed to complete {layer} {item.title}: {error}")
 ```
 
-**Key Features (from `todowrite` package):**
-- **Declarative Planning**: Structured agricultural operation planning with clear execution boundaries
-- **Database Persistence**: PostgreSQL storage for cross-session task continuity
-- **Safety-Critical Compliance**: Enhanced validation for agricultural equipment coordination
-- **Agricultural Context**: Domain-specific task management for farming operations
+#### Type-Safe Data Processing
 
-**Database Setup:**
+```python
+from typing import TypedDict
+
+class ProjectMetrics(TypedDict):
+    total_items: int
+    completed_items: int
+    in_progress_items: int
+    completion_percentage: float
+
+def calculate_project_metrics() -> ProjectMetrics:
+    """Calculate project completion metrics with type safety."""
+    todos = manager.load_todos()
+
+    total_items = sum(len(nodes) for nodes in todos.values())
+    completed_items = sum(
+        len([node for node in nodes if node.status == 'done'])
+        for nodes in todos.values()
+    )
+    in_progress_items = sum(
+        len([node for node in nodes if node.status == 'in_progress'])
+        for nodes in todos.values()
+    )
+
+    completion_percentage = (completed_items / total_items * 100) if total_items > 0 else 0.0
+
+    return ProjectMetrics(
+        total_items=total_items,
+        completed_items=completed_items,
+        in_progress_items=in_progress_items,
+        completion_percentage=completion_percentage
+    )
+
+# Usage with pattern matching
+metrics = calculate_project_metrics()
+match metrics:
+    case {"completion_percentage": percentage} if percentage >= 90:
+        print(f"🎉 Project nearly complete: {percentage:.1f}%")
+    case {"completion_percentage": percentage} if percentage >= 50:
+        print(f"🚀 Project progressing well: {percentage:.1f}%")
+    case {"completion_percentage": percentage}:
+        print(f"📝 Project in early stages: {percentage:.1f}%")
+```
+
+## 🗄️ Database Configuration
+
+### SQLite (Default)
+Perfect for development and single-user scenarios:
+
+```python
+# Uses default SQLite database
+# No configuration needed - works out of the box
+import todowrite.manager as manager
+```
+
+### PostgreSQL (Production)
+For production environments and multi-user access:
+
 ```bash
-# Configure database connection (optional - uses local SQLite by default)
-export DATABASE_URL="postgresql://user:password@localhost/afs_fastapi"
-
-# Run database migrations
-alembic upgrade head
-
-# Verify TodoWrite system
-./bin/todo-status
+# Set environment variable
+export TODOWRITE_DATABASE_URL="postgresql://user:password@localhost:5432/todowrite_db"
 ```
 
-**Usage Documentation:**
-- See `ToDoWrite-HOWTO.md` for comprehensive user guide (600+ lines)
-- See `ToDoWrite.md` for complete specification and integration requirements
+```python
+# Or configure programmatically
+import os
+from todowrite.db.config import get_postgresql_url
 
----
+# Generate PostgreSQL URL with type safety
+db_url = get_postgresql_url(
+    user="agricultural_user",
+    password="secure_password",
+    host="db.farm.example.com",
+    database="farm_operations"
+)
 
-## Build Process
+# Set environment variable
+os.environ["TODOWRITE_DATABASE_URL"] = db_url
 
-### Installation Steps
+# Now imports will use PostgreSQL
+import todowrite.manager as manager
+```
 
-1. Clone the repository: `git clone https://github.com/dderyldowney/afs_fastapi.git`
-2. Change to the project directory: `cd afs_fastapi`
-3. Create a virtual environment: `python -m venv .venv`
-4. Activate the virtual environment: `source .venv/bin/activate`
-5. Install the project dependencies: `pip install -r requirements.txt`
-6. Install the `todowrite` package in editable mode: `pip install -e ./todowrite`
-6. **Initialize database** (optional - defaults to local SQLite):
-   ```bash
-   # For PostgreSQL (production)
-   export DATABASE_URL="postgresql://user:password@localhost/afs_fastapi"
-   alembic upgrade head
+### Database Settings
+ToDoWrite includes optimized settings for both database types:
 
-   # For local development (default)
-   # Database automatically created on first use
-   ```
-7. **Verify installation with test suite**: `python -m pytest tests/ -v`
-   - **Expected result**: 846 tests passing in ~3 seconds
-   - Includes distributed systems, TDD implementation, agricultural robotics validation, and TodoWrite system
-8. **Verify TodoWrite system**: `./bin/todo-status`
-9. Install build tools: `pip install build`
-10. Build the project: `python -m build`
-11. Install the generated wheel file: `pip install dist/afs_fastapi-0.1.5-py3-none-any.whl`
-12. Import afs_fastapi into your project: `import afs_fastapi`
+```python
+from todowrite.db.config import AGRICULTURAL_DB_SETTINGS
 
-### Development and Testing
+# SQLite settings
+sqlite_config = AGRICULTURAL_DB_SETTINGS["sqlite"]
+# {"pool_pre_ping": True, "echo": False}
 
-- **TDD workflow**: See [TDD_WORKFLOW.md](TDD_WORKFLOW.md) for Test-First development guide
-- **Testing reference**: See [WORKFLOW.md](WORKFLOW.md) for complete testing architecture documentation
-- **TodoWrite system**: Now a standalone package. See [todowrite/README.md](todowrite/README.md) for comprehensive user guide.
-- **Task management**: See [todowrite/ToDoWrite.md](todowrite/ToDoWrite.md) for complete specification and integration requirements.
-- **Quality standards**: Zero linting warnings maintained (run `ruff check .` to verify)
+# PostgreSQL settings
+postgres_config = AGRICULTURAL_DB_SETTINGS["postgresql"]
+# {"pool_size": 10, "max_overflow": 20, "pool_pre_ping": True,
+#  "pool_recycle": 3600, "echo": False}
+```
 
-Note on extras: The project uses `fastapi[all]` and `starlette[full]` in development to enable optional features commonly exercised in tests and local runs (e.g., test client utilities, templating, multipart/form-data handling, and uvicorn's standard extras). This keeps "pip install -r requirements.txt" sufficient for running tests and docs locally.
+## 🏛️ Architecture
 
----
+### Core Components
 
-## Run the API locally
+- **Manager Layer**: High-level API for task management operations
+- **Repository Pattern**: Data access abstraction with SQLAlchemy
+- **Database Models**: Type-safe SQLAlchemy 2.0 models with relationships
+- **Configuration System**: Environment-based database configuration
+- **CLI Interface**: Simple command-line access to core functionality
 
-- Quick start (defaults to 127.0.0.1:8000):
-  - `python -m afs_fastapi`
-  - or `afs-api` (installed console script)
-- Environment overrides:
-  - `AFS_API_HOST` (default: 127.0.0.1)
-  - `AFS_API_PORT` (default: 8000)
-  - `AFS_API_RELOAD` (true/false, default: false)
-  - `AFS_API_LOG_LEVEL` (debug/info/warning/error, default: info)
+### Data Model
 
----
+```python
+from dataclasses import dataclass, field
+from typing import Literal
 
-## Resource References
+LayerType = Literal[
+    "Goal", "Concept", "Context", "Constraints", "Requirements",
+    "Acceptance Criteria", "Interface Contract", "Phase",
+    "Step", "Task", "SubTask", "Command"
+]
 
-### Operational Manuals for Farm Equipment
+StatusType = Literal["planned", "in_progress", "blocked", "done", "rejected"]
 
-**Objective**: Identify and utilize online resources providing operational manuals for farm equipment. These manuals guide adaptation of robotics to operate agricultural machines for automation purposes.
+@dataclass
+class Node:
+    id: str                         # Unique identifier
+    layer: LayerType               # One of 10 hierarchical layers
+    title: str                     # Human-readable name
+    description: str               # Detailed description
+    links: Link                    # Parent-child relationships
+    metadata: Metadata             # Owner, labels, severity, work_type
+    status: StatusType = "planned" # Current state
+    command: Command | None = None # Optional executable command
 
-**Sources**:
-1. [AgManuals](https://agmanuals.com)
-2. [Case IH Operator Manuals](https://www.caseih.com/en-us/unitedstates/service-support/operators-manuals)
-3. [Farm Manuals Fast](https://farmmanualsfast.com)
-4. [AGCO Technical Publications](https://www.agcopubs.com)
-5. [John Deere Manuals and Training](https://www.deere.com/en/parts-and-service/manuals-and-training)
-6. [Farming and Construction Manuals](https://farming-constructionmanuals.com)
-7. [Solano Horizonte](https://solano-horizonte.com/download-catalogs-and-manuals-of-agricultural-machinery)
-8. [Yesterday's Tractors Forums](https://forums.yesterdaystractors.com)
-9. [Tractor Tools Direct](https://tractortoolsdirect.com/manuals)
-10. [General Implement Distributors](https://www.generalimp.com/manuals)
-11. [TractorData](https://www.tractordata.com)
-12. [Tractor Manuals Downunder](https://www.tractor-manuals-downunder.com)
+@dataclass
+class Link:
+    parents: list[str] = field(default_factory=list)   # Parent node IDs
+    children: list[str] = field(default_factory=list)  # Child node IDs
 
-### Soil Monitoring Tools and Sensors
+@dataclass
+class Metadata:
+    owner: str                                          # Responsible party
+    labels: list[str] = field(default_factory=list)    # Categorization tags
+    severity: str = ""                                  # Priority/importance level
+    work_type: str = ""                                 # Type of work required
 
-**Objective**: Research and utilize tools, sensors, and platforms to monitor soil composition, mineral content, and pH balance, ensuring optimal crop health.
+@dataclass
+class Command:
+    ac_ref: str                                         # Acceptance criteria reference
+    run: dict[str, Any]                                # Execution parameters
+    artifacts: list[str] = field(default_factory=list) # Output artifacts
+```
 
-**Resources**:
-1. [Soil Scout](https://soilscout.com)
-2. [Renke 4-in-1 Soil Nutrient Sensor](https://www.renkeer.com/product/soil-nutrient-sensor/)
-3. [Murata Soil Sensors](https://www.murata.com/en-us/products/sensor/soil)
-4. [HORIBA LAQUAtwin pH Meters](https://www.horiba.com/usa/water-quality/applications/agriculture-crop-science/soil-ph-and-nutrient-availability/)
-5. [Sensoterra Soil Moisture Sensors](https://www.sensoterra.com/soil-sensor-for-agriculture/)
-6. [DFRobot 4-in-1 Soil Sensor](https://www.dfrobot.com/product-2830.html)
-7. [EarthScout Agricultural Field Sensors](https://www.earthscout.com/)
-8. [University of Minnesota Extension: Soil Moisture Sensors](https://extension.umn.edu/irrigation/soil-moisture-sensors-irrigation-scheduling)
-9. [ATTRA: Soil Moisture Monitoring Tools](https://attra.ncat.org/publication/soil-moisture-monitoring-low-cost-tools-and-methods/)
-10. [ESCATEC Electrochemical Sensors](https://www.escatec.com/blog/electrochemical-sensors-soil-analysis-through-precision-agriculture)
+### Type Safety
 
-### Water Quality Monitoring Resources
+ToDoWrite uses comprehensive type hints and runtime validation with Python 3.12+ syntax:
 
-**Objective**: Identify and deploy tools to assess and maintain water composition, mineral levels, and pH balance, ensuring water quality is optimized for agricultural use.
+```python
+from typing import Any, Literal
 
-**Resources**:
-1. [Renke Water Quality Sensors](https://www.renkeer.com/top-7-water-quality-sensors/)
-2. [In-Situ Agriculture Water Monitoring](https://in-situ.com/us/agriculture)
-3. [Xylem Analytics Water Quality Monitoring](https://www.xylemanalytics.com/en/products/water-quality-monitoring)
-4. [KETOS Automated Water Monitoring](https://ketos.co/)
-5. [YSI Water Quality Systems](https://www.ysi.com/products)
-6. [SGS Agricultural Water Testing](https://www.sgs.com/en-us/services/agricultural-water-testing)
-7. [Boqu Instrument Water Quality Sensors](https://www.boquinstrument.com/how-water-quality-sensors-are-used-in-agriculture-and-farming.html)
-8. [Digital Matter Remote Sensor Solutions](https://sense.digitalmatter.com/blog/water-quality-monitoring)
-9. [Intuz IoT Water Monitoring](https://www.intuz.com/blog/iot-for-water-monitoring-in-crops)
-10. [Rika Sensor Water Quality Sensors](https://www.rikasensor.com/blog-top-10-water-quality-sensors-for-water-treatments.html)
+# Literal types ensure only valid values
+LayerType = Literal[
+    "Goal", "Concept", "Context", "Constraints", "Requirements",
+    "Acceptance Criteria", "Interface Contract", "Phase",
+    "Step", "Task", "SubTask", "Command"
+]
 
-### Water Sampling Datasets
+StatusType = Literal["planned", "in_progress", "blocked", "done", "rejected"]
 
-**Objective**: Access and analyze publicly available water quality datasets to inform ML models for monitoring water conditions suitable for farming.
+# Runtime validation prevents invalid states
+def _validate_literal(value: str, literal_type: type[Any]) -> str:
+    """Validate that a value is one of the allowed literal values."""
+    if value not in literal_type.__args__:
+        raise ValueError(f"Invalid literal value: {value}")
+    return value
 
-**Sources**:
-1. [Water Quality Portal (WQP)](https://www.waterqualitydata.us/)
-2. [USGS National Water Information System (NWIS)](https://catalog.data.gov/dataset)
-3. [EPA Water Quality Data](https://www.epa.gov/waterdata/water-quality-data)
-4. [Kaggle: Water Quality Dataset for Crop](https://www.kaggle.com/datasets/abhishekkhanna004/water-quality-dataset-for-crop)
-5. [Ag Data Commons: Soil and Water Hub Modeling](https://agdatacommons.nal.usda.gov/articles/dataset/Soil_and_Water_Hub_Modeling_Datasets/24852681)
-6. [NASA Earthdata: Water Quality](https://www.earthdata.nasa.gov/topics/ocean/water-quality)
+# Modern union syntax for return types
+def create_node(node_data: dict[str, Any]) -> tuple[Node | None, str | None]:
+    """Create a new node, returning the node or an error message."""
+    try:
+        # Node creation logic
+        pass
+    except Exception as e:
+        return None, str(e)
+```
 
-### Machine Learning Integration Goals
+### Error Handling Patterns
 
-**Objective**: Synthesize research and datasets into ML models and robotics systems capable of automating farm operations, improving efficiency, and ensuring sustainability.
+```python
+from typing import TypeAlias
 
-**Model Applications**:
-- Autonomous machine operation (leveraging operational manuals)
-- Soil condition predictions and adjustments
-- Water quality monitoring and real-time management
+# Type aliases for common patterns
+NodeResult: TypeAlias = tuple[Node | None, str | None]
+DatabaseResult: TypeAlias = dict[str, str | bool]
 
-**Tools and Techniques**:
-- ML libraries like TensorFlow and PyTorch
-- IoT-enabled sensors for real-time data collection
-- Integration with cloud platforms for data storage and analysis
+def handle_node_operation(operation_result: NodeResult) -> bool:
+    """Handle the result of a node operation with pattern matching."""
+    node, error = operation_result
 
----
+    match (node, error):
+        case (None, str(error_msg)):
+            print(f"❌ Operation failed: {error_msg}")
+            return False
+        case (Node() as successful_node, None):
+            print(f"✅ Operation succeeded: {successful_node.title}")
+            return True
+        case _:
+            print("⚠️ Unexpected result pattern")
+            return False
+```
 
-## Contributing
+## 🔧 Development
+
+### Prerequisites
+- Python 3.12+
+- SQLAlchemy 2.0+
+- Alembic 1.8+
+- Pydantic 2.0+
+
+### Development Installation
+```bash
+git clone https://github.com/dderyldowney/todowrite.git
+cd todowrite
+pip install -e .
+```
+
+### Project Structure
+```
+todowrite/
+├── __init__.py              # Package initialization
+├── __main__.py              # Module execution entry point
+├── main.py                  # CLI application main function
+├── manager.py               # Core management API (1,559 lines)
+├── db/
+│   ├── __init__.py         # Database package
+│   ├── config.py           # Database configuration
+│   ├── models.py           # SQLAlchemy models
+│   └── repository.py       # Repository pattern implementation
+└── tools/
+    └── extract_schema.py   # Schema extraction utilities
+```
+
+### Testing Installation
+
+```bash
+# Verify installation
+pip show todowrite
+
+# Test standalone command
+todowrite
+
+# Test module execution
+python -m todowrite
+
+# Test Python import
+python -c "import todowrite; print('✅ Import successful')"
+```
+
+### Database Migrations
+
+ToDoWrite includes Alembic support for database schema management:
+
+```python
+# Initialize database with latest schema
+result = manager.init_database()
+print(f"Database status: {result['status']}")
+print(f"Database type: {result['database_type']}")
+```
+
+## 🤝 Contributing
+
+ToDoWrite follows strict quality standards:
+
+1. **Type Safety**: All code must include comprehensive Python 3.12+ type hints
+2. **Documentation**: Functions and classes require docstrings
+3. **Testing**: New features need corresponding tests
+4. **Database Compatibility**: Changes must work with both SQLite and PostgreSQL
+
+### Code Style
+- Python 3.12+ features and syntax
+- Modern union syntax (`|` instead of `Union`)
+- SQLAlchemy 2.0 patterns
+- Dataclasses for data modeling
+- Comprehensive error handling with pattern matching
 
 ### Development Workflow
 
-AFS FastAPI uses **Test-First Development (TDD)** for ALL code development. Follow these guidelines:
+```python
+# Example of modern Python 3.12+ patterns in ToDoWrite
+from typing import TypedDict, TypeAlias
 
-**1. Test-First Development (MANDATORY)**:
-- Follow **Red-Green-Refactor** methodology outlined in [TDD_WORKFLOW.md](TDD_WORKFLOW.md)
-- Write failing tests first, then implement minimal code to pass
-- Refactor for quality while maintaining test coverage
-- Agricultural context required in all test scenarios
+class TaskSummary(TypedDict):
+    id: str
+    title: str
+    status: StatusType
+    completion_date: str | None
 
-**2. General Development**:
-- See [CONTRIBUTING.md](CONTRIBUTING.md) for Quick Verification Checklist
-- Run full test suite: `python -m pytest tests/` (expect 846 tests passing)
-- Verify TodoWrite system: `./bin/todo-status`
-- Maintain zero linting warnings: `ruff check .`
-- Follow git commit separation: `type(scope): description`
-- Database migrations: Use `alembic revision --autogenerate -m "description"` for schema changes
+TaskList: TypeAlias = list[TaskSummary]
 
-**Key Documentation**:
-- **WORKFLOW.md**: Authoritative testing reference and architecture guide
-- **TDD_WORKFLOW.md**: Complete Test-First development methodology
-- **ToDoWrite-HOWTO.md**: Comprehensive TodoWrite user guide (600+ lines)
-- **ToDoWrite.md**: Complete specification and integration requirements
-- **TDD_FRAMEWORK_MANDATORY.md**: Mandatory TDD policy with enforcement details
-- **GIT_COMMIT_SEPARATION_MANDATORY.md**: Separation of concerns policy
-- **SESSION_SUMMARY.md**: Project evolution and strategic direction
+def get_task_summaries(layer: LayerType) -> TaskList:
+    """Get task summaries for a specific layer using modern syntax."""
+    todos = manager.load_todos()
 
-**Quality Standards**:
-- **Test coverage**: All new components require comprehensive tests written FIRST
-- **Performance**: Sub-millisecond operations for real-time agricultural coordination
-- **Documentation**: Dual-purpose code serving both functional and educational objectives
-- **Agricultural context**: ISO compliance and safety-critical system considerations
+    return [
+        TaskSummary(
+            id=node.id,
+            title=node.title,
+            status=node.status,
+            completion_date=getattr(node.metadata, 'date_completed', None)
+        )
+        for node in todos.get(layer, [])
+    ]
+```
 
----
+## 📝 License
 
-## Security Notes
+ToDoWrite is designed for agricultural robotics applications but is suitable for any hierarchical project management needs.
 
-This project enables automated checks (Dependabot + pip-audit) for dependency vulnerabilities. Two current advisories are known and monitored:
+## 🔗 Related Projects
 
-- **Starlette 0.41.3: GHSA-2c2j-9gv5-cj73 (CVE-2025-54121)** - **UNRESOLVED**
-  - Summary: Large multipart form uploads may block the event loop while rolling files to disk.
-  - Current version: **0.41.3** (vulnerable)
-  - Fixed in: Starlette >= 0.47.2
-  - Project impact: This API does not use multipart uploads; risk is low in our deployment.
-  - Status: Awaiting compatible FastAPI release that supports Starlette >= 0.47.2.
-
-- **h11 0.14.0: GHSA-vqfr-h8mv-ghfj (CVE-2025-43859)** - **UNRESOLVED**
-  - Summary: Lenient chunked-encoding parsing could enable request smuggling in specific proxy scenarios.
-  - Current version: **0.14.0** (vulnerable)
-  - Fixed in: h11 >= 0.16.0
-  - Project impact: h11 is used via httpx/httpcore for HTTP client operations. Server stack uses Uvicorn/Starlette. Risk is low in typical deployments with proper reverse proxy configuration.
-  - Status: Upgrade blocked by httpcore compatibility. Requires httpcore >= 1.0.9 which conflicts with current httpx pinning.
-
-**Recent Security Improvements (January 2025)**:
-- ✅ **requests**: Upgraded to 2.32.5 (latest) - includes URI parsing security improvements
-- ✅ **urllib3**: Upgraded to 2.5.0 (latest) - fixes redirect vulnerability (security patch)
-- ✅ **setuptools**: Upgraded to 80.9.0 (latest) - stability and security updates
-
-**Mitigations in place**:
-- No multipart form endpoints are exposed in the API.
-- HTTP client usage is limited to development/testing scenarios.
-- CI automatically flags vulnerabilities and proposes coordinated updates.
-- Reverse proxy configurations should include proper request validation.
+- **Agricultural Robotics Platform**: Production implementation using ToDoWrite
+- **Multi-Tractor Coordination**: Distributed systems built on ToDoWrite framework
+- **ISOBUS Compliance**: Agricultural equipment integration using ToDoWrite planning
 
 ---
 
-## Conclusion
-
-AFS FastAPI represents a comprehensive platform combining production-grade agricultural robotics capabilities with educational value for professional development. The platform demonstrates industry-leading Test-Driven Development enforcement, distributed systems excellence, TodoWrite v0.1.5 task management, and universal AI agent infrastructure—establishing a foundation for safe, reliable, and efficient multi-tractor coordination in modern agriculture.
-
-**Platform Status**: Production-ready multi-tractor coordination system with PostgreSQL database integration, and zero technical debt. Integrates with the standalone TodoWrite v0.1.5 hierarchical task management package for development and testing.
-
-**Strategic Achievement**: Industry's only platform combining ISO compliance, distributed systems coordination, and comprehensive database persistence. Integrates with the standalone 12-layer TodoWrite task management framework for development and testing, and provides a comprehensive educational framework with universal AI agent development standards.
-
-**Recent Achievements**: TodoWrite v0.1.5 refactored into a standalone package with its 12-layer declarative planning framework, PostgreSQL integration with Alembic migrations, enhanced CAN message handling, and comprehensive test suite expansion to 846 tests.
-
-**Future Readiness**: Advanced capabilities positioned for CRDT implementation, enhanced ISOBUS messaging, enterprise scaling, and real agricultural equipment integration.
+**Version**: 0.1.5
+**Python**: 3.12+
+**Database**: SQLite (development) / PostgreSQL (production)
+**Architecture**: Hierarchical task management with 10-layer planning framework
