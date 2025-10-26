@@ -1,9 +1,9 @@
-import os
-import unittest
 import subprocess
 import time
+import unittest
+
 from todowrite.app import ToDoWrite
-from todowrite.db.models import Base, Node, Link, Label, Command, Artifact, node_labels
+from todowrite.db.models import Artifact, Command, Label, Node, node_labels
 
 
 class TestApp(unittest.TestCase):

@@ -1,11 +1,11 @@
-"""
-This module contains the SQLAlchemy models for the ToDoWrite database.
-"""
+from typing import List
 
 from sqlalchemy import Column, ForeignKey, String, Table, Text
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
-Base = declarative_base()
+
+class Base(DeclarativeBase):
+    pass
 
 
 class Node(Base):
@@ -13,17 +13,21 @@ class Node(Base):
 
     __tablename__ = "nodes"
 
-    id = Column(String, primary_key=True)
-    layer = Column(String, nullable=False)
-    title = Column(String, nullable=False)
-    description = Column(Text)
-    status = Column(String, default="planned")
-    owner = Column(String)
-    severity = Column(String)
-    work_type = Column(String)
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    layer: Mapped[str] = mapped_column(String, nullable=False)
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String, default="planned")
+    owner: Mapped[str | None] = mapped_column(String)
+    severity: Mapped[str | None] = mapped_column(String)
+    work_type: Mapped[str | None] = mapped_column(String)
 
-    labels = relationship("Label", secondary="node_labels", back_populates="nodes")
-    command = relationship("Command", uselist=False, back_populates="node")
+    labels: Mapped[List["Label"]] = relationship(
+        secondary="node_labels", back_populates="nodes"
+    )
+    command: Mapped["Command" | None] = relationship(
+        uselist=False, back_populates="node"
+    )
 
 
 class Link(Base):
@@ -31,8 +35,12 @@ class Link(Base):
 
     __tablename__ = "links"
 
-    parent_id = Column(String, ForeignKey("nodes.id"), primary_key=True)
-    child_id = Column(String, ForeignKey("nodes.id"), primary_key=True)
+    parent_id: Mapped[str] = mapped_column(
+        String, ForeignKey("nodes.id"), primary_key=True
+    )
+    child_id: Mapped[str] = mapped_column(
+        String, ForeignKey("nodes.id"), primary_key=True
+    )
 
 
 class Label(Base):
@@ -40,9 +48,11 @@ class Label(Base):
 
     __tablename__ = "labels"
 
-    label = Column(String, primary_key=True)
+    label: Mapped[str] = mapped_column(String, primary_key=True)
 
-    nodes = relationship("Node", secondary="node_labels", back_populates="labels")
+    nodes: Mapped[List["Node"]] = relationship(
+        secondary="node_labels", back_populates="labels"
+    )
 
 
 node_labels = Table(
@@ -58,12 +68,14 @@ class Command(Base):
 
     __tablename__ = "commands"
 
-    node_id = Column(String, ForeignKey("nodes.id"), primary_key=True)
-    ac_ref = Column(String)
-    run = Column(Text)
+    node_id: Mapped[str] = mapped_column(
+        String, ForeignKey("nodes.id"), primary_key=True
+    )
+    ac_ref: Mapped[str | None] = mapped_column(String)
+    run: Mapped[str | None] = mapped_column(Text)
 
-    node = relationship("Node", back_populates="command")
-    artifacts = relationship("Artifact", back_populates="command")
+    node: Mapped["Node"] = relationship(back_populates="command")
+    artifacts: Mapped[List["Artifact"]] = relationship(back_populates="command")
 
 
 class Artifact(Base):
@@ -71,7 +83,9 @@ class Artifact(Base):
 
     __tablename__ = "artifacts"
 
-    artifact = Column(String, primary_key=True)
-    command_id = Column(String, ForeignKey("commands.node_id"), primary_key=True)
+    artifact: Mapped[str] = mapped_column(String, primary_key=True)
+    command_id: Mapped[str] = mapped_column(
+        String, ForeignKey("commands.node_id"), primary_key=True
+    )
 
-    command = relationship("Command", back_populates="artifacts")
+    command: Mapped["Command"] = relationship(back_populates="artifacts")
