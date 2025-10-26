@@ -11,8 +11,6 @@ dependencies = [
     "typing-extensions>=4.0.0",
     "click>=8.0.0",
     "psycopg2-binary>=2.9.0",
-    "jsonschema>=4.0.0", # Added jsonschema as it's now used
-    "pytest-cov>=3.0.0",
 ]
 
 [build-system]
