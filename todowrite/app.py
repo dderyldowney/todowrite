@@ -7,9 +7,9 @@ import os
 import uuid
 from contextlib import contextmanager
 from dataclasses import dataclass, field
-from typing import Any, Literal, cast
+from typing import Any, Generator, Literal, cast
 
-import jsonschema  # type: ignore
+import jsonschema
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, joinedload, sessionmaker
 
@@ -116,7 +116,7 @@ class ToDoWrite:
                 ToDoWrite._SCHEMA = json.load(f)
 
     @contextmanager
-    def get_session(self):
+    def get_session(self) -> Generator[Session, None, None]:
         session = self.Session()
         try:
             yield session
@@ -127,14 +127,14 @@ class ToDoWrite:
         finally:
             session.close()
 
-    def _validate_node_data(self, node_data: dict[str, Any]):
+    def _validate_node_data(self, node_data: dict[str, Any]) -> None:
         """Validates node data against the ToDoWrite schema."""
         try:
             jsonschema.validate(instance=node_data, schema=ToDoWrite._SCHEMA)
         except jsonschema.exceptions.ValidationError as e:
             raise ValueError(f"Node data validation failed: {e.message}") from e
 
-    def init_database(self):
+    def init_database(self) -> None:
         """Creates the database and the tables."""
         if self.db_url.startswith("sqlite"):
             db_path: str = self.db_url.split("///")[1]
