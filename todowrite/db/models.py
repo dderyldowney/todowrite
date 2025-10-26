@@ -2,18 +2,8 @@
 This module contains the SQLAlchemy models for the ToDoWrite database.
 """
 
-from sqlalchemy import (
-    Column,
-    DateTime,
-    Float,
-    ForeignKey,
-    Integer,
-    String,
-    Table,
-    Text,
-)
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, String, Table, Text
+from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
 

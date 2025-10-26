@@ -158,7 +158,8 @@ tests/test_token_usage_temp.db-wal
 .claude/settings.local.json
 
 # ToDoWrite data directory (generated content, not source)
-/ToDoWrite/
+/todowrite.egg-info/
+todowrite/__pycache__/
 # ToDoWrite database files
 todowrite.db
 *.db

@@ -2,9 +2,11 @@
 
 from .cli import cli
 
+
 def main():
     """Main function for the ToDoWrite CLI."""
     cli()
+
 
 if __name__ == "__main__":
     main()
