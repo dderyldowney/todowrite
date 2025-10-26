@@ -1,8 +1,8 @@
 # ToDoWrite: A Standalone Task Management System
 
-ToDoWrite is a comprehensive 12-layer declarative planning framework designed for managing complex projects, particularly in domains requiring rigorous hierarchical task management like agricultural robotics and safety-critical systems.
+ToDoWrite is a comprehensive 12-layer declarative planning framework designed for managing complex projects requiring rigorous hierarchical task management. It provides a structured approach to project planning and execution with enforced hierarchy validation.
 
-Originally integrated within the AFS FastAPI project, ToDoWrite has been refactored into a standalone Python package to allow for broader applicability and easier integration into various development workflows. It is primarily intended as a **development and testing mode only** package, providing robust task tracking and validation capabilities without imposing runtime dependencies on production systems.
+ToDoWrite is a truly standalone Python package that can be imported and used in any Python project. It provides robust task tracking and validation capabilities with flexible database backends (SQLite for development, PostgreSQL for production).
 
 ## Features
 
@@ -20,64 +20,45 @@ Originally integrated within the AFS FastAPI project, ToDoWrite has been refacto
 
 ## Installation
 
-ToDoWrite can be installed as a standalone Python package. It is recommended to install it in an editable mode for development purposes.
+ToDoWrite can be installed as a standalone Python package.
 
-1.  **Clone the repository** (if you haven't already, or if you're integrating into an existing project):
+### From Source (Development)
+
+1.  **Clone the ToDoWrite repository**:
     ```bash
-    git clone https://github.com/dderyldowney/afs_fastapi.git
-    cd afs_fastapi
-    ```
-2.  **Navigate to the `todowrite` directory**:
-    ```bash
+    git clone <todowrite-repository-url>
     cd todowrite
     ```
-3.  **Create and activate a virtual environment** (recommended):
+2.  **Create and activate a virtual environment** (recommended):
     ```bash
     python -m venv .venv
-    source .venv/bin/activate
+    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
     ```
-4.  **Install ToDoWrite in editable mode**:
+3.  **Install ToDoWrite in editable mode**:
     ```bash
     pip install -e .
     ```
-    This command installs the package such that changes to the source code are immediately reflected without reinstallation.
+
+### From PyPI (Future)
+
+Once published, ToDoWrite will be available on PyPI:
+```bash
+pip install todowrite
+```
 
 ## Usage
 
 ### Command Line Interface (CLI)
 
-ToDoWrite provides a set of CLI tools for managing tasks. These tools are typically found in the `bin/` directory of the parent project (e.g., `afs_fastapi/bin/`).
+ToDoWrite provides a CLI tool for managing tasks:
 
-Example commands:
-
--   **Initialize the database**:
-    ```bash
-    ./bin/loadsession # This command also initializes the todowrite database
-    ```
-
--   **Add a new strategic goal**:
-    ```bash
-    ./bin/goal-add "Develop Autonomous Navigation System" "Implement a robust autonomous navigation system for agricultural vehicles."
-    ```
-
--   **View strategic goals**:
-    ```bash
-    ./bin/strategic-status
-    ```
-
--   **Add a phase to a goal**:
-    ```bash
-    ./bin/phase-add "Sensor Integration Phase" "Integrate various sensors for navigation." --goal-id GOAL-ID-HERE
-    ```
-
--   **View all phases**:
-    ```bash
-    ./bin/phase-status
-    ```
+```bash
+todowrite --help
+```
 
 ### Python API
 
-ToDoWrite can be imported and used programmatically in your Python applications.
+ToDoWrite is designed to be imported and used programmatically in your Python applications:
 
 ```python
 from todowrite.manager import add_goal, load_todos, init_database
@@ -87,7 +68,7 @@ init_database()
 
 # Add a new goal
 new_goal, error = add_goal(
-    "Optimize Crop Yield", "Implement AI-driven strategies for maximizing crop yield."
+    "Develop Mobile Application", "Create a user-friendly mobile application with modern features."
 )
 if new_goal:
     print(f"New Goal Added: {new_goal['title']} (ID: {new_goal['id']})")
@@ -103,10 +84,10 @@ ToDoWrite adheres to a strict Test-Driven Development (TDD) methodology. All cod
 
 ### Running Tests
 
-To run the tests for the ToDoWrite package, navigate to the project root and execute:
+To run the tests for the ToDoWrite package:
 
 ```bash
-PYTHONPATH=$PWD pytest todowrite/tests
+pytest tests/
 ```
 
 ### Linting and Formatting
@@ -114,10 +95,9 @@ PYTHONPATH=$PWD pytest todowrite/tests
 Ensure code quality by running linters and formatters:
 
 ```bash
-ruff check todowrite
-black todowrite
-isort todowrite
-```
+ruff check .
+black .
+isort .
 
 ## Contributing
 

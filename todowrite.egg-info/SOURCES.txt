@@ -10,12 +10,14 @@ todowrite.egg-info/PKG-INFO
 todowrite.egg-info/SOURCES.txt
 todowrite.egg-info/dependency_links.txt
 todowrite.egg-info/entry_points.txt
+todowrite.egg-info/requires.txt
 todowrite.egg-info/top_level.txt
 todowrite/alembic/env.py
 todowrite/alembic/versions/5a23393688d8_initial_migration.py
 todowrite/db/config.py
 todowrite/db/models.py
 todowrite/db/repository.py
+todowrite/tools/extract_schema.py
 todowrite/tools/migrate_todowrite.py
 todowrite/tools/todowrite_integration.py
 todowrite/tools/tw_lint_soc.py
