@@ -1,11 +1,11 @@
 # ToDoWrite — Current Agent-Loadable System Specification
-> **Status:** ACTIVE SYSTEM (Version 0.1.5) — Load and apply this specification on session startup.
+> **Status:** ACTIVE SYSTEM (Version 0.1.6) — Load and apply this specification on session startup.
 > **Intent:** Complete 12-layer declarative planning framework with enforced Separation of Concerns. Only **Command** layer executes; all others are declarative YAML files.
 
 ---
 
 ## 1) Overview
-- **System Version:** 0.1.5 (Current Production)
+- **System Version:** 0.1.6 (Current Production)
 - **Architecture:** 12-layer declarative hierarchy with build-time validation
 - **Non‑negotiables:**
   - Layers 1–11 are **non-executable** (no side effects, no CLI/API code).
@@ -148,7 +148,7 @@ This is the only executable layer, responsible for performing actions and genera
 - **Purpose**: **Only layer that executes** - generates verifiable artifacts
 - **Interaction**: Transforms all planning into actionable results
 
-## 3) Current Repo Layout (Version 0.1.5)
+## 3) Current Repo Layout (Version 0.1.6)
 ```
 .
 ├─ ToDoWrite/configs/plans/ # Declarative nodes (layers 1–11) as YAML
@@ -395,7 +395,7 @@ make tw-check                  # Full validation before push
 - **Conventional Commits**: Enforced commit message format with ToDoWrite-specific scopes
 - **End-to-End Traceability**: Complete forward/backward dependency tracking from goals to commands
 
-## 14) System Status: PRODUCTION READY (v0.1.5)
+## 14) System Status: PRODUCTION READY (v0.1.6)
 
 ### ✅ **Core Functionality**
 - **Schema Validation:** JSON Schema enforcement with agricultural domain examples
@@ -420,4 +420,3 @@ make tw-check                  # Full validation before push
 5. **Enforce Conventional Commit format on all commits**
 6. **Validate before any git operations**
 7. **Maintain traceability links in all nodes**
-
