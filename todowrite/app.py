@@ -313,7 +313,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Goal node."""
         node_data = {
-            "id": f"GOAL-{uuid.uuid4().hex[:12]}",
+            "id": f"GOAL-{uuid.uuid4().hex[:12].upper()}",
             "layer": "Goal",
             "title": title,
             "description": description,
@@ -337,7 +337,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Phase node."""
         node_data = {
-            "id": f"PH-{uuid.uuid4().hex[:12]}",
+            "id": f"PH-{uuid.uuid4().hex[:12].upper()}",
             "layer": "Phase",
             "title": title,
             "description": description,
@@ -361,7 +361,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Step node."""
         node_data = {
-            "id": f"STP-{uuid.uuid4().hex[:12]}",
+            "id": f"STP-{uuid.uuid4().hex[:12].upper()}",
             "layer": "Step",
             "title": title,
             "description": description,
@@ -385,7 +385,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Task node."""
         node_data = {
-            "id": f"TSK-{uuid.uuid4().hex[:12]}",
+            "id": f"TSK-{uuid.uuid4().hex[:12].upper()}",
             "layer": "Task",
             "title": title,
             "description": description,
@@ -409,7 +409,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new SubTask node."""
         node_data = {
-            "id": f"SUB-{uuid.uuid4().hex[:12]}",
+            "id": f"SUB-{uuid.uuid4().hex[:12].upper()}",
             "layer": "SubTask",
             "title": title,
             "description": description,
@@ -436,7 +436,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Command node."""
         node_data = {
-            "id": f"CMD-{uuid.uuid4().hex[:12]}",
+            "id": f"CMD-{uuid.uuid4().hex[:12].upper()}",
             "layer": "Command",
             "title": title,
             "description": description,
@@ -461,7 +461,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Concept node."""
         node_data = {
-            "id": f"CON-{uuid.uuid4().hex[:12]}",
+            "id": f"CON-{uuid.uuid4().hex[:12].upper()}",
             "layer": "Concept",
             "title": title,
             "description": description,
@@ -485,7 +485,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Context node."""
         node_data = {
-            "id": f"CTX-{uuid.uuid4().hex[:12]}",
+            "id": f"CTX-{uuid.uuid4().hex[:12].upper()}",
             "layer": "Context",
             "title": title,
             "description": description,
@@ -509,7 +509,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Constraint node."""
         node_data = {
-            "id": f"CST-{uuid.uuid4().hex[:12]}",
+            "id": f"CST-{uuid.uuid4().hex[:12].upper()}",
             "layer": "Constraints",
             "title": title,
             "description": description,
@@ -533,7 +533,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Requirement node."""
         node_data = {
-            "id": f"R-{uuid.uuid4().hex[:12]}",
+            "id": f"R-{uuid.uuid4().hex[:12].upper()}",
             "layer": "Requirements",
             "title": title,
             "description": description,
@@ -557,7 +557,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Acceptance Criteria node."""
         node_data = {
-            "id": f"AC-{uuid.uuid4().hex[:12]}",
+            "id": f"AC-{uuid.uuid4().hex[:12].upper()}",
             "layer": "AcceptanceCriteria",
             "title": title,
             "description": description,
@@ -581,7 +581,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Interface Contract node."""
         node_data = {
-            "id": f"IF-{uuid.uuid4().hex[:12]}",
+            "id": f"IF-{uuid.uuid4().hex[:12].upper()}",
             "layer": "InterfaceContract",
             "title": title,
             "description": description,
