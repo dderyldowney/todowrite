@@ -4,19 +4,18 @@ ToDoWrite Command Stub Generator (tw_stub_command.py)
 Generates executable command stubs from Acceptance Criteria
 """
 
-import yaml
-import sys
-import os
-from pathlib import Path
-from typing import Dict, List, Any, Tuple
 import argparse
-import re
+import sys
+from pathlib import Path
+from typing import Any, Dict, List, Tuple
+
+import yaml
 
 
 class CommandStubGenerator:
     """Generates Command layer stubs from Acceptance Criteria"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.generated_count = 0
         self.ac_files = []
         self.existing_commands = set()
@@ -39,9 +38,9 @@ class CommandStubGenerator:
             for cmd_file in commands_dir.glob("CMD-*.yaml"):
                 # Extract AC reference from existing command
                 try:
-                    with open(cmd_file, 'r') as f:
+                    with open(cmd_file, "r") as f:
                         data = yaml.safe_load(f)
-                    ac_ref = data.get('command', {}).get('ac_ref', '')
+                    ac_ref = data.get("command", {}).get("ac_ref", "")
                     if ac_ref:
                         self.existing_commands.add(ac_ref)
                 except Exception:
@@ -52,7 +51,7 @@ class CommandStubGenerator:
     def _load_yaml_file(self, file_path: Path) -> Tuple[Dict[str, Any], bool]:
         """Load and parse YAML file, return (data, success)"""
         try:
-            with open(file_path, 'r') as f:
+            with open(file_path, "r") as f:
                 data = yaml.safe_load(f)
             return data, True
         except yaml.YAMLError as e:
@@ -65,68 +64,74 @@ class CommandStubGenerator:
     def _generate_command_id(self, ac_id: str) -> str:
         """Generate Command ID from Acceptance Criteria ID"""
         # Convert AC-EXAMPLE-NAME to CMD-EXAMPLE-NAME
-        if ac_id.startswith('AC-'):
-            return ac_id.replace('AC-', 'CMD-', 1)
+        if ac_id.startswith("AC-"):
+            return ac_id.replace("AC-", "CMD-", 1)
         else:
             return f"CMD-{ac_id}"
 
     def _generate_shell_command(self, ac_data: Dict[str, Any]) -> str:
         """Generate appropriate shell command based on AC content"""
-        title = ac_data.get('title', '').lower()
-        description = ac_data.get('description', '').lower()
-        work_type = ac_data.get('metadata', {}).get('work_type', 'implementation')
+        title = ac_data.get("title", "").lower()
 
         # Determine command type based on content
-        if 'makefile' in title or 'targets' in title:
+        if "makefile" in title or "targets" in title:
             return "make tw-all && echo 'Makefile targets verified'"
-        elif 'validation' in title or 'schema' in title:
+        elif "validation" in title or "schema" in title:
             return "python todowrite/tools/tw_validate.py --strict"
-        elif 'lint' in title or 'soc' in title:
+        elif "lint" in title or "soc" in title:
             return "python todowrite/tools/tw_lint_soc.py"
-        elif 'trace' in title or 'links' in title:
+        elif "trace" in title or "links" in title:
             return "python todowrite/tools/tw_trace.py"
-        elif 'cli' in title or 'command' in title:
+        elif "cli" in title or "command" in title:
             return "python -m todowrite --help && echo 'CLI commands verified'"
-        elif 'documentation' in title or 'docs' in title:
+        elif "documentation" in title or "docs" in title:
             return "find docs -name '*.md' -exec echo 'Documentation file: {}' \\; && echo 'Documentation verified'"
-        elif 'test' in title:
+        elif "test" in title:
             return "python -m pytest tests/ -v"
         else:
             # Generic validation command
-            return "echo 'Manual verification required for: {}'".format(ac_data.get('title', 'Acceptance Criteria'))
+            return "echo 'Manual verification required for: {}'".format(
+                ac_data.get("title", "Acceptance Criteria")
+            )
 
     def _generate_artifacts_list(self, ac_data: Dict[str, Any]) -> List[str]:
         """Generate expected artifacts list"""
-        title = ac_data.get('title', '').lower()
-        cmd_id = self._generate_command_id(ac_data.get('id', ''))
+        title = ac_data.get("title", "").lower()
+        cmd_id = self._generate_command_id(ac_data.get("id", ""))
 
         artifacts = [f"results/{cmd_id}/execution.log"]
 
-        if 'makefile' in title:
-            artifacts.extend([
-                f"results/{cmd_id}/make_output.log",
-                "configs/schemas/todowrite.schema.json"
-            ])
-        elif 'validation' in title:
-            artifacts.extend([
-                f"results/{cmd_id}/validation_report.json",
-                f"results/{cmd_id}/schema_errors.log"
-            ])
-        elif 'trace' in title:
-            artifacts.extend([
-                "trace/trace.csv",
-                "trace/graph.json",
-                f"results/{cmd_id}/traceability_report.json"
-            ])
-        elif 'test' in title:
-            artifacts.extend([
-                f"results/{cmd_id}/test_results.xml",
-                f"results/{cmd_id}/coverage_report.json"
-            ])
-        elif 'documentation' in title:
-            artifacts.extend([
-                f"results/{cmd_id}/doc_verification.json"
-            ])
+        if "makefile" in title:
+            artifacts.extend(
+                [
+                    f"results/{cmd_id}/make_output.log",
+                    "configs/schemas/todowrite.schema.json",
+                ]
+            )
+        elif "validation" in title:
+            artifacts.extend(
+                [
+                    f"results/{cmd_id}/validation_report.json",
+                    f"results/{cmd_id}/schema_errors.log",
+                ]
+            )
+        elif "trace" in title:
+            artifacts.extend(
+                [
+                    "trace/trace.csv",
+                    "trace/graph.json",
+                    f"results/{cmd_id}/traceability_report.json",
+                ]
+            )
+        elif "test" in title:
+            artifacts.extend(
+                [
+                    f"results/{cmd_id}/test_results.xml",
+                    f"results/{cmd_id}/coverage_report.json",
+                ]
+            )
+        elif "documentation" in title:
+            artifacts.extend([f"results/{cmd_id}/doc_verification.json"])
 
         return artifacts
 
@@ -136,8 +141,8 @@ class CommandStubGenerator:
         if not success:
             return False
 
-        ac_id = ac_data.get('id', '')
-        if not ac_id or not ac_id.startswith('AC-'):
+        ac_id = ac_data.get("id", "")
+        if not ac_id or not ac_id.startswith("AC-"):
             print(f"WARNING: Invalid AC ID in {ac_file}: {ac_id}")
             return False
 
@@ -152,32 +157,26 @@ class CommandStubGenerator:
 
         # Create command stub YAML
         command_data = {
-            'id': cmd_id,
-            'layer': 'Command',
-            'title': f"Execute validation for {ac_data.get('title', 'Acceptance Criteria')}",
-            'description': f"Automated execution to verify: {ac_data.get('description', '')[:200]}...",
-            'metadata': {
-                'owner': ac_data.get('metadata', {}).get('owner', 'system'),
-                'labels': ['generated', 'automated', 'verification'],
-                'severity': ac_data.get('metadata', {}).get('severity', 'med'),
-                'work_type': 'validation'
+            "id": cmd_id,
+            "layer": "Command",
+            "title": f"Execute validation for {ac_data.get('title', 'Acceptance Criteria')}",
+            "description": f"Automated execution to verify: {ac_data.get('description', '')[:200]}...",
+            "metadata": {
+                "owner": ac_data.get("metadata", {}).get("owner", "system"),
+                "labels": ["generated", "automated", "verification"],
+                "severity": ac_data.get("metadata", {}).get("severity", "med"),
+                "work_type": "validation",
             },
-            'links': {
-                'parents': [ac_id],
-                'children': []
-            },
-            'command': {
-                'ac_ref': ac_id,
-                'run': {
-                    'shell': shell_command,
-                    'workdir': '.',
-                    'env': {
-                        'TODOWRITE_MODE': 'validation',
-                        'AC_REF': ac_id
-                    }
+            "links": {"parents": [ac_id], "children": []},
+            "command": {
+                "ac_ref": ac_id,
+                "run": {
+                    "shell": shell_command,
+                    "workdir": ".",
+                    "env": {"TODOWRITE_MODE": "validation", "AC_REF": ac_id},
                 },
-                'artifacts': artifacts
-            }
+                "artifacts": artifacts,
+            },
         }
 
         # Write command file
@@ -186,7 +185,7 @@ class CommandStubGenerator:
 
         cmd_file = commands_dir / f"{cmd_id}.yaml"
         try:
-            with open(cmd_file, 'w') as f:
+            with open(cmd_file, "w") as f:
                 yaml.dump(command_data, f, default_flow_style=False, sort_keys=False)
 
             print(f"✓ Generated {cmd_file}")
@@ -204,13 +203,13 @@ class CommandStubGenerator:
             return False
 
         # Add command to children links if not already present
-        children = ac_data.get('links', {}).get('children', [])
+        children = ac_data.get("links", {}).get("children", [])
         if cmd_id not in children:
             children.append(cmd_id)
-            ac_data.setdefault('links', {})['children'] = children
+            ac_data.setdefault("links", {})["children"] = children
 
             try:
-                with open(ac_file, 'w') as f:
+                with open(ac_file, "w") as f:
                     yaml.dump(ac_data, f, default_flow_style=False, sort_keys=False)
                 return True
             except Exception as e:
@@ -228,7 +227,9 @@ class CommandStubGenerator:
             print("No Acceptance Criteria files found")
             return 0, 0
 
-        print(f"Generating command stubs for {len(self.ac_files)} Acceptance Criteria...")
+        print(
+            f"Generating command stubs for {len(self.ac_files)} Acceptance Criteria..."
+        )
         print()
 
         success_count = 0
@@ -239,7 +240,7 @@ class CommandStubGenerator:
                 # Update AC file with command link
                 ac_data, _ = self._load_yaml_file(ac_file)
                 if ac_data:
-                    cmd_id = self._generate_command_id(ac_data.get('id', ''))
+                    cmd_id = self._generate_command_id(ac_data.get("id", ""))
                     self.update_ac_children_links(ac_file, cmd_id)
 
         return success_count, len(self.ac_files)
@@ -265,20 +266,16 @@ class CommandStubGenerator:
         print("=" * 50)
 
 
-def main():
+def main() -> None:
     """Main entry point for tw_stub_command.py"""
     parser = argparse.ArgumentParser(
         description="Generate ToDoWrite command stubs from Acceptance Criteria"
     )
     parser.add_argument(
-        "--summary",
-        action="store_true",
-        help="Show summary report only"
+        "--summary", action="store_true", help="Show summary report only"
     )
     parser.add_argument(
-        "--force",
-        action="store_true",
-        help="Regenerate existing command stubs"
+        "--force", action="store_true", help="Regenerate existing command stubs"
     )
 
     args = parser.parse_args()

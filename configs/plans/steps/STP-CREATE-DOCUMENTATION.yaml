@@ -7,7 +7,7 @@ description: >
   troubleshooting guides. Ensure all examples are tested and functional.
 metadata:
   owner: documentation-engineer
-  labels: [work:docs, api, cli, examples, guides]
+  labels: ["work:docs", api, cli, examples, guides]
   severity: med
   work_type: docs
 links:

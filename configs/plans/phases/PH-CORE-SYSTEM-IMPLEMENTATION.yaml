@@ -8,7 +8,7 @@ description: >
   traceability, and command execution capabilities.
 metadata:
   owner: project-manager
-  labels: [work:implementation, core-system, infrastructure, phase1]
+  labels: ["work:implementation", core-system, infrastructure, phase1]
   severity: high
   work_type: implementation
 links:

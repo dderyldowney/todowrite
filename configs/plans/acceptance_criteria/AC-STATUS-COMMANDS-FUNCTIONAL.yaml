@@ -1,0 +1,18 @@
+id: AC-STATUS-COMMANDS-FUNCTIONAL
+layer: AcceptanceCriteria
+title: All status CLI commands function correctly with proper validation
+description: >
+  PASS: CLI commands update-status, show-progress, mark-complete, and status-report
+  execute successfully with proper input validation and error handling. Commands
+  integrate seamlessly with existing todowrite CLI structure. Status updates
+  persist correctly to YAML files. Progress calculations aggregate properly
+  through hierarchy. Help text and examples are clear and accurate.
+  FAIL: Any command crashes, corrupts data, or produces incorrect output.
+metadata:
+  owner: cli-developer
+  labels: ["work:implementation", cli-testing, integration, error-handling]
+  severity: high
+  work_type: implementation
+links:
+  parents: [R-STATUS-CLI-COMMANDS]
+  children: [CMD-STATUS-COMMANDS-FUNCTIONAL]

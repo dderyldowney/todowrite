@@ -1,0 +1,15 @@
+id: SUB-CREATE-WORKFLOW-EXAMPLES
+layer: SubTask
+title: Create practical status tracking workflow examples
+description: >
+  Develop real-world examples including sprint planning with status tracking,
+  team collaboration workflows, automated progress reporting, and integration
+  with tools like Jira, GitHub Projects, and Slack. All examples tested and functional.
+metadata:
+  owner: documentation-engineer
+  labels: ["work:docs", workflow-examples, team-collaboration, tool-integration]
+  severity: med
+  work_type: docs
+links:
+  parents: [TSK-CREATE-STATUS-EXAMPLES]
+  children: []

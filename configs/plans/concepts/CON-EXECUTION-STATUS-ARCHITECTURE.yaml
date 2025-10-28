@@ -1,0 +1,17 @@
+id: CON-EXECUTION-STATUS-ARCHITECTURE
+layer: Concept
+title: Execution Status Tracking Architecture
+description: >
+  Implement non-invasive status tracking by extending the existing schema
+  with optional status fields (status, progress, completion_date, started_date)
+  while maintaining backward compatibility. Status propagates hierarchically
+  (parent completion depends on children). Provides real-time project visibility
+  and historical execution analysis without breaking Separation of Concerns.
+metadata:
+  owner: system-architect
+  labels: ["work:architecture", schema-extension, backward-compatible, hierarchical]
+  severity: high
+  work_type: architecture
+links:
+  parents: [GOAL-STATUS-TRACKING-ENHANCEMENT]
+  children: [CTX-CURRENT-SYSTEM-STATE]

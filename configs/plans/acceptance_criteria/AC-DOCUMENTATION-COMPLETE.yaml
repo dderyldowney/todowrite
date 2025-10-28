@@ -11,7 +11,7 @@ description: 'PASS: Documentation includes comprehensive API reference with endp
 metadata:
   owner: documentation-engineer
   labels:
-  - work:docs
+  - "work:docs"
   - api
   - cli
   - examples

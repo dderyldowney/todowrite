@@ -1,0 +1,18 @@
+id: CST-ENHANCEMENT-CONSTRAINTS
+layer: Constraints
+title: Status Tracking Enhancement Constraints
+description: >
+  MANDATORY: Maintain complete backward compatibility with existing 29 nodes.
+  No breaking changes to current schema or CLI. Status fields must be optional.
+  Preserve Separation of Concerns (layers 1-11 remain declarative).
+  All existing validation tools must continue working. Schema migration must
+  be automatic. Performance impact must be minimal. Changes must follow
+  Conventional Commits format with proper ToDoWrite scopes.
+metadata:
+  owner: system-architect
+  labels: ["work:validation", backward-compatibility, non-breaking, performance]
+  severity: high
+  work_type: validation
+links:
+  parents: [CTX-CURRENT-SYSTEM-STATE]
+  children: [R-SCHEMA-EXTENSION, R-STATUS-CLI-COMMANDS, R-VALIDATION-UPDATES, R-STATUS-DOCUMENTATION]

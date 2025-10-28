@@ -8,7 +8,7 @@ description: >
   real-world usage scenarios.
 metadata:
   owner: documentation-engineer
-  labels: [work:docs, api, cli, examples, integration]
+  labels: ["work:docs", api, cli, examples, integration]
   severity: med
   work_type: docs
 links:

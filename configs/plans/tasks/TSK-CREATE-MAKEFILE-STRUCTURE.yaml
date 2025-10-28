@@ -11,7 +11,7 @@ description: >
   tw-test (system test).
 metadata:
   owner: build-engineer
-  labels: [work:implementation, makefile, targets, automation]
+  labels: ["work:implementation", makefile, targets, automation]
   severity: high
   work_type: implementation
 links:

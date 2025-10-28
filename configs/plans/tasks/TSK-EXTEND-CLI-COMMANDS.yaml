@@ -9,7 +9,7 @@ description: >
   text and examples for each operation.
 metadata:
   owner: cli-developer
-  labels: [work:implementation, cli, commands, integration, help]
+  labels: ["work:implementation", cli, commands, integration, help]
   severity: high
   work_type: implementation
 links:

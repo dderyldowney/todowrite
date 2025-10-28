@@ -1,0 +1,15 @@
+id: SUB-ADD-DATE-FIELDS
+layer: SubTask
+title: Add date tracking fields to schema
+description: >
+  Add optional started_date and completion_date fields as ISO 8601 string format.
+  Include proper date format validation and field descriptions. These fields
+  enable timeline tracking and project analytics for execution patterns.
+metadata:
+  owner: schema-engineer
+  labels: ["work:validation", schema-fields, date-validation, iso8601]
+  severity: med
+  work_type: validation
+links:
+  parents: [TSK-UPDATE-SCHEMA-FILE]
+  children: []

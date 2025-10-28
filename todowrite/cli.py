@@ -2,14 +2,14 @@
 This module contains the CLI for the ToDoWrite application.
 """
 
-import uuid
 import subprocess
 import sys
-import yaml
+import uuid
 from pathlib import Path
 from typing import Any, get_args
 
 import click
+import yaml
 
 from .app import LayerType, Node, ToDoWrite
 
@@ -107,7 +107,7 @@ def get(node_id: str):
 
 
 @cli.command("list")
-def list_nodes():
+def list_nodes() -> None:
     """Lists all the nodes."""
     app: ToDoWrite = ToDoWrite()
     nodes: dict[str, list[Node]] = app.get_all_nodes()
@@ -119,24 +119,29 @@ def list_nodes():
 
 # ToDoWrite-specific commands for 12-layer framework management
 
+
 @cli.group()
-def todowrite():
+def todowrite() -> None:
     """ToDoWrite framework commands for 12-layer planning system."""
     pass
 
 
 @todowrite.command()
 @click.option("--strict", is_flag=True, help="Enable strict validation mode")
-def validate_plan():
+def validate_plan() -> None:
     """Validate all YAML files against ToDoWrite schema."""
     click.echo("🔍 Validating ToDoWrite planning files...")
 
     try:
         # Run schema validation
-        result = subprocess.run([
-            sys.executable, "todowrite/tools/tw_validate.py"
-        ] + (["--strict"] if click.get_current_context().params.get('strict') else []),
-        capture_output=True, text=True)
+        result = subprocess.run(
+            [sys.executable, "todowrite/tools/tw_validate.py"]
+            + (
+                ["--strict"] if click.get_current_context().params.get("strict") else []
+            ),
+            capture_output=True,
+            text=True,
+        )
 
         click.echo(result.stdout)
         if result.stderr:
@@ -160,10 +165,16 @@ def trace_links():
     click.echo("🔗 Building traceability matrix...")
 
     try:
-        result = subprocess.run([
-            sys.executable, "todowrite/tools/tw_trace.py"
-        ] + (["--summary"] if click.get_current_context().params.get('summary') else []),
-        capture_output=True, text=True)
+        result = subprocess.run(
+            [sys.executable, "todowrite/tools/tw_trace.py"]
+            + (
+                ["--summary"]
+                if click.get_current_context().params.get("summary")
+                else []
+            ),
+            capture_output=True,
+            text=True,
+        )
 
         click.echo(result.stdout)
         if result.stderr:
@@ -186,10 +197,12 @@ def generate_commands():
     click.echo("⚡ Generating command stubs from Acceptance Criteria...")
 
     try:
-        result = subprocess.run([
-            sys.executable, "todowrite/tools/tw_stub_command.py"
-        ] + (["--force"] if click.get_current_context().params.get('force') else []),
-        capture_output=True, text=True)
+        result = subprocess.run(
+            [sys.executable, "todowrite/tools/tw_stub_command.py"]
+            + (["--force"] if click.get_current_context().params.get("force") else []),
+            capture_output=True,
+            text=True,
+        )
 
         click.echo(result.stdout)
         if result.stderr:
@@ -209,7 +222,9 @@ def generate_commands():
 @todowrite.command()
 @click.argument("command_id", required=False)
 @click.option("--all", is_flag=True, help="Execute all available commands")
-@click.option("--dry-run", is_flag=True, help="Show what would be executed without running")
+@click.option(
+    "--dry-run", is_flag=True, help="Show what would be executed without running"
+)
 def execute_commands(command_id: str, all: bool, dry_run: bool):
     """Execute ToDoWrite command stubs."""
     if not command_id and not all:
@@ -218,7 +233,9 @@ def execute_commands(command_id: str, all: bool, dry_run: bool):
 
     commands_dir = Path("configs/commands")
     if not commands_dir.exists():
-        click.echo("Error: Commands directory not found. Run 'todowrite generate-commands' first.")
+        click.echo(
+            "Error: Commands directory not found. Run 'todowrite generate-commands' first."
+        )
         sys.exit(1)
 
     if all:
@@ -235,11 +252,11 @@ def execute_commands(command_id: str, all: bool, dry_run: bool):
 
     for cmd_file in command_files:
         try:
-            with open(cmd_file, 'r') as f:
+            with open(cmd_file, "r") as f:
                 cmd_data = yaml.safe_load(f)
 
-            cmd_id = cmd_data.get('id', 'Unknown')
-            shell_cmd = cmd_data.get('command', {}).get('run', {}).get('shell', '')
+            cmd_id = cmd_data.get("id", "Unknown")
+            shell_cmd = cmd_data.get("command", {}).get("run", {}).get("shell", "")
 
             click.echo(f"\n🚀 Executing: {cmd_id}")
             click.echo(f"Command: {shell_cmd}")
@@ -253,11 +270,13 @@ def execute_commands(command_id: str, all: bool, dry_run: bool):
             results_dir.mkdir(parents=True, exist_ok=True)
 
             # Execute command
-            result = subprocess.run(shell_cmd, shell=True, capture_output=True, text=True)
+            result = subprocess.run(
+                shell_cmd, shell=True, capture_output=True, text=True
+            )
 
             # Save execution log
             log_file = results_dir / "execution.log"
-            with open(log_file, 'w') as f:
+            with open(log_file, "w") as f:
                 f.write(f"Command: {shell_cmd}\n")
                 f.write(f"Exit Code: {result.returncode}\n")
                 f.write(f"STDOUT:\n{result.stdout}\n")
@@ -276,7 +295,12 @@ def execute_commands(command_id: str, all: bool, dry_run: bool):
 
 @todowrite.command()
 @click.option("--layer", help="Show only specific layer")
-@click.option("--format", type=click.Choice(['tree', 'flat', 'json']), default='tree', help="Output format")
+@click.option(
+    "--format",
+    type=click.Choice(["tree", "flat", "json"]),
+    default="tree",
+    help="Output format",
+)
 def show_hierarchy(layer: str, format: str):
     """Display the ToDoWrite planning hierarchy."""
     plans_dir = Path("configs/plans")
@@ -287,9 +311,17 @@ def show_hierarchy(layer: str, format: str):
 
     hierarchy = {}
     layer_order = [
-        'goals', 'concepts', 'contexts', 'constraints', 'requirements',
-        'acceptance_criteria', 'interface_contracts', 'phases', 'steps',
-        'tasks', 'subtasks'
+        "goals",
+        "concepts",
+        "contexts",
+        "constraints",
+        "requirements",
+        "acceptance_criteria",
+        "interface_contracts",
+        "phases",
+        "steps",
+        "tasks",
+        "subtasks",
     ]
 
     # Load all nodes
@@ -299,15 +331,17 @@ def show_hierarchy(layer: str, format: str):
             layer_nodes = []
             for yaml_file in layer_path.glob("*.yaml"):
                 try:
-                    with open(yaml_file, 'r') as f:
+                    with open(yaml_file, "r") as f:
                         node_data = yaml.safe_load(f)
-                    layer_nodes.append({
-                        'id': node_data.get('id', ''),
-                        'title': node_data.get('title', ''),
-                        'layer': node_data.get('layer', ''),
-                        'parents': node_data.get('links', {}).get('parents', []),
-                        'children': node_data.get('links', {}).get('children', [])
-                    })
+                    layer_nodes.append(
+                        {
+                            "id": node_data.get("id", ""),
+                            "title": node_data.get("title", ""),
+                            "layer": node_data.get("layer", ""),
+                            "parents": node_data.get("links", {}).get("parents", []),
+                            "children": node_data.get("links", {}).get("children", []),
+                        }
+                    )
                 except Exception as e:
                     click.echo(f"Warning: Could not load {yaml_file}: {e}")
 
@@ -320,24 +354,27 @@ def show_hierarchy(layer: str, format: str):
         command_nodes = []
         for yaml_file in commands_dir.glob("CMD-*.yaml"):
             try:
-                with open(yaml_file, 'r') as f:
+                with open(yaml_file, "r") as f:
                     node_data = yaml.safe_load(f)
-                command_nodes.append({
-                    'id': node_data.get('id', ''),
-                    'title': node_data.get('title', ''),
-                    'layer': 'Command',
-                    'parents': node_data.get('links', {}).get('parents', []),
-                    'children': node_data.get('links', {}).get('children', [])
-                })
+                command_nodes.append(
+                    {
+                        "id": node_data.get("id", ""),
+                        "title": node_data.get("title", ""),
+                        "layer": "Command",
+                        "parents": node_data.get("links", {}).get("parents", []),
+                        "children": node_data.get("links", {}).get("children", []),
+                    }
+                )
             except Exception:
                 pass
         if command_nodes:
-            hierarchy['commands'] = command_nodes
+            hierarchy["commands"] = command_nodes
 
-    if format == 'json':
+    if format == "json":
         import json
+
         click.echo(json.dumps(hierarchy, indent=2))
-    elif format == 'flat':
+    elif format == "flat":
         for layer_name, nodes in hierarchy.items():
             if layer and layer.lower() not in layer_name.lower():
                 continue
@@ -353,11 +390,13 @@ def show_hierarchy(layer: str, format: str):
             click.echo(f"\n📁 {layer_name.replace('_', ' ').title()}")
             for node in nodes:
                 click.echo(f"  └── {node['id']}: {node['title']}")
-                if node['children']:
-                    for child in node['children'][:3]:  # Show first 3 children
+                if node["children"]:
+                    for child in node["children"][:3]:  # Show first 3 children
                         click.echo(f"      └─> {child}")
-                    if len(node['children']) > 3:
-                        click.echo(f"      └─> ... and {len(node['children']) - 3} more")
+                    if len(node["children"]) > 3:
+                        click.echo(
+                            f"      └─> ... and {len(node['children']) - 3} more"
+                        )
 
 
 @todowrite.command()
@@ -366,9 +405,11 @@ def check_soc():
     click.echo("🔒 Checking Separation of Concerns compliance...")
 
     try:
-        result = subprocess.run([
-            sys.executable, "todowrite/tools/tw_lint_soc.py"
-        ], capture_output=True, text=True)
+        result = subprocess.run(
+            [sys.executable, "todowrite/tools/tw_lint_soc.py"],
+            capture_output=True,
+            text=True,
+        )
 
         click.echo(result.stdout)
         if result.stderr:

@@ -1,0 +1,18 @@
+id: AC-STATUS-DOCUMENTATION-COMPLETE
+layer: AcceptanceCriteria
+title: Status tracking documentation covers all aspects with working examples
+description: >
+  PASS: Documentation includes updated schema reference with status field
+  specifications, CLI command reference with usage examples, project management
+  workflow guide, status propagation rules explanation, and migration guide
+  for existing projects. All code examples execute successfully. Integration
+  examples with external PM tools are functional and tested.
+  FAIL: Missing documentation sections, broken examples, or unclear instructions.
+metadata:
+  owner: documentation-engineer
+  labels: ["work:docs", documentation-testing, examples-validation, completeness]
+  severity: med
+  work_type: docs
+links:
+  parents: [R-STATUS-DOCUMENTATION]
+  children: [CMD-STATUS-DOCUMENTATION-COMPLETE]

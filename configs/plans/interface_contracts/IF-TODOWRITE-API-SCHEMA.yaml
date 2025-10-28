@@ -11,7 +11,7 @@ description: >
   Command Results: JSON artifacts in results/{CMD-ID}/ directory
 metadata:
   owner: interface-designer
-  labels: [work:interface, api, cli, schema, naming]
+  labels: ["work:interface", api, cli, schema, naming]
   severity: high
   work_type: interface
 links:

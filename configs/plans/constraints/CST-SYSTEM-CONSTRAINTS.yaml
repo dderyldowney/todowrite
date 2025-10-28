@@ -11,7 +11,7 @@ description: >
   automation contexts.
 metadata:
   owner: system-architect
-  labels: [work:validation, safety, schema, conventional-commits]
+  labels: ["work:validation", safety, schema, conventional-commits]
   severity: high
   work_type: validation
 links:

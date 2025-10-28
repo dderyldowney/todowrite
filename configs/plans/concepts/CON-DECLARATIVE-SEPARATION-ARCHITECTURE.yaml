@@ -10,7 +10,7 @@ description: >
   validation of the entire planning hierarchy.
 metadata:
   owner: system-architect
-  labels: [work:architecture, separation-of-concerns, declarative, safety]
+  labels: ["work:architecture", "separation-of-concerns", declarative, safety]
   severity: high
   work_type: architecture
 links:

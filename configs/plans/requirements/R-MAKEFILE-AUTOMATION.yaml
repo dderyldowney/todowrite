@@ -8,7 +8,7 @@ description: >
   complete workflow automation.
 metadata:
   owner: build-engineer
-  labels: [work:implementation, makefile, automation, build]
+  labels: ["work:implementation", makefile, automation, build]
   severity: high
   work_type: implementation
 links:

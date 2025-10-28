@@ -1,0 +1,16 @@
+id: R-VALIDATION-UPDATES
+layer: Requirements
+title: Update Validation Tools for Status Support
+description: >
+  The system SHALL update existing validation tools (tw_validate.py, tw_trace.py,
+  tw_lint_soc.py) to support optional status fields while maintaining existing
+  functionality. Tools must validate status field values, date formats, and
+  progress ranges. No breaking changes to existing validation behavior.
+metadata:
+  owner: validation-engineer
+  labels: ["work:validation", tools-update, status-validation, compatibility]
+  severity: med
+  work_type: validation
+links:
+  parents: [CST-ENHANCEMENT-CONSTRAINTS]
+  children: [AC-VALIDATION-TOOLS-UPDATED]

@@ -8,7 +8,7 @@ description: >
   tw_stub_command.py for command stub generation from Acceptance Criteria.
 metadata:
   owner: validation-engineer
-  labels: [work:validation, tools, schema, linting, traceability]
+  labels: ["work:validation", tools, schema, linting, traceability]
   severity: high
   work_type: validation
 links:

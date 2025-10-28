@@ -1,0 +1,16 @@
+id: TSK-UPDATE-TRACE-TOOL
+layer: Task
+title: Update tw_trace.py to include status information
+description: >
+  Enhance the traceability tool to include status information in trace reports,
+  calculate hierarchical progress through dependency chains, and identify
+  bottlenecks in project execution. Add status-aware graph generation with
+  visual progress indicators.
+metadata:
+  owner: validation-engineer
+  labels: ["work:validation", traceability-update, status-tracking, bottlenecks]
+  severity: med
+  work_type: validation
+links:
+  parents: [STP-UPDATE-VALIDATION-TOOLS]
+  children: [SUB-ADD-STATUS-TO-TRACE]

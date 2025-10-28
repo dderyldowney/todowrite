@@ -1,0 +1,31 @@
+id: CMD-VALIDATION-TOOLS-UPDATED
+layer: Command
+title: Execute validation for Validation tools support status fields without breaking
+  existing functionality
+description: 'Automated execution to verify: PASS: tw_validate.py validates status
+  field enums and date formats correctly. tw_trace.py includes status information
+  in traceability reports. tw_lint_soc.py continues to enforce SoC without false pos...'
+metadata:
+  owner: validation-engineer
+  labels:
+  - generated
+  - automated
+  - verification
+  severity: med
+  work_type: validation
+links:
+  parents:
+  - AC-VALIDATION-TOOLS-UPDATED
+  children: []
+command:
+  ac_ref: AC-VALIDATION-TOOLS-UPDATED
+  run:
+    shell: python todowrite/tools/tw_validate.py --strict
+    workdir: .
+    env:
+      TODOWRITE_MODE: validation
+      AC_REF: AC-VALIDATION-TOOLS-UPDATED
+  artifacts:
+  - results/CMD-VALIDATION-TOOLS-UPDATED/execution.log
+  - results/CMD-VALIDATION-TOOLS-UPDATED/validation_report.json
+  - results/CMD-VALIDATION-TOOLS-UPDATED/schema_errors.log

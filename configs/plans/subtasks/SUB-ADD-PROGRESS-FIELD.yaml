@@ -1,0 +1,15 @@
+id: SUB-ADD-PROGRESS-FIELD
+layer: SubTask
+title: Add progress percentage field to schema
+description: >
+  Add optional progress field as integer with range validation 0-100.
+  Include proper validation rules and field description. Field represents
+  completion percentage for tracking granular progress within status states.
+metadata:
+  owner: schema-engineer
+  labels: ["work:validation", schema-field, integer-validation, range-check]
+  severity: high
+  work_type: validation
+links:
+  parents: [TSK-UPDATE-SCHEMA-FILE]
+  children: []

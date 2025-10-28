@@ -1,0 +1,17 @@
+id: R-STATUS-CLI-COMMANDS
+layer: Requirements
+title: CLI Commands for Status Management
+description: >
+  The system SHALL provide CLI commands for status management including
+  update-status (set status and progress), show-progress (display project
+  completion overview), mark-complete (set to completed with timestamp),
+  and status-report (generate progress summary with bottleneck analysis).
+  Commands must integrate with existing todowrite CLI structure.
+metadata:
+  owner: cli-developer
+  labels: ["work:implementation", cli, status-commands, progress-tracking]
+  severity: high
+  work_type: implementation
+links:
+  parents: [CST-ENHANCEMENT-CONSTRAINTS]
+  children: [AC-STATUS-COMMANDS-FUNCTIONAL]

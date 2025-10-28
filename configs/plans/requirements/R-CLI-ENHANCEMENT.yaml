@@ -7,7 +7,7 @@ description: >
   hierarchy, with integration to the FastAPI backend and database storage.
 metadata:
   owner: cli-developer
-  labels: [work:implementation, cli, commands, integration]
+  labels: ["work:implementation", cli, commands, integration]
   severity: high
   work_type: implementation
 links:

@@ -1,0 +1,16 @@
+id: GOAL-STATUS-TRACKING-ENHANCEMENT
+layer: Goal
+title: Add Status Tracking to ToDoWrite Planning Framework
+description: >
+  Enhance the ToDoWrite system with comprehensive status tracking capability
+  to monitor progress through the 12-layer planning hierarchy, enabling
+  project managers and teams to track completion status, progress percentages,
+  and completion dates for all planning nodes from Goal to Command execution.
+metadata:
+  owner: product-owner
+  labels: ["work:architecture", enhancement, status-tracking, project-management]
+  severity: high
+  work_type: architecture
+links:
+  parents: []
+  children: [CON-EXECUTION-STATUS-ARCHITECTURE]

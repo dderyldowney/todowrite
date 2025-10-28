@@ -8,7 +8,7 @@ description: >
   Include command-line interface with --strict and --summary options.
 metadata:
   owner: validation-engineer
-  labels: [work:validation, schema, yaml, error-reporting]
+  labels: ["work:validation", schema, yaml, error-reporting]
   severity: high
   work_type: validation
 links:
