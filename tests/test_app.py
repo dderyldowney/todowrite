@@ -1,15 +1,17 @@
 import subprocess
 import time
 import unittest
+from typing import Any
 
 from todowrite.app import ToDoWrite
 from todowrite.db.models import Artifact, Command, Label, Node, node_labels
 
 
 class TestApp(unittest.TestCase):
+    app: ToDoWrite
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         """Start the PostgreSQL container."""
         subprocess.run(["docker-compose", "up", "-d"], check=True)
         # Wait for the database to be ready
@@ -18,14 +20,14 @@ class TestApp(unittest.TestCase):
         cls.app = ToDoWrite(db_url)
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(cls) -> None:
         """Stop the PostgreSQL container."""
         subprocess.run(["docker-compose", "down"], check=True)
 
-    def setUp(self):
+    def setUp(self) -> None:
         self.app.init_database()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         session = self.app.Session()
         session.execute(node_labels.delete())
         session.query(Artifact).delete()
@@ -35,19 +37,19 @@ class TestApp(unittest.TestCase):
         session.commit()
         session.close()
 
-    def test_init_database(self):
+    def test_init_database(self) -> None:
         """Test that init_database creates the database file."""
         # This test is not applicable to PostgreSQL
         pass
 
-    def test_default_database_is_sqlite(self):
+    def test_default_database_is_sqlite(self) -> None:
         """Test that the default database is SQLite."""
         app = ToDoWrite()
         self.assertTrue(app.db_url.startswith("sqlite"))
 
-    def test_create_node(self):
+    def test_create_node(self) -> None:
         """Test that create_node creates a new node in the database."""
-        node_data = {
+        node_data: dict[str, Any] = {
             "id": "GOAL-TEST1",
             "layer": "Goal",
             "title": "Test Goal",
@@ -65,9 +67,9 @@ class TestApp(unittest.TestCase):
         self.assertEqual(node.id, "GOAL-TEST1")
         self.assertEqual(node.metadata.labels[0], "test")
 
-    def test_get_node(self):
+    def test_get_node(self) -> None:
         """Test that get_node returns the correct node from the database."""
-        node_data = {
+        node_data: dict[str, Any] = {
             "id": "GOAL-TEST1",
             "layer": "Goal",
             "title": "Test Goal",
@@ -84,11 +86,12 @@ class TestApp(unittest.TestCase):
         self.app.create_node(node_data)
         node = self.app.get_node("GOAL-TEST1")
         self.assertIsNotNone(node)
+        assert node is not None  # Type narrowing for mypy
         self.assertEqual(node.id, "GOAL-TEST1")
 
-    def test_get_all_nodes(self):
+    def test_get_all_nodes(self) -> None:
         """Test that get_all_nodes returns all the nodes from the database."""
-        node_data1 = {
+        node_data1: dict[str, Any] = {
             "id": "GOAL-TEST1",
             "layer": "Goal",
             "title": "Test Goal 1",
@@ -102,7 +105,7 @@ class TestApp(unittest.TestCase):
                 "work_type": "architecture",
             },
         }
-        node_data2 = {
+        node_data2: dict[str, Any] = {
             "id": "GOAL-TEST2",
             "layer": "Goal",
             "title": "Test Goal 2",

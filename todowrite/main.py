@@ -3,7 +3,7 @@
 from .cli import cli
 
 
-def main():
+def main() -> None:
     """Main function for the ToDoWrite CLI."""
     cli()
 

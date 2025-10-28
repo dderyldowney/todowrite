@@ -5,9 +5,11 @@ This module contains the core ToDoWrite application class.
 import json
 import os
 import uuid
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
-from typing import Any, Generator, Literal, cast
+from pathlib import Path
+from typing import Any, Literal, cast
 
 import jsonschema
 from sqlalchemy import create_engine
@@ -96,7 +98,7 @@ class Node:
 class ToDoWrite:
     """The main ToDoWrite application class."""
 
-    _SCHEMA = None
+    _SCHEMA: dict[str, Any] | None = None
 
     def __init__(self, db_url: str | None = None):
         """Initializes the ToDoWrite application."""
@@ -105,14 +107,13 @@ class ToDoWrite:
         self.Session = sessionmaker(bind=self.engine)
 
         if ToDoWrite._SCHEMA is None:
-            schema_path = os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "configs",
-                "schemas",
-                "todowrite.schema.json",
+            schema_path = (
+                Path(__file__).parent.parent
+                / "configs"
+                / "schemas"
+                / "todowrite.schema.json"
             )
-            with open(schema_path, "r") as f:
+            with open(schema_path) as f:
                 ToDoWrite._SCHEMA = json.load(f)
 
     @contextmanager
@@ -121,7 +122,7 @@ class ToDoWrite:
         try:
             yield session
             session.commit()
-        except:
+        except Exception:
             session.rollback()
             raise
         finally:
@@ -129,6 +130,8 @@ class ToDoWrite:
 
     def _validate_node_data(self, node_data: dict[str, Any]) -> None:
         """Validates node data against the ToDoWrite schema."""
+        if ToDoWrite._SCHEMA is None:
+            raise ValueError("Schema not loaded. Cannot validate node data.")
         try:
             jsonschema.validate(instance=node_data, schema=ToDoWrite._SCHEMA)
         except jsonschema.exceptions.ValidationError as e:
@@ -261,7 +264,7 @@ class ToDoWrite:
                     db_node.labels.append(label)
 
                 # Update command
-                if "command" in node_data and node_data["command"]:
+                if node_data.get("command"):
                     db_command = (
                         session.query(DBCommand)
                         .filter(DBCommand.node_id == node_id)
@@ -645,7 +648,7 @@ class ToDoWrite:
                 session.add(label)
             db_node.labels.append(label)
 
-        if "command" in node_data and node_data["command"]:
+        if node_data.get("command"):
             command_data: dict[str, Any] = node_data["command"]
             db_command = DBCommand(
                 node_id=db_node.id,

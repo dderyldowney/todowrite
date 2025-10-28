@@ -7,7 +7,7 @@ Generates executable command stubs from Acceptance Criteria
 import argparse
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 import yaml
 
@@ -16,11 +16,11 @@ class CommandStubGenerator:
     """Generates Command layer stubs from Acceptance Criteria"""
 
     def __init__(self) -> None:
-        self.generated_count = 0
-        self.ac_files = []
-        self.existing_commands = set()
+        self.generated_count: int = 0
+        self.ac_files: list[Path] = []
+        self.existing_commands: set[str] = set()
 
-    def _find_acceptance_criteria_files(self) -> List[Path]:
+    def _find_acceptance_criteria_files(self) -> list[Path]:
         """Find all Acceptance Criteria YAML files"""
         ac_dir = Path("configs/plans/acceptance_criteria")
         if not ac_dir.exists():
@@ -38,7 +38,7 @@ class CommandStubGenerator:
             for cmd_file in commands_dir.glob("CMD-*.yaml"):
                 # Extract AC reference from existing command
                 try:
-                    with open(cmd_file, "r") as f:
+                    with open(cmd_file) as f:
                         data = yaml.safe_load(f)
                     ac_ref = data.get("command", {}).get("ac_ref", "")
                     if ac_ref:
@@ -48,10 +48,10 @@ class CommandStubGenerator:
 
         print(f"Found {len(self.existing_commands)} existing commands")
 
-    def _load_yaml_file(self, file_path: Path) -> Tuple[Dict[str, Any], bool]:
+    def _load_yaml_file(self, file_path: Path) -> tuple[dict[str, Any], bool]:
         """Load and parse YAML file, return (data, success)"""
         try:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 data = yaml.safe_load(f)
             return data, True
         except yaml.YAMLError as e:
@@ -69,7 +69,7 @@ class CommandStubGenerator:
         else:
             return f"CMD-{ac_id}"
 
-    def _generate_shell_command(self, ac_data: Dict[str, Any]) -> str:
+    def _generate_shell_command(self, ac_data: dict[str, Any]) -> str:
         """Generate appropriate shell command based on AC content"""
         title = ac_data.get("title", "").lower()
 
@@ -90,11 +90,10 @@ class CommandStubGenerator:
             return "python -m pytest tests/ -v"
         else:
             # Generic validation command
-            return "echo 'Manual verification required for: {}'".format(
-                ac_data.get("title", "Acceptance Criteria")
-            )
+            title = ac_data.get("title", "Acceptance Criteria")
+            return f"echo 'Manual verification required for: {title}'"
 
-    def _generate_artifacts_list(self, ac_data: Dict[str, Any]) -> List[str]:
+    def _generate_artifacts_list(self, ac_data: dict[str, Any]) -> list[str]:
         """Generate expected artifacts list"""
         title = ac_data.get("title", "").lower()
         cmd_id = self._generate_command_id(ac_data.get("id", ""))
@@ -218,7 +217,7 @@ class CommandStubGenerator:
 
         return True
 
-    def generate_all_stubs(self) -> Tuple[int, int]:
+    def generate_all_stubs(self) -> tuple[int, int]:
         """Generate command stubs for all Acceptance Criteria"""
         self.ac_files = self._find_acceptance_criteria_files()
         self._find_existing_commands()

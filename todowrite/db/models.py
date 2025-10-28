@@ -1,10 +1,8 @@
-from typing import List, Optional
-
 from sqlalchemy import Column, ForeignKey, String, Table, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
-class Base(DeclarativeBase):  # type: ignore[misc]
+class Base(DeclarativeBase):
     __abstract__ = True
     pass
 
@@ -23,10 +21,10 @@ class Node(Base):
     severity: Mapped[str | None] = mapped_column(String)
     work_type: Mapped[str | None] = mapped_column(String)
 
-    labels: Mapped[List["Label"]] = relationship(
+    labels: Mapped[list["Label"]] = relationship(
         secondary="node_labels", back_populates="nodes"
     )
-    command: Mapped[Optional["Command"]] = relationship(
+    command: Mapped["Command | None"] = relationship(
         uselist=False, back_populates="node"
     )
 
@@ -51,7 +49,7 @@ class Label(Base):
 
     label: Mapped[str] = mapped_column(String, primary_key=True)
 
-    nodes: Mapped[List["Node"]] = relationship(
+    nodes: Mapped[list["Node"]] = relationship(
         secondary="node_labels", back_populates="labels"
     )
 
@@ -76,7 +74,7 @@ class Command(Base):
     run: Mapped[str | None] = mapped_column(Text)
 
     node: Mapped["Node"] = relationship(back_populates="command")
-    artifacts: Mapped[List["Artifact"]] = relationship(back_populates="command")
+    artifacts: Mapped[list["Artifact"]] = relationship(back_populates="command")
 
 
 class Artifact(Base):

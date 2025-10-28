@@ -10,7 +10,7 @@ import json
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any
 
 import yaml
 
@@ -19,15 +19,15 @@ class TraceabilityBuilder:
     """Builds traceability matrix and dependency graph for ToDoWrite framework"""
 
     def __init__(self) -> None:
-        self.nodes: Dict[str, Dict[str, Any]] = {}
-        self.forward_links: Dict[str, Set[str]] = defaultdict(set)
-        self.backward_links: Dict[str, Set[str]] = defaultdict(set)
-        self.orphaned_nodes: Set[str] = set()
-        self.circular_deps: List[List[str]] = []
+        self.nodes: dict[str, dict[str, Any]] = {}
+        self.forward_links: dict[str, set[str]] = defaultdict(set)
+        self.backward_links: dict[str, set[str]] = defaultdict(set)
+        self.orphaned_nodes: set[str] = set()
+        self.circular_deps: list[list[str]] = []
 
-    def _find_yaml_files(self) -> List[Path]:
+    def _find_yaml_files(self) -> list[Path]:
         """Find all YAML files in configs/plans/* and configs/commands/* directories"""
-        yaml_files = []
+        yaml_files: list[Path] = []
 
         # Plans directory (layers 1-11)
         plans_dir = Path("configs/plans")
@@ -43,10 +43,10 @@ class TraceabilityBuilder:
 
         return sorted(yaml_files)
 
-    def _load_yaml_file(self, file_path: Path) -> Tuple[Dict[str, Any], bool]:
+    def _load_yaml_file(self, file_path: Path) -> tuple[dict[str, Any], bool]:
         """Load and parse YAML file, return (data, success)"""
         try:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 data = yaml.safe_load(f)
             return data, True
         except yaml.YAMLError as e:
@@ -134,11 +134,14 @@ class TraceabilityBuilder:
 
             # Goal nodes can have no parents, Command nodes can have no children
             layer = node_data["layer"]
-            if layer == "Goal" and not has_children:
-                self.orphaned_nodes.add(node_id)
-            elif layer == "Command" and not has_parents:
-                self.orphaned_nodes.add(node_id)
-            elif not has_parents and not has_children:
+            if (
+                layer == "Goal"
+                and not has_children
+                or layer == "Command"
+                and not has_parents
+                or not has_parents
+                and not has_children
+            ):
                 self.orphaned_nodes.add(node_id)
 
     def detect_circular_dependencies(self) -> None:
@@ -148,7 +151,7 @@ class TraceabilityBuilder:
         visited = set()
         rec_stack = set()
 
-        def dfs(node_id: str, path: List[str]) -> bool:
+        def dfs(node_id: str, path: list[str]) -> bool:
             if node_id in rec_stack:
                 # Found cycle
                 cycle_start = path.index(node_id)
@@ -290,7 +293,7 @@ class TraceabilityBuilder:
         print("=" * 60)
 
         # Node statistics
-        layer_counts = defaultdict(int)
+        layer_counts: dict[str, int] = defaultdict(int)
         for node_data in self.nodes.values():
             layer_counts[node_data["layer"]] += 1
 

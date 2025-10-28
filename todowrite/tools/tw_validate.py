@@ -8,7 +8,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, cast
 
 import yaml
 from jsonschema import Draft202012Validator, ValidationError, validate
@@ -18,15 +18,15 @@ class ToDoWriteValidator:
     """Schema validator for ToDoWrite YAML files"""
 
     def __init__(self, schema_path: str = "configs/schemas/todowrite.schema.json"):
-        self.schema_path = schema_path
-        self.schema = self._load_schema()
-        self.validator = Draft202012Validator(self.schema)
+        self.schema_path: str = schema_path
+        self.schema: dict[str, Any] = self._load_schema()
+        self.validator: Draft202012Validator = Draft202012Validator(self.schema)
 
-    def _load_schema(self) -> Dict[str, Any]:
+    def _load_schema(self) -> dict[str, Any]:
         """Load JSON schema from file"""
         try:
-            with open(self.schema_path, "r") as f:
-                return json.load(f)
+            with open(self.schema_path) as f:
+                return cast(dict[str, Any], json.load(f))
         except FileNotFoundError:
             print(f"ERROR: Schema file not found: {self.schema_path}")
             print("Run 'make tw-schema' to generate schema file")
@@ -35,9 +35,9 @@ class ToDoWriteValidator:
             print(f"ERROR: Invalid JSON in schema file: {e}")
             sys.exit(1)
 
-    def _find_yaml_files(self) -> List[Path]:
+    def _find_yaml_files(self) -> list[Path]:
         """Find all YAML files in configs/plans/* directories"""
-        yaml_files = []
+        yaml_files: list[Path] = []
         plans_dir = Path("configs/plans")
 
         if not plans_dir.exists():
@@ -52,10 +52,10 @@ class ToDoWriteValidator:
 
         return sorted(yaml_files)
 
-    def _load_yaml_file(self, file_path: Path) -> Tuple[Dict[str, Any], bool]:
+    def _load_yaml_file(self, file_path: Path) -> tuple[dict[str, Any], bool]:
         """Load and parse YAML file, return (data, success)"""
         try:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 data = yaml.safe_load(f)
             return data, True
         except yaml.YAMLError as e:
@@ -87,7 +87,7 @@ class ToDoWriteValidator:
             print()
             return False
 
-    def validate_all(self, strict: bool = False) -> Tuple[int, int]:
+    def validate_all(self, strict: bool = False) -> tuple[int, int]:
         """Validate all YAML files, return (valid_count, total_count)"""
         yaml_files = self._find_yaml_files()
 
@@ -129,7 +129,7 @@ class ToDoWriteValidator:
         print("=" * 50)
 
 
-def main():
+def main() -> None:
     """Main entry point for tw_validate.py"""
     parser = argparse.ArgumentParser(
         description="Validate ToDoWrite YAML files against JSON schema"
