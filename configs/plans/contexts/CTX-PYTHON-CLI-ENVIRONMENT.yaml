@@ -1,0 +1,17 @@
+id: CTX-PYTHON-CLI-ENVIRONMENT
+layer: Context
+title: Python CLI Development Environment
+description: >
+  Development environment consists of Python 3.12+ with FastAPI backend,
+  CLI interface, Git repository with conventional commits, and make-based
+  build system. Target users are software engineers and agricultural
+  automation developers who need systematic project planning. System
+  operates on macOS/Linux with file-based storage for portability.
+metadata:
+  owner: system-architect
+  labels: [work:architecture, python, cli, git, fastapi]
+  severity: med
+  work_type: architecture
+links:
+  parents: [CON-DECLARATIVE-SEPARATION-ARCHITECTURE]
+  children: [CST-SYSTEM-CONSTRAINTS]

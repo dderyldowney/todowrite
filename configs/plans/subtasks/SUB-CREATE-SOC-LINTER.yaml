@@ -1,0 +1,16 @@
+id: SUB-CREATE-SOC-LINTER
+layer: SubTask
+title: Create tw_lint_soc.py Separation of Concerns linter
+description: >
+  Implement tw_lint_soc.py that scans layers 1-11 YAML files to ensure
+  no 'command' keys, shell commands, or executable content exists.
+  Validate that only layer 12 (Command) contains executable content
+  with proper ac_ref linkage. Report violations with file and line numbers.
+metadata:
+  owner: validation-engineer
+  labels: [work:validation, soc, linting, safety, separation]
+  severity: high
+  work_type: validation
+links:
+  parents: [TSK-IMPLEMENT-VALIDATION-TOOLS]
+  children: []

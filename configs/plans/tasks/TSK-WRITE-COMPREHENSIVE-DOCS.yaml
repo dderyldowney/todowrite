@@ -1,0 +1,17 @@
+id: TSK-WRITE-COMPREHENSIVE-DOCS
+layer: Task
+title: Write comprehensive API and CLI documentation
+description: >
+  Create API reference documentation for all FastAPI endpoints,
+  CLI command reference with usage examples and options,
+  integration guide for 12-layer framework implementation,
+  real-world scenarios demonstrating Goal-to-Command workflows,
+  and troubleshooting guide with common errors and solutions.
+metadata:
+  owner: documentation-engineer
+  labels: [work:docs, api-reference, cli-guide, examples, troubleshooting]
+  severity: med
+  work_type: docs
+links:
+  parents: [STP-CREATE-DOCUMENTATION]
+  children: []

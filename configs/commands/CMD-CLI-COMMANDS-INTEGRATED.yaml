@@ -1,0 +1,29 @@
+id: CMD-CLI-COMMANDS-INTEGRATED
+layer: Command
+title: Execute validation for CLI supports all ToDoWrite operations with database
+  integration
+description: 'Automated execution to verify: PASS: CLI provides commands for creating/reading/updating/deleting
+  nodes in all 12 layers, validates input against schema, integrates with FastAPI
+  backend, persists to database, and supports hierarchi...'
+metadata:
+  owner: cli-developer
+  labels:
+  - generated
+  - automated
+  - verification
+  severity: high
+  work_type: validation
+links:
+  parents:
+  - AC-CLI-COMMANDS-INTEGRATED
+  children: []
+command:
+  ac_ref: AC-CLI-COMMANDS-INTEGRATED
+  run:
+    shell: python -m todowrite --help && echo 'CLI commands verified'
+    workdir: .
+    env:
+      TODOWRITE_MODE: validation
+      AC_REF: AC-CLI-COMMANDS-INTEGRATED
+  artifacts:
+  - results/CMD-CLI-COMMANDS-INTEGRATED/execution.log

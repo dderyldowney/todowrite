@@ -1,0 +1,18 @@
+id: CON-DECLARATIVE-SEPARATION-ARCHITECTURE
+layer: Concept
+title: 11+1 Declarative Separation Architecture
+description: >
+  Implement a pure separation of concerns architecture where 11 layers
+  (Goal through SubTask) are purely declarative YAML files with no
+  executable code, and only Layer 12 (Command) contains executable
+  content. This ensures clean architectural boundaries, prevents
+  accidental execution of planning content, and enables build-time
+  validation of the entire planning hierarchy.
+metadata:
+  owner: system-architect
+  labels: [work:architecture, separation-of-concerns, declarative, safety]
+  severity: high
+  work_type: architecture
+links:
+  parents: [GOAL-TODOWRITE-SYSTEM-IMPLEMENTATION]
+  children: [CTX-PYTHON-CLI-ENVIRONMENT]

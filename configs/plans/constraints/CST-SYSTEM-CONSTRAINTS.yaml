@@ -1,0 +1,19 @@
+id: CST-SYSTEM-CONSTRAINTS
+layer: Constraints
+title: ToDoWrite System Implementation Constraints
+description: >
+  MANDATORY: Layers 1-11 must be non-executable YAML files only.
+  Layer 12 (Command) is the ONLY executable layer. All nodes must
+  validate against JSON Schema. Conventional Commits required for
+  all changes. Complete traceability from Goal to Command required.
+  One concern per node - split mixed responsibilities horizontally.
+  All tools must be build-time validated for safety in agricultural
+  automation contexts.
+metadata:
+  owner: system-architect
+  labels: [work:validation, safety, schema, conventional-commits]
+  severity: high
+  work_type: validation
+links:
+  parents: [CTX-PYTHON-CLI-ENVIRONMENT]
+  children: [R-MAKEFILE-AUTOMATION, R-VALIDATION-TOOLS, R-CLI-ENHANCEMENT, R-DOCUMENTATION-SUITE]
