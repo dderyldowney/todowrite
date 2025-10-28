@@ -1,0 +1,30 @@
+id: CMD-DOCUMENTATION-COMPLETE
+layer: Command
+title: Execute validation for Complete documentation covers all APIs, CLI commands,
+  and examples
+description: 'Automated execution to verify: PASS: Documentation includes comprehensive
+  API reference with endpoint descriptions, CLI command reference with usage examples,
+  integration guide for 12-layer framework, real-world scenarios demonstra...'
+metadata:
+  owner: documentation-engineer
+  labels:
+  - generated
+  - automated
+  - verification
+  severity: med
+  work_type: validation
+links:
+  parents:
+  - AC-DOCUMENTATION-COMPLETE
+  children: []
+command:
+  ac_ref: AC-DOCUMENTATION-COMPLETE
+  run:
+    shell: python -m todowrite --help && echo 'CLI commands verified'
+    workdir: .
+    env:
+      TODOWRITE_MODE: validation
+      AC_REF: AC-DOCUMENTATION-COMPLETE
+  artifacts:
+  - results/CMD-DOCUMENTATION-COMPLETE/execution.log
+  - results/CMD-DOCUMENTATION-COMPLETE/doc_verification.json

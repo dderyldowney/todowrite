@@ -1,0 +1,26 @@
+id: AC-CLI-COMMANDS-INTEGRATED
+layer: AcceptanceCriteria
+title: CLI supports all ToDoWrite operations with database integration
+description: 'PASS: CLI provides commands for creating/reading/updating/deleting nodes
+  in all 12 layers, validates input against schema, integrates with FastAPI backend,
+  persists to database, and supports hierarchical navigation. Commands include create-goal,
+  create-concept, validate-plan, trace-links, and execute-commands with proper error
+  handling and help text. FAIL: Any command missing, crashes, or fails to integrate
+  with backend.
+
+  '
+metadata:
+  owner: cli-developer
+  labels:
+  - work:implementation
+  - cli
+  - integration
+  - database
+  - commands
+  severity: high
+  work_type: implementation
+links:
+  parents:
+  - R-CLI-ENHANCEMENT
+  children:
+  - CMD-CLI-COMMANDS-INTEGRATED

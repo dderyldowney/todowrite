@@ -1,0 +1,17 @@
+id: TSK-EXTEND-CLI-COMMANDS
+layer: Task
+title: Extend CLI with ToDoWrite commands
+description: >
+  Add CLI commands for create-node (all 12 layers), validate-plan,
+  trace-links, execute-commands, and show-hierarchy. Integrate with
+  existing FastAPI backend, ensure database persistence, and provide
+  proper error handling with helpful messages. Include command help
+  text and examples for each operation.
+metadata:
+  owner: cli-developer
+  labels: [work:implementation, cli, commands, integration, help]
+  severity: high
+  work_type: implementation
+links:
+  parents: [STP-ENHANCE-CLI-INTERFACE]
+  children: []

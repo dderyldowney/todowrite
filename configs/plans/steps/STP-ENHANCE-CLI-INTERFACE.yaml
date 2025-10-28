@@ -1,0 +1,16 @@
+id: STP-ENHANCE-CLI-INTERFACE
+layer: Step
+title: Enhance CLI with ToDoWrite commands
+description: >
+  Extend existing CLI to support ToDoWrite operations including node
+  creation/management across all 12 layers, validation commands,
+  traceability queries, and command execution. Integrate with FastAPI
+  backend and ensure proper database persistence.
+metadata:
+  owner: cli-developer
+  labels: [work:implementation, cli, commands, integration, database]
+  severity: high
+  work_type: implementation
+links:
+  parents: [PH-CORE-SYSTEM-IMPLEMENTATION]
+  children: []

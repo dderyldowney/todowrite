@@ -1,5 +1,5 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "": "https://json-schema.org/draft/2020-12/schema",
   "title": "ToDoWrite Node",
   "type": "object",
   "required": [
@@ -37,16 +37,6 @@
     },
     "description": {
       "type": "string"
-    },
-    "status": {
-      "type": "string",
-      "enum": [
-        "planned",
-        "in_progress",
-        "blocked",
-        "done",
-        "rejected"
-      ]
     },
     "metadata": {
       "type": "object",
