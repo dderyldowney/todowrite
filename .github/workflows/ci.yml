@@ -1,0 +1,116 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        make tw-deps
+        pip install types-PyYAML  # Type stubs for mypy
+
+    - name: Initialize ToDoWrite system
+      run: |
+        make tw-init
+
+    - name: Run type checking with mypy
+      run: |
+        mypy todowrite/ tests/ --config-file pyproject.toml
+
+    - name: Run ToDoWrite validation
+      run: |
+        make tw-all
+
+    - name: Run tests
+      run: |
+        make tw-test
+
+    - name: Run strict validation
+      run: |
+        make tw-check
+
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install ruff black isort mypy types-PyYAML
+
+    - name: Run ruff (linting)
+      run: |
+        ruff check .
+
+    - name: Run ruff (formatting check)
+      run: |
+        ruff format --check .
+
+    - name: Run black (formatting check)
+      run: |
+        black --check .
+
+    - name: Run isort (import sorting check)
+      run: |
+        isort --check-only .
+
+    - name: Run mypy (type checking)
+      run: |
+        mypy . --config-file pyproject.toml
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install bandit
+      run: |
+        pip install bandit[toml]
+
+    - name: Run bandit security linter
+      run: |
+        bandit -r todowrite/ -f json -o bandit-report.json || true
+
+    - name: Upload bandit report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: bandit-security-report
+        path: bandit-report.json

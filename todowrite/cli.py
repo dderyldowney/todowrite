@@ -30,13 +30,13 @@ LAYER_TO_PREFIX = {
 
 
 @click.group()
-def cli():
+def cli() -> None:
     """A CLI for the ToDoWrite application."""
     pass
 
 
 @cli.command()
-def init():
+def init() -> None:
     """Initializes the database."""
     app: ToDoWrite = ToDoWrite()
     app.init_database()
@@ -48,7 +48,7 @@ def init():
 @click.argument("title")
 @click.argument("description")
 @click.option("--parent", default=None, help="The parent of the node.")
-def create(layer: str, title: str, description: str, parent: str | None):
+def create(layer: str, title: str, description: str, parent: str | None) -> None:
     """Creates a new node."""
     if layer not in get_args(LayerType):
         click.echo(
@@ -78,7 +78,7 @@ def create(layer: str, title: str, description: str, parent: str | None):
     try:
         node: Node = app.create_node(node_data)
         click.echo(f"Node created: {node.id}")
-    except Exception as e:  # type: ignore
+    except Exception as e:
         click.echo(f"Error creating node: {e}", err=True)
         import traceback
 
@@ -88,7 +88,7 @@ def create(layer: str, title: str, description: str, parent: str | None):
 
 @cli.command()
 @click.argument("node_id")
-def get(node_id: str):
+def get(node_id: str) -> None:
     """Gets a node by its ID."""
     app: ToDoWrite = ToDoWrite()
     node: Node | None = app.get_node(node_id)
@@ -160,7 +160,7 @@ def validate_plan() -> None:
 
 @todowrite.command()
 @click.option("--summary", is_flag=True, help="Show summary report only")
-def trace_links():
+def trace_links() -> None:
     """Build and analyze traceability matrix for all planning layers."""
     click.echo("🔗 Building traceability matrix...")
 
@@ -192,7 +192,7 @@ def trace_links():
 
 @todowrite.command()
 @click.option("--force", is_flag=True, help="Regenerate existing command stubs")
-def generate_commands():
+def generate_commands() -> None:
     """Generate executable command stubs from Acceptance Criteria."""
     click.echo("⚡ Generating command stubs from Acceptance Criteria...")
 
@@ -225,7 +225,7 @@ def generate_commands():
 @click.option(
     "--dry-run", is_flag=True, help="Show what would be executed without running"
 )
-def execute_commands(command_id: str, all: bool, dry_run: bool):
+def execute_commands(command_id: str, all: bool, dry_run: bool) -> None:
     """Execute ToDoWrite command stubs."""
     if not command_id and not all:
         click.echo("Error: Must specify either a command ID or --all flag")
@@ -252,7 +252,7 @@ def execute_commands(command_id: str, all: bool, dry_run: bool):
 
     for cmd_file in command_files:
         try:
-            with open(cmd_file, "r") as f:
+            with open(cmd_file) as f:
                 cmd_data = yaml.safe_load(f)
 
             cmd_id = cmd_data.get("id", "Unknown")
@@ -301,7 +301,7 @@ def execute_commands(command_id: str, all: bool, dry_run: bool):
     default="tree",
     help="Output format",
 )
-def show_hierarchy(layer: str, format: str):
+def show_hierarchy(layer: str, format: str) -> None:
     """Display the ToDoWrite planning hierarchy."""
     plans_dir = Path("configs/plans")
 
@@ -331,7 +331,7 @@ def show_hierarchy(layer: str, format: str):
             layer_nodes = []
             for yaml_file in layer_path.glob("*.yaml"):
                 try:
-                    with open(yaml_file, "r") as f:
+                    with open(yaml_file) as f:
                         node_data = yaml.safe_load(f)
                     layer_nodes.append(
                         {
@@ -354,7 +354,7 @@ def show_hierarchy(layer: str, format: str):
         command_nodes = []
         for yaml_file in commands_dir.glob("CMD-*.yaml"):
             try:
-                with open(yaml_file, "r") as f:
+                with open(yaml_file) as f:
                     node_data = yaml.safe_load(f)
                 command_nodes.append(
                     {
@@ -400,7 +400,7 @@ def show_hierarchy(layer: str, format: str):
 
 
 @todowrite.command()
-def check_soc():
+def check_soc() -> None:
     """Check Separation of Concerns compliance for layers 1-11."""
     click.echo("🔒 Checking Separation of Concerns compliance...")
 

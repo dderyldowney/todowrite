@@ -8,7 +8,7 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 import yaml
 
@@ -47,13 +47,13 @@ class SoCLinter:
         r"shell=True",  # Dangerous subprocess calls
     ]
 
-    def __init__(self):
-        self.violation_count = 0
-        self.total_files = 0
+    def __init__(self) -> None:
+        self.violation_count: int = 0
+        self.total_files: int = 0
 
-    def _find_yaml_files(self) -> List[Path]:
+    def _find_yaml_files(self) -> list[Path]:
         """Find all YAML files in configs/plans/* directories"""
-        yaml_files = []
+        yaml_files: list[Path] = []
         plans_dir = Path("configs/plans")
 
         if not plans_dir.exists():
@@ -68,10 +68,10 @@ class SoCLinter:
 
         return sorted(yaml_files)
 
-    def _load_yaml_file(self, file_path: Path) -> Tuple[Dict[str, Any], bool]:
+    def _load_yaml_file(self, file_path: Path) -> tuple[dict[str, Any], bool]:
         """Load and parse YAML file, return (data, success)"""
         try:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 data = yaml.safe_load(f)
             return data, True
         except yaml.YAMLError as e:
@@ -82,13 +82,10 @@ class SoCLinter:
             return {}, False
 
     def _check_for_command_key(
-        self, data: Dict[str, Any], file_path: Path
-    ) -> List[str]:
+        self, data: dict[str, Any], file_path: Path
+    ) -> list[str]:
         """Check if non-executable layers contain 'command' key"""
-        violations = []
-
-        if not isinstance(data, dict):
-            return violations
+        violations: list[str] = []
 
         layer = data.get("layer", "")
         if layer in self.NON_EXECUTABLE_LAYERS and "command" in data:
@@ -99,12 +96,12 @@ class SoCLinter:
         return violations
 
     def _check_for_executable_patterns(
-        self, data: Dict[str, Any], file_path: Path
-    ) -> List[str]:
+        self, data: dict[str, Any], file_path: Path
+    ) -> list[str]:
         """Check for executable patterns in string values"""
-        violations = []
+        violations: list[str] = []
 
-        def scan_value(value, path=""):
+        def scan_value(value: Any, path: str = "") -> None:
             if isinstance(value, str):
                 for pattern in self.EXECUTABLE_PATTERNS:
                     if re.search(pattern, value, re.IGNORECASE):
@@ -125,13 +122,10 @@ class SoCLinter:
         return violations
 
     def _check_command_layer_requirements(
-        self, data: Dict[str, Any], file_path: Path
-    ) -> List[str]:
+        self, data: dict[str, Any], file_path: Path
+    ) -> list[str]:
         """Check that Command layer has proper structure"""
-        violations = []
-
-        if not isinstance(data, dict):
-            return violations
+        violations: list[str] = []
 
         layer = data.get("layer", "")
         if layer == "Command":
@@ -166,7 +160,7 @@ class SoCLinter:
         if not load_success:
             return False
 
-        violations = []
+        violations: list[str] = []
 
         # Check for command key in non-executable layers
         violations.extend(self._check_for_command_key(data, file_path))
@@ -188,7 +182,7 @@ class SoCLinter:
             print(f"✓ {file_path}")
             return True
 
-    def lint_all(self) -> Tuple[int, int]:
+    def lint_all(self) -> tuple[int, int]:
         """Lint all YAML files, return (clean_files, total_files)"""
         yaml_files = self._find_yaml_files()
 
@@ -229,7 +223,7 @@ class SoCLinter:
         print("=" * 50)
 
 
-def main():
+def main() -> None:
     """Main entry point for tw_lint_soc.py"""
     parser = argparse.ArgumentParser(
         description="Lint ToDoWrite YAML files for Separation of Concerns violations"
