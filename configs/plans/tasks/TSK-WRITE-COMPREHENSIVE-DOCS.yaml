@@ -9,7 +9,7 @@ description: >
   and troubleshooting guide with common errors and solutions.
 metadata:
   owner: documentation-engineer
-  labels: [work:docs, api-reference, cli-guide, examples, troubleshooting]
+  labels: ["work:docs", api-reference, cli-guide, examples, troubleshooting]
   severity: med
   work_type: docs
 links:

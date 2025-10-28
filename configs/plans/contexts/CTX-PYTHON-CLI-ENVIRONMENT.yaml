@@ -9,7 +9,7 @@ description: >
   operates on macOS/Linux with file-based storage for portability.
 metadata:
   owner: system-architect
-  labels: [work:architecture, python, cli, git, fastapi]
+  labels: ["work:architecture", python, cli, git, fastapi]
   severity: med
   work_type: architecture
 links:

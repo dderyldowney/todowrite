@@ -10,7 +10,7 @@ description: 'PASS: All 12 required Makefile targets (tw-deps, tw-init, tw-all, 
 metadata:
   owner: build-engineer
   labels:
-  - work:implementation
+  - "work:implementation"
   - makefile
   - automation
   - testing

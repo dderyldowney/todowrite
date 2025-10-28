@@ -8,7 +8,7 @@ description: >
   for software engineering and agricultural automation projects.
 metadata:
   owner: system-architect
-  labels: [work:architecture, todowrite, planning-framework, automation]
+  labels: ["work:architecture", todowrite, planning-framework, automation]
   severity: high
   work_type: architecture
 links:

@@ -4,13 +4,13 @@ ToDoWrite Separation of Concerns Linter (tw_lint_soc.py)
 Ensures layers 1-11 are non-executable and only layer 12 (Command) contains executable content
 """
 
-import yaml
-import sys
-import os
-from pathlib import Path
-from typing import List, Dict, Any, Tuple
 import argparse
 import re
+import sys
+from pathlib import Path
+from typing import Any, Dict, List, Tuple
+
+import yaml
 
 
 class SoCLinter:
@@ -18,24 +18,33 @@ class SoCLinter:
 
     # Layers that MUST NOT contain executable content
     NON_EXECUTABLE_LAYERS = {
-        'Goal', 'Concept', 'Context', 'Constraints', 'Requirements',
-        'AcceptanceCriteria', 'InterfaceContract', 'Phase', 'Step', 'Task', 'SubTask'
+        "Goal",
+        "Concept",
+        "Context",
+        "Constraints",
+        "Requirements",
+        "AcceptanceCriteria",
+        "InterfaceContract",
+        "Phase",
+        "Step",
+        "Task",
+        "SubTask",
     }
 
     # Patterns that indicate actual executable content (focused on dangerous patterns)
     EXECUTABLE_PATTERNS = [
-        r'#!/.*',  # Shebang lines
-        r'exec\s*\(',  # Python exec calls
-        r'eval\s*\(',  # Python eval calls
-        r'subprocess\.',  # Python subprocess
-        r'os\.system',  # Python os.system
-        r'os\.popen',  # Python os.popen
-        r'\$\([^)]+\)',  # Shell command substitution
-        r'`[^`]+`',  # Shell backticks with content
-        r'import\s+subprocess',  # Subprocess imports
-        r'from\s+subprocess',  # Subprocess imports
-        r'import\s+os',  # OS imports for system calls
-        r'shell=True',  # Dangerous subprocess calls
+        r"#!/.*",  # Shebang lines
+        r"exec\s*\(",  # Python exec calls
+        r"eval\s*\(",  # Python eval calls
+        r"subprocess\.",  # Python subprocess
+        r"os\.system",  # Python os.system
+        r"os\.popen",  # Python os.popen
+        r"\$\([^)]+\)",  # Shell command substitution
+        r"`[^`]+`",  # Shell backticks with content
+        r"import\s+subprocess",  # Subprocess imports
+        r"from\s+subprocess",  # Subprocess imports
+        r"import\s+os",  # OS imports for system calls
+        r"shell=True",  # Dangerous subprocess calls
     ]
 
     def __init__(self):
@@ -62,7 +71,7 @@ class SoCLinter:
     def _load_yaml_file(self, file_path: Path) -> Tuple[Dict[str, Any], bool]:
         """Load and parse YAML file, return (data, success)"""
         try:
-            with open(file_path, 'r') as f:
+            with open(file_path, "r") as f:
                 data = yaml.safe_load(f)
             return data, True
         except yaml.YAMLError as e:
@@ -72,22 +81,26 @@ class SoCLinter:
             print(f"ERROR: Failed to read {file_path}: {e}")
             return {}, False
 
-    def _check_for_command_key(self, data: Dict[str, Any], file_path: Path) -> List[str]:
+    def _check_for_command_key(
+        self, data: Dict[str, Any], file_path: Path
+    ) -> List[str]:
         """Check if non-executable layers contain 'command' key"""
         violations = []
 
         if not isinstance(data, dict):
             return violations
 
-        layer = data.get('layer', '')
-        if layer in self.NON_EXECUTABLE_LAYERS and 'command' in data:
+        layer = data.get("layer", "")
+        if layer in self.NON_EXECUTABLE_LAYERS and "command" in data:
             violations.append(
                 f"Layer '{layer}' contains forbidden 'command' key (only Layer 12/Command allowed)"
             )
 
         return violations
 
-    def _check_for_executable_patterns(self, data: Dict[str, Any], file_path: Path) -> List[str]:
+    def _check_for_executable_patterns(
+        self, data: Dict[str, Any], file_path: Path
+    ) -> List[str]:
         """Check for executable patterns in string values"""
         violations = []
 
@@ -105,41 +118,45 @@ class SoCLinter:
                 for i, item in enumerate(value):
                     scan_value(item, f"{path}[{i}]" if path else f"[{i}]")
 
-        layer = data.get('layer', '')
+        layer = data.get("layer", "")
         if layer in self.NON_EXECUTABLE_LAYERS:
             scan_value(data)
 
         return violations
 
-    def _check_command_layer_requirements(self, data: Dict[str, Any], file_path: Path) -> List[str]:
+    def _check_command_layer_requirements(
+        self, data: Dict[str, Any], file_path: Path
+    ) -> List[str]:
         """Check that Command layer has proper structure"""
         violations = []
 
         if not isinstance(data, dict):
             return violations
 
-        layer = data.get('layer', '')
-        if layer == 'Command':
+        layer = data.get("layer", "")
+        if layer == "Command":
             # Command layer MUST have 'command' key
-            if 'command' not in data:
+            if "command" not in data:
                 violations.append("Command layer missing required 'command' key")
             else:
-                command_data = data['command']
+                command_data = data["command"]
                 if not isinstance(command_data, dict):
                     violations.append("'command' value must be an object")
                 else:
                     # Check for required fields
-                    if 'ac_ref' not in command_data:
+                    if "ac_ref" not in command_data:
                         violations.append("Command missing required 'ac_ref' field")
-                    elif not command_data['ac_ref'].startswith('AC-'):
+                    elif not command_data["ac_ref"].startswith("AC-"):
                         violations.append("'ac_ref' must start with 'AC-' prefix")
 
-                    if 'run' not in command_data:
+                    if "run" not in command_data:
                         violations.append("Command missing required 'run' field")
-                    elif not isinstance(command_data['run'], dict):
+                    elif not isinstance(command_data["run"], dict):
                         violations.append("'run' value must be an object")
-                    elif 'shell' not in command_data['run']:
-                        violations.append("Command 'run' missing required 'shell' field")
+                    elif "shell" not in command_data["run"]:
+                        violations.append(
+                            "Command 'run' missing required 'shell' field"
+                        )
 
         return violations
 
@@ -218,9 +235,7 @@ def main():
         description="Lint ToDoWrite YAML files for Separation of Concerns violations"
     )
     parser.add_argument(
-        "--summary",
-        action="store_true",
-        help="Show summary report only"
+        "--summary", action="store_true", help="Show summary report only"
     )
 
     args = parser.parse_args()

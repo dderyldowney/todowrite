@@ -4,20 +4,21 @@ ToDoWrite Traceability Builder (tw_trace.py)
 Builds forward/backward traceability matrix and dependency graph
 """
 
-import json
-import csv
-import yaml
-import sys
-from pathlib import Path
-from typing import Dict, List, Set, Any, Tuple
 import argparse
-from collections import defaultdict, deque
+import csv
+import json
+import sys
+from collections import defaultdict
+from pathlib import Path
+from typing import Any, Dict, List, Set, Tuple
+
+import yaml
 
 
 class TraceabilityBuilder:
     """Builds traceability matrix and dependency graph for ToDoWrite framework"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.nodes: Dict[str, Dict[str, Any]] = {}
         self.forward_links: Dict[str, Set[str]] = defaultdict(set)
         self.backward_links: Dict[str, Set[str]] = defaultdict(set)
@@ -45,7 +46,7 @@ class TraceabilityBuilder:
     def _load_yaml_file(self, file_path: Path) -> Tuple[Dict[str, Any], bool]:
         """Load and parse YAML file, return (data, success)"""
         try:
-            with open(file_path, 'r') as f:
+            with open(file_path, "r") as f:
                 data = yaml.safe_load(f)
             return data, True
         except yaml.YAMLError as e:
@@ -70,18 +71,18 @@ class TraceabilityBuilder:
             if not success:
                 continue
 
-            if not isinstance(data, dict) or 'id' not in data:
+            if not isinstance(data, dict) or "id" not in data:
                 print(f"WARNING: Invalid node structure in {file_path}")
                 continue
 
-            node_id = data['id']
+            node_id = data["id"]
             self.nodes[node_id] = {
-                'id': node_id,
-                'layer': data.get('layer', 'Unknown'),
-                'title': data.get('title', ''),
-                'file_path': str(file_path),
-                'parents': data.get('links', {}).get('parents', []),
-                'children': data.get('links', {}).get('children', [])
+                "id": node_id,
+                "layer": data.get("layer", "Unknown"),
+                "title": data.get("title", ""),
+                "file_path": str(file_path),
+                "parents": data.get("links", {}).get("parents", []),
+                "children": data.get("links", {}).get("children", []),
             }
 
         print(f"Loaded {len(self.nodes)} nodes")
@@ -93,11 +94,11 @@ class TraceabilityBuilder:
 
         for node_id, node_data in self.nodes.items():
             # Forward links (this node -> its children)
-            for child_id in node_data['children']:
+            for child_id in node_data["children"]:
                 self.forward_links[node_id].add(child_id)
 
             # Backward links (this node <- its parents)
-            for parent_id in node_data['parents']:
+            for parent_id in node_data["parents"]:
                 self.backward_links[node_id].add(parent_id)
 
         # Verify bidirectional consistency
@@ -105,12 +106,16 @@ class TraceabilityBuilder:
         for node_id, children in self.forward_links.items():
             for child_id in children:
                 if node_id not in self.backward_links.get(child_id, set()):
-                    inconsistencies.append(f"{node_id} -> {child_id} (missing backward link)")
+                    inconsistencies.append(
+                        f"{node_id} -> {child_id} (missing backward link)"
+                    )
 
         for node_id, parents in self.backward_links.items():
             for parent_id in parents:
                 if node_id not in self.forward_links.get(parent_id, set()):
-                    inconsistencies.append(f"{parent_id} -> {node_id} (missing forward link)")
+                    inconsistencies.append(
+                        f"{parent_id} -> {node_id} (missing forward link)"
+                    )
 
         if inconsistencies:
             print("WARNING: Link inconsistencies found:")
@@ -124,14 +129,14 @@ class TraceabilityBuilder:
         print("Identifying orphaned nodes...")
 
         for node_id, node_data in self.nodes.items():
-            has_parents = bool(node_data['parents'])
-            has_children = bool(node_data['children'])
+            has_parents = bool(node_data["parents"])
+            has_children = bool(node_data["children"])
 
             # Goal nodes can have no parents, Command nodes can have no children
-            layer = node_data['layer']
-            if layer == 'Goal' and not has_children:
+            layer = node_data["layer"]
+            if layer == "Goal" and not has_children:
                 self.orphaned_nodes.add(node_id)
-            elif layer == 'Command' and not has_parents:
+            elif layer == "Command" and not has_parents:
                 self.orphaned_nodes.add(node_id)
             elif not has_parents and not has_children:
                 self.orphaned_nodes.add(node_id)
@@ -176,37 +181,58 @@ class TraceabilityBuilder:
         csv_file = trace_dir / "trace.csv"
         print(f"Exporting traceability matrix to {csv_file}...")
 
-        with open(csv_file, 'w', newline='') as f:
+        with open(csv_file, "w", newline="") as f:
             writer = csv.writer(f)
 
             # Header
-            writer.writerow([
-                'source_id', 'source_layer', 'source_title',
-                'target_id', 'target_layer', 'target_title',
-                'relationship', 'depth'
-            ])
+            writer.writerow(
+                [
+                    "source_id",
+                    "source_layer",
+                    "source_title",
+                    "target_id",
+                    "target_layer",
+                    "target_title",
+                    "relationship",
+                    "depth",
+                ]
+            )
 
             # Forward relationships (parent -> child)
             for source_id, children in self.forward_links.items():
                 source_node = self.nodes.get(source_id, {})
                 for target_id in children:
                     target_node = self.nodes.get(target_id, {})
-                    writer.writerow([
-                        source_id, source_node.get('layer', ''), source_node.get('title', ''),
-                        target_id, target_node.get('layer', ''), target_node.get('title', ''),
-                        'parent_of', 1
-                    ])
+                    writer.writerow(
+                        [
+                            source_id,
+                            source_node.get("layer", ""),
+                            source_node.get("title", ""),
+                            target_id,
+                            target_node.get("layer", ""),
+                            target_node.get("title", ""),
+                            "parent_of",
+                            1,
+                        ]
+                    )
 
             # Backward relationships (child -> parent)
             for target_id, parents in self.backward_links.items():
                 target_node = self.nodes.get(target_id, {})
                 for source_id in parents:
                     source_node = self.nodes.get(source_id, {})
-                    writer.writerow([
-                        target_id, target_node.get('layer', ''), target_node.get('title', ''),
-                        source_id, source_node.get('layer', ''), source_node.get('title', ''),
-                        'child_of', 1
-                    ])
+                    writer.writerow(
+                        [
+                            target_id,
+                            target_node.get("layer", ""),
+                            target_node.get("title", ""),
+                            source_id,
+                            source_node.get("layer", ""),
+                            source_node.get("title", ""),
+                            "child_of",
+                            1,
+                        ]
+                    )
 
     def export_graph_json(self) -> None:
         """Export dependency graph to trace/graph.json"""
@@ -219,42 +245,42 @@ class TraceabilityBuilder:
         # Build node list
         nodes = []
         for node_id, node_data in self.nodes.items():
-            nodes.append({
-                'id': node_id,
-                'label': node_data['title'],
-                'layer': node_data['layer'],
-                'file_path': node_data['file_path'],
-                'is_orphaned': node_id in self.orphaned_nodes
-            })
+            nodes.append(
+                {
+                    "id": node_id,
+                    "label": node_data["title"],
+                    "layer": node_data["layer"],
+                    "file_path": node_data["file_path"],
+                    "is_orphaned": node_id in self.orphaned_nodes,
+                }
+            )
 
         # Build edge list
         edges = []
         for source_id, children in self.forward_links.items():
             for target_id in children:
-                edges.append({
-                    'source': source_id,
-                    'target': target_id,
-                    'type': 'parent_child'
-                })
+                edges.append(
+                    {"source": source_id, "target": target_id, "type": "parent_child"}
+                )
 
         # Graph data structure
         graph = {
-            'metadata': {
-                'total_nodes': len(self.nodes),
-                'total_edges': len(edges),
-                'orphaned_nodes': len(self.orphaned_nodes),
-                'circular_dependencies': len(self.circular_deps),
-                'layers': list(set(node['layer'] for node in self.nodes.values()))
+            "metadata": {
+                "total_nodes": len(self.nodes),
+                "total_edges": len(edges),
+                "orphaned_nodes": len(self.orphaned_nodes),
+                "circular_dependencies": len(self.circular_deps),
+                "layers": list(set(node["layer"] for node in self.nodes.values())),
             },
-            'nodes': nodes,
-            'edges': edges,
-            'issues': {
-                'orphaned_nodes': list(self.orphaned_nodes),
-                'circular_dependencies': self.circular_deps
-            }
+            "nodes": nodes,
+            "edges": edges,
+            "issues": {
+                "orphaned_nodes": list(self.orphaned_nodes),
+                "circular_dependencies": self.circular_deps,
+            },
         }
 
-        with open(graph_file, 'w') as f:
+        with open(graph_file, "w") as f:
             json.dump(graph, f, indent=2)
 
     def generate_summary(self) -> None:
@@ -266,7 +292,7 @@ class TraceabilityBuilder:
         # Node statistics
         layer_counts = defaultdict(int)
         for node_data in self.nodes.values():
-            layer_counts[node_data['layer']] += 1
+            layer_counts[node_data["layer"]] += 1
 
         print(f"Total nodes: {len(self.nodes)}")
         print("\nNodes by layer:")
@@ -274,8 +300,12 @@ class TraceabilityBuilder:
             print(f"  {layer}: {count}")
 
         # Link statistics
-        total_forward_links = sum(len(children) for children in self.forward_links.values())
-        total_backward_links = sum(len(parents) for parents in self.backward_links.values())
+        total_forward_links = sum(
+            len(children) for children in self.forward_links.values()
+        )
+        total_backward_links = sum(
+            len(parents) for parents in self.backward_links.values()
+        )
 
         print(f"\nTotal forward links: {total_forward_links}")
         print(f"Total backward links: {total_backward_links}")
@@ -314,18 +344,16 @@ class TraceabilityBuilder:
         return True
 
 
-def main():
+def main() -> None:
     """Main entry point for tw_trace.py"""
     parser = argparse.ArgumentParser(
         description="Build ToDoWrite traceability matrix and dependency graph"
     )
     parser.add_argument(
-        "--summary",
-        action="store_true",
-        help="Show summary report only"
+        "--summary", action="store_true", help="Show summary report only"
     )
 
-    args = parser.parse_args()
+    parser.parse_args()
 
     # Initialize builder
     builder = TraceabilityBuilder()

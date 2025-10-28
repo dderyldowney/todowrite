@@ -8,7 +8,7 @@ description: >
   workflow automation for ToDoWrite development cycle.
 metadata:
   owner: build-engineer
-  labels: [work:implementation, makefile, automation, build-system]
+  labels: ["work:implementation", makefile, automation, build-system]
   severity: high
   work_type: implementation
 links:

@@ -1,0 +1,15 @@
+id: SUB-ADD-STATUS-ENUM
+layer: SubTask
+title: Add status enum field to schema
+description: >
+  Add optional status field with enum values: planned, in_progress, completed,
+  blocked, cancelled. Include proper validation rules and field description
+  in the JSON schema. Ensure field is optional for backward compatibility.
+metadata:
+  owner: schema-engineer
+  labels: ["work:validation", schema-field, enum-validation, optional]
+  severity: high
+  work_type: validation
+links:
+  parents: [TSK-UPDATE-SCHEMA-FILE]
+  children: []

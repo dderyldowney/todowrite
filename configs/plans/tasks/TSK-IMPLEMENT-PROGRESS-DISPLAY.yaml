@@ -1,0 +1,16 @@
+id: TSK-IMPLEMENT-PROGRESS-DISPLAY
+layer: Task
+title: Implement progress display and reporting features
+description: >
+  Create show-progress command for displaying project completion overview
+  with hierarchical progress calculation and status-report command for
+  generating detailed progress summaries with bottleneck analysis and
+  timeline views. Support multiple output formats.
+metadata:
+  owner: cli-developer
+  labels: ["work:implementation", progress-display, reporting, analytics]
+  severity: med
+  work_type: implementation
+links:
+  parents: [STP-IMPLEMENT-STATUS-CLI]
+  children: [SUB-IMPLEMENT-SHOW-PROGRESS, SUB-IMPLEMENT-STATUS-REPORT]

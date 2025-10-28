@@ -4,14 +4,14 @@ ToDoWrite Schema Validator (tw_validate.py)
 Validates all YAML files in configs/plans/* against todowrite.schema.json
 """
 
+import argparse
 import json
 import sys
-import yaml
-import os
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
-import argparse
-from jsonschema import validate, ValidationError, Draft202012Validator
+from typing import Any, Dict, List, Tuple
+
+import yaml
+from jsonschema import Draft202012Validator, ValidationError, validate
 
 
 class ToDoWriteValidator:
@@ -25,7 +25,7 @@ class ToDoWriteValidator:
     def _load_schema(self) -> Dict[str, Any]:
         """Load JSON schema from file"""
         try:
-            with open(self.schema_path, 'r') as f:
+            with open(self.schema_path, "r") as f:
                 return json.load(f)
         except FileNotFoundError:
             print(f"ERROR: Schema file not found: {self.schema_path}")
@@ -55,7 +55,7 @@ class ToDoWriteValidator:
     def _load_yaml_file(self, file_path: Path) -> Tuple[Dict[str, Any], bool]:
         """Load and parse YAML file, return (data, success)"""
         try:
-            with open(file_path, 'r') as f:
+            with open(file_path, "r") as f:
                 data = yaml.safe_load(f)
             return data, True
         except yaml.YAMLError as e:
@@ -107,7 +107,9 @@ class ToDoWriteValidator:
 
         return valid_count, total_count
 
-    def generate_summary(self, valid_count: int, total_count: int, strict: bool = False) -> None:
+    def generate_summary(
+        self, valid_count: int, total_count: int, strict: bool = False
+    ) -> None:
         """Generate validation summary report"""
         print("=" * 50)
         print("VALIDATION SUMMARY")
@@ -135,17 +137,15 @@ def main():
     parser.add_argument(
         "--strict",
         action="store_true",
-        help="Enable strict mode with detailed error reporting"
+        help="Enable strict mode with detailed error reporting",
     )
     parser.add_argument(
-        "--summary",
-        action="store_true",
-        help="Show summary report only"
+        "--summary", action="store_true", help="Show summary report only"
     )
     parser.add_argument(
         "--schema",
         default="configs/schemas/todowrite.schema.json",
-        help="Path to JSON schema file"
+        help="Path to JSON schema file",
     )
 
     args = parser.parse_args()

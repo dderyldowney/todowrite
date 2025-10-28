@@ -1,0 +1,16 @@
+id: STP-UPDATE-VALIDATION-TOOLS
+layer: Step
+title: Update validation tools to support status fields
+description: >
+  Enhance existing validation tools (tw_validate.py, tw_trace.py, tw_lint_soc.py)
+  to properly handle optional status fields while maintaining existing
+  functionality. Add status-specific validations and ensure no regression
+  in current validation behavior.
+metadata:
+  owner: validation-engineer
+  labels: ["work:validation", tools-update, status-support, regression-testing]
+  severity: med
+  work_type: validation
+links:
+  parents: [PH-STATUS-TRACKING-IMPLEMENTATION]
+  children: [TSK-UPDATE-VALIDATOR-TOOL, TSK-UPDATE-TRACE-TOOL]

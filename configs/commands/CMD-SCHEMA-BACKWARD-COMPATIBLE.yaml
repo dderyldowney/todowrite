@@ -1,0 +1,28 @@
+id: CMD-SCHEMA-BACKWARD-COMPATIBLE
+layer: Command
+title: Execute validation for Schema extension maintains complete backward compatibility
+description: 'Automated execution to verify: PASS: All existing 29 YAML nodes validate
+  successfully against extended schema without modification. New optional status fields
+  (status, progress, started_date, completion_date, assignee) validate cor...'
+metadata:
+  owner: schema-engineer
+  labels:
+  - generated
+  - automated
+  - verification
+  severity: high
+  work_type: validation
+links:
+  parents:
+  - AC-SCHEMA-BACKWARD-COMPATIBLE
+  children: []
+command:
+  ac_ref: AC-SCHEMA-BACKWARD-COMPATIBLE
+  run:
+    shell: python todowrite/tools/tw_validate.py --strict
+    workdir: .
+    env:
+      TODOWRITE_MODE: validation
+      AC_REF: AC-SCHEMA-BACKWARD-COMPATIBLE
+  artifacts:
+  - results/CMD-SCHEMA-BACKWARD-COMPATIBLE/execution.log

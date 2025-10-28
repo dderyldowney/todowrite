@@ -8,7 +8,7 @@ description: >
   backend and ensure proper database persistence.
 metadata:
   owner: cli-developer
-  labels: [work:implementation, cli, commands, integration, database]
+  labels: ["work:implementation", cli, commands, integration, database]
   severity: high
   work_type: implementation
 links:

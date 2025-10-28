@@ -1,0 +1,16 @@
+id: STP-EXTEND-SCHEMA
+layer: Step
+title: Extend JSON schema with optional status fields
+description: >
+  Add optional status tracking fields to the existing todowrite.schema.json
+  while maintaining complete backward compatibility. Include proper validation
+  rules for status enums, date formats, and progress ranges. Test extensively
+  with existing nodes to ensure no regression.
+metadata:
+  owner: schema-engineer
+  labels: ["work:validation", schema-extension, optional-fields, compatibility]
+  severity: high
+  work_type: validation
+links:
+  parents: [PH-STATUS-TRACKING-IMPLEMENTATION]
+  children: [TSK-UPDATE-SCHEMA-FILE, TSK-TEST-SCHEMA-COMPATIBILITY]

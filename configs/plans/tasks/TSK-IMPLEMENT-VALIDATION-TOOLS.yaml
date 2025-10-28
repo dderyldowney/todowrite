@@ -9,7 +9,7 @@ description: >
   and migrate_todowrite.py for migrating from legacy systems.
 metadata:
   owner: validation-engineer
-  labels: [work:validation, tools, schema, linting, migration]
+  labels: ["work:validation", tools, schema, linting, migration]
   severity: high
   work_type: validation
 links:

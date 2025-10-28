@@ -12,7 +12,7 @@ description: 'PASS: CLI provides commands for creating/reading/updating/deleting
 metadata:
   owner: cli-developer
   labels:
-  - work:implementation
+  - "work:implementation"
   - cli
   - integration
   - database

@@ -1,0 +1,15 @@
+id: SUB-IMPLEMENT-SHOW-PROGRESS
+layer: SubTask
+title: Implement show-progress display command
+description: >
+  Create CLI command "todowrite status show" with hierarchical progress display,
+  filtering by status, and multiple output formats (tree, flat, json). Calculate
+  and display aggregated progress percentages through the planning hierarchy.
+metadata:
+  owner: cli-developer
+  labels: ["work:implementation", progress-display, hierarchy-calculation, filtering]
+  severity: med
+  work_type: implementation
+links:
+  parents: [TSK-IMPLEMENT-PROGRESS-DISPLAY]
+  children: []

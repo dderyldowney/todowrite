@@ -1,0 +1,16 @@
+id: TSK-CREATE-STATUS-EXAMPLES
+layer: Task
+title: Create status tracking usage examples and workflows
+description: >
+  Develop practical examples showing status tracking in real-world scenarios
+  including project management workflows, team collaboration patterns, progress
+  reporting examples, and integration with external project management tools.
+  All examples must be tested and functional.
+metadata:
+  owner: documentation-engineer
+  labels: ["work:docs", examples, workflows, project-management, integration]
+  severity: med
+  work_type: docs
+links:
+  parents: [STP-CREATE-STATUS-DOCS]
+  children: [SUB-CREATE-WORKFLOW-EXAMPLES]

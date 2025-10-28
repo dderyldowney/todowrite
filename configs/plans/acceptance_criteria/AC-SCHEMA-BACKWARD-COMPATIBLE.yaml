@@ -1,0 +1,17 @@
+id: AC-SCHEMA-BACKWARD-COMPATIBLE
+layer: AcceptanceCriteria
+title: Schema extension maintains complete backward compatibility
+description: >
+  PASS: All existing 29 YAML nodes validate successfully against extended schema
+  without modification. New optional status fields (status, progress, started_date,
+  completion_date, assignee) validate correctly when present. Schema version
+  bumped appropriately. All validation tools accept both old and new formats.
+  FAIL: Any existing node fails validation or requires modification.
+metadata:
+  owner: schema-engineer
+  labels: ["work:validation", schema-testing, backward-compatibility, regression]
+  severity: high
+  work_type: validation
+links:
+  parents: [R-SCHEMA-EXTENSION]
+  children: [CMD-SCHEMA-BACKWARD-COMPATIBLE]

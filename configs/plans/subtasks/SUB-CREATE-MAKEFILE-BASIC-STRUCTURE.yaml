@@ -7,7 +7,7 @@ description: >
   tw-clean (rm -rf trace/* results/*), and help target with target descriptions.
 metadata:
   owner: build-engineer
-  labels: [work:implementation, makefile, basic-targets, structure]
+  labels: ["work:implementation", makefile, basic-targets, structure]
   severity: high
   work_type: implementation
 links:

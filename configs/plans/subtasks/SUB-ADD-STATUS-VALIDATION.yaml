@@ -1,0 +1,15 @@
+id: SUB-ADD-STATUS-VALIDATION
+layer: SubTask
+title: Add status field validation to tw_validate.py
+description: >
+  Enhance the validator to check status enum values, progress range (0-100),
+  ISO 8601 date format validation, and logical consistency (completion_date
+  only when status is completed). Add clear error messages for violations.
+metadata:
+  owner: validation-engineer
+  labels: ["work:validation", field-validation, logical-consistency, error-messages]
+  severity: med
+  work_type: validation
+links:
+  parents: [TSK-UPDATE-VALIDATOR-TOOL]
+  children: []
