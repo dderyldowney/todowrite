@@ -10,13 +10,13 @@ from typing import Any
 
 import yaml
 
-from .app import Command, Link, Metadata, Node
+from .types import Command, Link, Metadata, Node
 
 
 class YAMLStorage:
     """YAML-based storage backend for ToDoWrite when databases are unavailable."""
 
-    def __init__(self, base_path: Path = None):
+    def __init__(self, base_path: Path | None = None):
         """Initialize YAML storage."""
         self.base_path = base_path or Path("configs")
         self.plans_path = self.base_path / "plans"
@@ -65,14 +65,14 @@ class YAMLStorage:
 
     def _node_to_yaml(self, node: Node) -> dict[str, Any]:
         """Convert a Node object to YAML-compatible dictionary."""
-        yaml_data = {
+        yaml_data: dict[str, Any] = {
             "id": node.id,
             "layer": node.layer,
             "title": node.title,
             "description": node.description,
             "metadata": {
                 "owner": node.metadata.owner,
-                "labels": node.metadata.labels,
+                "labels": list(node.metadata.labels),
             },
         }
 
