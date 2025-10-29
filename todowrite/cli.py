@@ -12,6 +12,13 @@ import click
 import yaml
 
 from .app import LayerType, Node, ToDoWrite
+from .db.config import (
+    StoragePreference,
+    get_setup_guidance,
+    get_storage_info,
+    set_storage_preference,
+)
+from .yaml_manager import YAMLManager
 
 LAYER_TO_PREFIX = {
     "Goal": "GOAL",
@@ -30,9 +37,21 @@ LAYER_TO_PREFIX = {
 
 
 @click.group()
-def cli() -> None:
+@click.option(
+    "--storage-preference",
+    type=click.Choice(["auto", "postgresql_only", "sqlite_only", "yaml_only"]),
+    help="Override default storage preference",
+)
+@click.pass_context
+def cli(ctx: click.Context, storage_preference: str) -> None:
     """A CLI for the ToDoWrite application."""
-    pass
+    # Ensure context object exists
+    ctx.ensure_object(dict)
+
+    # Set storage preference if provided
+    if storage_preference:
+        set_storage_preference(StoragePreference(storage_preference))
+        ctx.obj["storage_preference"] = storage_preference
 
 
 @cli.command()
@@ -68,7 +87,6 @@ def create(layer: str, title: str, description: str, parent: str | None) -> None
         "layer": layer,
         "title": title,
         "description": description,
-        "status": "planned",
         "links": {"parents": [parent] if parent else [], "children": []},
         "metadata": {
             "owner": "system",
@@ -115,6 +133,148 @@ def list_nodes() -> None:
         click.echo(f"--- {layer} ---")
         for node in layer_nodes:
             click.echo(f"- {node.id}: {node.title}")
+
+
+@cli.command("db-status")
+@click.option(
+    "--storage-preference",
+    type=click.Choice(["auto", "postgresql_only", "sqlite_only", "yaml_only"]),
+    help="Override storage preference for this check",
+)
+def db_status(storage_preference: str) -> None:
+    """Show storage configuration and status."""
+    click.echo("🗄️  ToDoWrite Storage Status")
+    click.echo("=" * 30)
+
+    # Set temporary preference if provided
+    if storage_preference:
+        set_storage_preference(StoragePreference(storage_preference))
+
+    info = get_storage_info()
+
+    click.echo(f"Storage Type: {info['type']}")
+    click.echo(f"Priority Level: {info['priority']}")
+    click.echo(f"Is Fallback: {info['fallback']}")
+    click.echo(f"Storage Location: {info['url']}")
+    click.echo(f"Preference: {info['preference']}")
+
+    # Test storage connectivity
+    try:
+        app = ToDoWrite(auto_import=False)  # Disable auto-import for status check
+        app.init_database()
+        click.echo("Connection Status: ✅ Connected")
+
+        # Count existing nodes
+        if app.storage_type.value == "yaml":
+            node_count = app.yaml_storage.count_nodes()
+            click.echo(f"Nodes in YAML Files: {node_count}")
+        else:
+            with app.get_session() as session:
+                from .db.models import Node as DBNode
+
+                node_count = session.query(DBNode).count()
+                click.echo(f"Nodes in Database: {node_count}")
+
+    except Exception as e:
+        click.echo(f"Connection Status: ❌ Failed ({e})")
+
+    # Show setup guidance
+    click.echo(f"\n{get_setup_guidance()}")
+
+
+@cli.command("import-yaml")
+@click.option("--force", is_flag=True, help="Force import, overwriting existing nodes")
+@click.option(
+    "--dry-run", is_flag=True, help="Show what would be imported without doing it"
+)
+def import_yaml(force: bool, dry_run: bool) -> None:
+    """Import YAML files from configs/ directory to database."""
+    yaml_manager = YAMLManager()
+
+    if dry_run:
+        click.echo("🔍 DRY RUN: Checking what would be imported...")
+    else:
+        click.echo("📥 Importing YAML files to database...")
+
+    results = yaml_manager.import_yaml_files(force=force, dry_run=dry_run)
+
+    # Print summary
+    click.echo("\n📊 Import Summary:")
+    click.echo(f"Total files processed: {results['total_files']}")
+    click.echo(f"Successfully imported: {results['total_imported']}")
+    click.echo(f"Skipped (already exist): {len(results['skipped'])}")
+    click.echo(f"Errors: {len(results['errors'])}")
+
+    if results["errors"]:
+        click.echo("\n❌ Errors encountered:")
+        for error in results["errors"]:
+            click.echo(f"  - {error}")
+
+    if not dry_run and results["total_imported"] > 0:
+        click.echo(
+            f"\n✅ Successfully imported {results['total_imported']} files to database"
+        )
+
+
+@cli.command("export-yaml")
+@click.option(
+    "--output-dir", type=click.Path(), help="Output directory (default: configs/)"
+)
+@click.option("--no-backup", is_flag=True, help="Don't create backup of existing files")
+def export_yaml(output_dir: str, no_backup: bool) -> None:
+    """Export database content to YAML files."""
+    yaml_manager = YAMLManager()
+
+    click.echo("📤 Exporting database to YAML files...")
+
+    output_path = Path(output_dir) if output_dir else None
+    results = yaml_manager.export_to_yaml(
+        output_dir=output_path, backup_existing=not no_backup
+    )
+
+    # Print summary
+    click.echo("\n📊 Export Summary:")
+    click.echo(f"Total nodes processed: {results['total_nodes']}")
+    click.echo(f"Successfully exported: {results['total_exported']}")
+    click.echo(f"Errors: {len(results['errors'])}")
+
+    if results["errors"]:
+        click.echo("\n❌ Errors encountered:")
+        for error in results["errors"]:
+            click.echo(f"  - {error}")
+
+    if results["total_exported"] > 0:
+        click.echo(
+            f"\n✅ Successfully exported {results['total_exported']} nodes to YAML"
+        )
+
+
+@cli.command("sync-status")
+def sync_status() -> None:
+    """Check synchronization status between YAML files and database."""
+    yaml_manager = YAMLManager()
+
+    click.echo("🔍 Checking synchronization between YAML and database...")
+
+    results = yaml_manager.check_yaml_sync()
+
+    click.echo("\n📊 Synchronization Status:")
+    click.echo(f"In both YAML and database: {len(results['both'])}")
+    click.echo(f"Only in YAML files: {len(results['yaml_only'])}")
+    click.echo(f"Only in database: {len(results['database_only'])}")
+
+    if results["yaml_only"]:
+        click.echo("\n📄 YAML-only nodes (can be imported):")
+        for node_id in results["yaml_only"]:
+            click.echo(f"  - {node_id}")
+
+    if results["database_only"]:
+        click.echo("\n🗄️  Database-only nodes (can be exported):")
+        for node_id in results["database_only"]:
+            click.echo(f"  - {node_id}")
+
+    if not results["yaml_only"] and not results["database_only"]:
+        click.echo("\n✅ YAML files and database are in sync!")
 
 
 # ToDoWrite-specific commands for 12-layer framework management
