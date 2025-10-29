@@ -15,7 +15,12 @@ import jsonschema
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, joinedload, sessionmaker
 
-from .db.config import DATABASE_URL
+from .db.config import (
+    StoragePreference,
+    StorageType,
+    determine_storage_backend,
+    set_storage_preference,
+)
 from .db.models import Artifact as DBArtifact
 from .db.models import Base
 from .db.models import Command as DBCommand
@@ -100,12 +105,39 @@ class ToDoWrite:
 
     _SCHEMA: dict[str, Any] | None = None
 
-    def __init__(self, db_url: str | None = None):
+    def __init__(
+        self,
+        db_url: str | None = None,
+        auto_import: bool = True,
+        storage_preference: StoragePreference | None = None,
+    ):
         """Initializes the ToDoWrite application."""
-        self.db_url = db_url or DATABASE_URL
-        self.engine = create_engine(self.db_url)
-        self.Session = sessionmaker(bind=self.engine)
 
+        # Set storage preference if provided
+        if storage_preference:
+            set_storage_preference(storage_preference)
+
+        # Determine storage backend
+        self.storage_type, self.db_url = determine_storage_backend()
+
+        # Override URL if explicitly provided
+        if db_url:
+            self.db_url = db_url
+            self.storage_type = (
+                StorageType.POSTGRESQL
+                if db_url.startswith("postgresql:")
+                else StorageType.SQLITE
+            )
+
+        # Initialize database components only if not using YAML
+        if self.storage_type != StorageType.YAML:
+            self.engine = create_engine(self.db_url)
+            self.Session = sessionmaker(bind=self.engine)
+        else:
+            self.engine = None
+            self.Session = None
+
+        # Load schema
         if ToDoWrite._SCHEMA is None:
             schema_path = (
                 Path(__file__).parent.parent
@@ -116,8 +148,25 @@ class ToDoWrite:
             with open(schema_path) as f:
                 ToDoWrite._SCHEMA = json.load(f)
 
+        # Initialize YAML storage if using YAML mode
+        if self.storage_type == StorageType.YAML:
+            from .yaml_storage import YAMLStorage
+
+            self.yaml_storage = YAMLStorage()
+        else:
+            self.yaml_storage = None
+
+        # Auto-import YAML files if enabled and using database
+        if auto_import and self.storage_type != StorageType.YAML:
+            self._auto_import_yaml_files()
+
     @contextmanager
     def get_session(self) -> Generator[Session, None, None]:
+        if self.storage_type == StorageType.YAML:
+            # YAML storage doesn't use sessions
+            yield None
+            return
+
         session = self.Session()
         try:
             yield session
@@ -139,6 +188,11 @@ class ToDoWrite:
 
     def init_database(self) -> None:
         """Creates the database and the tables."""
+        if self.storage_type == StorageType.YAML:
+            # For YAML storage, just ensure directories exist
+            self.yaml_storage._ensure_directories()
+            return
+
         if self.db_url.startswith("sqlite"):
             db_path: str = self.db_url.split("///")[1]
             if db_path and db_path != ":memory:":
@@ -148,14 +202,24 @@ class ToDoWrite:
         Base.metadata.create_all(bind=self.engine)
 
     def create_node(self, node_data: dict[str, Any]) -> Node:
-        """Creates a new node in the database."""
+        """Creates a new node in the storage backend."""
         self._validate_node_data(node_data)
+
+        if self.storage_type == StorageType.YAML:
+            # Convert node_data to Node and save to YAML
+            node = self._dict_to_node(node_data)
+            self.yaml_storage.save_node(node)
+            return node
+
         with self.get_session() as session:
             db_node = self._create_db_node(session, node_data)
             return self._convert_db_node_to_node(db_node)
 
     def get_node(self, node_id: str) -> Node | None:
-        """Retrieves a node from the database."""
+        """Retrieves a node from the storage backend."""
+        if self.storage_type == StorageType.YAML:
+            return self.yaml_storage.load_node(node_id)
+
         with self.get_session() as session:
             db_node = (
                 session.query(DBNode)
@@ -171,7 +235,10 @@ class ToDoWrite:
             return None
 
     def get_all_nodes(self) -> dict[str, list[Node]]:
-        """Retrieves all the nodes from the database."""
+        """Retrieves all the nodes from the storage backend."""
+        if self.storage_type == StorageType.YAML:
+            return self.yaml_storage.load_all_nodes()
+
         with self.get_session() as session:
             db_nodes = (
                 session.query(DBNode)
@@ -190,8 +257,15 @@ class ToDoWrite:
             return nodes
 
     def update_node(self, node_id: str, node_data: dict[str, Any]) -> Node | None:
-        """Updates an existing node in the database."""
+        """Updates an existing node in the storage backend."""
         self._validate_node_data(node_data)
+
+        if self.storage_type == StorageType.YAML:
+            # For YAML, just save the updated node
+            node = self._dict_to_node(node_data)
+            self.yaml_storage.save_node(node)
+            return node
+
         with self.get_session() as session:
             db_node = session.query(DBNode).filter(DBNode.id == node_id).first()
             if db_node:
@@ -301,7 +375,11 @@ class ToDoWrite:
             return None
 
     def delete_node(self, node_id: str) -> None:
-        """Deletes a node from the database."""
+        """Deletes a node from the storage backend."""
+        if self.storage_type == StorageType.YAML:
+            self.yaml_storage.delete_node(node_id)
+            return
+
         with self.get_session() as session:
             db_node = session.query(DBNode).filter(DBNode.id == node_id).first()
             if db_node:
@@ -691,3 +769,67 @@ class ToDoWrite:
             status=cast(StatusType, _validate_literal(str(db_node.status), StatusType)),
             command=command,
         )
+
+    def _dict_to_node(self, node_data: dict[str, Any]) -> Node:
+        """Convert dictionary data to Node object."""
+        links = Link(
+            parents=node_data.get("links", {}).get("parents", []),
+            children=node_data.get("links", {}).get("children", []),
+        )
+
+        metadata = Metadata(
+            owner=node_data.get("metadata", {}).get("owner", ""),
+            labels=node_data.get("metadata", {}).get("labels", []),
+            severity=node_data.get("metadata", {}).get("severity", ""),
+            work_type=node_data.get("metadata", {}).get("work_type", ""),
+        )
+
+        command = None
+        if node_data.get("command"):
+            command = Command(
+                ac_ref=node_data["command"].get("ac_ref", ""),
+                run=node_data["command"].get("run", {}),
+                artifacts=node_data["command"].get("artifacts", []),
+            )
+
+        return Node(
+            id=node_data["id"],
+            layer=cast(LayerType, node_data["layer"]),
+            title=node_data["title"],
+            description=node_data["description"],
+            links=links,
+            metadata=metadata,
+            status=cast(StatusType, node_data.get("status", "planned")),
+            command=command,
+        )
+
+    def _auto_import_yaml_files(self) -> None:
+        """Automatically import YAML files that are not in the database."""
+        try:
+            # Only attempt auto-import if database is accessible
+            Base.metadata.create_all(bind=self.engine)
+
+            # Import YAMLManager here to avoid circular imports
+            from .yaml_manager import YAMLManager
+
+            yaml_manager = YAMLManager(self)
+            sync_status = yaml_manager.check_yaml_sync()
+
+            if sync_status["yaml_only"]:
+                print(
+                    f"🔄 Auto-importing {len(sync_status['yaml_only'])} YAML files..."
+                )
+                results = yaml_manager.import_yaml_files(force=False, dry_run=False)
+
+                if results["total_imported"] > 0:
+                    print(
+                        f"✅ Auto-imported {results['total_imported']} files from YAML"
+                    )
+
+                if results["errors"]:
+                    print(f"⚠️  {len(results['errors'])} errors during auto-import")
+
+        except Exception:
+            # Silently fail auto-import to not break normal operation
+            # Could log this to a file or debug mode in the future
+            pass
