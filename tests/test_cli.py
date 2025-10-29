@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 import os
 import subprocess
 import time
 import unittest
 
 from click.testing import CliRunner
+from sqlalchemy import delete
 
 from todowrite.app import ToDoWrite
 from todowrite.cli import cli
@@ -36,21 +39,21 @@ class TestCli(unittest.TestCase):
         self.app.init_database()
 
     def tearDown(self) -> None:
-        session = self.app.Session()
-        session.execute(node_labels.delete())
-        session.query(Artifact).delete()
-        session.query(Command).delete()
-        session.query(Link).delete()
-        session.query(Label).delete()
-        session.query(Node).delete()
-        session.commit()
-        session.close()
+        with self.app.get_db_session() as session:
+            # Delete in proper order to avoid foreign key constraint violations
+            session.execute(delete(node_labels))
+            session.execute(delete(Artifact))
+            session.execute(delete(Command))
+            session.execute(delete(Link))
+            session.execute(delete(Label))
+            session.execute(delete(Node))
 
     def test_init_command(self) -> None:
         """Test the init command."""
         result = self.runner.invoke(cli, ["init"])
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(result.output, "Database initialized.\n")
+        # The output may include auto-import messages, so just check that it ends with the expected message
+        self.assertTrue(result.output.endswith("Database initialized.\n"))
 
     def test_create_command(self) -> None:
         """Test the create command."""
