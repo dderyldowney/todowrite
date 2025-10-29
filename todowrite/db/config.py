@@ -9,6 +9,8 @@ ToDoWrite uses a DATABASE-FIRST approach with cascading fallbacks:
 The system automatically tries each option in order until one works.
 """
 
+from __future__ import annotations
+
 import os
 import subprocess
 from enum import Enum

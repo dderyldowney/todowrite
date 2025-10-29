@@ -2,6 +2,8 @@
 This module contains the CLI for the ToDoWrite application.
 """
 
+from __future__ import annotations
+
 import subprocess
 import sys
 import uuid

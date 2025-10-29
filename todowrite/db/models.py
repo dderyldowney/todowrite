@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 from sqlalchemy import Column, ForeignKey, String, Table, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
-    __abstract__ = True
     pass
 
 
@@ -21,12 +22,10 @@ class Node(Base):
     severity: Mapped[str | None] = mapped_column(String)
     work_type: Mapped[str | None] = mapped_column(String)
 
-    labels: Mapped[list["Label"]] = relationship(
+    labels: Mapped[list[Label]] = relationship(
         secondary="node_labels", back_populates="nodes"
     )
-    command: Mapped["Command | None"] = relationship(
-        uselist=False, back_populates="node"
-    )
+    command: Mapped[Command | None] = relationship(uselist=False, back_populates="node")
 
 
 class Link(Base):
@@ -49,7 +48,7 @@ class Label(Base):
 
     label: Mapped[str] = mapped_column(String, primary_key=True)
 
-    nodes: Mapped[list["Node"]] = relationship(
+    nodes: Mapped[list[Node]] = relationship(
         secondary="node_labels", back_populates="labels"
     )
 
@@ -73,8 +72,8 @@ class Command(Base):
     ac_ref: Mapped[str | None] = mapped_column(String)
     run: Mapped[str | None] = mapped_column(Text)
 
-    node: Mapped["Node"] = relationship(back_populates="command")
-    artifacts: Mapped[list["Artifact"]] = relationship(back_populates="command")
+    node: Mapped[Node] = relationship(back_populates="command")
+    artifacts: Mapped[list[Artifact]] = relationship(back_populates="command")
 
 
 class Artifact(Base):
@@ -87,4 +86,4 @@ class Artifact(Base):
         String, ForeignKey("commands.node_id"), primary_key=True
     )
 
-    command: Mapped["Command"] = relationship(back_populates="artifacts")
+    command: Mapped[Command] = relationship(back_populates="artifacts")

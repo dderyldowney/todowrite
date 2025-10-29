@@ -5,6 +5,8 @@ This module provides a YAML-based storage backend that mimics the database inter
 when database connections are not available. It serves as the last resort fallback.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Any
 

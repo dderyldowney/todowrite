@@ -5,6 +5,8 @@ This module handles importing YAML files to database and exporting database cont
 It supports the database-first approach with YAML as fallback.
 """
 
+from __future__ import annotations
+
 import shutil
 from pathlib import Path
 from typing import Any
@@ -111,10 +113,13 @@ class YAMLManager:
         """Get all existing node IDs from the database."""
         try:
             with self.app.get_db_session() as session:
+                from sqlalchemy import select
+
                 from .db.models import Node as DBNode
 
-                existing_ids = session.query(DBNode.id).all()
-                return {node_id[0] for node_id in existing_ids}
+                stmt = select(DBNode.id)
+                existing_ids = session.execute(stmt).scalars().all()
+                return set(existing_ids)
         except SQLAlchemyError as e:
             print(f"Error querying database: {e}")
             return set()
