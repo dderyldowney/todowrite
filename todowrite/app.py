@@ -2,6 +2,8 @@
 This module contains the core ToDoWrite application class.
 """
 
+from __future__ import annotations
+
 import json
 import os
 import uuid
@@ -13,7 +15,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 import jsonschema
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, delete, select
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, joinedload, sessionmaker
 
@@ -156,7 +158,7 @@ class ToDoWrite:
         except jsonschema.exceptions.ValidationError as e:
             raise ValueError(f"Node data validation failed: {e.message}") from e
 
-    def _get_yaml_storage(self) -> "YAMLStorage":
+    def _get_yaml_storage(self) -> YAMLStorage:
         """Get YAML storage with proper error handling."""
         if not self.yaml_storage:
             raise RuntimeError("YAML storage not initialized")
@@ -208,15 +210,15 @@ class ToDoWrite:
             return yaml_storage.load_node(node_id)
 
         with self.get_db_session() as session:
-            db_node = (
-                session.query(DBNode)
+            stmt = (
+                select(DBNode)
                 .options(
                     joinedload(DBNode.labels),
                     joinedload(DBNode.command).joinedload(DBCommand.artifacts),
                 )
-                .filter(DBNode.id == node_id)
-                .first()
+                .where(DBNode.id == node_id)
             )
+            db_node = session.execute(stmt).unique().scalar_one_or_none()
             if db_node:
                 return self._convert_db_node_to_node(db_node)
             return None
@@ -228,14 +230,11 @@ class ToDoWrite:
             return yaml_storage.load_all_nodes()
 
         with self.get_db_session() as session:
-            db_nodes = (
-                session.query(DBNode)
-                .options(
-                    joinedload(DBNode.labels),
-                    joinedload(DBNode.command).joinedload(DBCommand.artifacts),
-                )
-                .all()
+            stmt = select(DBNode).options(
+                joinedload(DBNode.labels),
+                joinedload(DBNode.command).joinedload(DBCommand.artifacts),
             )
+            db_nodes = session.execute(stmt).unique().scalars().all()
             nodes: dict[str, list[Node]] = {}
             for db_node in db_nodes:
                 node = self._convert_db_node_to_node(db_node)
@@ -256,7 +255,8 @@ class ToDoWrite:
             return node
 
         with self.get_db_session() as session:
-            db_node = session.query(DBNode).filter(DBNode.id == node_id).first()
+            stmt = select(DBNode).where(DBNode.id == node_id)
+            db_node = session.execute(stmt).scalar_one_or_none()
             if db_node:
                 db_node.layer = node_data.get("layer", db_node.layer)
                 db_node.title = node_data.get("title", db_node.title)
@@ -273,17 +273,15 @@ class ToDoWrite:
                 )
 
                 # Update links
+                parent_stmt = select(DBLink).where(DBLink.child_id == node_id)
                 existing_parent_links = {
                     link.parent_id
-                    for link in session.query(DBLink)
-                    .filter(DBLink.child_id == node_id)
-                    .all()
+                    for link in session.execute(parent_stmt).scalars().all()
                 }
+                child_stmt = select(DBLink).where(DBLink.parent_id == node_id)
                 existing_child_links = {
                     link.child_id
-                    for link in session.query(DBLink)
-                    .filter(DBLink.parent_id == node_id)
-                    .all()
+                    for link in session.execute(child_stmt).scalars().all()
                 }
 
                 new_parent_ids = set(node_data["links"].get("parents", []))
@@ -297,9 +295,10 @@ class ToDoWrite:
                     link = DBLink(parent_id=parent_id, child_id=db_node.id)
                     session.add(link)
                 for parent_id in parents_to_remove:
-                    session.query(DBLink).filter(
+                    delete_stmt = delete(DBLink).where(
                         DBLink.parent_id == parent_id, DBLink.child_id == node_id
-                    ).delete()
+                    )
+                    session.execute(delete_stmt)
 
                 # Handle child links
                 children_to_add = new_child_ids - existing_child_links
@@ -309,18 +308,16 @@ class ToDoWrite:
                     link = DBLink(parent_id=db_node.id, child_id=child_id)
                     session.add(link)
                 for child_id in children_to_remove:
-                    session.query(DBLink).filter(
+                    delete_stmt = delete(DBLink).where(
                         DBLink.parent_id == node_id, DBLink.child_id == child_id
-                    ).delete()
+                    )
+                    session.execute(delete_stmt)
 
                 # Update labels
                 db_node.labels.clear()
                 for label_text in node_data["metadata"].get("labels", []):
-                    label = (
-                        session.query(DBLabel)
-                        .filter(DBLabel.label == label_text)
-                        .first()
-                    )
+                    label_stmt = select(DBLabel).where(DBLabel.label == label_text)
+                    label = session.execute(label_stmt).scalar_one_or_none()
                     if not label:
                         label = DBLabel(label=label_text)
                         session.add(label)
@@ -328,11 +325,8 @@ class ToDoWrite:
 
                 # Update command
                 if node_data.get("command"):
-                    db_command = (
-                        session.query(DBCommand)
-                        .filter(DBCommand.node_id == node_id)
-                        .first()
-                    )
+                    cmd_stmt = select(DBCommand).where(DBCommand.node_id == node_id)
+                    db_command = session.execute(cmd_stmt).scalar_one_or_none()
                     if not db_command:
                         db_command = DBCommand(node_id=node_id)
                         session.add(db_command)
@@ -343,21 +337,24 @@ class ToDoWrite:
                         node_data["command"].get("run", db_command.run)
                     )
 
-                    session.query(DBArtifact).filter(
+                    delete_artifacts_stmt = delete(DBArtifact).where(
                         DBArtifact.command_id == node_id
-                    ).delete()
+                    )
+                    session.execute(delete_artifacts_stmt)
                     for artifact_text in node_data["command"].get("artifacts", []):
                         artifact = DBArtifact(
                             command_id=node_id, artifact=artifact_text
                         )
                         session.add(artifact)
                 else:
-                    session.query(DBCommand).filter(
+                    delete_cmd_stmt = delete(DBCommand).where(
                         DBCommand.node_id == node_id
-                    ).delete()
-                    session.query(DBArtifact).filter(
+                    )
+                    session.execute(delete_cmd_stmt)
+                    delete_artifacts_stmt = delete(DBArtifact).where(
                         DBArtifact.command_id == node_id
-                    ).delete()
+                    )
+                    session.execute(delete_artifacts_stmt)
 
                 session.refresh(db_node)
                 return self._convert_db_node_to_node(db_node)
@@ -371,7 +368,8 @@ class ToDoWrite:
             return
 
         with self.get_db_session() as session:
-            db_node = session.query(DBNode).filter(DBNode.id == node_id).first()
+            stmt = select(DBNode).where(DBNode.id == node_id)
+            db_node = session.execute(stmt).scalar_one_or_none()
             if db_node:
                 session.delete(db_node)
 
@@ -710,7 +708,8 @@ class ToDoWrite:
                 session.add(link)
 
         for label_text in node_data["metadata"].get("labels", []):
-            label = session.query(DBLabel).filter(DBLabel.label == label_text).first()
+            label_stmt = select(DBLabel).where(DBLabel.label == label_text)
+            label = session.execute(label_stmt).scalar_one_or_none()
             if not label:
                 label = DBLabel(label=label_text)
                 session.add(label)

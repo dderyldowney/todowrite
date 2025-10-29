@@ -31,7 +31,7 @@ dev = [
     "mypy>=1.13.0",
     "types-PyYAML>=6.0.12",
     "types-jsonschema>=4.0.0",
-    "types-sqlalchemy>=1.4.0",
+    "sqlalchemy[mypy]>=2.0.0",
     "types-click>=7.1.0",
     "ruff>=0.7.0",
     "black>=24.0.0",
@@ -58,6 +58,7 @@ warn_no_return = true
 warn_unreachable = true
 strict_equality = true
 extra_checks = true
+# plugins = ["sqlalchemy.ext.mypy.plugin"]  # Disabled due to pre-commit environment issues
 
 # Ignore missing imports for third-party libraries
 [[tool.mypy.overrides]]
@@ -120,6 +121,7 @@ ignore = [
     "S110",  # try-except-pass (acceptable for graceful degradation)
     "S602",  # subprocess with shell=True (needed for command execution)
     "S603",  # subprocess call (needed for tool integration)
+    "S607",  # subprocess with partial executable path (needed for docker commands)
     "PTH103", # os.makedirs (acceptable for compatibility)
     "PTH120", # os.path.dirname (acceptable for compatibility)
     "PTH123", # open() (acceptable for compatibility)
@@ -161,4 +163,4 @@ markers = [
 # Bandit configuration
 [tool.bandit]
 exclude_dirs = ["tests", "build", "dist"]
-skips = ["B101", "B110", "B404", "B602", "B603"]  # Skip acceptable security warnings for CLI tool
+skips = ["B101", "B110", "B404", "B602", "B603", "B607"]  # Skip acceptable security warnings for CLI tool
