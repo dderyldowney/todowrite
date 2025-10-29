@@ -12,7 +12,8 @@ from typing import Any
 import yaml
 from sqlalchemy.exc import SQLAlchemyError
 
-from .app import Node, ToDoWrite
+from .app import ToDoWrite
+from .types import Node
 
 
 class YAMLManager:
@@ -73,7 +74,7 @@ class YAMLManager:
         """Load and validate a single YAML file."""
         try:
             with open(file_path, encoding="utf-8") as f:
-                data = yaml.safe_load(f)
+                data: Any = yaml.safe_load(f)
 
             if not isinstance(data, dict):
                 print(f"Warning: {file_path} does not contain a valid YAML object")
@@ -109,7 +110,7 @@ class YAMLManager:
     def get_existing_node_ids(self) -> set[str]:
         """Get all existing node IDs from the database."""
         try:
-            with self.app.get_session() as session:
+            with self.app.get_db_session() as session:
                 from .db.models import Node as DBNode
 
                 existing_ids = session.query(DBNode.id).all()
@@ -122,7 +123,7 @@ class YAMLManager:
         self, force: bool = False, dry_run: bool = False
     ) -> dict[str, Any]:
         """Import YAML files to database."""
-        results = {
+        results: dict[str, Any] = {
             "imported": [],
             "skipped": [],
             "errors": [],
@@ -147,7 +148,9 @@ class YAMLManager:
                     results["errors"].append(f"Failed to load {file_path}")
                     continue
 
-                node_id = yaml_data.get("id")
+                # Type assertion after None check
+                yaml_data_dict: dict[str, Any] = yaml_data
+                node_id = yaml_data_dict.get("id")
 
                 # Check if node already exists
                 if not force and node_id in existing_ids:
@@ -164,7 +167,7 @@ class YAMLManager:
                 try:
                     if force and node_id in existing_ids:
                         # Update existing node
-                        updated_node = self.app.update_node(node_id, yaml_data)
+                        updated_node = self.app.update_node(node_id, yaml_data_dict)
                         if updated_node:
                             results["imported"].append(f"{node_id} (updated)")
                             results["total_imported"] += 1
@@ -174,7 +177,7 @@ class YAMLManager:
                             print(f"  ❌ Failed to update {node_id}")
                     else:
                         # Create new node
-                        new_node = self.app.create_node(yaml_data)
+                        new_node = self.app.create_node(yaml_data_dict)
                         results["imported"].append(f"{new_node.id} (new)")
                         results["total_imported"] += 1
                         print(f"  ✅ Imported {new_node.id}")
@@ -190,7 +193,12 @@ class YAMLManager:
         self, output_dir: Path | None = None, backup_existing: bool = True
     ) -> dict[str, Any]:
         """Export database content to YAML files."""
-        results = {"exported": [], "errors": [], "total_nodes": 0, "total_exported": 0}
+        results: dict[str, Any] = {
+            "exported": [],
+            "errors": [],
+            "total_nodes": 0,
+            "total_exported": 0,
+        }
 
         if output_dir is None:
             output_dir = self.yaml_base_path
@@ -260,14 +268,14 @@ class YAMLManager:
 
     def node_to_yaml(self, node: Node) -> dict[str, Any]:
         """Convert a Node object to YAML-compatible dictionary."""
-        yaml_data = {
+        yaml_data: dict[str, Any] = {
             "id": node.id,
             "layer": node.layer,
             "title": node.title,
             "description": node.description,
             "metadata": {
                 "owner": node.metadata.owner,
-                "labels": node.metadata.labels,
+                "labels": list(node.metadata.labels),
             },
         }
 
@@ -299,7 +307,12 @@ class YAMLManager:
 
     def check_yaml_sync(self) -> dict[str, Any]:
         """Check synchronization status between YAML files and database."""
-        results = {"yaml_only": [], "database_only": [], "both": [], "conflicts": []}
+        results: dict[str, Any] = {
+            "yaml_only": [],
+            "database_only": [],
+            "both": [],
+            "conflicts": [],
+        }
 
         # Get YAML node IDs
         yaml_files = self.get_yaml_files()

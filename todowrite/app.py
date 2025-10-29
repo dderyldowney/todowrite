@@ -7,12 +7,14 @@ import os
 import uuid
 from collections.abc import Generator
 from contextlib import contextmanager
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Literal, cast
+
+# Forward declaration for type hints
+from typing import TYPE_CHECKING, Any, cast
 
 import jsonschema
 from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, joinedload, sessionmaker
 
 from .db.config import (
@@ -27,28 +29,10 @@ from .db.models import Command as DBCommand
 from .db.models import Label as DBLabel
 from .db.models import Link as DBLink
 from .db.models import Node as DBNode
+from .types import Command, LayerType, Link, Metadata, Node, StatusType
 
-LayerType = Literal[
-    "Goal",
-    "Concept",
-    "Context",
-    "Constraints",
-    "Requirements",
-    "AcceptanceCriteria",
-    "InterfaceContract",
-    "Phase",
-    "Step",
-    "Task",
-    "SubTask",
-    "Command",
-]
-
-"""The type of a ToDoWrite layer."""
-
-
-StatusType = Literal["planned", "in_progress", "blocked", "done", "rejected"]
-
-"""The status of a ToDoWrite node."""
+if TYPE_CHECKING:
+    from .yaml_storage import YAMLStorage
 
 
 def _validate_literal(value: str, literal_type: Any) -> str:
@@ -57,47 +41,6 @@ def _validate_literal(value: str, literal_type: Any) -> str:
             f"Invalid literal value: {value}. Expected one of {literal_type.__args__}"
         )
     return value
-
-
-@dataclass
-class Link:
-    """Represents the links between ToDoWrite nodes."""
-
-    parents: list[str] = field(default_factory=list)
-    children: list[str] = field(default_factory=list)
-
-
-@dataclass
-class Metadata:
-    """Represents the metadata of a ToDoWrite node."""
-
-    owner: str
-    labels: list[str] = field(default_factory=list)
-    severity: str = ""
-    work_type: str = ""
-
-
-@dataclass
-class Command:
-    """Represents a command to be executed."""
-
-    ac_ref: str
-    run: dict[str, Any]
-    artifacts: list[str] = field(default_factory=list)
-
-
-@dataclass
-class Node:
-    """Represents a node in the ToDoWrite system."""
-
-    id: str
-    layer: LayerType
-    title: str
-    description: str
-    links: Link
-    metadata: Metadata
-    status: StatusType = "planned"
-    command: Command | None = None
 
 
 class ToDoWrite:
@@ -120,6 +63,11 @@ class ToDoWrite:
         # Determine storage backend
         self.storage_type, self.db_url = determine_storage_backend()
 
+        # Initialize attributes with proper types
+        self.engine: Engine | None = None
+        self.Session: sessionmaker[Session] | None = None
+        self.yaml_storage: YAMLStorage | None = None
+
         # Override URL if explicitly provided
         if db_url:
             self.db_url = db_url
@@ -130,7 +78,7 @@ class ToDoWrite:
             )
 
         # Initialize database components only if not using YAML
-        if self.storage_type != StorageType.YAML:
+        if self.storage_type != StorageType.YAML and self.db_url:
             self.engine = create_engine(self.db_url)
             self.Session = sessionmaker(bind=self.engine)
         else:
@@ -161,11 +109,33 @@ class ToDoWrite:
             self._auto_import_yaml_files()
 
     @contextmanager
-    def get_session(self) -> Generator[Session, None, None]:
+    def get_session(self) -> Generator[Session | None, None, None]:
         if self.storage_type == StorageType.YAML:
             # YAML storage doesn't use sessions
             yield None
             return
+
+        if self.Session is None:
+            raise RuntimeError("Database session not initialized")
+
+        session = self.Session()
+        try:
+            yield session
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    @contextmanager
+    def get_db_session(self) -> Generator[Session, None, None]:
+        """Get a database session that is guaranteed to not be None."""
+        if self.storage_type == StorageType.YAML:
+            raise RuntimeError("Database session requested but using YAML storage")
+
+        if self.Session is None:
+            raise RuntimeError("Database session not initialized")
 
         session = self.Session()
         try:
@@ -186,20 +156,35 @@ class ToDoWrite:
         except jsonschema.exceptions.ValidationError as e:
             raise ValueError(f"Node data validation failed: {e.message}") from e
 
+    def _get_yaml_storage(self) -> "YAMLStorage":
+        """Get YAML storage with proper error handling."""
+        if not self.yaml_storage:
+            raise RuntimeError("YAML storage not initialized")
+        return self.yaml_storage
+
+    def _execute_with_session(self, func: Any, *args: Any, **kwargs: Any) -> Any:
+        """Execute a function with a database session, handling None checks."""
+        with self.get_session() as session:
+            if session is None:
+                raise RuntimeError("Database session not available")
+            return func(session, *args, **kwargs)
+
     def init_database(self) -> None:
         """Creates the database and the tables."""
         if self.storage_type == StorageType.YAML:
             # For YAML storage, just ensure directories exist
-            self.yaml_storage._ensure_directories()
+            if self.yaml_storage:
+                self.yaml_storage._ensure_directories()
             return
 
-        if self.db_url.startswith("sqlite"):
+        if self.db_url and self.db_url.startswith("sqlite"):
             db_path: str = self.db_url.split("///")[1]
             if db_path and db_path != ":memory:":
                 dirname: str = os.path.dirname(db_path)
                 if dirname:
                     os.makedirs(dirname, exist_ok=True)
-        Base.metadata.create_all(bind=self.engine)
+        if self.engine:
+            Base.metadata.create_all(bind=self.engine)
 
     def create_node(self, node_data: dict[str, Any]) -> Node:
         """Creates a new node in the storage backend."""
@@ -207,20 +192,22 @@ class ToDoWrite:
 
         if self.storage_type == StorageType.YAML:
             # Convert node_data to Node and save to YAML
+            yaml_storage = self._get_yaml_storage()
             node = self._dict_to_node(node_data)
-            self.yaml_storage.save_node(node)
+            yaml_storage.save_node(node)
             return node
 
-        with self.get_session() as session:
+        with self.get_db_session() as session:
             db_node = self._create_db_node(session, node_data)
             return self._convert_db_node_to_node(db_node)
 
     def get_node(self, node_id: str) -> Node | None:
         """Retrieves a node from the storage backend."""
         if self.storage_type == StorageType.YAML:
-            return self.yaml_storage.load_node(node_id)
+            yaml_storage = self._get_yaml_storage()
+            return yaml_storage.load_node(node_id)
 
-        with self.get_session() as session:
+        with self.get_db_session() as session:
             db_node = (
                 session.query(DBNode)
                 .options(
@@ -237,9 +224,10 @@ class ToDoWrite:
     def get_all_nodes(self) -> dict[str, list[Node]]:
         """Retrieves all the nodes from the storage backend."""
         if self.storage_type == StorageType.YAML:
-            return self.yaml_storage.load_all_nodes()
+            yaml_storage = self._get_yaml_storage()
+            return yaml_storage.load_all_nodes()
 
-        with self.get_session() as session:
+        with self.get_db_session() as session:
             db_nodes = (
                 session.query(DBNode)
                 .options(
@@ -262,11 +250,12 @@ class ToDoWrite:
 
         if self.storage_type == StorageType.YAML:
             # For YAML, just save the updated node
+            yaml_storage = self._get_yaml_storage()
             node = self._dict_to_node(node_data)
-            self.yaml_storage.save_node(node)
+            yaml_storage.save_node(node)
             return node
 
-        with self.get_session() as session:
+        with self.get_db_session() as session:
             db_node = session.query(DBNode).filter(DBNode.id == node_id).first()
             if db_node:
                 db_node.layer = node_data.get("layer", db_node.layer)
@@ -377,10 +366,11 @@ class ToDoWrite:
     def delete_node(self, node_id: str) -> None:
         """Deletes a node from the storage backend."""
         if self.storage_type == StorageType.YAML:
-            self.yaml_storage.delete_node(node_id)
+            yaml_storage = self._get_yaml_storage()
+            yaml_storage.delete_node(node_id)
             return
 
-        with self.get_session() as session:
+        with self.get_db_session() as session:
             db_node = session.query(DBNode).filter(DBNode.id == node_id).first()
             if db_node:
                 session.delete(db_node)
@@ -807,7 +797,8 @@ class ToDoWrite:
         """Automatically import YAML files that are not in the database."""
         try:
             # Only attempt auto-import if database is accessible
-            Base.metadata.create_all(bind=self.engine)
+            if self.engine:
+                Base.metadata.create_all(bind=self.engine)
 
             # Import YAMLManager here to avoid circular imports
             from .yaml_manager import YAMLManager

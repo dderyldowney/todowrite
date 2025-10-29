@@ -11,13 +11,14 @@ from typing import Any, get_args
 import click
 import yaml
 
-from .app import LayerType, Node, ToDoWrite
+from .app import ToDoWrite
 from .db.config import (
     StoragePreference,
     get_setup_guidance,
     get_storage_info,
     set_storage_preference,
 )
+from .types import LayerType, Node
 from .yaml_manager import YAMLManager
 
 LAYER_TO_PREFIX = {
@@ -166,10 +167,11 @@ def db_status(storage_preference: str) -> None:
 
         # Count existing nodes
         if app.storage_type.value == "yaml":
-            node_count = app.yaml_storage.count_nodes()
+            yaml_storage = app._get_yaml_storage()
+            node_count = yaml_storage.count_nodes()
             click.echo(f"Nodes in YAML Files: {node_count}")
         else:
-            with app.get_session() as session:
+            with app.get_db_session() as session:
                 from .db.models import Node as DBNode
 
                 node_count = session.query(DBNode).count()
