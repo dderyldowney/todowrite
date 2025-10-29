@@ -163,3 +163,7 @@ todowrite/__pycache__/
 # ToDoWrite database files
 todowrite.db
 *.db
+
+# ToDoWrite configuration and generated files
+.env.todowrite
+export_test/

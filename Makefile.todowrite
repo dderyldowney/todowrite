@@ -1,0 +1,40 @@
+# ToDoWrite Integration Makefile
+# Include this in your main Makefile with: include Makefile.todowrite
+
+.PHONY: tw-setup tw-start tw-stop tw-import tw-export tw-init tw-validate
+
+# Setup ToDoWrite database
+tw-setup:
+	@echo "🚀 Setting up ToDoWrite..."
+	@python -m todowrite init
+	@python -m todowrite import-yaml
+
+# Start PostgreSQL (if using Docker)
+tw-start:
+	@echo "🐳 Starting ToDoWrite PostgreSQL..."
+	@docker-compose -f docker-compose.todowrite.yml up -d
+
+# Stop PostgreSQL
+tw-stop:
+	@echo "🛑 Stopping ToDoWrite PostgreSQL..."
+	@docker-compose -f docker-compose.todowrite.yml down
+
+# Import existing YAML files
+tw-import:
+	@echo "📥 Importing YAML files to database..."
+	@python -m todowrite import-yaml
+
+# Export database to YAML
+tw-export:
+	@echo "📤 Exporting database to YAML..."
+	@python -m todowrite export-yaml
+
+# Initialize database
+tw-init:
+	@echo "🗄️ Initializing ToDoWrite database..."
+	@python -m todowrite init
+
+# Validate ToDoWrite structure
+tw-validate:
+	@echo "✅ Validating ToDoWrite structure..."
+	@python -m todowrite todowrite validate-plan
