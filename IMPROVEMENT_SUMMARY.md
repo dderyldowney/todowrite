@@ -1,15 +1,38 @@
 # ToDoWrite Improvement Summary
 
-## CRITICAL: Load Token-Sage Agent First
+## CRITICAL: Automatic Token-Sage + HAL Agent Optimization
 
-**IMPORTANT:** Before implementing any recommendations below, you must load the token-sage agent. This should be the very first command executed in any session:
+**IMPORTANT:** This project now includes automatic token optimization that always uses token-sage + HAL agents for maximum efficiency:
+
+### **🚀 Automatic Token Optimization Scripts:**
+
+1. **`always_token_sage.py`** - Always loads token-sage first + HAL preprocessing
+2. **`token_optimized_agent.py`** - Complete automatic agent pipeline with caching
+3. **`auto_agent.py`** - Simple automated agent chaining
+
+### **💰 Maximum Token Savings Workflow:**
 
 ```bash
-# Load token-sage agent immediately after reading this document
-Task subagent_type=token-sage description="Initialize token-sage" prompt="Initialize and prepare for code analysis tasks"
+# ALWAYS use this pattern for maximum efficiency:
+python always_token_sage.py "your goal here"
+
+# Examples:
+python always_token_sage.py "analyze authentication system"
+python always_token_sage.py "find database models"
+python always_token_sage.py "review API endpoints"
+
+# For complex analysis with caching:
+python token_optimized_agent.py "your goal" "pattern"
 ```
 
-**Why:** The token-sage agent provides optimized code analysis capabilities that are essential for implementing the improvements in this document efficiently and accurately.
+### **⚡ How It Works:**
+1. **Token-sage always loaded first** - Optimized code analysis
+2. **HAL agents run automatically** - Local filtering (0 tokens)
+3. **Caching enabled** - Delta mode prevents reprocessing
+4. **Strict limits** - 1000 chars max, 50 files, 50KB total
+5. **Estimated savings:** ~10,000+ tokens per analysis
+
+**Why:** This system ensures maximum token efficiency through local-first processing and automatic agent chaining.
 
 This document contains prioritized improvements for the ToDoWrite codebase. Each improvement includes the exact steps needed to implement it, making it possible to work on these items even in a new session.
 
