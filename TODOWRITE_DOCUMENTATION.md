@@ -19,7 +19,7 @@
 **ToDoWrite** is a 12-layer declarative planning framework with enforced Separation of Concerns, designed for systematic project planning and execution in software engineering and agricultural automation projects.
 
 ### Key Characteristics
-- **Version:** 0.1.6.1 (Production Ready)
+- **Version:** 0.1.7.0 (Production Ready)
 - **Architecture:** 12-layer hierarchy (11 declarative + 1 executable)
 - **Language:** Python 3.12+ with strict type checking
 - **Storage:** Three-tier fallback chain (PostgreSQL → SQLite → YAML)
@@ -1212,4 +1212,4 @@ echo "feat(req): test message" | .git/hooks/commit-msg
 
 ---
 
-*This documentation covers ToDoWrite v0.1.6.1. For the latest updates, see the project repository.*
+*This documentation covers ToDoWrite v0.1.7.0. For the latest updates, see the project repository.*
