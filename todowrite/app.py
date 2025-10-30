@@ -7,6 +7,7 @@ from __future__ import annotations
 import json
 import os
 import uuid
+from collections import defaultdict
 from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
@@ -667,15 +668,14 @@ class ToDoWrite:
         """Loads all todos from the database."""
         return self.get_all_nodes()
 
-    def get_active_items(self, todos: dict[str, list[Node]]) -> dict[str, Node]:
+    def get_active_items(self, todos: dict[str, list[Node]]) -> dict[str, list[Node]]:
         """Returns a dictionary of active items (status != 'done' and 'rejected') grouped by layer."""
-        active_items: dict[str, Node] = {}
+        active_items: dict[str, list[Node]] = defaultdict(list)
         for layer, nodes in todos.items():
             for node in nodes:
                 if node.status not in ["done", "rejected"]:
-                    active_items[layer] = node  # Only one active item per layer for now
-                    break
-        return active_items
+                    active_items[layer].append(node)
+        return dict(active_items)
 
     def _create_db_node(self, session: Session, node_data: dict[str, Any]) -> DBNode:
         # Data validation
