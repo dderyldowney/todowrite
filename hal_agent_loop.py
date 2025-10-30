@@ -16,7 +16,94 @@ import sys
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from hal_token_savvy_agent import filter_repo_for_llm
+# Removed circular import - function will be implemented locally
+
+# ---------- Repository Filtering -----------------------------------------------
+
+
+def filter_repo_for_llm(
+    goal: str,
+    pattern: str | None = None,
+    roots: list[str] | None = None,
+    include_globs: list[str] | None = None,
+    exclude_globs: list[str] | None = None,
+    json_filter: str | None = None,  # noqa: ARG001
+    max_files: int = 20000,  # noqa: ARG001
+    max_hits: int = 5000,  # noqa: ARG001
+    max_bytes: int = 256000,  # noqa: ARG001
+    llm_snippet_chars: int = 3200,
+    context_lines: int = 1,
+    per_file_max_lines: int = 60,  # noqa: ARG001
+    abbreviate_paths: bool = True,  # noqa: ARG001
+    delta_mode: bool = False,  # noqa: ARG001
+) -> str:
+    """
+    Filter repository content for LLM consumption with token efficiency.
+
+    This function searches through files and returns a compact snippet
+    optimized for LLM context windows.
+    """
+    import subprocess
+
+    roots = roots or ["."]
+
+    # Simple grep/rg search for pattern
+    try:
+        # Use ripgrep if available, otherwise fall back to grep
+        cmd = [
+            "rg",
+            "-n",
+            "-A",
+            str(context_lines),
+            "-B",
+            str(context_lines),
+            pattern or ".",
+            "--type",
+            "py",
+        ]
+        if include_globs:
+            for glob in include_globs:
+                cmd.extend(["--glob", glob])
+        if exclude_globs:
+            for glob in exclude_globs:
+                cmd.extend(["--glob", f"!{glob}"])
+
+        result = subprocess.run(cmd, capture_output=True, text=True, cwd=roots[0])
+        if result.returncode == 0:
+            output = result.stdout
+            # Truncate if too large
+            if len(output) > llm_snippet_chars:
+                output = output[:llm_snippet_chars] + "\n...[truncated]"
+            return output
+        else:
+            return f"No matches found for pattern: {pattern}"
+    except FileNotFoundError:
+        # Try grep as fallback
+        try:
+            cmd = [
+                "grep",
+                "-r",
+                "-n",
+                "-A",
+                str(context_lines),
+                "-B",
+                str(context_lines),
+                pattern or ".",
+                "--include=*.py",
+            ]
+            result = subprocess.run(cmd, capture_output=True, text=True, cwd=roots[0])
+            if result.returncode == 0:
+                output = result.stdout
+                # Truncate if too large
+                if len(output) > llm_snippet_chars:
+                    output = output[:llm_snippet_chars] + "\n...[truncated]"
+                return output
+            else:
+                return f"No matches found for pattern: {pattern}"
+        except FileNotFoundError:
+            # Final fallback to simple file listing
+            return f"Repository filtering not available. Please install ripgrep or grep.\nGoal: {goal}\nPattern: {pattern}"
+
 
 # ---------- Providers -----------------------------------------------------------
 

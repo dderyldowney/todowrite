@@ -13,7 +13,7 @@ Task subagent_type=token-sage description="Initialize token-sage" prompt="Initia
 
 This document contains prioritized improvements for the ToDoWrite codebase. Each improvement includes the exact steps needed to implement it, making it possible to work on these items even in a new session.
 
-## Priority 1: Remove Active Items Limitation (HIGH)
+## Priority 1: [COMPLETED] Remove Active Items Limitation (HIGH)
 
 **File:** `todowrite/app.py` (line 676)
 **Current Issue:** The `get_active_items()` method artificially limits each layer to only one active item, preventing proper management of multiple parallel workstreams.
@@ -52,10 +52,19 @@ def get_active_items(self, todos: dict[str, list[Node]]) -> dict[str, list[Node]
     return dict(active_items)
 ```
 
-**Testing Required:**
-- Verify all existing functionality still works
-- Test with multiple active items in same layer
-- Run test suite to ensure no regressions
+**✅ COMPLETED - Implementation Results:**
+- **Date Completed:** 2025-10-30
+- **Changes Made:**
+  - Modified method signature from `dict[str, Node]` to `dict[str, list[Node]]`
+  - Added `defaultdict` import and usage
+  - Removed artificial `break` limitation
+  - Method now returns all active items per layer
+- **Testing Results:**
+  - ✅ All existing tests pass (9/9)
+  - ✅ Manual testing confirms multiple active items work correctly
+  - ✅ No breaking changes (method not currently called by other code)
+- **Performance:** No impact on performance, same O(n) complexity
+- **Backward Compatibility:** Breaking change for any direct callers, but no current callers identified
 
 ---
 
