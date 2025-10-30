@@ -5,7 +5,7 @@
 ToDoWrite is a sophisticated hierarchical task management system designed for complex project planning and execution. It implements a **12-layer declarative planning framework** with database-first architecture supporting PostgreSQL → SQLite → YAML fallback chain. The system emphasizes **Separation of Concerns**, build-time validation, and traceability.
 
 **Project Details:**
-- **Version:** 0.1.6.1
+- **Version:** 0.1.7.0
 - **Python:** 3.12+ (strict type hints with mypy)
 - **Primary Dependencies:** SQLAlchemy 2.0, Click CLI, PyYAML, jsonschema
 - **Current Branch:** develop

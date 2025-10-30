@@ -1302,4 +1302,4 @@ The REST API implementation would reuse all existing business logic from the `To
 
 ---
 
-*This API documentation covers both implemented (Python module) and planned (REST API) interfaces for ToDoWrite v0.1.6.1. The REST API specifications are based on the interface contracts defined in the planning framework.*
+*This API documentation covers both implemented (Python module) and planned (REST API) interfaces for ToDoWrite v0.1.7.0. The REST API specifications are based on the interface contracts defined in the planning framework.*
