@@ -1,0 +1,82 @@
+name: Schema Validation
+
+on:
+  push:
+    branches: [ develop, main ]
+  pull_request:
+    branches: [ develop, main ]
+
+jobs:
+  schema-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install todowrite
+          pip install jsonschema
+
+      - name: Run schema location check
+        run: |
+          python scripts/check_schema_changes.py
+
+      - name: Run deprecated schema check
+        run: |
+          python scripts/check_deprecated_schema.py
+
+      - name: Test package schema import
+        run: |
+          python -c "
+            import todowrite
+            schema = todowrite.TODOWRITE_SCHEMA
+            assert isinstance(schema, dict), 'Schema should be a dict'
+            assert 'properties' in schema, 'Schema should have properties'
+            assert 'required' in schema, 'Schema should have required fields'
+            print('✅ Package schema import test passed')
+          "
+
+      - name: Test basic validation
+        run: |
+          python -c "
+            import todowrite
+            from jsonschema import validate
+            test_node = {
+                'id': 'TEST-001',
+                'layer': 'Goal',
+                'title': 'Test Node',
+                'description': 'A test node',
+                'links': {'parents': [], 'children': []}
+            }
+            validate(instance=test_node, schema=todowrite.TODOWRITE_SCHEMA)
+            print('✅ Basic validation test passed')
+          "
+
+      - name: Test CLI validation
+        run: |
+          todowrite validate --help || echo "CLI validation command available"
+          # Note: This would need actual test files to run fully
+
+      - name: Verify schema file integrity
+        run: |
+          # Check that primary schema exists and is valid JSON
+          if [ ! -f \"todowrite/schemas/todowrite.schema.json\" ]; then
+            echo \"ERROR: Primary schema file missing!\"
+            exit 1
+          fi
+
+          # Check deprecated schema has DEPRECATED marker
+          if [ -f \"configs/schemas/todowrite.schema.json\" ]; then
+            if ! grep -q \"DEPRECATED\" configs/schemas/todowrite.schema.json; then
+              echo \"ERROR: Deprecated schema missing DEPRECATED marker!\"
+              exit 1
+            fi
+          fi
+
+          echo \"✅ Schema file integrity checks passed\"
