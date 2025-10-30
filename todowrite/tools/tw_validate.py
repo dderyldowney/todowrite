@@ -17,10 +17,22 @@ from jsonschema import Draft202012Validator, ValidationError, validate
 class ToDoWriteValidator:
     """Schema validator for ToDoWrite YAML files"""
 
-    def __init__(self, schema_path: str = "configs/schemas/todowrite.schema.json"):
-        self.schema_path: str = schema_path
-        self.schema: dict[str, Any] = self._load_schema()
-        self.validator: Draft202012Validator = Draft202012Validator(self.schema)
+    def __init__(self, schema_path: str | None = None):
+        if schema_path is None:
+            # Try to load from package first, fall back to old location
+            try:
+                import todowrite.schema
+
+                self.schema = todowrite.schema.TODOWRITE_SCHEMA
+                self.schema_path = "todowrite.schema"  # Virtual path for display
+                self.validator = Draft202012Validator(self.schema)
+                return
+            except ImportError:
+                schema_path = "configs/schemas/todowrite.schema.json"
+
+        self.schema_path = schema_path
+        self.schema = self._load_schema()
+        self.validator = Draft202012Validator(self.schema)
 
     def _load_schema(self) -> dict[str, Any]:
         """Load JSON schema from file"""

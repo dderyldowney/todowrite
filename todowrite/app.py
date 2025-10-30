@@ -89,12 +89,7 @@ class ToDoWrite:
 
         # Load schema
         if ToDoWrite._SCHEMA is None:
-            schema_path = (
-                Path(__file__).parent.parent
-                / "configs"
-                / "schemas"
-                / "todowrite.schema.json"
-            )
+            schema_path = Path(__file__).parent / "schemas" / "todowrite.schema.json"
             with open(schema_path) as f:
                 ToDoWrite._SCHEMA = json.load(f)
 
