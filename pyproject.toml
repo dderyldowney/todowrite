@@ -23,6 +23,9 @@ build-backend = "setuptools.build_meta"
 where = ["."]
 include = ["todowrite*"]
 
+[tool.setuptools.package-data]
+todowrite = ["schemas/*.json"]
+
 [project.scripts]
 todowrite = "todowrite.cli:cli"
 
