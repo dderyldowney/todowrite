@@ -1,6 +1,6 @@
 [project]
 name = "todowrite"
-version = "0.1.7.0"
+dynamic = ["version"]
 description = "A standalone task management system with hierarchical planning framework."
 authors = [
     { name = "dderyldowney", email = "dderyldowney@gmail.com" }
@@ -16,8 +16,13 @@ dependencies = [
 ]
 
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "todowrite/version.py"
+egg-info-path-name = "version"
+getter = "get_version"
 
 [tool.setuptools.packages.find]
 where = ["."]

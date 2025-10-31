@@ -1,0 +1,22 @@
+# Core dependencies for todowrite
+sqlalchemy>=2.0.0
+typing-extensions>=4.0.0
+click>=8.0.0
+psycopg2-binary>=2.9.0
+PyYAML>=6.0.0
+jsonschema>=4.0.0
+
+# Development dependencies
+# Install with: pip install -r requirements-dev.txt
+# Or: pip install -e ".[dev]"
+# mypy>=1.13.0
+# types-PyYAML>=6.0.12
+# types-jsonschema>=4.0.0
+# sqlalchemy[mypy]>=2.0.0
+# types-click>=7.1.0
+# ruff>=0.7.0
+# black>=24.0.0
+# isort>=5.13.0
+# pytest>=8.0.0
+# pre-commit>=4.0.0
+# bandit[toml]>=1.7.0
