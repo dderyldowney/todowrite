@@ -8,9 +8,10 @@ It's a wrapper that automatically initializes token-sage.
 
 import sys
 from pathlib import Path
+from typing import List
 
 
-def ensure_token_sage():
+def ensure_token_sage() -> None:
     """Ensure token-sage is always loaded first"""
     print("🚀 Ensuring token-sage is loaded...")
 
@@ -25,7 +26,7 @@ def ensure_token_sage():
     print()
 
 
-def run_with_hal_preprocessing(command_args):
+def run_with_hal_preprocessing(command_args: List[str]) -> int:
     """Run any command with HAL preprocessing first"""
     if not command_args:
         print("Usage: python always_token_sage.py <your_command> [args]")
@@ -89,7 +90,7 @@ def run_with_hal_preprocessing(command_args):
     return 0
 
 
-def main():
+def main() -> int:
     """Main entry point"""
     if len(sys.argv) < 2:
         print("🚀 Always Token-Sage - Maximum Token Efficiency")
