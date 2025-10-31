@@ -1,7 +1,7 @@
 # ToDoWrite: Hierarchical Task Management System
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![Version 0.1.7.0](https://img.shields.io/badge/version-0.1.7.0-green.svg)](https://github.com/dderyldowney/todowrite)
+[![Version 0.1.7.2](https://img.shields.io/badge/version-0.1.7.2-green.svg)](https://github.com/dderyldowney/todowrite)
 [![SQLAlchemy 2.0](https://img.shields.io/badge/SQLAlchemy-2.0-orange.svg)](https://www.sqlalchemy.org/)
 
 **ToDoWrite** is a sophisticated hierarchical task management system designed for complex project planning and execution. Built with a 12-layer declarative framework, it provides both standalone CLI capabilities and Python module integration for developers and project managers who need structured, traceable task management.
@@ -29,7 +29,7 @@ We welcome contributions to ToDoWrite! Please see our [Contributing Guidelines](
 
 ---
 
-**Version**: 0.1.7.0
+**Version**: 0.1.7.2
 **Python**: 3.12+
 **Database**: SQLite (development) / PostgreSQL (production)
 **Architecture**: Hierarchical task management with 12-layer planning framework
