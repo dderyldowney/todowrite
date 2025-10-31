@@ -8,10 +8,11 @@ the token-optimized workflow automatically.
 
 import sys
 from pathlib import Path
+from typing import Optional
 
 
 # Auto-initialize token optimization
-def ensure_token_optimization():
+def ensure_token_optimization() -> bool:
     """Ensure token optimization is always active"""
     try:
         # Import the auto-initialization
@@ -26,7 +27,7 @@ def ensure_token_optimization():
         return False
 
 
-def main():
+def main() -> None:
     """Main workflow function"""
     print("🎯 Claude Token-Optimized Workflow")
     print("=" * 50)
