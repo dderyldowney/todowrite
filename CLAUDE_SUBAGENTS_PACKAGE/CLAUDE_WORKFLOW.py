@@ -8,7 +8,6 @@ the token-optimized workflow automatically.
 
 import sys
 from pathlib import Path
-from typing import Optional
 
 
 # Auto-initialize token optimization

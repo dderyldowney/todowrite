@@ -8,7 +8,6 @@ It's a wrapper that automatically initializes token-sage.
 
 import sys
 from pathlib import Path
-from typing import List
 
 
 def ensure_token_sage() -> None:
@@ -26,7 +25,7 @@ def ensure_token_sage() -> None:
     print()
 
 
-def run_with_hal_preprocessing(command_args: List[str]) -> int:
+def run_with_hal_preprocessing(command_args: list[str]) -> int:
     """Run any command with HAL preprocessing first"""
     if not command_args:
         print("Usage: python always_token_sage.py <your_command> [args]")

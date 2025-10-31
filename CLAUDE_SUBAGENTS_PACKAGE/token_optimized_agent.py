@@ -9,21 +9,22 @@ This ensures zero wasted tokens through local-first processing.
 import json
 import sys
 from pathlib import Path
-from typing import Optional, Any, Dict, Union, TypedDict
+from typing import Any, TypedDict
 
 
 class FilterParams(TypedDict):
     """Type definition for filter_repo_for_llm parameters"""
+
     goal: str
     llm_snippet_chars: int
     delta_mode: bool
     abbreviate_paths: bool
     max_files: int
     context_lines: int
-    roots: Optional[list[str]]
-    include_globs: Optional[list[str]]
+    roots: list[str] | None
+    include_globs: list[str] | None
     max_bytes: int
-    pattern: Optional[str]
+    pattern: str | None
 
 
 class TokenOptimizedAgent:
@@ -44,8 +45,8 @@ class TokenOptimizedAgent:
         return True
 
     def run_hal_preprocessing(
-        self, goal: str, pattern: Optional[str] = None, **kwargs: Any
-    ) -> Optional[str]:
+        self, goal: str, pattern: str | None = None, **kwargs: Any
+    ) -> str | None:
         """
         Run HAL agents for local preprocessing (0 tokens used)
         """
@@ -90,7 +91,8 @@ class TokenOptimizedAgent:
 
         # Simulate token-sage processing
         # In reality, this would call the token-sage agent
-        analysis: str = f"""
+        analysis: str = (
+            f"""
 [Token-Sage Analysis]
 
 Query: {query}
@@ -109,24 +111,25 @@ Token Efficiency: MAXIMUM
 Context Size: {len(context)} characters
 Estimated Savings: ~10,000+ tokens
         """.strip()
+        )
 
         return analysis
 
-    def get_cache_key(self, goal: str, pattern: Optional[str] = None) -> str:
+    def get_cache_key(self, goal: str, pattern: str | None = None) -> str:
         """Generate cache key for repeated queries"""
         import hashlib
 
         key_data = f"{goal}:{pattern or ''}"
         return hashlib.md5(key_data.encode(), usedforsecurity=False).hexdigest()
 
-    def get_cached_result(self, cache_key: str) -> Optional[str]:
+    def get_cached_result(self, cache_key: str) -> str | None:
         """Get cached result if available"""
         cache_file = self.cache_dir / f"{cache_key}.json"
         if cache_file.exists():
             try:
                 data = json.loads(cache_file.read_text())
                 print("📋 Using cached result (saved tokens)")
-                result: Optional[str] = data.get("result")
+                result: str | None = data.get("result")
                 return result
             except Exception:
                 pass
@@ -142,7 +145,9 @@ Estimated Savings: ~10,000+ tokens
         except Exception:
             pass
 
-    def analyze(self, goal: str, pattern: Optional[str] = None, use_cache: bool = True) -> str:
+    def analyze(
+        self, goal: str, pattern: str | None = None, use_cache: bool = True
+    ) -> str:
         """
         Main analysis method with automatic token optimization
         """
