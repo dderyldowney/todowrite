@@ -7,11 +7,12 @@ Always uses token-sage + HAL agents for maximum token efficiency.
 
 import sys
 from pathlib import Path
-from typing import Optional, Any
+from typing import Any
 
 
 class FilterParamsDict(dict[str, Any]):
     """Type definition for filter_repo_for_llm parameters"""
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
@@ -27,7 +28,9 @@ def initialize_token_sage() -> bool:
         return False
 
 
-def run_hal_filtering(goal: str, pattern: Optional[str] = None, **kwargs: object) -> Optional[str]:
+def run_hal_filtering(
+    goal: str, pattern: str | None = None, **kwargs: object
+) -> str | None:
     """Run HAL agent filtering for maximum token efficiency"""
     print(f"🔍 Running HAL agent pre-filtering for: {goal}")
 
