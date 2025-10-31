@@ -3,8 +3,7 @@
 from .app import ToDoWrite
 from .schema import TODOWRITE_SCHEMA
 from .types import Command, LayerType, Link, Metadata, Node, StatusType
-
-__version__ = "0.1.7.0"
+from .version import get_version, __version__
 
 __all__ = [
     "ToDoWrite",
@@ -15,4 +14,6 @@ __all__ = [
     "Metadata",
     "Node",
     "StatusType",
+    "get_version",
+    "__version__",
 ]
