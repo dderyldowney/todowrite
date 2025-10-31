@@ -590,6 +590,230 @@ def check_soc() -> None:
         sys.exit(1)
 
 
+# Status Management Commands
+@cli.group()
+def status() -> None:
+    """Status management commands for tracking task progress."""
+    pass
+
+
+@status.command("update")
+@click.argument("node_id")
+@click.option(
+    "--status",
+    type=click.Choice(["planned", "in_progress", "blocked", "done", "rejected"]),
+    required=True,
+    help="Set the status of the node",
+)
+@click.option(
+    "--progress", type=click.IntRange(0, 100), help="Set progress percentage (0-100)"
+)
+@click.option("--owner", help="Set the owner of the node")
+def update_status(node_id: str, status: str, progress: int, owner: str) -> None:
+    """Update the status of a node."""
+    app: ToDoWrite = ToDoWrite()
+
+    # Validate node exists
+    node = app.get_node(node_id)
+    if not node:
+        click.echo(f"Error: Node {node_id} not found", err=True)
+        sys.exit(1)
+
+    # Validate status transition
+    if node.status == "done" and status != "done":
+        click.echo(
+            "Warning: Cannot change status from 'done' to other states", err=True
+        )
+
+    # Prepare update data
+    update_data = node.to_dict()
+    update_data["status"] = status
+
+    # Update progress if provided (for future implementation)
+    if progress is not None:
+        click.echo(
+            f"Note: Progress tracking not yet implemented, but would set to {progress}% for {node_id}"
+        )
+
+    # Update owner if provided
+    if owner:
+        update_data["metadata"]["owner"] = owner
+
+    # Save the node
+    try:
+        updated_node = app.update_node(node_id, update_data)
+        if updated_node:
+            click.echo(f"✅ Updated {node_id}: status={status}")
+            if progress is not None:
+                click.echo(f"   Progress: {progress}%")
+            if owner:
+                click.echo(f"   Owner: {owner}")
+        else:
+            click.echo(f"Error: Failed to update {node_id}", err=True)
+            sys.exit(1)
+    except Exception as e:
+        click.echo(f"Error updating node: {e}", err=True)
+        sys.exit(1)
+
+
+@status.command("show")
+@click.argument("node_id")
+def show_progress(node_id: str) -> None:
+    """Show progress and status details for a node."""
+    app: ToDoWrite = ToDoWrite()
+    node = app.get_node(node_id)
+
+    if not node:
+        click.echo(f"Error: Node {node_id} not found", err=True)
+        sys.exit(1)
+
+    click.echo(f"📊 Node: {node_id}")
+    click.echo(f"   Status: {node.status}")
+    click.echo(f"   Owner: {node.metadata.owner}")
+    click.echo(f"   Layer: {node.layer}")
+    click.echo(f"   Title: {node.title}")
+    click.echo(f"   Description: {node.description}")
+
+    # Show hierarchy
+    if node.links.parents:
+        click.echo(f"   Parents: {', '.join(node.links.parents)}")
+    if node.links.children:
+        click.echo(f"   Children: {', '.join(node.links.children)}")
+
+
+@status.command("complete")
+@click.argument("node_id")
+@click.option("--message", help="Optional completion message")
+def mark_complete(node_id: str, message: str) -> None:
+    """Mark a node as completed."""
+    app: ToDoWrite = ToDoWrite()
+    node = app.get_node(node_id)
+
+    if not node:
+        click.echo(f"Error: Node {node_id} not found", err=True)
+        sys.exit(1)
+
+    if node.status == "done":
+        click.echo(f"Node {node_id} is already completed")
+        return
+
+    # Prepare update data
+    update_data = node.to_dict()
+    update_data["status"] = "done"
+
+    try:
+        updated_node = app.update_node(node_id, update_data)
+        if updated_node:
+            click.echo(f"✅ Marked {node_id} as completed")
+            if message:
+                click.echo(f"   Message: {message}")
+        else:
+            click.echo(f"Error: Failed to mark {node_id} as complete", err=True)
+            sys.exit(1)
+    except Exception as e:
+        click.echo(f"Error marking node as complete: {e}", err=True)
+        sys.exit(1)
+
+
+@status.command("report")
+@click.option("--layer", help="Show report for specific layer only")
+@click.option(
+    "--format",
+    type=click.Choice(["summary", "detailed", "json"]),
+    default="summary",
+    help="Report format",
+)
+def status_report(layer: str, format: str) -> None:
+    """Generate a status report for all nodes."""
+    app: ToDoWrite = ToDoWrite()
+    nodes = app.get_all_nodes()
+
+    if not layer:
+        # Show all layers
+        click.echo("📋 ToDoWrite Status Report")
+        click.echo("=" * 50)
+
+        for layer_name, layer_nodes in nodes.items():
+            if layer_nodes:
+                status_counts = {}
+                for node in layer_nodes:
+                    status = node.status
+                    status_counts[status] = status_counts.get(status, 0) + 1
+
+                click.echo(f"\n📁 {layer_name} ({len(layer_nodes)} nodes)")
+                for status, count in status_counts.items():
+                    emoji = {
+                        "planned": "⏸️",
+                        "in_progress": "🔄",
+                        "blocked": "🚫",
+                        "done": "✅",
+                        "rejected": "❌",
+                    }.get(status, "❓")
+                    click.echo(f"   {emoji} {status}: {count}")
+    else:
+        # Show specific layer
+        layer_nodes = nodes.get(layer, [])
+        if not layer_nodes:
+            click.echo(f"No nodes found for layer: {layer}")
+            return
+
+        if format == "json":
+            import json
+
+            report = {
+                layer: [
+                    {
+                        "id": node.id,
+                        "title": node.title,
+                        "status": node.status,
+                        "owner": node.metadata.owner,
+                        "severity": node.metadata.severity,
+                    }
+                    for node in layer_nodes
+                ]
+            }
+            click.echo(json.dumps(report, indent=2))
+        elif format == "detailed":
+            click.echo(f"📋 Detailed Status Report - {layer}")
+            click.echo("=" * 40)
+            for node in layer_nodes:
+                emoji = {
+                    "planned": "⏸️",
+                    "in_progress": "🔄",
+                    "blocked": "🚫",
+                    "done": "✅",
+                    "rejected": "❌",
+                }.get(node.status, "❓")
+                click.echo(f"  {emoji} {node.id}: {node.title}")
+                click.echo(f"     Status: {node.status}")
+                click.echo(f"     Owner: {node.metadata.owner}")
+                if node.metadata.severity:
+                    click.echo(f"     Severity: {node.metadata.severity}")
+                click.echo()
+        else:  # summary
+            status_counts = {}
+            for node in layer_nodes:
+                status = node.status
+                status_counts[status] = status_counts.get(status, 0) + 1
+
+            click.echo(f"📋 Status Report - {layer}")
+            click.echo("=" * 30)
+            click.echo(f"Total nodes: {len(layer_nodes)}")
+            for status, count in status_counts.items():
+                emoji = {
+                    "planned": "⏸️",
+                    "in_progress": "🔄",
+                    "blocked": "🚫",
+                    "done": "✅",
+                    "rejected": "❌",
+                }.get(status, "❓")
+                percentage = (count / len(layer_nodes)) * 100
+                click.echo(f"  {emoji} {status}: {count} ({percentage:.1f}%)")
+
+
+# Add status commands to main CLI
+cli.add_command(status)
+
 # Add todowrite subcommands to main CLI
 cli.add_command(todowrite)
 

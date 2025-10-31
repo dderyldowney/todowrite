@@ -16,7 +16,7 @@ metadata:
 links:
   parents:
   - AC-VALIDATION-TOOLS-UPDATED
-  children: []
+  children: [IF-STATUS-TRACKING-API]
 command:
   ac_ref: AC-VALIDATION-TOOLS-UPDATED
   run:

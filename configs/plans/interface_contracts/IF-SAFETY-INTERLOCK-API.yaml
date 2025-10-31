@@ -1,0 +1,14 @@
+id: IF-SAFETY-INTERLOCK-API
+layer: InterfaceContract
+title: Safety Interlock API Specification
+description: >
+  API specifications for safety interlock systems that prevent unsafe autonomous
+  operations through multiple redundant verification mechanisms.
+metadata:
+  owner: interface-designer
+  labels: ["work:interface", agricultural, safety, interlock, api]
+  severity: high
+  work_type: interface
+links:
+  parents: [AC-SAFETY-INTERLOCK-FUNCTIONAL]
+  children: [PH-SAFETY-INTERLOCK-IMPLEMENTATION]

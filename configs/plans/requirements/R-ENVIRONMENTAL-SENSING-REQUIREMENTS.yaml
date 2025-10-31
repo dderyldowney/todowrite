@@ -1,0 +1,14 @@
+id: R-ENVIRONMENTAL-SENSING-REQUIREMENTS
+layer: Requirements
+title: Environmental Sensing Requirements
+description: >
+  Requirements for real-time environmental data collection and processing to support
+  autonomous agricultural equipment decision-making.
+metadata:
+  owner: requirements-engineer
+  labels: ["work:requirements", agricultural, sensing, environmental]
+  severity: high
+  work_type: architecture
+links:
+  parents: [CTX-FIELD-OPERATIONAL-CONTEXT]
+  children: [AC-ENVIRONMENTAL-SENSING-FUNCTIONAL]

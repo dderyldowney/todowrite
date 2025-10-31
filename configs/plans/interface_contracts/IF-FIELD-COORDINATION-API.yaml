@@ -1,0 +1,14 @@
+id: IF-FIELD-COORDINATION-API
+layer: InterfaceContract
+title: Field Coordination API Specification
+description: >
+  API specifications for coordinating multiple autonomous agricultural vehicles
+  across shared field areas with collision avoidance and optimization algorithms.
+metadata:
+  owner: interface-designer
+  labels: ["work:interface", agricultural, coordination, api]
+  severity: high
+  work_type: interface
+links:
+  parents: [AC-FIELD-COORDINATION-FUNCTIONAL]
+  children: [PH-FIELD-COORDINATION-IMPLEMENTATION]

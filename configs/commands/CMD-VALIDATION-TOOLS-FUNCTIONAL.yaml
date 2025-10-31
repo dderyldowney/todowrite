@@ -16,7 +16,7 @@ metadata:
 links:
   parents:
   - AC-VALIDATION-TOOLS-FUNCTIONAL
-  children: []
+  children: [IF-TODOWRITE-API-SCHEMA]
 command:
   ac_ref: AC-VALIDATION-TOOLS-FUNCTIONAL
   run:

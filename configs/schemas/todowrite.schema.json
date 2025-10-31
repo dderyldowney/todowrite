@@ -1,7 +1,6 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "ToDoWrite Node (DEPRECATED)",
-  "description": "DEPRECATED: This schema file is deprecated. Use todowrite.TODOWRITE_SCHEMA from the package instead. See DEPRECATED.md for migration guide.",
+  "": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ToDoWrite Node",
   "type": "object",
   "required": [
     "id",

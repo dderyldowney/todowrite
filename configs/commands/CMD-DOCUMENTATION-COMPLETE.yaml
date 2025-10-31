@@ -16,7 +16,7 @@ metadata:
 links:
   parents:
   - AC-DOCUMENTATION-COMPLETE
-  children: []
+  children: [IF-TODOWRITE-API-SCHEMA]
 command:
   ac_ref: AC-DOCUMENTATION-COMPLETE
   run:

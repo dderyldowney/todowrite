@@ -13,4 +13,4 @@ metadata:
   work_type: implementation
 links:
   parents: [IF-TODOWRITE-API-SCHEMA]
-  children: []
+  children: [STP-BUILD-VALIDATION-TOOLS]

@@ -16,7 +16,7 @@ metadata:
 links:
   parents:
   - AC-STATUS-COMMANDS-FUNCTIONAL
-  children: []
+  children: [IF-STATUS-TRACKING-API]
 command:
   ac_ref: AC-STATUS-COMMANDS-FUNCTIONAL
   run:

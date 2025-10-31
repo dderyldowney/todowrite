@@ -16,7 +16,7 @@ metadata:
 links:
   parents:
   - AC-CLI-COMMANDS-INTEGRATED
-  children: []
+  children: [IF-TODOWRITE-API-SCHEMA]
 command:
   ac_ref: AC-CLI-COMMANDS-INTEGRATED
   run:

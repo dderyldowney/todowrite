@@ -1,0 +1,14 @@
+id: CTX-FIELD-OPERATIONAL-CONTEXT
+layer: Context
+title: Field Operational Context for Autonomous Agriculture
+description: >
+  Operational context defining field conditions, environmental factors, and operational
+  constraints for autonomous agricultural equipment coordination systems.
+metadata:
+  owner: agricultural-engineer
+  labels: ["work:context", agricultural, field-operations, autonomous]
+  severity: high
+  work_type: architecture
+links:
+  parents: [CON-AUTONOMOUS-AGRICULTURE]
+  children: [R-FIELD-COORDINATION-REQUIREMENTS, R-ENVIRONMENTAL-SENSING-REQUIREMENTS]

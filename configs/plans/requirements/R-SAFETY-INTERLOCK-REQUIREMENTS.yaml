@@ -1,0 +1,14 @@
+id: R-SAFETY-INTERLOCK-REQUIREMENTS
+layer: Requirements
+title: Safety Interlock Requirements
+description: >
+  Requirements for safety interlock systems that prevent unsafe autonomous operations
+  through multiple redundant verification mechanisms.
+metadata:
+  owner: safety-engineer
+  labels: ["work:requirements", agricultural, safety, interlock]
+  severity: high
+  work_type: architecture
+links:
+  parents: [CST-AUTONOMOUS-SAFETY-STANDARDS]
+  children: [AC-SAFETY-INTERLOCK-FUNCTIONAL]

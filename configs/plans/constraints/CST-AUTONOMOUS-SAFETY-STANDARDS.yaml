@@ -1,0 +1,15 @@
+id: CST-AUTONOMOUS-SAFETY-STANDARDS
+layer: Constraints
+title: Autonomous Equipment Safety Standards
+description: >
+  Safety constraints and regulatory requirements for autonomous agricultural equipment,
+  including collision avoidance protocols, emergency shutdown procedures, and operational
+  safety margins.
+metadata:
+  owner: safety-engineer
+  labels: ["work:constraints", agricultural, safety, autonomous, regulatory]
+  severity: high
+  work_type: architecture
+links:
+  parents: [CON-AUTONOMOUS-AGRICULTURE]
+  children: [R-SAFETY-INTERLOCK-REQUIREMENTS, R-EMERGENCY-PROCEDURE-REQUIREMENTS]

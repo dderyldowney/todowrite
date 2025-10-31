@@ -1,0 +1,29 @@
+id: CMD-EMERGENCY-PROCEDURE-FUNCTIONAL
+layer: Command
+title: Execute validation for Emergency procedure functional requirement acceptance
+description: 'Automated execution to verify: Acceptance criteria for emergency procedure
+  requirements: PASS: System provides rapid emergency shutdown capabilities, clear
+  emergency recovery procedures, and comprehensive emergency status reporting...'
+metadata:
+  owner: qa-engineer
+  labels:
+  - generated
+  - automated
+  - verification
+  severity: high
+  work_type: validation
+links:
+  parents:
+  - AC-EMERGENCY-PROCEDURE-FUNCTIONAL
+  children: []
+command:
+  ac_ref: AC-EMERGENCY-PROCEDURE-FUNCTIONAL
+  run:
+    shell: 'echo ''Manual verification required for: Emergency procedure functional
+      requirement acceptance'''
+    workdir: .
+    env:
+      TODOWRITE_MODE: validation
+      AC_REF: AC-EMERGENCY-PROCEDURE-FUNCTIONAL
+  artifacts:
+  - results/CMD-EMERGENCY-PROCEDURE-FUNCTIONAL/execution.log

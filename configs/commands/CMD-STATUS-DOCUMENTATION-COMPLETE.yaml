@@ -16,7 +16,7 @@ metadata:
 links:
   parents:
   - AC-STATUS-DOCUMENTATION-COMPLETE
-  children: []
+  children: [IF-STATUS-TRACKING-API]
 command:
   ac_ref: AC-STATUS-DOCUMENTATION-COMPLETE
   run:

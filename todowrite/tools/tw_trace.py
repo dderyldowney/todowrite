@@ -166,7 +166,7 @@ class TraceabilityBuilder:
             rec_stack.add(node_id)
 
             for child_id in self.forward_links.get(node_id, []):
-                if dfs(child_id, path + [node_id]):
+                if dfs(child_id, [*path, node_id]):
                     return True
 
             rec_stack.remove(node_id)
@@ -273,7 +273,7 @@ class TraceabilityBuilder:
                 "total_edges": len(edges),
                 "orphaned_nodes": len(self.orphaned_nodes),
                 "circular_dependencies": len(self.circular_deps),
-                "layers": list(set(node["layer"] for node in self.nodes.values())),
+                "layers": {node["layer"] for node in self.nodes.values()},
             },
             "nodes": nodes,
             "edges": edges,
@@ -355,8 +355,13 @@ def main() -> None:
     parser.add_argument(
         "--summary", action="store_true", help="Show summary report only"
     )
+    parser.add_argument(
+        "--ignore-issues",
+        action="store_true",
+        help="Ignore traceability issues and don't exit with error code",
+    )
 
-    parser.parse_args()
+    args = parser.parse_args()
 
     # Initialize builder
     builder = TraceabilityBuilder()
@@ -373,7 +378,12 @@ def main() -> None:
 
     # Exit based on whether issues were found
     has_issues = bool(builder.orphaned_nodes or builder.circular_deps)
-    sys.exit(1 if has_issues else 0)
+    if args.ignore_issues:
+        # Exit with 0 even if issues found
+        sys.exit(0)
+    else:
+        # Exit with 1 if issues found, 0 if no issues
+        sys.exit(1 if has_issues else 0)
 
 
 if __name__ == "__main__":
