@@ -1,10 +1,52 @@
 # ToDoWrite: Hierarchical Task Management System
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![Version 0.1.7.0](https://img.shields.io/badge/version-0.1.7.0-green.svg)](https://github.com/dderyldowney/todowrite)
+[![Version 0.1.7.1](https://img.shields.io/badge/version-0.1.7.1-green.svg)](https://github.com/dderyldowney/todowrite)
 [![SQLAlchemy 2.0](https://img.shields.io/badge/SQLAlchemy-2.0-orange.svg)](https://www.sqlalchemy.org/)
 
 **ToDoWrite** is a sophisticated hierarchical task management system designed for complex project planning and execution. Built with a 12-layer declarative framework, it provides both standalone CLI capabilities and Python module integration for developers and project managers who need structured, traceable task management.
+
+## 🚀 Installation
+
+### From PyPI (Recommended)
+
+```bash
+pip install todowrite
+```
+
+### From GitHub (Latest Main Branch)
+
+For the latest development version, you can install directly from the GitHub main branch:
+
+```bash
+pip install git+https://github.com/dderyldowney/todowrite.git@main
+```
+
+Or for a specific commit hash:
+```bash
+pip install git+https://github.com/dderyldowney/todowrite.git@<commit-hash>
+```
+
+### For Development
+
+If you want to contribute or modify the code:
+
+```bash
+# Clone the repository
+git clone https://github.com/dderyldowney/todowrite.git
+cd todowrite
+
+# Install with development dependencies
+pip install -e ".[dev]"
+
+# Or using setup.py
+pip install -e .
+```
+
+### Requirements
+
+- **Python**: 3.12 or higher
+- **Operating System**: Windows, macOS, or Linux
 
 ## 🎯 Overview
 
@@ -29,7 +71,7 @@ We welcome contributions to ToDoWrite! Please see our [Contributing Guidelines](
 
 ---
 
-**Version**: 0.1.7.0
+**Version**: 0.1.7.1
 **Python**: 3.12+
 **Database**: SQLite (development) / PostgreSQL (production)
 **Architecture**: Hierarchical task management with 12-layer planning framework
