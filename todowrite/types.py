@@ -24,7 +24,7 @@ LayerType = Literal[
     "Command",
 ]
 
-StatusType = Literal["planned", "in_progress", "blocked", "done", "rejected"]
+StatusType = Literal["planned", "in_progress", "completed", "blocked", "cancelled"]
 
 
 @dataclass
@@ -35,6 +35,7 @@ class Metadata:
     labels: list[str] = field(default_factory=list)
     severity: str = ""
     work_type: str = ""
+    assignee: str = ""
 
 
 @dataclass
@@ -63,13 +64,16 @@ class Node:
     title: str
     description: str = ""
     status: StatusType = "planned"
+    progress: int | None = None
+    started_date: str | None = None
+    completion_date: str | None = None
     links: Link = field(default_factory=Link)
     metadata: Metadata = field(default_factory=Metadata)
     command: Command | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Convert node to dictionary representation."""
-        result = {
+        result: dict[str, Any] = {
             "id": self.id,
             "layer": self.layer,
             "title": self.title,
@@ -84,8 +88,19 @@ class Node:
                 "labels": self.metadata.labels,
                 "severity": self.metadata.severity,
                 "work_type": self.metadata.work_type,
+                "assignee": self.metadata.assignee,
             },
         }
+
+        # Add optional status tracking fields
+        if self.progress is not None:
+            result["progress"] = self.progress
+        if self.started_date is not None:
+            result["started_date"] = str(self.started_date)
+        if self.completion_date is not None:
+            result["completion_date"] = str(self.completion_date)
+        if self.metadata.assignee:
+            result["assignee"] = self.metadata.assignee
 
         if self.command:
             result["command"] = {
@@ -113,6 +128,7 @@ class Node:
             labels=metadata_data.get("labels", []),
             severity=metadata_data.get("severity", ""),
             work_type=metadata_data.get("work_type", ""),
+            assignee=metadata_data.get("assignee", ""),
         )
 
         command = None
@@ -129,6 +145,9 @@ class Node:
             title=data["title"],
             description=data.get("description", ""),
             status=data.get("status", "planned"),
+            progress=data.get("progress"),
+            started_date=data.get("started_date"),
+            completion_date=data.get("completion_date"),
             links=links,
             metadata=metadata,
             command=command,

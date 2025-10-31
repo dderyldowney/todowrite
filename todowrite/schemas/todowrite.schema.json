@@ -40,7 +40,7 @@
     },
     "status": {
       "type": "string",
-      "enum": ["planned", "in_progress", "blocked", "done", "rejected"]
+      "enum": ["planned", "in_progress", "completed", "blocked", "cancelled"]
     },
     "metadata": {
       "type": "object",
@@ -76,9 +76,28 @@
             "chore",
             "test"
           ]
+        },
+        "assignee": {
+          "type": "string"
         }
       },
       "additionalProperties": true
+    },
+    "progress": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "started_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completion_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "assignee": {
+      "type": "string"
     },
     "links": {
       "type": "object",
