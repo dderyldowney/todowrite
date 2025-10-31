@@ -1,0 +1,23 @@
+id: AC-ENVIRONMENTAL-SENSING-FUNCTIONAL
+layer: AcceptanceCriteria
+title: Environmental sensing functional requirement acceptance
+description: 'Acceptance criteria for environmental sensing requirements: PASS: System
+  collects real-time environmental data, processes sensor information, provides environmental
+  condition awareness, and supports autonomous decision-making.
+
+  '
+metadata:
+  owner: qa-engineer
+  labels:
+  - work:validation
+  - agricultural
+  - sensing
+  - environmental
+  severity: high
+  work_type: validation
+links:
+  parents:
+  - R-ENVIRONMENTAL-SENSING-REQUIREMENTS
+  children:
+  - IF-ENVIRONMENTAL-SENSING-API
+  - CMD-ENVIRONMENTAL-SENSING-FUNCTIONAL

@@ -15,7 +15,7 @@ metadata:
 links:
   parents:
   - AC-MAKEFILE-TARGETS-COMPLETE
-  children: []
+  children: [IF-TODOWRITE-API-SCHEMA]
 command:
   ac_ref: AC-MAKEFILE-TARGETS-COMPLETE
   run:

@@ -38,6 +38,10 @@
     "description": {
       "type": "string"
     },
+    "status": {
+      "type": "string",
+      "enum": ["planned", "in_progress", "blocked", "done", "rejected"]
+    },
     "metadata": {
       "type": "object",
       "properties": {
@@ -182,5 +186,5 @@
       }
     }
   ],
-  "additionalProperties": false
+  "additionalProperties": true
 }

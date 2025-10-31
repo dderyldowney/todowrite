@@ -15,7 +15,7 @@ metadata:
 links:
   parents:
   - AC-SCHEMA-BACKWARD-COMPATIBLE
-  children: []
+  children: [IF-STATUS-TRACKING-API]
 command:
   ac_ref: AC-SCHEMA-BACKWARD-COMPATIBLE
   run:

@@ -1,0 +1,14 @@
+id: IF-EMERGENCY-PROCEDURE-API
+layer: InterfaceContract
+title: Emergency Procedure API Specification
+description: >
+  API specifications for emergency shutdown and recovery procedures for autonomous
+  agricultural equipment systems.
+metadata:
+  owner: interface-designer
+  labels: ["work:interface", agriculture, safety, emergency, api]
+  severity: high
+  work_type: interface
+links:
+  parents: [AC-EMERGENCY-PROCEDURE-FUNCTIONAL]
+  children: [PH-EMERGENCY-PROCEDURE-IMPLEMENTATION]
