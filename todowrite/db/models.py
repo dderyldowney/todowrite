@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import Column, ForeignKey, String, Table, Text
+from sqlalchemy import Column, ForeignKey, Integer, String, Table, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -18,9 +18,13 @@ class Node(Base):
     title: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String, default="planned")
+    progress: Mapped[int | None] = mapped_column(Integer)
+    started_date: Mapped[str | None] = mapped_column(String)
+    completion_date: Mapped[str | None] = mapped_column(String)
     owner: Mapped[str | None] = mapped_column(String)
     severity: Mapped[str | None] = mapped_column(String)
     work_type: Mapped[str | None] = mapped_column(String)
+    assignee: Mapped[str | None] = mapped_column(String)
 
     labels: Mapped[list[Label]] = relationship(
         secondary="node_labels", back_populates="nodes"

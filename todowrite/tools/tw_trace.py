@@ -273,13 +273,13 @@ class TraceabilityBuilder:
                 "total_edges": len(edges),
                 "orphaned_nodes": len(self.orphaned_nodes),
                 "circular_dependencies": len(self.circular_deps),
-                "layers": {node["layer"] for node in self.nodes.values()},
+                "layers": list({node["layer"] for node in self.nodes.values()}),
             },
             "nodes": nodes,
             "edges": edges,
             "issues": {
                 "orphaned_nodes": list(self.orphaned_nodes),
-                "circular_dependencies": self.circular_deps,
+                "circular_dependencies": [list(cycle) for cycle in self.circular_deps],
             },
         }
 

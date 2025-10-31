@@ -1,0 +1,18 @@
+description: Testing the new status tracking fields
+id: TSK-STATUS-DEMO
+layer: Task
+links:
+  children: []
+  parents: []
+metadata:
+  assignee: developer
+  labels:
+  - test
+  - status
+  owner: test-user
+  severity: med
+  work_type: implementation
+progress: 75
+started_date: '2025-01-15T10:00:00Z'
+status: in_progress
+title: Test Status Functionality

@@ -601,7 +601,7 @@ def status() -> None:
 @click.argument("node_id")
 @click.option(
     "--status",
-    type=click.Choice(["planned", "in_progress", "blocked", "done", "rejected"]),
+    type=click.Choice(["planned", "in_progress", "completed", "blocked", "cancelled"]),
     required=True,
     help="Set the status of the node",
 )
@@ -609,7 +609,18 @@ def status() -> None:
     "--progress", type=click.IntRange(0, 100), help="Set progress percentage (0-100)"
 )
 @click.option("--owner", help="Set the owner of the node")
-def update_status(node_id: str, status: str, progress: int, owner: str) -> None:
+@click.option("--assignee", help="Set the assignee of the node")
+@click.option("--started-date", help="Set the started date (ISO 8601 format)")
+@click.option("--completion-date", help="Set the completion date (ISO 8601 format)")
+def update_status(
+    node_id: str,
+    status: str,
+    progress: int,
+    owner: str,
+    assignee: str,
+    started_date: str,
+    completion_date: str,
+) -> None:
     """Update the status of a node."""
     app: ToDoWrite = ToDoWrite()
 
@@ -620,24 +631,26 @@ def update_status(node_id: str, status: str, progress: int, owner: str) -> None:
         sys.exit(1)
 
     # Validate status transition
-    if node.status == "done" and status != "done":
+    if node.status == "completed" and status != "completed":
         click.echo(
-            "Warning: Cannot change status from 'done' to other states", err=True
+            "Warning: Cannot change status from 'completed' to other states", err=True
         )
 
     # Prepare update data
     update_data = node.to_dict()
     update_data["status"] = status
 
-    # Update progress if provided (for future implementation)
+    # Update metadata fields
     if progress is not None:
-        click.echo(
-            f"Note: Progress tracking not yet implemented, but would set to {progress}% for {node_id}"
-        )
-
-    # Update owner if provided
+        update_data["progress"] = progress
     if owner:
         update_data["metadata"]["owner"] = owner
+    if assignee:
+        update_data["metadata"]["assignee"] = assignee
+    if started_date:
+        update_data["started_date"] = started_date
+    if completion_date:
+        update_data["completion_date"] = completion_date
 
     # Save the node
     try:
@@ -648,6 +661,12 @@ def update_status(node_id: str, status: str, progress: int, owner: str) -> None:
                 click.echo(f"   Progress: {progress}%")
             if owner:
                 click.echo(f"   Owner: {owner}")
+            if assignee:
+                click.echo(f"   Assignee: {assignee}")
+            if started_date:
+                click.echo(f"   Started: {started_date}")
+            if completion_date:
+                click.echo(f"   Completed: {completion_date}")
         else:
             click.echo(f"Error: Failed to update {node_id}", err=True)
             sys.exit(1)
@@ -669,16 +688,38 @@ def show_progress(node_id: str) -> None:
 
     click.echo(f"📊 Node: {node_id}")
     click.echo(f"   Status: {node.status}")
-    click.echo(f"   Owner: {node.metadata.owner}")
     click.echo(f"   Layer: {node.layer}")
     click.echo(f"   Title: {node.title}")
     click.echo(f"   Description: {node.description}")
+
+    # Status tracking fields
+    click.echo(f"   Owner: {node.metadata.owner}")
+    if hasattr(node.metadata, "assignee") and node.metadata.assignee:
+        click.echo(f"   Assignee: {node.metadata.assignee}")
+
+    # Progress and dates
+    if hasattr(node, "progress"):
+        click.echo(f"   Progress: {node.progress}%")
+
+    if hasattr(node, "started_date"):
+        click.echo(f"   Started: {node.started_date}")
+
+    if hasattr(node, "completion_date"):
+        click.echo(f"   Completed: {node.completion_date}")
 
     # Show hierarchy
     if node.links.parents:
         click.echo(f"   Parents: {', '.join(node.links.parents)}")
     if node.links.children:
         click.echo(f"   Children: {', '.join(node.links.children)}")
+
+    # Show other metadata
+    if node.metadata.severity:
+        click.echo(f"   Severity: {node.metadata.severity}")
+    if node.metadata.work_type:
+        click.echo(f"   Work Type: {node.metadata.work_type}")
+    if node.metadata.labels:
+        click.echo(f"   Labels: {', '.join(node.metadata.labels)}")
 
 
 @status.command("complete")
@@ -693,13 +734,13 @@ def mark_complete(node_id: str, message: str) -> None:
         click.echo(f"Error: Node {node_id} not found", err=True)
         sys.exit(1)
 
-    if node.status == "done":
+    if node.status == "completed":
         click.echo(f"Node {node_id} is already completed")
         return
 
     # Prepare update data
     update_data = node.to_dict()
-    update_data["status"] = "done"
+    update_data["status"] = "completed"
 
     try:
         updated_node = app.update_node(node_id, update_data)
@@ -745,9 +786,9 @@ def status_report(layer: str, format: str) -> None:
                     emoji = {
                         "planned": "⏸️",
                         "in_progress": "🔄",
+                        "completed": "✅",
                         "blocked": "🚫",
-                        "done": "✅",
-                        "rejected": "❌",
+                        "cancelled": "❌",
                     }.get(status, "❓")
                     click.echo(f"   {emoji} {status}: {count}")
     else:
@@ -780,9 +821,9 @@ def status_report(layer: str, format: str) -> None:
                 emoji = {
                     "planned": "⏸️",
                     "in_progress": "🔄",
+                    "completed": "✅",
                     "blocked": "🚫",
-                    "done": "✅",
-                    "rejected": "❌",
+                    "cancelled": "❌",
                 }.get(node.status, "❓")
                 click.echo(f"  {emoji} {node.id}: {node.title}")
                 click.echo(f"     Status: {node.status}")
@@ -803,9 +844,9 @@ def status_report(layer: str, format: str) -> None:
                 emoji = {
                     "planned": "⏸️",
                     "in_progress": "🔄",
+                    "completed": "✅",
                     "blocked": "🚫",
-                    "done": "✅",
-                    "rejected": "❌",
+                    "cancelled": "❌",
                 }.get(status, "❓")
                 percentage = (count / len(layer_nodes)) * 100
                 click.echo(f"  {emoji} {status}: {count} ({percentage:.1f}%)")

@@ -258,6 +258,13 @@ class ToDoWrite:
                 db_node.title = node_data.get("title", db_node.title)
                 db_node.description = node_data.get("description", db_node.description)
                 db_node.status = node_data.get("status", db_node.status)
+                db_node.progress = node_data.get("progress", db_node.progress)
+                db_node.started_date = node_data.get(
+                    "started_date", db_node.started_date
+                )
+                db_node.completion_date = node_data.get(
+                    "completion_date", db_node.completion_date
+                )
                 db_node.owner = node_data.get("metadata", {}).get(
                     "owner", db_node.owner
                 )
@@ -266,6 +273,9 @@ class ToDoWrite:
                 )
                 db_node.work_type = node_data.get("metadata", {}).get(
                     "work_type", db_node.work_type
+                )
+                db_node.assignee = node_data.get("metadata", {}).get(
+                    "assignee", db_node.assignee
                 )
 
                 # Update links
@@ -735,6 +745,7 @@ class ToDoWrite:
             labels=[label.label for label in db_node.labels],
             severity=str(db_node.severity or ""),
             work_type=str(db_node.work_type or ""),
+            assignee=str(db_node.assignee or ""),
         )
         command = None
         if db_node.command:
@@ -748,9 +759,14 @@ class ToDoWrite:
             layer=cast(LayerType, _validate_literal(str(db_node.layer), LayerType)),
             title=str(db_node.title),
             description=str(db_node.description),
+            status=cast(StatusType, _validate_literal(str(db_node.status), StatusType)),
+            progress=db_node.progress,
+            started_date=str(db_node.started_date) if db_node.started_date else None,
+            completion_date=(
+                str(db_node.completion_date) if db_node.completion_date else None
+            ),
             links=links,
             metadata=metadata,
-            status=cast(StatusType, _validate_literal(str(db_node.status), StatusType)),
             command=command,
         )
 
