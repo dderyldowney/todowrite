@@ -43,7 +43,10 @@ class CommandStubGenerator:
                     ac_ref = data.get("command", {}).get("ac_ref", "")
                     if ac_ref:
                         self.existing_commands.add(ac_ref)
-                except Exception:
+                except Exception as e:
+                    print(
+                        f"WARNING: Failed to read existing command file {cmd_file}: {e}"
+                    )
                     continue
 
         print(f"Found {len(self.existing_commands)} existing commands")

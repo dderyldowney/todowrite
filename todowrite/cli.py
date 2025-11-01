@@ -897,6 +897,105 @@ def check_deprecated_cmd() -> None:
         sys.exit(1)
 
 
+@utils.command("validate-schema")
+@click.option(
+    "--storage-type",
+    type=click.Choice(["postgresql", "sqlite", "yaml", "all"]),
+    default="all",
+    help="Which storage backend(s) to validate",
+)
+@click.option(
+    "--db-url",
+    help="Database URL for validation (overrides auto-detection)",
+)
+def validate_schema_cmd(storage_type: str, db_url: str) -> None:
+    """Validate schema compliance across storage backends."""
+    try:
+        from .schema_validator import get_schema_compliance_report
+
+        click.echo("🔍 Validating schema compliance...")
+        click.echo()
+
+        if storage_type in ["all", "postgresql"] or storage_type in ["all", "sqlite"]:
+            # Check databases if available
+            try:
+                # Create an app instance to get the engine
+                app = ToDoWrite(db_url=db_url, auto_import=False)
+                if app.engine:
+                    if storage_type in ["all"]:
+                        # Validate both PostgreSQL and SQLite if available
+                        for db_type in ["postgresql", "sqlite"]:
+                            try:
+                                report = get_schema_compliance_report(
+                                    db_type, engine=app.engine
+                                )
+                                _print_schema_report(report)
+                            except Exception:
+                                click.echo(
+                                    f"⏭️  {db_type.upper()} validation failed (database may not be configured for this type)"
+                                )
+                    else:
+                        # Validate specific type
+                        report = get_schema_compliance_report(
+                            storage_type, engine=app.engine
+                        )
+                        _print_schema_report(report)
+                else:
+                    click.echo("⏭️  No database available for validation...")
+            except Exception as e:
+                click.echo(f"⏭️  Database validation unavailable: {e}")
+
+        if storage_type in ["all", "yaml"]:
+            # Check YAML files
+            try:
+                report = get_schema_compliance_report("yaml")
+                _print_schema_report(report)
+            except Exception as e:
+                click.echo(f"❌ YAML validation error: {e}")
+
+        click.echo("\n✅ Schema validation complete!")
+
+    except ImportError:
+        click.echo(
+            "❌ Cannot import schema validator. Make sure todowrite is properly installed."
+        )
+        sys.exit(1)
+
+
+def _print_schema_report(report: dict[str, Any]) -> None:
+    """Print a formatted schema compliance report."""
+    storage_type = report["storage_type"].upper()
+
+    if report["is_compliant"]:
+        click.echo(f"✅ {storage_type}: Schema compliant")
+    else:
+        click.echo(f"❌ {storage_type}: Schema non-compliant")
+
+    if report["errors"]:
+        click.echo("   Errors:")
+        for error in report["errors"]:
+            click.echo(f"     - {error}")
+
+    if report["warnings"]:
+        click.echo("   Warnings:")
+        for warning in report["warnings"]:
+            click.echo(f"     - {warning}")
+
+    if report["details"]:
+        if "total_files" in report["details"]:
+            total_files = report["details"]["total_files"]
+            click.echo(f"   Files checked: {total_files}")
+
+        if "file_counts" in report["details"]:
+            file_counts = report["details"]["file_counts"]
+            click.echo("   Files by layer:")
+            for layer, count in file_counts.items():
+                if count > 0:
+                    click.echo(f"     {layer}: {count}")
+
+    click.echo()
+
+
 @utils.command("setup-integration")
 @click.argument("project_path", type=click.Path(exists=True))
 @click.option(
