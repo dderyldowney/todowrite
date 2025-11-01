@@ -36,7 +36,7 @@ todowrite = "todowrite.cli:cli"
 
 [project.optional-dependencies]
 dev = [
-    "mypy>=1.13.0",
+    "mypy>=1.18.2",
     "types-PyYAML>=6.0.12",
     "types-jsonschema>=4.0.0",
     "sqlalchemy[mypy]>=2.0.0",

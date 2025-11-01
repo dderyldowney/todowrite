@@ -320,7 +320,7 @@ class TraceabilityBuilder:
         print(f"Circular dependencies: {len(self.circular_deps)}")
         if self.circular_deps:
             for i, cycle in enumerate(self.circular_deps[:3]):
-                print(f"  Cycle {i+1}: {' -> '.join(cycle)}")
+                print(f"  Cycle {i + 1}: {' -> '.join(cycle)}")
             if len(self.circular_deps) > 3:
                 print(f"  ... and {len(self.circular_deps) - 3} more")
 

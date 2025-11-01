@@ -17,6 +17,7 @@ import jsonschema
 import yaml
 from sqlalchemy import inspect
 
+from .constants import LAYER_DIRS
 from .schema import TODOWRITE_SCHEMA
 
 
@@ -161,20 +162,7 @@ class SchemaValidator:
                 return False, errors, file_counts
 
             # Define layer directories
-            layer_dirs = {
-                "Goal": "goals",
-                "Concept": "concepts",
-                "Context": "contexts",
-                "Constraints": "constraints",
-                "Requirements": "requirements",
-                "AcceptanceCriteria": "acceptance_criteria",
-                "InterfaceContract": "interface_contracts",
-                "Phase": "phases",
-                "Step": "steps",
-                "Task": "tasks",
-                "SubTask": "subtasks",
-                "Command": "commands",
-            }
+            layer_dirs = LAYER_DIRS
 
             # Process each layer
             for layer, dir_name in layer_dirs.items():

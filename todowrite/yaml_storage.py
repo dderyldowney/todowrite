@@ -12,6 +12,13 @@ from typing import Any
 
 import yaml
 
+from .constants import (
+    DEFAULT_BASE_PATH,
+    DEFAULT_COMMANDS_PATH,
+    DEFAULT_PLANS_PATH,
+    LAYER_DIRS,
+)
+from .exceptions import InvalidNodeError, YAMLError
 from .schema_validator import validate_node_data
 from .types import Command, Link, Metadata, Node
 
@@ -21,25 +28,10 @@ class YAMLStorage:
 
     def __init__(self, base_path: Path | None = None):
         """Initialize YAML storage."""
-        self.base_path = base_path or Path("configs")
-        self.plans_path = self.base_path / "plans"
-        self.commands_path = self.base_path / "commands"
-
-        # Layer to directory mapping
-        self.layer_dirs = {
-            "Goal": "goals",
-            "Concept": "concepts",
-            "Context": "contexts",
-            "Constraints": "constraints",
-            "Requirements": "requirements",
-            "AcceptanceCriteria": "acceptance_criteria",
-            "InterfaceContract": "interface_contracts",
-            "Phase": "phases",
-            "Step": "steps",
-            "Task": "tasks",
-            "SubTask": "subtasks",
-            "Command": "commands",  # Special case - goes in commands/ not plans/
-        }
+        self.base_path = base_path or Path(DEFAULT_BASE_PATH)
+        self.plans_path = Path(DEFAULT_PLANS_PATH)
+        self.commands_path = Path(DEFAULT_COMMANDS_PATH)
+        self.layer_dirs = LAYER_DIRS
 
         # Create directories if they don't exist
         self._ensure_directories()
@@ -153,7 +145,9 @@ class YAMLStorage:
                         yaml_data = yaml.safe_load(f)
                     return self._yaml_to_node(yaml_data)
                 except Exception as e:
-                    print(f"Error loading {file_path}: {e}")
+                    raise YAMLError(
+                        f"Failed to load YAML file: {e}", str(file_path)
+                    ) from e
 
         return None
 
@@ -168,7 +162,7 @@ class YAMLStorage:
             error_msg = "Node validation failed:\n" + "\n".join(
                 f"  - {error}" for error in errors
             )
-            raise ValueError(error_msg)
+            raise InvalidNodeError(error_msg, {"node_id": node.id, "errors": errors})
 
         file_path = self._get_file_path(node.id, node.layer)
         file_path.parent.mkdir(parents=True, exist_ok=True)

@@ -8,6 +8,7 @@ It supports the database-first approach with YAML as fallback.
 from __future__ import annotations
 
 import shutil
+import time
 from pathlib import Path
 from typing import Any
 
@@ -15,6 +16,12 @@ import yaml
 from sqlalchemy.exc import SQLAlchemyError
 
 from .app import ToDoWrite
+from .constants import (
+    DEFAULT_BASE_PATH,
+    DEFAULT_COMMANDS_PATH,
+    DEFAULT_PLANS_PATH,
+    LAYER_DIRS,
+)
 from .types import Node
 
 
@@ -24,28 +31,25 @@ class YAMLManager:
     def __init__(self, todowrite_app: ToDoWrite | None = None):
         """Initialize YAML Manager."""
         self.app = todowrite_app or ToDoWrite()
-        self.yaml_base_path = Path("configs")
-        self.plans_path = self.yaml_base_path / "plans"
-        self.commands_path = self.yaml_base_path / "commands"
+        self.yaml_base_path = Path(DEFAULT_BASE_PATH)
+        self.plans_path = Path(DEFAULT_PLANS_PATH)
+        self.commands_path = Path(DEFAULT_COMMANDS_PATH)
+        self.layer_dirs = LAYER_DIRS
 
-        # Layer to directory mapping
-        self.layer_dirs = {
-            "Goal": "goals",
-            "Concept": "concepts",
-            "Context": "contexts",
-            "Constraints": "constraints",
-            "Requirements": "requirements",
-            "AcceptanceCriteria": "acceptance_criteria",
-            "InterfaceContract": "interface_contracts",
-            "Phase": "phases",
-            "Step": "steps",
-            "Task": "tasks",
-            "SubTask": "subtasks",
-            "Command": "commands",  # Special case - goes in commands/ not plans/
-        }
+        # Cache for file system operations
+        self._file_cache: dict[str, list[Path]] = {}
+        self._cache_timestamp: float = 0
+        self._cache_ttl: float = 60.0  # 1 minute cache
 
     def get_yaml_files(self) -> dict[str, list[Path]]:
-        """Discover all YAML files in the configs directory."""
+        """Discover all YAML files in the configs directory with caching."""
+        current_time = time.time()
+
+        # Return cached results if still valid
+        if current_time - self._cache_timestamp < self._cache_ttl and self._file_cache:
+            return self._file_cache.copy()
+
+        # Cache is invalid or empty, scan filesystem
         yaml_files = {}
 
         # Scan plans directory
@@ -69,6 +73,10 @@ class YAMLManager:
             )
             if command_files:
                 yaml_files["Command"] = command_files
+
+        # Update cache
+        self._file_cache = yaml_files.copy()
+        self._cache_timestamp = current_time
 
         return yaml_files
 
