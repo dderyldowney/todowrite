@@ -62,7 +62,7 @@ ToDoWrite transforms complex project planning into a structured, hierarchical fr
 - **Type Safety**: Comprehensive type hints with Python 3.12+ syntax
 - **Status Tracking**: Full lifecycle management with status transitions
 - **Relationship Management**: Parent-child relationships with link validation
-- **Zero Tech Debt**: All code quality checks pass (pytest, mypy, ruff, bandit)
+- **Zero Tech Debt**: All code quality checks pass (pytest, pyright, ruff, bandit)
 - **Security Hardened**: Subprocess calls secured, proper exception handling throughout
 - **Modern Python**: Pipe syntax, modern type annotations, comprehensive tooling
 
@@ -78,7 +78,7 @@ We welcome contributions to ToDoWrite! Please see our [Contributing Guidelines](
 
 ### Quality Assurance Status ✅
 - **9/9 pytest tests passing** - Full test coverage
-- **0 mypy errors** - Perfect type safety
+- **0 pyright errors** - Perfect type safety
 - **0 ruff linting errors** - Code style compliance
 - **Bandit security** - Only LOW severity warnings (acceptable imports)
 

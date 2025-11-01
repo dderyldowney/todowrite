@@ -54,7 +54,7 @@ pip install -e .
 ### Development Dependencies
 
 The `[dev]` extras include:
-- **mypy>=1.18.2** - Static type checking (strict mode enabled)
+- **pyright>=1.1.0** - Static type checking (strict mode enabled)
 - **ruff>=0.7.0** - Fast linter and formatter (SIM118, UP007, I001 rules)
 - **black>=24.0.0** - Code formatter (88 char line length)
 - **isort>=5.13.0** - Import sorter (black profile)
@@ -188,7 +188,7 @@ ToDoWrite has achieved **zero tech debt** with all quality tools reporting clean
 
 #### Current Quality Metrics:
 - **Test Coverage**: 9/9 pytest tests passing ✅
-- **Type Safety**: 0 mypy errors (strict mode) ✅
+- **Type Safety**: 0 pyright errors (strict mode) ✅
 - **Code Style**: 0 ruff linting errors ✅
 - **Security**: HIGH severity issues fixed, only LOW warnings remaining ✅
 
@@ -203,7 +203,7 @@ ToDoWrite has achieved **zero tech debt** with all quality tools reporting clean
 # Run all quality checks
 make tw-test                    # Comprehensive test suite
 ruff check .                   # Linting (0 errors)
-mypy .                         # Type checking (0 errors)
+pyright .                      # Type checking (0 errors)
 bandit -r todowrite/            # Security scan (LOW warnings only)
 pre-commit run --all-files     # Pre-commit hooks
 ```
@@ -291,7 +291,7 @@ When submitting changes, ensure:
 1. All tests pass (`make tw-test`)
 2. Code is formatted (`black .` and `isort .`)
 3. Linting passes (`ruff check .`)
-4. Type checking passes (`mypy .`)
+4. Type checking passes (`pyright .`)
 
 ### Package Structure
 ```

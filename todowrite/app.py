@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 import jsonschema
+from jsonschema.exceptions import ValidationError
 from sqlalchemy import create_engine, select
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, joinedload, sessionmaker
@@ -226,7 +227,7 @@ class ToDoWrite:
             raise ValueError("Schema not loaded. Cannot validate node data.")
         try:
             jsonschema.validate(instance=node_data, schema=ToDoWrite._SCHEMA)
-        except jsonschema.exceptions.ValidationError as e:
+        except ValidationError as e:
             raise ValueError(f"Node data validation failed: {e.message}") from e
 
     def _get_yaml_storage(self) -> YAMLStorage:
@@ -247,7 +248,8 @@ class ToDoWrite:
         if self.storage_type == StorageType.YAML:
             # For YAML storage, just ensure directories exist
             if self.yaml_storage:
-                self.yaml_storage._ensure_directories()
+                # Ensure YAML storage directories exist
+                self.yaml_storage.ensure_directories()
             return
 
         if self.db_url and self.db_url.startswith("sqlite"):
@@ -404,7 +406,7 @@ class ToDoWrite:
     def search_nodes(self, query: str) -> dict[str, list[Node]]:
         """Search for nodes by query string."""
         query_lower = query.lower()
-        results = {}
+        results: dict[str, list[Node]] = {}
 
         # Use generator to avoid loading all nodes at once if using database
         if self.storage_type == StorageType.YAML:
@@ -489,10 +491,10 @@ class ToDoWrite:
         # Handle both single node and list of nodes
         if isinstance(data, dict) and "layer" in data:
             # Single node
-            nodes_to_import = [data]
+            nodes_to_import: list[dict[str, Any]] = [data]
         elif isinstance(data, list):
             # List of nodes
-            nodes_to_import = data
+            nodes_to_import: list[dict[str, Any]] = data
         else:
             raise ValueError(
                 "Invalid file format: expected node object or list of nodes"
@@ -504,7 +506,7 @@ class ToDoWrite:
             try:
                 # Generate ID if not provided
                 if "id" not in node_data or not node_data["id"]:
-                    layer = node_data.get("layer", "Node")
+                    layer: str = node_data.get("layer", "Node")
                     node_data["id"] = generate_node_id(layer)
 
                 # Create the node
