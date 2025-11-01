@@ -13,7 +13,14 @@ from __future__ import annotations
 
 import os
 import subprocess
+import time
 from enum import Enum
+from typing import Any, cast
+
+# Configuration cache
+_storage_cache: dict[str, Any] = {}
+_cache_timestamp: float = 0.0
+_cache_ttl: float = 600.0  # 10 minutes cache
 
 
 class StorageType(Enum):
@@ -122,6 +129,7 @@ def get_postgresql_candidates() -> list[str]:
             capture_output=True,
             text=True,
             timeout=5,
+            shell=False,
         )
         if "todowrite-postgres" in result.stdout:
             candidates.append(
@@ -161,6 +169,15 @@ def get_sqlite_candidates() -> list[str]:
     return candidates
 
 
+def _clear_storage_cache() -> None:
+    """Clear expired storage cache."""
+    global _storage_cache, _cache_timestamp
+    current_time = time.time()
+    if current_time - _cache_timestamp > _cache_ttl:
+        _storage_cache.clear()
+        _cache_timestamp = float(current_time)
+
+
 def determine_storage_backend() -> tuple[StorageType, str | None]:
     """
     Determine which storage backend to use based on preference and availability.
@@ -168,36 +185,60 @@ def determine_storage_backend() -> tuple[StorageType, str | None]:
     Returns:
         Tuple of (StorageType, connection_url_or_none)
     """
+    # Check cache first
+    _clear_storage_cache()
+    cache_key = "determine_storage_backend"
+    cached_result = _storage_cache.get(cache_key)
+    if cached_result is not None:
+        return cast(tuple[StorageType, str | None], cached_result)
+
     preference = get_storage_preference()
 
+    # Use a single result variable with proper typing from the start
+    result: tuple[StorageType, str | None]
+
     if preference == StoragePreference.YAML_ONLY:
-        return StorageType.YAML, None
+        result = StorageType.YAML, None
+        _storage_cache[cache_key] = result
+        return result
 
     elif preference == StoragePreference.POSTGRESQL_ONLY:
         for url in get_postgresql_candidates():
             if test_postgresql_connection(url):
-                return StorageType.POSTGRESQL, url
+                result = StorageType.POSTGRESQL, url
+                _storage_cache[cache_key] = result
+                return result
         raise RuntimeError("PostgreSQL requested but not available")
 
     elif preference == StoragePreference.SQLITE_ONLY:
         for url in get_sqlite_candidates():
             if test_sqlite_connection(url):
-                return StorageType.SQLITE, url
+                result = StorageType.SQLITE, url
+                _storage_cache[cache_key] = result
+                return result
         raise RuntimeError("SQLite requested but not available")
 
     else:  # StoragePreference.AUTO
         # Try PostgreSQL first
         for url in get_postgresql_candidates():
             if test_postgresql_connection(url):
-                return StorageType.POSTGRESQL, url
+                result = StorageType.POSTGRESQL, url
+                _storage_cache[cache_key] = result
+                return result
 
         # Try SQLite second
         for url in get_sqlite_candidates():
             if test_sqlite_connection(url):
-                return StorageType.SQLITE, url
+                result = StorageType.SQLITE, url
+                _storage_cache[cache_key] = result
+                return result
 
         # Fall back to YAML
-        return StorageType.YAML, None
+        result = StorageType.YAML, None
+
+        # Cache the result
+        _storage_cache[cache_key] = result
+        return result
 
 
 def get_storage_info() -> dict[str, str]:

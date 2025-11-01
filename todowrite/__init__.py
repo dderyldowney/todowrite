@@ -29,6 +29,14 @@ from .app import (
 )
 from .cli import cli
 
+# Shared constants
+from .constants import (
+    DEFAULT_BASE_PATH,
+    DEFAULT_COMMANDS_PATH,
+    DEFAULT_PLANS_PATH,
+    LAYER_DIRS,
+)
+
 # Database components
 from .db import (
     StoragePreference,
@@ -36,6 +44,21 @@ from .db import (
     determine_storage_backend,
     get_storage_info,
     set_storage_preference,
+)
+
+# Custom exceptions
+from .exceptions import (
+    CLIError,
+    ConfigurationError,
+    DatabaseError,
+    InvalidNodeError,
+    NodeError,
+    NodeNotFoundError,
+    SchemaError,
+    StorageError,
+    ToDoWriteError,
+    TokenOptimizationError,
+    YAMLError,
 )
 
 # Project utilities - centralized methods that replace individual scripts
@@ -64,34 +87,41 @@ from .yaml_manager import YAMLManager
 
 # Public utility functions
 __all__ = [
-    # Schema
+    "DEFAULT_BASE_PATH",
+    "DEFAULT_COMMANDS_PATH",
+    "DEFAULT_PLANS_PATH",
+    "LAYER_DIRS",
     "TODOWRITE_SCHEMA",
-    # Types
+    "CLIError",
     "Command",
+    "ConfigurationError",
+    "DatabaseError",
+    "InvalidNodeError",
     "LayerType",
     "Link",
     "Metadata",
     "Node",
+    "NodeError",
+    "NodeNotFoundError",
+    "SchemaError",
     "StatusType",
-    # Database
+    "StorageError",
     "StoragePreference",
     "StorageType",
-    # Management
+    "ToDoWriteError",
+    "TokenOptimizationError",
+    "YAMLError",
     "YAMLManager",
     "__description__",
     "__title__",
-    # Version
     "__version__",
-    # Utilities
     "check_deprecated_schema",
     "check_schema_changes",
     "cli",
-    # Core application functions
     "create_node",
     "create_project_structure",
     "delete_node",
     "determine_storage_backend",
-    # AI optimization utilities
     "ensure_token_sage",
     "export_nodes",
     "get_node",

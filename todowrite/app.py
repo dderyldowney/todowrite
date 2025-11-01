@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import json
 import os
-import uuid
+import time
 from collections import defaultdict
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -16,10 +16,11 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 import jsonschema
-from sqlalchemy import create_engine, delete, select
+from sqlalchemy import create_engine, select
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, joinedload, sessionmaker
 
+from .app_node_updater import NodeUpdater
 from .db.config import (
     StoragePreference,
     StorageType,
@@ -34,6 +35,7 @@ from .db.models import Link as DBLink
 from .db.models import Node as DBNode
 from .schema_validator import validate_database_schema
 from .types import Command, LayerType, Link, Metadata, Node, StatusType
+from .utils import generate_node_id
 
 if TYPE_CHECKING:
     from .yaml_storage import YAMLStorage
@@ -95,6 +97,15 @@ class ToDoWrite:
             with open(schema_path) as f:
                 ToDoWrite._SCHEMA = json.load(f)
 
+        # Cache for database schema validation
+        self._schema_validation_cache: tuple[bool, list[str]] | None = None
+
+        # Session and query caching
+        self._session_cache: dict[str, Session] = {}
+        self._query_cache: dict[str, Any] = {}
+        self._cache_ttl = 300.0  # 5 minutes cache TTL
+        self._last_cache_clear = time.time()
+
         # Initialize YAML storage if using YAML mode
         if self.storage_type == StorageType.YAML:
             from .schema_validator import validate_yaml_files
@@ -130,6 +141,28 @@ class ToDoWrite:
         if auto_import and self.storage_type != StorageType.YAML:
             self._auto_import_yaml_files()
 
+    def _clear_expired_cache(self) -> None:
+        """Clear expired cache entries."""
+        current_time = time.time()
+        if current_time - self._last_cache_clear > self._cache_ttl:
+            self._session_cache.clear()
+            self._query_cache.clear()
+            self._last_cache_clear = current_time
+
+    def _clear_node_cache(self, node_id: str | None = None) -> None:
+        """Clear node cache entries."""
+        if node_id:
+            # Clear specific node cache
+            cache_key = f"node_{node_id}"
+            self._query_cache.pop(cache_key, None)
+        else:
+            # Clear all node cache
+            keys_to_remove = [
+                key for key in self._query_cache if key.startswith("node_")
+            ]
+            for key in keys_to_remove:
+                self._query_cache.pop(key, None)
+
     @contextmanager
     def get_session(self) -> Generator[Session | None, None, None]:
         if self.storage_type == StorageType.YAML:
@@ -140,15 +173,33 @@ class ToDoWrite:
         if self.Session is None:
             raise RuntimeError("Database session not initialized")
 
-        session = self.Session()
-        try:
-            yield session
-            session.commit()
-        except Exception:
-            session.rollback()
-            raise
-        finally:
-            session.close()
+        # Clear expired cache entries
+        self._clear_expired_cache()
+
+        # Use existing session if available (simple session reuse)
+        session_key = "default_session"
+        if session_key in self._session_cache:
+            session = self._session_cache[session_key]
+            try:
+                yield session
+                session.commit()
+            except Exception:
+                session.rollback()
+                raise
+        else:
+            session = self.Session()
+            try:
+                self._session_cache[session_key] = session
+                yield session
+                session.commit()
+            except Exception:
+                session.rollback()
+                raise
+            finally:
+                # Only close when session is removed from cache
+                if session_key in self._session_cache:
+                    session.close()
+                    self._session_cache.pop(session_key, None)
 
     @contextmanager
     def get_db_session(self) -> Generator[Session, None, None]:
@@ -208,8 +259,11 @@ class ToDoWrite:
         if self.engine:
             Base.metadata.create_all(bind=self.engine)
 
-            # Validate database schema AFTER tables are created
-            is_valid, errors = validate_database_schema(self.engine)
+            # Validate database schema AFTER tables are created (with caching)
+            if self._schema_validation_cache is None:
+                self._schema_validation_cache = validate_database_schema(self.engine)
+
+            is_valid, errors = self._schema_validation_cache
             if not is_valid:
                 error_msg = "Database schema validation failed:\n" + "\n".join(
                     f"  - {error}" for error in errors
@@ -241,6 +295,13 @@ class ToDoWrite:
             yaml_storage = self._get_yaml_storage()
             return yaml_storage.load_node(node_id)
 
+        # Check query cache first
+        cache_key = f"node_{node_id}"
+        if cache_key in self._query_cache:
+            cached_result = self._query_cache[cache_key]
+            if cached_result is not None:
+                return cast(Node, cached_result)
+
         with self.get_db_session() as session:
             stmt = (
                 select(DBNode)
@@ -252,8 +313,14 @@ class ToDoWrite:
             )
             db_node = session.execute(stmt).unique().scalar_one_or_none()
             if db_node:
-                return self._convert_db_node_to_node(db_node)
-            return None
+                result = self._convert_db_node_to_node(db_node)
+                # Cache the result
+                self._query_cache[cache_key] = result
+                return result
+            else:
+                # Cache negative results to avoid repeated DB hits
+                self._query_cache[cache_key] = None
+                return None
 
     def get_all_nodes(self) -> dict[str, list[Node]]:
         """Retrieves all the nodes from the storage backend."""
@@ -267,13 +334,15 @@ class ToDoWrite:
                 joinedload(DBNode.command).joinedload(DBCommand.artifacts),
             )
             db_nodes = session.execute(stmt).unique().scalars().all()
-            nodes: dict[str, list[Node]] = {}
+            # Use defaultdict for more efficient dictionary building
+            from collections import defaultdict
+
+            nodes: dict[str, list[Node]] = defaultdict(list)
             for db_node in db_nodes:
                 node = self._convert_db_node_to_node(db_node)
-                if node.layer not in nodes:
-                    nodes[node.layer] = []
                 nodes[node.layer].append(node)
-            return nodes
+            # Convert back to regular dict for consistent return type
+            return dict(nodes)
 
     def update_node(self, node_id: str, node_data: dict[str, Any]) -> Node | None:
         """Updates an existing node in the storage backend."""
@@ -290,116 +359,25 @@ class ToDoWrite:
             stmt = select(DBNode).where(DBNode.id == node_id)
             db_node = session.execute(stmt).scalar_one_or_none()
             if db_node:
-                db_node.layer = node_data.get("layer", db_node.layer)
-                db_node.title = node_data.get("title", db_node.title)
-                db_node.description = node_data.get("description", db_node.description)
-                db_node.status = node_data.get("status", db_node.status)
-                db_node.progress = node_data.get("progress", db_node.progress)
-                db_node.started_date = node_data.get(
-                    "started_date", db_node.started_date
-                )
-                db_node.completion_date = node_data.get(
-                    "completion_date", db_node.completion_date
-                )
-                db_node.owner = node_data.get("metadata", {}).get(
-                    "owner", db_node.owner
-                )
-                db_node.severity = node_data.get("metadata", {}).get(
-                    "severity", db_node.severity
-                )
-                db_node.work_type = node_data.get("metadata", {}).get(
-                    "work_type", db_node.work_type
-                )
-                db_node.assignee = node_data.get("metadata", {}).get(
-                    "assignee", db_node.assignee
-                )
+                # Use helper methods to update different parts of the node
+                updater: NodeUpdater = NodeUpdater(session)
 
-                # Update links
-                parent_stmt = select(DBLink).where(DBLink.child_id == node_id)
-                existing_parent_links = {
-                    link.parent_id
-                    for link in session.execute(parent_stmt).scalars().all()
-                }
-                child_stmt = select(DBLink).where(DBLink.parent_id == node_id)
-                existing_child_links = {
-                    link.child_id
-                    for link in session.execute(child_stmt).scalars().all()
-                }
+                # Update basic node fields
+                updater.update_node_fields(db_node, node_data)
 
-                new_parent_ids = set(node_data["links"].get("parents", []))
-                new_child_ids = set(node_data["links"].get("children", []))
+                # Update relationships (links, labels, command)
+                updater.update_links(node_id, node_data)
+                updater.update_labels(db_node, node_data)
+                updater.update_command(node_id, node_data)
 
-                # Handle parent links
-                parents_to_add = new_parent_ids - existing_parent_links
-                parents_to_remove = existing_parent_links - new_parent_ids
-
-                for parent_id in parents_to_add:
-                    link = DBLink(parent_id=parent_id, child_id=db_node.id)
-                    session.add(link)
-                for parent_id in parents_to_remove:
-                    delete_stmt = delete(DBLink).where(
-                        DBLink.parent_id == parent_id, DBLink.child_id == node_id
-                    )
-                    session.execute(delete_stmt)
-
-                # Handle child links
-                children_to_add = new_child_ids - existing_child_links
-                children_to_remove = existing_child_links - new_child_ids
-
-                for child_id in children_to_add:
-                    link = DBLink(parent_id=db_node.id, child_id=child_id)
-                    session.add(link)
-                for child_id in children_to_remove:
-                    delete_stmt = delete(DBLink).where(
-                        DBLink.parent_id == node_id, DBLink.child_id == child_id
-                    )
-                    session.execute(delete_stmt)
-
-                # Update labels
-                db_node.labels.clear()
-                for label_text in node_data["metadata"].get("labels", []):
-                    label_stmt = select(DBLabel).where(DBLabel.label == label_text)
-                    label = session.execute(label_stmt).scalar_one_or_none()
-                    if not label:
-                        label = DBLabel(label=label_text)
-                        session.add(label)
-                    db_node.labels.append(label)
-
-                # Update command
-                if node_data.get("command"):
-                    cmd_stmt = select(DBCommand).where(DBCommand.node_id == node_id)
-                    db_command = session.execute(cmd_stmt).scalar_one_or_none()
-                    if not db_command:
-                        db_command = DBCommand(node_id=node_id)
-                        session.add(db_command)
-                    db_command.ac_ref = node_data["command"].get(
-                        "ac_ref", db_command.ac_ref
-                    )
-                    db_command.run = json.dumps(
-                        node_data["command"].get("run", db_command.run)
-                    )
-
-                    delete_artifacts_stmt = delete(DBArtifact).where(
-                        DBArtifact.command_id == node_id
-                    )
-                    session.execute(delete_artifacts_stmt)
-                    for artifact_text in node_data["command"].get("artifacts", []):
-                        artifact = DBArtifact(
-                            command_id=node_id, artifact=artifact_text
-                        )
-                        session.add(artifact)
-                else:
-                    delete_cmd_stmt = delete(DBCommand).where(
-                        DBCommand.node_id == node_id
-                    )
-                    session.execute(delete_cmd_stmt)
-                    delete_artifacts_stmt = delete(DBArtifact).where(
-                        DBArtifact.command_id == node_id
-                    )
-                    session.execute(delete_artifacts_stmt)
-
+                # Refresh and return the updated node
                 session.refresh(db_node)
-                return self._convert_db_node_to_node(db_node)
+                result = self._convert_db_node_to_node(db_node)
+
+                # Clear cache for updated node and related nodes
+                self._clear_node_cache(node_id)
+
+                return result
             return None
 
     def delete_node(self, node_id: str) -> None:
@@ -414,6 +392,8 @@ class ToDoWrite:
             db_node = session.execute(stmt).scalar_one_or_none()
             if db_node:
                 session.delete(db_node)
+                # Clear cache for deleted node
+                self._clear_node_cache(node_id)
 
     def update_node_status(self, node_id: str, status: str) -> Node | None:
         """Update a node's status using the default ToDoWrite instance."""
@@ -423,21 +403,41 @@ class ToDoWrite:
 
     def search_nodes(self, query: str) -> dict[str, list[Node]]:
         """Search for nodes by query string."""
-        all_nodes = self.get_all_nodes()
+        query_lower = query.lower()
         results = {}
 
-        for layer, nodes in all_nodes.items():
-            matching_nodes = []
-            for node in nodes:
-                if (
-                    query.lower() in node.title.lower()
-                    or query.lower() in node.description.lower()
-                    or query.lower() in node.id.lower()
-                ):
-                    matching_nodes.append(node)
+        # Use generator to avoid loading all nodes at once if using database
+        if self.storage_type == StorageType.YAML:
+            # For YAML, we have to load all nodes anyway, but optimize the search
+            all_nodes = self.get_all_nodes()
+            for layer, nodes in all_nodes.items():
+                matching_nodes = [
+                    node
+                    for node in nodes
+                    if (
+                        query_lower in node.title.lower()
+                        or query_lower in node.description.lower()
+                        or query_lower in node.id.lower()
+                    )
+                ]
+                if matching_nodes:
+                    results[layer] = matching_nodes
+        else:
+            # For database, use a more efficient query
+            with self.get_db_session() as session:
+                stmt = select(DBNode).where(
+                    (DBNode.title.ilike(f"%{query_lower}%"))
+                    | (DBNode.description.ilike(f"%{query_lower}%"))
+                    | (DBNode.id.ilike(f"%{query_lower}%"))
+                )
+                db_nodes = session.execute(stmt).unique().scalars().all()
 
-            if matching_nodes:
-                results[layer] = matching_nodes
+                # Group by layer
+                for db_node in db_nodes:
+                    layer = db_node.layer
+                    if layer not in results:
+                        results[layer] = []
+                    results[layer].append(self._convert_db_node_to_node(db_node))
 
         return results
 
@@ -505,7 +505,7 @@ class ToDoWrite:
                 # Generate ID if not provided
                 if "id" not in node_data or not node_data["id"]:
                     layer = node_data.get("layer", "Node")
-                    node_data["id"] = f"{layer}-{uuid.uuid4().hex[:12].upper()}"
+                    node_data["id"] = generate_node_id(layer)
 
                 # Create the node
                 self.create_node(node_data)
@@ -524,7 +524,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Goal node."""
         node_data = {
-            "id": f"GOAL-{uuid.uuid4().hex[:12].upper()}",
+            "id": generate_node_id("GOAL"),
             "layer": "Goal",
             "title": title,
             "description": description,
@@ -548,7 +548,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Phase node."""
         node_data = {
-            "id": f"PH-{uuid.uuid4().hex[:12].upper()}",
+            "id": generate_node_id("PH"),
             "layer": "Phase",
             "title": title,
             "description": description,
@@ -572,7 +572,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Step node."""
         node_data = {
-            "id": f"STP-{uuid.uuid4().hex[:12].upper()}",
+            "id": generate_node_id("STP"),
             "layer": "Step",
             "title": title,
             "description": description,
@@ -596,7 +596,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Task node."""
         node_data = {
-            "id": f"TSK-{uuid.uuid4().hex[:12].upper()}",
+            "id": generate_node_id("TSK"),
             "layer": "Task",
             "title": title,
             "description": description,
@@ -620,7 +620,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new SubTask node."""
         node_data = {
-            "id": f"SUB-{uuid.uuid4().hex[:12].upper()}",
+            "id": generate_node_id("SUB"),
             "layer": "SubTask",
             "title": title,
             "description": description,
@@ -647,7 +647,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Command node."""
         node_data = {
-            "id": f"CMD-{uuid.uuid4().hex[:12].upper()}",
+            "id": generate_node_id("CMD"),
             "layer": "Command",
             "title": title,
             "description": description,
@@ -672,7 +672,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Concept node."""
         node_data = {
-            "id": f"CON-{uuid.uuid4().hex[:12].upper()}",
+            "id": generate_node_id("CON"),
             "layer": "Concept",
             "title": title,
             "description": description,
@@ -696,7 +696,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Context node."""
         node_data = {
-            "id": f"CTX-{uuid.uuid4().hex[:12].upper()}",
+            "id": generate_node_id("CTX"),
             "layer": "Context",
             "title": title,
             "description": description,
@@ -720,7 +720,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Constraint node."""
         node_data = {
-            "id": f"CST-{uuid.uuid4().hex[:12].upper()}",
+            "id": generate_node_id("CST"),
             "layer": "Constraints",
             "title": title,
             "description": description,
@@ -744,7 +744,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Requirement node."""
         node_data = {
-            "id": f"R-{uuid.uuid4().hex[:12].upper()}",
+            "id": generate_node_id("R"),
             "layer": "Requirements",
             "title": title,
             "description": description,
@@ -768,7 +768,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Acceptance Criteria node."""
         node_data = {
-            "id": f"AC-{uuid.uuid4().hex[:12].upper()}",
+            "id": generate_node_id("AC"),
             "layer": "AcceptanceCriteria",
             "title": title,
             "description": description,
@@ -792,7 +792,7 @@ class ToDoWrite:
     ) -> Node:
         """Adds a new Interface Contract node."""
         node_data = {
-            "id": f"IF-{uuid.uuid4().hex[:12].upper()}",
+            "id": generate_node_id("IF"),
             "layer": "InterfaceContract",
             "title": title,
             "description": description,

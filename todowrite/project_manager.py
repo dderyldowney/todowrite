@@ -8,6 +8,7 @@ It separates core functionality from AI-specific features.
 import contextlib
 import importlib.util
 import json
+import logging
 import shutil
 from pathlib import Path
 from textwrap import dedent
@@ -23,6 +24,7 @@ class ProjectManager:
     def __init__(self) -> None:
         self.cache_dir = Path.home() / ".todowrite_cache"
         self.cache_dir.mkdir(exist_ok=True)
+        self.logger = logging.getLogger(__name__)
 
     # ===== Core Project Utilities =====
 
@@ -326,7 +328,7 @@ class ProjectManager:
             # ToDoWrite Configuration
 
             # Database Configuration
-            TODOWRITE_DATABASE_URL={'postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite' if db_type == 'postgres' else 'sqlite:///todowrite.db'}
+            TODOWRITE_DATABASE_URL={"postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite" if db_type == "postgres" else "sqlite:///todowrite.db"}
 
             # Optional: Log level
             LOG_LEVEL=INFO
@@ -488,6 +490,7 @@ class _AIOptimizationManager:
         self.cache_dir = Path.home() / ".todowrite_cache"
         self.cache_dir.mkdir(exist_ok=True)
         self._ai_available = self._check_ai_availability()
+        self.logger = logging.getLogger(__name__)
 
     def _check_ai_availability(self) -> bool:
         """Check if AI components are available."""
@@ -515,8 +518,11 @@ class _AIOptimizationManager:
                 encoder = anthropic.HUMAN_PROMPT + text + anthropic.AI_PROMPT
                 token_counts["anthropic"] = len(encoder)
             except ImportError:
+                # Anthropic not available, skip token counting
                 pass
-            except Exception:
+            except Exception as e:
+                # Log specific error but don't crash
+                self.logger.debug(f"Anthropic token counting failed: {e}")
                 pass
 
         return token_counts

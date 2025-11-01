@@ -4,9 +4,9 @@ This module contains the CLI for the ToDoWrite application.
 
 from __future__ import annotations
 
+import shlex
 import subprocess
 import sys
-import uuid
 from pathlib import Path
 from typing import Any, get_args
 
@@ -21,6 +21,7 @@ from .db.config import (
     set_storage_preference,
 )
 from .types import LayerType, Node
+from .utils import generate_node_id
 from .yaml_manager import YAMLManager
 
 LAYER_TO_PREFIX = {
@@ -84,7 +85,7 @@ def create(layer: str, title: str, description: str, parent: str | None) -> None
         click.echo(f"Error: Could not find prefix for layer '{layer}'.")
         return
 
-    node_id: str = f"{prefix}-{uuid.uuid4().hex[:12].upper()}"
+    node_id: str = generate_node_id(prefix)
     node_data: dict[str, Any] = {
         "id": node_id,
         "layer": layer,
@@ -434,8 +435,10 @@ def execute_commands(command_id: str, all: bool, dry_run: bool) -> None:
             results_dir.mkdir(parents=True, exist_ok=True)
 
             # Execute command
+            # Use shlex to split command safely instead of shell=True
+            cmd_args = shlex.split(shell_cmd)
             result = subprocess.run(
-                shell_cmd, shell=True, capture_output=True, text=True
+                cmd_args, shell=False, capture_output=True, text=True
             )
 
             # Save execution log
@@ -529,8 +532,9 @@ def show_hierarchy(layer: str, format: str) -> None:
                         "children": node_data.get("links", {}).get("children", []),
                     }
                 )
-            except Exception:
-                pass
+            except (yaml.YAMLError, FileNotFoundError, PermissionError):
+                # Skip invalid YAML files or files that can't be read
+                continue
         if command_nodes:
             hierarchy["commands"] = command_nodes
 
@@ -573,6 +577,7 @@ def check_soc() -> None:
             [sys.executable, "todowrite/tools/tw_lint_soc.py"],
             capture_output=True,
             text=True,
+            shell=False,
         )
 
         click.echo(result.stdout)
