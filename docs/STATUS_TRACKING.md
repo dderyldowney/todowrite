@@ -47,6 +47,10 @@ The following fields have been added to support status tracking:
 
 ### Status Update
 
+For project development utilities, see [Project Utilities](PROJECT_UTILITIES.md).
+
+### Status Update
+
 Update the status of a node with additional tracking information:
 
 ```bash

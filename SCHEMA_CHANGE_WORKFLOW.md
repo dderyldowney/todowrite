@@ -87,8 +87,8 @@ Add this check to `.pre-commit-config.yaml`:
   hooks:
     - id: schema-check
       name: Ensure schema changes are in package location
-      entry: python scripts/check_schema_changes.py
-      language: python
+      entry: todowrite utils check-schema
+      language: system
       pass_filenames: true
       always_run: true
 ```
@@ -104,7 +104,7 @@ Add to GitHub Actions or similar CI:
       exit 1
     fi
     # Check deprecated schema doesn't have new changes
-    python scripts/check_deprecated_schema.py
+    todowrite utils check-deprecated
 ```
 
 ## Change Tracking

@@ -126,7 +126,47 @@ todowrite import-yaml
 
 # Check sync status
 todowrite sync-status
+
+## 🛠️ Project Development Utilities
+
+The new ProjectManager class provides centralized utilities that replace individual scripts:
+
+### New CLI Commands
+```bash
+# Check project setup
+todowrite utils validate-setup /path/to/project
+
+# Set up project integration
+todowrite utils setup-integration /path/to/project --db-type postgres
+
+# Create project structure
+todowrite utils create-structure /path/to/new-project
+
+# Check schema integrity
+todowrite utils check-schema
+todowrite utils check-deprecated
 ```
+
+### For AI-Enhanced Development
+```bash
+# Token optimization features are available when AI dependencies are installed
+# All core utilities work without AI requirements
+todowrite utils setup-integration /path/to/project --db-type postgres
+```
+
+### API Usage
+```python
+from todowrite import setup_integration, validate_project_setup
+
+# Set up project
+setup_integration("/path/to/project", "sqlite")
+
+# Validate project setup
+results = validate_project_setup("/path/to/project")
+print(f"Project valid: {results['valid']}")
+```
+
+See [Project Utilities](docs/PROJECT_UTILITIES.md) for comprehensive documentation.
 
 ### Python Module
 ```python
