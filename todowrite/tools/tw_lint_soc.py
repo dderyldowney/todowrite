@@ -8,7 +8,7 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 import yaml
 
@@ -17,7 +17,7 @@ class SoCLinter:
     """Separation of Concerns linter for ToDoWrite framework"""
 
     # Layers that MUST NOT contain executable content
-    NON_EXECUTABLE_LAYERS = {
+    NON_EXECUTABLE_LAYERS: ClassVar[set[str]] = {
         "Goal",
         "Concept",
         "Context",
@@ -32,7 +32,7 @@ class SoCLinter:
     }
 
     # Patterns that indicate actual executable content (focused on dangerous patterns)
-    EXECUTABLE_PATTERNS = [
+    EXECUTABLE_PATTERNS: ClassVar[list[str]] = [
         r"#!/.*",  # Shebang lines
         r"exec\s*\(",  # Python exec calls
         r"eval\s*\(",  # Python eval calls
@@ -82,7 +82,7 @@ class SoCLinter:
             return {}, False
 
     def _check_for_command_key(
-        self, data: dict[str, Any], file_path: Path
+        self, data: dict[str, Any], _file_path: Path
     ) -> list[str]:
         """Check if non-executable layers contain 'command' key"""
         violations: list[str] = []
@@ -96,7 +96,7 @@ class SoCLinter:
         return violations
 
     def _check_for_executable_patterns(
-        self, data: dict[str, Any], file_path: Path
+        self, data: dict[str, Any], _file_path: Path
     ) -> list[str]:
         """Check for executable patterns in string values"""
         violations: list[str] = []
@@ -122,7 +122,7 @@ class SoCLinter:
         return violations
 
     def _check_command_layer_requirements(
-        self, data: dict[str, Any], file_path: Path
+        self, data: dict[str, Any], _file_path: Path
     ) -> list[str]:
         """Check that Command layer has proper structure"""
         violations: list[str] = []

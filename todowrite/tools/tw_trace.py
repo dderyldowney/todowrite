@@ -135,12 +135,9 @@ class TraceabilityBuilder:
             # Goal nodes can have no parents, Command nodes can have no children
             layer = node_data["layer"]
             if (
-                layer == "Goal"
-                and not has_children
-                or layer == "Command"
-                and not has_parents
-                or not has_parents
-                and not has_children
+                (layer == "Goal" and not has_children)
+                or (layer == "Command" and not has_parents)
+                or (not has_parents and not has_children)
             ):
                 self.orphaned_nodes.add(node_id)
 
@@ -155,7 +152,7 @@ class TraceabilityBuilder:
             if node_id in rec_stack:
                 # Found cycle
                 cycle_start = path.index(node_id)
-                cycle = path[cycle_start:] + [node_id]
+                cycle = [*path[cycle_start:], node_id]
                 self.circular_deps.append(cycle)
                 return True
 

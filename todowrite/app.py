@@ -32,6 +32,7 @@ from .db.models import Command as DBCommand
 from .db.models import Label as DBLabel
 from .db.models import Link as DBLink
 from .db.models import Node as DBNode
+from .schema_validator import validate_database_schema
 from .types import Command, LayerType, Link, Metadata, Node, StatusType
 
 if TYPE_CHECKING:
@@ -96,9 +97,32 @@ class ToDoWrite:
 
         # Initialize YAML storage if using YAML mode
         if self.storage_type == StorageType.YAML:
+            from .schema_validator import validate_yaml_files
             from .yaml_storage import YAMLStorage
 
             self.yaml_storage = YAMLStorage()
+
+            # Validate YAML files schema
+            try:
+                is_valid, errors, file_counts = validate_yaml_files()
+                if not is_valid:
+                    error_msg = "YAML schema validation failed:\n" + "\n".join(
+                        f"  - {error}" for error in errors
+                    )
+                    print(f"⚠️  {error_msg}")
+                else:
+                    print(
+                        f"✅ YAML schema validation passed (checked {sum(file_counts.values())} files)"
+                    )
+
+                    # Report file counts by layer
+                    if file_counts:
+                        print("  Files by layer:")
+                        for layer, count in file_counts.items():
+                            if count > 0:
+                                print(f"    {layer}: {count} files")
+            except Exception as e:
+                print(f"⚠️  YAML validation error: {e}")
         else:
             self.yaml_storage = None
 
@@ -183,6 +207,18 @@ class ToDoWrite:
                     os.makedirs(dirname, exist_ok=True)
         if self.engine:
             Base.metadata.create_all(bind=self.engine)
+
+            # Validate database schema AFTER tables are created
+            is_valid, errors = validate_database_schema(self.engine)
+            if not is_valid:
+                error_msg = "Database schema validation failed:\n" + "\n".join(
+                    f"  - {error}" for error in errors
+                )
+                print(f"⚠️  {error_msg}")
+            else:
+                print(
+                    f"✅ {self.storage_type.value.capitalize()} schema validation passed"
+                )
 
     def create_node(self, node_data: dict[str, Any]) -> Node:
         """Creates a new node in the storage backend."""
@@ -378,6 +414,106 @@ class ToDoWrite:
             db_node = session.execute(stmt).scalar_one_or_none()
             if db_node:
                 session.delete(db_node)
+
+    def update_node_status(self, node_id: str, status: str) -> Node | None:
+        """Update a node's status using the default ToDoWrite instance."""
+        status = cast(StatusType, status)
+        node_data = {"status": status}
+        return self.update_node(node_id, node_data)
+
+    def search_nodes(self, query: str) -> dict[str, list[Node]]:
+        """Search for nodes by query string."""
+        all_nodes = self.get_all_nodes()
+        results = {}
+
+        for layer, nodes in all_nodes.items():
+            matching_nodes = []
+            for node in nodes:
+                if (
+                    query.lower() in node.title.lower()
+                    or query.lower() in node.description.lower()
+                    or query.lower() in node.id.lower()
+                ):
+                    matching_nodes.append(node)
+
+            if matching_nodes:
+                results[layer] = matching_nodes
+
+        return results
+
+    def export_nodes(self, format: str = "yaml") -> str:
+        """Export all nodes to a string in the specified format."""
+        all_nodes = self.get_all_nodes()
+
+        if format.lower() == "yaml":
+            import yaml
+
+            nodes_list = []
+            for _layer, nodes in all_nodes.items():
+                for node in nodes:
+                    nodes_list.append(node.to_dict())
+            return yaml.dump(nodes_list, default_flow_style=False)
+
+        elif format.lower() == "json":
+            import json
+
+            nodes_dict = {}
+            for layer, nodes in all_nodes.items():
+                nodes_dict[layer] = [node.to_dict() for node in nodes]
+            return json.dumps(nodes_dict, indent=2)
+
+        else:
+            raise ValueError(f"Unsupported export format: {format}")
+
+    def import_nodes(self, file_path: str) -> dict[str, Any]:
+        """Import nodes from a file."""
+        import json
+        from pathlib import Path
+
+        import yaml
+
+        path = Path(file_path)
+        if not path.exists():
+            raise FileNotFoundError(f"File not found: {file_path}")
+
+        # Determine file format
+        if path.suffix.lower() in [".yaml", ".yml"]:
+            with open(path) as f:
+                data = yaml.safe_load(f)
+        elif path.suffix.lower() == ".json":
+            with open(path) as f:
+                data = json.load(f)
+        else:
+            raise ValueError(f"Unsupported file format: {path.suffix}")
+
+        # Handle both single node and list of nodes
+        if isinstance(data, dict) and "layer" in data:
+            # Single node
+            nodes_to_import = [data]
+        elif isinstance(data, list):
+            # List of nodes
+            nodes_to_import = data
+        else:
+            raise ValueError(
+                "Invalid file format: expected node object or list of nodes"
+            )
+
+        results: dict[str, Any] = {"imported": 0, "errors": [], "skipped": []}
+
+        for node_data in nodes_to_import:
+            try:
+                # Generate ID if not provided
+                if "id" not in node_data or not node_data["id"]:
+                    layer = node_data.get("layer", "Node")
+                    node_data["id"] = f"{layer}-{uuid.uuid4().hex[:12].upper()}"
+
+                # Create the node
+                self.create_node(node_data)
+                results["imported"] += 1
+            except Exception as e:
+                results["errors"].append(str(e))
+
+        return results
 
     def add_goal(
         self,
@@ -834,3 +970,58 @@ class ToDoWrite:
             # Silently fail auto-import to not break normal operation
             # Could log this to a file or debug mode in the future
             pass
+
+
+# Standalone wrapper functions for public API
+def create_node(node_data: dict[str, Any]) -> Node:
+    """Create a new node using the default ToDoWrite instance."""
+    app = ToDoWrite(auto_import=False)
+    return app.create_node(node_data)
+
+
+def get_node(node_id: str) -> Node | None:
+    """Get a node by ID using the default ToDoWrite instance."""
+    app = ToDoWrite(auto_import=False)
+    return app.get_node(node_id)
+
+
+def update_node(node_id: str, node_data: dict[str, Any]) -> Node | None:
+    """Update a node using the default ToDoWrite instance."""
+    app = ToDoWrite(auto_import=False)
+    return app.update_node(node_id, node_data)
+
+
+def delete_node(node_id: str) -> None:
+    """Delete a node using the default ToDoWrite instance."""
+    app = ToDoWrite(auto_import=False)
+    app.delete_node(node_id)
+
+
+def list_nodes() -> dict[str, list[Node]]:
+    """List all nodes using the default ToDoWrite instance."""
+    app = ToDoWrite(auto_import=False)
+    return app.get_all_nodes()
+
+
+def search_nodes(query: str) -> dict[str, list[Node]]:
+    """Search for nodes using the default ToDoWrite instance."""
+    app = ToDoWrite(auto_import=False)
+    return app.search_nodes(query)
+
+
+def export_nodes(format: str = "yaml") -> str:
+    """Export nodes using the default ToDoWrite instance."""
+    app = ToDoWrite(auto_import=False)
+    return app.export_nodes(format)
+
+
+def import_nodes(file_path: str) -> dict[str, Any]:
+    """Import nodes from a file using the default ToDoWrite instance."""
+    app = ToDoWrite(auto_import=False)
+    return app.import_nodes(file_path)
+
+
+def update_node_status(node_id: str, status: str) -> Node | None:
+    """Update node status using the default ToDoWrite instance."""
+    app = ToDoWrite(auto_import=False)
+    return app.update_node_status(node_id, status)
