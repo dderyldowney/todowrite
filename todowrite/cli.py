@@ -852,6 +852,153 @@ def status_report(layer: str, format: str) -> None:
                 click.echo(f"  {emoji} {status}: {count} ({percentage:.1f}%)")
 
 
+# ===== Project Utility Commands =====
+
+
+@cli.group()
+def utils() -> None:
+    """Project utility commands for development and setup."""
+    pass
+
+
+@utils.command("check-schema")
+def check_schema_cmd() -> None:
+    """Check that schema changes are in the correct location."""
+    try:
+        from .project_manager import check_schema_changes
+
+        if check_schema_changes():
+            click.echo("✅ Schema location check passed!")
+        else:
+            click.echo("❌ Schema location check failed!")
+            sys.exit(1)
+    except ImportError:
+        click.echo(
+            "❌ Cannot import project utilities. Make sure todowrite is properly installed."
+        )
+        sys.exit(1)
+
+
+@utils.command("check-deprecated")
+def check_deprecated_cmd() -> None:
+    """Check that deprecated schema hasn't been modified."""
+    try:
+        from .project_manager import check_deprecated_schema
+
+        if check_deprecated_schema():
+            click.echo("✅ Deprecated schema check passed!")
+        else:
+            click.echo("❌ Deprecated schema check failed!")
+            sys.exit(1)
+    except ImportError:
+        click.echo(
+            "❌ Cannot import project utilities. Make sure todowrite is properly installed."
+        )
+        sys.exit(1)
+
+
+@utils.command("setup-integration")
+@click.argument("project_path", type=click.Path(exists=True))
+@click.option(
+    "--db-type",
+    type=click.Choice(["postgres", "sqlite"]),
+    default="postgres",
+    help="Database type to set up",
+)
+def setup_integration_cmd(project_path: str, db_type: str) -> None:
+    """Set up ToDoWrite integration in a project."""
+    try:
+        from .project_manager import setup_integration
+
+        if setup_integration(project_path, db_type):
+            click.echo(f"✅ Integration set up successfully in {project_path}")
+        else:
+            click.echo("❌ Failed to set up integration!")
+            sys.exit(1)
+    except ImportError:
+        click.echo(
+            "❌ Cannot import project utilities. Make sure todowrite is properly installed."
+        )
+        sys.exit(1)
+
+
+@utils.command("create-structure")
+@click.argument("project_path", type=click.Path())
+def create_structure_cmd(project_path: str) -> None:
+    """Create a basic ToDoWrite project structure."""
+    try:
+        from .project_manager import create_project_structure
+
+        if create_project_structure(project_path):
+            click.echo(f"✅ Project structure created at {project_path}")
+        else:
+            click.echo("❌ Failed to create project structure!")
+            sys.exit(1)
+    except ImportError:
+        click.echo(
+            "❌ Cannot import project utilities. Make sure todowrite is properly installed."
+        )
+        sys.exit(1)
+
+
+@utils.command("validate-setup")
+@click.argument("project_path", type=click.Path(exists=True))
+def validate_setup_cmd(project_path: str) -> None:
+    """Validate that a project is properly set up for ToDoWrite."""
+    try:
+        from .project_manager import validate_project_setup
+
+        results = validate_project_setup(project_path)
+
+        click.echo(f"\n🔍 Validation results for {project_path}:")
+
+        if results["valid"]:
+            click.echo("✅ Project is properly set up!")
+        else:
+            click.echo("❌ Project setup issues found:")
+            for issue in results["issues"]:
+                click.echo(f"  - {issue}")
+
+        if results["recommendations"]:
+            click.echo("\n💡 Recommendations:")
+            for rec in results["recommendations"]:
+                click.echo(f"  - {rec}")
+
+        if results["found_files"]:
+            click.echo(
+                f"\n📁 Found {len(results['found_files'])} key files/components:"
+            )
+            for item in results["found_files"]:
+                click.echo(f"  - {item}")
+
+        if not results["valid"]:
+            sys.exit(1)
+
+    except ImportError:
+        click.echo(
+            "❌ Cannot import project utilities. Make sure todowrite is properly installed."
+        )
+        sys.exit(1)
+
+
+@utils.command("init-database-sql")
+def init_database_sql_cmd() -> None:
+    """Print PostgreSQL initialization SQL."""
+    try:
+        from .project_manager import init_database_sql
+
+        sql = init_database_sql()
+        click.echo(sql)
+    except ImportError:
+        click.echo(
+            "❌ Cannot import project utilities. Make sure todowrite is properly installed."
+        )
+        sys.exit(1)
+
+
+# Add utility commands to main CLI
+cli.add_command(utils)
+
 # Add status commands to main CLI
 cli.add_command(status)
 
