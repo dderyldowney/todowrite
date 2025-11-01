@@ -178,7 +178,7 @@ class YAMLManager:
 
                 # Import to database
                 try:
-                    if force and node_id in existing_ids:
+                    if force and node_id and node_id in existing_ids:
                         # Update existing node
                         updated_node = self.app.update_node(node_id, yaml_data_dict)
                         if updated_node:

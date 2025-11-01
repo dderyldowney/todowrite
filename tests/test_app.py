@@ -47,7 +47,7 @@ class TestApp(unittest.TestCase):
         # Remove cache directories
         cache_dirs = [
             ".pytest_cache",
-            ".mypy_cache",
+            ".pyright_cache",
             "__pycache__",
             "tests/__pycache__",
         ]
@@ -104,7 +104,7 @@ class TestApp(unittest.TestCase):
         self.assertIsNotNone(app.db_url)
         # In test environment with PostgreSQL running, it might use PostgreSQL
         # So we just verify that a database URL is set
-        assert app.db_url is not None  # Type narrowing for mypy
+        assert app.db_url is not None  # Type narrowing for pyright
         self.assertTrue(
             app.db_url.startswith("sqlite") or app.db_url.startswith("postgresql")
         )
@@ -146,7 +146,7 @@ class TestApp(unittest.TestCase):
         self.app.create_node(node_data)
         node = self.app.get_node("GOAL-TEST1")
         self.assertIsNotNone(node)
-        assert node is not None  # Type narrowing for mypy
+        assert node is not None  # Type narrowing for pyright
         self.assertEqual(node.id, "GOAL-TEST1")
 
     def test_get_all_nodes(self) -> None:

@@ -34,9 +34,9 @@ class YAMLStorage:
         self.layer_dirs = LAYER_DIRS
 
         # Create directories if they don't exist
-        self._ensure_directories()
+        self.ensure_directories()
 
-    def _ensure_directories(self) -> None:
+    def ensure_directories(self) -> None:
         """Ensure all necessary directories exist."""
         self.base_path.mkdir(exist_ok=True)
         self.plans_path.mkdir(exist_ok=True)

@@ -36,10 +36,9 @@ todowrite = "todowrite.cli:cli"
 
 [project.optional-dependencies]
 dev = [
-    "mypy>=1.18.2",
+    "pyright>=1.1.0",
     "types-PyYAML>=6.0.12",
     "types-jsonschema>=4.0.0",
-    "sqlalchemy[mypy]>=2.0.0",
     "types-click>=7.1.0",
     "ruff>=0.7.0",
     "black>=24.0.0",
@@ -53,54 +52,33 @@ ai = [
     "anthropic>=0.40.0",
 ]
 
-# MyPy configuration
-[tool.mypy]
-python_version = "3.12"
-strict = true
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-disallow_untyped_decorators = true
-no_implicit_optional = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_no_return = true
-warn_unreachable = true
-strict_equality = true
-extra_checks = true
-# plugins = ["sqlalchemy.ext.mypy.plugin"]  # Disabled due to pre-commit environment issues
-
-# Ignore missing imports for third-party libraries
-[[tool.mypy.overrides]]
-module = [
-    "click.*",
-    "sqlalchemy.*",
-    "jsonschema.*",
-    "yaml.*"
+# Pyright configuration - Strict mode for zero tech debt
+[tool.pyright]
+pythonVersion = "3.12"
+pythonPlatform = "Darwin"
+typeCheckingMode = "strict"
+reportMissingImports = true
+reportMissingTypeStubs = true
+include = ["todowrite"]
+exclude = [
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    ".git",
+    "tests",
+    "*.py"
 ]
-ignore_missing_imports = true
-
-# Skip CLI module due to Click decorator typing complexity
-[[tool.mypy.overrides]]
-module = "todowrite.cli"
-ignore_errors = true
-
-# Allow Any for SQLAlchemy base classes
-[[tool.mypy.overrides]]
-module = "todowrite.db.models"
-disallow_subclassing_any = false
-
-# Ignore import errors for subagents package and external libraries
-[[tool.mypy.overrides]]
-module = "CLAUDE_SUBAGENTS_PACKAGE.*"
-ignore_missing_imports = true
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = ["openai.*", "anthropic.*"]
-ignore_missing_imports = true
+ignore = []
+strict = ["todowrite"]
+useLibraryCodeForTypes = true
+enableTypeIgnoreComments = false
+reportUnknownParameterType = "error"
+reportUnknownArgumentType = "error"
+reportUnknownVariableType = "error"
+reportUnknownMemberType = "error"
+reportUnknownLambdaType = "error"
+reportPrivateUsage = "error"
 
 # Ruff configuration
 [tool.ruff]

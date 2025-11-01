@@ -50,7 +50,7 @@ class TestCli(unittest.TestCase):
         # Remove cache directories
         cache_dirs = [
             ".pytest_cache",
-            ".mypy_cache",
+            ".pyright_cache",
             "__pycache__",
             "tests/__pycache__",
         ]

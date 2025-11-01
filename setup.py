@@ -49,10 +49,10 @@ setup_params = {
     ],
     "extras_require": {
         "dev": [
-            "mypy>=1.13.0",
+            "pyright>=1.1.0",
             "types-PyYAML>=6.0.12",
             "types-jsonschema>=4.0.0",
-            "sqlalchemy[mypy]>=2.0.0",
+            "sqlalchemy>=2.0.0",
             "types-click>=7.1.0",
             "ruff>=0.7.0",
             "black>=24.0.0",

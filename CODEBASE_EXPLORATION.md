@@ -6,7 +6,7 @@ ToDoWrite is a sophisticated hierarchical task management system designed for co
 
 **Project Details:**
 - **Version:** 0.1.7.0
-- **Python:** 3.12+ (strict type hints with mypy)
+- **Python:** 3.12+ (strict type hints with pyright)
 - **Primary Dependencies:** SQLAlchemy 2.0, Click CLI, PyYAML, jsonschema
 - **Current Branch:** develop
 - **Architecture:** Hierarchical task management with pluggable storage backends
@@ -707,7 +707,7 @@ dependencies = [
 ```
 
 **Development Tools:**
-- mypy: Type checking (strict mode enabled)
+- pyright: Type checking (strict mode enabled)
 - ruff: Linting and formatting
 - black: Code formatting
 - isort: Import sorting
@@ -719,7 +719,7 @@ dependencies = [
 - Target Python: 3.12+
 - Line length: 88 characters (Black standard)
 - Ruff rules: E, W, F, I, B, C4, UP, RUF, S, T20, SIM, ARG, PTH
-- MyPy: Strict mode (disallow_untyped_defs, etc.)
+- Pyright: Strict mode (maximum error detection)
 
 ### Storage Configuration
 
@@ -1078,10 +1078,10 @@ todowrite todowrite show-hierarchy --layer Task --format json
 ### Type Safety
 
 - **Python 3.12+** with strict type hints
-- **MyPy** in strict mode:
-  - `disallow_untyped_defs`: All functions must have type hints
-  - `strict_equality`: Prevents common comparison errors
+- **Pyright** in strict mode:
+  - `typeCheckingMode: "strict"`: Maximum error detection enabled
   - All standard strict checks enabled
+  - Enhanced error reporting for unknown types
 - **Type annotations** on all classes, methods, parameters
 - **Literal types** for constrained values (LayerType, StatusType)
 
