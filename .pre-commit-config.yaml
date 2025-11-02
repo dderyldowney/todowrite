@@ -38,7 +38,7 @@ repos:
         additional_dependencies:
           - types-PyYAML
           - types-jsonschema
-        args: [--project=todowrite, --typeCheckingMode=off]
+        args: [--project=todowrite]
         files: ^(todowrite|tests)/.*\.py$
 
   - repo: https://github.com/PyCQA/bandit

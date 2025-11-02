@@ -13,7 +13,7 @@ from typing import Any
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
-from .db.models import Artifact, Command, Label, Link, Node
+from ..database.models import Artifact, Command, Label, Link, Node
 
 
 class NodeUpdater:

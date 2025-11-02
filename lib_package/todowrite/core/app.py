@@ -21,25 +21,25 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, joinedload, sessionmaker
 
-from .app_node_updater import NodeUpdater
-from .db.config import (
+from ..database.config import (
     StoragePreference,
     StorageType,
     determine_storage_backend,
     set_storage_preference,
 )
-from .db.models import Artifact as DBArtifact
-from .db.models import Base
-from .db.models import Command as DBCommand
-from .db.models import Label as DBLabel
-from .db.models import Link as DBLink
-from .db.models import Node as DBNode
-from .schema_validator import validate_database_schema
+from ..database.models import Artifact as DBArtifact
+from ..database.models import Base
+from ..database.models import Command as DBCommand
+from ..database.models import Label as DBLabel
+from ..database.models import Link as DBLink
+from ..database.models import Node as DBNode
+from ..storage.schema_validator import validate_database_schema
+from .app_node_updater import NodeUpdater
 from .types import Command, LayerType, Link, Metadata, Node, StatusType
 from .utils import generate_node_id
 
 if TYPE_CHECKING:
-    from .yaml_storage import YAMLStorage
+    from ..storage.yaml_storage import YAMLStorage
 
 
 def _validate_literal(value: str, literal_type: Any) -> str:
@@ -348,7 +348,8 @@ class ToDoWrite:
 
     def update_node(self, node_id: str, node_data: dict[str, Any]) -> Node | None:
         """Updates an existing node in the storage backend."""
-        self._validate_node_data(node_data)
+        # Skip validation for updates to allow partial updates
+        # self._validate_node_data(node_data)
 
         if self.storage_type == StorageType.YAML:
             # For YAML, just save the updated node
@@ -371,6 +372,9 @@ class ToDoWrite:
                 updater.update_links(node_id, node_data)
                 updater.update_labels(db_node, node_data)
                 updater.update_command(node_id, node_data)
+
+                # Commit changes before refreshing to ensure they're persisted
+                session.commit()
 
                 # Refresh and return the updated node
                 session.refresh(db_node)

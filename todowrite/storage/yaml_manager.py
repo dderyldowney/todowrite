@@ -15,22 +15,27 @@ from typing import Any
 import yaml
 from sqlalchemy.exc import SQLAlchemyError
 
-from .app import ToDoWrite
-from .constants import (
+from ..core.constants import (
     DEFAULT_BASE_PATH,
     DEFAULT_COMMANDS_PATH,
     DEFAULT_PLANS_PATH,
     LAYER_DIRS,
 )
-from .types import Node
+from ..core.types import Node
 
 
 class YAMLManager:
     """Manages YAML import/export operations for ToDoWrite."""
 
-    def __init__(self, todowrite_app: ToDoWrite | None = None):
+    def __init__(self, todowrite_app: any = None):
         """Initialize YAML Manager."""
-        self.app = todowrite_app or ToDoWrite()
+        if todowrite_app is None:
+            # Lazy import to avoid circular dependency
+            from ..core import ToDoWrite
+
+            self.app = ToDoWrite()
+        else:
+            self.app = todowrite_app
         self.yaml_base_path = Path(DEFAULT_BASE_PATH)
         self.plans_path = Path(DEFAULT_PLANS_PATH)
         self.commands_path = Path(DEFAULT_COMMANDS_PATH)
@@ -123,7 +128,7 @@ class YAMLManager:
             with self.app.get_db_session() as session:
                 from sqlalchemy import select
 
-                from .db.models import Node as DBNode
+                from ..database.models import Node as DBNode
 
                 stmt = select(DBNode.id)
                 existing_ids = session.execute(stmt).scalars().all()

@@ -13,16 +13,16 @@ from typing import Any, get_args
 import click
 import yaml
 
-from .app import ToDoWrite
-from .db.config import (
+from ..core import ToDoWrite
+from ..core.types import LayerType, Node
+from ..core.utils import generate_node_id
+from ..database.config import (
     StoragePreference,
     get_setup_guidance,
     get_storage_info,
     set_storage_preference,
 )
-from .types import LayerType, Node
-from .utils import generate_node_id
-from .yaml_manager import YAMLManager
+from ..storage.yaml_manager import YAMLManager
 
 LAYER_TO_PREFIX = {
     "Goal": "GOAL",
@@ -175,7 +175,7 @@ def db_status(storage_preference: str) -> None:
             click.echo(f"Nodes in YAML Files: {node_count}")
         else:
             with app.get_db_session() as session:
-                from .db.models import Node as DBNode
+                from ..database.models import Node as DBNode
 
                 node_count = session.query(DBNode).count()
                 click.echo(f"Nodes in Database: {node_count}")
@@ -650,6 +650,19 @@ def update_status(
         update_data["progress"] = progress
     if owner:
         update_data["metadata"]["owner"] = owner
+    else:
+        # Remove empty fields to avoid validation errors
+        if "metadata" in update_data:
+            if (
+                "work_type" in update_data["metadata"]
+                and not update_data["metadata"]["work_type"]
+            ):
+                del update_data["metadata"]["work_type"]
+            if (
+                "severity" in update_data["metadata"]
+                and not update_data["metadata"]["severity"]
+            ):
+                del update_data["metadata"]["severity"]
     if assignee:
         update_data["metadata"]["assignee"] = assignee
     if started_date:

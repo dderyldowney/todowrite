@@ -6,9 +6,8 @@ from pathlib import Path
 from typing import Any
 
 from sqlalchemy import delete
-
-from todowrite.app import ToDoWrite
-from todowrite.db.models import Artifact, Command, Label, Link, Node, node_labels
+from todowrite.core import ToDoWrite
+from todowrite.database.models import Artifact, Command, Label, Link, Node, node_labels
 
 
 class TestApp(unittest.TestCase):

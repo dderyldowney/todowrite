@@ -17,8 +17,8 @@ import jsonschema
 import yaml
 from sqlalchemy import inspect
 
-from .constants import LAYER_DIRS
-from .schema import TODOWRITE_SCHEMA
+from ..core.constants import LAYER_DIRS
+from ..core.schema import TODOWRITE_SCHEMA
 
 
 class SchemaValidator:

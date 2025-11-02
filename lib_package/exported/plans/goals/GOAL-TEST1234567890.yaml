@@ -1,0 +1,10 @@
+id: GOAL-TEST1234567890
+layer: Goal
+title: Test YAML Goal
+description: Goal from YAML
+metadata:
+  owner: ''
+  labels: []
+links:
+  parents: []
+  children: []

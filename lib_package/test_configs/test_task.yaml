@@ -1,0 +1,8 @@
+id: TSK-TEST1234567890
+layer: Task
+title: Test YAML Task
+description: Task from YAML
+links:
+  parents: []
+  children: []
+metadata: {}
