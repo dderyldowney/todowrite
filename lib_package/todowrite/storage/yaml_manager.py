@@ -10,7 +10,7 @@ from __future__ import annotations
 import shutil
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import yaml
 from sqlalchemy.exc import SQLAlchemyError
@@ -27,7 +27,7 @@ from ..core.types import Node
 class YAMLManager:
     """Manages YAML import/export operations for ToDoWrite."""
 
-    def __init__(self, todowrite_app: any = None):
+    def __init__(self, todowrite_app: Any = None):
         """Initialize YAML Manager."""
         if todowrite_app is None:
             # Lazy import to avoid circular dependency
@@ -65,9 +65,7 @@ class YAMLManager:
 
                 layer_path = self.plans_path / dir_name
                 if layer_path.exists():
-                    files = list(layer_path.glob("*.yaml")) + list(
-                        layer_path.glob("*.yml")
-                    )
+                    files = list(layer_path.glob("*.yaml")) + list(layer_path.glob("*.yml"))
                     if files:
                         yaml_files[layer] = files
 
@@ -83,7 +81,7 @@ class YAMLManager:
         self._file_cache = yaml_files.copy()
         self._cache_timestamp = current_time
 
-        return yaml_files
+        return cast(dict[str, list[Path]], yaml_files)
 
     def load_yaml_file(self, file_path: Path) -> dict[str, Any] | None:
         """Load and validate a single YAML file."""
@@ -110,7 +108,7 @@ class YAMLManager:
             if "links" not in data:
                 data["links"] = {"parents": [], "children": []}
 
-            return data
+            return cast(dict[str, Any], data)
 
         except yaml.YAMLError as e:
             print(f"Error parsing YAML file {file_path}: {e}")
@@ -137,9 +135,7 @@ class YAMLManager:
             print(f"Error querying database: {e}")
             return set()
 
-    def import_yaml_files(
-        self, force: bool = False, dry_run: bool = False
-    ) -> dict[str, Any]:
+    def import_yaml_files(self, force: bool = False, dry_run: bool = False) -> dict[str, Any]:
         """Import YAML files to database."""
         results: dict[str, Any] = {
             "imported": [],
@@ -150,7 +146,7 @@ class YAMLManager:
         }
 
         yaml_files = self.get_yaml_files()
-        existing_ids = self.get_existing_node_ids() if not force else set()
+        existing_ids: set[str] = self.get_existing_node_ids() if not force else set()
 
         print(f"🔍 Found YAML files in {len(yaml_files)} layers")
 
@@ -264,9 +260,7 @@ class YAMLManager:
                         # Write to file
                         file_path = layer_dir / f"{node.id}.yaml"
                         with open(file_path, "w", encoding="utf-8") as f:
-                            yaml.dump(
-                                yaml_data, f, default_flow_style=False, sort_keys=False
-                            )
+                            yaml.dump(yaml_data, f, default_flow_style=False, sort_keys=False)
 
                         results["exported"].append(str(file_path))
                         results["total_exported"] += 1
@@ -334,12 +328,12 @@ class YAMLManager:
 
         # Get YAML node IDs
         yaml_files = self.get_yaml_files()
-        yaml_ids = set()
+        yaml_ids: set[str] = set()
         for files in yaml_files.values():
             for file_path in files:
                 yaml_data = self.load_yaml_file(file_path)
                 if yaml_data and "id" in yaml_data:
-                    yaml_ids.add(yaml_data["id"])
+                    yaml_ids.add(cast(str, yaml_data["id"]))
 
         # Get database node IDs
         db_ids = self.get_existing_node_ids()

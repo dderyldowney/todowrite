@@ -98,24 +98,38 @@ class SoCLinter:
         """Check for executable patterns in string values"""
         violations: list[str] = []
 
-        # pyright: ignore [reportUnknownVariableType, reportUnknownArgumentType]
-        def scan_value(value: Any, path: str = "") -> None:  # type: ignore [reportUnknownMemberType, reportUnknownArgumentType]
-            if isinstance(value, str):
-                for pattern in self.EXECUTABLE_PATTERNS:
-                    if re.search(pattern, value, re.IGNORECASE):
-                        violations.append(
-                            f"Potential executable content found{path}: '{pattern.strip()}' matches in '{value[:100]}...'"
-                        )
-            elif isinstance(value, dict):
-                for k, v in value.items():
-                    scan_value(v, f"{path}.{k}" if path else k)
-            elif isinstance(value, list):
-                for i, item in enumerate(value):
-                    scan_value(item, f"{path}[{i}]" if path else f"[{i}]")
-
+        # Use the simplified recursive function
         layer = data.get("layer", "")
         if layer in self.NON_EXECUTABLE_LAYERS:
-            scan_value(data)
+            nested_violations = self._scan_recursive(data, "")
+            violations.extend(nested_violations)
+
+        return violations
+
+    def _scan_recursive(self, data: Any, path: str) -> list[str]:
+        """Scan data recursively for executable patterns"""
+        violations: list[str] = []
+
+        if isinstance(data, str):
+            for pattern in self.EXECUTABLE_PATTERNS:
+                if re.search(pattern, data, re.IGNORECASE):
+                    violations.append(
+                        f"Potential executable content found{path}: '{pattern.strip()}' matches in '{data[:100]}...'"
+                    )
+        elif isinstance(data, dict):
+            # Cast to dict[str, Any] to resolve type issues
+            data_dict = cast(dict[str, Any], data)
+            for key, value in data_dict.items():
+                current_path = f"{path}.{key}"
+                nested_violations = self._scan_recursive(value, current_path)
+                violations.extend(nested_violations)
+        elif isinstance(data, list):
+            # Cast to list[Any] to resolve type issues
+            data_list = cast(list[Any], data)
+            for i, item in enumerate(data_list):
+                current_path = f"{path}[{i}]"
+                nested_violations = self._scan_recursive(item, current_path)
+                violations.extend(nested_violations)
 
         return violations
 

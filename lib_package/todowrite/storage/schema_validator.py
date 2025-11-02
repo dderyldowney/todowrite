@@ -11,7 +11,7 @@ This module provides comprehensive schema validation across all storage backends
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import jsonschema
 import yaml
@@ -28,7 +28,7 @@ class SchemaValidator:
         self.schema = TODOWRITE_SCHEMA
         self.validation_cache: dict[str, bool] = {}
 
-    def validate_node_data(self, node_data: dict[str, Any]) -> tuple[bool, list[str]]:
+    def validate_node_data(self, node_data: dict[str, Any]) -> tuple[bool, list[str]]:  # type: ignore [reportUnknownArgumentType]
         """
         Validate node data against the schema.
 
@@ -38,7 +38,7 @@ class SchemaValidator:
         Returns:
             Tuple of (is_valid, error_messages)
         """
-        errors = []
+        errors: list[str] = []
 
         try:
             jsonschema.validate(instance=node_data, schema=self.schema)
@@ -51,7 +51,7 @@ class SchemaValidator:
 
         return len(errors) == 0, errors
 
-    def validate_database_schema(self, engine: Any) -> tuple[bool, list[str]]:
+    def validate_database_schema(self, engine: Any) -> tuple[bool, list[str]]:  # type: ignore [reportUnknownArgumentType]
         """
         Validate database schema against the expected structure.
 
@@ -61,7 +61,7 @@ class SchemaValidator:
         Returns:
             Tuple of (is_valid, error_messages)
         """
-        errors = []
+        errors: list[str] = []
 
         try:
             inspector = inspect(engine)
@@ -139,7 +139,7 @@ class SchemaValidator:
 
     def validate_yaml_files(
         self, yaml_base_path: Path | None = None
-    ) -> tuple[bool, list[str], dict[str, int]]:
+    ) -> tuple[bool, list[str], dict[str, int]]:  # type: ignore [reportUnknownArgumentType]
         """
         Validate all YAML files against the schema.
 
@@ -167,9 +167,7 @@ class SchemaValidator:
             # Process each layer
             for layer, dir_name in layer_dirs.items():
                 layer_path = yaml_base_path / "plans" / dir_name
-                command_path = (
-                    yaml_base_path / "commands" if layer == "Command" else None
-                )
+                command_path = yaml_base_path / "commands" if layer == "Command" else None
 
                 files_to_check: list[Path] = []
                 if layer_path.exists():
@@ -198,16 +196,20 @@ class SchemaValidator:
                         # Validate each node in the file
                         if isinstance(yaml_data, list):
                             # File contains multiple nodes
-                            for i, node in enumerate(yaml_data):
+                            for i, node in enumerate(cast(list[Any], yaml_data)):
                                 if isinstance(node, dict):
-                                    valid, node_errors = self.validate_node_data(node)
+                                    valid, node_errors = self.validate_node_data(
+                                        cast(dict[str, Any], node)
+                                    )
                                     if not valid:
                                         for error in node_errors:
                                             errors.append(f"{file_path}[{i}]: {error}")
                                         all_valid = False
                         elif isinstance(yaml_data, dict):
                             # File contains single node
-                            valid, node_errors = self.validate_node_data(yaml_data)
+                            valid, node_errors = self.validate_node_data(
+                                cast(dict[str, Any], yaml_data)
+                            )
                             if not valid:
                                 for error in node_errors:
                                     errors.append(f"{file_path}: {error}")
@@ -234,9 +236,7 @@ class SchemaValidator:
         """Validate SQLite-specific schema constraints."""
         return self.validate_database_schema(engine)
 
-    def get_schema_compliance_report(
-        self, storage_type: str, **kwargs: Any
-    ) -> dict[str, Any]:
+    def get_schema_compliance_report(self, storage_type: str, **kwargs: Any) -> dict[str, Any]:
         """
         Generate a comprehensive schema compliance report.
 
@@ -293,19 +293,19 @@ class SchemaValidator:
 _schema_validator = SchemaValidator()
 
 
-def validate_node_data(node_data: dict[str, Any]) -> tuple[bool, list[str]]:
+def validate_node_data(node_data: dict[str, Any]) -> tuple[bool, list[str]]:  # type: ignore [reportUnknownArgumentType]
     """Validate node data against schema."""
     return _schema_validator.validate_node_data(node_data)
 
 
-def validate_database_schema(engine: Any) -> tuple[bool, list[str]]:
+def validate_database_schema(engine: Any) -> tuple[bool, list[str]]:  # type: ignore [reportUnknownArgumentType]
     """Validate database schema against expected structure."""
     return _schema_validator.validate_database_schema(engine)
 
 
 def validate_yaml_files(
     yaml_base_path: Path | None = None,
-) -> tuple[bool, list[str], dict[str, int]]:
+) -> tuple[bool, list[str], dict[str, int]]:  # type: ignore [reportUnknownArgumentType]
     """Validate all YAML files against schema."""
     return _schema_validator.validate_yaml_files(yaml_base_path)
 
