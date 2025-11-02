@@ -33,15 +33,15 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         make tw-deps
-        pip install types-PyYAML  # Type stubs for mypy
+        pip install types-PyYAML  # Type stubs for pyright
 
     - name: Initialize ToDoWrite system
       run: |
         make tw-init
 
-    - name: Run type checking with mypy
+    - name: Run type checking with pyright
       run: |
-        mypy todowrite/ tests/ --config-file pyproject.toml
+        pyright todowrite/ tests/
 
     - name: Run ToDoWrite validation
       run: |
@@ -68,7 +68,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install ruff black isort mypy types-PyYAML
+        pip install ruff black isort pyright types-PyYAML
 
     - name: Run ruff (linting)
       run: |
@@ -86,9 +86,9 @@ jobs:
       run: |
         isort --check-only .
 
-    - name: Run mypy (type checking)
+    - name: Run pyright (type checking)
       run: |
-        mypy . --config-file pyproject.toml
+        pyright .
 
   security:
     runs-on: ubuntu-latest

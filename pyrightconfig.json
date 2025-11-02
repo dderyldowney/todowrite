@@ -1,0 +1,22 @@
+{
+    "pythonVersion": "3.12",
+    "pythonPlatform": "Darwin",
+    "typeCheckingMode": "strict",
+    "reportMissingImports": true,
+    "reportMissingTypeStubs": true,
+    "include": ["todowrite"],
+    "exclude": [
+        ".venv",
+        "__pycache__",
+        "build",
+        "dist",
+        ".git",
+        "tests",
+        "CLAUDE_SUBAGENTS_PACKAGE",
+        "*.py"
+    ],
+    "strict": ["todowrite"],
+    "ignore": [],
+    "useLibraryCodeForTypes": true,
+    "enableTypeIgnoreComments": false
+}

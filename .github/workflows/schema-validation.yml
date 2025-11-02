@@ -25,11 +25,11 @@ jobs:
 
       - name: Run schema location check
         run: |
-          python scripts/check_schema_changes.py
+          todowrite utils check-schema
 
       - name: Run deprecated schema check
         run: |
-          python scripts/check_deprecated_schema.py
+          todowrite utils check-deprecated
 
       - name: Test package schema import
         run: |
