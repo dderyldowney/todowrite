@@ -342,7 +342,7 @@ class TestYAMLValidation(unittest.TestCase):
             validate_yaml_files([str(yaml_file)])
 
     def test_yaml_directory_validation(self) -> None:
-    """Test validation of multiple YAML files in a directory."""
+        """Test validation of multiple YAML files in a directory."""
         # Create multiple test files
         test_files = [
             ("goal1.yaml", {
