@@ -7,7 +7,7 @@ from pathlib import Path
 
 from click.testing import CliRunner
 from sqlalchemy import delete
-from cli_package.todowrite_cli.main import main
+
 from todowrite import ToDoWrite
 from todowrite.core import Artifact, Command, Label, Link, Node, node_labels
 

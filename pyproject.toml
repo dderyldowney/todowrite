@@ -1,11 +1,9 @@
-[project]
-name = "todowrite"
-dynamic = ["version"]
-description = "A standalone task management system with hierarchical planning framework."
-authors = [
-    { name = "dderyldowney", email = "dderyldowney@gmail.com" }
-]
-requires-python = ">=3.12"
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.envs.default]
+python = "3.12"
 dependencies = [
     "sqlalchemy>=2.0.0",
     "typing-extensions>=4.0.0",
@@ -13,29 +11,6 @@ dependencies = [
     "psycopg2-binary>=2.9.0",
     "PyYAML>=6.0.0",
     "jsonschema>=4.0.0",
-]
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool.hatch.version]
-path = "todowrite/version.py"
-egg-info-path-name = "version"
-getter = "get_version"
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["todowrite*"]
-
-[tool.setuptools.package-data]
-todowrite = ["schemas/*.json"]
-
-[project.scripts]
-todowrite = "todowrite.cli:cli"
-
-[project.optional-dependencies]
-dev = [
     "pyright>=1.1.0",
     "types-PyYAML>=6.0.12",
     "types-jsonschema>=4.0.0",
@@ -47,7 +22,21 @@ dev = [
     "pre-commit>=4.0.0",
     "bandit[toml]>=1.7.0",
 ]
-ai = [
+
+[tool.hatch.envs.hatch-test]
+extra-dependencies = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[tool.hatch.envs.docs]
+extra-dependencies = [
+    "openai>=1.0.0",
+    "anthropic>=0.40.0",
+]
+
+[tool.hatch.envs.ai]
+extra-dependencies = [
     "openai>=1.0.0",
     "anthropic>=0.40.0",
 ]
@@ -59,7 +48,7 @@ pythonPlatform = "Darwin"
 typeCheckingMode = "strict"
 reportMissingImports = true
 reportMissingTypeStubs = true
-include = ["todowrite"]
+include = ["lib_package/todowrite", "cli_package/todowrite_cli", "tests"]
 exclude = [
     ".venv",
     "__pycache__",
@@ -67,10 +56,9 @@ exclude = [
     "dist",
     ".git",
     "tests",
-    "*.py"
 ]
 ignore = []
-strict = ["todowrite"]
+strict = ["lib_package/todowrite", "cli_package/todowrite_cli"]
 useLibraryCodeForTypes = true
 enableTypeIgnoreComments = false
 reportUnknownParameterType = "error"
@@ -83,7 +71,7 @@ reportPrivateUsage = "error"
 # Ruff configuration
 [tool.ruff]
 target-version = "py312"
-line-length = 88
+line-length = 100
 extend-exclude = [
     ".git",
     "__pycache__",
@@ -96,6 +84,10 @@ extend-exclude = [
     "venv",
     "results",
     "trace",
+    "cli_package/build",
+    "cli_package/dist",
+    "lib_package/build",
+    "lib_package/dist",
 ]
 
 [tool.ruff.lint]
@@ -130,19 +122,21 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101", "ARG001", "ARG002"]  # Allow asserts and unused args in tests
+"cli_package/*" = ["T20"]  # Allow print statements in CLI code
+"lib_package/todowrite/cli/*" = ["T20"]  # Allow print statements in CLI code
 
 # Black configuration
 [tool.black]
 target-version = ["py312"]
-line-length = 88
+line-length = 100
 skip-string-normalization = false
 skip-magic-trailing-comma = false
 
 # isort configuration
 [tool.isort]
 profile = "black"
-line_length = 88
-known_first_party = ["todowrite"]
+line_length = 100
+known_first_party = ["todowrite", "todowrite_cli"]
 multi_line_output = 3
 include_trailing_comma = true
 force_grid_wrap = 0
@@ -152,9 +146,19 @@ ensure_newline_before_comments = true
 # pytest configuration
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = "-ra -q --strict-markers --strict-config"
+addopts = [
+    "-ra",
+    "-q",
+    "--strict-markers",
+    "--strict-config",
+    "--cov=lib_package/todowrite",
+    "--cov=cli_package/todowrite_cli",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-fail-under=80",
+]
 testpaths = ["tests"]
-pythonpath = ["."]
+pythonpath = ["lib_package", "cli_package"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
@@ -162,5 +166,28 @@ markers = [
 
 # Bandit configuration
 [tool.bandit]
-exclude_dirs = ["tests", "build", "dist"]
+exclude_dirs = ["tests", "build", "dist", "cli_package", "lib_package"]
 skips = ["B101", "B110", "B404", "B602", "B603", "B607"]  # Skip acceptable security warnings for CLI tool
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["lib_package", "cli_package"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "setup.py",
+    "cli_package/build/*",
+    "lib_package/build/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG:",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+]
