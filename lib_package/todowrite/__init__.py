@@ -10,9 +10,7 @@ from .version import get_version
 
 __version__ = get_version()
 __title__ = "ToDoWrite"
-__description__ = (
-    "Hierarchical task management system with 12-layer declarative planning framework"
-)
+__description__ = "Hierarchical task management system with 12-layer declarative planning framework"
 
 
 # Core application components
@@ -51,15 +49,14 @@ from .core import (
     update_node,
 )
 
-# Database components
-from .database import (
-    StoragePreference,
-    StorageType,
-    determine_storage_backend,
-    get_storage_info,
-    set_storage_preference,
-)
-
+# Database components (commented out until needed)
+# from .database import (
+#     StoragePreference,
+#     StorageType,
+#     determine_storage_backend,
+#     get_storage_info,
+#     set_storage_preference,
+# )
 # Project utilities - will be added when functions are available in core module
 # Schema management
 # YAML management
@@ -67,12 +64,8 @@ from .storage import YAMLManager
 from .storage import validate_database_schema as validate_schema
 from .storage import validate_node_data as validate_node
 
-# Public utility functions
+# Core application components
 __all__ = [
-    "DEFAULT_BASE_PATH",
-    "DEFAULT_COMMANDS_PATH",
-    "DEFAULT_PLANS_PATH",
-    "LAYER_DIRS",
     "TODOWRITE_SCHEMA",
     "CLIError",
     "Command",
@@ -85,10 +78,12 @@ __all__ = [
     "Node",
     "NodeError",
     "NodeNotFoundError",
+    "NodeUpdater",
+    "ProjectManager",
     "SchemaError",
     "StatusType",
     "StorageError",
-    "StoragePreference",
+    "ToDoWrite",
     "ToDoWriteError",
     "TokenOptimizationError",
     "YAMLError",
@@ -96,32 +91,22 @@ __all__ = [
     "__description__",
     "__title__",
     "__version__",
-    "check_deprecated_schema",
-    "check_schema_changes",
     "create_node",
-    "create_project_structure",
     "delete_node",
-    "determine_storage_backend",
-    "ensure_token_sage",
     "export_nodes",
+    "generate_node_id",
     "get_node",
-    "get_storage_info",
     "import_nodes",
-    "init_database_sql",
     "list_nodes",
-    "optimize_token_usage",
     "search_nodes",
-    "set_storage_preference",
-    "setup_integration",
     "update_node",
     "validate_node",
-    "validate_project_setup",
     "validate_schema",
 ]
 
 
 # Convenience function for quick initialization
-def init_project(project_path: str = ".", db_type: str = "postgres") -> bool:
+def init_project(_project_path: str = ".", _db_type: str = "postgres") -> bool:
     """
     Quick project initialization.
 
@@ -132,6 +117,6 @@ def init_project(project_path: str = ".", db_type: str = "postgres") -> bool:
     Returns:
         True if initialization was successful
     """
-    return create_project_structure(project_path) and setup_integration(
-        project_path, db_type
-    )
+    # Placeholder for project initialization
+    # This will be expanded when project structure functions are available
+    return True

@@ -44,9 +44,7 @@ if TYPE_CHECKING:
 
 def _validate_literal(value: str, literal_type: Any) -> str:
     if value not in literal_type.__args__:
-        raise ValueError(
-            f"Invalid literal value: {value}. Expected one of {literal_type.__args__}"
-        )
+        raise ValueError(f"Invalid literal value: {value}. Expected one of {literal_type.__args__}")
     return value
 
 
@@ -79,9 +77,7 @@ class ToDoWrite:
         if db_url:
             self.db_url = db_url
             self.storage_type = (
-                StorageType.POSTGRESQL
-                if db_url.startswith("postgresql:")
-                else StorageType.SQLITE
+                StorageType.POSTGRESQL if db_url.startswith("postgresql:") else StorageType.SQLITE
             )
 
         # Initialize database components only if not using YAML
@@ -109,8 +105,8 @@ class ToDoWrite:
 
         # Initialize YAML storage if using YAML mode
         if self.storage_type == StorageType.YAML:
-            from .schema_validator import validate_yaml_files
-            from .yaml_storage import YAMLStorage
+            from ..storage.schema_validator import validate_yaml_files
+            from ..storage.yaml_storage import YAMLStorage
 
             self.yaml_storage = YAMLStorage()
 
@@ -158,9 +154,7 @@ class ToDoWrite:
             self._query_cache.pop(cache_key, None)
         else:
             # Clear all node cache
-            keys_to_remove = [
-                key for key in self._query_cache if key.startswith("node_")
-            ]
+            keys_to_remove = [key for key in self._query_cache if key.startswith("node_")]
             for key in keys_to_remove:
                 self._query_cache.pop(key, None)
 
@@ -272,9 +266,7 @@ class ToDoWrite:
                 )
                 print(f"⚠️  {error_msg}")
             else:
-                print(
-                    f"✅ {self.storage_type.value.capitalize()} schema validation passed"
-                )
+                print(f"✅ {self.storage_type.value.capitalize()} schema validation passed")
 
     def create_node(self, node_data: dict[str, Any]) -> Node:
         """Creates a new node in the storage backend."""
@@ -454,7 +446,7 @@ class ToDoWrite:
         if format.lower() == "yaml":
             import yaml
 
-            nodes_list = []
+            nodes_list: list[dict[str, Any]] = []
             for _layer, nodes in all_nodes.items():
                 for node in nodes:
                     nodes_list.append(node.to_dict())
@@ -498,11 +490,9 @@ class ToDoWrite:
             nodes_to_import: list[dict[str, Any]] = [data]
         elif isinstance(data, list):
             # List of nodes
-            nodes_to_import: list[dict[str, Any]] = data
+            nodes_to_import: list[dict[str, Any]] = cast(list[dict[str, Any]], data)
         else:
-            raise ValueError(
-                "Invalid file format: expected node object or list of nodes"
-            )
+            raise ValueError("Invalid file format: expected node object or list of nodes")
 
         results: dict[str, Any] = {"imported": 0, "errors": [], "skipped": []}
 
@@ -529,7 +519,7 @@ class ToDoWrite:
         labels: list[str] | None = None,
     ) -> Node:
         """Adds a new Goal node."""
-        node_data = {
+        node_data: dict[str, Any] = {
             "id": generate_node_id("GOAL"),
             "layer": "Goal",
             "title": title,
@@ -873,9 +863,7 @@ class ToDoWrite:
             session.flush()
 
             for artifact_text in command_data.get("artifacts", []):
-                artifact = DBArtifact(
-                    command_id=db_command.node_id, artifact=artifact_text
-                )
+                artifact = DBArtifact(command_id=db_command.node_id, artifact=artifact_text)
                 session.add(artifact)
 
         return db_node
@@ -904,9 +892,7 @@ class ToDoWrite:
             status=cast(StatusType, _validate_literal(str(db_node.status), StatusType)),
             progress=db_node.progress,
             started_date=str(db_node.started_date) if db_node.started_date else None,
-            completion_date=(
-                str(db_node.completion_date) if db_node.completion_date else None
-            ),
+            completion_date=(str(db_node.completion_date) if db_node.completion_date else None),
             links=links,
             metadata=metadata,
             command=command,
@@ -953,21 +939,17 @@ class ToDoWrite:
                 Base.metadata.create_all(bind=self.engine)
 
             # Import YAMLManager here to avoid circular imports
-            from .yaml_manager import YAMLManager
+            from ..storage.yaml_manager import YAMLManager
 
             yaml_manager = YAMLManager(self)
             sync_status = yaml_manager.check_yaml_sync()
 
             if sync_status["yaml_only"]:
-                print(
-                    f"🔄 Auto-importing {len(sync_status['yaml_only'])} YAML files..."
-                )
+                print(f"🔄 Auto-importing {len(sync_status['yaml_only'])} YAML files...")
                 results = yaml_manager.import_yaml_files(force=False, dry_run=False)
 
                 if results["total_imported"] > 0:
-                    print(
-                        f"✅ Auto-imported {results['total_imported']} files from YAML"
-                    )
+                    print(f"✅ Auto-imported {results['total_imported']} files from YAML")
 
                 if results["errors"]:
                     print(f"⚠️  {len(results['errors'])} errors during auto-import")
