@@ -46,9 +46,7 @@ class TestUserCliWorkflows(unittest.TestCase):
 
         # Step 3: Verify successful initialization
         self.assertEqual(result.exit_code, 0, "Init command should succeed")
-        self.assertIn(
-            "Database initialized", result.output, "Should show success message"
-        )
+        self.assertIn("Database initialized", result.output, "Should show success message")
 
         # Verify database file was created (for SQLite)
         db_files = list(Path(self.temp_dir).glob("*.db"))
@@ -130,9 +128,7 @@ class TestUserCliWorkflows(unittest.TestCase):
         result = self.runner.invoke(
             todowrite_cli, ["status", "update", task_id, "--status", "in_progress"]
         )
-        self.assertEqual(
-            result.exit_code, 0, f"Failed to update task {task_id}: {result.output}"
-        )
+        self.assertEqual(result.exit_code, 0, f"Failed to update task {task_id}: {result.output}")
 
         # Step 3: Update progress
         result = self.runner.invoke(
@@ -178,9 +174,7 @@ class TestUserCliWorkflows(unittest.TestCase):
 
         created_ids = []
         for node_type, title, description in nodes_to_create:
-            result = self.runner.invoke(
-                todowrite_cli, ["create", node_type, title, description]
-            )
+            result = self.runner.invoke(todowrite_cli, ["create", node_type, title, description])
             self.assertEqual(result.exit_code, 0)
             node_id = result.output.split(" ")[-1].strip()
             created_ids.append(node_id)
@@ -188,9 +182,7 @@ class TestUserCliWorkflows(unittest.TestCase):
         # Step 2: List all nodes
         result = self.runner.invoke(todowrite_cli, ["list"])
         self.assertEqual(result.exit_code, 0)
-        self.assertGreater(
-            len(result.output.split("\n")), 3, "Should list multiple nodes"
-        )
+        self.assertGreater(len(result.output.split("\n")), 3, "Should list multiple nodes")
 
         # Step 3: List by specific layer (should work with --layer option if available)
         # Test listing available commands
@@ -261,16 +253,12 @@ class TestUserCliWorkflows(unittest.TestCase):
         # Step 2: Subcommand help
         result = self.runner.invoke(todowrite_cli, ["create", "--help"])
         self.assertEqual(result.exit_code, 0)
-        self.assertIn(
-            "Creates a new node", result.output, "Should show create command help"
-        )
+        self.assertIn("Creates a new node", result.output, "Should show create command help")
 
         # Step 3: Help for other commands
         result = self.runner.invoke(todowrite_cli, ["list", "--help"])
         self.assertEqual(result.exit_code, 0)
-        self.assertIn(
-            "Lists all the nodes", result.output, "Should show list command help"
-        )
+        self.assertIn("Lists all the nodes", result.output, "Should show list command help")
 
     def test_cli_multistep_project_workflow(self) -> None:
         """
@@ -364,9 +352,7 @@ class TestUserCliWorkflows(unittest.TestCase):
         result = self.runner.invoke(
             todowrite_cli, ["status", "update", task_id, "--status", "in_progress"]
         )
-        self.assertEqual(
-            result.exit_code, 0, f"Failed to update task {task_id}: {result.output}"
-        )
+        self.assertEqual(result.exit_code, 0, f"Failed to update task {task_id}: {result.output}")
 
         # Update progress to 50%
         result = self.runner.invoke(
@@ -394,9 +380,7 @@ class TestUserCliWorkflows(unittest.TestCase):
         output_lines = result.output.split("\n")
         layer_types = set()
         for line in output_lines:
-            if any(
-                layer in line for layer in ["Goal", "Concept", "Requirements", "Task"]
-            ):
+            if any(layer in line for layer in ["Goal", "Concept", "Requirements", "Task"]):
                 for layer_type in ["Goal", "Concept", "Requirements", "Task"]:
                     if layer_type in line:
                         layer_types.add(layer_type)

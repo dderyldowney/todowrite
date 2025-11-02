@@ -20,9 +20,7 @@ class TestCli(unittest.TestCase):
         """Initialize the application with SQLite for testing."""
         # Use SQLite for testing to avoid PostgreSQL dependency
         db_url = "sqlite:///test_cli.db"
-        cls.app = ToDoWrite(
-            db_url, auto_import=False
-        )  # Disable auto-import for cleaner tests
+        cls.app = ToDoWrite(db_url, auto_import=False)  # Disable auto-import for cleaner tests
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -118,9 +116,7 @@ class TestCli(unittest.TestCase):
         result = self.runner.invoke(cli, ["init"])
         self.assertEqual(result.exit_code, 0)
 
-        result = self.runner.invoke(
-            cli, ["create", "Goal", "Test Goal", "This is a test goal."]
-        )
+        result = self.runner.invoke(cli, ["create", "Goal", "Test Goal", "This is a test goal."])
         if result.exit_code != 0:
             print(f"CLI Output: {result.output}")
             print(f"CLI Exception: {result.exception}")
@@ -132,9 +128,7 @@ class TestCli(unittest.TestCase):
         result = self.runner.invoke(cli, ["init"])
         self.assertEqual(result.exit_code, 0)
 
-        result = self.runner.invoke(
-            cli, ["create", "Goal", "Test Goal", "This is a test goal."]
-        )
+        result = self.runner.invoke(cli, ["create", "Goal", "Test Goal", "This is a test goal."])
         if result.exit_code != 0:
             print(f"CLI Output: {result.output}")
             print(f"CLI Exception: {result.exception}")
@@ -150,9 +144,7 @@ class TestCli(unittest.TestCase):
         result = self.runner.invoke(cli, ["init"])
         self.assertEqual(result.exit_code, 0)
 
-        result = self.runner.invoke(
-            cli, ["create", "Goal", "Test Goal", "This is a test goal."]
-        )
+        result = self.runner.invoke(cli, ["create", "Goal", "Test Goal", "This is a test goal."])
         if result.exit_code != 0:
             print(f"CLI Output: {result.output}")
             print(f"CLI Exception: {result.exception}")
