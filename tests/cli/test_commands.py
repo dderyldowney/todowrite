@@ -50,9 +50,7 @@ class TestCLICommands(unittest.TestCase):
             for f in Path(self.temp_dir).glob("*.db"):
                 f.unlink()
 
-            result = self.runner.invoke(
-                todowrite_cli, ["--storage-preference", storage, "init"]
-            )
+            result = self.runner.invoke(todowrite_cli, ["--storage-preference", storage, "init"])
             self.assertEqual(result.exit_code, 0)
             self.assertIn("Database initialized", result.output)
 
@@ -127,9 +125,7 @@ class TestCLICommands(unittest.TestCase):
         self.runner.invoke(todowrite_cli, ["init"])
 
         # Missing title
-        result = self.runner.invoke(
-            todowrite_cli, ["create", "Goal", "", "Test description"]
-        )
+        result = self.runner.invoke(todowrite_cli, ["create", "Goal", "", "Test description"])
         self.assertNotEqual(result.exit_code, 0)
 
     def test_get_node_success(self) -> None:
@@ -202,9 +198,7 @@ class TestCLICommands(unittest.TestCase):
         node_id = create_result.output.split("Node created: ")[1].strip()
 
         # Update only status
-        result = self.runner.invoke(
-            todowrite_cli, ["update", node_id, "--status", "completed"]
-        )
+        result = self.runner.invoke(todowrite_cli, ["update", node_id, "--status", "completed"])
         self.assertEqual(result.exit_code, 0)
         self.assertIn("completed", result.output)
 
@@ -438,9 +432,7 @@ class TestCLICommands(unittest.TestCase):
         self.runner.invoke(todowrite_cli, ["init"])
 
         # Create some nodes
-        self.runner.invoke(
-            todowrite_cli, ["create", "Goal", "Test Goal", "Description"]
-        )
+        self.runner.invoke(todowrite_cli, ["create", "Goal", "Test Goal", "Description"])
 
         # Export to YAML
         result = self.runner.invoke(todowrite_cli, ["export-yaml"])
@@ -459,9 +451,7 @@ class TestCLICommands(unittest.TestCase):
         self.runner.invoke(todowrite_cli, ["init"])
 
         # Create some nodes
-        self.runner.invoke(
-            todowrite_cli, ["create", "Goal", "Test Goal", "Description"]
-        )
+        self.runner.invoke(todowrite_cli, ["create", "Goal", "Test Goal", "Description"])
 
         # Export with custom output dir and no backup
         output_dir = self.temp_dir / "custom_output"
@@ -553,9 +543,7 @@ metadata:
         self.runner.invoke(todowrite_cli, ["init"])
 
         # Create some nodes
-        self.runner.invoke(
-            todowrite_cli, ["create", "Goal", "Test Goal", "Description"]
-        )
+        self.runner.invoke(todowrite_cli, ["create", "Goal", "Test Goal", "Description"])
 
         # Check sync status
         result = self.runner.invoke(todowrite_cli, ["sync-status"])
@@ -588,15 +576,11 @@ metadata:
 
         # Test with different storage preferences
         for storage in ["postgresql_only", "sqlite_only", "yaml_only"]:
-            result = self.runner.invoke(
-                todowrite_cli, ["--storage-preference", storage, "init"]
-            )
+            result = self.runner.invoke(todowrite_cli, ["--storage-preference", storage, "init"])
             self.assertEqual(result.exit_code, 0)
 
             # Test that the command works with the storage preference
-            result = self.runner.invoke(
-                todowrite_cli, ["--storage-preference", storage, "list"]
-            )
+            result = self.runner.invoke(todowrite_cli, ["--storage-preference", storage, "list"])
             self.assertEqual(result.exit_code, 0)
 
 
