@@ -26,18 +26,14 @@ try:
     from todowrite.core import ToDoWrite, generate_node_id
     from todowrite.storage import get_schema_compliance_report
 except ImportError:
-    click.echo(
-        "Error: todowrite library not found. Please install it first: pip install todowrite"
-    )
+    click.echo("Error: todowrite library not found. Please install it first: pip install todowrite")
     sys.exit(1)
 
 
 console = Console()
 
 
-def get_app(
-    database_path: str | None = None, yaml_base_path: str | None = None
-) -> ToDoWrite:
+def get_app(database_path: str | None = None, yaml_base_path: str | None = None) -> ToDoWrite:
     """Get or create ToDoWrite application instance."""
     if database_path:
         # Convert file path to SQLite URL
@@ -177,7 +173,6 @@ def create(
     artifacts: str | None,
 ) -> None:
     """Creates a new node."""
-    app = get_app()
 
     # Map layer types to schema prefixes
     layer_prefixes = {"Goal": "GOAL", "Concept": "CON", "Task": "TSK", "Command": "CMD"}
@@ -207,16 +202,16 @@ def create(
     # Add command-specific data
     if goal == "Command" and ac_ref:
         command = cast(dict[str, Any], node_data["command"])
-        command.update({
-            "ac_ref": ac_ref,
-            "run": {},
-        })
+        command.update(
+            {
+                "ac_ref": ac_ref,
+                "run": {},
+            }
+        )
         if run_shell:
             command["run"]["shell"] = run_shell
         if artifacts:
-            command["artifacts"] = [
-                artifact.strip() for artifact in artifacts.split(",")
-            ]
+            command["artifacts"] = [artifact.strip() for artifact in artifacts.split(",")]
 
     try:
         # Validate data before creating
@@ -233,7 +228,6 @@ def create(
 @click.pass_context
 def get(ctx: click.Context, node_id: str) -> None:
     """Gets a node by its ID."""
-    app = get_app()
 
     try:
         node = cast(Any, get_node(node_id))
@@ -282,9 +276,7 @@ def get(ctx: click.Context, node_id: str) -> None:
     help="Filter by status",
 )
 @click.pass_context
-def list(
-    ctx: click.Context, layer: str | None, owner: str | None, status: str | None
-) -> None:
+def list(ctx: click.Context, layer: str | None, owner: str | None, status: str | None) -> None:
     """Lists all the nodes."""
     app = get_app()
 
@@ -294,10 +286,10 @@ def list(
         if layer:
             nodes = {k: v for k, v in nodes.items() if k == layer}
 
-        all_nodes = []
+        all_nodes: list[tuple[str, Any]] = []
         for layer_name, layer_nodes in nodes.items():
             for node in layer_nodes:
-                all_nodes.append((layer_name, node))
+                all_nodes.append((layer_name, cast(Any, node)))
 
         if not all_nodes:
             console.print("[yellow]No nodes found[/yellow]")
@@ -337,78 +329,6 @@ def list(
 def status() -> None:
     """Status management commands for tracking task progress."""
     pass
-
-
-@status.command()
-@click.argument("node_id")
-@click.option(
-    "--status",
-    "-s",
-    type=click.Choice(["planned", "in_progress", "completed", "blocked", "cancelled"]),
-    required=True,
-    help="Set the status of the node",
-)
-@click.option(
-    "--progress",
-    "-p",
-    type=click.IntRange(0, 100),
-    help="Set progress percentage (0-100)",
-)
-@click.option(
-    "--owner",
-    help="Set the owner of the node",
-)
-@click.option(
-    "--assignee",
-    help="Set the assignee of the node",
-)
-@click.option(
-    "--started-date",
-    help="Set the started date (ISO 8601 format)",
-)
-@click.option(
-    "--completion-date",
-    help="Set the completion date (ISO 8601 format)",
-)
-@click.pass_context
-def update(
-    ctx: click.Context,
-    node_id: str,
-    status: str,
-    progress: int | None,
-    owner: str | None,
-    assignee: str | None,
-    started_date: str | None,
-    completion_date: str | None,
-) -> None:
-    """Update the status of a node."""
-    app = get_app()
-
-    try:
-        node = app.get_node(node_id)
-        if not node:
-            console.print(f"[red]✗[/red] Node with ID '{node_id}' not found")
-            sys.exit(1)
-
-        update_data = {"status": status}
-        if progress is not None:
-            update_data["progress"] = progress
-        if owner:
-            update_data["owner"] = owner
-        if assignee:
-            update_data["assignee"] = assignee
-        if started_date:
-            update_data["started_date"] = started_date
-        if completion_date:
-            update_data["completion_date"] = completion_date
-
-        updated_node = app.update_node(node_id, update_data)
-        console.print(f"[green]✓[/green] Updated {node_id}: {updated_node.title}")
-        console.print(f"  Status: {updated_node.status}")
-        console.print(f"  Progress: {updated_node.progress}%")
-    except Exception as e:
-        console.print(f"[red]✗[/red] Error updating node: {e}")
-        sys.exit(1)
 
 
 @status.command()
@@ -563,9 +483,7 @@ def sync_status(ctx: click.Context) -> None:
             for node_id in sync_status["database_only"][:10]:  # Show first 10
                 console.print(f"  {node_id}")
             if len(sync_status["database_only"]) > 10:
-                console.print(
-                    f"  ... and {len(sync_status['database_only']) - 10} more"
-                )
+                console.print(f"  ... and {len(sync_status['database_only']) - 10} more")
 
         if sync_status["yaml_only"]:
             console.print("[yellow]YAML only nodes:[/yellow]")
@@ -618,13 +536,9 @@ def db_status(ctx: click.Context) -> None:
                         for issue in compliance_report["details"]["issues"][:5]:
                             console.print(f"  {issue}")
                 else:
-                    console.print(
-                        "[yellow]Schema compliance report structure unknown[/yellow]"
-                    )
+                    console.print("[yellow]Schema compliance report structure unknown[/yellow]")
             else:
-                console.print(
-                    "[yellow]Schema compliance report format unexpected[/yellow]"
-                )
+                console.print("[yellow]Schema compliance report format unexpected[/yellow]")
         except Exception as e:
             console.print(f"[yellow]Schema compliance check failed: {e}[/yellow]")
     except Exception as e:
@@ -669,9 +583,7 @@ def delete(ctx: click.Context, node_id: str) -> None:
     type=click.Choice(["planned", "in_progress", "completed", "blocked", "cancelled"]),
     help="Update status",
 )
-@click.option(
-    "--progress", type=click.IntRange(0, 100), help="Update progress percentage"
-)
+@click.option("--progress", type=click.IntRange(0, 100), help="Update progress percentage")
 @click.option("--labels", help="Comma-separated labels")
 # Command-specific options
 @click.option("--ac-ref", help="Update acceptance criteria reference (for Commands)")
@@ -721,9 +633,7 @@ def update(
             update_data["progress"] = progress
         if labels is not None:
             update_data["metadata"] = update_data.get("metadata", {})
-            update_data["metadata"]["labels"] = [
-                label.strip() for label in labels.split(",")
-            ]
+            update_data["metadata"]["labels"] = [label.strip() for label in labels.split(",")]
 
         # Command-specific updates
         if node.layer == "Command":
@@ -752,11 +662,7 @@ def update(
         if owner is not None:
             # Get owner from metadata
             owner_val = getattr(updated_node, "owner", None)
-            if (
-                not owner_val
-                and hasattr(updated_node, "metadata")
-                and updated_node.metadata
-            ):
+            if not owner_val and hasattr(updated_node, "metadata") and updated_node.metadata:
                 owner_val = getattr(updated_node.metadata, "owner", None)
             owner_val = owner_val or "N/A"
             console.print(f"  Owner: {owner_val}")
