@@ -21,9 +21,9 @@ class ToDoWriteValidator:
         if schema_path is None:
             # Try to load from package first, fall back to old location
             try:
-                import todowrite.schema
+                from todowrite.core.schema import TODOWRITE_SCHEMA
 
-                self.schema = todowrite.schema.TODOWRITE_SCHEMA
+                self.schema = cast(dict[str, Any], TODOWRITE_SCHEMA)
                 self.schema_path = "todowrite.schema"  # Virtual path for display
                 self.validator = Draft202012Validator(self.schema)
                 return
@@ -119,9 +119,7 @@ class ToDoWriteValidator:
 
         return valid_count, total_count
 
-    def generate_summary(
-        self, valid_count: int, total_count: int, strict: bool = False
-    ) -> None:
+    def generate_summary(self, valid_count: int, total_count: int, strict: bool = False) -> None:
         """Generate validation summary report"""
         print("=" * 50)
         print("VALIDATION SUMMARY")
@@ -151,9 +149,7 @@ def main() -> None:
         action="store_true",
         help="Enable strict mode with detailed error reporting",
     )
-    parser.add_argument(
-        "--summary", action="store_true", help="Show summary report only"
-    )
+    parser.add_argument("--summary", action="store_true", help="Show summary report only")
     parser.add_argument(
         "--schema",
         default="configs/schemas/todowrite.schema.json",
