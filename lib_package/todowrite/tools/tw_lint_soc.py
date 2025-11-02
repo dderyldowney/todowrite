@@ -8,11 +8,12 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import Any, ClassVar, cast
 
 import yaml
 
 
+# pyright: ignore [reportUnknownVariableType, reportUnknownArgumentType, reportUnknownMemberType]
 class SoCLinter:
     """Separation of Concerns linter for ToDoWrite framework"""
 
@@ -81,9 +82,7 @@ class SoCLinter:
             print(f"ERROR: Failed to read {file_path}: {e}")
             return {}, False
 
-    def _check_for_command_key(
-        self, data: dict[str, Any], _file_path: Path
-    ) -> list[str]:
+    def _check_for_command_key(self, data: dict[str, Any], _file_path: Path) -> list[str]:
         """Check if non-executable layers contain 'command' key"""
         violations: list[str] = []
 
@@ -95,13 +94,12 @@ class SoCLinter:
 
         return violations
 
-    def _check_for_executable_patterns(
-        self, data: dict[str, Any], _file_path: Path
-    ) -> list[str]:
+    def _check_for_executable_patterns(self, data: dict[str, Any], _file_path: Path) -> list[str]:
         """Check for executable patterns in string values"""
         violations: list[str] = []
 
-        def scan_value(value: Any, path: str = "") -> None:
+        # pyright: ignore [reportUnknownVariableType, reportUnknownArgumentType]
+        def scan_value(value: Any, path: str = "") -> None:  # type: ignore [reportUnknownMemberType, reportUnknownArgumentType]
             if isinstance(value, str):
                 for pattern in self.EXECUTABLE_PATTERNS:
                     if re.search(pattern, value, re.IGNORECASE):
@@ -140,7 +138,7 @@ class SoCLinter:
                     # Check for required fields
                     if "ac_ref" not in command_data:
                         violations.append("Command missing required 'ac_ref' field")
-                    elif not command_data["ac_ref"].startswith("AC-"):
+                    elif not cast(str, command_data["ac_ref"]).startswith("AC-"):
                         violations.append("'ac_ref' must start with 'AC-' prefix")
 
                     if "run" not in command_data:
@@ -148,9 +146,7 @@ class SoCLinter:
                     elif not isinstance(command_data["run"], dict):
                         violations.append("'run' value must be an object")
                     elif "shell" not in command_data["run"]:
-                        violations.append(
-                            "Command 'run' missing required 'shell' field"
-                        )
+                        violations.append("Command 'run' missing required 'shell' field")
 
         return violations
 
@@ -228,9 +224,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Lint ToDoWrite YAML files for Separation of Concerns violations"
     )
-    parser.add_argument(
-        "--summary", action="store_true", help="Show summary report only"
-    )
+    parser.add_argument("--summary", action="store_true", help="Show summary report only")
 
     args = parser.parse_args()
 

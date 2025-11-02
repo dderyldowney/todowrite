@@ -71,7 +71,7 @@ class TraceabilityBuilder:
             if not success:
                 continue
 
-            if not isinstance(data, dict) or "id" not in data:
+            if not data or "id" not in data:
                 print(f"WARNING: Invalid node structure in {file_path}")
                 continue
 
@@ -102,20 +102,16 @@ class TraceabilityBuilder:
                 self.backward_links[node_id].add(parent_id)
 
         # Verify bidirectional consistency
-        inconsistencies = []
+        inconsistencies: list[str] = []
         for node_id, children in self.forward_links.items():
             for child_id in children:
                 if node_id not in self.backward_links.get(child_id, set()):
-                    inconsistencies.append(
-                        f"{node_id} -> {child_id} (missing backward link)"
-                    )
+                    inconsistencies.append(f"{node_id} -> {child_id} (missing backward link)")
 
         for node_id, parents in self.backward_links.items():
             for parent_id in parents:
                 if node_id not in self.forward_links.get(parent_id, set()):
-                    inconsistencies.append(
-                        f"{parent_id} -> {node_id} (missing forward link)"
-                    )
+                    inconsistencies.append(f"{parent_id} -> {node_id} (missing forward link)")
 
         if inconsistencies:
             print("WARNING: Link inconsistencies found:")
@@ -145,8 +141,8 @@ class TraceabilityBuilder:
         """Detect circular dependencies using DFS"""
         print("Checking for circular dependencies...")
 
-        visited = set()
-        rec_stack = set()
+        visited: set[str] = set()
+        rec_stack: set[str] = set()
 
         def dfs(node_id: str, path: list[str]) -> bool:
             if node_id in rec_stack:
@@ -243,7 +239,7 @@ class TraceabilityBuilder:
         print(f"Exporting dependency graph to {graph_file}...")
 
         # Build node list
-        nodes = []
+        nodes: list[dict[str, Any]] = []
         for node_id, node_data in self.nodes.items():
             nodes.append(
                 {
@@ -256,15 +252,13 @@ class TraceabilityBuilder:
             )
 
         # Build edge list
-        edges = []
+        edges: list[dict[str, Any]] = []
         for source_id, children in self.forward_links.items():
             for target_id in children:
-                edges.append(
-                    {"source": source_id, "target": target_id, "type": "parent_child"}
-                )
+                edges.append({"source": source_id, "target": target_id, "type": "parent_child"})
 
         # Graph data structure
-        graph = {
+        graph: dict[str, Any] = {
             "metadata": {
                 "total_nodes": len(self.nodes),
                 "total_edges": len(edges),
@@ -300,12 +294,8 @@ class TraceabilityBuilder:
             print(f"  {layer}: {count}")
 
         # Link statistics
-        total_forward_links = sum(
-            len(children) for children in self.forward_links.values()
-        )
-        total_backward_links = sum(
-            len(parents) for parents in self.backward_links.values()
-        )
+        total_forward_links = sum(len(children) for children in self.forward_links.values())
+        total_backward_links = sum(len(parents) for parents in self.backward_links.values())
 
         print(f"\nTotal forward links: {total_forward_links}")
         print(f"Total backward links: {total_backward_links}")
@@ -349,9 +339,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Build ToDoWrite traceability matrix and dependency graph"
     )
-    parser.add_argument(
-        "--summary", action="store_true", help="Show summary report only"
-    )
+    parser.add_argument("--summary", action="store_true", help="Show summary report only")
     parser.add_argument(
         "--ignore-issues",
         action="store_true",
