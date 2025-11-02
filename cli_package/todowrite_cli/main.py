@@ -1,6 +1,7 @@
 """Main CLI entry point for ToDoWrite."""
 
 import sys
+from contextlib import suppress
 from pathlib import Path
 from typing import Any, cast
 
@@ -33,7 +34,7 @@ except ImportError:
 console = Console()
 
 
-def get_app(database_path: str | None = None, yaml_base_path: str | None = None) -> ToDoWrite:
+def get_app(database_path: str | None = None, _yaml_base_path: str | None = None) -> ToDoWrite:
     """Get or create ToDoWrite application instance."""
     if database_path:
         # Convert file path to SQLite URL
@@ -59,10 +60,8 @@ def get_app(database_path: str | None = None, yaml_base_path: str | None = None)
         else:
             app = ToDoWrite("sqlite:///./todowrite.db")
 
-    try:
+    with suppress(Exception):
         app.init_database()
-    except Exception:
-        pass  # Database might already exist
     return app
 
 
@@ -509,7 +508,7 @@ def db_status(ctx: click.Context) -> None:
         table.add_column("Value", style="magenta")
 
         # Show schema validation
-        schema_valid = validate_schema()
+        schema_valid = validate_schema(app.engine)
         table.add_row("Schema Valid", "✓" if schema_valid else "✗")
 
         # Show node counts
