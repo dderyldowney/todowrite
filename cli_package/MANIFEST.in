@@ -1,0 +1,6 @@
+include README.md
+include LICENSE
+recursive-include todowrite_cli *.py
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+global-exclude *.pyc

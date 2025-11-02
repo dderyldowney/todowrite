@@ -14,18 +14,20 @@ __description__ = (
     "Hierarchical task management system with 12-layer declarative planning framework"
 )
 
-# CLI interface
-from .cli import cli
 
 # Core application components
 # Custom exceptions
+# Core types
 from .core import (
     TODOWRITE_SCHEMA,
     CLIError,
+    Command,
     ConfigurationError,
     DatabaseError,
     InvalidNodeError,
     LayerType,
+    Link,
+    Metadata,
     Node,
     NodeError,
     NodeNotFoundError,
@@ -60,26 +62,10 @@ from .database import (
 
 # Project utilities - will be added when functions are available in core module
 # Schema management
-from .storage import validate_database_schema
-from .storage import validate_node_data as validate_node
-
-
-# Schema validation function for the JSON schema
-def validate_schema() -> bool:
-    """Validate that the JSON schema is properly loaded and accessible."""
-    try:
-        from .core import TODOWRITE_SCHEMA
-
-        return TODOWRITE_SCHEMA is not None
-    except Exception:
-        return False
-
-
-# Core types
-from .core import Command, Link, Metadata
-
 # YAML management
 from .storage import YAMLManager
+from .storage import validate_database_schema as validate_schema
+from .storage import validate_node_data as validate_node
 
 # Public utility functions
 __all__ = [
@@ -112,7 +98,6 @@ __all__ = [
     "__version__",
     "check_deprecated_schema",
     "check_schema_changes",
-    "cli",
     "create_node",
     "create_project_structure",
     "delete_node",
@@ -150,7 +135,3 @@ def init_project(project_path: str = ".", db_type: str = "postgres") -> bool:
     return create_project_structure(project_path) and setup_integration(
         project_path, db_type
     )
-
-
-# Add to __all__ for public API
-__all__.append("init_project")
