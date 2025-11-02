@@ -12,14 +12,14 @@ from todowrite import (
     ToDoWrite,
     create_node,
     delete_node,
-    get_all_nodes,
     get_node,
     link_nodes,
     list_nodes,
+    search_nodes,
     unlink_nodes,
     update_node,
 )
-from todowrite.core.types import Node
+from todowrite import Node
 
 
 class TestCoreAPI(unittest.TestCase):

@@ -7,9 +7,9 @@ from pathlib import Path
 
 from click.testing import CliRunner
 from sqlalchemy import delete
-from todowrite.cli import cli
-from todowrite.core import ToDoWrite
-from todowrite.database.models import Artifact, Command, Label, Link, Node, node_labels
+from cli_package.todowrite_cli.main import main
+from todowrite import ToDoWrite
+from todowrite.core import Artifact, Command, Label, Link, Node, node_labels
 
 
 class TestCli(unittest.TestCase):
