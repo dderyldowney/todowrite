@@ -2,6 +2,7 @@
 
 import sys
 from pathlib import Path
+from typing import Any, cast
 
 import click
 from rich.console import Console
@@ -12,11 +13,9 @@ from .version import __version__
 # Import from the todowrite library
 try:
     from todowrite import (
-        ToDoWrite,
         YAMLManager,
         create_node,
         delete_node,
-        generate_node_id,
         get_node,
         list_nodes,
         search_nodes,
@@ -24,6 +23,7 @@ try:
         validate_node,
         validate_schema,
     )
+    from todowrite.core import ToDoWrite, generate_node_id
     from todowrite.storage import get_schema_compliance_report
 except ImportError:
     click.echo(
@@ -184,7 +184,7 @@ def create(
 
     # Build node data
     prefix = layer_prefixes.get(goal, goal[:3].upper())
-    node_data = {
+    node_data: dict[str, Any] = {
         "id": generate_node_id(prefix),
         "layer": goal,
         "title": title,
@@ -194,25 +194,27 @@ def create(
     }
 
     # Add metadata
+    metadata = cast(dict[str, Any], node_data["metadata"])
     if owner:
-        node_data["metadata"]["owner"] = owner
+        metadata["owner"] = owner
     if labels:
-        node_data["metadata"]["labels"] = [label.strip() for label in labels.split(",")]
+        metadata["labels"] = [label.strip() for label in labels.split(",")]
     if severity:
-        node_data["metadata"]["severity"] = severity
+        metadata["severity"] = severity
     if work_type:
-        node_data["metadata"]["work_type"] = work_type
+        metadata["work_type"] = work_type
 
     # Add command-specific data
     if goal == "Command" and ac_ref:
-        node_data["command"] = {
+        command = cast(dict[str, Any], node_data["command"])
+        command.update({
             "ac_ref": ac_ref,
             "run": {},
-        }
+        })
         if run_shell:
-            node_data["command"]["run"]["shell"] = run_shell
+            command["run"]["shell"] = run_shell
         if artifacts:
-            node_data["command"]["artifacts"] = [
+            command["artifacts"] = [
                 artifact.strip() for artifact in artifacts.split(",")
             ]
 
@@ -234,7 +236,7 @@ def get(ctx: click.Context, node_id: str) -> None:
     app = get_app()
 
     try:
-        node = get_node(node_id)
+        node = cast(Any, get_node(node_id))
         if node:
             table = Table(title=f"Node: {node.id}")
             table.add_column("Property", style="cyan")
@@ -520,7 +522,7 @@ def export_yaml(ctx: click.Context, output: str) -> None:
 
     try:
         yaml_manager = YAMLManager(app)
-        results = yaml_manager.export_to_yaml(output)
+        results = yaml_manager.export_to_yaml(Path(output))
 
         console.print("[green]✓[/green] Export completed:")
         console.print(f"  Nodes exported: {results['total_nodes']}")
@@ -639,7 +641,7 @@ def db_status(ctx: click.Context) -> None:
 def delete(ctx: click.Context, node_id: str) -> None:
     """Delete a node by its ID."""
     try:
-        node = get_node(node_id)
+        node = cast(Any, get_node(node_id))
         if not node:
             console.print(f"[red]✗[/red] Node with ID '{node_id}' not found")
             sys.exit(1)
@@ -693,7 +695,7 @@ def update(
 ) -> None:
     """Update a node's properties."""
     try:
-        node = get_node(node_id)
+        node = cast(Any, get_node(node_id))
         if not node:
             console.print(f"[red]✗[/red] Node with ID '{node_id}' not found")
             sys.exit(1)
