@@ -10,7 +10,7 @@ help: ## Show this help message
 tw-deps: ## Install Python dependencies
 	@echo "Installing ToDoWrite dependencies..."
 	@pip install --upgrade pip
-	@pip install pyyaml jsonschema click fastapi uvicorn sqlalchemy pytest ruff mypy
+	@pip install pyyaml jsonschema click fastapi uvicorn sqlalchemy pytest ruff pyright
 	@echo "Dependencies installed successfully"
 
 tw-init: ## Initialize ToDoWrite directory structure
