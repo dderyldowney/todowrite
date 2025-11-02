@@ -4,7 +4,6 @@ Schema Validation Tests
 Tests for JSON schema validation, node validation, and data integrity.
 """
 
-import json
 import unittest
 from pathlib import Path
 
@@ -38,8 +37,8 @@ class TestSchemaValidation(unittest.TestCase):
                 "owner": "test-user",
                 "labels": [],
                 "severity": "medium",
-                "work_type": "architecture"
-            }
+                "work_type": "architecture",
+            },
         }
 
         # Should pass validation
@@ -77,7 +76,7 @@ class TestSchemaValidation(unittest.TestCase):
             "CON-ABC123",
             "TSK-test_node",
             "CMD-A1B2C3D4",
-            "AC-valid-123"
+            "AC-valid-123",
         ]
 
         for valid_id in valid_ids:
@@ -87,7 +86,7 @@ class TestSchemaValidation(unittest.TestCase):
                 "title": "Test",
                 "description": "Test node",
                 "links": {"parents": [], "children": []},
-                "metadata": {"owner": "test", "labels": []}
+                "metadata": {"owner": "test", "labels": []},
             }
             try:
                 validate_node_data(node_data)
@@ -110,7 +109,7 @@ class TestSchemaValidation(unittest.TestCase):
                 "title": "Test",
                 "description": "Test node",
                 "links": {"parents": [], "children": []},
-                "metadata": {"owner": "test", "labels": []}
+                "metadata": {"owner": "test", "labels": []},
             }
             with self.assertRaises(Exception):
                 validate_node_data(node_data)
@@ -123,7 +122,7 @@ class TestSchemaValidation(unittest.TestCase):
             "title": "Test Goal",
             "description": "Test goal",
             "links": {"parents": [], "children": []},
-            "metadata": {"owner": "test", "labels": []}
+            "metadata": {"owner": "test", "labels": []},
         }
 
         # Valid metadata
@@ -132,7 +131,7 @@ class TestSchemaValidation(unittest.TestCase):
             "labels": ["urgent", "important"],
             "severity": "high",
             "work_type": "implementation",
-            "assignee": "developer1"
+            "assignee": "developer1",
         }
 
         node_data = base_node.copy()
@@ -167,13 +166,13 @@ class TestSchemaValidation(unittest.TestCase):
             "layer": "Goal",
             "title": "Test Goal",
             "description": "Test goal",
-            "metadata": {"owner": "test", "labels": []}
+            "metadata": {"owner": "test", "labels": []},
         }
 
         # Valid links
         valid_links = {
             "parents": ["GOAL-002", "CON-001"],
-            "children": ["TSK-001", "TSK-002"]
+            "children": ["TSK-001", "TSK-002"],
         }
 
         node_data = base_node.copy()
@@ -207,18 +206,14 @@ class TestSchemaValidation(unittest.TestCase):
             "title": "Test Command",
             "description": "Test command",
             "links": {"parents": [], "children": []},
-            "metadata": {"owner": "test", "labels": []}
+            "metadata": {"owner": "test", "labels": []},
         }
 
         # Valid command
         valid_command = {
             "ac_ref": "AC-001",
-            "run": {
-                "shell": "echo hello",
-                "workdir": "/tmp",
-                "env": {"DEBUG": "true"}
-            },
-            "artifacts": ["output.txt", "log.txt"]
+            "run": {"shell": "echo hello", "workdir": "/tmp", "env": {"DEBUG": "true"}},
+            "artifacts": ["output.txt", "log.txt"],
         }
 
         node_data = base_node.copy()
@@ -291,6 +286,7 @@ class TestYAMLValidation(unittest.TestCase):
     def tearDown(self) -> None:
         """Clean up test YAML files."""
         import shutil
+
         if self.test_dir.exists():
             shutil.rmtree(self.test_dir)
 
@@ -306,13 +302,14 @@ class TestYAMLValidation(unittest.TestCase):
                 "owner": "test-user",
                 "labels": [],
                 "severity": "medium",
-                "work_type": "architecture"
-            }
+                "work_type": "architecture",
+            },
         }
 
         yaml_file = self.test_dir / "valid_goal.yaml"
         with open(yaml_file, "w") as f:
             import yaml
+
             yaml.dump(valid_yaml_content, f)
 
         # Should pass validation
@@ -329,12 +326,13 @@ class TestYAMLValidation(unittest.TestCase):
             "title": "Test Goal",
             # Missing description
             "links": {"parents": [], "children": []},
-            "metadata": {"owner": "test", "labels": []}
+            "metadata": {"owner": "test", "labels": []},
         }
 
         yaml_file = self.test_dir / "invalid_goal.yaml"
         with open(yaml_file, "w") as f:
             import yaml
+
             yaml.dump(invalid_yaml_content, f)
 
         # Should fail validation
@@ -345,27 +343,46 @@ class TestYAMLValidation(unittest.TestCase):
         """Test validation of multiple YAML files in a directory."""
         # Create multiple test files
         test_files = [
-            ("goal1.yaml", {
-                "id": "GOAL-001",
-                "layer": "Goal", "title": "Goal 1", "description": "First goal",
-                "links": {"parents": [], "children": []}, "metadata": {"owner": "test", "labels": []}
-            }),
-            ("task1.yaml", {
-                "id": "TSK-001",
-                "layer": "Task", "title": "Task 1", "description": "First task",
-                "links": {"parents": [], "children": []}, "metadata": {"owner": "test", "labels": []}
-            }),
-            ("concept1.yaml", {
-                "id": "CON-001",
-                "layer": "Concept", "title": "Concept 1", "description": "First concept",
-                "links": {"parents": [], "children": []}, "metadata": {"owner": "test", "labels": []}
-            })
+            (
+                "goal1.yaml",
+                {
+                    "id": "GOAL-001",
+                    "layer": "Goal",
+                    "title": "Goal 1",
+                    "description": "First goal",
+                    "links": {"parents": [], "children": []},
+                    "metadata": {"owner": "test", "labels": []},
+                },
+            ),
+            (
+                "task1.yaml",
+                {
+                    "id": "TSK-001",
+                    "layer": "Task",
+                    "title": "Task 1",
+                    "description": "First task",
+                    "links": {"parents": [], "children": []},
+                    "metadata": {"owner": "test", "labels": []},
+                },
+            ),
+            (
+                "concept1.yaml",
+                {
+                    "id": "CON-001",
+                    "layer": "Concept",
+                    "title": "Concept 1",
+                    "description": "First concept",
+                    "links": {"parents": [], "children": []},
+                    "metadata": {"owner": "test", "labels": []},
+                },
+            ),
         ]
 
         for filename, content in test_files:
             yaml_file = self.test_dir / filename
             with open(yaml_file, "w") as f:
                 import yaml
+
                 yaml.dump(content, f)
 
         # Should validate all files

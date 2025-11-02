@@ -12,6 +12,7 @@ import unittest
 from pathlib import Path
 
 from click.testing import CliRunner
+
 from cli_package.todowrite_cli.main import main as todowrite_cli
 
 
