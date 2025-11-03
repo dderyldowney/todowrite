@@ -2,14 +2,9 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.hatch.version]
-source = "script"
-path = "../_build_version_hook.py"
-expression = "get_project_version()"
-
 [project]
 name = "todowrite_cli"
-dynamic = ["version"]
+version = "0.3.0"
 description = "CLI interface for ToDoWrite - A tool for managing complex software projects"
 readme = "README.md"
 requires-python = ">=3.12"

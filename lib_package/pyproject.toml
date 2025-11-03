@@ -2,14 +2,9 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.hatch.version]
-source = "script"
-path = "../_build_version_hook.py"
-expression = "get_project_version()"
-
 [project]
 name = "todowrite"
-dynamic = ["version"]
+version = "0.3.0"
 description = "A Python library for managing complex software projects with Goals, Tasks, Concepts, and Commands"
 readme = "README.md"
 requires-python = ">=3.12"
