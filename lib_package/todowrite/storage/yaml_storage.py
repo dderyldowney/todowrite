@@ -12,12 +12,7 @@ from typing import Any, cast
 
 import yaml
 
-from ..core.constants import (
-    DEFAULT_BASE_PATH,
-    DEFAULT_COMMANDS_PATH,
-    DEFAULT_PLANS_PATH,
-    LAYER_DIRS,
-)
+from ..core.constants import DEFAULT_BASE_PATH, LAYER_DIRS
 from ..core.exceptions import InvalidNodeError, YAMLError
 from ..core.types import Command, Link, Metadata, Node
 from .schema_validator import validate_node_data
@@ -26,11 +21,11 @@ from .schema_validator import validate_node_data
 class YAMLStorage:
     """YAML-based storage backend for ToDoWrite when databases are unavailable."""
 
-    def __init__(self, base_path: Path | None = None):
+    def __init__(self, base_path: Path | str | None = None):
         """Initialize YAML storage."""
-        self.base_path = base_path or Path(DEFAULT_BASE_PATH)
-        self.plans_path = Path(DEFAULT_PLANS_PATH)
-        self.commands_path = Path(DEFAULT_COMMANDS_PATH)
+        self.base_path = Path(base_path) if base_path else Path(DEFAULT_BASE_PATH)
+        self.plans_path = self.base_path / "plans"
+        self.commands_path = self.base_path / "commands"
         self.layer_dirs = LAYER_DIRS
 
         # Create directories if they don't exist
@@ -38,15 +33,15 @@ class YAMLStorage:
 
     def ensure_directories(self) -> None:
         """Ensure all necessary directories exist."""
-        self.base_path.mkdir(exist_ok=True)
-        self.plans_path.mkdir(exist_ok=True)
-        self.commands_path.mkdir(exist_ok=True)
+        self.base_path.mkdir(parents=True, exist_ok=True)
+        self.plans_path.mkdir(parents=True, exist_ok=True)
+        self.commands_path.mkdir(parents=True, exist_ok=True)
 
         for layer, dir_name in self.layer_dirs.items():
             if layer == "Command":
                 continue  # Commands go in commands/ directory
             layer_dir = self.plans_path / dir_name
-            layer_dir.mkdir(exist_ok=True)
+            layer_dir.mkdir(parents=True, exist_ok=True)
 
     def _get_file_path(self, node_id: str, layer: str) -> Path:
         """Get the file path for a node."""
@@ -149,10 +144,15 @@ class YAMLStorage:
 
         return None
 
-    def save_node(self, node: Node) -> None:
+    def save_node(self, node_data: dict | Node) -> Node:
         """Save a node to YAML file."""
-        # Convert node to dict for validation
-        node_dict = node.to_dict()
+        # Handle both dict and Node objects
+        if isinstance(node_data, dict):
+            node_dict = node_data
+            node = Node.from_dict(node_dict)
+        else:
+            node_dict = node_data.to_dict()
+            node = node_data
 
         # Validate against schema
         is_valid, errors = validate_node_data(node_dict)
@@ -167,6 +167,42 @@ class YAMLStorage:
 
         with open(file_path, "w", encoding="utf-8") as f:
             yaml.dump(yaml_data, f, default_flow_style=False, sort_keys=False)
+
+        return node
+
+    def update_node(self, node_id: str, node_data: dict | Node) -> Node | None:
+        """Update an existing node."""
+        # Check if node exists
+        if not self.node_exists(node_id):
+            return None
+
+        # Handle both dict and Node objects
+        if isinstance(node_data, dict):
+            # Ensure the ID matches
+            node_data["id"] = node_id
+            node_dict = node_data
+            node = Node.from_dict(node_dict)
+        else:
+            # Update the node's ID to match
+            updated_node_data = node_data.to_dict()
+            updated_node_data["id"] = node_id
+            node = Node.from_dict(updated_node_data)
+            node_dict = updated_node_data
+
+        # Validate against schema
+        is_valid, errors = validate_node_data(node_dict)
+        if not is_valid:
+            error_msg = "Node validation failed:\n" + "\n".join(f"  - {error}" for error in errors)
+            raise InvalidNodeError(error_msg, {"node_id": node.id, "errors": errors})
+
+        file_path = self._get_file_path(node.id, node.layer)
+
+        yaml_data = self._node_to_yaml(node)
+
+        with open(file_path, "w", encoding="utf-8") as f:
+            yaml.dump(yaml_data, f, default_flow_style=False, sort_keys=False)
+
+        return node
 
     def delete_node(self, node_id: str) -> bool:
         """Delete a node from YAML files."""
@@ -222,7 +258,7 @@ class YAMLStorage:
                                         item_dict = cast(dict[str, Any], item)
                                         is_valid, errors = validate_node_data(item_dict)
                                         if is_valid:
-                                            valid_yaml_nodes.append(item_dict)
+                                            valid_command_nodes.append(item_dict)
                                         else:
                                             invalid_nodes.append((yaml_file, errors))
                                 for valid_item in valid_yaml_nodes:
@@ -247,7 +283,7 @@ class YAMLStorage:
         # Load commands
         if self.commands_path.exists():
             command_nodes: list[Node] = []
-            invalid_nodes: list[tuple[Path, list[str]]] = []
+            invalid_command_nodes: list[tuple[Path, list[str]]] = []
             for yaml_file in self.commands_path.glob("*.yaml"):
                 try:
                     with open(yaml_file, encoding="utf-8") as f:
@@ -264,16 +300,16 @@ class YAMLStorage:
                             invalid_nodes.append((yaml_file, errors))
                     elif isinstance(yaml_data, list):
                         # Handle multi-node files
-                        valid_yaml_nodes: list[dict[str, Any]] = []
+                        valid_command_nodes: list[dict[str, Any]] = []
                         for item in cast(list[Any], yaml_data):
                             if isinstance(item, dict):
                                 item_dict = cast(dict[str, Any], item)
                                 is_valid, errors = validate_node_data(item_dict)
                                 if is_valid:
-                                    valid_yaml_nodes.append(item_dict)
+                                    valid_command_nodes.append(item_dict)
                                 else:
                                     invalid_nodes.append((yaml_file, errors))
-                        for valid_item in valid_yaml_nodes:
+                        for valid_item in valid_command_nodes:
                             node = self._yaml_to_node(valid_item)
                             command_nodes.append(node)
                     else:
@@ -284,7 +320,7 @@ class YAMLStorage:
                     invalid_nodes.append((yaml_file, [str(e)]))
 
             # Report validation errors
-            for file_path, errors in invalid_nodes:
+            for file_path, errors in invalid_command_nodes:
                 print(f"⚠️  Validation errors in {file_path}:")
                 for error in errors:
                     print(f"    - {error}")

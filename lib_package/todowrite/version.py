@@ -10,4 +10,4 @@ def get_version() -> str:
     return __version__
 
 
-__all__ = ["__version__", "__author__", "__email__", "get_version"]
+__all__ = ["__author__", "__email__", "__version__", "get_version"]

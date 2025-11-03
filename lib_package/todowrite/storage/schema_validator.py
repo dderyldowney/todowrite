@@ -164,6 +164,55 @@ class SchemaValidator:
             # Define layer directories
             layer_dirs = LAYER_DIRS
 
+            # Also check for YAML files directly in the base path (for testing)
+            direct_files: list[Path] = []
+            if yaml_base_path.exists():
+                direct_files.extend(yaml_base_path.glob("*.yaml"))
+                direct_files.extend(yaml_base_path.glob("*.yml"))
+
+            # If we found direct files, validate them and return
+            if direct_files:
+                for file_path in direct_files:
+                    try:
+                        with open(file_path, encoding="utf-8") as f:
+                            yaml_data = yaml.safe_load(f)
+
+                        if not yaml_data:
+                            errors.append(f"Empty YAML file: {file_path}")
+                            all_valid = False
+                            continue
+
+                        # Validate each node in the file
+                        if isinstance(yaml_data, list):
+                            # File contains multiple nodes
+                            for i, node in enumerate(cast(list[Any], yaml_data)):
+                                if isinstance(node, dict):
+                                    valid, node_errors = self.validate_node_data(
+                                        cast(dict[str, Any], node)
+                                    )
+                                    if not valid:
+                                        for error in node_errors:
+                                            errors.append(f"{file_path}[{i}]: {error}")
+                                        all_valid = False
+                        elif isinstance(yaml_data, dict):
+                            # File contains single node
+                            valid, node_errors = self.validate_node_data(
+                                cast(dict[str, Any], yaml_data)
+                            )
+                            if not valid:
+                                for error in node_errors:
+                                    errors.append(f"{file_path}: {error}")
+                                all_valid = False
+
+                    except yaml.YAMLError as e:
+                        errors.append(f"YAML parsing error in {file_path}: {e}")
+                        all_valid = False
+                    except Exception as e:
+                        errors.append(f"Error processing {file_path}: {e}")
+                        all_valid = False
+
+                return all_valid, errors, {"direct_files": len(direct_files)}
+
             # Process each layer
             for layer, dir_name in layer_dirs.items():
                 layer_path = yaml_base_path / "plans" / dir_name
@@ -254,6 +303,7 @@ class SchemaValidator:
             "is_compliant": False,
             "errors": [],
             "warnings": [],
+            "summary": "",
             "details": {},
         }
 
@@ -265,8 +315,12 @@ class SchemaValidator:
                     report["is_compliant"] = is_valid
                     report["errors"] = errors
                     report["details"]["database_tables"] = "Validated"
+                    report["summary"] = (
+                        f"Database schema validation {'passed' if is_valid else 'failed'}"
+                    )
                 else:
                     report["errors"] = ["No database engine provided"]
+                    report["summary"] = "Database validation failed - no engine"
 
             elif storage_type == "yaml":
                 yaml_path = kwargs.get("yaml_path", Path("configs"))
@@ -275,12 +329,17 @@ class SchemaValidator:
                 report["errors"] = errors
                 report["details"]["file_counts"] = file_counts
                 report["details"]["total_files"] = sum(file_counts.values())
+                report["summary"] = (
+                    f"YAML validation {'passed' if all_valid else 'failed'} for {report['details']['total_files']} files"
+                )
 
             else:
                 report["errors"] = [f"Unsupported storage type: {storage_type}"]
+                report["summary"] = f"Unsupported storage type: {storage_type}"
 
         except Exception as e:
             report["errors"] = [f"Report generation error: {e}"]
+            report["summary"] = f"Report generation failed: {e}"
 
         return report
 
@@ -295,21 +354,119 @@ _schema_validator = SchemaValidator()
 
 def validate_node_data(node_data: dict[str, Any]) -> tuple[bool, list[str]]:  # type: ignore [reportUnknownArgumentType]
     """Validate node data against schema."""
-    return _schema_validator.validate_node_data(node_data)
+    is_valid, errors = _schema_validator.validate_node_data(node_data)
+    if not is_valid:
+        raise ValueError(f"Node validation failed: {'; '.join(errors)}")
+    return is_valid, errors
 
 
-def validate_database_schema(engine: Any) -> tuple[bool, list[str]]:  # type: ignore [reportUnknownArgumentType]
+def validate_database_schema(engine: Any | None = None) -> tuple[bool, list[str]]:  # type: ignore [reportUnknownArgumentType]
     """Validate database schema against expected structure."""
-    return _schema_validator.validate_database_schema(engine)
+    # If no engine provided, try to get the default one
+    if engine is None:
+        try:
+            from ..core.app import ToDoWrite
+
+            app = ToDoWrite()
+            engine = app.engine
+        except Exception:
+            raise ValueError("No database engine provided and could not get default engine")
+
+    is_valid, errors = _schema_validator.validate_database_schema(engine)
+    if not is_valid:
+        raise ValueError(f"Database schema validation failed: {'; '.join(errors)}")
+    return is_valid, errors
 
 
 def validate_yaml_files(
-    yaml_base_path: Path | None = None,
+    yaml_paths: Path | list[Path] | list[str] | str | None = None,
 ) -> tuple[bool, list[str], dict[str, int]]:  # type: ignore [reportUnknownArgumentType]
     """Validate all YAML files against schema."""
-    return _schema_validator.validate_yaml_files(yaml_base_path)
+    # Handle different input types for backward compatibility
+    if isinstance(yaml_paths, list):
+        # If it's a list, validate each path
+        all_valid = True
+        all_errors = []
+        all_file_counts: dict[str, int] = {}
+
+        for path in yaml_paths:
+            if isinstance(path, str):
+                path = Path(path)
+
+            # Check if it's a file (direct validation) or directory (scan for files)
+            if path.is_file():
+                # Direct file validation
+                try:
+                    with open(path, encoding="utf-8") as f:
+                        yaml_data = yaml.safe_load(f)
+
+                    if not yaml_data:
+                        all_errors.append(f"Empty YAML file: {path}")
+                        all_valid = False
+                        continue
+
+                    # Validate each node in the file
+                    if isinstance(yaml_data, list):
+                        # File contains multiple nodes
+                        for i, node in enumerate(cast(list[Any], yaml_data)):
+                            if isinstance(node, dict):
+                                valid, node_errors = _schema_validator.validate_node_data(
+                                    cast(dict[str, Any], node)
+                                )
+                                if not valid:
+                                    for error in node_errors:
+                                        all_errors.append(f"{path}[{i}]: {error}")
+                                    all_valid = False
+                    elif isinstance(yaml_data, dict):
+                        # File contains single node
+                        valid, node_errors = _schema_validator.validate_node_data(
+                            cast(dict[str, Any], yaml_data)
+                        )
+                        if not valid:
+                            for error in node_errors:
+                                all_errors.append(f"{path}: {error}")
+                            all_valid = False
+
+                except yaml.YAMLError as e:
+                    all_errors.append(f"YAML parsing error in {path}: {e}")
+                    all_valid = False
+                except Exception as e:
+                    all_errors.append(f"Error processing {path}: {e}")
+                    all_valid = False
+
+            else:
+                # Directory validation
+                valid, errors, file_counts = _schema_validator.validate_yaml_files(path)
+                if not valid:
+                    all_valid = False
+                    all_errors.extend(errors)
+                # Merge file counts
+                for layer, count in file_counts.items():
+                    all_file_counts[layer] = all_file_counts.get(layer, 0) + count
+
+        if not all_valid:
+            raise ValueError(f"YAML validation failed: {'; '.join(all_errors)}")
+        return all_valid, all_errors, all_file_counts
+    else:
+        # Single path or None
+        all_valid, errors, file_counts = _schema_validator.validate_yaml_files(
+            Path(yaml_paths) if isinstance(yaml_paths, str) else yaml_paths
+        )
+        if not all_valid:
+            raise ValueError(f"YAML validation failed: {'; '.join(errors)}")
+        return all_valid, errors, file_counts
 
 
-def get_schema_compliance_report(storage_type: str, **kwargs: Any) -> dict[str, Any]:
+def get_schema_compliance_report(storage_type: str = "sqlite", **kwargs: Any) -> dict[str, Any]:
     """Generate comprehensive schema compliance report."""
+    # If no engine provided for database types, try to get the default one
+    if storage_type in ["postgresql", "sqlite"] and "engine" not in kwargs:
+        try:
+            from ..core.app import ToDoWrite
+
+            app = ToDoWrite()
+            kwargs["engine"] = app.engine
+        except Exception:
+            pass  # Let the underlying function handle the missing engine
+
     return _schema_validator.get_schema_compliance_report(storage_type, **kwargs)

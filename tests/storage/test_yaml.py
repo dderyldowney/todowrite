@@ -52,13 +52,13 @@ class TestYAMLStorage(unittest.TestCase):
             "metadata": {
                 "owner": "test-user",
                 "labels": ["important"],
-                "severity": "medium",
+                "severity": "med",
                 "work_type": "architecture",
             },
         }
 
         # Save node
-        node = self.yaml_storage.save_node(node_data)
+        self.yaml_storage.save_node(node_data)
 
         # Load node
         loaded_node = self.yaml_storage.load_node("GOAL-001")
@@ -216,6 +216,10 @@ class TestYAMLStorage(unittest.TestCase):
                 "description": "Command description",
                 "links": {"parents": [], "children": []},
                 "metadata": {"owner": "test", "labels": []},
+                "command": {
+                    "ac_ref": "AC-001",
+                    "run": {"shell": "echo hello"},
+                },
             },
         ]
 
@@ -296,6 +300,8 @@ class TestYAMLManager(unittest.TestCase):
         """Test YAML file discovery."""
         manager = YAMLManager()
         manager.yaml_base_path = self.yaml_base_path
+        manager.plans_path = self.yaml_base_path / "plans"
+        manager.commands_path = self.yaml_base_path / "commands"
 
         # Create test files
         (self.yaml_base_path / "plans" / "goals").mkdir(parents=True)
@@ -340,20 +346,22 @@ class TestYAMLManager(unittest.TestCase):
     def test_yaml_import(self) -> None:
         """Test YAML import functionality."""
         # Create ToDoWrite app with YAML storage
-        app = ToDoWrite("sqlite:///test_import.db")
+        app = ToDoWrite("sqlite:///:memory:")
         app.init_database()
 
         manager = YAMLManager(app)
         manager.yaml_base_path = self.yaml_base_path
+        manager.plans_path = self.yaml_base_path / "plans"
+        manager.commands_path = self.yaml_base_path / "commands"
 
         # Create test YAML file
-        goal_file = self.yaml_base_path / "plans" / "goals" / "GOAL-001.yaml"
+        goal_file = self.yaml_base_path / "plans" / "goals" / "GOAL-IMPORT-001.yaml"
         goal_file.parent.mkdir(parents=True)
 
         import yaml
 
         goal_data = {
-            "id": "GOAL-001",
+            "id": "GOAL-IMPORT-001",
             "layer": "Goal",
             "title": "Imported Goal",
             "description": "Goal imported from YAML",
@@ -361,7 +369,7 @@ class TestYAMLManager(unittest.TestCase):
             "metadata": {
                 "owner": "import-user",
                 "labels": ["imported"],
-                "severity": "medium",
+                "severity": "med",
                 "work_type": "architecture",
             },
         }
@@ -377,7 +385,7 @@ class TestYAMLManager(unittest.TestCase):
         self.assertEqual(len(results["errors"]), 0)
 
         # Verify import
-        imported_node = app.get_node("GOAL-001")
+        imported_node = app.get_node("GOAL-IMPORT-001")
         self.assertIsNotNone(imported_node)
         self.assertEqual(imported_node.title, "Imported Goal")
         self.assertEqual(imported_node.metadata.owner, "import-user")
@@ -385,15 +393,16 @@ class TestYAMLManager(unittest.TestCase):
     def test_yaml_export(self) -> None:
         """Test YAML export functionality."""
         # Create ToDoWrite app
-        app = ToDoWrite("sqlite:///test_export.db")
+        app = ToDoWrite("sqlite:///:memory:")
         app.init_database()
 
         # Create test node
         node_data = {
-            "id": "GOAL-001",
+            "id": "GOAL-EXPORT-001",
             "layer": "Goal",
             "title": "Export Goal",
             "description": "Goal to be exported",
+            "links": {"parents": [], "children": []},
             "metadata": {"owner": "export-user", "labels": ["exported"]},
         }
 
@@ -401,7 +410,7 @@ class TestYAMLManager(unittest.TestCase):
 
         # Export to YAML
         manager = YAMLManager(app)
-        output_dir = self.temp_dir / "exported"
+        output_dir = Path(self.temp_dir) / "exported"
         results = manager.export_to_yaml(output_dir)
 
         self.assertEqual(results["total_nodes"], 1)
@@ -409,7 +418,7 @@ class TestYAMLManager(unittest.TestCase):
         self.assertEqual(len(results["errors"]), 0)
 
         # Verify exported file
-        export_file = output_dir / "plans" / "goals" / "GOAL-001.yaml"
+        export_file = output_dir / "plans" / "goals" / "GOAL-EXPORT-001.yaml"
         self.assertTrue(export_file.exists())
 
         import yaml
@@ -417,35 +426,38 @@ class TestYAMLManager(unittest.TestCase):
         with open(export_file) as f:
             exported_data = yaml.safe_load(f)
 
-        self.assertEqual(exported_data["id"], "GOAL-001")
+        self.assertEqual(exported_data["id"], "GOAL-EXPORT-001")
         self.assertEqual(exported_data["title"], "Export Goal")
 
     def test_yaml_sync_check(self) -> None:
         """Test YAML synchronization check."""
-        app = ToDoWrite("sqlite:///test_sync.db")
+        app = ToDoWrite("sqlite:///:memory:")
         app.init_database()
 
         manager = YAMLManager(app)
         manager.yaml_base_path = self.yaml_base_path
+        manager.plans_path = self.yaml_base_path / "plans"
+        manager.commands_path = self.yaml_base_path / "commands"
 
         # Create node in database
         node_data = {
-            "id": "GOAL-001",
+            "id": "GOAL-SYNC-001",
             "layer": "Goal",
             "title": "Database Goal",
             "description": "Goal in database",
+            "links": {"parents": [], "children": []},
             "metadata": {"owner": "db-user", "labels": []},
         }
         app.create_node(node_data)
 
         # Create YAML file
-        goal_file = self.yaml_base_path / "plans" / "goals" / "GOAL-002.yaml"
+        goal_file = self.yaml_base_path / "plans" / "goals" / "GOAL-SYNC-002.yaml"
         goal_file.parent.mkdir(parents=True)
 
         import yaml
 
         yaml_data = {
-            "id": "GOAL-002",
+            "id": "GOAL-SYNC-002",
             "layer": "Goal",
             "title": "YAML Goal",
             "description": "Goal in YAML",
@@ -459,8 +471,8 @@ class TestYAMLManager(unittest.TestCase):
         # Check sync
         sync_status = manager.check_yaml_sync()
 
-        self.assertIn("GOAL-001", sync_status["database_only"])
-        self.assertIn("GOAL-002", sync_status["yaml_only"])
+        self.assertIn("GOAL-SYNC-001", sync_status["database_only"])
+        self.assertIn("GOAL-SYNC-002", sync_status["yaml_only"])
         self.assertEqual(len(sync_status["both"]), 0)
 
 

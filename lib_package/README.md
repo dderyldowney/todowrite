@@ -331,7 +331,7 @@ pytest tests/
 black .
 isort .
 flake8 .
-mypy .
+pyright .
 ```
 
 ### Pre-commit Hooks

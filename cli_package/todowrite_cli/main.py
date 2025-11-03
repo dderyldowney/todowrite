@@ -1,5 +1,6 @@
 """Main CLI entry point for ToDoWrite."""
 
+import builtins
 import sys
 from contextlib import suppress
 from pathlib import Path
@@ -24,7 +25,7 @@ try:
         validate_node,
         validate_schema,
     )
-    from todowrite.core import ToDoWrite, generate_node_id
+    from todowrite.core import Node, ToDoWrite, generate_node_id
     from todowrite.storage import get_schema_compliance_report
 except ImportError:
     click.echo("Error: todowrite library not found. Please install it first: pip install todowrite")
@@ -277,7 +278,7 @@ def get(ctx: click.Context, node_id: str) -> None:
 @click.pass_context
 def list(ctx: click.Context, layer: str | None, owner: str | None, status: str | None) -> None:
     """Lists all the nodes."""
-    app = get_app()
+    _app = get_app()
 
     try:
         nodes = list_nodes()
@@ -285,10 +286,10 @@ def list(ctx: click.Context, layer: str | None, owner: str | None, status: str |
         if layer:
             nodes = {k: v for k, v in nodes.items() if k == layer}
 
-        all_nodes: list[tuple[str, Any]] = []
+        all_nodes: builtins.list[tuple[str, Node]] = []
         for layer_name, layer_nodes in nodes.items():
             for node in layer_nodes:
-                all_nodes.append((layer_name, cast(Any, node)))
+                all_nodes.append((layer_name, node))
 
         if not all_nodes:
             console.print("[yellow]No nodes found[/yellow]")
@@ -304,7 +305,7 @@ def list(ctx: click.Context, layer: str | None, owner: str | None, status: str |
 
         for layer_name, node in all_nodes:
             # Apply filters
-            if owner and (hasattr(node, "owner") and node.owner != owner):
+            if owner and (hasattr(node, "metadata") and node.metadata.owner != owner):
                 continue
             if status and node.status != status:
                 continue
@@ -314,7 +315,7 @@ def list(ctx: click.Context, layer: str | None, owner: str | None, status: str |
                 node.id,
                 node.title,
                 node.status,
-                f"{node.progress}%",
+                f"{node.progress}%" if node.progress is not None else "N/A",
                 getattr(node, "owner", "N/A") or "N/A",
             )
 
@@ -352,14 +353,10 @@ def show(ctx: click.Context, node_id: str) -> None:
         table.add_row("Title", node.title)
         table.add_row("Description", node.description)
         table.add_row("Status", node.status)
-        table.add_row("Progress", f"{node.progress}%")
-
-        if hasattr(node, "owner") and node.owner:
-            table.add_row("Owner", node.owner)
-        if hasattr(node, "severity") and node.severity:
-            table.add_row("Severity", node.severity)
-        if hasattr(node, "work_type") and node.work_type:
-            table.add_row("Work Type", node.work_type)
+        table.add_row("Progress", f"{node.progress}%" if node.progress is not None else "N/A")
+        table.add_row("Owner", node.metadata.owner or "N/A")
+        table.add_row("Severity", node.metadata.severity or "N/A")
+        table.add_row("Work Type", node.metadata.work_type or "N/A")
 
         console.print(table)
     except Exception as e:
@@ -391,7 +388,10 @@ def complete(ctx: click.Context, node_id: str) -> None:
         }
 
         updated_node = app.update_node(node_id, update_data)
-        console.print(f"[green]✓[/green] Completed {node_id}: {updated_node.title}")
+        if updated_node:
+            console.print(f"[green]✓[/green] Completed {node_id}: {updated_node.title}")
+        else:
+            console.print(f"[green]✓[/green] Completed {node_id}: Unknown title")
     except Exception as e:
         console.print(f"[red]✗[/red] Error completing node: {e}")
         sys.exit(1)
@@ -522,18 +522,17 @@ def db_status(ctx: click.Context) -> None:
         try:
             # Create a temporary app for storage type
             temp_app = ToDoWrite()
-            compliance_report = get_schema_compliance_report(
+            compliance_report: Any = get_schema_compliance_report(
                 temp_app.storage_type.value
                 if hasattr(temp_app.storage_type, "value")
                 else str(temp_app.storage_type)
             )
             # Handle different report structures gracefully
-            if isinstance(compliance_report, dict):
+            if compliance_report and isinstance(compliance_report, dict):
                 if "summary" in compliance_report and "details" in compliance_report:
                     if compliance_report["summary"]["compliance_percentage"] < 100:
                         console.print("[yellow]Schema Compliance Issues:[/yellow]")
-                        for issue in compliance_report["details"]["issues"][:5]:
-                            console.print(f"  {issue}")
+                        console.print("  Schema validation found issues - see detailed report")
                 else:
                     console.print("[yellow]Schema compliance report structure unknown[/yellow]")
             else:
@@ -612,7 +611,7 @@ def update(
             sys.exit(1)
 
         # Build update data
-        update_data = {}
+        update_data: dict[str, Any] = {}
         if title is not None:
             update_data["title"] = title
         if description is not None:
@@ -635,33 +634,41 @@ def update(
             update_data["metadata"]["labels"] = [label.strip() for label in labels.split(",")]
 
         # Command-specific updates
-        if node.layer == "Command":
-            if ac_ref is not None or run_shell is not None or artifacts is not None:
-                update_data["command"] = update_data.get("command", {})
-                if ac_ref is not None:
-                    update_data["command"]["ac_ref"] = ac_ref
-                if run_shell is not None:
-                    update_data["command"]["run"] = {"shell": run_shell}
-                if artifacts is not None:
-                    update_data["command"]["artifacts"] = [
-                        artifact.strip() for artifact in artifacts.split(",")
-                    ]
+        if node.layer == "Command" and (
+            ac_ref is not None or run_shell is not None or artifacts is not None
+        ):
+            update_data["command"] = update_data.get("command", {})
+            if ac_ref is not None:
+                update_data["command"]["ac_ref"] = ac_ref
+            if run_shell is not None:
+                update_data["command"]["run"] = {"shell": run_shell}
+            if artifacts is not None:
+                update_data["command"]["artifacts"] = [
+                    artifact.strip() for artifact in artifacts.split(",")
+                ]
 
         if not update_data:
             console.print("[yellow]⚠️[/yellow] No fields to update")
             return
 
         updated_node = update_node(node_id, update_data)
-        console.print(f"[green]✓[/green] Updated {node_id}: {updated_node.title}")
+        if updated_node:
+            console.print(
+                f"[green]✓[/green] Updated {node_id}: {getattr(updated_node, 'title', 'Unknown')}"
+            )
 
-        if status is not None:
-            console.print(f"  Status: {updated_node.status}")
-        if progress is not None:
-            console.print(f"  Progress: {updated_node.progress}%")
-        if owner is not None:
+            if status is not None:
+                console.print(f"  Status: {getattr(updated_node, 'status', 'Unknown')}")
+            if progress is not None:
+                console.print(f"  Progress: {getattr(updated_node, 'progress', 0)}%")
+        if owner is not None and updated_node:
             # Get owner from metadata
             owner_val = getattr(updated_node, "owner", None)
-            if not owner_val and hasattr(updated_node, "metadata") and updated_node.metadata:
+            if (
+                not owner_val
+                and hasattr(updated_node, "metadata")
+                and getattr(updated_node, "metadata", None)
+            ):
                 owner_val = getattr(updated_node.metadata, "owner", None)
             owner_val = owner_val or "N/A"
             console.print(f"  Owner: {owner_val}")

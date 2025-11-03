@@ -9,6 +9,7 @@ import os
 import shutil
 import tempfile
 import unittest
+from pathlib import Path
 
 from todowrite import ToDoWrite
 
@@ -19,7 +20,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
     def setUp(self) -> None:
         """Set up test environment."""
         self.temp_dir = tempfile.mkdtemp()
-        self.original_cwd = os.getcwd()
+        self.original_cwd = Path.cwd()
 
     def tearDown(self) -> None:
         """Clean up test environment."""
@@ -687,17 +688,11 @@ class TestUserLibraryWorkflows(unittest.TestCase):
         try:
             export_result = app.export_nodes("yaml")
             self.assertIsInstance(export_result, str, "Export should return string")
-            self.assertIn(
-                "export-goal", export_result, "Export should contain created nodes"
-            )
-            self.assertIn(
-                "export-task", export_result, "Export should contain all nodes"
-            )
+            self.assertIn("export-goal", export_result, "Export should contain created nodes")
+            self.assertIn("export-task", export_result, "Export should contain all nodes")
         except Exception as e:
             # If export fails, test that it handles the error gracefully
-            self.assertIsInstance(
-                e, Exception, "Should handle export errors gracefully"
-            )
+            self.assertIsInstance(e, Exception, "Should handle export errors gracefully")
 
 
 if __name__ == "__main__":

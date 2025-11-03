@@ -490,7 +490,7 @@ class ToDoWrite:
             nodes_to_import: list[dict[str, Any]] = [data]
         elif isinstance(data, list):
             # List of nodes
-            nodes_to_import: list[dict[str, Any]] = cast(list[dict[str, Any]], data)
+            nodes_to_import = cast(list[dict[str, Any]], data)
         else:
             raise ValueError("Invalid file format: expected node object or list of nodes")
 
@@ -964,36 +964,42 @@ class ToDoWrite:
 def create_node(node_data: dict[str, Any]) -> Node:
     """Create a new node using the default ToDoWrite instance."""
     app = ToDoWrite(auto_import=False)
+    app.init_database()
     return app.create_node(node_data)
 
 
 def get_node(node_id: str) -> Node | None:
     """Get a node by ID using the default ToDoWrite instance."""
     app = ToDoWrite(auto_import=False)
+    app.init_database()
     return app.get_node(node_id)
 
 
 def update_node(node_id: str, node_data: dict[str, Any]) -> Node | None:
     """Update a node using the default ToDoWrite instance."""
     app = ToDoWrite(auto_import=False)
+    app.init_database()
     return app.update_node(node_id, node_data)
 
 
 def delete_node(node_id: str) -> None:
     """Delete a node using the default ToDoWrite instance."""
     app = ToDoWrite(auto_import=False)
+    app.init_database()
     app.delete_node(node_id)
 
 
 def list_nodes() -> dict[str, list[Node]]:
     """List all nodes using the default ToDoWrite instance."""
     app = ToDoWrite(auto_import=False)
+    app.init_database()
     return app.get_all_nodes()
 
 
 def search_nodes(query: str) -> dict[str, list[Node]]:
     """Search for nodes using the default ToDoWrite instance."""
     app = ToDoWrite(auto_import=False)
+    app.init_database()
     return app.search_nodes(query)
 
 
@@ -1013,3 +1019,78 @@ def update_node_status(node_id: str, status: str) -> Node | None:
     """Update node status using the default ToDoWrite instance."""
     app = ToDoWrite(auto_import=False)
     return app.update_node_status(node_id, status)
+
+
+def link_nodes(
+    db_url: str, parent_id: str, child_id: str, links_data: dict[str, Any] | None = None
+) -> bool:
+    """Link two nodes together in the database."""
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import Session
+
+    engine = create_engine(db_url)
+    session = Session(engine)
+
+    try:
+        # Get both nodes
+        from ..database.models import Link as DBLink
+        from ..database.models import Node as DBNode
+
+        parent_node = session.execute(
+            select(DBNode).where(DBNode.id == parent_id)
+        ).scalar_one_or_none()
+        child_node = session.execute(
+            select(DBNode).where(DBNode.id == child_id)
+        ).scalar_one_or_none()
+
+        if not parent_node or not child_node:
+            return False
+
+        # Check if link already exists
+        existing_link = session.execute(
+            select(DBLink).where(DBLink.parent_id == parent_id, DBLink.child_id == child_id)
+        ).scalar_one_or_none()
+
+        if existing_link:
+            return True  # Link already exists
+
+        # Create new link
+        link = DBLink(parent_id=parent_id, child_id=child_id)
+        session.add(link)
+        session.commit()
+        return True
+
+    except Exception:
+        session.rollback()
+        return False
+    finally:
+        session.close()
+
+
+def unlink_nodes(db_url: str, parent_id: str, child_id: str) -> bool:
+    """Remove a link between two nodes in the database."""
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import Session
+
+    engine = create_engine(db_url)
+    session = Session(engine)
+
+    try:
+        from ..database.models import Link as DBLink
+
+        # Find and delete the link
+        link = session.execute(
+            select(DBLink).where(DBLink.parent_id == parent_id, DBLink.child_id == child_id)
+        ).scalar_one_or_none()
+
+        if link:
+            session.delete(link)
+            session.commit()
+            return True
+        return False
+
+    except Exception:
+        session.rollback()
+        return False
+    finally:
+        session.close()

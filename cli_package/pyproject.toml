@@ -41,7 +41,7 @@ dev = [
     "black>=23.0.0",
     "isort>=5.12.0",
     "flake8>=6.0.0",
-    "mypy>=1.0.0",
+    "pyright>=1.1.0",
     "pre-commit>=3.0.0",
 ]
 
@@ -70,7 +70,6 @@ extend-exclude = '''
   \.eggs
   | \.git
   | \.hg
-  | \.mypy_cache
   | \.tox
   | \.venv
   | build
@@ -84,20 +83,51 @@ multi_line_output = 3
 line_length = 100
 known_first_party = ["todowrite_cli"]
 
-[tool.mypy]
-python_version = "3.8"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-disallow_untyped_decorators = true
-no_implicit_optional = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_no_return = true
-warn_unreachable = true
-strict_equality = true
+[tool.pyright]
+typeCheckingMode = "strict"
+pythonVersion = "3.12"
+reportMissingImports = "error"
+reportMissingTypeStubs = "error"
+reportUndefinedVariable = "error"
+reportUnboundVariable = "error"
+reportUnusedImport = "error"
+reportUnusedClass = "error"
+reportUnusedFunction = "error"
+reportUnusedVariable = "error"
+reportDuplicateImport = "error"
+reportOptionalSubscript = "error"
+reportOptionalMemberAccess = "error"
+reportOptionalCall = "error"
+reportOptionalIterable = "error"
+reportOptionalContextManager = "error"
+reportUntypedFunctionDecorator = "error"
+reportUntypedClassDecorator = "error"
+reportUntypedBaseClass = "error"
+reportUntypedNamedTuple = "error"
+reportUnnecessaryComparison = "error"
+reportUnnecessaryContains = "error"
+reportUnnecessaryIsInstance = "error"
+reportUnnecessaryCast = "error"
+reportUnnecessaryEllipsis = "error"
+reportInvalidStubStatement = "error"
+reportIncompleteStub = "error"
+reportUnsupportedDunderAll = "error"
+reportPrivateImportUsage = "error"
+reportConstantRedefinition = "error"
+reportDeprecated = "error"
+reportUnreachable = "error"
+reportPossiblyUnboundVariable = "error"
+reportPossiblyUndefinedVariable = "error"
+reportMissingModuleSource = "error"
+reportInvalidTypeForm = "error"
+reportPropertyTypeMismatch = "error"
+reportUnsupportedOperandType = "error"
+reportArgumentType = "error"
+reportAssignmentType = "error"
+reportReturnType = "error"
+reportOperatorIssue = "error"
+reportUnnecessaryTypeIgnoreComment = "error"
+exclude = ["build", "dist", ".venv", "__pycache__"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

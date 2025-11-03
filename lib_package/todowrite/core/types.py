@@ -9,6 +9,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
+# pyright: reportUnknownVariableType=none
+
+
 LayerType = Literal[
     "Goal",
     "Concept",
@@ -53,6 +56,14 @@ class Command:
     ac_ref: str = ""
     run: dict[str, Any] = field(default_factory=dict)
     artifacts: list[str] = field(default_factory=list)
+
+
+@dataclass
+class Label:
+    """Represents a label for categorization and tagging."""
+
+    name: str = ""
+    description: str = ""
 
 
 @dataclass

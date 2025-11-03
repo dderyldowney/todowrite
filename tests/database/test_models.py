@@ -23,7 +23,7 @@ class TestDatabaseModels(unittest.TestCase):
         self.Session = sessionmaker(bind=self.engine)
 
         # Create tables
-        from todowrite.database.db import Base
+        from todowrite.database.models import Base
 
         Base.metadata.create_all(self.engine)
 
@@ -42,7 +42,7 @@ class TestDatabaseModels(unittest.TestCase):
                 status="planned",
                 progress=0,
                 owner="test-user",
-                severity="medium",
+                severity="med",
                 work_type="architecture",
             )
             session.add(node)
@@ -140,9 +140,7 @@ class TestDatabaseModels(unittest.TestCase):
             self.assertEqual(result.ac_ref, "AC-001")
 
             # Verify artifacts
-            artifacts = (
-                session.query(Artifact).filter(Artifact.command_id == "CMD-001").all()
-            )
+            artifacts = session.query(Artifact).filter(Artifact.command_id == "CMD-001").all()
             self.assertEqual(len(artifacts), 2)
 
     def test_node_labels_association(self) -> None:
@@ -191,7 +189,7 @@ class TestDatabaseModels(unittest.TestCase):
                 session.query(node_labels)
                 .filter(
                     node_labels.c.node_id == "TSK-001",
-                    node_labels.c.label_id == label.id,
+                    node_labels.c.label == label.label,
                 )
                 .first()
             )
@@ -230,7 +228,7 @@ class TestDatabaseIntegration(unittest.TestCase):
         self.Session = sessionmaker(bind=self.engine)
 
         # Create tables
-        from todowrite.database.db import Base
+        from todowrite.database.models import Base
 
         Base.metadata.create_all(self.engine)
 
@@ -339,9 +337,7 @@ class TestDatabaseIntegration(unittest.TestCase):
             result = session.query(Command).filter(Command.node_id == "CMD-001").first()
             self.assertIsNotNone(result)
 
-            db_artifacts = (
-                session.query(Artifact).filter(Artifact.command_id == "CMD-001").all()
-            )
+            db_artifacts = session.query(Artifact).filter(Artifact.command_id == "CMD-001").all()
             self.assertEqual(len(db_artifacts), 3)
 
 
