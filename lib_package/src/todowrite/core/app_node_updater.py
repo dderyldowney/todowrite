@@ -31,9 +31,7 @@ class NodeUpdater:
         db_node.status = node_data.get("status", db_node.status)
         db_node.progress = node_data.get("progress", db_node.progress)
         db_node.started_date = node_data.get("started_date", db_node.started_date)
-        db_node.completion_date = node_data.get(
-            "completion_date", db_node.completion_date
-        )
+        db_node.completion_date = node_data.get("completion_date", db_node.completion_date)
 
         # Update metadata fields
         metadata = node_data.get("metadata", {})
@@ -76,9 +74,7 @@ class NodeUpdater:
             self.session.add(link)
 
         for parent_id in parents_to_remove:
-            delete_stmt = delete(Link).where(
-                Link.parent_id == parent_id, Link.child_id == node_id
-            )
+            delete_stmt = delete(Link).where(Link.parent_id == parent_id, Link.child_id == node_id)
             self.session.execute(delete_stmt)
 
     def _update_child_links(
@@ -93,9 +89,7 @@ class NodeUpdater:
             self.session.add(link)
 
         for child_id in children_to_remove:
-            delete_stmt = delete(Link).where(
-                Link.parent_id == node_id, Link.child_id == child_id
-            )
+            delete_stmt = delete(Link).where(Link.parent_id == node_id, Link.child_id == child_id)
             self.session.execute(delete_stmt)
 
     def update_labels(self, db_node: Node, node_data: dict[str, Any]) -> None:
@@ -115,8 +109,7 @@ class NodeUpdater:
         if all_label_texts:
             label_stmt = select(Label).where(Label.label.in_(all_label_texts))
             existing_labels = {
-                label.label: label
-                for label in self.session.execute(label_stmt).scalars().all()
+                label.label: label for label in self.session.execute(label_stmt).scalars().all()
             }
 
             # Update or create labels as needed
@@ -135,9 +128,7 @@ class NodeUpdater:
         else:
             self._delete_command_and_artifacts(node_id)
 
-    def _update_existing_command(
-        self, node_id: str, command_data: dict[str, Any]
-    ) -> None:
+    def _update_existing_command(self, node_id: str, command_data: dict[str, Any]) -> None:
         """Update an existing command for a node."""
         cmd_stmt = select(Command).where(Command.node_id == node_id)
         db_command = self.session.execute(cmd_stmt).scalar_one_or_none()

@@ -369,8 +369,10 @@ def validate_database_schema(engine: Any | None = None) -> tuple[bool, list[str]
 
             app = ToDoWrite()
             engine = app.engine
-        except Exception:
-            raise ValueError("No database engine provided and could not get default engine")
+        except Exception as err:
+            raise ValueError(
+                "No database engine provided and could not get default engine"
+            ) from err
 
     is_valid, errors = _schema_validator.validate_database_schema(engine)
     if not is_valid:

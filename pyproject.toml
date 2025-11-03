@@ -86,7 +86,8 @@ reportAssignmentType = "error"
 reportReturnType = "error"
 reportOperatorIssue = "error"
 reportUnnecessaryTypeIgnoreComment = "error"
-include = ["lib_package/todowrite", "cli_package/todowrite_cli"]
+include = ["lib_package/src/todowrite", "cli_package/src/todowrite_cli"]
+
 
 # Ruff configuration
 [tool.ruff]
@@ -141,8 +142,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101", "ARG001", "ARG002"]  # Allow asserts and unused args in tests
-"cli_package/*" = ["T20"]  # Allow print statements in CLI code
-"lib_package/todowrite/cli/*" = ["T20"]  # Allow print statements in CLI code
+"cli_package/src/todowrite_cli/*" = ["T20"]  # Allow print statements in CLI code
 
 # Black configuration
 [tool.black]
@@ -170,18 +170,20 @@ addopts = [
     "-q",
     "--strict-markers",
     "--strict-config",
-    "--cov=lib_package/todowrite",
-    "--cov=cli_package/todowrite_cli",
+    "--cov=lib_package/src/todowrite",
+    "--cov=cli_package/src/todowrite_cli",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-fail-under=80",
 ]
 testpaths = ["tests"]
-pythonpath = ["lib_package", "cli_package"]
+pythonpath = ["lib_package/src", "cli_package/src"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
 ]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 
 # Bandit configuration
 [tool.bandit]
@@ -190,13 +192,11 @@ skips = ["B101", "B110", "B404", "B602", "B603", "B607"]  # Skip acceptable secu
 
 # Coverage configuration
 [tool.coverage.run]
-source = ["lib_package", "cli_package"]
+source = ["lib_package/src", "cli_package/src"]
 omit = [
     "*/tests/*",
     "*/test_*",
     "setup.py",
-    "cli_package/build/*",
-    "lib_package/build/*",
 ]
 
 [tool.coverage.report]

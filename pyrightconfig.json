@@ -4,18 +4,16 @@
     "typeCheckingMode": "strict",
     "reportMissingImports": true,
     "reportMissingTypeStubs": true,
-    "include": ["todowrite"],
+    "include": ["lib_package/src/todowrite", "cli_package/src/todowrite_cli"],
     "exclude": [
         ".venv",
         "__pycache__",
         "build",
         "dist",
         ".git",
-        "tests",
-        "CLAUDE_SUBAGENTS_PACKAGE",
-        "*.py"
+        "CLAUDE_SUBAGENTS_PACKAGE"
     ],
-    "strict": ["todowrite"],
+    "strict": ["lib_package/src/todowrite", "cli_package/src/todowrite_cli"],
     "ignore": [],
     "useLibraryCodeForTypes": true,
     "enableTypeIgnoreComments": false

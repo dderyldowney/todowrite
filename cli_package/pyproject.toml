@@ -55,10 +55,10 @@ Documentation = "https://github.com/dderyldowney/todowrite/blob/main/README.md"
 todowrite = "todowrite_cli.main:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["todowrite_cli"]
+packages = ["src/todowrite_cli"]
 
 [tool.hatch.build.targets.sdist]
-include = ["todowrite_cli"]
+include = ["src/todowrite_cli"]
 
 [tool.black]
 line-length = 100
@@ -129,13 +129,14 @@ reportOperatorIssue = "error"
 reportUnnecessaryTypeIgnoreComment = "error"
 exclude = ["build", "dist", ".venv", "__pycache__"]
 
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = [
-    "--cov=todowrite_cli",
+    "--cov=src/todowrite_cli",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-fail-under=80",
@@ -147,7 +148,7 @@ filterwarnings = [
 ]
 
 [tool.coverage.run]
-source = ["todowrite_cli"]
+source = ["src/todowrite_cli"]
 omit = [
     "*/tests/*",
     "*/test_*",
