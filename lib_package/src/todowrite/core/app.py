@@ -1021,9 +1021,7 @@ def update_node_status(node_id: str, status: str) -> Node | None:
     return app.update_node_status(node_id, status)
 
 
-def link_nodes(
-    db_url: str, parent_id: str, child_id: str, links_data: dict[str, Any] | None = None
-) -> bool:
+def link_nodes(db_url: str, parent_id: str, child_id: str, _: dict[str, Any] | None = None) -> bool:
     """Link two nodes together in the database."""
     from sqlalchemy import create_engine
     from sqlalchemy.orm import Session

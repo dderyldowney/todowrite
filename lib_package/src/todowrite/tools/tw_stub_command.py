@@ -44,9 +44,7 @@ class CommandStubGenerator:
                     if ac_ref:
                         self.existing_commands.add(ac_ref)
                 except Exception as e:
-                    print(
-                        f"WARNING: Failed to read existing command file {cmd_file}: {e}"
-                    )
+                    print(f"WARNING: Failed to read existing command file {cmd_file}: {e}")
                     continue
 
         print(f"Found {len(self.existing_commands)} existing commands")
@@ -229,9 +227,7 @@ class CommandStubGenerator:
             print("No Acceptance Criteria files found")
             return 0, 0
 
-        print(
-            f"Generating command stubs for {len(self.ac_files)} Acceptance Criteria..."
-        )
+        print(f"Generating command stubs for {len(self.ac_files)} Acceptance Criteria...")
         print()
 
         success_count = 0
@@ -273,12 +269,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Generate ToDoWrite command stubs from Acceptance Criteria"
     )
-    parser.add_argument(
-        "--summary", action="store_true", help="Show summary report only"
-    )
-    parser.add_argument(
-        "--force", action="store_true", help="Regenerate existing command stubs"
-    )
+    parser.add_argument("--summary", action="store_true", help="Show summary report only")
+    parser.add_argument("--force", action="store_true", help="Regenerate existing command stubs")
 
     args = parser.parse_args()
 

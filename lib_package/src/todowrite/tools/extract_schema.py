@@ -40,7 +40,5 @@ if __name__ == "__main__":
     # Assuming the script is run from the project root
     project_root = Path(__file__).resolve().parent.parent.parent.parent
     markdown_file = project_root / "ToDoWrite.md"
-    schema_file = (
-        project_root / "ToDoWrite" / "todowrite" / "schemas" / "todowrite.schema.json"
-    )
+    schema_file = project_root / "ToDoWrite" / "todowrite" / "schemas" / "todowrite.schema.json"
     extract_and_write_schema(markdown_file, schema_file)

@@ -160,7 +160,7 @@ def init(database_path: str | None, yaml_path: str | None) -> None:
 )
 @click.pass_context
 def create(
-    ctx: click.Context,
+    _: click.Context,
     goal: str,
     title: str,
     description: str,
@@ -226,7 +226,7 @@ def create(
 @cli.command()
 @click.argument("node_id")
 @click.pass_context
-def get(ctx: click.Context, node_id: str) -> None:
+def get(_: click.Context, node_id: str) -> None:
     """Gets a node by its ID."""
 
     try:
@@ -276,7 +276,7 @@ def get(ctx: click.Context, node_id: str) -> None:
     help="Filter by status",
 )
 @click.pass_context
-def list(ctx: click.Context, layer: str | None, owner: str | None, status: str | None) -> None:
+def list(_: click.Context, layer: str | None, owner: str | None, status: str | None) -> None:
     """Lists all the nodes."""
     _app = get_app()
 
@@ -334,7 +334,7 @@ def status() -> None:
 @status.command()
 @click.argument("node_id")
 @click.pass_context
-def show(ctx: click.Context, node_id: str) -> None:
+def show(_: click.Context, node_id: str) -> None:
     """Show detailed status information about a node."""
     app = get_app()
 
@@ -367,7 +367,7 @@ def show(ctx: click.Context, node_id: str) -> None:
 @status.command()
 @click.argument("node_id")
 @click.pass_context
-def complete(ctx: click.Context, node_id: str) -> None:
+def complete(_: click.Context, node_id: str) -> None:
     """Mark a node as completed."""
     app = get_app()
 
@@ -405,7 +405,7 @@ def complete(ctx: click.Context, node_id: str) -> None:
     help="Path to YAML files directory",
 )
 @click.pass_context
-def import_yaml(ctx: click.Context, yaml_path: str) -> None:
+def import_yaml(_: click.Context, __: str) -> None:
     """Import YAML files from configs/ directory to database."""
     app = get_app()
 
@@ -435,7 +435,7 @@ def import_yaml(ctx: click.Context, yaml_path: str) -> None:
     help="Output directory for YAML files",
 )
 @click.pass_context
-def export_yaml(ctx: click.Context, output: str) -> None:
+def export_yaml(_: click.Context, output: str) -> None:
     """Export database content to YAML files."""
     app = get_app()
 
@@ -459,7 +459,7 @@ def export_yaml(ctx: click.Context, output: str) -> None:
 
 @cli.command()
 @click.pass_context
-def sync_status(ctx: click.Context) -> None:
+def sync_status(_: click.Context) -> None:
     """Check synchronization status between YAML files and database."""
     app = get_app()
 
@@ -497,7 +497,7 @@ def sync_status(ctx: click.Context) -> None:
 
 @cli.command()
 @click.pass_context
-def db_status(ctx: click.Context) -> None:
+def db_status(_: click.Context) -> None:
     """Show storage configuration and status."""
     app = get_app()
 
@@ -550,7 +550,7 @@ def db_status(ctx: click.Context) -> None:
 @cli.command()
 @click.argument("node_id")
 @click.pass_context
-def delete(ctx: click.Context, node_id: str) -> None:
+def delete(_: click.Context, node_id: str) -> None:
     """Delete a node by its ID."""
     try:
         node = cast(Any, get_node(node_id))
@@ -589,7 +589,7 @@ def delete(ctx: click.Context, node_id: str) -> None:
 @click.option("--artifacts", help="Comma-separated artifact paths (for Commands)")
 @click.pass_context
 def update(
-    ctx: click.Context,
+    _: click.Context,
     node_id: str,
     title: str | None,
     description: str | None,
@@ -681,7 +681,7 @@ def update(
 @cli.command()
 @click.argument("query")
 @click.pass_context
-def search(ctx: click.Context, query: str) -> None:
+def search(_: click.Context, query: str) -> None:
     """Search for nodes by query string."""
     try:
         results = search_nodes(query)

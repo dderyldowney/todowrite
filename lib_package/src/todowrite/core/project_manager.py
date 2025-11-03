@@ -118,14 +118,10 @@ class ProjectManager:
         # Check if deprecated schema has newer content (shouldn't happen)
         if deprecated_data:
             primary_title = primary_data.get("title", "").replace(" (DEPRECATED)", "")
-            deprecated_title = deprecated_data.get("title", "").replace(
-                " (DEPRECATED)", ""
-            )
+            deprecated_title = deprecated_data.get("title", "").replace(" (DEPRECATED)", "")
 
             if primary_title and deprecated_title and primary_title != deprecated_title:
-                print(
-                    "WARNING: Deprecated schema has different content than primary schema!"
-                )
+                print("WARNING: Deprecated schema has different content than primary schema!")
                 print("This may indicate changes were made in the wrong location.")
                 print(f"Primary: {primary_title}")
                 print(f"Deprecated: {deprecated_title}")
@@ -138,9 +134,7 @@ class ProjectManager:
 
         return True
 
-    def setup_integration(
-        self, project_path: str | Path, db_type: str = "postgres"
-    ) -> bool:
+    def setup_integration(self, project_path: str | Path, db_type: str = "postgres") -> bool:
         """
         Set up ToDoWrite integration in a project.
 
@@ -506,9 +500,7 @@ class _AIOptimizationManager:
             with contextlib.suppress(ImportError):
                 # Try OpenAI token counting (fallback method)
                 # Using basic approximation if tiktoken not available
-                token_counts["openai"] = (
-                    len(text) // 4
-                )  # Rough estimate: 1 token ≈ 4 chars
+                token_counts["openai"] = len(text) // 4  # Rough estimate: 1 token ≈ 4 chars
 
             try:
                 # Try Anthropic
@@ -564,9 +556,7 @@ class _AIOptimizationManager:
         optimized_text = " ".join(optimized_text.split())
         if len(optimized_text) < original_len:
             savings = original_len - len(optimized_text)
-            optimization_strategies.append(
-                f"Removed {savings} redundant whitespace characters"
-            )
+            optimization_strategies.append(f"Removed {savings} redundant whitespace characters")
             optimizations_applied.append("whitespace_optimization")
 
         # Strategy 2: Shorten redundant phrases
@@ -592,9 +582,7 @@ class _AIOptimizationManager:
         optimized_lines = []
         for line in lines:
             line = line.strip()
-            if (
-                line and not line.startswith("#") and len(line) > 5
-            ):  # Keep meaningful lines
+            if line and not line.startswith("#") and len(line) > 5:  # Keep meaningful lines
                 optimized_lines.append(line)
 
         if len(optimized_lines) < len(lines):

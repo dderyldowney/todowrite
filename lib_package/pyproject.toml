@@ -53,10 +53,10 @@ Documentation = "https://github.com/dderyldowney/todowrite/blob/main/README.md"
 "Bug Tracker" = "https://github.com/dderyldowney/todowrite/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["todowrite"]
+packages = ["src/todowrite"]
 
 [tool.hatch.build.targets.sdist]
-include = ["todowrite"]
+include = ["src/todowrite"]
 
 [tool.black]
 line-length = 100
@@ -132,7 +132,7 @@ python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = [
-    "--cov=todowrite",
+    "--cov=src/todowrite",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-fail-under=80",
@@ -144,7 +144,7 @@ filterwarnings = [
 ]
 
 [tool.coverage.run]
-source = ["todowrite"]
+source = ["src/todowrite"]
 omit = [
     "*/tests/*",
     "*/test_*",

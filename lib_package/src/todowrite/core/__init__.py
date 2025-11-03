@@ -5,6 +5,7 @@ from .app import (
     create_node,
     delete_node,
     export_nodes,
+    generate_node_id,
     get_node,
     import_nodes,
     link_nodes,
