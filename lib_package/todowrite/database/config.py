@@ -41,7 +41,7 @@ class StoragePreference(Enum):
 
 
 # Global storage preference - can be overridden
-_STORAGE_PREFERENCE: StoragePreference = StoragePreference.AUTO
+storage_preference: StoragePreference = StoragePreference.AUTO
 
 # Explicit database URL override
 DATABASE_URL: str = os.getenv(
@@ -64,8 +64,8 @@ Examples:
 
 def set_storage_preference(preference: StoragePreference) -> None:
     """Set the global storage preference."""
-    global _STORAGE_PREFERENCE
-    _STORAGE_PREFERENCE = preference
+    global storage_preference
+    storage_preference = preference
 
 
 def get_storage_preference() -> StoragePreference:
@@ -78,7 +78,7 @@ def get_storage_preference() -> StoragePreference:
         except ValueError:
             pass
 
-    return _STORAGE_PREFERENCE
+    return storage_preference
 
 
 def test_postgresql_connection(url: str) -> bool:
@@ -109,7 +109,7 @@ def test_sqlite_connection(url: str) -> bool:
 
 def get_postgresql_candidates() -> list[str]:
     """Get list of potential PostgreSQL connection URLs to try."""
-    candidates = []
+    candidates: list[str] = []
 
     # Explicit URL from environment
     if DATABASE_URL and DATABASE_URL.startswith("postgresql:"):
@@ -140,16 +140,14 @@ def get_postgresql_candidates() -> list[str]:
 
     # Standard localhost
     if not any("localhost" in url for url in candidates):
-        candidates.append(
-            "postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"
-        )
+        candidates.append("postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite")
 
     return candidates
 
 
 def get_sqlite_candidates() -> list[str]:
     """Get list of potential SQLite connection URLs to try."""
-    candidates = []
+    candidates: list[str] = []
 
     # Explicit URL from environment
     if DATABASE_URL and DATABASE_URL.startswith("sqlite:"):

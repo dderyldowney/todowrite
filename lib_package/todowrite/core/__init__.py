@@ -7,8 +7,10 @@ from .app import (
     export_nodes,
     get_node,
     import_nodes,
+    link_nodes,
     list_nodes,
     search_nodes,
+    unlink_nodes,
     update_node,
 )
 from .app_node_updater import NodeUpdater
@@ -16,30 +18,33 @@ from .constants import *
 from .exceptions import *
 from .project_manager import ProjectManager
 from .schema import TODOWRITE_SCHEMA
-from .types import Command, LayerType, Link, Metadata, Node, StatusType
+from .types import Command, Label, LayerType, Link, Metadata, Node, StatusType
 from .utils import *
 
 __all__ = [
-    "ToDoWrite",
-    "ProjectManager",
-    "NodeUpdater",
-    "Node",
-    "LayerType",
-    "StatusType",
+    "TODOWRITE_SCHEMA",
     "Command",
+    "ConfigurationError",
+    "InvalidNodeError",
+    "Label",
+    "LayerType",
     "Link",
     "Metadata",
-    "TODOWRITE_SCHEMA",
-    "InvalidNodeError",
+    "Node",
+    "NodeUpdater",
+    "ProjectManager",
+    "StatusType",
     "StorageError",
-    "ConfigurationError",
-    "generate_node_id",
+    "ToDoWrite",
     "create_node",
-    "get_node",
-    "update_node",
     "delete_node",
+    "export_nodes",
+    "generate_node_id",
+    "get_node",
+    "import_nodes",
+    "link_nodes",
     "list_nodes",
     "search_nodes",
-    "export_nodes",
-    "import_nodes",
+    "unlink_nodes",
+    "update_node",
 ]

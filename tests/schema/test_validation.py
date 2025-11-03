@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 
 from todowrite.core import ToDoWrite
-from todowrite.storage.validators import (
+from todowrite.storage import (
     get_schema_compliance_report,
     validate_database_schema,
     validate_node_data,
@@ -36,7 +36,7 @@ class TestSchemaValidation(unittest.TestCase):
             "metadata": {
                 "owner": "test-user",
                 "labels": [],
-                "severity": "medium",
+                "severity": "med",
                 "work_type": "architecture",
             },
         }
@@ -301,7 +301,7 @@ class TestYAMLValidation(unittest.TestCase):
             "metadata": {
                 "owner": "test-user",
                 "labels": [],
-                "severity": "medium",
+                "severity": "med",
                 "work_type": "architecture",
             },
         }

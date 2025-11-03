@@ -12,7 +12,7 @@
   "properties": {
     "id": {
       "type": "string",
-      "pattern": "^(GOAL|CON|CTX|CST|R|AC|IF|PH|STP|TSK|SUB|CMD)-[A-Z0-9_-]+$"
+      "pattern": "^(GOAL|CON|CTX|CST|R|AC|IF|PH|STP|TSK|SUB|CMD)-[A-Za-z0-9_-]+$"
     },
     "layer": {
       "type": "string",
@@ -109,13 +109,15 @@
         "parents": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^(GOAL|CON|CTX|CST|R|AC|IF|PH|STP|TSK|SUB|CMD)-[A-Za-z0-9_-]+$"
           }
         },
         "children": {
           "type": "array",
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^(GOAL|CON|CTX|CST|R|AC|IF|PH|STP|TSK|SUB|CMD)-[A-Za-z0-9_-]+$"
           }
         }
       }

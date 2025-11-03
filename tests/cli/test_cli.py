@@ -7,9 +7,14 @@ from pathlib import Path
 
 from click.testing import CliRunner
 from sqlalchemy import delete
-
 from todowrite import ToDoWrite
-from todowrite.core import Artifact, Command, Label, Link, Node, node_labels
+from todowrite.database.models import Artifact
+from todowrite.database.models import Command as DBCommand
+from todowrite.database.models import Link as DBLink
+from todowrite.database.models import Node as DBNode
+from todowrite.database.models import node_labels
+
+from todowrite_cli.main import cli
 
 
 class TestCli(unittest.TestCase):
@@ -99,52 +104,88 @@ class TestCli(unittest.TestCase):
             # Delete in proper order to avoid foreign key constraint violations
             session.execute(delete(node_labels))
             session.execute(delete(Artifact))
-            session.execute(delete(Command))
-            session.execute(delete(Link))
-            session.execute(delete(Label))
-            session.execute(delete(Node))
+            session.execute(delete(DBCommand))
+            session.execute(delete(DBLink))
+            session.execute(delete(DBNode))
 
     def test_init_command(self) -> None:
         """Test the init command."""
         result = self.runner.invoke(cli, ["init"])
         self.assertEqual(result.exit_code, 0)
         # The output may include auto-import messages, so just check that it ends with the expected message
-        self.assertTrue(result.output.endswith("Database initialized.\n"))
+        self.assertTrue(result.output.endswith("✓ Database initialized successfully!\n"))
 
     def test_create_command(self) -> None:
         """Test the create command."""
         result = self.runner.invoke(cli, ["init"])
         self.assertEqual(result.exit_code, 0)
 
-        result = self.runner.invoke(cli, ["create", "Goal", "Test Goal", "This is a test goal."])
+        result = self.runner.invoke(
+            cli,
+            [
+                "create",
+                "--goal",
+                "Goal",
+                "--title",
+                "Test Goal",
+                "--description",
+                "This is a test goal.",
+            ],
+        )
         if result.exit_code != 0:
             print(f"CLI Output: {result.output}")
             print(f"CLI Exception: {result.exception}")
         self.assertEqual(result.exit_code, 0)
-        self.assertIn("Node created:", result.output)
+        self.assertIn("Created Goal:", result.output)
 
     def test_get_command(self) -> None:
         """Test the get command."""
         result = self.runner.invoke(cli, ["init"])
         self.assertEqual(result.exit_code, 0)
 
-        result = self.runner.invoke(cli, ["create", "Goal", "Test Goal", "This is a test goal."])
+        result = self.runner.invoke(
+            cli,
+            [
+                "create",
+                "--goal",
+                "Goal",
+                "--title",
+                "Test Goal",
+                "--description",
+                "This is a test goal.",
+            ],
+        )
         if result.exit_code != 0:
             print(f"CLI Output: {result.output}")
             print(f"CLI Exception: {result.exception}")
         self.assertEqual(result.exit_code, 0)
-        node_id = result.output.split(" ")[-1].strip()
+        # Extract node ID from output like "Created Goal: Test Goal (ID: GOAL-A58B86E71041)"
+        import re
+
+        match = re.search(r"\(ID: ([^)]+)\)", result.output)
+        node_id = match.group(1) if match else result.output.split(" ")[-1].strip()
 
         result = self.runner.invoke(cli, ["get", node_id])
         self.assertEqual(result.exit_code, 0)
-        self.assertIn(f"ID: {node_id}", result.output)
+        self.assertIn(node_id, result.output)
 
     def test_list_command(self) -> None:
         """Test the list command."""
         result = self.runner.invoke(cli, ["init"])
         self.assertEqual(result.exit_code, 0)
 
-        result = self.runner.invoke(cli, ["create", "Goal", "Test Goal", "This is a test goal."])
+        result = self.runner.invoke(
+            cli,
+            [
+                "create",
+                "--goal",
+                "Goal",
+                "--title",
+                "Test Goal",
+                "--description",
+                "This is a test goal.",
+            ],
+        )
         if result.exit_code != 0:
             print(f"CLI Output: {result.output}")
             print(f"CLI Exception: {result.exception}")
@@ -152,7 +193,7 @@ class TestCli(unittest.TestCase):
 
         result = self.runner.invoke(cli, ["list"])
         self.assertEqual(result.exit_code, 0)
-        self.assertIn("--- Goal ---", result.output)
+        self.assertIn("Goal", result.output)
         self.assertIn("Test Goal", result.output)
 
 

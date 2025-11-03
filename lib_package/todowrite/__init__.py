@@ -44,8 +44,10 @@ from .core import (
     generate_node_id,
     get_node,
     import_nodes,
+    link_nodes,
     list_nodes,
     search_nodes,
+    unlink_nodes,
     update_node,
 )
 
@@ -97,8 +99,10 @@ __all__ = [
     "generate_node_id",
     "get_node",
     "import_nodes",
+    "link_nodes",
     "list_nodes",
     "search_nodes",
+    "unlink_nodes",
     "update_node",
     "validate_node",
     "validate_schema",

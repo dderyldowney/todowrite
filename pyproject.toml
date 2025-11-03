@@ -41,32 +41,52 @@ extra-dependencies = [
     "anthropic>=0.40.0",
 ]
 
-# Pyright configuration - Strict mode for zero tech debt
+# Enhanced pyright configuration with maximum error detection
 [tool.pyright]
-pythonVersion = "3.12"
-pythonPlatform = "Darwin"
 typeCheckingMode = "strict"
-reportMissingImports = true
-reportMissingTypeStubs = true
-include = ["lib_package/todowrite", "cli_package/todowrite_cli", "tests"]
-exclude = [
-    ".venv",
-    "__pycache__",
-    "build",
-    "dist",
-    ".git",
-    "tests",
-]
-ignore = []
-strict = ["lib_package/todowrite", "cli_package/todowrite_cli"]
-useLibraryCodeForTypes = true
-enableTypeIgnoreComments = false
-reportUnknownParameterType = "error"
-reportUnknownArgumentType = "error"
-reportUnknownVariableType = "error"
-reportUnknownMemberType = "error"
-reportUnknownLambdaType = "error"
-reportPrivateUsage = "error"
+pythonVersion = "3.12"
+reportMissingImports = "error"
+reportMissingTypeStubs = "error"
+reportUndefinedVariable = "error"
+reportUnboundVariable = "error"
+reportUnusedImport = "error"
+reportUnusedClass = "error"
+reportUnusedFunction = "error"
+reportUnusedVariable = "error"
+reportDuplicateImport = "error"
+reportOptionalSubscript = "error"
+reportOptionalMemberAccess = "error"
+reportOptionalCall = "error"
+reportOptionalIterable = "error"
+reportOptionalContextManager = "error"
+reportUntypedFunctionDecorator = "error"
+reportUntypedClassDecorator = "error"
+reportUntypedBaseClass = "error"
+reportUntypedNamedTuple = "error"
+reportUnnecessaryComparison = "error"
+reportUnnecessaryContains = "error"
+reportUnnecessaryIsInstance = "error"
+reportUnnecessaryCast = "error"
+reportUnnecessaryEllipsis = "error"
+reportInvalidStubStatement = "error"
+reportIncompleteStub = "error"
+reportUnsupportedDunderAll = "error"
+reportPrivateImportUsage = "error"
+reportConstantRedefinition = "error"
+reportDeprecated = "error"
+reportUnreachable = "error"
+reportPossiblyUnboundVariable = "error"
+reportPossiblyUndefinedVariable = "error"
+reportMissingModuleSource = "error"
+reportInvalidTypeForm = "error"
+reportPropertyTypeMismatch = "error"
+reportUnsupportedOperandType = "error"
+reportArgumentType = "error"
+reportAssignmentType = "error"
+reportReturnType = "error"
+reportOperatorIssue = "error"
+reportUnnecessaryTypeIgnoreComment = "error"
+include = ["lib_package/todowrite", "cli_package/todowrite_cli"]
 
 # Ruff configuration
 [tool.ruff]
@@ -75,7 +95,6 @@ line-length = 100
 extend-exclude = [
     ".git",
     "__pycache__",
-    ".mypy_cache",
     ".pytest_cache",
     ".ruff_cache",
     "build",
