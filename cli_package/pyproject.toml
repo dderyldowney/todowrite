@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "todowrite_cli"
-version = "0.3.0"
+version = "0.3.1"
 description = "CLI interface for ToDoWrite - A tool for managing complex software projects"
 readme = "README.md"
 requires-python = ">=3.12"
