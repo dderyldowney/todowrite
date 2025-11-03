@@ -51,26 +51,26 @@ index-servers =
 
 ## Building Packages
 
-### Method 1: Using Hatch (Recommended)
+### Build with Hatchling (Recommended)
 ```bash
 # Build library package
 cd lib_package
-hatch build
+python -m hatchling build
 
 # Build CLI package
 cd ../cli_package
-hatch build
+python -m hatchling build
 ```
 
-### Method 2: Using Python Build
+### Alternative: Using Hatch CLI
 ```bash
 # Build library package
 cd lib_package
-python -m build
+hatch build
 
 # Build CLI package
 cd ../cli_package
-python -m build
+hatch build
 ```
 
 ### Check Build Artifacts
@@ -103,13 +103,13 @@ todowrite --version
 ```bash
 # Build both packages
 cd lib_package
-python -m build
+python -m hatchling build
 
 # Upload to TestPyPI
 twine upload --repository testpypi dist/*
 
 cd ../cli_package
-python -m build
+python -m hatchling build
 twine upload --repository testpypi dist/*
 ```
 
@@ -131,13 +131,13 @@ python -c "from todowrite import ToDoWrite; print('Library imported successfully
 
 # Build both packages
 cd lib_package
-python -m build
+python -m hatchling build
 
 # Upload to Production PyPI
 twine upload dist/*
 
 cd ../cli_package
-python -m build
+python -m hatchling build
 twine upload dist/*
 ```
 
@@ -235,12 +235,12 @@ Create a build script in the root directory:
 
 echo "Building todowrite library..."
 cd lib_package
-python -m build
+python -m hatchling build
 twine upload --repository testpypi dist/*
 
 echo "Building todowrite-cli..."
 cd ../cli_package
-python -m build
+python -m hatchling build
 twine upload --repository testpypi dist/*
 
 echo "Build and publish complete!"
