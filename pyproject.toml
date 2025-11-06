@@ -29,9 +29,19 @@ dependencies = [
     "typing-extensions>=4.0.0",
     "click>=8.0.0",
     "psycopg2-binary>=2.9.0",
-    "PyYAML>=6.0.0",
+    "pyyaml>=6.0.0",
     "jsonschema>=4.0.0",
     "rich>=13.0.0",
+    "pyright>=1.1.0",
+    "ruff>=0.7.0",
+    "black>=24.0.0",
+    "isort>=5.13.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=4.0.0",
+    "coverage>=7.0.0",
+    "pre-commit>=4.0.0",
+    "bandit[toml]>=1.7.0",
+    "requests>=2.32.5",
 ]
 
 [project.optional-dependencies]
@@ -294,4 +304,9 @@ exclude_lines = [
     "raise NotImplementedError",
     "if 0:",
     "if __name__ == .__main__.:",
+]
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.407",
 ]
