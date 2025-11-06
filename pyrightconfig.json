@@ -20,5 +20,16 @@
     "ignore": [],
     "useLibraryCodeForTypes": true,
     "enableTypeIgnoreComments": false,
-    "stubPath": "typings"
+    "stubPath": "typings",
+    "executionEnvironments": [
+        {
+            "root": ".",
+            "pythonVersion": "3.12",
+            "pythonPlatform": "Darwin",
+            "extraPaths": [
+                "lib_package/src",
+                "cli_package/src"
+            ]
+        }
+    ]
 }
