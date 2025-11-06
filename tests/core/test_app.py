@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from sqlalchemy import delete
+
 from todowrite.core import ToDoWrite
 from todowrite.database.models import Artifact, Command, Label, Link, Node, node_labels
 
@@ -18,9 +19,7 @@ class TestApp(unittest.TestCase):
         """Initialize the application with SQLite for testing."""
         # Use SQLite for testing to avoid PostgreSQL dependency
         db_url = "sqlite:///test.db"
-        cls.app = ToDoWrite(
-            db_url, auto_import=False
-        )  # Disable auto-import for cleaner tests
+        cls.app = ToDoWrite(db_url, auto_import=False)  # Disable auto-import for cleaner tests
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -104,9 +103,7 @@ class TestApp(unittest.TestCase):
         # In test environment with PostgreSQL running, it might use PostgreSQL
         # So we just verify that a database URL is set
         assert app.db_url is not None  # Type narrowing for pyright
-        self.assertTrue(
-            app.db_url.startswith("sqlite") or app.db_url.startswith("postgresql")
-        )
+        self.assertTrue(app.db_url.startswith("sqlite") or app.db_url.startswith("postgresql"))
 
     def test_create_node(self) -> None:
         """Test that create_node creates a new node in the database."""

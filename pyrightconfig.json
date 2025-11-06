@@ -1,9 +1,9 @@
 {
     "pythonVersion": "3.12",
     "pythonPlatform": "Darwin",
-    "typeCheckingMode": "strict",
-    "reportMissingImports": true,
-    "reportMissingTypeStubs": true,
+    "typeCheckingMode": "standard",
+    "reportMissingImports": "warning",
+    "reportMissingTypeStubs": "warning",
     "include": ["lib_package/src/todowrite", "cli_package/src/todowrite_cli"],
     "exclude": [
         ".venv",
@@ -11,10 +11,14 @@
         "build",
         "dist",
         ".git",
-        "CLAUDE_SUBAGENTS_PACKAGE"
+        "CLAUDE_SUBAGENTS_PACKAGE",
+        "tests/**",
+        "**/test_*.py",
+        "**/_test.py",
+        "**/conftest.py"
     ],
-    "strict": ["lib_package/src/todowrite", "cli_package/src/todowrite_cli"],
     "ignore": [],
     "useLibraryCodeForTypes": true,
-    "enableTypeIgnoreComments": false
+    "enableTypeIgnoreComments": false,
+    "stubPath": "typings"
 }

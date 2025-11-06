@@ -7,13 +7,13 @@ from pathlib import Path
 
 from click.testing import CliRunner
 from sqlalchemy import delete
+
 from todowrite import ToDoWrite
 from todowrite.database.models import Artifact
 from todowrite.database.models import Command as DBCommand
 from todowrite.database.models import Link as DBLink
 from todowrite.database.models import Node as DBNode
 from todowrite.database.models import node_labels
-
 from todowrite_cli.main import cli
 
 

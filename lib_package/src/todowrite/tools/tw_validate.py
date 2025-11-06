@@ -21,7 +21,7 @@ class ToDoWriteValidator:
         if schema_path is None:
             # Try to load from package first, fall back to old location
             try:
-                from todowrite.core.schema import TODOWRITE_SCHEMA
+                from todowrite.core.schemas import TODOWRITE_SCHEMA
 
                 self.schema = cast(dict[str, Any], TODOWRITE_SCHEMA)
                 self.schema_path = "todowrite.schema"  # Virtual path for display
