@@ -23,7 +23,7 @@ class TestUserCliWorkflows(unittest.TestCase):
         """Set up test environment."""
         self.runner = CliRunner()
         self.temp_dir = tempfile.mkdtemp()
-        self.original_cwd = os.getcwd()
+        self.original_cwd = Path.cwd()
 
     def tearDown(self) -> None:
         """Clean up test environment."""
@@ -72,7 +72,7 @@ class TestUserCliWorkflows(unittest.TestCase):
             todowrite_cli,
             [
                 "create",
-                "--goal",
+                "--layer",
                 "Goal",
                 "--title",
                 "Launch New Product",
@@ -82,17 +82,15 @@ class TestUserCliWorkflows(unittest.TestCase):
         )
         self.assertEqual(result.exit_code, 0, "Goal creation should succeed")
         # Extract node ID from output like "Created Goal: Launch Mobile App (ID: GOAL-A58B86E71041)"
-        import re
 
-        match = re.search(r"\(ID: ([^)]+)\)", result.output)
-        # goal_id = match.group(1) if match else result.output.split(" ")[-1].strip()
+        # goal_id extraction not needed for this test
 
         # Step 3: Create supporting concept
         result = self.runner.invoke(
             todowrite_cli,
             [
                 "create",
-                "--goal",
+                "--layer",
                 "Concept",
                 "--title",
                 "Market Research",
@@ -107,7 +105,7 @@ class TestUserCliWorkflows(unittest.TestCase):
             todowrite_cli,
             [
                 "create",
-                "--goal",
+                "--layer",
                 "Task",
                 "--title",
                 "Create Business Plan",
@@ -134,7 +132,7 @@ class TestUserCliWorkflows(unittest.TestCase):
             todowrite_cli,
             [
                 "create",
-                "--goal",
+                "--layer",
                 "Task",
                 "--title",
                 "Develop Prototype",
@@ -172,7 +170,7 @@ class TestUserCliWorkflows(unittest.TestCase):
         # Step 4: Check status
         result = self.runner.invoke(todowrite_cli, ["get", task_id])
         self.assertEqual(result.exit_code, 0)
-        self.assertIn("in_progress", result.output)
+        self.assertIn("In Progress", result.output)
 
     def test_todowrite_cli_listing_workflow(self) -> None:
         """
@@ -203,7 +201,7 @@ class TestUserCliWorkflows(unittest.TestCase):
                 continue
             result = self.runner.invoke(
                 todowrite_cli,
-                ["create", "--goal", node_type, "--title", title, "--description", description],
+                ["create", "--layer", node_type, "--title", title, "--description", description],
             )
             self.assertEqual(result.exit_code, 0)
             node_id = result.output.split(" ")[-1].strip()
@@ -237,7 +235,7 @@ class TestUserCliWorkflows(unittest.TestCase):
             todowrite_cli,
             [
                 "create",
-                "--goal",
+                "--layer",
                 "Goal",
                 "--title",
                 "Test Goal",
@@ -318,7 +316,7 @@ class TestUserCliWorkflows(unittest.TestCase):
             todowrite_cli,
             [
                 "create",
-                "--goal",
+                "--layer",
                 "Goal",
                 "--title",
                 "Launch Mobile App",
@@ -328,16 +326,14 @@ class TestUserCliWorkflows(unittest.TestCase):
         )
         self.assertEqual(result.exit_code, 0)
         # Extract node ID from output like "Created Goal: Launch Mobile App (ID: GOAL-A58B86E71041)"
-        import re
 
-        match = re.search(r"\(ID: ([^)]+)\)", result.output)
-        # goal_id = match.group(1) if match else result.output.split(" ")[-1].strip()
+        # goal_id extraction not needed for this test
 
         result = self.runner.invoke(
             todowrite_cli,
             [
                 "create",
-                "--goal",
+                "--layer",
                 "Concept",
                 "--title",
                 "User Research",
@@ -352,7 +348,7 @@ class TestUserCliWorkflows(unittest.TestCase):
             todowrite_cli,
             [
                 "create",
-                "--goal",
+                "--layer",
                 "Task",
                 "--title",
                 "Core Features",
@@ -367,7 +363,7 @@ class TestUserCliWorkflows(unittest.TestCase):
             todowrite_cli,
             [
                 "create",
-                "--goal",
+                "--layer",
                 "Task",
                 "--title",
                 "Login Flow",
@@ -382,7 +378,7 @@ class TestUserCliWorkflows(unittest.TestCase):
             todowrite_cli,
             [
                 "create",
-                "--goal",
+                "--layer",
                 "Task",
                 "--title",
                 "Design Architecture",
@@ -396,7 +392,7 @@ class TestUserCliWorkflows(unittest.TestCase):
             todowrite_cli,
             [
                 "create",
-                "--goal",
+                "--layer",
                 "Task",
                 "--title",
                 "Setup CI/CD",
@@ -411,7 +407,7 @@ class TestUserCliWorkflows(unittest.TestCase):
             todowrite_cli,
             [
                 "create",
-                "--goal",
+                "--layer",
                 "Task",
                 "--title",
                 "Setup Development Environment",

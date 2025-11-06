@@ -7,7 +7,7 @@ from pathlib import Path
 
 # Navigate from: cli_package/src/todowrite_cli/version.py -> project root
 current_file = Path(__file__)
-project_root = current_file.parent.parent.parent.parent.parent
+project_root = current_file.parent.parent.parent.parent
 
 # Try to import from shared_version.py at project root
 if (project_root / "shared_version.py").exists():
