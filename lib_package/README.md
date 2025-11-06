@@ -57,7 +57,7 @@ task = app.create_node(task_data)
 # Link task to goal
 app.link_nodes("GOAL-001", "TSK-001")
 
-# Update progress
+# Update progress (progress field is now properly preserved)
 app.update_node("TSK-001", {"status": "in_progress", "progress": 50})
 ```
 
@@ -233,24 +233,29 @@ node_with_links = app.get_node_with_links("GOAL-001")
 ### YAML Integration
 
 ```python
-# Export nodes to YAML
-from todowrite.storage.yaml_manager import YAMLManager
+# Export nodes to JSON/YAML
+from todowrite import export_nodes, import_nodes
 
-yaml_manager = YAMLManager(app)
-yaml_manager.export_to_yaml("./exported")
+# Export to file
+exported_nodes = export_nodes(db_url, "export.json")
 
-# Import nodes from YAML
-yaml_manager.import_yaml_files()
+# Import from file
+import_results = import_nodes(db_url, "export.json")
+print(f"Imported: {import_results['imported']}, Errors: {import_results['errors']}")
 
-# Check sync status
-sync_status = yaml_manager.check_yaml_sync()
+# YAML Manager for advanced operations
+from todowrite.storage import YAMLManager
+
+yaml_manager = YAMLManager("project.yaml")
+yaml_manager.write_yaml({"nodes": {}})
+data = yaml_manager.read_yaml()
 ```
 
 ### Validation
 
 ```python
 # Validate node data
-from todowrite.storage.validators import validate_node_data
+from todowrite.storage import validate_node_data
 
 try:
     validate_node_data(node_data)
@@ -259,9 +264,9 @@ except Exception as e:
     print(f"Invalid node data: {e}")
 
 # Validate database schema
-from todowrite.storage.validators import validate_database_schema
+from todowrite.storage import validate_database_schema
 
-schema_valid = validate_database_schema()
+schema_valid = validate_database_schema(db_url)
 ```
 
 ### Custom Metadata
