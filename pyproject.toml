@@ -163,6 +163,16 @@ exclude = [
 ]
 stubPath = "typings"
 
+# Execution environments for proper import resolution
+[[tool.pyright.executionEnvironments]]
+root = "."
+pythonVersion = "3.12"
+pythonPlatform = "Darwin"
+extraPaths = [
+    "lib_package/src",
+    "cli_package/src"
+]
+
 
 # Ruff configuration
 [tool.ruff]
