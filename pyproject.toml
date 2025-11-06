@@ -277,8 +277,6 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
 ]
-asyncio_mode = "auto"
-asyncio_default_fixture_loop_scope = "function"
 
 # Bandit configuration
 [tool.bandit]
@@ -308,5 +306,6 @@ exclude_lines = [
 
 [dependency-groups]
 dev = [
+    "asyncio>=4.0.0",
     "pyright>=1.1.407",
 ]
