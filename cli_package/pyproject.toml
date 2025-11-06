@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "todowrite_cli"
-version = "0.3.1"
+dynamic = ["version"]
 description = "CLI interface for ToDoWrite - A tool for managing complex software projects"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -50,6 +50,10 @@ Homepage = "https://github.com/dderyldowney/todowrite"
 Repository = "https://github.com/dderyldowney/todowrite.git"
 Documentation = "https://github.com/dderyldowney/todowrite/blob/main/README.md"
 "Bug Tracker" = "https://github.com/dderyldowney/todowrite/issues"
+
+[tool.hatch.version]
+path = "../VERSION"
+pattern = "^(?P<version>[0-9]+\\.[0-9]+\\.[0-9]+)$"
 
 [project.scripts]
 todowrite = "todowrite_cli.main:main"
