@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "todowrite"
-version = "0.3.1"
+dynamic = ["version"]
 description = "A Python library for managing complex software projects with Goals, Tasks, Concepts, and Commands"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -51,6 +51,10 @@ Homepage = "https://github.com/dderyldowney/todowrite"
 Repository = "https://github.com/dderyldowney/todowrite.git"
 Documentation = "https://github.com/dderyldowney/todowrite/blob/main/README.md"
 "Bug Tracker" = "https://github.com/dderyldowney/todowrite/issues"
+
+[tool.hatch.version]
+path = "../VERSION"
+pattern = "^(?P<version>[0-9]+\\.[0-9]+\\.[0-9]+)$"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/todowrite"]
