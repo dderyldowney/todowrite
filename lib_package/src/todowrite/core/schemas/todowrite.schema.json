@@ -59,7 +59,9 @@
           "enum": [
             "low",
             "med",
-            "high"
+            "medium",
+            "high",
+            "critical"
           ]
         },
         "work_type": {
@@ -70,6 +72,7 @@
             "interface",
             "validation",
             "implementation",
+            "development",
             "docs",
             "ops",
             "refactor",

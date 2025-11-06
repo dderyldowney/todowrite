@@ -34,10 +34,10 @@ StatusType = Literal["planned", "in_progress", "completed", "blocked", "cancelle
 class Metadata:
     """Metadata for a node."""
 
-    owner: str = "system"
+    owner: str = ""
     labels: list[str] = field(default_factory=list)
-    severity: str = ""
-    work_type: str = ""
+    severity: str = "low"
+    work_type: str = "chore"
     assignee: str = ""
 
 
@@ -75,7 +75,7 @@ class Node:
     title: str
     description: str = ""
     status: StatusType = "planned"
-    progress: int | None = None
+    progress: int = 0
     started_date: str | None = None
     completion_date: str | None = None
     links: Link = field(default_factory=Link)

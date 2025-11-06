@@ -124,7 +124,7 @@ class TestCli(unittest.TestCase):
             cli,
             [
                 "create",
-                "--goal",
+                "--layer",
                 "Goal",
                 "--title",
                 "Test Goal",
@@ -147,7 +147,7 @@ class TestCli(unittest.TestCase):
             cli,
             [
                 "create",
-                "--goal",
+                "--layer",
                 "Goal",
                 "--title",
                 "Test Goal",
@@ -178,7 +178,7 @@ class TestCli(unittest.TestCase):
             cli,
             [
                 "create",
-                "--goal",
+                "--layer",
                 "Goal",
                 "--title",
                 "Test Goal",
