@@ -890,7 +890,7 @@ class ToDoWrite:
             title=str(db_node.title),
             description=str(db_node.description),
             status=cast(StatusType, _validate_literal(str(db_node.status), StatusType)),
-            progress=db_node.progress,
+            progress=db_node.progress if db_node.progress is not None else 0,
             started_date=str(db_node.started_date) if db_node.started_date else None,
             completion_date=(str(db_node.completion_date) if db_node.completion_date else None),
             links=links,

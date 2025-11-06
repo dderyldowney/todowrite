@@ -156,7 +156,7 @@ class Node:
             title=data["title"],
             description=data.get("description", ""),
             status=data.get("status", "planned"),
-            progress=data.get("progress"),
+            progress=data.get("progress", 0),
             started_date=data.get("started_date"),
             completion_date=data.get("completion_date"),
             links=links,
