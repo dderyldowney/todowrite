@@ -209,7 +209,7 @@ class TestCoreAPI(unittest.TestCase):
 
         # Flatten all nodes from all layers
         all_node_list = []
-        for layer, nodes in all_nodes.items():
+        for _layer, nodes in all_nodes.items():
             all_node_list.extend(nodes)
 
         self.assertEqual(len(all_node_list), 2)
@@ -310,7 +310,7 @@ class TestCoreAPI(unittest.TestCase):
 
         # Flatten all nodes from all layers
         all_node_list = []
-        for layer, nodes in all_nodes.items():
+        for _layer, nodes in all_nodes.items():
             all_node_list.extend(nodes)
 
         # Filter nodes by owner
@@ -361,11 +361,9 @@ class TestNodeAPI(unittest.TestCase):
         self.assertEqual(node_dict["id"], "GOAL-001")
         self.assertEqual(node_dict["title"], "Test Goal")
         self.assertEqual(node_dict["status"], "in_progress")
-        # Note: progress field is not currently preserved by the database implementation
-        # so we only check that it exists when it's not None
-        if node.progress is not None:
-            self.assertIn("progress", node_dict)
-            self.assertEqual(node_dict["progress"], 75)
+        # Check that progress field is preserved by the database implementation
+        self.assertIn("progress", node_dict)
+        self.assertEqual(node_dict["progress"], 75)
         self.assertEqual(node_dict["metadata"]["labels"], ["urgent", "important"])
 
     def test_node_from_dict(self) -> None:
@@ -474,11 +472,8 @@ class TestNodeAPI(unittest.TestCase):
         # Test status property
         self.assertEqual(node.status, "in_progress")
 
-        # Test progress property (Note: progress field is not currently preserved by database implementation)
-        # The database implementation sets progress to None, so we check for the actual behavior
-        self.assertIsNone(
-            node.progress
-        )  # This is the current behavior due to implementation limitation
+        # Test progress property
+        self.assertEqual(node.progress, 50)
 
     def test_node_equality(self) -> None:
         """Test Node object equality."""

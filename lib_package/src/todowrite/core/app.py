@@ -832,9 +832,13 @@ class ToDoWrite:
             title=node_data["title"],
             description=node_data["description"],
             status=node_data.get("status", "planned"),
+            progress=node_data.get("progress"),
+            started_date=node_data.get("started_date"),
+            completion_date=node_data.get("completion_date"),
             owner=node_data["metadata"].get("owner"),
             severity=node_data["metadata"].get("severity"),
             work_type=node_data["metadata"].get("work_type"),
+            assignee=node_data["metadata"].get("assignee"),
         )
         session.add(db_node)
         session.flush()  # Flush to get the node ID for relationships
