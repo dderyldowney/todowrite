@@ -119,7 +119,7 @@ select = [
     "PLC", # pylint conventions
     "PLE", # pylint errors
     "PLW", # pylint warnings
-    "TCH", # type-checking
+    "TC",  # type-checking (new rules)
     "ANN", # type annotations
 ]
 ignore = [
@@ -134,18 +134,12 @@ ignore = [
     "PTH120", # os.path.dirname (acceptable for compatibility)
     "PTH123", # open() (acceptable for compatibility)
     "F823",  # local variable referenced before assignment (false positive with TYPE_CHECKING)
-
-    # Type checking rules to ignore (from VSCode settings)
-    "TCH001", # type-checking imports
-    "TCH002", # type-checking imports
-    "TCH003", # type-checking imports
+    "COM812", # trailing comma missing (conflicts with formatter)
 
     # Type annotation rules to ignore (stricter than needed)
     "ANN001", # missing-type-function-argument
     "ANN002", # missing-type-argument
     "ANN003", # missing-type-kwargs
-    "ANN101", # missing-type-self
-    "ANN102", # missing-type-cls
     "ANN201", # missing-return-type-public-function
     "ANN202", # missing-return-type-private-function
     "ANN204", # missing-return-type-static-method
