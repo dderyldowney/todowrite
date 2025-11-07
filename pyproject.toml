@@ -52,14 +52,10 @@ Repository = "https://github.com/dderyldowney/todowrite.git"
 
 [project.optional-dependencies]
 dev = [
-    "bandit[toml]>=1.7.0",
-    "black>=24.0.0",
-    "isort>=5.13.0",
     "pre-commit>=4.0.0",
     "pyright>=1.1.0",
     "pytest>=8.0.0",
     "pytest-cov>=4.0.0",
-    "pre-commit>=4.0.0",
     "ruff>=0.7.0",
     "sqlalchemy>=2.0.0",
     "types-click>=7.1.0",
@@ -97,11 +93,8 @@ dependencies = [
     "types-jsonschema>=4.0.0",
     "types-click>=7.1.0",
     "ruff>=0.7.0",
-    "black>=24.0.0",
-    "isort>=5.13.0",
     "pytest>=8.0.0",
     "pre-commit>=4.0.0",
-    "bandit[toml]>=1.7.0",
 ]
 
 [tool.hatch.envs.hatch-test]
@@ -196,7 +189,7 @@ extraPaths = [
 # Ruff configuration
 [tool.ruff]
 target-version = "py312"
-line-length = 100
+line-length = 79
 extend-exclude = [
     ".git",
     "__pycache__",
@@ -215,20 +208,53 @@ extend-exclude = [
 ]
 
 [tool.ruff.lint]
+# Enable comprehensive linting rules
 select = [
+    # pycodestyle
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
+
+    # pyflakes
     "F",   # pyflakes
+
+    # import sorting
     "I",   # isort
+
+    # bugbear
     "B",   # flake8-bugbear
+
+    # comprehensions
     "C4",  # flake8-comprehensions
+
+    # pyupgrade
     "UP",  # pyupgrade
+
+    # ruff-specific
     "RUF", # Ruff-specific rules
-    "S",   # flake8-bandit
+
+    # security (enhanced)
+    "S",   # flake8-bandit (security)
+
+    # print statements
     "T20", # flake8-print
+
+    # simplification
     "SIM", # flake8-simplify
+
+    # unused arguments
     "ARG", # flake8-unused-arguments
+
+    # pathlib
     "PTH", # flake8-use-pathlib
+
+    # additional security rules
+    "DJ",  # django security
+    "N",   # pep8-naming
+    "A",   # flake8-builtins
+    "C90", # mccabe complexity
+    "PLC", # pylint conventions
+    "PLE", # pylint errors
+    "PLW", # pylint warnings
 ]
 ignore = [
     "E501",  # line too long (handled by formatter)
@@ -244,27 +270,40 @@ ignore = [
     "F823",  # local variable referenced before assignment (false positive with TYPE_CHECKING)
 ]
 
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101", "ARG001", "ARG002"]  # Allow asserts and unused args in tests
-"cli_package/src/todowrite_cli/*" = ["T20"]  # Allow print statements in CLI code
-
-# Black configuration
-[tool.black]
-target-version = ["py312"]
-line-length = 100
-skip-string-normalization = false
+# Ruff formatter configuration
+[tool.ruff.format]
+indent-style = "space"
+quote-style = "double"
 skip-magic-trailing-comma = false
 
-# isort configuration
-[tool.isort]
-profile = "black"
-line_length = 100
-known_first_party = ["todowrite", "todowrite_cli"]
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-ensure_newline_before_comments = true
+# Ruff security audit configuration
+[tool.ruff.lint.per-file-ignores]
+# General test exclusions
+"tests/*" = [
+    "S101",  # assert used (acceptable in tests)
+    "ARG001", # unused arguments in tests
+    "ARG002", # unused arguments in tests
+    "S608",   # hardcoded SQL
+]
+
+# CLI code exclusions
+"cli_package/src/todowrite_cli/*" = [
+    "T20",   # print statements (needed for CLI output)
+    "S603",  # subprocess call (needed for tool integration)
+    "S607",  # subprocess with partial executable path
+]
+
+# Build hook specific exclusions
+"_build_version_hook.py" = [
+    "PLC0415",  # import at top-level (needed due to path setup)
+]
+
+# Build and configuration files
+"*_build_version_hook.py" = [
+    "S404",  # subprocess module import (needed for build tools)
+]
+
+
 
 # pytest configuration
 [tool.pytest.ini_options]
