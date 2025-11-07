@@ -12,10 +12,7 @@ import logging
 import shutil
 from pathlib import Path
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any, cast
-
-if TYPE_CHECKING:
-    pass  # tiktoken will be imported conditionally
+from typing import Any, cast
 
 
 class ProjectManager:
@@ -50,7 +47,9 @@ class ProjectManager:
         deprecated_content = get_schema_content(deprecated_path)
 
         if not deprecated_content:
-            print("INFO: Deprecated schema not found (may have been cleaned up)")
+            print(
+                "INFO: Deprecated schema not found (may have been cleaned up)"
+            )
             return True
 
         if not primary_content:
@@ -77,9 +76,13 @@ class ProjectManager:
         deprecated_core = get_core_properties(deprecated_content)
 
         if primary_core != deprecated_core:
-            print("❌ Deprecated schema has different core properties than primary!")
+            print(
+                "❌ Deprecated schema has different core properties than primary!"
+            )
             print("This suggests someone modified the deprecated schema.")
-            print("All schema changes should be made to the primary schema location.")
+            print(
+                "All schema changes should be made to the primary schema location."
+            )
             return False
 
         print("✅ Deprecated schema check passed")
@@ -117,12 +120,24 @@ class ProjectManager:
 
         # Check if deprecated schema has newer content (shouldn't happen)
         if deprecated_data:
-            primary_title = primary_data.get("title", "").replace(" (DEPRECATED)", "")
-            deprecated_title = deprecated_data.get("title", "").replace(" (DEPRECATED)", "")
+            primary_title = primary_data.get("title", "").replace(
+                " (DEPRECATED)", ""
+            )
+            deprecated_title = deprecated_data.get("title", "").replace(
+                " (DEPRECATED)", ""
+            )
 
-            if primary_title and deprecated_title and primary_title != deprecated_title:
-                print("WARNING: Deprecated schema has different content than primary schema!")
-                print("This may indicate changes were made in the wrong location.")
+            if (
+                primary_title
+                and deprecated_title
+                and primary_title != deprecated_title
+            ):
+                print(
+                    "WARNING: Deprecated schema has different content than primary schema!"
+                )
+                print(
+                    "This may indicate changes were made in the wrong location."
+                )
                 print(f"Primary: {primary_title}")
                 print(f"Deprecated: {deprecated_title}")
                 return False
@@ -130,11 +145,15 @@ class ProjectManager:
         print("✅ Schema location check passed")
         print(f"Primary schema: {primary_schema}")
         if deprecated_schema.exists():
-            print(f"Deprecated schema: {deprecated_schema} (should not be modified)")
+            print(
+                f"Deprecated schema: {deprecated_schema} (should not be modified)"
+            )
 
         return True
 
-    def setup_integration(self, project_path: str | Path, db_type: str = "postgres") -> bool:
+    def setup_integration(
+        self, project_path: str | Path, db_type: str = "postgres"
+    ) -> bool:
         """
         Set up ToDoWrite integration in a project.
 
@@ -239,7 +258,9 @@ class ProjectManager:
             print(f"❌ Failed to create project structure: {e}")
             return False
 
-    def validate_project_setup(self, project_path: str | Path) -> dict[str, Any]:
+    def validate_project_setup(
+        self, project_path: str | Path
+    ) -> dict[str, Any]:
         """
         Validate that a project is properly set up for ToDoWrite.
 
@@ -273,7 +294,9 @@ class ProjectManager:
             if full_path.exists():
                 result["found_files"].append(file_path)
             else:
-                result["recommendations"].append(f"Optional file missing: {file_path}")
+                result["recommendations"].append(
+                    f"Optional file missing: {file_path}"
+                )
 
         # Check if todowrite package is accessible
         if importlib.util.find_spec("todowrite") is not None:
@@ -315,7 +338,9 @@ class ProjectManager:
         print(f"✅ Created {env_path}")
         return True
 
-    def _create_config_template(self, project_path: Path, db_type: str) -> bool:
+    def _create_config_template(
+        self, project_path: Path, db_type: str
+    ) -> bool:
         """Create configuration template."""
         config_content = dedent(
             f"""
@@ -349,7 +374,7 @@ class ProjectManager:
         """Create Docker Compose template for PostgreSQL."""
         content = dedent(
             """
-        version: '3.8'
+        version: '3.9'
 
         services:
           postgres:
@@ -500,7 +525,9 @@ class _AIOptimizationManager:
             with contextlib.suppress(ImportError):
                 # Try OpenAI token counting (fallback method)
                 # Using basic approximation if tiktoken not available
-                token_counts["openai"] = len(text) // 4  # Rough estimate: 1 token ≈ 4 chars
+                token_counts["openai"] = (
+                    len(text) // 4
+                )  # Rough estimate: 1 token ≈ 4 chars
 
             try:
                 # Try Anthropic
@@ -519,7 +546,9 @@ class _AIOptimizationManager:
 
         return token_counts
 
-    def optimize_token_usage(self, _: str, **kwargs: Any) -> dict[str, Any] | None:
+    def optimize_token_usage(
+        self, _: str, **kwargs: Any
+    ) -> dict[str, Any] | None:
         """
         Internal method for token optimization.
         Analyzes text and provides optimization suggestions.
@@ -556,7 +585,9 @@ class _AIOptimizationManager:
         optimized_text = " ".join(optimized_text.split())
         if len(optimized_text) < original_len:
             savings = original_len - len(optimized_text)
-            optimization_strategies.append(f"Removed {savings} redundant whitespace characters")
+            optimization_strategies.append(
+                f"Removed {savings} redundant whitespace characters"
+            )
             optimizations_applied.append("whitespace_optimization")
 
         # Strategy 2: Shorten redundant phrases
@@ -582,7 +613,9 @@ class _AIOptimizationManager:
         optimized_lines = []
         for line in lines:
             line = line.strip()
-            if line and not line.startswith("#") and len(line) > 5:  # Keep meaningful lines
+            if (
+                line and not line.startswith("#") and len(line) > 5
+            ):  # Keep meaningful lines
                 optimized_lines.append(line)
 
         if len(optimized_lines) < len(lines):
@@ -618,7 +651,9 @@ class _AIOptimizationManager:
 
         if not result["success"]:
             result["message"] = "No significant optimizations found"
-            result["optimization_strategies"] = ["Text is already well-optimized"]
+            result["optimization_strategies"] = [
+                "Text is already well-optimized"
+            ]
 
         return result
 

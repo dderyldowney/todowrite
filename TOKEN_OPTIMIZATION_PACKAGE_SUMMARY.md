@@ -135,7 +135,7 @@ python token_optimized_agent.py "user management" "def.*user"
 ## ✅ Compatibility
 
 ### **Supported Environments:**
-- ✅ Python 3.8+
+- ✅ Python 3.12+
 - ✅ macOS, Linux, Windows (WSL)
 - ✅ zsh, bash, fish shells
 - ✅ Any Git repository
@@ -246,5 +246,5 @@ python token_optimized_agent.py "test" "pattern"
 ---
 
 *Package Version: 1.0*
-*Compatible with: Claude Code, Python 3.8+*
+*Compatible with: Claude Code, Python 3.12+*
 *Expected Token Savings: 90% average*

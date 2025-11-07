@@ -622,7 +622,7 @@ export TODOWRITE_STORAGE_PREFERENCE="auto"  # auto|postgresql_only|sqlite_only|y
 #### Docker Configuration
 ```yaml
 # docker-compose.yml
-version: '3.8'
+version: '3.9'
 services:
   postgres:
     image: postgres:16-alpine

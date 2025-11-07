@@ -1,6 +1,5 @@
 """Main CLI entry point for ToDoWrite."""
 
-import builtins
 import getpass
 import os
 import sys
@@ -30,7 +29,10 @@ try:
     from todowrite.core import Node, ToDoWrite, generate_node_id
     from todowrite.storage import get_schema_compliance_report
 except ImportError:
-    click.echo("Error: todowrite library not found. Please install it first: pip install todowrite")
+    click.echo(
+        "Error: todowrite library not found. Please install it first: "
+        "pip install todowrite",
+    )
     sys.exit(1)
 
 
@@ -41,7 +43,11 @@ def get_current_username() -> str:
     """Get the current username from environment or system."""
     try:
         # Try environment variables first
-        username = os.environ.get("USER") or os.environ.get("USERNAME") or os.environ.get("LOGNAME")
+        username = (
+            os.environ.get("USER")
+            or os.environ.get("USERNAME")
+            or os.environ.get("LOGNAME")
+        )
         if username:
             return username
 
@@ -70,7 +76,10 @@ def capitalize_status(status: str) -> str:
     return status_mapping.get(status, status.title())
 
 
-def get_app(database_path: str | None = None, _yaml_base_path: str | None = None) -> ToDoWrite:
+def get_app(
+    database_path: str | None = None,
+    _yaml_base_path: str | None = None,
+) -> ToDoWrite:
     """Get or create ToDoWrite application instance."""
     if database_path:
         # Convert file path to SQLite URL
@@ -87,7 +96,9 @@ def get_app(database_path: str | None = None, _yaml_base_path: str | None = None
 
             with open(config_path) as f:
                 config = yaml.safe_load(f)
-            db_path = config.get("database", {}).get("default_path", "./todowrite.db")
+            db_path = config.get("database", {}).get(
+                "default_path", "./todowrite.db"
+            )
             if not db_path.startswith(("sqlite:///", "postgresql://")):
                 db_url = f"sqlite:///{db_path}"
             else:
@@ -149,7 +160,11 @@ def init(database_path: str | None, yaml_path: str | None) -> None:
 @click.option(
     "--layer",
     "-l",
-    help="Layer type (case-insensitive: goal, concept, context, constraints, requirements, acceptancecriteria, interfacecontract, phase, step, task, subtask, command)",
+    help=(
+        "Layer type (case-insensitive: goal, concept, context, constraints, "
+        "requirements, acceptancecriteria, interfacecontract, phase, step, "
+        "task, subtask, command)"
+    ),
     required=True,
 )
 @click.option(
@@ -206,7 +221,6 @@ def create(
     artifacts: str | None,
 ) -> None:
     """Creates a new node."""
-
     # Convert layer input to proper case (case-insensitive)
     layer_mapping = {
         "goal": "Goal",
@@ -232,8 +246,10 @@ def create(
     # Normalize layer input
     layer_normalized = layer_mapping.get(layer.lower())
     if not layer_normalized:
+        valid_options = ", ".join(sorted(layer_mapping.keys()))
         console.print(
-            f"[red]✗[/red] Invalid layer: '{layer}'. Valid options: {', '.join(sorted(layer_mapping.keys()))}"
+            f"[red]✗[/red] Invalid layer: '{layer}'. "
+            f"Valid options: {valid_options}"
         )
         sys.exit(1)
 
@@ -267,7 +283,7 @@ def create(
     }
 
     # Add metadata
-    metadata = cast(dict[str, Any], node_data["metadata"])
+    metadata = cast("dict[str, Any]", node_data["metadata"])
     # Set owner to provided owner or current user
     metadata["owner"] = owner or get_current_username()
     if labels:
@@ -286,7 +302,7 @@ def create(
         if not severity_normalized:
             valid_severities = ", ".join(sorted(severity_mapping.keys()))
             console.print(
-                f"[red]✗[/red] Invalid severity: '{severity}'. Valid options: {valid_severities}"
+                f"[red]✗[/red] Invalid severity: '{severity}'. Valid options: {valid_severities}",
             )
             sys.exit(1)
 
@@ -313,7 +329,7 @@ def create(
         if not work_type_normalized:
             valid_work_types = ", ".join(sorted(work_type_mapping.keys()))
             console.print(
-                f"[red]✗[/red] Invalid work_type: '{work_type}'. Valid options: {valid_work_types}"
+                f"[red]✗[/red] Invalid work_type: '{work_type}'. Valid options: {valid_work_types}",
             )
             sys.exit(1)
 
@@ -322,20 +338,24 @@ def create(
     # Add command-specific data
     if layer == "Command":
         node_data["command"] = {}
-        command = cast(dict[str, Any], node_data["command"])
+        command = cast("dict[str, Any]", node_data["command"])
         if ac_ref:
             command["ac_ref"] = ac_ref
         command["run"] = {}
         if run_shell:
             command["run"]["shell"] = run_shell
         if artifacts:
-            command["artifacts"] = [artifact.strip() for artifact in artifacts.split(",")]
+            command["artifacts"] = [
+                artifact.strip() for artifact in artifacts.split(",")
+            ]
 
     try:
         # Validate data before creating
         validate_node(node_data)
         node = create_node(node_data)
-        console.print(f"[green]✓[/green] Created {layer}: {node.title} (ID: {node.id})")
+        console.print(
+            f"[green]✓[/green] Created {layer}: {node.title} (ID: {node.id})"
+        )
     except Exception as e:
         console.print(f"[red]✗[/red] Error creating node: {e}")
         sys.exit(1)
@@ -346,9 +366,8 @@ def create(
 @click.pass_context
 def get(_: click.Context, node_id: str) -> None:
     """Gets a node by its ID."""
-
     try:
-        node = cast(Any, get_node(node_id))
+        node = cast("Any", get_node(node_id))
         if node:
             table = Table(title=f"Node: {node.id}")
             table.add_column("Property", style="cyan")
@@ -359,7 +378,10 @@ def get(_: click.Context, node_id: str) -> None:
             table.add_row("Title", node.title)
             table.add_row("Description", node.description)
             table.add_row("Status", capitalize_status(node.status))
-            table.add_row("Progress", f"{node.progress}%" if node.progress is not None else "0%")
+            table.add_row(
+                "Progress",
+                f"{node.progress}%" if node.progress is not None else "0%",
+            )
 
             if hasattr(node, "owner") and node.owner:
                 table.add_row("Owner", node.owner)
@@ -394,9 +416,13 @@ def get(_: click.Context, node_id: str) -> None:
     help="Filter by status",
 )
 @click.pass_context
-def list(_: click.Context, layer: str | None, owner: str | None, status: str | None) -> None:
+def list_command(
+    _: click.Context,
+    layer: str | None,
+    owner: str | None,
+    status: str | None,
+) -> None:
     """Lists all the nodes."""
-    _app = get_app()
 
     try:
         nodes = list_nodes()
@@ -404,7 +430,7 @@ def list(_: click.Context, layer: str | None, owner: str | None, status: str | N
         if layer:
             nodes = {k: v for k, v in nodes.items() if k == layer}
 
-        all_nodes: builtins.list[tuple[str, Node]] = []
+        all_nodes: list[tuple[str, Node]] = []
         for layer_name, layer_nodes in nodes.items():
             for node in layer_nodes:
                 all_nodes.append((layer_name, node))
@@ -423,7 +449,9 @@ def list(_: click.Context, layer: str | None, owner: str | None, status: str | N
 
         for layer_name, node in all_nodes:
             # Apply filters
-            if owner and (hasattr(node, "metadata") and node.metadata.owner != owner):
+            if owner and (
+                hasattr(node, "metadata") and node.metadata.owner != owner
+            ):
                 continue
             if status and node.status != status:
                 continue
@@ -431,7 +459,10 @@ def list(_: click.Context, layer: str | None, owner: str | None, status: str | N
             # Get owner from metadata with proper fallback
             owner_val = get_current_username()  # Default to current user
             if hasattr(node, "metadata") and node.metadata:
-                owner_val = getattr(node.metadata, "owner", "") or get_current_username()
+                owner_val = (
+                    getattr(node.metadata, "owner", "")
+                    or get_current_username()
+                )
 
             table.add_row(
                 layer_name,
@@ -451,7 +482,6 @@ def list(_: click.Context, layer: str | None, owner: str | None, status: str | N
 @cli.group()
 def status() -> None:
     """Status management commands for tracking task progress."""
-    pass
 
 
 @status.command()
@@ -476,10 +506,15 @@ def show(_: click.Context, node_id: str) -> None:
         table.add_row("Title", node.title)
         table.add_row("Description", node.description)
         table.add_row("Status", capitalize_status(node.status))
-        table.add_row("Progress", f"{node.progress}%" if node.progress is not None else "0%")
+        table.add_row(
+            "Progress",
+            f"{node.progress}%" if node.progress is not None else "0%",
+        )
         table.add_row("Owner", node.metadata.owner or get_current_username())
         table.add_row("Severity", (node.metadata.severity or "low").title())
-        table.add_row("Work Type", (node.metadata.work_type or "chore").title())
+        table.add_row(
+            "Work Type", (node.metadata.work_type or "chore").title()
+        )
 
         console.print(table)
     except Exception as e:
@@ -501,7 +536,9 @@ def complete(_: click.Context, node_id: str) -> None:
             sys.exit(1)
 
         if node.status == "completed":
-            console.print(f"[yellow]Node {node_id} is already completed[/yellow]")
+            console.print(
+                f"[yellow]Node {node_id} is already completed[/yellow]"
+            )
             return
 
         update_data = {
@@ -512,9 +549,13 @@ def complete(_: click.Context, node_id: str) -> None:
 
         updated_node = app.update_node(node_id, update_data)
         if updated_node:
-            console.print(f"[green]✓[/green] Completed {node_id}: {updated_node.title}")
+            console.print(
+                f"[green]✓[/green] Completed {node_id}: {updated_node.title}"
+            )
         else:
-            console.print(f"[green]✓[/green] Completed {node_id}: Unknown title")
+            console.print(
+                f"[green]✓[/green] Completed {node_id}: Unknown title"
+            )
     except Exception as e:
         console.print(f"[red]✗[/red] Error completing node: {e}")
         sys.exit(1)
@@ -538,7 +579,10 @@ def complete(_: click.Context, node_id: str) -> None:
 )
 @click.pass_context
 def global_status(
-    _: click.Context, layer: str | None, owner: str | None, status: str | None
+    _: click.Context,
+    layer: str | None,
+    owner: str | None,
+    status: str | None,
 ) -> None:
     """Show status information for all nodes."""
     try:
@@ -563,7 +607,7 @@ def global_status(
             normalized_layer = layer_mapping.get(layer.lower(), layer.title())
             nodes = {k: v for k, v in nodes.items() if k == normalized_layer}
 
-        all_nodes: builtins.list[tuple[str, Node]] = []
+        all_nodes: list[tuple[str, Node]] = []
         for layer_name, layer_nodes in nodes.items():
             for node in layer_nodes:
                 # Apply additional filters
@@ -596,7 +640,10 @@ def global_status(
             # Get owner from metadata with proper fallback
             owner_val = get_current_username()
             if hasattr(node, "metadata") and node.metadata:
-                owner_val = getattr(node.metadata, "owner", "") or get_current_username()
+                owner_val = (
+                    getattr(node.metadata, "owner", "")
+                    or get_current_username()
+                )
 
             # Get severity from metadata
             severity_val = "low"  # Default severity
@@ -606,7 +653,9 @@ def global_status(
             # Get work_type from metadata
             work_type_val = "chore"  # Default work type
             if hasattr(node, "metadata") and node.metadata:
-                work_type_val = getattr(node.metadata, "work_type", "") or "chore"
+                work_type_val = (
+                    getattr(node.metadata, "work_type", "") or "chore"
+                )
 
             # Capitalize work_type for display
             work_type_display = work_type_val.title()
@@ -615,7 +664,9 @@ def global_status(
             severity_display = severity_val.title()
 
             # Truncate long titles for table display
-            title_display = node.title[:30] + "..." if len(node.title) > 30 else node.title
+            title_display = (
+                node.title[:30] + "..." if len(node.title) > 30 else node.title
+            )
             id_display = node.id[:12] + "…" if len(node.id) > 12 else node.id
 
             table.add_row(
@@ -633,20 +684,24 @@ def global_status(
 
         # Summary statistics
         total_nodes = len(all_nodes)
-        completed_nodes = len([n for _, n in all_nodes if n.status == "completed"])
-        in_progress_nodes = len([n for _, n in all_nodes if n.status == "in_progress"])
+        completed_nodes = len(
+            [n for _, n in all_nodes if n.status == "completed"]
+        )
+        in_progress_nodes = len(
+            [n for _, n in all_nodes if n.status == "in_progress"]
+        )
 
         console.print("\n[bold]Summary:[/bold]")
         console.print(f"Total nodes: {total_nodes}")
         console.print(
             f"Completed: {completed_nodes} ({completed_nodes/total_nodes*100:.1f}%)"
             if total_nodes > 0
-            else "Completed: 0"
+            else "Completed: 0",
         )
         console.print(
             f"In Progress: {in_progress_nodes} ({in_progress_nodes/total_nodes*100:.1f}%)"
             if total_nodes > 0
-            else "In Progress: 0"
+            else "In Progress: 0",
         )
 
     except Exception as e:
@@ -750,14 +805,18 @@ def sync_status(_: click.Context) -> None:
             for node_id in sync_status["database_only"][:10]:  # Show first 10
                 console.print(f"  {node_id}")
             if len(sync_status["database_only"]) > 10:
-                console.print(f"  ... and {len(sync_status['database_only']) - 10} more")
+                console.print(
+                    f"  ... and {len(sync_status['database_only']) - 10} more"
+                )
 
         if sync_status["yaml_only"]:
             console.print("[yellow]YAML only nodes:[/yellow]")
             for node_id in sync_status["yaml_only"][:10]:  # Show first 10
                 console.print(f"  {node_id}")
             if len(sync_status["yaml_only"]) > 10:
-                console.print(f"  ... and {len(sync_status['yaml_only']) - 10} more")
+                console.print(
+                    f"  ... and {len(sync_status['yaml_only']) - 10} more"
+                )
     except Exception as e:
         console.print(f"[red]✗[/red] Error checking sync status: {e}")
         sys.exit(1)
@@ -803,7 +862,9 @@ def db_status(_: click.Context) -> None:
                 if compliance_report.get("is_compliant", False):
                     console.print("[green]✓[/green] Schema is compliant")
                 else:
-                    console.print("[yellow]⚠️[/yellow] Schema compliance issues found:")
+                    console.print(
+                        "[yellow]⚠️[/yellow] Schema compliance issues found:"
+                    )
                     if compliance_report.get("errors"):
                         for error in compliance_report["errors"]:
                             console.print(f"  • {error}")
@@ -811,10 +872,16 @@ def db_status(_: click.Context) -> None:
                         for warning in compliance_report["warnings"]:
                             console.print(f"  • {warning}")
             else:
-                console.print("[yellow]Schema compliance check returned unexpected format[/yellow]")
+                console.print(
+                    "[yellow]Schema compliance check returned unexpected format[/yellow]"
+                )
         except Exception as e:
-            console.print(f"[yellow]⚠️ Schema compliance check failed: {e}[/yellow]")
-            console.print("[dim]This is not critical - core functionality still works[/dim]")
+            console.print(
+                f"[yellow]⚠️ Schema compliance check failed: {e}[/yellow]"
+            )
+            console.print(
+                "[dim]This is not critical - core functionality still works[/dim]"
+            )
     except Exception as e:
         console.print(f"[red]✗[/red] Error getting database status: {e}")
         import traceback
@@ -829,7 +896,7 @@ def db_status(_: click.Context) -> None:
 def delete(_: click.Context, node_id: str) -> None:
     """Delete a node by its ID."""
     try:
-        node = cast(Any, get_node(node_id))
+        node = cast("Any", get_node(node_id))
         if not node:
             console.print(f"[red]✗[/red] Node with ID '{node_id}' not found")
             sys.exit(1)
@@ -858,12 +925,20 @@ def delete(_: click.Context, node_id: str) -> None:
     "--status",
     help="Update status (case-insensitive: planned, in_progress, completed, blocked, cancelled)",
 )
-@click.option("--progress", type=click.IntRange(0, 100), help="Update progress percentage")
+@click.option(
+    "--progress",
+    type=click.IntRange(0, 100),
+    help="Update progress percentage",
+)
 @click.option("--labels", help="Comma-separated labels")
 # Command-specific options
-@click.option("--ac-ref", help="Update acceptance criteria reference (for Commands)")
+@click.option(
+    "--ac-ref", help="Update acceptance criteria reference (for Commands)"
+)
 @click.option("--run-shell", help="Update shell command (for Commands)")
-@click.option("--artifacts", help="Comma-separated artifact paths (for Commands)")
+@click.option(
+    "--artifacts", help="Comma-separated artifact paths (for Commands)"
+)
 @click.pass_context
 def update(
     _: click.Context,
@@ -882,7 +957,7 @@ def update(
 ) -> None:
     """Update a node's properties."""
     try:
-        node = cast(Any, get_node(node_id))
+        node = cast("Any", get_node(node_id))
         if not node:
             console.print(f"[red]✗[/red] Node with ID '{node_id}' not found")
             sys.exit(1)
@@ -910,7 +985,7 @@ def update(
             if not severity_normalized:
                 valid_severities = ", ".join(sorted(severity_mapping.keys()))
                 console.print(
-                    f"[red]✗[/red] Invalid severity: '{severity}'. Valid options: {valid_severities}"
+                    f"[red]✗[/red] Invalid severity: '{severity}'. Valid options: {valid_severities}",
                 )
                 sys.exit(1)
 
@@ -938,7 +1013,7 @@ def update(
             if not work_type_normalized:
                 valid_work_types = ", ".join(sorted(work_type_mapping.keys()))
                 console.print(
-                    f"[red]✗[/red] Invalid work_type: '{work_type}'. Valid options: {valid_work_types}"
+                    f"[red]✗[/red] Invalid work_type: '{work_type}'. Valid options: {valid_work_types}",
                 )
                 sys.exit(1)
 
@@ -959,7 +1034,7 @@ def update(
             if not status_normalized:
                 valid_statuses = ", ".join(sorted(status_mapping.keys()))
                 console.print(
-                    f"[red]✗[/red] Invalid status: '{status}'. Valid options: {valid_statuses}"
+                    f"[red]✗[/red] Invalid status: '{status}'. Valid options: {valid_statuses}",
                 )
                 sys.exit(1)
 
@@ -968,11 +1043,15 @@ def update(
             update_data["progress"] = progress
         if labels is not None:
             update_data["metadata"] = update_data.get("metadata", {})
-            update_data["metadata"]["labels"] = [label.strip() for label in labels.split(",")]
+            update_data["metadata"]["labels"] = [
+                label.strip() for label in labels.split(",")
+            ]
 
         # Command-specific updates
         if node.layer == "Command" and (
-            ac_ref is not None or run_shell is not None or artifacts is not None
+            ac_ref is not None
+            or run_shell is not None
+            or artifacts is not None
         ):
             update_data["command"] = update_data.get("command", {})
             if ac_ref is not None:
@@ -991,13 +1070,17 @@ def update(
         updated_node = update_node(node_id, update_data)
         if updated_node:
             console.print(
-                f"[green]✓[/green] Updated {node_id}: {getattr(updated_node, 'title', 'Unknown')}"
+                f"[green]✓[/green] Updated {node_id}: {getattr(updated_node, 'title', 'Unknown')}",
             )
 
             if status is not None:
-                console.print(f"  Status: {getattr(updated_node, 'status', 'Unknown')}")
+                console.print(
+                    f"  Status: {getattr(updated_node, 'status', 'Unknown')}"
+                )
             if progress is not None:
-                console.print(f"  Progress: {getattr(updated_node, 'progress', 0)}%")
+                console.print(
+                    f"  Progress: {getattr(updated_node, 'progress', 0)}%"
+                )
         if owner is not None and updated_node:
             # Get owner from metadata
             owner_val = getattr(updated_node, "owner", None)
@@ -1040,7 +1123,10 @@ def search(_: click.Context, query: str) -> None:
                 # Get owner from metadata with proper fallback
                 owner_val = get_current_username()  # Default to current user
                 if hasattr(node, "metadata") and node.metadata:
-                    owner_val = getattr(node.metadata, "owner", "") or get_current_username()
+                    owner_val = (
+                        getattr(node.metadata, "owner", "")
+                        or get_current_username()
+                    )
 
                 table.add_row(
                     layer_name,

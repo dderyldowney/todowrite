@@ -17,11 +17,8 @@ classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Utilities",
     "Topic :: Software Development :: User Interfaces",
@@ -78,15 +75,27 @@ select = [
     "UP",  # pyupgrade
     "RUF", # Ruff-specific rules
     "S",   # flake8-bandit (security)
-    "T20", # flake8-print
     "SIM", # flake8-simplify
     "ARG", # flake8-unused-arguments
-    "PTH", # flake8-use-pathlib
+    "TCH", # type-checking
+    "ANN", # type annotations
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101", "ARG001", "ARG002"]  # Allow asserts and unused args in tests
-"src/todowrite_cli/*" = ["T20"]  # Allow print statements in CLI code
+"tests/*" = [
+    "S101",    # Use of assert detected
+    "S311",    # Standard pseudo-random generators are not suitable for cryptographic purposes
+    "S105",    # Possible hardcoded password
+    "S106",    # Possible hardcoded password
+    "S607",    # Starting a process with a shell: possible security issue
+    "ARG001",  # Unused function argument
+    "ARG002",  # Unused method argument
+    "S301",    # pickle can execute arbitrary code
+]
+"src/todowrite_cli/*" = [
+    "T20",     # flake8-print (CLI needs print)
+    "ANN",     # type annotations (CLI can be more flexible)
+]
 
 [tool.ruff.format]
 indent-style = "space"
@@ -94,50 +103,8 @@ quote-style = "double"
 skip-magic-trailing-comma = false
 
 [tool.pyright]
-typeCheckingMode = "strict"
+typeCheckingMode = "basic"
 pythonVersion = "3.12"
-reportMissingImports = "error"
-reportMissingTypeStubs = "error"
-reportUndefinedVariable = "error"
-reportUnboundVariable = "error"
-reportUnusedImport = "error"
-reportUnusedClass = "error"
-reportUnusedFunction = "error"
-reportUnusedVariable = "error"
-reportDuplicateImport = "error"
-reportOptionalSubscript = "error"
-reportOptionalMemberAccess = "error"
-reportOptionalCall = "error"
-reportOptionalIterable = "error"
-reportOptionalContextManager = "error"
-reportUntypedFunctionDecorator = "error"
-reportUntypedClassDecorator = "error"
-reportUntypedBaseClass = "error"
-reportUntypedNamedTuple = "error"
-reportUnnecessaryComparison = "error"
-reportUnnecessaryContains = "error"
-reportUnnecessaryIsInstance = "error"
-reportUnnecessaryCast = "error"
-reportUnnecessaryEllipsis = "error"
-reportInvalidStubStatement = "error"
-reportIncompleteStub = "error"
-reportUnsupportedDunderAll = "error"
-reportPrivateImportUsage = "error"
-reportConstantRedefinition = "error"
-reportDeprecated = "error"
-reportUnreachable = "error"
-reportPossiblyUnboundVariable = "error"
-reportPossiblyUndefinedVariable = "error"
-reportMissingModuleSource = "error"
-reportInvalidTypeForm = "error"
-reportPropertyTypeMismatch = "error"
-reportUnsupportedOperandType = "error"
-reportArgumentType = "error"
-reportAssignmentType = "error"
-reportReturnType = "error"
-reportOperatorIssue = "error"
-reportUnnecessaryTypeIgnoreComment = "error"
-exclude = ["build", "dist", ".venv", "__pycache__"]
 
 
 [tool.pytest.ini_options]

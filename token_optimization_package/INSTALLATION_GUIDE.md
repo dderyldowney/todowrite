@@ -8,7 +8,7 @@ This guide shows how to add the complete token optimization system to any reposi
 
 ## 📋 Prerequisites
 
-- Python 3.8+ installed
+- Python 3.12+ installed
 - Bash shell (zsh, bash, etc.)
 - Claude Code access
 - Git repository (optional but recommended)
