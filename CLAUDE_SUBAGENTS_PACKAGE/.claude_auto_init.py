@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 
-def initialize_claude_session():
+def initialize_claude_session() -> bool | None:
     """Initialize Claude session with token optimization"""
     try:
         print("🚀 Claude auto-initializing for maximum token efficiency...")
@@ -36,7 +36,9 @@ def initialize_claude_session():
         available_agents = [agent for agent in hal_agents if agent.exists()]
 
         if available_agents:
-            print(f"✅ HAL agents ready: {len(available_agents)} agents available")
+            print(
+                f"✅ HAL agents ready: {len(available_agents)} agents available",
+            )
             print("💰 Local preprocessing available (0 tokens)")
         else:
             print("⚠️ HAL agents not found in expected location")
@@ -59,7 +61,9 @@ def initialize_claude_session():
 
         init_file.write_text(json.dumps(session_data, indent=2))
 
-        print("🎯 Claude session initialized with automatic token optimization")
+        print(
+            "🎯 Claude session initialized with automatic token optimization",
+        )
         print()
         print("💡 Claude will now automatically:")
         print("   1. Use token-sage for all analysis")
@@ -74,7 +78,7 @@ def initialize_claude_session():
         return False
 
 
-def get_optimized_analysis_command(goal, pattern=None):
+def get_optimized_analysis_command(goal, pattern=None) -> str:
     """Generate optimized analysis command"""
     current_dir = Path(os.environ.get("TOKEN_OPTIMIZED_PATH", Path.cwd()))
     always_token_sage = current_dir / "always_token_sage.py"
@@ -82,11 +86,9 @@ def get_optimized_analysis_command(goal, pattern=None):
     if always_token_sage.exists():
         if pattern:
             return f'python {always_token_sage} "{goal}" --pattern "{pattern}"'
-        else:
-            return f'python {always_token_sage} "{goal}"'
-    else:
-        # Fallback to token-sage Task
-        return f'Task subagent_type=token-sage description="Optimized analysis" prompt="Analyze: {goal}"'
+        return f'python {always_token_sage} "{goal}"'
+    # Fallback to token-sage Task
+    return f'Task subagent_type=token-sage description="Optimized analysis" prompt="Analyze: {goal}"'
 
 
 def auto_optimize_query(query):
@@ -112,12 +114,13 @@ def auto_optimize_query(query):
     ]
 
     query_lower = query.lower()
-    is_code_query = any(indicator in query_lower for indicator in code_indicators)
+    is_code_query = any(
+        indicator in query_lower for indicator in code_indicators
+    )
 
     if is_code_query:
         return get_optimized_analysis_command(query)
-    else:
-        return f'Task subagent_type=token-sage description="Analysis" prompt="Analyze: {query}"'
+    return f'Task subagent_type=token-sage description="Analysis" prompt="Analyze: {query}"'
 
 
 # Auto-initialize when imported
@@ -126,7 +129,7 @@ if __name__ != "__main__":
 
 
 # Command line interface for testing
-def main():
+def main() -> None:
     if len(sys.argv) > 1:
         query = " ".join(sys.argv[1:])
         print(f"🎯 Optimized command for: {query}")

@@ -12,7 +12,6 @@ import unittest
 from pathlib import Path
 
 from click.testing import CliRunner
-
 from todowrite_cli.main import cli as todowrite_cli
 
 
@@ -47,7 +46,9 @@ class TestUserCliWorkflows(unittest.TestCase):
         # Step 3: Verify successful initialization
         self.assertEqual(result.exit_code, 0, "Init command should succeed")
         self.assertIn(
-            "Database initialized successfully", result.output, "Should show success message"
+            "Database initialized successfully",
+            result.output,
+            "Should show success message",
         )
 
         # Verify database file was created (for SQLite)
@@ -98,7 +99,11 @@ class TestUserCliWorkflows(unittest.TestCase):
                 "Research target market and customer needs",
             ],
         )
-        self.assertEqual(result.exit_code, 0, "Concept creation should succeed")
+        self.assertEqual(
+            result.exit_code,
+            0,
+            "Concept creation should succeed",
+        )
 
         # Step 4: Create a task related to the goal
         result = self.runner.invoke(
@@ -145,13 +150,22 @@ class TestUserCliWorkflows(unittest.TestCase):
         import re
 
         match = re.search(r"\(ID: ([^)]+)\)", result.output)
-        task_id = match.group(1) if match else result.output.split(" ")[-1].strip()
+        task_id = (
+            match.group(1) if match else result.output.split(" ")[-1].strip()
+        )
 
         # Step 2: Start working on task - use update command instead of status update
         # Clean task_id by removing any trailing parenthesis
         task_id = task_id.rstrip(")")
-        result = self.runner.invoke(todowrite_cli, ["update", task_id, "--status", "in_progress"])
-        self.assertEqual(result.exit_code, 0, f"Failed to update task {task_id}: {result.output}")
+        result = self.runner.invoke(
+            todowrite_cli,
+            ["update", task_id, "--status", "in_progress"],
+        )
+        self.assertEqual(
+            result.exit_code,
+            0,
+            f"Failed to update task {task_id}: {result.output}",
+        )
 
         # Step 3: Update progress
         result = self.runner.invoke(
@@ -201,7 +215,15 @@ class TestUserCliWorkflows(unittest.TestCase):
                 continue
             result = self.runner.invoke(
                 todowrite_cli,
-                ["create", "--layer", node_type, "--title", title, "--description", description],
+                [
+                    "create",
+                    "--layer",
+                    node_type,
+                    "--title",
+                    title,
+                    "--description",
+                    description,
+                ],
             )
             self.assertEqual(result.exit_code, 0)
             node_id = result.output.split(" ")[-1].strip()
@@ -210,13 +232,21 @@ class TestUserCliWorkflows(unittest.TestCase):
         # Step 2: List all nodes
         result = self.runner.invoke(todowrite_cli, ["list"])
         self.assertEqual(result.exit_code, 0)
-        self.assertGreater(len(result.output.split("\n")), 3, "Should list multiple nodes")
+        self.assertGreater(
+            len(result.output.split("\n")),
+            3,
+            "Should list multiple nodes",
+        )
 
         # Step 3: List by specific layer (should work with --layer option if available)
         # Test listing available commands
         result = self.runner.invoke(todowrite_cli, ["--help"])
         self.assertEqual(result.exit_code, 0)
-        self.assertIn("list", result.output, "List command should be available")
+        self.assertIn(
+            "list",
+            result.output,
+            "List command should be available",
+        )
 
     def test_todowrite_cli_export_import_workflow(self) -> None:
         """
@@ -248,13 +278,20 @@ class TestUserCliWorkflows(unittest.TestCase):
         # Step 2: Export to YAML
         result = self.runner.invoke(todowrite_cli, ["export-yaml"])
         self.assertEqual(result.exit_code, 0)
-        self.assertIn("Export completed", result.output, "Should show export success")
+        self.assertIn(
+            "Export completed",
+            result.output,
+            "Should show export success",
+        )
 
         # Verify export directory exists
         configs_dir = Path(self.temp_dir) / "configs"
         if configs_dir.exists():
             yaml_files = list(configs_dir.rglob("*.yaml"))
-            self.assertTrue(len(yaml_files) > 0, "YAML files should be created")
+            self.assertTrue(
+                len(yaml_files) > 0,
+                "YAML files should be created",
+            )
 
     def test_todowrite_cli_database_status_workflow(self) -> None:
         """
@@ -268,10 +305,18 @@ class TestUserCliWorkflows(unittest.TestCase):
         os.chdir(self.temp_dir)
         result = self.runner.invoke(todowrite_cli, ["db-status"])
         self.assertEqual(result.exit_code, 0)
-        self.assertIn("Database Status", result.output, "Should show database information")
+        self.assertIn(
+            "Database Status",
+            result.output,
+            "Should show database information",
+        )
 
         # Step 2: Verify database configuration info
-        self.assertIn("Schema Valid", result.output, "Should show schema validation")
+        self.assertIn(
+            "Schema Valid",
+            result.output,
+            "Should show schema validation",
+        )
 
     def test_todowrite_cli_help_workflow(self) -> None:
         """
@@ -285,17 +330,29 @@ class TestUserCliWorkflows(unittest.TestCase):
         result = self.runner.invoke(todowrite_cli, ["--help"])
         self.assertEqual(result.exit_code, 0)
         self.assertIn("Usage:", result.output, "Should show usage")
-        self.assertIn("Commands:", result.output, "Should show available commands")
+        self.assertIn(
+            "Commands:",
+            result.output,
+            "Should show available commands",
+        )
 
         # Step 2: Subcommand help
         result = self.runner.invoke(todowrite_cli, ["create", "--help"])
         self.assertEqual(result.exit_code, 0)
-        self.assertIn("Creates a new node", result.output, "Should show create command help")
+        self.assertIn(
+            "Creates a new node",
+            result.output,
+            "Should show create command help",
+        )
 
         # Step 3: Help for other commands
         result = self.runner.invoke(todowrite_cli, ["list", "--help"])
         self.assertEqual(result.exit_code, 0)
-        self.assertIn("Lists all the nodes", result.output, "Should show list command help")
+        self.assertIn(
+            "Lists all the nodes",
+            result.output,
+            "Should show list command help",
+        )
 
     def test_todowrite_cli_multistep_project_workflow(self) -> None:
         """
@@ -421,8 +478,15 @@ class TestUserCliWorkflows(unittest.TestCase):
         # Mark as in progress - use update command instead of status update
         # Clean task_id by removing any trailing parenthesis
         task_id = task_id.rstrip(")")
-        result = self.runner.invoke(todowrite_cli, ["update", task_id, "--status", "in_progress"])
-        self.assertEqual(result.exit_code, 0, f"Failed to update task {task_id}: {result.output}")
+        result = self.runner.invoke(
+            todowrite_cli,
+            ["update", task_id, "--status", "in_progress"],
+        )
+        self.assertEqual(
+            result.exit_code,
+            0,
+            f"Failed to update task {task_id}: {result.output}",
+        )
 
         # Update progress to 50%
         result = self.runner.invoke(
@@ -442,7 +506,9 @@ class TestUserCliWorkflows(unittest.TestCase):
         result = self.runner.invoke(todowrite_cli, ["list"])
         self.assertEqual(result.exit_code, 0)
         self.assertGreater(
-            len(result.output.split("\n")), 5, "Should show multiple project elements"
+            len(result.output.split("\n")),
+            5,
+            "Should show multiple project elements",
         )
 
         # Verify we have multiple layers represented
@@ -455,7 +521,11 @@ class TestUserCliWorkflows(unittest.TestCase):
                         layer_types.add(layer_type)
                         break
 
-        self.assertGreaterEqual(len(layer_types), 2, "Should have multiple layer types")
+        self.assertGreaterEqual(
+            len(layer_types),
+            2,
+            "Should have multiple layer types",
+        )
 
 
 if __name__ == "__main__":

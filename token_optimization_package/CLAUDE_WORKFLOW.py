@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 # Auto-initialize token optimization
-def ensure_token_optimization():
+def ensure_token_optimization() -> bool | None:
     """Ensure token optimization is always active"""
     try:
         # Import the auto-initialization
@@ -26,7 +26,7 @@ def ensure_token_optimization():
         return False
 
 
-def main():
+def main() -> None:
     """Main workflow function"""
     print("🎯 Claude Token-Optimized Workflow")
     print("=" * 50)

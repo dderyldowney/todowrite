@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 
-def initialize_token_sage():
+def initialize_token_sage() -> bool | None:
     """Initialize token-sage agent first"""
     print("🚀 Initializing token-sage agent...")
     try:
@@ -33,7 +33,10 @@ def run_hal_filtering(goal: str, pattern: str | None = None, **kwargs):
         # Set token-efficient defaults
         filter_params = {
             "goal": goal,
-            "llm_snippet_chars": kwargs.get("llm_snippet_chars", 1500),  # Strict budget
+            "llm_snippet_chars": kwargs.get(
+                "llm_snippet_chars",
+                1500,
+            ),  # Strict budget
             "delta_mode": kwargs.get("delta_mode", True),  # Always use caching
             "abbreviate_paths": kwargs.get("abbreviate_paths", True),
             "max_files": kwargs.get("max_files", 100),  # Limit scope
@@ -55,7 +58,7 @@ def run_hal_filtering(goal: str, pattern: str | None = None, **kwargs):
         return None
 
 
-def analyze_with_token_sage(context: str, query: str):
+def analyze_with_token_sage(context: str, query: str) -> None:
     """Use token-sage for final analysis with minimal context"""
     print(f"🧠 Token-sage analysis with {len(context)} chars of context")
 
@@ -66,14 +69,18 @@ def analyze_with_token_sage(context: str, query: str):
     print(context)
     print("=" * 50)
     print(f"Query: {query}")
-    print("\nCopy this context into a token-sage Task call for maximum efficiency.")
+    print(
+        "\nCopy this context into a token-sage Task call for maximum efficiency.",
+    )
 
 
-def main():
+def main() -> int:
     """Main automatic agent pipeline"""
     if len(sys.argv) < 2:
         print("Usage: python auto_agent.py <goal> [pattern]")
-        print("Example: python auto_agent.py 'analyze authentication' 'class.*Auth'")
+        print(
+            "Example: python auto_agent.py 'analyze authentication' 'class.*Auth'",
+        )
         return 1
 
     goal = sys.argv[1]

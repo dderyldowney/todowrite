@@ -82,7 +82,9 @@ class SoCLinter:
             print(f"ERROR: Failed to read {file_path}: {e}")
             return {}, False
 
-    def _check_for_command_key(self, data: dict[str, Any], _file_path: Path) -> list[str]:
+    def _check_for_command_key(
+        self, data: dict[str, Any], _file_path: Path
+    ) -> list[str]:
         """Check if non-executable layers contain 'command' key"""
         violations: list[str] = []
 
@@ -94,7 +96,9 @@ class SoCLinter:
 
         return violations
 
-    def _check_for_executable_patterns(self, data: dict[str, Any], _file_path: Path) -> list[str]:
+    def _check_for_executable_patterns(
+        self, data: dict[str, Any], _file_path: Path
+    ) -> list[str]:
         """Check for executable patterns in string values"""
         violations: list[str] = []
 
@@ -118,14 +122,14 @@ class SoCLinter:
                     )
         elif isinstance(data, dict):
             # Cast to dict[str, Any] to resolve type issues
-            data_dict = cast(dict[str, Any], data)
+            data_dict = cast("dict[str, Any]", data)
             for key, value in data_dict.items():
                 current_path = f"{path}.{key}"
                 nested_violations = self._scan_recursive(value, current_path)
                 violations.extend(nested_violations)
         elif isinstance(data, list):
             # Cast to list[Any] to resolve type issues
-            data_list = cast(list[Any], data)
+            data_list = cast("list[Any]", data)
             for i, item in enumerate(data_list):
                 current_path = f"{path}[{i}]"
                 nested_violations = self._scan_recursive(item, current_path)
@@ -143,7 +147,9 @@ class SoCLinter:
         if layer == "Command":
             # Command layer MUST have 'command' key
             if "command" not in data:
-                violations.append("Command layer missing required 'command' key")
+                violations.append(
+                    "Command layer missing required 'command' key"
+                )
             else:
                 command_data = data["command"]
                 if not isinstance(command_data, dict):
@@ -151,16 +157,26 @@ class SoCLinter:
                 else:
                     # Check for required fields
                     if "ac_ref" not in command_data:
-                        violations.append("Command missing required 'ac_ref' field")
-                    elif not cast(str, command_data["ac_ref"]).startswith("AC-"):
-                        violations.append("'ac_ref' must start with 'AC-' prefix")
+                        violations.append(
+                            "Command missing required 'ac_ref' field"
+                        )
+                    elif not cast("str", command_data["ac_ref"]).startswith(
+                        "AC-"
+                    ):
+                        violations.append(
+                            "'ac_ref' must start with 'AC-' prefix"
+                        )
 
                     if "run" not in command_data:
-                        violations.append("Command missing required 'run' field")
+                        violations.append(
+                            "Command missing required 'run' field"
+                        )
                     elif not isinstance(command_data["run"], dict):
                         violations.append("'run' value must be an object")
                     elif "shell" not in command_data["run"]:
-                        violations.append("Command 'run' missing required 'shell' field")
+                        violations.append(
+                            "Command 'run' missing required 'shell' field"
+                        )
 
         return violations
 
@@ -179,7 +195,9 @@ class SoCLinter:
         violations.extend(self._check_for_executable_patterns(data, file_path))
 
         # Check Command layer requirements
-        violations.extend(self._check_command_layer_requirements(data, file_path))
+        violations.extend(
+            self._check_command_layer_requirements(data, file_path)
+        )
 
         if violations:
             print(f"✗ {file_path}")
@@ -203,7 +221,9 @@ class SoCLinter:
         clean_files = 0
         self.total_files = len(yaml_files)
 
-        print(f"Linting {self.total_files} YAML files for Separation of Concerns...")
+        print(
+            f"Linting {self.total_files} YAML files for Separation of Concerns..."
+        )
         print()
 
         for file_path in yaml_files:
@@ -238,7 +258,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Lint ToDoWrite YAML files for Separation of Concerns violations"
     )
-    parser.add_argument("--summary", action="store_true", help="Show summary report only")
+    parser.add_argument(
+        "--summary", action="store_true", help="Show summary report only"
+    )
 
     args = parser.parse_args()
 

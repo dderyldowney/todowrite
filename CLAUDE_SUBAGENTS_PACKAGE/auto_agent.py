@@ -28,7 +28,11 @@ def initialize_token_sage() -> bool:
         return False
 
 
-def run_hal_filtering(goal: str, pattern: str | None = None, **kwargs: object) -> str | None:
+def run_hal_filtering(
+    goal: str,
+    pattern: str | None = None,
+    **kwargs: object,
+) -> str | None:
     """Run HAL agent filtering for maximum token efficiency"""
     print(f"🔍 Running HAL agent pre-filtering for: {goal}")
 
@@ -40,7 +44,10 @@ def run_hal_filtering(goal: str, pattern: str | None = None, **kwargs: object) -
         # Set token-efficient defaults
         filter_params = FilterParamsDict(
             goal=goal,
-            llm_snippet_chars=kwargs.get("llm_snippet_chars", 1500),  # Strict budget
+            llm_snippet_chars=kwargs.get(
+                "llm_snippet_chars",
+                1500,
+            ),  # Strict budget
             delta_mode=kwargs.get("delta_mode", True),  # Always use caching
             abbreviate_paths=kwargs.get("abbreviate_paths", True),
             max_files=kwargs.get("max_files", 100),  # Limit scope
@@ -74,14 +81,18 @@ def analyze_with_token_sage(context: str, query: str) -> None:
     print(context)
     print("=" * 50)
     print(f"Query: {query}")
-    print("\nCopy this context into a token-sage Task call for maximum efficiency.")
+    print(
+        "\nCopy this context into a token-sage Task call for maximum efficiency.",
+    )
 
 
 def main() -> int:
     """Main automatic agent pipeline"""
     if len(sys.argv) < 2:
         print("Usage: python auto_agent.py <goal> [pattern]")
-        print("Example: python auto_agent.py 'analyze authentication' 'class.*Auth'")
+        print(
+            "Example: python auto_agent.py 'analyze authentication' 'class.*Auth'",
+        )
         return 1
 
     goal = sys.argv[1]

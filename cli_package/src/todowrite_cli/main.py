@@ -704,7 +704,9 @@ def global_status(
             console.print("Completed: 0")
         if total_nodes > 0:
             percentage = in_progress_nodes / total_nodes * 100
-            console.print(f"In Progress: {in_progress_nodes} ({percentage:.1f}%)")
+            console.print(
+                f"In Progress: {in_progress_nodes} ({percentage:.1f}%)"
+            )
         else:
             console.print("In Progress: 0")
 

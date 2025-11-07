@@ -25,7 +25,9 @@ def generate_node_id(prefix: str = "") -> str:
     return f"{prefix}-{uuid_part}" if prefix else uuid_part
 
 
-def safe_get_nested(data: dict[str, Any], *keys: str, default: Any = None) -> Any:
+def safe_get_nested(
+    data: dict[str, Any], *keys: str, default: Any = None
+) -> Any:
     """
     Safely get a nested value from a dictionary using dot notation.
 
@@ -46,7 +48,9 @@ def safe_get_nested(data: dict[str, Any], *keys: str, default: Any = None) -> An
     return current
 
 
-def truncate_string(text: str, max_length: int = 100, suffix: str = "...") -> str:
+def truncate_string(
+    text: str, max_length: int = 100, suffix: str = "..."
+) -> str:
     """
     Truncate a string to maximum length with suffix.
 

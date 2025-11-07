@@ -13,8 +13,11 @@ from __future__ import annotations
 import argparse
 import os
 import sys
-from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 # Removed circular import - function will be implemented locally
 
@@ -90,7 +93,8 @@ def filter_repo_for_llm(
         # Add file size limit (use a reasonable limit like 1MB per file)
         if max_files > 0:
             max_file_size = min(
-                max(1024 * 1024, max_bytes // max_files), 10 * 1024 * 1024
+                max(1024 * 1024, max_bytes // max_files),
+                10 * 1024 * 1024,
             )  # Between 1MB and 10MB
             cmd.extend(["--max-filesize", str(max_file_size)])
 
@@ -102,7 +106,13 @@ def filter_repo_for_llm(
             for glob in exclude_globs:
                 cmd.extend(["--glob", f"!{glob}"])
 
-        result = subprocess.run(cmd, capture_output=True, text=True, cwd=roots[0])
+        result = subprocess.run(
+            cmd,
+            check=False,
+            capture_output=True,
+            text=True,
+            cwd=roots[0],
+        )
 
         if result.returncode == 0:
             lines = result.stdout.split("\n")
@@ -124,9 +134,13 @@ def filter_repo_for_llm(
                     try:
                         # Simple JSON filtering - look for lines containing JSON
                         if "{" in line and "}" in line:
-                            json_data = json.loads(line[line.find("{") : line.rfind("}") + 1])
+                            json_data = json.loads(
+                                line[line.find("{") : line.rfind("}") + 1],
+                            )
                             # Apply simple jq-like filter (basic implementation)
-                            if json_filter and json_filter not in str(json_data):
+                            if json_filter and json_filter not in str(
+                                json_data,
+                            ):
                                 continue
                     except (json.JSONDecodeError, ValueError):
                         pass  # Not JSON or invalid JSON, continue
@@ -139,7 +153,7 @@ def filter_repo_for_llm(
                         # Shorten path to show only last few directories
                         path_parts = path.split("/")
                         if len(path_parts) > 3:
-                            path = "/".join(["..."] + path_parts[-2:])
+                            path = "/".join(["...", *path_parts[-2:]])
                         line = f"{path}:{parts[1]}"
 
                 result_lines.append(line)
@@ -165,8 +179,7 @@ def filter_repo_for_llm(
                     pass  # Cache writing failed, but that's ok
 
             return output
-        else:
-            return f"No matches found for pattern: {pattern}"
+        return f"No matches found for pattern: {pattern}"
 
     except FileNotFoundError:
         # Try grep as fallback with full parameter support
@@ -183,7 +196,13 @@ def filter_repo_for_llm(
                 "--include=*.py",
             ]
 
-            result = subprocess.run(cmd, capture_output=True, text=True, cwd=roots[0])
+            result = subprocess.run(
+                cmd,
+                check=False,
+                capture_output=True,
+                text=True,
+                cwd=roots[0],
+            )
 
             if result.returncode == 0:
                 lines = result.stdout.split("\n")
@@ -210,12 +229,13 @@ def filter_repo_for_llm(
                     output = output[:llm_snippet_chars] + "\n...[truncated]"
 
                 return output
-            else:
-                return f"No matches found for pattern: {pattern}"
+            return f"No matches found for pattern: {pattern}"
 
         except FileNotFoundError:
             # Final fallback with parameter information
-            info_parts = ["Repository filtering not available. Please install ripgrep or grep."]
+            info_parts = [
+                "Repository filtering not available. Please install ripgrep or grep.",
+            ]
             info_parts.append(f"Goal: {goal}")
             info_parts.append(f"Pattern: {pattern}")
             info_parts.append(f"Max files: {max_files}")
@@ -230,7 +250,11 @@ def filter_repo_for_llm(
 
 class LLMProvider:
     def generate(
-        self, system_prompt: str, user_prompt: str, model: str, max_tokens: int = 800
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        model: str,
+        max_tokens: int = 800,
     ) -> str:
         raise NotImplementedError
 
@@ -238,13 +262,18 @@ class LLMProvider:
 @dataclass
 class OpenAIProvider(LLMProvider):
     def generate(
-        self, system_prompt: str, user_prompt: str, model: str, max_tokens: int = 800
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        model: str,
+        max_tokens: int = 800,
     ) -> str:
         from openai import OpenAI  # lazy import
 
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
-            raise RuntimeError("OPENAI_API_KEY is not set")
+            msg = "OPENAI_API_KEY is not set"
+            raise RuntimeError(msg)
         client = OpenAI(api_key=api_key)
         resp = client.chat.completions.create(
             model=model,
@@ -262,13 +291,18 @@ class AnthropicProvider(LLMProvider):
     anthropic_version: str = "2023-06-01"
 
     def generate(
-        self, system_prompt: str, user_prompt: str, model: str, max_tokens: int = 800
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        model: str,
+        max_tokens: int = 800,
     ) -> str:
         import anthropic
 
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
-            raise RuntimeError("ANTHROPIC_API_KEY is not set")
+            msg = "ANTHROPIC_API_KEY is not set"
+            raise RuntimeError(msg)
         client = anthropic.Anthropic(api_key=api_key)
         msg = client.messages.create(
             model=model,
@@ -307,9 +341,12 @@ def build_user_prompt(user_goal: str, local_snippet: str) -> str:
 
 def _enforce_char_budget(text: str, max_chars: int) -> None:
     if len(text) > max_chars:
-        raise ValueError(
+        msg = (
             f"Prompt too large ({len(text)} chars > {max_chars}). "
             f"Increase --chars or refine filters."
+        )
+        raise ValueError(
+            msg,
         )
 
 
@@ -321,8 +358,14 @@ def should_run_local_tools(pattern: str | None, jq_filter: str | None) -> bool:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    pa = argparse.ArgumentParser(description="Hal Agent: token-minimized loop (v2).")
-    pa.add_argument("--provider", choices=["openai", "anthropic"], required=True)
+    pa = argparse.ArgumentParser(
+        description="Hal Agent: token-minimized loop (v2).",
+    )
+    pa.add_argument(
+        "--provider",
+        choices=["openai", "anthropic"],
+        required=True,
+    )
     pa.add_argument("--model", required=True)
     pa.add_argument("--goal", required=True)
     pa.add_argument("--pattern")
@@ -330,7 +373,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     pa.add_argument("--roots", nargs="+", default=["."])
     pa.add_argument("--include", nargs="+", dest="include_globs")
     pa.add_argument("--exclude", nargs="+", dest="exclude_globs")
-    pa.add_argument("--chars", type=int, default=3200, help="Max snippet size (characters).")
+    pa.add_argument(
+        "--chars",
+        type=int,
+        default=3200,
+        help="Max snippet size (characters).",
+    )
     pa.add_argument("--max-files", type=int, default=20000)
     pa.add_argument("--max-hits", type=int, default=5000)
     pa.add_argument("--max-bytes", type=int, default=256000)
@@ -362,9 +410,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     user_prompt = build_user_prompt(args.goal, snippet)
 
     # hard prompt size guard (prevents surprise token burn)
-    _enforce_char_budget(user_prompt, max_chars=args.chars + 800)  # allow small overhead
+    _enforce_char_budget(
+        user_prompt,
+        max_chars=args.chars + 800,
+    )  # allow small overhead
 
-    provider: LLMProvider = OpenAIProvider() if args.provider == "openai" else AnthropicProvider()
+    provider: LLMProvider = (
+        OpenAIProvider() if args.provider == "openai" else AnthropicProvider()
+    )
     out = provider.generate(
         system_prompt=BASE_SYSTEM_PROMPT,
         user_prompt=user_prompt,

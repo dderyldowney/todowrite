@@ -8,7 +8,6 @@ import json
 import os
 import time
 from collections import defaultdict
-from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -18,7 +17,6 @@ from typing import TYPE_CHECKING, Any, cast
 import jsonschema
 from jsonschema.exceptions import ValidationError
 from sqlalchemy import create_engine, select
-from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, joinedload, sessionmaker
 
 from ..database.config import (
@@ -39,12 +37,18 @@ from .types import Command, LayerType, Link, Metadata, Node, StatusType
 from .utils import generate_node_id
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
+    from sqlalchemy.engine import Engine
+
     from ..storage.yaml_storage import YAMLStorage
 
 
 def _validate_literal(value: str, literal_type: Any) -> str:
     if value not in literal_type.__args__:
-        raise ValueError(f"Invalid literal value: {value}. Expected one of {literal_type.__args__}")
+        raise ValueError(
+            f"Invalid literal value: {value}. Expected one of {literal_type.__args__}"
+        )
     return value
 
 
@@ -58,7 +62,7 @@ class ToDoWrite:
         db_url: str | None = None,
         auto_import: bool = True,
         storage_preference: StoragePreference | None = None,
-    ):
+    ) -> None:
         """Initializes the ToDoWrite application."""
 
         # Set storage preference if provided
@@ -77,7 +81,9 @@ class ToDoWrite:
         if db_url:
             self.db_url = db_url
             self.storage_type = (
-                StorageType.POSTGRESQL if db_url.startswith("postgresql:") else StorageType.SQLITE
+                StorageType.POSTGRESQL
+                if db_url.startswith("postgresql:")
+                else StorageType.SQLITE
             )
 
         # Initialize database components only if not using YAML
@@ -90,7 +96,9 @@ class ToDoWrite:
 
         # Load schema
         if ToDoWrite._SCHEMA is None:
-            schema_path = Path(__file__).parent / "schemas" / "todowrite.schema.json"
+            schema_path = (
+                Path(__file__).parent / "schemas" / "todowrite.schema.json"
+            )
             with open(schema_path) as f:
                 ToDoWrite._SCHEMA = json.load(f)
 
@@ -154,7 +162,9 @@ class ToDoWrite:
             self._query_cache.pop(cache_key, None)
         else:
             # Clear all node cache
-            keys_to_remove = [key for key in self._query_cache if key.startswith("node_")]
+            keys_to_remove = [
+                key for key in self._query_cache if key.startswith("node_")
+            ]
             for key in keys_to_remove:
                 self._query_cache.pop(key, None)
 
@@ -200,7 +210,9 @@ class ToDoWrite:
     def get_db_session(self) -> Generator[Session, None, None]:
         """Get a database session that is guaranteed to not be None."""
         if self.storage_type == StorageType.YAML:
-            raise RuntimeError("Database session requested but using YAML storage")
+            raise RuntimeError(
+                "Database session requested but using YAML storage"
+            )
 
         if self.Session is None:
             raise RuntimeError("Database session not initialized")
@@ -222,7 +234,9 @@ class ToDoWrite:
         try:
             jsonschema.validate(instance=node_data, schema=ToDoWrite._SCHEMA)
         except ValidationError as e:
-            raise ValueError(f"Node data validation failed: {e.message}") from e
+            raise ValueError(
+                f"Node data validation failed: {e.message}"
+            ) from e
 
     def _get_yaml_storage(self) -> YAMLStorage:
         """Get YAML storage with proper error handling."""
@@ -230,7 +244,9 @@ class ToDoWrite:
             raise RuntimeError("YAML storage not initialized")
         return self.yaml_storage
 
-    def _execute_with_session(self, func: Any, *args: Any, **kwargs: Any) -> Any:
+    def _execute_with_session(
+        self, func: Any, *args: Any, **kwargs: Any
+    ) -> Any:
         """Execute a function with a database session, handling None checks."""
         with self.get_session() as session:
             if session is None:
@@ -257,7 +273,9 @@ class ToDoWrite:
 
             # Validate database schema AFTER tables are created (with caching)
             if self._schema_validation_cache is None:
-                self._schema_validation_cache = validate_database_schema(self.engine)
+                self._schema_validation_cache = validate_database_schema(
+                    self.engine
+                )
 
             is_valid, errors = self._schema_validation_cache
             if not is_valid:
@@ -266,7 +284,9 @@ class ToDoWrite:
                 )
                 print(f"⚠️  {error_msg}")
             else:
-                print(f"✅ {self.storage_type.value.capitalize()} schema validation passed")
+                print(
+                    f"✅ {self.storage_type.value.capitalize()} schema validation passed"
+                )
 
     def create_node(self, node_data: dict[str, Any]) -> Node:
         """Creates a new node in the storage backend."""
@@ -294,7 +314,7 @@ class ToDoWrite:
         if cache_key in self._query_cache:
             cached_result = self._query_cache[cache_key]
             if cached_result is not None:
-                return cast(Node, cached_result)
+                return cast("Node", cached_result)
 
         with self.get_db_session() as session:
             stmt = (
@@ -338,7 +358,9 @@ class ToDoWrite:
             # Convert back to regular dict for consistent return type
             return dict(nodes)
 
-    def update_node(self, node_id: str, node_data: dict[str, Any]) -> Node | None:
+    def update_node(
+        self, node_id: str, node_data: dict[str, Any]
+    ) -> Node | None:
         """Updates an existing node in the storage backend."""
         # Skip validation for updates to allow partial updates
         # self._validate_node_data(node_data)
@@ -395,7 +417,7 @@ class ToDoWrite:
 
     def update_node_status(self, node_id: str, status: str) -> Node | None:
         """Update a node's status using the default ToDoWrite instance."""
-        status = cast(StatusType, status)
+        status = cast("StatusType", status)
         node_data = {"status": status}
         return self.update_node(node_id, node_data)
 
@@ -435,7 +457,9 @@ class ToDoWrite:
                     layer = db_node.layer
                     if layer not in results:
                         results[layer] = []
-                    results[layer].append(self._convert_db_node_to_node(db_node))
+                    results[layer].append(
+                        self._convert_db_node_to_node(db_node)
+                    )
 
         return results
 
@@ -490,9 +514,11 @@ class ToDoWrite:
             nodes_to_import: list[dict[str, Any]] = [data]
         elif isinstance(data, list):
             # List of nodes
-            nodes_to_import = cast(list[dict[str, Any]], data)
+            nodes_to_import = cast("list[dict[str, Any]]", data)
         else:
-            raise ValueError("Invalid file format: expected node object or list of nodes")
+            raise ValueError(
+                "Invalid file format: expected node object or list of nodes"
+            )
 
         results: dict[str, Any] = {"imported": 0, "errors": [], "skipped": []}
 
@@ -654,7 +680,11 @@ class ToDoWrite:
                 "severity": "",
                 "work_type": "",
             },
-            "command": {"ac_ref": ac_ref, "run": run, "artifacts": artifacts or []},
+            "command": {
+                "ac_ref": ac_ref,
+                "run": run,
+                "artifacts": artifacts or [],
+            },
         }
         return self.create_node(node_data)
 
@@ -810,7 +840,9 @@ class ToDoWrite:
         """Loads all todos from the database."""
         return self.get_all_nodes()
 
-    def get_active_items(self, todos: dict[str, list[Node]]) -> dict[str, list[Node]]:
+    def get_active_items(
+        self, todos: dict[str, list[Node]]
+    ) -> dict[str, list[Node]]:
         """Returns a dictionary of active items (status != 'done' and 'rejected') grouped by layer."""
         active_items: dict[str, list[Node]] = defaultdict(list)
         for layer, nodes in todos.items():
@@ -819,7 +851,9 @@ class ToDoWrite:
                     active_items[layer].append(node)
         return dict(active_items)
 
-    def _create_db_node(self, session: Session, node_data: dict[str, Any]) -> DBNode:
+    def _create_db_node(
+        self, session: Session, node_data: dict[str, Any]
+    ) -> DBNode:
         # Data validation
         required_fields: list[str] = ["id", "layer", "title", "description"]
         for field_name in required_fields:
@@ -844,7 +878,9 @@ class ToDoWrite:
         session.flush()  # Flush to get the node ID for relationships
 
         for parent_id in node_data["links"].get("parents", []):
-            if parent_id is not None:  # Skip None parents for flexible entry points
+            if (
+                parent_id is not None
+            ):  # Skip None parents for flexible entry points
                 link = DBLink(parent_id=parent_id, child_id=db_node.id)
                 session.add(link)
 
@@ -867,7 +903,9 @@ class ToDoWrite:
             session.flush()
 
             for artifact_text in command_data.get("artifacts", []):
-                artifact = DBArtifact(command_id=db_command.node_id, artifact=artifact_text)
+                artifact = DBArtifact(
+                    command_id=db_command.node_id, artifact=artifact_text
+                )
                 session.add(artifact)
 
         return db_node
@@ -885,18 +923,33 @@ class ToDoWrite:
         if db_node.command:
             command = Command(
                 ac_ref=str(db_node.command.ac_ref or ""),
-                run=json.loads(db_node.command.run) if db_node.command.run else {},
-                artifacts=[artifact.artifact for artifact in db_node.command.artifacts],
+                run=json.loads(db_node.command.run)
+                if db_node.command.run
+                else {},
+                artifacts=[
+                    artifact.artifact for artifact in db_node.command.artifacts
+                ],
             )
         return Node(
             id=str(db_node.id),
-            layer=cast(LayerType, _validate_literal(str(db_node.layer), LayerType)),
+            layer=cast(
+                "LayerType", _validate_literal(str(db_node.layer), LayerType)
+            ),
             title=str(db_node.title),
             description=str(db_node.description),
-            status=cast(StatusType, _validate_literal(str(db_node.status), StatusType)),
+            status=cast(
+                "StatusType",
+                _validate_literal(str(db_node.status), StatusType),
+            ),
             progress=db_node.progress if db_node.progress is not None else 0,
-            started_date=str(db_node.started_date) if db_node.started_date else None,
-            completion_date=(str(db_node.completion_date) if db_node.completion_date else None),
+            started_date=str(db_node.started_date)
+            if db_node.started_date
+            else None,
+            completion_date=(
+                str(db_node.completion_date)
+                if db_node.completion_date
+                else None
+            ),
             links=links,
             metadata=metadata,
             command=command,
@@ -926,12 +979,12 @@ class ToDoWrite:
 
         return Node(
             id=node_data["id"],
-            layer=cast(LayerType, node_data["layer"]),
+            layer=cast("LayerType", node_data["layer"]),
             title=node_data["title"],
             description=node_data["description"],
             links=links,
             metadata=metadata,
-            status=cast(StatusType, node_data.get("status", "planned")),
+            status=cast("StatusType", node_data.get("status", "planned")),
             command=command,
         )
 
@@ -949,14 +1002,22 @@ class ToDoWrite:
             sync_status = yaml_manager.check_yaml_sync()
 
             if sync_status["yaml_only"]:
-                print(f"🔄 Auto-importing {len(sync_status['yaml_only'])} YAML files...")
-                results = yaml_manager.import_yaml_files(force=False, dry_run=False)
+                print(
+                    f"🔄 Auto-importing {len(sync_status['yaml_only'])} YAML files..."
+                )
+                results = yaml_manager.import_yaml_files(
+                    force=False, dry_run=False
+                )
 
                 if results["total_imported"] > 0:
-                    print(f"✅ Auto-imported {results['total_imported']} files from YAML")
+                    print(
+                        f"✅ Auto-imported {results['total_imported']} files from YAML"
+                    )
 
                 if results["errors"]:
-                    print(f"⚠️  {len(results['errors'])} errors during auto-import")
+                    print(
+                        f"⚠️  {len(results['errors'])} errors during auto-import"
+                    )
 
         except Exception:
             # Silently fail auto-import to not break normal operation
@@ -1025,7 +1086,9 @@ def update_node_status(node_id: str, status: str) -> Node | None:
     return app.update_node_status(node_id, status)
 
 
-def link_nodes(db_url: str, parent_id: str, child_id: str, _: dict[str, Any] | None = None) -> bool:
+def link_nodes(
+    db_url: str, parent_id: str, child_id: str, _: dict[str, Any] | None = None
+) -> bool:
     """Link two nodes together in the database."""
     from sqlalchemy import create_engine
     from sqlalchemy.orm import Session
@@ -1050,7 +1113,9 @@ def link_nodes(db_url: str, parent_id: str, child_id: str, _: dict[str, Any] | N
 
         # Check if link already exists
         existing_link = session.execute(
-            select(DBLink).where(DBLink.parent_id == parent_id, DBLink.child_id == child_id)
+            select(DBLink).where(
+                DBLink.parent_id == parent_id, DBLink.child_id == child_id
+            )
         ).scalar_one_or_none()
 
         if existing_link:
@@ -1082,7 +1147,9 @@ def unlink_nodes(db_url: str, parent_id: str, child_id: str) -> bool:
 
         # Find and delete the link
         link = session.execute(
-            select(DBLink).where(DBLink.parent_id == parent_id, DBLink.child_id == child_id)
+            select(DBLink).where(
+                DBLink.parent_id == parent_id, DBLink.child_id == child_id
+            )
         ).scalar_one_or_none()
 
         if link:

@@ -135,12 +135,18 @@ def get_postgresql_candidates() -> list[str]:
             candidates.append(
                 "postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"
             )
-    except (subprocess.TimeoutExpired, FileNotFoundError, subprocess.SubprocessError):
+    except (
+        subprocess.TimeoutExpired,
+        FileNotFoundError,
+        subprocess.SubprocessError,
+    ):
         pass
 
     # Standard localhost
     if not any("localhost" in url for url in candidates):
-        candidates.append("postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite")
+        candidates.append(
+            "postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"
+        )
 
     return candidates
 
@@ -188,7 +194,7 @@ def determine_storage_backend() -> tuple[StorageType, str | None]:
     cache_key = "determine_storage_backend"
     cached_result = _storage_cache.get(cache_key)
     if cached_result is not None:
-        return cast(tuple[StorageType, str | None], cached_result)
+        return cast("tuple[StorageType, str | None]", cached_result)
 
     preference = get_storage_preference()
 

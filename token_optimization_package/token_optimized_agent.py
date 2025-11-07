@@ -18,7 +18,7 @@ class TokenOptimizedAgent:
     for maximum token efficiency.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.cache_dir = Path.home() / ".token_optimized_cache"
         self.cache_dir.mkdir(exist_ok=True)
 
@@ -30,7 +30,10 @@ class TokenOptimizedAgent:
         return True
 
     def run_hal_preprocessing(
-        self, goal: str, pattern: str | None = None, **kwargs: Any
+        self,
+        goal: str,
+        pattern: str | None = None,
+        **kwargs: Any,
     ) -> str | None:
         """
         Run HAL agents for local preprocessing (0 tokens used)
@@ -62,9 +65,8 @@ class TokenOptimizedAgent:
             if result and len(result) > 50:  # Minimum content threshold
                 print(f"✅ HAL preprocessing: {len(result)} chars (0 tokens)")
                 return result
-            else:
-                print("⚠️ HAL preprocessing: Insufficient content")
-                return None
+            print("⚠️ HAL preprocessing: Insufficient content")
+            return None
 
         except Exception as e:
             print(f"❌ HAL preprocessing failed: {e}")
@@ -78,7 +80,7 @@ class TokenOptimizedAgent:
 
         # Simulate token-sage processing
         # In reality, this would call the token-sage agent
-        analysis = f"""
+        return f"""
 [Token-Sage Analysis]
 
 Query: {query}
@@ -98,14 +100,15 @@ Context Size: {len(context)} characters
 Estimated Savings: ~10,000+ tokens
         """.strip()
 
-        return analysis
-
     def get_cache_key(self, goal: str, pattern: str | None = None) -> str:
         """Generate cache key for repeated queries"""
         import hashlib
 
         key_data = f"{goal}:{pattern or ''}"
-        return hashlib.md5(key_data.encode(), usedforsecurity=False).hexdigest()
+        return hashlib.md5(
+            key_data.encode(),
+            usedforsecurity=False,
+        ).hexdigest()
 
     def get_cached_result(self, cache_key: str) -> str | None:
         """Get cached result if available"""
@@ -119,7 +122,7 @@ Estimated Savings: ~10,000+ tokens
                 pass
         return None
 
-    def cache_result(self, cache_key: str, result: str):
+    def cache_result(self, cache_key: str, result: str) -> None:
         """Cache the result"""
         try:
             cache_file = self.cache_dir / f"{cache_key}.json"
@@ -129,7 +132,12 @@ Estimated Savings: ~10,000+ tokens
         except Exception:
             pass
 
-    def analyze(self, goal: str, pattern: str | None = None, use_cache: bool = True) -> str:
+    def analyze(
+        self,
+        goal: str,
+        pattern: str | None = None,
+        use_cache: bool = True,
+    ) -> str:
         """
         Main analysis method with automatic token optimization
         """
@@ -145,7 +153,8 @@ Estimated Savings: ~10,000+ tokens
 
         # Step 1: Load token-sage
         if not self.load_token_sage():
-            raise RuntimeError("Failed to load token-sage")
+            msg = "Failed to load token-sage"
+            raise RuntimeError(msg)
 
         # Step 2: HAL preprocessing (saves tokens)
         local_context = self.run_hal_preprocessing(goal, pattern)
@@ -155,24 +164,30 @@ Estimated Savings: ~10,000+ tokens
             local_context = self.run_hal_preprocessing(goal, pattern=None)
 
         if not local_context:
-            raise RuntimeError("No suitable context found")
+            msg = "No suitable context found"
+            raise RuntimeError(msg)
 
         # Step 3: Token-sage analysis
         final_analysis = self.run_token_sage_analysis(local_context, goal)
 
         # Cache result
         if use_cache:
-            self.cache_result(self.get_cache_key(goal, pattern), final_analysis)
+            self.cache_result(
+                self.get_cache_key(goal, pattern),
+                final_analysis,
+            )
 
         print("\n✅ Analysis complete with maximum token efficiency!")
         return final_analysis
 
 
-def main():
+def main() -> int | None:
     """Command-line interface"""
     if len(sys.argv) < 2:
         print("Usage: python token_optimized_agent.py <goal> [pattern]")
-        print("Example: python token_optimized_agent.py 'authentication system' 'class.*Auth'")
+        print(
+            "Example: python token_optimized_agent.py 'authentication system' 'class.*Auth'",
+        )
         return 1
 
     goal = sys.argv[1]

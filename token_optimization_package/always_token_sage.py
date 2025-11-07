@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 
-def ensure_token_sage():
+def ensure_token_sage() -> None:
     """Ensure token-sage is always loaded first"""
     print("🚀 Ensuring token-sage is loaded...")
 
@@ -25,7 +25,7 @@ def ensure_token_sage():
     print()
 
 
-def run_with_hal_preprocessing(command_args):
+def run_with_hal_preprocessing(command_args) -> int:
     """Run any command with HAL preprocessing first"""
     if not command_args:
         print("Usage: python always_token_sage.py <your_command> [args]")
@@ -47,7 +47,10 @@ def run_with_hal_preprocessing(command_args):
 
         # Extract pattern from goal if it looks like a search
         pattern = None
-        if any(word in goal.lower() for word in ["find", "search", "class", "def", "import"]):
+        if any(
+            word in goal.lower()
+            for word in ["find", "search", "class", "def", "import"]
+        ):
             # Simple pattern extraction
             words = goal.split()
             for word in words:
@@ -96,7 +99,9 @@ def main():
         print("and uses HAL agents for maximum token savings.")
         print()
         print("Usage: python always_token_sage.py <your_goal>")
-        print("Example: python always_token_sage.py 'analyze authentication system'")
+        print(
+            "Example: python always_token_sage.py 'analyze authentication system'",
+        )
         print()
 
         # Initialize token-sage anyway

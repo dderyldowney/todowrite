@@ -27,7 +27,9 @@ LayerType = Literal[
     "Command",
 ]
 
-StatusType = Literal["planned", "in_progress", "completed", "blocked", "cancelled"]
+StatusType = Literal[
+    "planned", "in_progress", "completed", "blocked", "cancelled"
+]
 
 
 @dataclass

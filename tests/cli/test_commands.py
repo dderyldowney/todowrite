@@ -12,7 +12,6 @@ import unittest
 from pathlib import Path
 
 from click.testing import CliRunner
-
 from todowrite_cli.main import cli
 
 
@@ -51,7 +50,10 @@ class TestCLICommands(unittest.TestCase):
             for f in Path(self.temp_dir).glob("*.db"):
                 f.unlink()
 
-            result = self.runner.invoke(cli, ["--storage-preference", storage, "init"])
+            result = self.runner.invoke(
+                cli,
+                ["--storage-preference", storage, "init"],
+            )
             self.assertEqual(result.exit_code, 0)
             self.assertIn("Database initialized successfully", result.output)
 
@@ -197,17 +199,28 @@ class TestCLICommands(unittest.TestCase):
                     ],
                 )
 
-            self.assertEqual(result.exit_code, 0, f"Failed to create {layer}: {result.output}")
+            self.assertEqual(
+                result.exit_code,
+                0,
+                f"Failed to create {layer}: {result.output}",
+            )
             self.assertIn(f"Created {layer}:", result.output)
             created_nodes.append((layer, title))
 
         # Verify we successfully created all 12 nodes
-        self.assertEqual(len(created_nodes), 12, "Should have created 12 nodes")
+        self.assertEqual(
+            len(created_nodes),
+            12,
+            "Should have created 12 nodes",
+        )
 
         # Quick verification with list - check it works and shows nodes
         result = self.runner.invoke(cli, ["list"])
         self.assertEqual(result.exit_code, 0)
-        self.assertIn("All Nodes", result.output)  # Table header should be present
+        self.assertIn(
+            "All Nodes",
+            result.output,
+        )  # Table header should be present
 
         # Just check that some key layers are in the output (handling table truncation)
         self.assertIn("Goal", result.output)
@@ -242,7 +255,9 @@ class TestCLICommands(unittest.TestCase):
                 ],
             )
             self.assertEqual(
-                result.exit_code, 0, f"Failed to create {input_layer}: {result.output}"
+                result.exit_code,
+                0,
+                f"Failed to create {input_layer}: {result.output}",
             )
             self.assertIn(f"Created {expected_layer}:", result.output)
 
@@ -277,7 +292,10 @@ class TestCLICommands(unittest.TestCase):
             match = re.search(r"\(ID: ([^)]+)\)", create_result)
             if match:
                 node_id = match.group(1)
-                status_result = self.runner.invoke(cli, ["status", "show", node_id])
+                status_result = self.runner.invoke(
+                    cli,
+                    ["status", "show", node_id],
+                )
                 self.assertEqual(status_result.exit_code, 0)
                 self.assertIn(expected_display, status_result.output)
 
@@ -312,7 +330,10 @@ class TestCLICommands(unittest.TestCase):
             match = re.search(r"\(ID: ([^)]+)\)", create_result)
             if match:
                 node_id = match.group(1)
-                status_result = self.runner.invoke(cli, ["status", "show", node_id])
+                status_result = self.runner.invoke(
+                    cli,
+                    ["status", "show", node_id],
+                )
                 self.assertEqual(status_result.exit_code, 0)
                 self.assertIn(expected_display, status_result.output)
 
@@ -323,7 +344,16 @@ class TestCLICommands(unittest.TestCase):
 
         # Missing title (empty string)
         result = self.runner.invoke(
-            cli, ["create", "--layer", "Goal", "--title", "", "--description", "Test description"]
+            cli,
+            [
+                "create",
+                "--layer",
+                "Goal",
+                "--title",
+                "",
+                "--description",
+                "Test description",
+            ],
         )
         self.assertEqual(result.exit_code, 1)  # Should fail with empty title
 
@@ -350,7 +380,9 @@ class TestCLICommands(unittest.TestCase):
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
-            match.group(1) if match else create_result.output.split("Node created: ")[1].strip()
+            match.group(1)
+            if match
+            else create_result.output.split("Node created: ")[1].strip()
         )
 
         # Get node
@@ -391,7 +423,9 @@ class TestCLICommands(unittest.TestCase):
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
-            match.group(1) if match else create_result.output.split("Node created: ")[1].strip()
+            match.group(1)
+            if match
+            else create_result.output.split("Node created: ")[1].strip()
         )
 
         # Update node
@@ -438,11 +472,16 @@ class TestCLICommands(unittest.TestCase):
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
-            match.group(1) if match else create_result.output.split("Node created: ")[1].strip()
+            match.group(1)
+            if match
+            else create_result.output.split("Node created: ")[1].strip()
         )
 
         # Update only status
-        result = self.runner.invoke(cli, ["update", node_id, "--status", "completed"])
+        result = self.runner.invoke(
+            cli,
+            ["update", node_id, "--status", "completed"],
+        )
         self.assertEqual(result.exit_code, 0)
         self.assertIn("completed", result.output)
 
@@ -469,12 +508,20 @@ class TestCLICommands(unittest.TestCase):
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
-            match.group(1) if match else create_result.output.split("Node created: ")[1].strip()
+            match.group(1)
+            if match
+            else create_result.output.split("Node created: ")[1].strip()
         )
 
         # Update with invalid status
-        result = self.runner.invoke(cli, ["update", node_id, "--status", "invalid_status"])
-        self.assertEqual(result.exit_code, 1)  # CLI error for invalid option value
+        result = self.runner.invoke(
+            cli,
+            ["update", node_id, "--status", "invalid_status"],
+        )
+        self.assertEqual(
+            result.exit_code,
+            1,
+        )  # CLI error for invalid option value
 
     def test_delete_node_success(self) -> None:
         """Test successful node deletion."""
@@ -499,7 +546,9 @@ class TestCLICommands(unittest.TestCase):
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
-            match.group(1) if match else create_result.output.split("Node created: ")[1].strip()
+            match.group(1)
+            if match
+            else create_result.output.split("Node created: ")[1].strip()
         )
 
         # Delete node
@@ -534,7 +583,16 @@ class TestCLICommands(unittest.TestCase):
 
         for layer, title, description in nodes_data:
             self.runner.invoke(
-                cli, ["create", "--layer", layer, "--title", title, "--description", description]
+                cli,
+                [
+                    "create",
+                    "--layer",
+                    layer,
+                    "--title",
+                    title,
+                    "--description",
+                    description,
+                ],
             )
 
         # List all nodes
@@ -552,13 +610,40 @@ class TestCLICommands(unittest.TestCase):
 
         # Create multiple nodes
         self.runner.invoke(
-            cli, ["create", "--layer", "Goal", "--title", "Goal 1", "--description", "First goal"]
+            cli,
+            [
+                "create",
+                "--layer",
+                "Goal",
+                "--title",
+                "Goal 1",
+                "--description",
+                "First goal",
+            ],
         )
         self.runner.invoke(
-            cli, ["create", "--layer", "Goal", "--title", "Goal 2", "--description", "Second goal"]
+            cli,
+            [
+                "create",
+                "--layer",
+                "Goal",
+                "--title",
+                "Goal 2",
+                "--description",
+                "Second goal",
+            ],
         )
         self.runner.invoke(
-            cli, ["create", "--layer", "Task", "--title", "Task 1", "--description", "First task"]
+            cli,
+            [
+                "create",
+                "--layer",
+                "Task",
+                "--title",
+                "Task 1",
+                "--description",
+                "First task",
+            ],
         )
 
         # List only goals
@@ -619,14 +704,24 @@ class TestCLICommands(unittest.TestCase):
         # Create node
         create_result = self.runner.invoke(
             cli,
-            ["create", "--layer", "Task", "--title", "Test Task", "--description", "Description"],
+            [
+                "create",
+                "--layer",
+                "Task",
+                "--title",
+                "Test Task",
+                "--description",
+                "Description",
+            ],
         )
         # Extract node ID from output like "Created Task: Test Task (ID: TSK-A58B86E71041)"
         import re
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
-            match.group(1) if match else create_result.output.split("Node created: ")[1].strip()
+            match.group(1)
+            if match
+            else create_result.output.split("Node created: ")[1].strip()
         )
 
         # Update status using update command
@@ -652,14 +747,24 @@ class TestCLICommands(unittest.TestCase):
         # Create node
         create_result = self.runner.invoke(
             cli,
-            ["create", "--layer", "Task", "--title", "Test Task", "--description", "Description"],
+            [
+                "create",
+                "--layer",
+                "Task",
+                "--title",
+                "Test Task",
+                "--description",
+                "Description",
+            ],
         )
         # Extract node ID from output like "Created Task: Test Task (ID: TSK-A58B86E71041)"
         import re
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
-            match.group(1) if match else create_result.output.split("Node created: ")[1].strip()
+            match.group(1)
+            if match
+            else create_result.output.split("Node created: ")[1].strip()
         )
 
         # Show status
@@ -676,14 +781,24 @@ class TestCLICommands(unittest.TestCase):
         # Create node
         create_result = self.runner.invoke(
             cli,
-            ["create", "--layer", "Task", "--title", "Test Task", "--description", "Description"],
+            [
+                "create",
+                "--layer",
+                "Task",
+                "--title",
+                "Test Task",
+                "--description",
+                "Description",
+            ],
         )
         # Extract node ID from output like "Created Task: Test Task (ID: TSK-A58B86E71041)"
         import re
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
-            match.group(1) if match else create_result.output.split("Node created: ")[1].strip()
+            match.group(1)
+            if match
+            else create_result.output.split("Node created: ")[1].strip()
         )
 
         # Complete node (no --message option available)
@@ -699,14 +814,24 @@ class TestCLICommands(unittest.TestCase):
         # Create and complete node
         create_result = self.runner.invoke(
             cli,
-            ["create", "--layer", "Task", "--title", "Test Task", "--description", "Description"],
+            [
+                "create",
+                "--layer",
+                "Task",
+                "--title",
+                "Test Task",
+                "--description",
+                "Description",
+            ],
         )
         # Extract node ID from output like "Created Task: Test Task (ID: TSK-A58B86E71041)"
         import re
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
-            match.group(1) if match else create_result.output.split("Node created: ")[1].strip()
+            match.group(1)
+            if match
+            else create_result.output.split("Node created: ")[1].strip()
         )
 
         self.runner.invoke(cli, ["status", "complete", node_id])
@@ -714,7 +839,8 @@ class TestCLICommands(unittest.TestCase):
         # Try to complete again
         result = self.runner.invoke(cli, ["status", "complete", node_id])
         self.assertEqual(
-            result.exit_code, 0
+            result.exit_code,
+            0,
         )  # Should allow completing again (idempotent operation)
         self.assertIn("already completed", result.output)
 
@@ -728,7 +854,13 @@ class TestCLICommands(unittest.TestCase):
             ("Goal", "Goal 1", "First goal", "med", "architecture"),
             ("Task", "Task 1", "First task", "high", "development"),
             ("Concept", "Concept 1", "First concept", "low", "test"),
-            ("SubTask", "SubTask 1", "First subtask", "medium", "implementation"),
+            (
+                "SubTask",
+                "SubTask 1",
+                "First subtask",
+                "medium",
+                "implementation",
+            ),
         ]
 
         created_node_ids = []
@@ -776,7 +908,10 @@ class TestCLICommands(unittest.TestCase):
                     break
 
         # Test global status with layer filter
-        result = self.runner.invoke(cli, ["status", "global-status", "--layer", "Task"])
+        result = self.runner.invoke(
+            cli,
+            ["status", "global-status", "--layer", "Task"],
+        )
         self.assertEqual(result.exit_code, 0)
         # Check for Task in the output and Task ID pattern rather than full title
         self.assertIn("Task", result.output)
@@ -786,19 +921,31 @@ class TestCLICommands(unittest.TestCase):
 
         # Test global status with status filter (after completing one)
         if created_node_ids:
-            self.runner.invoke(cli, ["status", "complete", created_node_ids[0]])
+            self.runner.invoke(
+                cli,
+                ["status", "complete", created_node_ids[0]],
+            )
 
-            result = self.runner.invoke(cli, ["status", "global-status", "--status", "completed"])
+            result = self.runner.invoke(
+                cli,
+                ["status", "global-status", "--status", "completed"],
+            )
             self.assertEqual(result.exit_code, 0)
             # Should show the completed node
 
         # Test global status with owner filter
-        result = self.runner.invoke(cli, ["status", "global-status", "--owner", "testuser"])
+        result = self.runner.invoke(
+            cli,
+            ["status", "global-status", "--owner", "testuser"],
+        )
         self.assertEqual(result.exit_code, 0)
         # Should work with owner filter (though actual owner depends on system)
 
         # Test global status case-insensitive filtering
-        result = self.runner.invoke(cli, ["status", "global-status", "--layer", "TASK"])
+        result = self.runner.invoke(
+            cli,
+            ["status", "global-status", "--layer", "TASK"],
+        )
         self.assertEqual(result.exit_code, 0)
         # Due to table truncation, check for Task and ID pattern instead of full title
         self.assertIn("Task", result.output)
@@ -841,7 +988,10 @@ class TestCLICommands(unittest.TestCase):
         self.assertNotIn("N/A", result.output)
         self.assertIn("0%", result.output)  # Progress should show 0%
         self.assertIn("Low", result.output)  # Severity should default to Low
-        self.assertIn("Chore", result.output)  # Work Type should default to Chore
+        self.assertIn(
+            "Chore",
+            result.output,
+        )  # Work Type should default to Chore
 
         # Check global status - should not show N/A
         result = self.runner.invoke(cli, ["status", "global-status"])
@@ -886,8 +1036,14 @@ class TestCLICommands(unittest.TestCase):
         # Verify capitalization rules
         self.assertIn("Task", result.output)  # Layer should be capitalized
         self.assertIn("Planned", result.output)  # Status should be capitalized
-        self.assertIn("Medium", result.output)  # Severity should be capitalized
-        self.assertIn("Implementation", result.output)  # Work Type should be capitalized
+        self.assertIn(
+            "Medium",
+            result.output,
+        )  # Severity should be capitalized
+        self.assertIn(
+            "Implementation",
+            result.output,
+        )  # Work Type should be capitalized
         # Owner should be in lowercase (actual username)
         # Progress should show as "0%"
 
@@ -896,9 +1052,18 @@ class TestCLICommands(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
 
         # Verify capitalization in global status - handle table truncation
-        self.assertIn("Task", result.output)  # Layer column should be capitalized
-        self.assertIn("Planned", result.output)  # Status column should be capitalized
-        self.assertIn("Medium", result.output)  # Severity column should be capitalized
+        self.assertIn(
+            "Task",
+            result.output,
+        )  # Layer column should be capitalized
+        self.assertIn(
+            "Planned",
+            result.output,
+        )  # Status column should be capitalized
+        self.assertIn(
+            "Medium",
+            result.output,
+        )  # Severity column should be capitalized
         # Work Type might be truncated to "Implem" due to table width limits
         self.assertTrue(
             "Implementation" in result.output or "Implem" in result.output,
@@ -930,7 +1095,10 @@ class TestCLICommands(unittest.TestCase):
             result = self.runner.invoke(cli, ["status", "show", goal_id])
             self.assertEqual(result.exit_code, 0)
             self.assertIn("Critical", result.output)  # Should be capitalized
-            self.assertIn("Architecture", result.output)  # Should be capitalized
+            self.assertIn(
+                "Architecture",
+                result.output,
+            )  # Should be capitalized
 
     def test_help_commands(self) -> None:
         """Test help commands."""
@@ -973,7 +1141,15 @@ class TestCLICommands(unittest.TestCase):
         # Create some nodes
         self.runner.invoke(
             cli,
-            ["create", "--layer", "Goal", "--title", "Test Goal", "--description", "Description"],
+            [
+                "create",
+                "--layer",
+                "Goal",
+                "--title",
+                "Test Goal",
+                "--description",
+                "Description",
+            ],
         )
 
         # Export to YAML
@@ -995,7 +1171,15 @@ class TestCLICommands(unittest.TestCase):
         # Create some nodes
         self.runner.invoke(
             cli,
-            ["create", "--layer", "Goal", "--title", "Test Goal", "--description", "Description"],
+            [
+                "create",
+                "--layer",
+                "Goal",
+                "--title",
+                "Test Goal",
+                "--description",
+                "Description",
+            ],
         )
 
         # Export with custom output dir
@@ -1078,7 +1262,10 @@ metadata:
             f.write(yaml_content)
 
         # Import with custom path
-        result = self.runner.invoke(cli, ["import-yaml", "--yaml-path", str(configs_dir)])
+        result = self.runner.invoke(
+            cli,
+            ["import-yaml", "--yaml-path", str(configs_dir)],
+        )
         self.assertEqual(result.exit_code, 0)
         self.assertIn("Import completed", result.output)
 
@@ -1090,7 +1277,15 @@ metadata:
         # Create some nodes
         self.runner.invoke(
             cli,
-            ["create", "--layer", "Goal", "--title", "Test Goal", "--description", "Description"],
+            [
+                "create",
+                "--layer",
+                "Goal",
+                "--title",
+                "Test Goal",
+                "--description",
+                "Description",
+            ],
         )
 
         # Check sync status
@@ -1133,11 +1328,17 @@ metadata:
 
         # Test with different storage preferences
         for storage in ["postgresql_only", "sqlite_only", "yaml_only"]:
-            result = self.runner.invoke(cli, ["--storage-preference", storage, "init"])
+            result = self.runner.invoke(
+                cli,
+                ["--storage-preference", storage, "init"],
+            )
             self.assertEqual(result.exit_code, 0)
 
             # Test that the command works with the storage preference
-            result = self.runner.invoke(cli, ["--storage-preference", storage, "list"])
+            result = self.runner.invoke(
+                cli,
+                ["--storage-preference", storage, "list"],
+            )
             self.assertEqual(result.exit_code, 0)
 
 
@@ -1159,8 +1360,14 @@ class TestCLIErrorHandling(unittest.TestCase):
         """Test invalid storage preference."""
         os.chdir(self.temp_dir)
 
-        result = self.runner.invoke(cli, ["--storage-preference", "invalid_storage", "init"])
-        self.assertEqual(result.exit_code, 2)  # CLI error for invalid option value
+        result = self.runner.invoke(
+            cli,
+            ["--storage-preference", "invalid_storage", "init"],
+        )
+        self.assertEqual(
+            result.exit_code,
+            2,
+        )  # CLI error for invalid option value
 
     def test_command_without_init(self) -> None:
         """Test commands without database initialization."""
@@ -1168,7 +1375,15 @@ class TestCLIErrorHandling(unittest.TestCase):
 
         # Try to use commands without init
         commands = [
-            ["create", "--layer", "Goal", "--title", "Test", "--description", "Description"],
+            [
+                "create",
+                "--layer",
+                "Goal",
+                "--title",
+                "Test",
+                "--description",
+                "Description",
+            ],
             ["list"],
             ["get", "GOAL-001"],
             ["update", "GOAL-001", "--title", "New Title"],
@@ -1180,7 +1395,10 @@ class TestCLIErrorHandling(unittest.TestCase):
             if args[0] in ["get", "update"]:
                 self.assertEqual(result.exit_code, 1)  # Invalid node ID
             else:
-                self.assertEqual(result.exit_code, 0)  # Auto-initialization works
+                self.assertEqual(
+                    result.exit_code,
+                    0,
+                )  # Auto-initialization works
 
     def test_missing_required_arguments(self) -> None:
         """Test missing required arguments."""

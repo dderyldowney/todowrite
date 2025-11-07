@@ -91,7 +91,9 @@ class TestSchemaValidation(unittest.TestCase):
             try:
                 validate_node_data(node_data)
             except Exception as e:
-                self.fail(f"Valid ID {valid_id} should not raise exception: {e}")
+                self.fail(
+                    f"Valid ID {valid_id} should not raise exception: {e}",
+                )
 
         # Invalid IDs
         invalid_ids = [
@@ -212,7 +214,11 @@ class TestSchemaValidation(unittest.TestCase):
         # Valid command
         valid_command = {
             "ac_ref": "AC-001",
-            "run": {"shell": "echo hello", "workdir": "/tmp", "env": {"DEBUG": "true"}},
+            "run": {
+                "shell": "echo hello",
+                "workdir": "/tmp",
+                "env": {"DEBUG": "true"},
+            },
             "artifacts": ["output.txt", "log.txt"],
         }
 
@@ -262,7 +268,9 @@ class TestDatabaseSchema(unittest.TestCase):
             self.assertIsNotNone(result)
             # Should pass validation for a properly initialized database
         except Exception as e:
-            self.fail(f"Database schema validation should not raise exception: {e}")
+            self.fail(
+                f"Database schema validation should not raise exception: {e}",
+            )
 
     def test_schema_compliance_report(self) -> None:
         """Test schema compliance report generation."""
@@ -272,7 +280,9 @@ class TestDatabaseSchema(unittest.TestCase):
             self.assertIn("summary", report)
             self.assertIn("details", report)
         except Exception as e:
-            self.fail(f"Schema compliance report should not raise exception: {e}")
+            self.fail(
+                f"Schema compliance report should not raise exception: {e}",
+            )
 
 
 class TestYAMLValidation(unittest.TestCase):
