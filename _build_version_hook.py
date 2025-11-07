@@ -2,14 +2,6 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
-# Add root to path to import _version
-sys.path.insert(0, str(Path(__file__).parent))
-
-from _version import get_version
-
 
 def get_project_version() -> str:
     """Get the project version from the central VERSION file.
@@ -20,6 +12,9 @@ def get_project_version() -> str:
     Returns:
         The current version string.
     """
+    # Import here to avoid flake8 E402 error while keeping path setup
+    from shared_version import get_version
+
     return get_version()
 
 
