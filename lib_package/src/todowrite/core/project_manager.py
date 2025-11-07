@@ -38,7 +38,7 @@ class ProjectManager:
             try:
                 with open(path) as f:
                     data = json.load(f)
-                    return cast(dict[Any, Any], data)
+                    return cast("dict[Any, Any]", data)
             except (FileNotFoundError, json.JSONDecodeError):
                 return {}
 
@@ -111,9 +111,9 @@ class ProjectManager:
             try:
                 with open(schema_path) as f:
                     data = json.load(f)
-                    return cast(dict[str, Any], data)
+                    return cast("dict[str, Any]", data)
             except (FileNotFoundError, json.JSONDecodeError):
-                return cast(dict[str, Any], {})
+                return cast("dict[str, Any]", {})
 
         primary_data = load_schema(primary_schema)
         deprecated_data = load_schema(deprecated_schema)

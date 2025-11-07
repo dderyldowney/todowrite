@@ -301,9 +301,11 @@ def create(
         severity_normalized = severity_mapping.get(severity.lower())
         if not severity_normalized:
             valid_severities = ", ".join(sorted(severity_mapping.keys()))
-            console.print(
-                f"[red]✗[/red] Invalid severity: '{severity}'. Valid options: {valid_severities}",
+            error_msg = (
+                f"[red]✗[/red] Invalid severity: '{severity}'. "
+                f"Valid options: {valid_severities}"
             )
+            console.print(error_msg)
             sys.exit(1)
 
         metadata["severity"] = severity_normalized
@@ -328,9 +330,11 @@ def create(
         work_type_normalized = work_type_mapping.get(work_type.lower())
         if not work_type_normalized:
             valid_work_types = ", ".join(sorted(work_type_mapping.keys()))
-            console.print(
-                f"[red]✗[/red] Invalid work_type: '{work_type}'. Valid options: {valid_work_types}",
+            error_msg = (
+                f"[red]✗[/red] Invalid work_type: '{work_type}'. "
+                f"Valid options: {valid_work_types}"
             )
+            console.print(error_msg)
             sys.exit(1)
 
         metadata["work_type"] = work_type_normalized
@@ -693,16 +697,16 @@ def global_status(
 
         console.print("\n[bold]Summary:[/bold]")
         console.print(f"Total nodes: {total_nodes}")
-        console.print(
-            f"Completed: {completed_nodes} ({completed_nodes/total_nodes*100:.1f}%)"
-            if total_nodes > 0
-            else "Completed: 0",
-        )
-        console.print(
-            f"In Progress: {in_progress_nodes} ({in_progress_nodes/total_nodes*100:.1f}%)"
-            if total_nodes > 0
-            else "In Progress: 0",
-        )
+        if total_nodes > 0:
+            percentage = completed_nodes / total_nodes * 100
+            console.print(f"Completed: {completed_nodes} ({percentage:.1f}%)")
+        else:
+            console.print("Completed: 0")
+        if total_nodes > 0:
+            percentage = in_progress_nodes / total_nodes * 100
+            console.print(f"In Progress: {in_progress_nodes} ({percentage:.1f}%)")
+        else:
+            console.print("In Progress: 0")
 
     except Exception as e:
         console.print(f"[red]✗[/red] Error showing global status: {e}")
