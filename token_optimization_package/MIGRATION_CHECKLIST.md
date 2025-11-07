@@ -6,7 +6,7 @@
 
 ### **Repository Requirements:**
 - [ ] Repository is accessible locally
-- [ ] Python 3.8+ is installed
+- [ ] Python 3.12+ is installed
 - [ ] Git is initialized (recommended)
 - [ ] Claude Code is available
 - [ ] Write permissions to repository directory

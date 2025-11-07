@@ -275,7 +275,7 @@ Update the `matrix.python-version` section:
 ```yaml
 strategy:
   matrix:
-    python-version: ['3.11', '3.12', '3.13']
+    python-version: ['3.12', '3.13']
 ```
 
 ### Adding New Tests

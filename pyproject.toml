@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "todowrite"
+name = "todowrite-dev"
 dynamic = ["version"]
-description = "A standalone task management system with hierarchical planning framework."
+description = "Development meta-package for ToDoWrite monorepo"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12"
@@ -13,36 +13,21 @@ authors = [
     { name = "dderyldowney", email = "dderyldowney@gmail.com" },
 ]
 keywords = [
-    "cli",
-    "hierarchical",
-    "management",
-    "planning",
-    "productivity",
-    "task",
-    "todo",
+    "development",
+    "monorepo",
+    "todowrite",
 ]
 
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "Intended Audience :: End Users/Desktop",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.12",
-    "Topic :: Office/Business :: Scheduling",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Topic :: Text Processing :: Markup :: Markdown",
+    "Programming Language :: Python :: 3.13",
 ]
-dependencies = [
-    "click>=8.0.0",
-    "jsonschema>=4.0.0",
-    "psycopg2-binary>=2.9.0",
-    "PyYAML>=6.0.0",
-    "sqlalchemy>=2.0.0",
-    "typing-extensions>=4.0.0",
-]
+dependencies = []
 
 [project.urls]
 Issues = "https://github.com/dderyldowney/todowrite/issues"
@@ -57,7 +42,6 @@ dev = [
     "pytest>=8.0.0",
     "pytest-cov>=4.0.0",
     "ruff>=0.7.0",
-    "sqlalchemy>=2.0.0",
     "types-click>=7.1.0",
     "types-jsonschema>=4.0.0",
     "types-PyYAML>=6.0.12",
@@ -67,129 +51,10 @@ dev = [
 path = "VERSION"
 pattern = "^(?P<version>[0-9]+\\.[0-9]+\\.[0-9]+)$"
 
-[tool.hatch.build.targets.sdist]
-include = [
-    "lib_package/sdist",
-]
-
-[tool.hatch.build.targets.wheel]
-packages = ["cli_package/src/todowrite_cli"]
-only-include = [
-    "cli_package/src/todowrite_cli/**",
-    "lib_package/src/todowrite/**",  # Include lib as dependency
-]
-
-[tool.hatch.envs.default]
-python = "3.12"
-dependencies = [
-    "sqlalchemy>=2.0.0",
-    "typing-extensions>=4.0.0",
-    "click>=8.0.0",
-    "psycopg2-binary>=2.9.0",
-    "PyYAML>=6.0.0",
-    "jsonschema>=4.0.0",
-    "pyright>=1.1.0",
-    "types-PyYAML>=6.0.12",
-    "types-jsonschema>=4.0.0",
-    "types-click>=7.1.0",
-    "ruff>=0.7.0",
-    "pytest>=8.0.0",
-    "pre-commit>=4.0.0",
-]
-
-[tool.hatch.envs.hatch-test]
-extra-dependencies = [
-    "pytest>=8.0.0",
-    "pytest-cov>=4.0.0",
-]
-
-[tool.hatch.envs.docs]
-extra-dependencies = [
-    "openai>=1.0.0",
-    "anthropic>=0.40.0",
-]
-
-[tool.hatch.envs.ai]
-extra-dependencies = [
-    "openai>=1.0.0",
-    "anthropic>=0.40.0",
-]
-
-# Pyright configuration for static type checking
-[tool.pyright]
-typeCheckingMode = "standard"  # Less strict than "strict" but still thorough
-pythonVersion = "3.12"
-reportMissingImports = "warning"  # Downgrade from error to warning for now
-reportMissingTypeStubs = "warning"
-reportUndefinedVariable = "error"
-reportUnboundVariable = "error"
-reportUnusedImport = "warning"
-reportUnusedClass = "warning"
-reportUnusedFunction = "warning"
-reportUnusedVariable = "warning"
-reportDuplicateImport = "error"
-reportOptionalSubscript = "error"
-reportOptionalMemberAccess = "error"
-reportOptionalCall = "error"
-reportOptionalIterable = "error"
-reportOptionalContextManager = "error"
-reportUntypedFunctionDecorator = "warning"
-reportUntypedClassDecorator = "warning"
-reportUntypedBaseClass = "warning"
-reportUntypedNamedTuple = "warning"
-reportUnnecessaryComparison = "warning"
-reportUnnecessaryContains = "warning"
-reportUnnecessaryIsInstance = "warning"
-reportUnnecessaryCast = "warning"
-reportUnnecessaryEllipsis = "warning"
-reportInvalidStubStatement = "error"
-reportIncompleteStub = "warning"
-reportUnsupportedDunderAll = "error"
-reportPrivateImportUsage = "warning"
-reportConstantRedefinition = "error"
-reportDeprecated = "warning"
-reportUnreachable = "error"
-reportPossiblyUnboundVariable = "error"
-reportPossiblyUndefinedVariable = "error"
-reportMissingModuleSource = "warning"  # Downgrade from error
-reportInvalidTypeForm = "error"
-reportPropertyTypeMismatch = "error"
-reportUnsupportedOperandType = "error"
-reportArgumentType = "error"
-reportAssignmentType = "error"
-reportReturnType = "error"
-reportOperatorIssue = "error"
-reportUnnecessaryTypeIgnoreComment = "error"
-include = ["lib_package/src/todowrite", "cli_package/src/todowrite_cli"]
-exclude = [
-    ".venv",
-    "__pycache__",
-    "build",
-    "dist",
-    ".git",
-    "CLAUDE_SUBAGENTS_PACKAGE",
-    "tests/**",
-    "**/test_*.py",
-    "**/_test.py",
-    "**/conftest.py"
-]
-stubPath = "typings"
-
-# Execution environments for proper import resolution
-[[tool.pyright.executionEnvironments]]
-root = "."
-pythonVersion = "3.12"
-pythonPlatform = "Darwin"
-extraPaths = [
-    "lib_package/src",
-    "cli_package/src"
-]
-
-
-# Ruff configuration
+# Ruff configuration for development
 [tool.ruff]
-target-version = "py312"
 line-length = 79
+target-version = "py312"
 extend-exclude = [
     ".git",
     "__pycache__",
@@ -208,46 +73,35 @@ extend-exclude = [
 ]
 
 [tool.ruff.lint]
-# Enable comprehensive linting rules
 select = [
-    # pycodestyle
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
-
-    # pyflakes
     "F",   # pyflakes
-
-    # import sorting
     "I",   # isort
-
-    # bugbear
     "B",   # flake8-bugbear
-
-    # comprehensions
     "C4",  # flake8-comprehensions
-
-    # pyupgrade
     "UP",  # pyupgrade
-
-    # ruff-specific
     "RUF", # Ruff-specific rules
-
-    # security (enhanced)
     "S",   # flake8-bandit (security)
-
-    # print statements
     "T20", # flake8-print
-
-    # simplification
     "SIM", # flake8-simplify
-
-    # unused arguments
     "ARG", # flake8-unused-arguments
-
-    # pathlib
     "PTH", # flake8-use-pathlib
-
-    # additional security rules
+    "BLE", # flake8-blind-except
+    "COM", # flake8-commas
+    "DTZ", # flake8-datetimez
+    "EM",  # flake8-errmsg
+    "EXE", # flake8-executable
+    "G",   # flake8-logging-format
+    "ICN", # flake8-import-conventions
+    "INP", # flake8-no-pep420
+    "ISC", # flake8-implicit-str-concat
+    "PIE", # flake8-pie
+    "Q",   # flake8-quotes
+    "RET", # flake8-return
+    "T10", # flake8-debugger
+    "TID", # flake8-tidy-imports
+    "YTT", # flake8-2020
     "DJ",  # django security
     "N",   # pep8-naming
     "A",   # flake8-builtins
@@ -255,6 +109,8 @@ select = [
     "PLC", # pylint conventions
     "PLE", # pylint errors
     "PLW", # pylint warnings
+    "TCH", # type-checking
+    "ANN", # type annotations
 ]
 ignore = [
     "E501",  # line too long (handled by formatter)
@@ -268,6 +124,9 @@ ignore = [
     "PTH120", # os.path.dirname (acceptable for compatibility)
     "PTH123", # open() (acceptable for compatibility)
     "F823",  # local variable referenced before assignment (false positive with TYPE_CHECKING)
+
+    # Type annotation rules to ignore (stricter than needed)
+    "ANN401", # any-type (sometimes needed for dynamic data)
 ]
 
 # Ruff formatter configuration
@@ -284,6 +143,10 @@ skip-magic-trailing-comma = false
     "ARG001", # unused arguments in tests
     "ARG002", # unused arguments in tests
     "S608",   # hardcoded SQL
+
+    # Lenient annotation rules for tests
+    "ANN001", # missing-type-function-argument (test functions often self-documenting)
+    "ANN201", # missing-return-type-public-function (test functions often return None)
 ]
 
 # CLI code exclusions
@@ -291,11 +154,20 @@ skip-magic-trailing-comma = false
     "T20",   # print statements (needed for CLI output)
     "S603",  # subprocess call (needed for tool integration)
     "S607",  # subprocess with partial executable path
+
+    # Lenient annotation rules for CLI code
+    "ANN001", # missing-type-function-argument (CLI args often complex)
+    "ANN002", # missing-type-kwargs (click decorators handle this)
+    "ANN003", # missing-type-args (click decorators handle this)
+    "ANN201", # missing-return-type-public-function (CLI functions often return None)
+    "ANN202", # missing-return-type-private-function (internal CLI functions)
 ]
 
 # Build hook specific exclusions
 "_build_version_hook.py" = [
     "PLC0415",  # import at top-level (needed due to path setup)
+    "ANN001",   # missing-type-function-argument (build scripts)
+    "ANN201",   # missing-return-type-public-function (build scripts)
 ]
 
 # Build and configuration files
