@@ -11,7 +11,7 @@ try:
     from todowrite.version import get_version
 except ImportError:
     # Fallback for when version.py is not available during development
-    def get_version():
+    def get_version() -> str:
         return "0.1.7.1"
 
 
@@ -60,7 +60,7 @@ setup_params = {
             "pytest>=8.0.0",
             "pre-commit>=4.0.0",
             "bandit[toml]>=1.7.0",
-        ]
+        ],
     },
     "entry_points": {
         "console_scripts": [

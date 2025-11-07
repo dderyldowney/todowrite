@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 
-def setup_claude_environment():
+def setup_claude_environment() -> bool:
     """Setup Claude environment for automatic token optimization"""
     print("🚀 Setting up Claude for automatic token optimization...")
 
@@ -52,7 +52,7 @@ def setup_claude_environment():
     return True
 
 
-def create_claude_hooks():
+def create_claude_hooks() -> bool:
     """Create automatic Claude hooks"""
     print("🔧 Creating Claude hooks...")
 
@@ -162,7 +162,7 @@ if __name__ == "__main__":
     return True
 
 
-def create_startup_script():
+def create_startup_script() -> bool:
     """Create automatic startup script"""
     print("📝 Creating startup script...")
 
@@ -197,7 +197,7 @@ echo "🎯 Token optimization workflow ready!"
     return True
 
 
-def create_claude_config():
+def create_claude_config() -> bool:
     """Create Claude configuration file"""
     print("⚙️ Creating Claude configuration...")
 
@@ -213,7 +213,11 @@ def create_claude_config():
             "max_context_chars": 1000,
             "max_files": 50,
         },
-        "workflow": {"auto_load_hal": True, "auto_cache": True, "delta_mode": True},
+        "workflow": {
+            "auto_load_hal": True,
+            "auto_cache": True,
+            "delta_mode": True,
+        },
         "aliases": {
             "analyze": "python always_token_sage.py",
             "token-optimize": "python token_optimized_agent.py",
@@ -227,7 +231,7 @@ def create_claude_config():
     return True
 
 
-def main():
+def main() -> int:
     """Main setup function"""
     print("🎯 Claude Automatic Token-Sage + HAL Setup")
     print("=" * 50)

@@ -42,12 +42,20 @@ def get_current_version() -> str:
 
 def main() -> None:
     """Main entry point for the version bump script."""
-    parser = argparse.ArgumentParser(description="Manage ToDoWrite project version")
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+    parser = argparse.ArgumentParser(
+        description="Manage ToDoWrite project version",
+    )
+    subparsers = parser.add_subparsers(
+        dest="command",
+        help="Available commands",
+    )
 
     # Bump command
     bump_parser = subparsers.add_parser("bump", help="Bump to a new version")
-    bump_parser.add_argument("version", help="New version (e.g., 0.2.3, 1.0.0)")
+    bump_parser.add_argument(
+        "version",
+        help="New version (e.g., 0.2.3, 1.0.0)",
+    )
 
     # Get command
     subparsers.add_parser("get", help="Get current version")

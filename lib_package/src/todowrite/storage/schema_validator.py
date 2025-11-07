@@ -28,7 +28,9 @@ class SchemaValidator:
         self.schema = TODOWRITE_SCHEMA
         self.validation_cache: dict[str, bool] = {}
 
-    def validate_node_data(self, node_data: dict[str, Any]) -> tuple[bool, list[str]]:  # type: ignore [reportUnknownArgumentType]
+    def validate_node_data(
+        self, node_data: dict[str, Any]
+    ) -> tuple[bool, list[str]]:  # type: ignore [reportUnknownArgumentType]
         """
         Validate node data against the schema.
 
@@ -76,7 +78,9 @@ class SchemaValidator:
 
             # Check nodes table structure
             if "nodes" in tables:
-                columns = {col["name"] for col in inspector.get_columns("nodes")}
+                columns = {
+                    col["name"] for col in inspector.get_columns("nodes")
+                }
                 required_columns = {
                     "id",
                     "layer",
@@ -97,7 +101,9 @@ class SchemaValidator:
 
                 # Check data types for critical columns
                 node_columns = inspector.get_columns("nodes")
-                column_types = {col["name"]: col["type"] for col in node_columns}
+                column_types = {
+                    col["name"]: col["type"] for col in node_columns
+                }
 
                 # Validate ID pattern constraint (can't check directly, but can check type)
                 if (
@@ -114,11 +120,15 @@ class SchemaValidator:
                         "VARCHAR" not in str(status_col).upper()
                         and "TEXT" not in str(status_col).upper()
                     ):
-                        errors.append("Status column should be string/varchar type")
+                        errors.append(
+                            "Status column should be string/varchar type"
+                        )
 
             # Check links table structure
             if "links" in tables:
-                columns = {col["name"] for col in inspector.get_columns("links")}
+                columns = {
+                    col["name"] for col in inspector.get_columns("links")
+                }
                 required_columns = {"parent_id", "child_id"}
                 missing_columns = required_columns - columns
                 if missing_columns:
@@ -126,11 +136,15 @@ class SchemaValidator:
 
             # Check commands table structure
             if "commands" in tables:
-                columns = {col["name"] for col in inspector.get_columns("commands")}
+                columns = {
+                    col["name"] for col in inspector.get_columns("commands")
+                }
                 required_columns = {"node_id", "ac_ref", "run"}
                 missing_columns = required_columns - columns
                 if missing_columns:
-                    errors.append(f"Missing commands columns: {missing_columns}")
+                    errors.append(
+                        f"Missing commands columns: {missing_columns}"
+                    )
 
         except Exception as e:
             errors.append(f"Database schema validation error: {e}")
@@ -158,7 +172,9 @@ class SchemaValidator:
 
         try:
             if not yaml_base_path.exists():
-                errors.append(f"YAML directory does not exist: {yaml_base_path}")
+                errors.append(
+                    f"YAML directory does not exist: {yaml_base_path}"
+                )
                 return False, errors, file_counts
 
             # Define layer directories
@@ -185,19 +201,25 @@ class SchemaValidator:
                         # Validate each node in the file
                         if isinstance(yaml_data, list):
                             # File contains multiple nodes
-                            for i, node in enumerate(cast(list[Any], yaml_data)):
+                            for i, node in enumerate(
+                                cast("list[Any]", yaml_data)
+                            ):
                                 if isinstance(node, dict):
-                                    valid, node_errors = self.validate_node_data(
-                                        cast(dict[str, Any], node)
+                                    valid, node_errors = (
+                                        self.validate_node_data(
+                                            cast("dict[str, Any]", node)
+                                        )
                                     )
                                     if not valid:
                                         for error in node_errors:
-                                            errors.append(f"{file_path}[{i}]: {error}")
+                                            errors.append(
+                                                f"{file_path}[{i}]: {error}"
+                                            )
                                         all_valid = False
                         elif isinstance(yaml_data, dict):
                             # File contains single node
                             valid, node_errors = self.validate_node_data(
-                                cast(dict[str, Any], yaml_data)
+                                cast("dict[str, Any]", yaml_data)
                             )
                             if not valid:
                                 for error in node_errors:
@@ -205,7 +227,9 @@ class SchemaValidator:
                                 all_valid = False
 
                     except yaml.YAMLError as e:
-                        errors.append(f"YAML parsing error in {file_path}: {e}")
+                        errors.append(
+                            f"YAML parsing error in {file_path}: {e}"
+                        )
                         all_valid = False
                     except Exception as e:
                         errors.append(f"Error processing {file_path}: {e}")
@@ -216,7 +240,9 @@ class SchemaValidator:
             # Process each layer
             for layer, dir_name in layer_dirs.items():
                 layer_path = yaml_base_path / "plans" / dir_name
-                command_path = yaml_base_path / "commands" if layer == "Command" else None
+                command_path = (
+                    yaml_base_path / "commands" if layer == "Command" else None
+                )
 
                 files_to_check: list[Path] = []
                 if layer_path.exists():
@@ -245,19 +271,25 @@ class SchemaValidator:
                         # Validate each node in the file
                         if isinstance(yaml_data, list):
                             # File contains multiple nodes
-                            for i, node in enumerate(cast(list[Any], yaml_data)):
+                            for i, node in enumerate(
+                                cast("list[Any]", yaml_data)
+                            ):
                                 if isinstance(node, dict):
-                                    valid, node_errors = self.validate_node_data(
-                                        cast(dict[str, Any], node)
+                                    valid, node_errors = (
+                                        self.validate_node_data(
+                                            cast("dict[str, Any]", node)
+                                        )
                                     )
                                     if not valid:
                                         for error in node_errors:
-                                            errors.append(f"{file_path}[{i}]: {error}")
+                                            errors.append(
+                                                f"{file_path}[{i}]: {error}"
+                                            )
                                         all_valid = False
                         elif isinstance(yaml_data, dict):
                             # File contains single node
                             valid, node_errors = self.validate_node_data(
-                                cast(dict[str, Any], yaml_data)
+                                cast("dict[str, Any]", yaml_data)
                             )
                             if not valid:
                                 for error in node_errors:
@@ -265,7 +297,9 @@ class SchemaValidator:
                                 all_valid = False
 
                     except yaml.YAMLError as e:
-                        errors.append(f"YAML parsing error in {file_path}: {e}")
+                        errors.append(
+                            f"YAML parsing error in {file_path}: {e}"
+                        )
                         all_valid = False
                     except Exception as e:
                         errors.append(f"Error processing {file_path}: {e}")
@@ -277,7 +311,9 @@ class SchemaValidator:
 
         return all_valid, errors, file_counts
 
-    def validate_postgresql_schema(self, engine: Any) -> tuple[bool, list[str]]:
+    def validate_postgresql_schema(
+        self, engine: Any
+    ) -> tuple[bool, list[str]]:
         """Validate PostgreSQL-specific schema constraints."""
         return self.validate_database_schema(engine)
 
@@ -285,7 +321,9 @@ class SchemaValidator:
         """Validate SQLite-specific schema constraints."""
         return self.validate_database_schema(engine)
 
-    def get_schema_compliance_report(self, storage_type: str, **kwargs: Any) -> dict[str, Any]:
+    def get_schema_compliance_report(
+        self, storage_type: str, **kwargs: Any
+    ) -> dict[str, Any]:
         """
         Generate a comprehensive schema compliance report.
 
@@ -320,11 +358,15 @@ class SchemaValidator:
                     )
                 else:
                     report["errors"] = ["No database engine provided"]
-                    report["summary"] = "Database validation failed - no engine"
+                    report["summary"] = (
+                        "Database validation failed - no engine"
+                    )
 
             elif storage_type == "yaml":
                 yaml_path = kwargs.get("yaml_path", Path("configs"))
-                all_valid, errors, file_counts = self.validate_yaml_files(yaml_path)
+                all_valid, errors, file_counts = self.validate_yaml_files(
+                    yaml_path
+                )
                 report["is_compliant"] = all_valid
                 report["errors"] = errors
                 report["details"]["file_counts"] = file_counts
@@ -334,7 +376,9 @@ class SchemaValidator:
                 )
 
             else:
-                report["errors"] = [f"Unsupported storage type: {storage_type}"]
+                report["errors"] = [
+                    f"Unsupported storage type: {storage_type}"
+                ]
                 report["summary"] = f"Unsupported storage type: {storage_type}"
 
         except Exception as e:
@@ -360,7 +404,9 @@ def validate_node_data(node_data: dict[str, Any]) -> tuple[bool, list[str]]:  # 
     return is_valid, errors
 
 
-def validate_database_schema(engine: Any | None = None) -> tuple[bool, list[str]]:  # type: ignore [reportUnknownArgumentType]
+def validate_database_schema(
+    engine: Any | None = None,
+) -> tuple[bool, list[str]]:  # type: ignore [reportUnknownArgumentType]
     """Validate database schema against expected structure."""
     # If no engine provided, try to get the default one
     if engine is None:
@@ -376,7 +422,9 @@ def validate_database_schema(engine: Any | None = None) -> tuple[bool, list[str]
 
     is_valid, errors = _schema_validator.validate_database_schema(engine)
     if not is_valid:
-        raise ValueError(f"Database schema validation failed: {'; '.join(errors)}")
+        raise ValueError(
+            f"Database schema validation failed: {'; '.join(errors)}"
+        )
     return is_valid, errors
 
 
@@ -410,19 +458,25 @@ def validate_yaml_files(
                     # Validate each node in the file
                     if isinstance(yaml_data, list):
                         # File contains multiple nodes
-                        for i, node in enumerate(cast(list[Any], yaml_data)):
+                        for i, node in enumerate(cast("list[Any]", yaml_data)):
                             if isinstance(node, dict):
-                                valid, node_errors = _schema_validator.validate_node_data(
-                                    cast(dict[str, Any], node)
+                                valid, node_errors = (
+                                    _schema_validator.validate_node_data(
+                                        cast("dict[str, Any]", node)
+                                    )
                                 )
                                 if not valid:
                                     for error in node_errors:
-                                        all_errors.append(f"{path}[{i}]: {error}")
+                                        all_errors.append(
+                                            f"{path}[{i}]: {error}"
+                                        )
                                     all_valid = False
                     elif isinstance(yaml_data, dict):
                         # File contains single node
-                        valid, node_errors = _schema_validator.validate_node_data(
-                            cast(dict[str, Any], yaml_data)
+                        valid, node_errors = (
+                            _schema_validator.validate_node_data(
+                                cast("dict[str, Any]", yaml_data)
+                            )
                         )
                         if not valid:
                             for error in node_errors:
@@ -438,16 +492,22 @@ def validate_yaml_files(
 
             else:
                 # Directory validation
-                valid, errors, file_counts = _schema_validator.validate_yaml_files(path)
+                valid, errors, file_counts = (
+                    _schema_validator.validate_yaml_files(path)
+                )
                 if not valid:
                     all_valid = False
                     all_errors.extend(errors)
                 # Merge file counts
                 for layer, count in file_counts.items():
-                    all_file_counts[layer] = all_file_counts.get(layer, 0) + count
+                    all_file_counts[layer] = (
+                        all_file_counts.get(layer, 0) + count
+                    )
 
         if not all_valid:
-            raise ValueError(f"YAML validation failed: {'; '.join(all_errors)}")
+            raise ValueError(
+                f"YAML validation failed: {'; '.join(all_errors)}"
+            )
         return all_valid, all_errors, all_file_counts
     else:
         # Single path or None
@@ -459,7 +519,9 @@ def validate_yaml_files(
         return all_valid, errors, file_counts
 
 
-def get_schema_compliance_report(storage_type: str = "sqlite", **kwargs: Any) -> dict[str, Any]:
+def get_schema_compliance_report(
+    storage_type: str = "sqlite", **kwargs: Any
+) -> dict[str, Any]:
     """Generate comprehensive schema compliance report."""
     # If no engine provided for database types, try to get the default one
     if storage_type in ["postgresql", "sqlite"] and "engine" not in kwargs:
@@ -471,4 +533,6 @@ def get_schema_compliance_report(storage_type: str = "sqlite", **kwargs: Any) ->
         except Exception:
             pass  # Let the underlying function handle the missing engine
 
-    return _schema_validator.get_schema_compliance_report(storage_type, **kwargs)
+    return _schema_validator.get_schema_compliance_report(
+        storage_type, **kwargs
+    )

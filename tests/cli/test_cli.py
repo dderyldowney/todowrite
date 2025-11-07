@@ -7,14 +7,13 @@ from pathlib import Path
 
 from click.testing import CliRunner
 from sqlalchemy import delete
-
-from todowrite import ToDoWrite
-from todowrite.database.models import Artifact
+from todowrite.database.models import Artifact, node_labels
 from todowrite.database.models import Command as DBCommand
 from todowrite.database.models import Link as DBLink
 from todowrite.database.models import Node as DBNode
-from todowrite.database.models import node_labels
 from todowrite_cli.main import cli
+
+from todowrite import ToDoWrite
 
 
 class TestCli(unittest.TestCase):
@@ -25,7 +24,10 @@ class TestCli(unittest.TestCase):
         """Initialize the application with SQLite for testing."""
         # Use SQLite for testing to avoid PostgreSQL dependency
         db_url = "sqlite:///test_cli.db"
-        cls.app = ToDoWrite(db_url, auto_import=False)  # Disable auto-import for cleaner tests
+        cls.app = ToDoWrite(
+            db_url,
+            auto_import=False,
+        )  # Disable auto-import for cleaner tests
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -113,7 +115,9 @@ class TestCli(unittest.TestCase):
         result = self.runner.invoke(cli, ["init"])
         self.assertEqual(result.exit_code, 0)
         # The output may include auto-import messages, so just check that it ends with the expected message
-        self.assertTrue(result.output.endswith("✓ Database initialized successfully!\n"))
+        self.assertTrue(
+            result.output.endswith("✓ Database initialized successfully!\n"),
+        )
 
     def test_create_command(self) -> None:
         """Test the create command."""
@@ -163,7 +167,9 @@ class TestCli(unittest.TestCase):
         import re
 
         match = re.search(r"\(ID: ([^)]+)\)", result.output)
-        node_id = match.group(1) if match else result.output.split(" ")[-1].strip()
+        node_id = (
+            match.group(1) if match else result.output.split(" ")[-1].strip()
+        )
 
         result = self.runner.invoke(cli, ["get", node_id])
         self.assertEqual(result.exit_code, 0)

@@ -280,7 +280,10 @@ class TestYAMLStorage(unittest.TestCase):
         self.assertEqual(file_content["id"], "GOAL-001")
         self.assertEqual(file_content["layer"], "Goal")
         self.assertEqual(file_content["title"], "Test Goal")
-        self.assertEqual(file_content["metadata"]["labels"], ["urgent", "important"])
+        self.assertEqual(
+            file_content["metadata"]["labels"],
+            ["urgent", "important"],
+        )
 
 
 class TestYAMLManager(unittest.TestCase):
@@ -355,7 +358,9 @@ class TestYAMLManager(unittest.TestCase):
         manager.commands_path = self.yaml_base_path / "commands"
 
         # Create test YAML file
-        goal_file = self.yaml_base_path / "plans" / "goals" / "GOAL-IMPORT-001.yaml"
+        goal_file = (
+            self.yaml_base_path / "plans" / "goals" / "GOAL-IMPORT-001.yaml"
+        )
         goal_file.parent.mkdir(parents=True)
 
         import yaml
@@ -451,7 +456,9 @@ class TestYAMLManager(unittest.TestCase):
         app.create_node(node_data)
 
         # Create YAML file
-        goal_file = self.yaml_base_path / "plans" / "goals" / "GOAL-SYNC-002.yaml"
+        goal_file = (
+            self.yaml_base_path / "plans" / "goals" / "GOAL-SYNC-002.yaml"
+        )
         goal_file.parent.mkdir(parents=True)
 
         import yaml

@@ -3,14 +3,18 @@ import re
 from pathlib import Path
 
 
-def extract_and_write_schema(markdown_path: Path, schema_output_path: Path) -> None:
+def extract_and_write_schema(
+    markdown_path: Path, schema_output_path: Path
+) -> None:
     """
     Extracts the JSON schema from a Markdown file and writes it to a specified output path.
     """
     try:
         markdown_content = markdown_path.read_text()
         # Regex to find the JSON schema block in the Markdown file
-        match = re.search(r"```json\n({.*?})\n```", markdown_content, re.DOTALL)
+        match = re.search(
+            r"```json\n({.*?})\n```", markdown_content, re.DOTALL
+        )
 
         if match:
             schema_json_str = match.group(1)
@@ -40,5 +44,11 @@ if __name__ == "__main__":
     # Assuming the script is run from the project root
     project_root = Path(__file__).resolve().parent.parent.parent.parent
     markdown_file = project_root / "ToDoWrite.md"
-    schema_file = project_root / "ToDoWrite" / "todowrite" / "schemas" / "todowrite.schema.json"
+    schema_file = (
+        project_root
+        / "ToDoWrite"
+        / "todowrite"
+        / "schemas"
+        / "todowrite.schema.json"
+    )
     extract_and_write_schema(markdown_file, schema_file)

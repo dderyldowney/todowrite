@@ -25,7 +25,7 @@ class NodeError(ToDoWriteError):
 class NodeNotFoundError(NodeError):
     """Raised when a node is not found."""
 
-    def __init__(self, node_id: str):
+    def __init__(self, node_id: str) -> None:
         self.node_id = node_id
         super().__init__(f"Node not found: {node_id}")
 
@@ -33,7 +33,9 @@ class NodeNotFoundError(NodeError):
 class InvalidNodeError(NodeError):
     """Raised when node data is invalid."""
 
-    def __init__(self, message: str, details: dict[str, Any] | None = None):
+    def __init__(
+        self, message: str, details: dict[str, Any] | None = None
+    ) -> None:
         self.details = details or {}
         super().__init__(message)
 
@@ -47,7 +49,9 @@ class StorageError(ToDoWriteError):
 class DatabaseError(StorageError):
     """Raised for database-related errors."""
 
-    def __init__(self, message: str, original_exception: Exception | None = None):
+    def __init__(
+        self, message: str, original_exception: Exception | None = None
+    ) -> None:
         self.original_exception = original_exception
         super().__init__(f"Database error: {message}")
 
@@ -55,7 +59,7 @@ class DatabaseError(StorageError):
 class YAMLError(StorageError):
     """Raised for YAML-related errors."""
 
-    def __init__(self, message: str, file_path: str | None = None):
+    def __init__(self, message: str, file_path: str | None = None) -> None:
         self.file_path = file_path
         msg = f"YAML error: {message}"
         if file_path:
@@ -66,7 +70,9 @@ class YAMLError(StorageError):
 class SchemaError(ToDoWriteError):
     """Raised for schema validation errors."""
 
-    def __init__(self, message: str, validation_errors: list[str] | None = None):
+    def __init__(
+        self, message: str, validation_errors: list[str] | None = None
+    ) -> None:
         self.validation_errors = validation_errors or []
         msg = f"Schema error: {message}"
         if self.validation_errors:

@@ -17,14 +17,16 @@ from jsonschema import Draft202012Validator, ValidationError, validate
 class ToDoWriteValidator:
     """Schema validator for ToDoWrite YAML files"""
 
-    def __init__(self, schema_path: str | None = None):
+    def __init__(self, schema_path: str | None = None) -> None:
         if schema_path is None:
             # Try to load from package first, fall back to old location
             try:
                 from todowrite.core.schemas import TODOWRITE_SCHEMA
 
-                self.schema = cast(dict[str, Any], TODOWRITE_SCHEMA)
-                self.schema_path = "todowrite.schema"  # Virtual path for display
+                self.schema = cast("dict[str, Any]", TODOWRITE_SCHEMA)
+                self.schema_path = (
+                    "todowrite.schema"  # Virtual path for display
+                )
                 self.validator = Draft202012Validator(self.schema)
                 return
             except ImportError:
@@ -38,7 +40,7 @@ class ToDoWriteValidator:
         """Load JSON schema from file"""
         try:
             with open(self.schema_path) as f:
-                return cast(dict[str, Any], json.load(f))
+                return cast("dict[str, Any]", json.load(f))
         except FileNotFoundError:
             print(f"ERROR: Schema file not found: {self.schema_path}")
             print("Run 'make tw-schema' to generate schema file")
@@ -93,7 +95,9 @@ class ToDoWriteValidator:
             print(f"✗ {file_path}")
             print(f"  Validation Error: {e.message}")
             if e.absolute_path:
-                print(f"  Location: {' -> '.join(str(p) for p in e.absolute_path)}")
+                print(
+                    f"  Location: {' -> '.join(str(p) for p in e.absolute_path)}"
+                )
             if e.instance is not None:
                 print(f"  Invalid value: {e.instance}")
             print()
@@ -119,7 +123,9 @@ class ToDoWriteValidator:
 
         return valid_count, total_count
 
-    def generate_summary(self, valid_count: int, total_count: int, strict: bool = False) -> None:
+    def generate_summary(
+        self, valid_count: int, total_count: int, strict: bool = False
+    ) -> None:
         """Generate validation summary report"""
         print("=" * 50)
         print("VALIDATION SUMMARY")
@@ -132,7 +138,9 @@ class ToDoWriteValidator:
             print("✓ All files are valid!")
             status = "SUCCESS"
         else:
-            print(f"✗ {total_count - valid_count} files have validation errors")
+            print(
+                f"✗ {total_count - valid_count} files have validation errors"
+            )
             status = "FAILED"
 
         print(f"Validation {status} {'(strict mode)' if strict else ''}")
@@ -149,7 +157,9 @@ def main() -> None:
         action="store_true",
         help="Enable strict mode with detailed error reporting",
     )
-    parser.add_argument("--summary", action="store_true", help="Show summary report only")
+    parser.add_argument(
+        "--summary", action="store_true", help="Show summary report only"
+    )
     parser.add_argument(
         "--schema",
         default="configs/schemas/todowrite.schema.json",

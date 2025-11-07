@@ -66,10 +66,16 @@ class TestUserLibraryWorkflows(unittest.TestCase):
             "title": "Achieve Product Market Fit",
             "description": "Find product-market fit through continuous iteration",
             "links": {"parents": [], "children": []},
-            "metadata": {"owner": "product-team", "labels": ["strategic", "long-term"]},
+            "metadata": {
+                "owner": "product-team",
+                "labels": ["strategic", "long-term"],
+            },
         }
         created_node = app.create_node(node_data)
-        self.assertIsNotNone(created_node, "Node should be created successfully")
+        self.assertIsNotNone(
+            created_node,
+            "Node should be created successfully",
+        )
         self.assertEqual(created_node.layer, "Goal")
         self.assertEqual(created_node.title, node_data["title"])
 
@@ -100,7 +106,10 @@ class TestUserLibraryWorkflows(unittest.TestCase):
         """
         # Setup: Create app and nodes
         os.chdir(self.temp_dir)
-        app = ToDoWrite(db_url="sqlite:///test_retrieval.db", auto_import=False)
+        app = ToDoWrite(
+            db_url="sqlite:///test_retrieval.db",
+            auto_import=False,
+        )
         app.init_database()  # Initialize the database tables
 
         # Create test nodes
@@ -111,7 +120,10 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 "title": "Increase Revenue",
                 "description": "Achieve 50% revenue growth",
                 "links": {"parents": [], "children": []},
-                "metadata": {"owner": "finance", "labels": ["revenue", "growth"]},
+                "metadata": {
+                    "owner": "finance",
+                    "labels": ["revenue", "growth"],
+                },
             },
             {
                 "id": "TSK-002",
@@ -119,7 +131,10 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 "title": "Launch Marketing Campaign",
                 "description": "Execute marketing campaign for new features",
                 "links": {"parents": [], "children": []},
-                "metadata": {"owner": "marketing", "labels": ["campaign", "launch"]},
+                "metadata": {
+                    "owner": "marketing",
+                    "labels": ["campaign", "launch"],
+                },
             },
             {
                 "id": "CON-002",
@@ -224,7 +239,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
             "links": {"parents": [], "children": []},
             "metadata": {"owner": "product-team", "labels": ["strategic"]},
         }
-        parent_node = app.create_node(parent_data)
+        app.create_node(parent_data)
 
         # Create child tasks
         task1_data = {
@@ -235,7 +250,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
             "links": {"parents": [], "children": []},
             "metadata": {"owner": "engineering-team", "labels": ["technical"]},
         }
-        task1_node = app.create_node(task1_data)
+        app.create_node(task1_data)
 
         task2_data = {
             "id": "TSK-005",
@@ -245,7 +260,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
             "links": {"parents": [], "children": []},
             "metadata": {"owner": "engineering-team", "labels": ["technical"]},
         }
-        task2_node = app.create_node(task2_data)
+        app.create_node(task2_data)
 
         # Step 3: Create links manually by updating parent/child relationships
         # Update parent to include children
@@ -371,15 +386,25 @@ class TestUserLibraryWorkflows(unittest.TestCase):
             # This should handle the error gracefully
             invalid_node = app.create_node(invalid_data)
             # If it doesn't raise an exception, the validation should catch it
-            self.assertIsNone(invalid_node, "Invalid node should not be created")
+            self.assertIsNone(
+                invalid_node,
+                "Invalid node should not be created",
+            )
         except Exception as e:
             # Expected error handling
-            self.assertIsInstance(e, Exception, "Should raise appropriate exception")
+            self.assertIsInstance(
+                e,
+                Exception,
+                "Should raise appropriate exception",
+            )
 
         # Step 3: Try to retrieve non-existent node
         try:
             non_existent = app.get_node("non-existent-id")
-            self.assertIsNone(non_existent, "Should return None for non-existent node")
+            self.assertIsNone(
+                non_existent,
+                "Should return None for non-existent node",
+            )
         except Exception as e:
             self.fail(f"Should handle non-existent node gracefully: {e}")
 
@@ -396,7 +421,10 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                     "metadata": {"owner": "test", "labels": []},
                 },
             )
-            self.assertIsNone(update_result, "Should return None for non-existent node")
+            self.assertIsNone(
+                update_result,
+                "Should return None for non-existent node",
+            )
         except Exception as e:
             self.fail(f"Should handle non-existent update gracefully: {e}")
 
@@ -414,7 +442,10 @@ class TestUserLibraryWorkflows(unittest.TestCase):
         """
         # Step 1: Initialize app
         os.chdir(self.temp_dir)
-        app = ToDoWrite(db_url="sqlite:///test_hierarchy.db", auto_import=False)
+        app = ToDoWrite(
+            db_url="sqlite:///test_hierarchy.db",
+            auto_import=False,
+        )
         app.init_database()  # Initialize the database tables
 
         # Create the full hierarchy
@@ -433,7 +464,10 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 "title": "Microservices Architecture",
                 "description": "Build using microservices architecture for scalability",
                 "links": {"parents": [], "children": []},
-                "metadata": {"owner": "architecture-team", "labels": ["technical"]},
+                "metadata": {
+                    "owner": "architecture-team",
+                    "labels": ["technical"],
+                },
             },
             {
                 "id": "CST-H-001",
@@ -441,7 +475,10 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 "title": "Technical Constraints",
                 "description": "Must use cloud-native, containerized deployment",
                 "links": {"parents": [], "children": []},
-                "metadata": {"owner": "platform-team", "labels": ["constraints"]},
+                "metadata": {
+                    "owner": "platform-team",
+                    "labels": ["constraints"],
+                },
             },
             {
                 "id": "R-H-001",
@@ -449,7 +486,10 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 "title": "Core Requirements",
                 "description": "User management, payments, reporting, analytics",
                 "links": {"parents": [], "children": []},
-                "metadata": {"owner": "product-team", "labels": ["requirements"]},
+                "metadata": {
+                    "owner": "product-team",
+                    "labels": ["requirements"],
+                },
             },
             {
                 "id": "AC-H-001",
@@ -481,7 +521,10 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 "title": "Create User Authentication",
                 "description": "Implement user login, registration, and session management",
                 "links": {"parents": [], "children": []},
-                "metadata": {"owner": "dev-team", "labels": ["authentication"]},
+                "metadata": {
+                    "owner": "dev-team",
+                    "labels": ["authentication"],
+                },
             },
             {
                 "id": "SUB-H-001",
@@ -532,7 +575,11 @@ class TestUserLibraryWorkflows(unittest.TestCase):
         }
 
         for layer in expected_layers:
-            self.assertIn(layer, all_nodes, f"Layer {layer} should exist in hierarchy")
+            self.assertIn(
+                layer,
+                all_nodes,
+                f"Layer {layer} should exist in hierarchy",
+            )
 
         # Step 4: Create hierarchical relationships
         # Goal has children: Concept, Requirements, AcceptanceCriteria
@@ -541,7 +588,10 @@ class TestUserLibraryWorkflows(unittest.TestCase):
             "layer": "Goal",
             "title": "Build SaaS Platform",
             "description": "Complete SaaS platform development and launch",
-            "links": {"children": ["CON-H-001", "R-H-001", "AC-H-001"], "parents": []},
+            "links": {
+                "children": ["CON-H-001", "R-H-001", "AC-H-001"],
+                "parents": [],
+            },
             "metadata": {"owner": "product-team", "labels": ["strategic"]},
         }
         app.update_node("GOAL-H-001", goal_update)
@@ -585,7 +635,11 @@ class TestUserLibraryWorkflows(unittest.TestCase):
         self.assertIsNotNone(final_subtask, "Subtask should exist")
 
         # Verify total count
-        self.assertEqual(len(created_nodes), 10, "Should have created 10 nodes")
+        self.assertEqual(
+            len(created_nodes),
+            10,
+            "Should have created 10 nodes",
+        )
 
     def test_library_batch_operations_workflow(self) -> None:
         """
@@ -687,12 +741,28 @@ class TestUserLibraryWorkflows(unittest.TestCase):
         # Step 2: Export data
         try:
             export_result = app.export_nodes("yaml")
-            self.assertIsInstance(export_result, str, "Export should return string")
-            self.assertIn("export-goal", export_result, "Export should contain created nodes")
-            self.assertIn("export-task", export_result, "Export should contain all nodes")
+            self.assertIsInstance(
+                export_result,
+                str,
+                "Export should return string",
+            )
+            self.assertIn(
+                "export-goal",
+                export_result,
+                "Export should contain created nodes",
+            )
+            self.assertIn(
+                "export-task",
+                export_result,
+                "Export should contain all nodes",
+            )
         except Exception as e:
             # If export fails, test that it handles the error gracefully
-            self.assertIsInstance(e, Exception, "Should handle export errors gracefully")
+            self.assertIsInstance(
+                e,
+                Exception,
+                "Should handle export errors gracefully",
+            )
 
 
 if __name__ == "__main__":

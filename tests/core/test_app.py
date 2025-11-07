@@ -6,9 +6,15 @@ from pathlib import Path
 from typing import Any
 
 from sqlalchemy import delete
-
 from todowrite.core import ToDoWrite
-from todowrite.database.models import Artifact, Command, Label, Link, Node, node_labels
+from todowrite.database.models import (
+    Artifact,
+    Command,
+    Label,
+    Link,
+    Node,
+    node_labels,
+)
 
 
 class TestApp(unittest.TestCase):
@@ -19,7 +25,10 @@ class TestApp(unittest.TestCase):
         """Initialize the application with SQLite for testing."""
         # Use SQLite for testing to avoid PostgreSQL dependency
         db_url = "sqlite:///test.db"
-        cls.app = ToDoWrite(db_url, auto_import=False)  # Disable auto-import for cleaner tests
+        cls.app = ToDoWrite(
+            db_url,
+            auto_import=False,
+        )  # Disable auto-import for cleaner tests
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -90,20 +99,24 @@ class TestApp(unittest.TestCase):
     def test_init_database(self) -> None:
         """Test that init_database creates the database file."""
         # This test is not applicable to PostgreSQL
-        pass
 
     def test_default_database_is_sqlite(self) -> None:
         """Test that the default database is SQLite when no PostgreSQL is available."""
         # This test creates a new app without specifying a database URL
         # It should default to SQLite when PostgreSQL is not available
         # However, in the test environment, PostgreSQL might be detected
-        app = ToDoWrite(auto_import=False)  # Disable auto-import for cleaner test
+        app = ToDoWrite(
+            auto_import=False,
+        )  # Disable auto-import for cleaner test
         # The app should use some database (either SQLite or PostgreSQL)
         self.assertIsNotNone(app.db_url)
         # In test environment with PostgreSQL running, it might use PostgreSQL
         # So we just verify that a database URL is set
         assert app.db_url is not None  # Type narrowing for pyright
-        self.assertTrue(app.db_url.startswith("sqlite") or app.db_url.startswith("postgresql"))
+        self.assertTrue(
+            app.db_url.startswith("sqlite")
+            or app.db_url.startswith("postgresql"),
+        )
 
     def test_create_node(self) -> None:
         """Test that create_node creates a new node in the database."""

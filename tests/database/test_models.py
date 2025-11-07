@@ -9,8 +9,14 @@ from pathlib import Path
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-from todowrite.database.models import Artifact, Command, Label, Link, Node, node_labels
+from todowrite.database.models import (
+    Artifact,
+    Command,
+    Label,
+    Link,
+    Node,
+    node_labels,
+)
 
 
 class TestDatabaseModels(unittest.TestCase):
@@ -97,7 +103,10 @@ class TestDatabaseModels(unittest.TestCase):
             # Verify link
             link_result = (
                 session.query(Link)
-                .filter(Link.parent_id == "GOAL-001", Link.child_id == "TSK-001")
+                .filter(
+                    Link.parent_id == "GOAL-001",
+                    Link.child_id == "TSK-001",
+                )
                 .first()
             )
             self.assertIsNotNone(link_result)
@@ -121,7 +130,11 @@ class TestDatabaseModels(unittest.TestCase):
                 node_id="CMD-001",
                 ac_ref="AC-001",
                 run=json.dumps(
-                    {"shell": "echo hello", "workdir": "/tmp", "env": {"DEBUG": "true"}}
+                    {
+                        "shell": "echo hello",
+                        "workdir": "/tmp",
+                        "env": {"DEBUG": "true"},
+                    },
                 ),
             )
             session.add(command)
@@ -135,12 +148,20 @@ class TestDatabaseModels(unittest.TestCase):
             session.commit()
 
             # Verify command
-            result = session.query(Command).filter(Command.node_id == "CMD-001").first()
+            result = (
+                session.query(Command)
+                .filter(Command.node_id == "CMD-001")
+                .first()
+            )
             self.assertIsNotNone(result)
             self.assertEqual(result.ac_ref, "AC-001")
 
             # Verify artifacts
-            artifacts = session.query(Artifact).filter(Artifact.command_id == "CMD-001").all()
+            artifacts = (
+                session.query(Artifact)
+                .filter(Artifact.command_id == "CMD-001")
+                .all()
+            )
             self.assertEqual(len(artifacts), 2)
 
     def test_node_labels_association(self) -> None:
@@ -214,7 +235,9 @@ class TestDatabaseModels(unittest.TestCase):
             session.commit()
 
             # Verify related records are deleted
-            self.assertIsNone(session.query(Node).filter(Node.id == "TSK-001").first())
+            self.assertIsNone(
+                session.query(Node).filter(Node.id == "TSK-001").first(),
+            )
             # Link should still exist (we might want to handle this differently)
 
 
@@ -293,8 +316,13 @@ class TestDatabaseIntegration(unittest.TestCase):
             session.commit()
 
             # Verify hierarchy
-            goal_result = session.query(Node).filter(Node.id == "GOAL-001").first()
-            self.assertEqual(len(goal_result.children), 4)  # 2 concepts + 2 tasks
+            goal_result = (
+                session.query(Node).filter(Node.id == "GOAL-001").first()
+            )
+            self.assertEqual(
+                len(goal_result.children),
+                4,
+            )  # 2 concepts + 2 tasks
 
     def test_command_artifacts_integration(self) -> None:
         """Test command and artifact integration."""
@@ -319,7 +347,7 @@ class TestDatabaseIntegration(unittest.TestCase):
                         "shell": "make build",
                         "workdir": "/project",
                         "env": {"TARGET": "production"},
-                    }
+                    },
                 ),
             )
 
@@ -334,10 +362,18 @@ class TestDatabaseIntegration(unittest.TestCase):
             session.commit()
 
             # Verify command with artifacts
-            result = session.query(Command).filter(Command.node_id == "CMD-001").first()
+            result = (
+                session.query(Command)
+                .filter(Command.node_id == "CMD-001")
+                .first()
+            )
             self.assertIsNotNone(result)
 
-            db_artifacts = session.query(Artifact).filter(Artifact.command_id == "CMD-001").all()
+            db_artifacts = (
+                session.query(Artifact)
+                .filter(Artifact.command_id == "CMD-001")
+                .all()
+            )
             self.assertEqual(len(db_artifacts), 3)
 
 

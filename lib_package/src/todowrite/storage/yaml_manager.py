@@ -10,7 +10,7 @@ from __future__ import annotations
 import shutil
 import time
 from pathlib import Path
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import yaml
 from sqlalchemy.exc import SQLAlchemyError
@@ -21,13 +21,15 @@ from ..core.constants import (
     DEFAULT_PLANS_PATH,
     LAYER_DIRS,
 )
-from ..core.types import Node
+
+if TYPE_CHECKING:
+    from ..core.types import Node
 
 
 class YAMLManager:
     """Manages YAML import/export operations for ToDoWrite."""
 
-    def __init__(self, todowrite_app: Any = None):
+    def __init__(self, todowrite_app: Any = None) -> None:
         """Initialize YAML Manager."""
         if todowrite_app is None:
             # Lazy import to avoid circular dependency
@@ -51,7 +53,10 @@ class YAMLManager:
         current_time = time.time()
 
         # Return cached results if still valid
-        if current_time - self._cache_timestamp < self._cache_ttl and self._file_cache:
+        if (
+            current_time - self._cache_timestamp < self._cache_ttl
+            and self._file_cache
+        ):
             return self._file_cache.copy()
 
         # Cache is invalid or empty, scan filesystem
@@ -65,7 +70,9 @@ class YAMLManager:
 
                 layer_path = self.plans_path / dir_name
                 if layer_path.exists():
-                    files = list(layer_path.glob("*.yaml")) + list(layer_path.glob("*.yml"))
+                    files = list(layer_path.glob("*.yaml")) + list(
+                        layer_path.glob("*.yml")
+                    )
                     if files:
                         yaml_files[layer] = files
 
@@ -81,7 +88,7 @@ class YAMLManager:
         self._file_cache = yaml_files.copy()
         self._cache_timestamp = current_time
 
-        return cast(dict[str, list[Path]], yaml_files)
+        return cast("dict[str, list[Path]]", yaml_files)
 
     def load_yaml_file(self, file_path: Path) -> dict[str, Any] | None:
         """Load and validate a single YAML file."""
@@ -90,14 +97,18 @@ class YAMLManager:
                 data: Any = yaml.safe_load(f)
 
             if not isinstance(data, dict):
-                print(f"Warning: {file_path} does not contain a valid YAML object")
+                print(
+                    f"Warning: {file_path} does not contain a valid YAML object"
+                )
                 return None
 
             # Basic validation
             required_fields = ["id", "layer", "title", "description"]
             for field in required_fields:
                 if field not in data:
-                    print(f"Warning: {file_path} missing required field: {field}")
+                    print(
+                        f"Warning: {file_path} missing required field: {field}"
+                    )
                     return None
 
             # Ensure metadata exists
@@ -108,7 +119,7 @@ class YAMLManager:
             if "links" not in data:
                 data["links"] = {"parents": [], "children": []}
 
-            return cast(dict[str, Any], data)
+            return cast("dict[str, Any]", data)
 
         except yaml.YAMLError as e:
             print(f"Error parsing YAML file {file_path}: {e}")
@@ -135,7 +146,9 @@ class YAMLManager:
             print(f"Error querying database: {e}")
             return set()
 
-    def import_yaml_files(self, force: bool = False, dry_run: bool = False) -> dict[str, Any]:
+    def import_yaml_files(
+        self, force: bool = False, dry_run: bool = False
+    ) -> dict[str, Any]:
         """Import YAML files to database."""
         results: dict[str, Any] = {
             "imported": [],
@@ -146,7 +159,9 @@ class YAMLManager:
         }
 
         yaml_files = self.get_yaml_files()
-        existing_ids: set[str] = self.get_existing_node_ids() if not force else set()
+        existing_ids: set[str] = (
+            self.get_existing_node_ids() if not force else set()
+        )
 
         print(f"🔍 Found YAML files in {len(yaml_files)} layers")
 
@@ -181,13 +196,17 @@ class YAMLManager:
                 try:
                     if force and node_id and node_id in existing_ids:
                         # Update existing node
-                        updated_node = self.app.update_node(node_id, yaml_data_dict)
+                        updated_node = self.app.update_node(
+                            node_id, yaml_data_dict
+                        )
                         if updated_node:
                             results["imported"].append(f"{node_id} (updated)")
                             results["total_imported"] += 1
                             print(f"  ✅ Updated {node_id}")
                         else:
-                            results["errors"].append(f"Failed to update {node_id}")
+                            results["errors"].append(
+                                f"Failed to update {node_id}"
+                            )
                             print(f"  ❌ Failed to update {node_id}")
                     else:
                         # Create new node
@@ -260,7 +279,12 @@ class YAMLManager:
                         # Write to file
                         file_path = layer_dir / f"{node.id}.yaml"
                         with open(file_path, "w", encoding="utf-8") as f:
-                            yaml.dump(yaml_data, f, default_flow_style=False, sort_keys=False)
+                            yaml.dump(
+                                yaml_data,
+                                f,
+                                default_flow_style=False,
+                                sort_keys=False,
+                            )
 
                         results["exported"].append(str(file_path))
                         results["total_exported"] += 1
@@ -333,7 +357,7 @@ class YAMLManager:
             for file_path in files:
                 yaml_data = self.load_yaml_file(file_path)
                 if yaml_data and "id" in yaml_data:
-                    yaml_ids.add(cast(str, yaml_data["id"]))
+                    yaml_ids.add(cast("str", yaml_data["id"]))
 
         # Get database node IDs
         db_ids = self.get_existing_node_ids()
@@ -355,11 +379,17 @@ class YAMLManager:
             print("✅ All YAML files are already in the database")
             return
 
-        print(f"📥 Found {len(sync_status['yaml_only'])} YAML files not in database")
+        print(
+            f"📥 Found {len(sync_status['yaml_only'])} YAML files not in database"
+        )
 
         # Import only the missing files
         results = self.import_yaml_files(force=False, dry_run=False)
 
-        print(f"✅ Auto-import completed: {results['total_imported']} files imported")
+        print(
+            f"✅ Auto-import completed: {results['total_imported']} files imported"
+        )
         if results["errors"]:
-            print(f"⚠️  {len(results['errors'])} errors occurred during auto-import")
+            print(
+                f"⚠️  {len(results['errors'])} errors occurred during auto-import"
+            )

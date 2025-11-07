@@ -106,12 +106,16 @@ class TraceabilityBuilder:
         for node_id, children in self.forward_links.items():
             for child_id in children:
                 if node_id not in self.backward_links.get(child_id, set()):
-                    inconsistencies.append(f"{node_id} -> {child_id} (missing backward link)")
+                    inconsistencies.append(
+                        f"{node_id} -> {child_id} (missing backward link)"
+                    )
 
         for node_id, parents in self.backward_links.items():
             for parent_id in parents:
                 if node_id not in self.forward_links.get(parent_id, set()):
-                    inconsistencies.append(f"{parent_id} -> {node_id} (missing forward link)")
+                    inconsistencies.append(
+                        f"{parent_id} -> {node_id} (missing forward link)"
+                    )
 
         if inconsistencies:
             print("WARNING: Link inconsistencies found:")
@@ -255,7 +259,13 @@ class TraceabilityBuilder:
         edges: list[dict[str, Any]] = []
         for source_id, children in self.forward_links.items():
             for target_id in children:
-                edges.append({"source": source_id, "target": target_id, "type": "parent_child"})
+                edges.append(
+                    {
+                        "source": source_id,
+                        "target": target_id,
+                        "type": "parent_child",
+                    }
+                )
 
         # Graph data structure
         graph: dict[str, Any] = {
@@ -264,13 +274,17 @@ class TraceabilityBuilder:
                 "total_edges": len(edges),
                 "orphaned_nodes": len(self.orphaned_nodes),
                 "circular_dependencies": len(self.circular_deps),
-                "layers": list({node["layer"] for node in self.nodes.values()}),
+                "layers": list(
+                    {node["layer"] for node in self.nodes.values()}
+                ),
             },
             "nodes": nodes,
             "edges": edges,
             "issues": {
                 "orphaned_nodes": list(self.orphaned_nodes),
-                "circular_dependencies": [list(cycle) for cycle in self.circular_deps],
+                "circular_dependencies": [
+                    list(cycle) for cycle in self.circular_deps
+                ],
             },
         }
 
@@ -294,8 +308,12 @@ class TraceabilityBuilder:
             print(f"  {layer}: {count}")
 
         # Link statistics
-        total_forward_links = sum(len(children) for children in self.forward_links.values())
-        total_backward_links = sum(len(parents) for parents in self.backward_links.values())
+        total_forward_links = sum(
+            len(children) for children in self.forward_links.values()
+        )
+        total_backward_links = sum(
+            len(parents) for parents in self.backward_links.values()
+        )
 
         print(f"\nTotal forward links: {total_forward_links}")
         print(f"Total backward links: {total_backward_links}")
@@ -339,7 +357,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Build ToDoWrite traceability matrix and dependency graph"
     )
-    parser.add_argument("--summary", action="store_true", help="Show summary report only")
+    parser.add_argument(
+        "--summary", action="store_true", help="Show summary report only"
+    )
     parser.add_argument(
         "--ignore-issues",
         action="store_true",

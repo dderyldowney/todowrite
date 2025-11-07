@@ -26,8 +26,12 @@ class Node(Base):
     work_type: Mapped[str | None] = mapped_column(String)
     assignee: Mapped[str | None] = mapped_column(String)
 
-    labels: Mapped[list[Label]] = relationship(secondary="node_labels", back_populates="nodes")
-    command: Mapped[Command | None] = relationship(uselist=False, back_populates="node")
+    labels: Mapped[list[Label]] = relationship(
+        secondary="node_labels", back_populates="nodes"
+    )
+    command: Mapped[Command | None] = relationship(
+        uselist=False, back_populates="node"
+    )
 
     # Relationships for parent/child links
     parents: Mapped[list[Node]] = relationship(
@@ -49,8 +53,12 @@ class Link(Base):
 
     __tablename__ = "links"
 
-    parent_id: Mapped[str] = mapped_column(String, ForeignKey("nodes.id"), primary_key=True)
-    child_id: Mapped[str] = mapped_column(String, ForeignKey("nodes.id"), primary_key=True)
+    parent_id: Mapped[str] = mapped_column(
+        String, ForeignKey("nodes.id"), primary_key=True
+    )
+    child_id: Mapped[str] = mapped_column(
+        String, ForeignKey("nodes.id"), primary_key=True
+    )
 
 
 class Label(Base):
@@ -60,7 +68,9 @@ class Label(Base):
 
     label: Mapped[str] = mapped_column(String, primary_key=True)
 
-    nodes: Mapped[list[Node]] = relationship(secondary="node_labels", back_populates="labels")
+    nodes: Mapped[list[Node]] = relationship(
+        secondary="node_labels", back_populates="labels"
+    )
 
 
 node_labels = Table(
@@ -76,7 +86,9 @@ class Command(Base):
 
     __tablename__ = "commands"
 
-    node_id: Mapped[str] = mapped_column(String, ForeignKey("nodes.id"), primary_key=True)
+    node_id: Mapped[str] = mapped_column(
+        String, ForeignKey("nodes.id"), primary_key=True
+    )
     ac_ref: Mapped[str | None] = mapped_column(String)
     run: Mapped[str | None] = mapped_column(Text)
 

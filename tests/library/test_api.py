@@ -314,10 +314,16 @@ class TestCoreAPI(unittest.TestCase):
             all_node_list.extend(nodes)
 
         # Filter nodes by owner
-        developer_nodes = [node for node in all_node_list if node.metadata.owner == "developer"]
+        developer_nodes = [
+            node
+            for node in all_node_list
+            if node.metadata.owner == "developer"
+        ]
         self.assertEqual(len(developer_nodes), 2)
 
-        designer_nodes = [node for node in all_node_list if node.metadata.owner == "designer"]
+        designer_nodes = [
+            node for node in all_node_list if node.metadata.owner == "designer"
+        ]
         self.assertEqual(len(designer_nodes), 1)
 
 
@@ -364,7 +370,10 @@ class TestNodeAPI(unittest.TestCase):
         # Check that progress field is preserved by the database implementation
         self.assertIn("progress", node_dict)
         self.assertEqual(node_dict["progress"], 75)
-        self.assertEqual(node_dict["metadata"]["labels"], ["urgent", "important"])
+        self.assertEqual(
+            node_dict["metadata"]["labels"],
+            ["urgent", "important"],
+        )
 
     def test_node_from_dict(self) -> None:
         """Test creating Node from dictionary."""

@@ -23,8 +23,8 @@ def check_database_needs_migration(engine: Any) -> bool:
                 text(
                     """
                 PRAGMA table_info(nodes)
-            """
-                )
+            """,
+                ),
             )
 
             columns = [row[1] for row in result.fetchall()]
@@ -48,7 +48,9 @@ def migrate_database(engine: Any, dry_run: bool = False) -> bool:
             if dry_run:
                 print("🔍 DRY RUN: Would perform the following operations:")
                 print("  1. Create backup table nodes_backup")
-                print("  2. Copy data from nodes to nodes_backup (excluding session_id)")
+                print(
+                    "  2. Copy data from nodes to nodes_backup (excluding session_id)",
+                )
                 print("  3. Drop nodes table")
                 print("  4. Rename nodes_backup to nodes")
                 print("  5. Recreate indexes")
@@ -64,8 +66,8 @@ def migrate_database(engine: Any, dry_run: bool = False) -> bool:
                        started_date, completion_date, owner, severity,
                        work_type, assignee
                 FROM nodes
-            """
-                )
+            """,
+                ),
             )
 
             print("📋 Step 2: Dropping old table...")
@@ -86,9 +88,11 @@ def migrate_database(engine: Any, dry_run: bool = False) -> bool:
         return False
 
 
-def main():
+def main() -> None:
     """Main migration function."""
-    parser = argparse.ArgumentParser(description="Migrate ToDoWrite database schema")
+    parser = argparse.ArgumentParser(
+        description="Migrate ToDoWrite database schema",
+    )
     parser.add_argument(
         "--database-url",
         "-d",
@@ -96,10 +100,14 @@ def main():
         help="Database URL (default: sqlite:///./todowrite.db)",
     )
     parser.add_argument(
-        "--dry-run", action="store_true", help="Show what would be done without making changes"
+        "--dry-run",
+        action="store_true",
+        help="Show what would be done without making changes",
     )
     parser.add_argument(
-        "--check-only", action="store_true", help="Only check if migration is needed"
+        "--check-only",
+        action="store_true",
+        help="Only check if migration is needed",
     )
 
     args = parser.parse_args()
