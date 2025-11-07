@@ -176,26 +176,9 @@ skip-magic-trailing-comma = false
 # Pyright configuration for VSCode integration
 [tool.pyright]
 include = ["${workspaceFolder}"]
-extraPaths = ["./"]
+[tool.pyright]
 pythonVersion = "3.12"
 typeCheckingMode = "basic"
-
-[tool.pyright.diagnosticSeverityOverrides]
-reportGeneralTypeIssues = "error"
-reportOptionalMemberAccess = "warning"
-reportOptionalCall = "warning"
-reportOptionalIterable = "warning"
-reportOptionalContextManager = "warning"
-reportOptionalSubscript = "warning"
-reportArgumentType = "warning"
-reportAssignmentType = "warning"
-reportAttributeAccessIssue = "warning"
-reportCallIssue = "warning"
-reportIndexIssue = "warning"
-reportOperatorIssue = "warning"
-reportMissingImports = "error"
-reportUndefinedVariable = "error"
-
 
 
 # CLI code exclusions
