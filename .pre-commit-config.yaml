@@ -20,17 +20,6 @@ repos:
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
 
-  - repo: https://github.com/psf/black
-    rev: 24.10.0
-    hooks:
-      - id: black
-        language_version: python3.12
-
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-
   - repo: https://github.com/RobertCraigie/pyright-python
     rev: v1.1.407
     hooks:
@@ -40,10 +29,3 @@ repos:
           - types-jsonschema
         args: [--project=todowrite]
         files: ^(todowrite|tests)/.*\.py$
-
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.10
-    hooks:
-      - id: bandit
-        args: [-c, pyproject.toml]
-        additional_dependencies: ["bandit[toml]"]
