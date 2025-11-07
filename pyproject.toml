@@ -175,8 +175,7 @@ skip-magic-trailing-comma = false
 
 # Pyright configuration for VSCode integration
 [tool.pyright]
-include = ["${workspaceFolder}"]
-[tool.pyright]
+include = ["lib_package/src", "cli_package/src"]
 pythonVersion = "3.12"
 typeCheckingMode = "basic"
 
