@@ -28,9 +28,7 @@ def initialize_token_sage() -> bool:
         return False
 
 
-def run_hal_filtering(
-    goal: str, pattern: str | None = None, **kwargs: object
-) -> str | None:
+def run_hal_filtering(goal: str, pattern: str | None = None, **kwargs: object) -> str | None:
     """Run HAL agent filtering for maximum token efficiency"""
     print(f"🔍 Running HAL agent pre-filtering for: {goal}")
 

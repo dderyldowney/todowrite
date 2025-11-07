@@ -10,7 +10,6 @@ from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from todowrite.core.types import Node
 from todowrite.database.models import Artifact, Command, Label, Link, Node, node_labels
 
 

@@ -124,9 +124,7 @@ def filter_repo_for_llm(
                     try:
                         # Simple JSON filtering - look for lines containing JSON
                         if "{" in line and "}" in line:
-                            json_data = json.loads(
-                                line[line.find("{") : line.rfind("}") + 1]
-                            )
+                            json_data = json.loads(line[line.find("{") : line.rfind("}") + 1])
                             # Apply simple jq-like filter (basic implementation)
                             if json_filter and json_filter not in str(json_data):
                                 continue
@@ -217,9 +215,7 @@ def filter_repo_for_llm(
 
         except FileNotFoundError:
             # Final fallback with parameter information
-            info_parts = [
-                "Repository filtering not available. Please install ripgrep or grep."
-            ]
+            info_parts = ["Repository filtering not available. Please install ripgrep or grep."]
             info_parts.append(f"Goal: {goal}")
             info_parts.append(f"Pattern: {pattern}")
             info_parts.append(f"Max files: {max_files}")
@@ -334,9 +330,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     pa.add_argument("--roots", nargs="+", default=["."])
     pa.add_argument("--include", nargs="+", dest="include_globs")
     pa.add_argument("--exclude", nargs="+", dest="exclude_globs")
-    pa.add_argument(
-        "--chars", type=int, default=3200, help="Max snippet size (characters)."
-    )
+    pa.add_argument("--chars", type=int, default=3200, help="Max snippet size (characters).")
     pa.add_argument("--max-files", type=int, default=20000)
     pa.add_argument("--max-hits", type=int, default=5000)
     pa.add_argument("--max-bytes", type=int, default=256000)
@@ -368,13 +362,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     user_prompt = build_user_prompt(args.goal, snippet)
 
     # hard prompt size guard (prevents surprise token burn)
-    _enforce_char_budget(
-        user_prompt, max_chars=args.chars + 800
-    )  # allow small overhead
+    _enforce_char_budget(user_prompt, max_chars=args.chars + 800)  # allow small overhead
 
-    provider: LLMProvider = (
-        OpenAIProvider() if args.provider == "openai" else AnthropicProvider()
-    )
+    provider: LLMProvider = OpenAIProvider() if args.provider == "openai" else AnthropicProvider()
     out = provider.generate(
         system_prompt=BASE_SYSTEM_PROMPT,
         user_prompt=user_prompt,

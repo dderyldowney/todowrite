@@ -16,7 +16,7 @@ def ensure_token_sage():
 
     # This would normally initialize token-sage
     # For now, we'll create the token-sage task
-    token_sage_command = '''Task subagent_type=token-sage description="Initialize token-sage" prompt="Initialize and prepare for code analysis tasks"'''
+    token_sage_command = '''Task subagent_type=token-sage description="Initialize token-sage" prompt="Initialize and prepare for code analysis tasks"'''  # nosec: B105
 
     print("📝 Token-sage initialization command:")
     print(f"   {token_sage_command}")
@@ -47,10 +47,7 @@ def run_with_hal_preprocessing(command_args):
 
         # Extract pattern from goal if it looks like a search
         pattern = None
-        if any(
-            word in goal.lower()
-            for word in ["find", "search", "class", "def", "import"]
-        ):
+        if any(word in goal.lower() for word in ["find", "search", "class", "def", "import"]):
             # Simple pattern extraction
             words = goal.split()
             for word in words:

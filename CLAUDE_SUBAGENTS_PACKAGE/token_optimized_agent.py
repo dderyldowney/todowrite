@@ -145,9 +145,7 @@ Estimated Savings: ~10,000+ tokens
         except Exception:
             pass
 
-    def analyze(
-        self, goal: str, pattern: str | None = None, use_cache: bool = True
-    ) -> str:
+    def analyze(self, goal: str, pattern: str | None = None, use_cache: bool = True) -> str:
         """
         Main analysis method with automatic token optimization
         """
@@ -190,9 +188,7 @@ def main() -> int:
     """Command-line interface"""
     if len(sys.argv) < 2:
         print("Usage: python token_optimized_agent.py <goal> [pattern]")
-        print(
-            "Example: python token_optimized_agent.py 'authentication system' 'class.*Auth'"
-        )
+        print("Example: python token_optimized_agent.py 'authentication system' 'class.*Auth'")
         return 1
 
     goal = sys.argv[1]

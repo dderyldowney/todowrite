@@ -9,6 +9,7 @@ This ensures zero wasted tokens through local-first processing.
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 
 class TokenOptimizedAgent:
@@ -29,7 +30,7 @@ class TokenOptimizedAgent:
         return True
 
     def run_hal_preprocessing(
-        self, goal: str, pattern: str = None, **kwargs
+        self, goal: str, pattern: str | None = None, **kwargs: Any
     ) -> str | None:
         """
         Run HAL agents for local preprocessing (0 tokens used)
@@ -99,7 +100,7 @@ Estimated Savings: ~10,000+ tokens
 
         return analysis
 
-    def get_cache_key(self, goal: str, pattern: str = None) -> str:
+    def get_cache_key(self, goal: str, pattern: str | None = None) -> str:
         """Generate cache key for repeated queries"""
         import hashlib
 
@@ -128,7 +129,7 @@ Estimated Savings: ~10,000+ tokens
         except Exception:
             pass
 
-    def analyze(self, goal: str, pattern: str = None, use_cache: bool = True) -> str:
+    def analyze(self, goal: str, pattern: str | None = None, use_cache: bool = True) -> str:
         """
         Main analysis method with automatic token optimization
         """
@@ -171,9 +172,7 @@ def main():
     """Command-line interface"""
     if len(sys.argv) < 2:
         print("Usage: python token_optimized_agent.py <goal> [pattern]")
-        print(
-            "Example: python token_optimized_agent.py 'authentication system' 'class.*Auth'"
-        )
+        print("Example: python token_optimized_agent.py 'authentication system' 'class.*Auth'")
         return 1
 
     goal = sys.argv[1]
