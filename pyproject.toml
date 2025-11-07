@@ -27,7 +27,14 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
-dependencies = []
+dependencies = [
+    "click>=8.0.0",
+    "sqlalchemy>=2.0.0",
+    "typing-extensions>=4.0.0",
+    "PyYAML>=6.0.0",
+    "jsonschema>=4.0.0",
+    "psycopg2-binary>=2.9.0",
+]
 
 [project.urls]
 Issues = "https://github.com/dderyldowney/todowrite/issues"
@@ -48,8 +55,11 @@ dev = [
 ]
 
 [tool.hatch.version]
-path = "VERSION"
-pattern = "^(?P<version>[0-9]+\\.[0-9]+\\.[0-9]+)$"
+path = "shared_version.py"
+
+[tool.hatch.build.targets.wheel]
+# This is a development meta-package - no source files to ship
+packages = []
 
 # Ruff configuration for development
 [tool.ruff]
