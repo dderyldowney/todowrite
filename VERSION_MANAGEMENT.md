@@ -1,53 +1,228 @@
-# Centralized Version Management
+# Version Management Guide
 
-This document explains the centralized version management system for the ToDoWrite project, which ensures that both the library (`todowrite`) and CLI (`todowrite_cli`) packages maintain synchronized versions from a single source of truth.
+This document explains the proper version management workflow for the ToDoWrite project.
 
-## 🎯 Problem Solved
+## Architecture Overview
 
-Previously, version numbers were defined in **4 separate locations**:
+The ToDoWrite project uses a **single source of truth** architecture for version management:
 
-1. `lib_package/src/todowrite/version.py`
-2. `cli_package/src/todowrite_cli/version.py`
-3. `lib_package/pyproject.toml`
-4. `cli_package/pyproject.toml`
+1. **VERSION file** - The authoritative source for the version number
+2. **shared_version.py** - Provides version access functions and maintains Hatch compatibility
+3. **scripts/bump_version.py** - Automated tool for version bumping
 
-This manual process was error-prone and led to version mismatches between packages.
+## Key Components
 
-## 🏗️ Solution Architecture
+### 1. VERSION File
+- **Location**: Project root (`./VERSION`)
+- **Format**: Semantic version (e.g., `0.3.1`)
+- **Purpose**: Single source of truth for all version information
 
-### Single Source of Truth
+### 2. shared_version.py
+- **Location**: Project root (`./shared_version.py`)
+- **Key Functions**:
+  - `get_version()` - Returns current version from VERSION file
+  - `_get_version()` - Internal function with fallback
+  - `sync_version()` - Syncs literal `__version__` with VERSION file
+- **Hatch Compatibility**: Maintains literal `__version__` string for Hatch build system
+
+### 3. scripts/bump_version.py
+- **Location**: `./scripts/bump_version.py`
+- **Purpose**: Automated version bumping with proper synchronization
+- **Features**:
+  - Semantic version bumping (patch, minor, major)
+  - Explicit version setting
+  - Dry-run mode for testing
+  - Automatic synchronization between VERSION file and shared_version.py
+
+## Usage
+
+### Method 1: Automated Version Bumping (Recommended)
+
+```bash
+# Bump patch version (0.3.1 → 0.3.2)
+python scripts/bump_version.py patch
+
+# Bump minor version (0.3.1 → 0.4.0)
+python scripts/bump_version.py minor
+
+# Bump major version (0.3.1 → 1.0.0)
+python scripts/bump_version.py major
+
+# Set specific version
+python scripts/bump_version.py 1.2.3
+
+# Dry run to preview changes
+python scripts/bump_version.py --dry-run patch
+```
+
+### Method 2: Manual Version Management
+
+```bash
+# 1. Edit VERSION file
+echo "0.3.2" > VERSION
+
+# 2. Sync with shared_version.py
+python -c "from shared_version import sync_version; sync_version()"
+```
+
+### Method 3: Direct Function Access
+
+```python
+from shared_version import get_version, sync_version
+
+# Get current version
+current = get_version()
+print(f"Current version: {current}")
+
+# Sync after manual VERSION file edit
+sync_version()
+```
+
+## Workflow Examples
+
+### Typical Release Workflow
+
+```bash
+# 1. Develop and test features
+# ... development work ...
+
+# 2. Bump version for release
+python scripts/bump_version.py patch
+
+# 3. Verify version bump
+python -c "from shared_version import get_version; print(f'Releasing version: {get_version()}')"
+
+# 4. Build and test package
+python -m build
+
+# 5. Commit and tag
+git add VERSION shared_version.py
+git commit -m "bump: version 0.3.2"
+git tag v0.3.2
+
+# 6. Push and release
+git push origin main --tags
+```
+
+### Feature Branch Workflow
+
+```bash
+# 1. Create feature branch
+git checkout -b feature/new-feature
+
+# 2. Develop feature
+# ... coding ...
+
+# 3. If needed for testing, bump to prerelease
+python scripts/bump_version.py 0.3.2-rc1
+
+# 4. Complete feature development
+
+# 5. Merge to main and release
+git checkout main
+git merge feature/new-feature
+python scripts/bump_version.py patch  # Final release version
+```
+
+## Troubleshooting
+
+### Version Sync Issues
+
+If you notice inconsistencies between VERSION file and shared_version.py:
+
+```bash
+# Check current versions
+python -c "from shared_version import get_version; print(f'get_version(): {get_version()}')"
+python -c "import shared_version; print(f'__version__: {shared_version.__version__}')"
+cat VERSION
+
+# Resync if needed
+python -c "from shared_version import sync_version; sync_version()"
+```
+
+### Build System Issues
+
+If Hatch build system fails with version-related errors:
+
+1. **Check VERSION file format**:
+   ```bash
+   cat VERSION  # Should be just: 0.3.1
+   ```
+
+2. **Verify shared_version.py literal**:
+   ```bash
+   grep -n "__version__ = " shared_version.py  # Should be: __version__ = "0.3.1"
+   ```
+
+3. **Run sync**:
+   ```bash
+   python -c "from shared_version import sync_version; sync_version()"
+   ```
+
+## Best Practices
+
+1. **Always use the automated script** for version bumping
+2. **Test with --dry-run** before actual version changes
+3. **Commit VERSION and shared_version.py together**
+4. **Tag releases immediately after version bumps**
+5. **Keep semantic versioning** (major.minor.patch)
+6. **Use prerelease versions** for testing (e.g., 0.3.2-rc1)
+
+## Integration with Build Systems
+
+### Hatch Build System
+The `shared_version.py` module is designed to work seamlessly with Hatch:
+
+```toml
+# pyproject.toml
+[tool.hatch.version]
+path = "shared_version.py"
+```
+
+Hatch reads the literal `__version__` string, which is kept in sync with the VERSION file.
+
+## File Structure
 
 ```
 todowrite/
-├── VERSION                    # ← Single source of truth
-├── shared_version.py          # Centralized version module
-├── _build_version_hook.py     # Build-time version access
-├── scripts/bump_version.py    # Version management CLI
-└── [package directories]
-    └── src/[package]/version.py  # Import from shared_version.py
+├── VERSION                    # Single source of truth
+├── shared_version.py          # Version access functions
+├── scripts/
+│   └── bump_version.py        # Automated version bumping
+└── VERSION_MANAGEMENT.md      # This documentation
 ```
 
-### Key Components
+## Important Notes
 
-#### 1. `VERSION` File
-- **Purpose**: Contains the current version string only
-- **Format**: `X.Y.Z` (e.g., `0.2.2`)
-- **Location**: Project root
+### Hatch Build System Compatibility
 
-#### 2. `shared_version.py`
-- **Purpose**: Centralized version module that all packages import from
-- **Functionality**: Reads VERSION file and provides version/metadata
-- **Fallback**: Provides default version if VERSION file is missing
+This version management system was specifically designed to resolve a critical **Hatch build system issue** where Hatch's regex-based version parsing requires a literal string assignment like:
 
-#### 3. `scripts/bump_version.py`
-- **Purpose**: CLI tool for version management
-- **Commands**:
-  ```bash
-  python scripts/bump_version.py get          # Show current version
-  python scripts/bump_version.py bump 1.0.0  # Set new version
-  ```
+```python
+__version__ = "0.3.1"  # Hatch can parse this
+```
 
-#### 4. Build Integration
+Instead of:
+
+```python
+__version__ = _get_version()  # Hatch cannot parse this
+```
+
+The solution maintains both:
+- **Single source of truth**: VERSION file
+- **Hatch compatibility**: Literal `__version__` string
+- **Automatic synchronization**: `sync_version()` function
+
+### Workflow Summary
+
+**When you need to bump the version:**
+
+1. **ALWAYS** edit the VERSION file first
+2. **OR** use the automated script: `python scripts/bump_version.py patch`
+3. **NEVER** edit `shared_version.py` directly (except for code changes)
+4. **VERIFY** the sync worked: `python -c "from shared_version import get_version; print(get_version())"`
+
+The automated script handles all of this for you, making it the recommended approach.
 - Both packages use dynamic versioning in their `pyproject.toml`
 - Build system reads from `VERSION` file via `_build_version_hook.py`
 - No hardcoded versions in build configuration
