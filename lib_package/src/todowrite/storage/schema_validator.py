@@ -327,7 +327,7 @@ class SchemaValidator:
         return self.validate_database_schema(engine)
 
     def get_schema_compliance_report(
-        self, storage_type: str, engine: Engine | None = None
+        self, storage_type: str, engine: Engine | None = None, **kwargs: object
     ) -> dict[str, object]:
         """
         Generate a comprehensive schema compliance report.

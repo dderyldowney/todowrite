@@ -54,7 +54,7 @@ DATABASE_URL: str = os.getenv(
 Environment Variables:
     TODOWRITE_DATABASE_URL: Full database URL (overrides automatic detection)
     DATABASE_URL: Standard database URL environment variable
-    TODOWRITE_STORAGE_PREFERENCE: Storage preference (auto, postgresql_only, sqlite_only, yaml_only)
+    TODOWRITE_STORAGE_PREFERENCE: Storage preference (auto, pg, sqlite, yaml)
 
 Examples:
     PostgreSQL: postgresql://user:password@localhost:5432/todowrite_db
@@ -193,7 +193,7 @@ def _clear_storage_cache() -> None:
 
 def determine_storage_backend() -> tuple[StorageType, str | None]:
     """
-    Determine which storage backend to use based on preference and availability.
+    Determine storage backend based on preference and availability.
 
     Returns:
         Tuple of (StorageType, connection_url_or_none)

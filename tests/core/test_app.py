@@ -49,7 +49,7 @@ class TestApp(unittest.TestCase):
                 try:
                     Path(file_path).unlink()
                     print(f"🧹 Removed test file: {file_path}")
-                except Exception as e:
+                except OSError as e:
                     print(f"⚠️  Could not remove {file_path}: {e}")
 
         # Remove cache directories
@@ -65,7 +65,7 @@ class TestApp(unittest.TestCase):
                 try:
                     shutil.rmtree(cache_dir)
                     print(f"🧹 Removed cache directory: {cache_dir}")
-                except Exception as e:
+                except OSError as e:
                     print(f"⚠️  Could not remove {cache_dir}: {e}")
 
         # Remove results directory if it exists
@@ -73,7 +73,7 @@ class TestApp(unittest.TestCase):
             try:
                 shutil.rmtree("results")
                 print("🧹 Removed results directory")
-            except Exception as e:
+            except OSError as e:
                 print(f"⚠️  Could not remove results directory: {e}")
 
         # Remove trace directory if it exists
@@ -81,7 +81,7 @@ class TestApp(unittest.TestCase):
             try:
                 shutil.rmtree("trace")
                 print("🧹 Removed trace directory")
-            except Exception as e:
+            except OSError as e:
                 print(f"⚠️  Could not remove trace directory: {e}")
 
     def setUp(self) -> None:

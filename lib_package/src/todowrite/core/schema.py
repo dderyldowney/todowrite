@@ -1,7 +1,7 @@
 """ToDoWrite schema module for external projects.
 
-This module provides access to the JSON schema used for validating ToDoWrite nodes.
-External projects can import this schema to validate their data before creating nodes.
+This module provides access to the JSON schema for validating ToDoWrite nodes.
+Projects can import this schema to validate data before creating nodes.
 """
 
 import json

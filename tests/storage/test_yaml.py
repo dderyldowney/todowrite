@@ -9,6 +9,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import yaml
+
 from todowrite.core import ToDoWrite
 from todowrite.storage.yaml_manager import YAMLManager
 from todowrite.storage.yaml_storage import YAMLStorage
@@ -271,8 +273,6 @@ class TestYAMLStorage(unittest.TestCase):
         goal_file = self.yaml_base_path / "plans" / "goals" / "GOAL-001.yaml"
         self.assertTrue(goal_file.exists())
 
-        import yaml
-
         with open(goal_file) as f:
             file_content = yaml.safe_load(f)
 
@@ -318,8 +318,6 @@ class TestYAMLManager(unittest.TestCase):
 
         for file_path in [goal_file, task_file, cmd_file]:
             with open(file_path, "w") as f:
-                import yaml
-
                 yaml.dump(
                     {
                         "id": file_path.stem,
@@ -362,8 +360,6 @@ class TestYAMLManager(unittest.TestCase):
             self.yaml_base_path / "plans" / "goals" / "GOAL-IMPORT-001.yaml"
         )
         goal_file.parent.mkdir(parents=True)
-
-        import yaml
 
         goal_data = {
             "id": "GOAL-IMPORT-001",
@@ -426,8 +422,6 @@ class TestYAMLManager(unittest.TestCase):
         export_file = output_dir / "plans" / "goals" / "GOAL-EXPORT-001.yaml"
         self.assertTrue(export_file.exists())
 
-        import yaml
-
         with open(export_file) as f:
             exported_data = yaml.safe_load(f)
 
@@ -460,8 +454,6 @@ class TestYAMLManager(unittest.TestCase):
             self.yaml_base_path / "plans" / "goals" / "GOAL-SYNC-002.yaml"
         )
         goal_file.parent.mkdir(parents=True)
-
-        import yaml
 
         yaml_data = {
             "id": "GOAL-SYNC-002",
