@@ -91,6 +91,7 @@ ignore = [
     "PTH123", # open() (acceptable for compatibility)
     "F823",  # local variable referenced before assignment (false positive with TYPE_CHECKING)
     "COM812", # trailing comma missing (conflicts with formatter)
+    "ISC001", # implicit string concatenation (conflicts with formatter)
 
     # Type annotation rules to ignore (stricter than needed)
     "ANN001", # missing-type-function-argument
