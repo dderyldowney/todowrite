@@ -16,7 +16,7 @@ from typing import Any, cast
 
 import jsonschema
 import yaml
-from sqlalchemy import inspect
+from sqlalchemy import Engine, Inspector, inspect
 
 from ..core.constants import LAYER_DIRS
 from ..core.schema import TODOWRITE_SCHEMA
@@ -55,7 +55,7 @@ class SchemaValidator:
 
         return len(errors) == 0, errors
 
-    def validate_database_schema(self, engine: Any) -> tuple[bool, list[str]]:  # type: ignore [reportUnknownArgumentType]
+    def validate_database_schema(self, engine: Engine) -> tuple[bool, list[str]]:
         """
         Validate database schema against the expected structure.
 
@@ -315,12 +315,12 @@ class SchemaValidator:
         return all_valid, errors, file_counts
 
     def validate_postgresql_schema(
-        self, engine: Any
+        self, engine: Engine
     ) -> tuple[bool, list[str]]:
         """Validate PostgreSQL-specific schema constraints."""
         return self.validate_database_schema(engine)
 
-    def validate_sqlite_schema(self, engine: Any) -> tuple[bool, list[str]]:
+    def validate_sqlite_schema(self, engine: Engine) -> tuple[bool, list[str]]:
         """Validate SQLite-specific schema constraints."""
         return self.validate_database_schema(engine)
 
@@ -407,8 +407,8 @@ def validate_node_data(node_data: dict[str, Any]) -> tuple[bool, list[str]]:  # 
 
 
 def validate_database_schema(
-    engine: Any | None = None,
-) -> tuple[bool, list[str]]:  # type: ignore [reportUnknownArgumentType]
+    engine: Engine | None = None,
+) -> tuple[bool, list[str]]:
     """Validate database schema against expected structure."""
     # If no engine provided, try to get the default one
     if engine is None:
@@ -531,8 +531,9 @@ def get_schema_compliance_report(
 
             app = ToDoWrite()
             kwargs["engine"] = app.engine
-        except Exception:
-            pass  # Let the underlying function handle the missing engine
+        except ImportError:
+            # Let the underlying function handle the missing engine
+            pass
 
     return _schema_validator.get_schema_compliance_report(
         storage_type, **kwargs
