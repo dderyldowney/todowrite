@@ -45,7 +45,8 @@ class SchemaValidator:
         try:
             jsonschema.validate(instance=node_data, schema=self.schema)
         except jsonschema.ValidationError as e:
-            errors.append(f"Validation error: {e.message}")
+            # Re-raise the validation error for tests that expect it
+            raise e
         except jsonschema.SchemaError as e:
             errors.append(f"Schema error: {e.message}")
         except Exception as e:
@@ -398,10 +399,7 @@ _schema_validator = SchemaValidator()
 
 def validate_node_data(node_data: dict[str, Any]) -> tuple[bool, list[str]]:  # type: ignore [reportUnknownArgumentType]
     """Validate node data against schema."""
-    is_valid, errors = _schema_validator.validate_node_data(node_data)
-    if not is_valid:
-        raise ValueError(f"Node validation failed: {'; '.join(errors)}")
-    return is_valid, errors
+    return _schema_validator.validate_node_data(node_data)
 
 
 def validate_database_schema(
@@ -472,20 +470,17 @@ def validate_yaml_files(
                                         )
                                     all_valid = False
                     elif isinstance(yaml_data, dict):
-                        # File contains single node
-                        valid, node_errors = (
-                            _schema_validator.validate_node_data(
-                                cast("dict[str, Any]", yaml_data)
-                            )
+                        # File contains single node - let jsonschema.ValidationError bubble up
+                        _schema_validator.validate_node_data(
+                            cast("dict[str, Any]", yaml_data)
                         )
-                        if not valid:
-                            for error in node_errors:
-                                all_errors.append(f"{path}: {error}")
-                            all_valid = False
 
                 except yaml.YAMLError as e:
                     all_errors.append(f"YAML parsing error in {path}: {e}")
                     all_valid = False
+                except jsonschema.ValidationError:
+                    # Let jsonschema.ValidationError bubble up for single node files
+                    raise
                 except Exception as e:
                     all_errors.append(f"Error processing {path}: {e}")
                     all_valid = False
