@@ -92,6 +92,9 @@ select = [
     "S603",    # subprocess call: check for execution of untrusted input
     "S607",    # Starting a process with a shell: possible security issue
 ]
+"src/todowrite/database/config.py" = [
+    "S603",    # subprocess call: needed for Docker integration - validated path
+]
 
 [tool.ruff.format]
 indent-style = "space"
