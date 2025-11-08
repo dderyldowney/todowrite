@@ -12,6 +12,7 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
+import jsonschema
 import yaml
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -30,7 +31,9 @@ if TYPE_CHECKING:
 class YAMLManager:
     """Manages YAML import/export operations for ToDoWrite."""
 
-    def __init__(self: "YAMLManager", todowrite_app: ToDoWrite | None = None) -> None:
+    def __init__(
+        self: YAMLManager, todowrite_app: ToDoWrite | None = None
+    ) -> None:
         """Initialize YAML Manager."""
         if todowrite_app is None:
             # Lazy import to avoid circular dependency
@@ -91,7 +94,9 @@ class YAMLManager:
 
         return cast("dict[str, list[Path]]", yaml_files)
 
-    def load_yaml_file(self: "YAMLManager", file_path: Path) -> dict[str, Any] | None:
+    def load_yaml_file(
+        self: YAMLManager, file_path: Path
+    ) -> dict[str, Any] | None:
         """Load and validate a single YAML file."""
         try:
             with open(file_path, encoding="utf-8") as f:
@@ -126,7 +131,7 @@ class YAMLManager:
         except FileNotFoundError:
             print(f"File not found: {file_path}")
             return None
-        except (yaml.YAMLError, PermissionError, OSError) as e:
+        except (PermissionError, OSError) as e:
             print(f"Unexpected error loading {file_path}: {e}")
             return None
 
@@ -304,14 +309,14 @@ class YAMLManager:
                         results["errors"].append(error_msg)
                         print(f"  ❌ {error_msg}")
 
-        except (sqlalchemy.exc.SQLAlchemyError, AttributeError, KeyError) as e:
+        except (SQLAlchemyError, AttributeError, KeyError) as e:
             error_msg = f"Error accessing database: {e}"
             results["errors"].append(error_msg)
             print(f"❌ {error_msg}")
 
         return results
 
-    def node_to_yaml(self: "YAMLManager", node: Node) -> dict[str, Any]:
+    def node_to_yaml(self: YAMLManager, node: Node) -> dict[str, Any]:
         """Convert a Node object to YAML-compatible dictionary."""
         yaml_data: dict[str, Any] = {
             "id": node.id,
