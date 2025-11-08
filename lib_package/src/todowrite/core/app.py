@@ -79,7 +79,7 @@ class ToDoWrite:
     _SCHEMA: dict[str, Any] | None = None
 
     def __init__(
-        self: "ToDoWrite",
+        self: ToDoWrite,
         db_url: str | None = None,
         auto_import: bool = True,
         storage_preference: StoragePreference | None = None,
@@ -169,7 +169,7 @@ class ToDoWrite:
         if auto_import and self.storage_type != StorageType.YAML:
             self._auto_import_yaml_files()
 
-    def _clear_expired_cache(self: "ToDoWrite") -> None:
+    def _clear_expired_cache(self: ToDoWrite) -> None:
         """Clear expired cache entries."""
         current_time = time.time()
         if current_time - self._last_cache_clear > self._cache_ttl:
@@ -177,7 +177,9 @@ class ToDoWrite:
             self._query_cache.clear()
             self._last_cache_clear = current_time
 
-    def _clear_node_cache(self: "ToDoWrite", node_id: str | None = None) -> None:
+    def _clear_node_cache(
+        self: ToDoWrite, node_id: str | None = None
+    ) -> None:
         """Clear node cache entries."""
         if node_id:
             # Clear specific node cache
@@ -250,7 +252,9 @@ class ToDoWrite:
         finally:
             session.close()
 
-    def _validate_node_data(self: "ToDoWrite", node_data: dict[str, Any]) -> None:
+    def _validate_node_data(
+        self: ToDoWrite, node_data: dict[str, Any]
+    ) -> None:
         """Validates node data against the ToDoWrite schema."""
         if ToDoWrite._SCHEMA is None:
             raise ValueError("Schema not loaded. Cannot validate node data.")
@@ -323,7 +327,7 @@ class ToDoWrite:
                 storage_name = self.storage_type.value.capitalize()
                 print(f"✅ {storage_name} schema validation passed")
 
-    def create_node(self: "ToDoWrite", node_data: dict[str, Any]) -> Node:
+    def create_node(self: ToDoWrite, node_data: dict[str, Any]) -> Node:
         """Creates a new node in the storage backend."""
         self._validate_node_data(node_data)
 
@@ -338,7 +342,7 @@ class ToDoWrite:
             db_node = self._create_db_node(session, node_data)
             return self._convert_db_node_to_node(db_node)
 
-    def get_node(self: "ToDoWrite", node_id: str) -> Node | None:
+    def get_node(self: ToDoWrite, node_id: str) -> Node | None:
         """Retrieves a node from the storage backend."""
         if self.storage_type == StorageType.YAML:
             yaml_storage = self._get_yaml_storage()
@@ -435,7 +439,7 @@ class ToDoWrite:
                 return result
             return None
 
-    def delete_node(self: "ToDoWrite", node_id: str) -> None:
+    def delete_node(self: ToDoWrite, node_id: str) -> None:
         """Deletes a node from the storage backend."""
         if self.storage_type == StorageType.YAML:
             yaml_storage = self._get_yaml_storage()
@@ -450,13 +454,15 @@ class ToDoWrite:
                 # Clear cache for deleted node
                 self._clear_node_cache(node_id)
 
-    def update_node_status(self: "ToDoWrite", node_id: str, status: str) -> Node | None:
+    def update_node_status(
+        self: ToDoWrite, node_id: str, status: str
+    ) -> Node | None:
         """Update a node's status using the default ToDoWrite instance."""
         status = cast("StatusType", status)
         node_data = {"status": status}
         return self.update_node(node_id, node_data)
 
-    def search_nodes(self: "ToDoWrite", query: str) -> dict[str, list[Node]]:
+    def search_nodes(self: ToDoWrite, query: str) -> dict[str, list[Node]]:
         """Search for nodes by query string."""
         query_lower = query.lower()
         results: dict[str, list[Node]] = {}
@@ -498,7 +504,7 @@ class ToDoWrite:
 
         return results
 
-    def export_nodes(self: "ToDoWrite", format: str = "yaml") -> str:
+    def export_nodes(self: ToDoWrite, format: str = "yaml") -> str:
         """Export all nodes to a string in the specified format."""
         all_nodes = self.get_all_nodes()
 
@@ -522,7 +528,7 @@ class ToDoWrite:
         else:
             raise ValueError(f"Unsupported export format: {format}")
 
-    def import_nodes(self: "ToDoWrite", file_path: str) -> dict[str, Any]:
+    def import_nodes(self: ToDoWrite, file_path: str) -> dict[str, Any]:
         """Import nodes from a file."""
         import json
         from pathlib import Path
@@ -872,7 +878,7 @@ class ToDoWrite:
         }
         return self.create_node(node_data)
 
-    def get_node_by_id(self: "ToDoWrite", node_id: str) -> Node | None:
+    def get_node_by_id(self: ToDoWrite, node_id: str) -> Node | None:
         """Retrieves a node by its ID."""
         return self.get_node(node_id)
 
@@ -950,7 +956,7 @@ class ToDoWrite:
 
         return db_node
 
-    def _convert_db_node_to_node(self: "ToDoWrite", db_node: DBNode) -> Node:
+    def _convert_db_node_to_node(self: ToDoWrite, db_node: DBNode) -> Node:
         links = Link(parents=[], children=[])
         metadata = Metadata(
             owner=str(db_node.owner or ""),
@@ -995,7 +1001,7 @@ class ToDoWrite:
             command=command,
         )
 
-    def _dict_to_node(self: "ToDoWrite", node_data: dict[str, Any]) -> Node:
+    def _dict_to_node(self: ToDoWrite, node_data: dict[str, Any]) -> Node:
         """Convert dictionary data to Node object."""
         links = Link(
             parents=node_data.get("links", {}).get("parents", []),

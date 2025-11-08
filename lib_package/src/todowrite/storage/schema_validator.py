@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any, cast
 
 import jsonschema
+import sqlalchemy
 import yaml
 from sqlalchemy import Engine, inspect
 
@@ -332,7 +333,9 @@ class SchemaValidator:
         """Validate PostgreSQL-specific schema constraints."""
         return self.validate_database_schema(engine)
 
-    def validate_sqlite_schema(self: "SchemaValidator", engine: Engine) -> tuple[bool, list[str]]:
+    def validate_sqlite_schema(
+        self: SchemaValidator, engine: Engine
+    ) -> tuple[bool, list[str]]:
         """Validate SQLite-specific schema constraints."""
         return self.validate_database_schema(engine)
 

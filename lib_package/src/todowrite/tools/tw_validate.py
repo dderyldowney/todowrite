@@ -19,7 +19,9 @@ from jsonschema import Draft202012Validator, ValidationError, validate
 class ToDoWriteValidator:
     """Schema validator for ToDoWrite YAML files"""
 
-    def __init__(self: "ToDoWriteValidator", schema_path: str | None = None) -> None:
+    def __init__(
+        self: ToDoWriteValidator, schema_path: str | None = None
+    ) -> None:
         if schema_path is None:
             # Try to load from package first, fall back to old location
             try:
@@ -68,7 +70,9 @@ class ToDoWriteValidator:
 
         return sorted(yaml_files)
 
-    def _load_yaml_file(self: "ToDoWriteValidator", file_path: Path) -> tuple[dict[str, Any], bool]:
+    def _load_yaml_file(
+        self: ToDoWriteValidator, file_path: Path
+    ) -> tuple[dict[str, Any], bool]:
         """Load and parse YAML file, return (data, success)"""
         try:
             with open(file_path) as f:
@@ -81,7 +85,9 @@ class ToDoWriteValidator:
             print(f"ERROR: Failed to read {file_path}: {e}")
             return {}, False
 
-    def validate_file(self: "ToDoWriteValidator", file_path: Path, strict: bool = False) -> bool:
+    def validate_file(
+        self: ToDoWriteValidator, file_path: Path, strict: bool = False
+    ) -> bool:
         """Validate single YAML file against schema"""
         data, load_success = self._load_yaml_file(file_path)
         if not load_success:
@@ -105,7 +111,9 @@ class ToDoWriteValidator:
             print()
             return False
 
-    def validate_all(self: "ToDoWriteValidator", strict: bool = False) -> tuple[int, int]:
+    def validate_all(
+        self: ToDoWriteValidator, strict: bool = False
+    ) -> tuple[int, int]:
         """Validate all YAML files, return (valid_count, total_count)"""
         yaml_files = self._find_yaml_files()
 
