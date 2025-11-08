@@ -5,6 +5,7 @@ This module contains the core ToDoWrite application class.
 from __future__ import annotations
 
 import json
+import logging
 import os
 import time
 from collections import defaultdict
@@ -146,9 +147,8 @@ class ToDoWrite:
                     )
                     print(f"⚠️  {error_msg}")
                 else:
-                    print(
-                        f"✅ YAML schema validation passed (checked {sum(file_counts.values())} files)"
-                    )
+                    files_checked = sum(file_counts.values())
+                    print(f"✅ YAML schema validation passed (checked {files_checked} files)")
 
                     # Report file counts by layer
                     if file_counts:
@@ -316,9 +316,8 @@ class ToDoWrite:
                 )
                 print(f"⚠️  {error_msg}")
             else:
-                print(
-                    f"✅ {self.storage_type.value.capitalize()} schema validation passed"
-                )
+                storage_name = self.storage_type.value.capitalize()
+                print(f"✅ {storage_name} schema validation passed")
 
     def create_node(self, node_data: dict[str, Any]) -> Node:
         """Creates a new node in the storage backend."""
@@ -1051,10 +1050,10 @@ class ToDoWrite:
                         f"⚠️  {len(results['errors'])} errors during auto-import"
                     )
 
-        except Exception:
-            # Silently fail auto-import to not break normal operation
-            # Could log this to a file or debug mode in the future
-            pass
+        except Exception as e:
+            # Log the error but don't break normal operation
+            logging.warning(f"Auto-import YAML failed: {e}")
+            print(f"⚠️  Auto-import of YAML files failed: {e}")
 
 
 # Standalone wrapper functions for public API

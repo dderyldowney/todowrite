@@ -84,10 +84,8 @@ select = [
 ignore = [
     "S101",  # assert used (acceptable in tests)
     "T20",   # print statements (needed for CLI output)
-    "S110",  # try-except-pass (acceptable for graceful degradation)
     "S602",  # subprocess with shell=True (needed for command execution)
-    "S603",  # subprocess call (needed for tool integration)
-    "S607",  # subprocess with partial executable path (needed for docker commands)
+    "S603",  # subprocess call (needed for Docker integration - validated path)
     "PTH103", # os.makedirs (acceptable for compatibility)
     "PTH120", # os.path.dirname (acceptable for compatibility)
     "PTH123", # open() (acceptable for compatibility)

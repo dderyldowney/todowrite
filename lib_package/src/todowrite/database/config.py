@@ -12,6 +12,7 @@ The system automatically tries each option in order until one works.
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import time
 from enum import Enum
@@ -116,31 +117,35 @@ def get_postgresql_candidates() -> list[str]:
         candidates.append(DATABASE_URL)
 
     # Docker container detection
-    try:
-        result = subprocess.run(
-            [
-                "docker",
+    docker_path = shutil.which("docker")
+    if docker_path and os.path.isabs(docker_path) and os.path.exists(docker_path):
+        try:
+            # Validate docker path is safe (absolute path and executable)
+            docker_args = [
+                docker_path,
                 "ps",
                 "--filter",
                 "name=todowrite-postgres",
                 "--format",
                 "{{.Names}}",
-            ],
-            capture_output=True,
-            text=True,
-            timeout=5,
-            shell=False,
-        )
-        if "todowrite-postgres" in result.stdout:
-            candidates.append(
-                "postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"
+            ]
+            result = subprocess.run(
+                docker_args,
+                capture_output=True,
+                text=True,
+                timeout=5,
+                shell=False,
             )
-    except (
-        subprocess.TimeoutExpired,
-        FileNotFoundError,
-        subprocess.SubprocessError,
-    ):
-        pass
+            if "todowrite-postgres" in result.stdout:
+                candidates.append(
+                    "postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"
+                )
+        except (
+            subprocess.TimeoutExpired,
+            FileNotFoundError,
+            subprocess.SubprocessError,
+        ):
+            pass
 
     # Standard localhost
     if not any("localhost" in url for url in candidates):
