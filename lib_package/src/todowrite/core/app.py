@@ -10,8 +10,6 @@ import os
 import time
 from collections import defaultdict
 
-import yaml
-
 # Forward declaration for type hints
 from collections.abc import Callable
 from contextlib import contextmanager
@@ -27,6 +25,7 @@ from typing import (
 )
 
 import jsonschema
+import yaml
 from jsonschema.exceptions import ValidationError
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session, joinedload, sessionmaker
