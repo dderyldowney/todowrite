@@ -777,12 +777,12 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 "Export should return string",
             )
             self.assertIn(
-                "export-goal",
+                "GOAL-EXPORT",
                 export_result,
                 "Export should contain created nodes",
             )
             self.assertIn(
-                "export-task",
+                "TSK-EXPORT",
                 export_result,
                 "Export should contain all nodes",
             )
