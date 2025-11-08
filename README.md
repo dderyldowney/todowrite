@@ -71,7 +71,7 @@ ToDoWrite transforms complex project planning into a structured, hierarchical fr
 
 ### Key Features
 
-- **Hierarchical Task Management**: Create goals, concepts, tasks, and commands
+- **12-Layer Hierarchical Framework**: Goals → Concepts → Contexts → Constraints → Requirements → AcceptanceCriteria → InterfaceContracts → Phases → Steps → Tasks → SubTasks → Commands
 - **CLI and Python API**: Command-line interface and programmatic access
 - **Database Storage**: SQLite and PostgreSQL support with SQLAlchemy
 - **Schema Validation**: JSON Schema validation ensures data integrity
@@ -93,8 +93,13 @@ todowrite init
 # Create a goal
 todowrite create --layer goal --title "Implement User Authentication" --description "Create secure user authentication system" --owner "dev-team"
 
-# Create a task
+# Create additional layers
+todowrite create --layer concept --title "OAuth2 Authentication Strategy" --description "Use OAuth2 for user login flow"
+todowrite create --layer requirement --title "User Registration Form" --description "Form for new user registration" --owner "ui-team"
+todowrite create --layer acceptancecriteria --title "Valid Email Required" --description "Users must register with valid email"
+todowrite create --layer phase --title "Authentication Backend" --description "Implement core authentication logic"
 todowrite create --layer task --title "Design Database Schema" --description "Design user database schema" --owner "dev-team"
+todowrite create --layer command --title "Run Database Migration" --description "Execute user table migration script"
 
 # View all nodes
 todowrite list
@@ -107,6 +112,22 @@ todowrite export-yaml
 
 # Get node details
 todowrite get GOAL-001
+
+# Link nodes (creating hierarchical relationships)
+todowrite update --id R-001 --add-parent GOAL-001
+todowrite update --id AC-001 --add-parent R-001
+todowrite update --id PH-001 --add-parent AC-001
+todowrite update --id TSK-001 --add-parent PH-001
+todowrite update --id CMD-001 --add-parent TSK-001
+
+# List nodes by layer
+todowrite list --layer goal
+todowrite list --layer task
+todowrite list --layer command
+
+# Update node status and progress
+todowrite update --id TSK-001 --status in_progress --progress 75
+todowrite update --id CMD-001 --status completed
 ```
 
 ### Python API Usage
@@ -139,15 +160,92 @@ task_data = {
 }
 task = tdw.create_node(task_data)
 
-# Link nodes
-from todowrite import link_nodes
-link_nodes("sqlite:///myproject.db", goal.id, task.id)
+# Create other layers
+requirement_data = {
+    "id": "R-001",
+    "layer": "Requirements",
+    "title": "User Registration Feature",
+    "description": "Allow users to register with email and password",
+    "links": {"parents": [goal.id], "children": []},
+    "metadata": {"owner": "product-team"}
+}
+requirement = tdw.create_node(requirement_data)
+
+ac_data = {
+    "id": "AC-001",
+    "layer": "AcceptanceCriteria",
+    "title": "Email Validation",
+    "description": "System validates email format and uniqueness",
+    "links": {"parents": [requirement.id], "children": []},
+    "metadata": {"owner": "qa-team"}
+}
+ac = tdw.create_node(ac_data)
+
+command_data = {
+    "id": "CMD-001",
+    "layer": "Command",
+    "title": "Email Format Validation Test",
+    "description": "Test email validation logic",
+    "links": {"parents": [task.id], "children": []},
+    "metadata": {"owner": "dev-team"},
+    "run": "python -m pytest tests/test_email_validation.py",
+    "artifacts": ["test_report.html"]
+}
+command = tdw.create_node(command_data)
+
+# Link nodes (hierarchical relationships)
+tdw.update_node(requirement.id, {"links": {"parents": [goal.id], "children": []}})
+tdw.update_node(ac.id, {"links": {"parents": [requirement.id], "children": []}})
+tdw.update_node(task.id, {"links": {"parents": [ac.id], "children": []}})
+tdw.update_node(command.id, {"links": {"parents": [task.id], "children": []}})
 
 # Get project overview
 all_nodes = tdw.get_all_nodes()
 total_nodes = sum(len(nodes) for nodes in all_nodes.values())
 print(f"Project has {total_nodes} total nodes")
 ```
+
+## 🏗️ **12-Layer Hierarchy**
+
+ToDoWrite uses a comprehensive 12-layer framework that breaks down complex goals into actionable commands:
+
+### **Strategic Planning Layers**
+1. **🎯 Goals** - High-level project objectives and deliverables
+2. **💡 Concepts** - Abstract ideas and design principles
+3. **🌍 Contexts** - Environmental factors and external constraints
+4. **⚠️ Constraints** - Technical, business, or regulatory limitations
+
+### **Implementation Planning Layers**
+5. **📋 Requirements** - Functional and non-functional specifications
+6. **✅ AcceptanceCriteria** - Success conditions and validation criteria
+7. **🤝 InterfaceContracts** - API contracts and integration points
+8. **📅 Phases** - Project phases and milestone planning
+
+### **Execution Layers**
+9. **🔢 Steps** - Sequential work items within phases
+10. **📝 Tasks** - Individual work assignments
+11. **🔧 SubTasks** - Detailed breakdown of complex tasks
+12. **⚡ Commands** - Executable instructions and automated actions
+
+### **Layer Relationships**
+- **Top-Down Flow**: Goals → Concepts → Contexts → Constraints → Requirements → AcceptanceCriteria → InterfaceContracts → Phases → Steps → Tasks → SubTasks → Commands
+- **Bottom-Up Execution**: Commands implement SubTasks, which complete Tasks, which fulfill Steps, which complete Phases, which meet AcceptanceCriteria, which satisfy Requirements
+- **Cross-Linking**: Any layer can link to any other layer for complex relationships
+
+### **ID Pattern System**
+Each layer uses a specific ID prefix for easy identification:
+- `GOAL-*` - Goals
+- `CON-*` - Concepts
+- `CTX-*` - Contexts
+- `CST-*` - Constraints
+- `R-*` - Requirements
+- `AC-*` - AcceptanceCriteria
+- `IF-*` - InterfaceContracts
+- `PH-*` - Phases
+- `STP-*` - Steps
+- `TSK-*` - Tasks
+- `SUB-*` - SubTasks
+- `CMD-*` - Commands
 
 ## 📚 Documentation
 
