@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 
 from todowrite import Node, ToDoWrite
+from todowrite.core.app import link_nodes, unlink_nodes
 
 
 class TestCoreAPI(unittest.TestCase):
@@ -449,7 +450,6 @@ class TestNodeAPI(unittest.TestCase):
         child = self.app.create_node(child_data)
 
         # Link nodes using convenience function
-        from todowrite.core.app import link_nodes
 
         result = link_nodes(self.db_url, parent.id, child.id)
         self.assertTrue(result)
@@ -559,7 +559,6 @@ class TestLinkingAPI(unittest.TestCase):
         task = self.app.create_node(task_data)
 
         # Link nodes using convenience function
-        from todowrite.core.app import link_nodes
 
         result = link_nodes(self.db_url, goal.id, task.id)
         self.assertTrue(result)
@@ -607,7 +606,6 @@ class TestLinkingAPI(unittest.TestCase):
         task = self.app.create_node(task_data)
 
         # Link task to both goals using individual link operations
-        from todowrite.core.app import link_nodes
 
         result1 = link_nodes(self.db_url, goal1.id, task.id)
         result2 = link_nodes(self.db_url, goal2.id, task.id)
@@ -647,7 +645,6 @@ class TestLinkingAPI(unittest.TestCase):
         task = self.app.create_node(task_data)
 
         # First link them
-        from todowrite.core.app import link_nodes, unlink_nodes
 
         link_result = link_nodes(self.db_url, goal.id, task.id)
         self.assertTrue(link_result)
@@ -681,7 +678,6 @@ class TestLinkingAPI(unittest.TestCase):
         node = self.app.create_node(node_data)
 
         # Try to link node to itself using convenience function
-        from todowrite.core.app import link_nodes
 
         result = link_nodes(self.db_url, node.id, node.id)
         # Note: Current implementation doesn't prevent circular links, so it returns True
@@ -691,7 +687,6 @@ class TestLinkingAPI(unittest.TestCase):
     def test_link_nonexistent_nodes(self) -> None:
         """Test linking non-existent nodes."""
         # Try to link non-existent nodes using convenience function
-        from todowrite.core.app import link_nodes
 
         result = link_nodes(self.db_url, "NONEXISTENT1", "NONEXISTENT2")
         self.assertFalse(result)  # Should fail
@@ -740,7 +735,6 @@ class TestLinkingAPI(unittest.TestCase):
         task2 = self.app.create_node(task2_data)
 
         # Create hierarchy using convenience function
-        from todowrite.core.app import link_nodes
 
         result1 = link_nodes(self.db_url, goal.id, concept.id)
         result2 = link_nodes(self.db_url, goal.id, task1.id)

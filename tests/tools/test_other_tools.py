@@ -4,16 +4,18 @@ from pathlib import Path
 
 import pytest
 
+from todowrite.tools.tw_lint_soc import main as lint_main
+from todowrite.tools.tw_stub_command import main as stub_main
+from todowrite.tools.tw_trace import main as trace_main
+
 
 class TestTwLintSoc:
     """Test cases for tw_lint_soc module"""
 
     def test_import_module(self):
         """Test that the module can be imported"""
-        from todowrite.tools.tw_lint_soc import main  # noqa: F401
-
-        # If import succeeds, test passes
-        assert True
+        # If import succeeded at module level, test passes
+        assert lint_main is not None
 
     def test_module_exists(self):
         """Test that the module file exists and has expected content"""
@@ -30,7 +32,7 @@ class TestTwStubCommand:
     def test_import_module(self):
         """Test that the module can be imported"""
         try:
-            from todowrite.tools.tw_stub_command import main  # noqa: F401
+            assert stub_main is not None
         except (ImportError, TypeError):
             pytest.skip("tw_stub_command module not available")
 
@@ -49,7 +51,7 @@ class TestTwTrace:
     def test_import_module(self):
         """Test that the module can be imported"""
         try:
-            from todowrite.tools.tw_trace import main  # noqa: F401
+            assert trace_main is not None
         except (ImportError, TypeError):
             pytest.skip("tw_trace module not available")
 

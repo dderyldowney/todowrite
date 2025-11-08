@@ -6,6 +6,7 @@ as a command-line application. Each test represents a complete user scenario.
 """
 
 import os
+import re
 import shutil
 import tempfile
 import unittest
@@ -147,7 +148,6 @@ class TestUserCliWorkflows(unittest.TestCase):
         )
         self.assertEqual(result.exit_code, 0)
         # Extract node ID from output like "Created Task: Develop Prototype (ID: TSK-A58B86E71041)"
-        import re
 
         match = re.search(r"\(ID: ([^)]+)\)", result.output)
         task_id = (

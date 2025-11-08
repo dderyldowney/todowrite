@@ -149,7 +149,8 @@ class ToDoWrite:
                 else:
                     files_checked = sum(file_counts.values())
                     print(
-                        f"✅ YAML schema validation passed (checked {files_checked} files)"
+                        f"✅ YAML schema validation passed "
+                        f"(checked {files_checked} files)"
                     )
 
                     # Report file counts by layer
@@ -461,7 +462,7 @@ class ToDoWrite:
 
         # Use generator to avoid loading all nodes at once if using database
         if self.storage_type == StorageType.YAML:
-            # For YAML, we have to load all nodes anyway, but optimize the search
+            # For YAML, we load all nodes anyway, but optimize the search
             all_nodes = self.get_all_nodes()
             for layer, nodes in all_nodes.items():
                 matching_nodes = [
@@ -876,7 +877,7 @@ class ToDoWrite:
     def get_active_items(
         self, todos: dict[str, list[Node]]
     ) -> dict[str, list[Node]]:
-        """Returns a dictionary of active items (status != 'done' and 'rejected') grouped by layer."""
+        """Return active items not done/rejected, grouped by layer."""
         active_items: dict[str, list[Node]] = defaultdict(list)
         for layer, nodes in todos.items():
             for node in nodes:
@@ -1036,7 +1037,8 @@ class ToDoWrite:
 
             if sync_status["yaml_only"]:
                 print(
-                    f"🔄 Auto-importing {len(sync_status['yaml_only'])} YAML files..."
+                    f"🔄 Auto-importing {len(sync_status['yaml_only'])} "
+                    f"YAML files..."
                 )
                 results = yaml_manager.import_yaml_files(
                     force=False, dry_run=False
@@ -1044,13 +1046,11 @@ class ToDoWrite:
 
                 if results["total_imported"] > 0:
                     print(
-                        f"✅ Auto-imported {results['total_imported']} files from YAML"
+                        f"✅ Auto-imported {results['total_imported']} files"
                     )
 
                 if results["errors"]:
-                    print(
-                        f"⚠️  {len(results['errors'])} errors during auto-import"
-                    )
+                    print(f"⚠️  {len(results['errors'])} auto-import errors")
 
         except Exception as e:
             # Log the error but don't break normal operation

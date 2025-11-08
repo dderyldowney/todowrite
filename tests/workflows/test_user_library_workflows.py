@@ -534,8 +534,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 "layer": "Task",
                 "title": "Create User Authentication",
                 "description": (
-                    "Implement user login, registration, and "
-                    "session management"
+                    "Implement user login, registration, and session mgmt"
                 ),
                 "links": {"parents": [], "children": []},
                 "metadata": {
@@ -548,7 +547,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 "layer": "SubTask",
                 "title": "Design Database Schema",
                 "description": (
-                    "Create database tables and relationships for users"
+                    "Create DB tables and relationships for users"
                 ),
                 "links": {"parents": [], "children": []},
                 "metadata": {"owner": "dev-team", "labels": ["database"]},
@@ -633,9 +632,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
             "id": "SUB-H-001",
             "layer": "SubTask",
             "title": "Design Database Schema",
-            "description": (
-                "Create database tables and relationships for users"
-            ),
+            "description": ("Create DB tables and relationships for users"),
             "links": {"parents": ["TSK-H-001"], "children": []},
             "metadata": {"owner": "dev-team", "labels": ["database"]},
         }

@@ -1,7 +1,14 @@
 """Tests to improve coverage for CLI main module"""
 
 import pytest
-from todowrite_cli.main import capitalize_status, get_current_username
+import todowrite_cli.main
+from todowrite_cli.main import (
+    capitalize_status,
+    cli,
+    get_current_username,
+    main,
+)
+from todowrite_cli.version import __version__
 
 
 class TestCLIMainCoverage:
@@ -48,20 +55,13 @@ class TestCLIMainCoverage:
     def test_import_error_handling(self):
         """Test that main module handles import errors gracefully"""
         # This test verifies that the imports in main module work
-        try:
-            from todowrite_cli.main import cli, main
-
-            # If imports work, the functions should be callable
-            assert callable(main)
-            assert callable(cli)
-        except ImportError as e:
-            pytest.fail(f"Failed to import main module functions: {e}")
+        # If imports worked at module level, the functions should be callable
+        assert callable(main)
+        assert callable(cli)
 
     def test_version_info(self):
         """Test that version information is accessible"""
         try:
-            from todowrite_cli.version import __version__
-
             # Version should be a string
             assert isinstance(__version__, str)
             # Should have some content
@@ -72,8 +72,6 @@ class TestCLIMainCoverage:
     def test_cli_function_structure(self):
         """Test that CLI function has expected structure"""
         try:
-            import todowrite_cli.main
-
             cli_func = getattr(todowrite_cli.main, "cli", None)
 
             if cli_func is not None:
@@ -90,8 +88,6 @@ class TestCLIMainCoverage:
     def test_main_function_structure(self):
         """Test that main function has expected structure"""
         try:
-            import todowrite_cli.main
-
             main_func = getattr(todowrite_cli.main, "main", None)
 
             if main_func is not None:

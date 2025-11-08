@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import unittest
 from pathlib import Path
@@ -48,7 +49,7 @@ class TestCli(unittest.TestCase):
                 try:
                     Path(file_path).unlink()
                     print(f"🧹 Removed test file: {file_path}")
-                except Exception as e:
+                except OSError as e:
                     print(f"⚠️  Could not remove {file_path}: {e}")
 
         # Remove cache directories
@@ -64,7 +65,7 @@ class TestCli(unittest.TestCase):
                 try:
                     shutil.rmtree(cache_dir)
                     print(f"🧹 Removed cache directory: {cache_dir}")
-                except Exception as e:
+                except OSError as e:
                     print(f"⚠️  Could not remove {cache_dir}: {e}")
 
         # Remove results directory if it exists
@@ -72,7 +73,7 @@ class TestCli(unittest.TestCase):
             try:
                 shutil.rmtree("results")
                 print("🧹 Removed results directory")
-            except Exception as e:
+            except OSError as e:
                 print(f"⚠️  Could not remove results directory: {e}")
 
         # Remove trace directory if it exists
@@ -80,7 +81,7 @@ class TestCli(unittest.TestCase):
             try:
                 shutil.rmtree("trace")
                 print("🧹 Removed trace directory")
-            except Exception as e:
+            except OSError as e:
                 print(f"⚠️  Could not remove trace directory: {e}")
 
         # Remove any other temporary files that might be created
@@ -92,7 +93,7 @@ class TestCli(unittest.TestCase):
                     if temp_file.is_file():
                         temp_file.unlink()
                         print(f"🧹 Removed temporary file: {temp_file}")
-                except Exception as e:
+                except OSError as e:
                     print(f"⚠️  Could not remove {temp_file}: {e}")
 
     def setUp(self) -> None:
@@ -164,8 +165,6 @@ class TestCli(unittest.TestCase):
             print(f"CLI Exception: {result.exception}")
         self.assertEqual(result.exit_code, 0)
         # Extract node ID from output like "Created Goal: Test Goal (ID: GOAL-A58B86E71041)"
-        import re
-
         match = re.search(r"\(ID: ([^)]+)\)", result.output)
         node_id = (
             match.group(1) if match else result.output.split(" ")[-1].strip()

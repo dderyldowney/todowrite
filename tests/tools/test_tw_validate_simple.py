@@ -15,7 +15,7 @@ class TestTwValidateMain:
 
     def test_main_help_option(self):
         """Test that main function handles help option"""
-        with pytest.raises(SystemExit) as excinfo:
+        with pytest.raises(SystemExit):
             # Save original argv
             original_argv = sys.argv
             try:
@@ -37,7 +37,7 @@ class TestTwValidateMain:
 
             # Change to temp directory where no configs/plans exists
             original_argv = sys.argv
-            original_cwd = os.getcwd()
+            original_cwd = Path.cwd()
 
             try:
                 os.chdir(temp_dir)
@@ -47,5 +47,5 @@ class TestTwValidateMain:
                     main()
                 assert excinfo.value.code == 0
             finally:
-                os.chdir(original_cwd)
+                os.chdir(str(original_cwd))
                 sys.argv = original_argv

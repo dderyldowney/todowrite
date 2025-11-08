@@ -879,14 +879,16 @@ def db_status(_: click.Context) -> None:
                             console.print(f"  • {warning}")
             else:
                 console.print(
-                    "[yellow]Schema compliance check returned unexpected format[/yellow]"
+                    "[yellow]Schema compliance check returned "
+                    "unexpected format[/yellow]"
                 )
         except Exception as e:
             console.print(
                 f"[yellow]⚠️ Schema compliance check failed: {e}[/yellow]"
             )
             console.print(
-                "[dim]This is not critical - core functionality still works[/dim]"
+                "[dim]This is not critical - core functionality still "
+                "works[/dim]"
             )
     except Exception as e:
         console.print(f"[red]✗[/red] Error getting database status: {e}")
@@ -921,15 +923,18 @@ def delete(_: click.Context, node_id: str) -> None:
 @click.option("--owner", help="Update owner")
 @click.option(
     "--severity",
-    help="Update severity (case-insensitive: low, medium, med, high, critical)",
+    help="Update severity (case-insensitive: low, medium, med, high, "
+    "critical)",
 )
 @click.option(
     "--work-type",
-    help="Update work type (case-insensitive: architecture, spec, interface, validation, implementation, docs, ops, refactor, chore, test)",
+    help="Update work type (case-insensitive: architecture, spec, interface, "
+    "validation, implementation, docs, ops, refactor, chore, test)",
 )
 @click.option(
     "--status",
-    help="Update status (case-insensitive: planned, in_progress, completed, blocked, cancelled)",
+    help="Update status (case-insensitive: planned, in_progress, completed, "
+    "blocked, cancelled)",
 )
 @click.option(
     "--progress",
@@ -991,7 +996,8 @@ def update(
             if not severity_normalized:
                 valid_severities = ", ".join(sorted(severity_mapping.keys()))
                 console.print(
-                    f"[red]✗[/red] Invalid severity: '{severity}'. Valid options: {valid_severities}",
+                    f"[red]✗[/red] Invalid severity: '{severity}'. "
+                    f"Valid options: {valid_severities}",
                 )
                 sys.exit(1)
 
@@ -1019,7 +1025,8 @@ def update(
             if not work_type_normalized:
                 valid_work_types = ", ".join(sorted(work_type_mapping.keys()))
                 console.print(
-                    f"[red]✗[/red] Invalid work_type: '{work_type}'. Valid options: {valid_work_types}",
+                    f"[red]✗[/red] Invalid work_type: '{work_type}'. "
+                    f"Valid options: {valid_work_types}",
                 )
                 sys.exit(1)
 
@@ -1040,7 +1047,8 @@ def update(
             if not status_normalized:
                 valid_statuses = ", ".join(sorted(status_mapping.keys()))
                 console.print(
-                    f"[red]✗[/red] Invalid status: '{status}'. Valid options: {valid_statuses}",
+                    f"[red]✗[/red] Invalid status: '{status}'. "
+                    f"Valid options: {valid_statuses}",
                 )
                 sys.exit(1)
 
@@ -1076,7 +1084,8 @@ def update(
         updated_node = update_node(node_id, update_data)
         if updated_node:
             console.print(
-                f"[green]✓[/green] Updated {node_id}: {getattr(updated_node, 'title', 'Unknown')}",
+                f"[green]✓[/green] Updated {node_id}: "
+                f"{getattr(updated_node, 'title', 'Unknown')}",
             )
 
             if status is not None:

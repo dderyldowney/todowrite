@@ -4,6 +4,8 @@ Database Models Tests
 Tests for database models, relationships, and operations.
 """
 
+import json
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -12,6 +14,7 @@ from sqlalchemy.orm import sessionmaker
 
 from todowrite.database.models import (
     Artifact,
+    Base,
     Command,
     Label,
     Link,
@@ -30,8 +33,6 @@ class TestDatabaseModels(unittest.TestCase):
         self.Session = sessionmaker(bind=self.engine)
 
         # Create tables
-        from todowrite.database.models import Base
-
         Base.metadata.create_all(self.engine)
 
     def tearDown(self) -> None:
@@ -125,7 +126,6 @@ class TestDatabaseModels(unittest.TestCase):
             session.add(node)
 
             # Create command
-            import json
 
             command = Command(
                 node_id="CMD-001",
@@ -133,7 +133,7 @@ class TestDatabaseModels(unittest.TestCase):
                 run=json.dumps(
                     {
                         "shell": "echo hello",
-                        "workdir": "/tmp",
+                        "workdir": tempfile.gettempdir(),
                         "env": {"DEBUG": "true"},
                     },
                 ),
@@ -252,8 +252,6 @@ class TestDatabaseIntegration(unittest.TestCase):
         self.Session = sessionmaker(bind=self.engine)
 
         # Create tables
-        from todowrite.database.models import Base
-
         Base.metadata.create_all(self.engine)
 
     def tearDown(self) -> None:
@@ -338,7 +336,6 @@ class TestDatabaseIntegration(unittest.TestCase):
             session.add(command_node)
 
             # Create command with artifacts
-            import json
 
             command = Command(
                 node_id="CMD-001",

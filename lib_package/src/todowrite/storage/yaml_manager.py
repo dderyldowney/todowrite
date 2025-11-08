@@ -1,7 +1,7 @@
 """
 YAML Import/Export Manager for ToDoWrite
 
-This module handles importing YAML files to database and exporting database content to YAML files.
+This module handles importing YAML to database and exporting database content to YAML.
 It supports the database-first approach with YAML as fallback.
 """
 
@@ -10,7 +10,7 @@ from __future__ import annotations
 import shutil
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import yaml
 from sqlalchemy.exc import SQLAlchemyError
@@ -23,7 +23,8 @@ from ..core.constants import (
 )
 
 if TYPE_CHECKING:
-    from ..core.types import Node
+    from ..app import ToDoWrite
+    from ..types import Node
 
 
 class YAMLManager:
@@ -97,9 +98,7 @@ class YAMLManager:
                 data: Any = yaml.safe_load(f)
 
             if not isinstance(data, dict):
-                print(
-                    f"Warning: {file_path} does not contain a valid YAML object"
-                )
+                print(f"Warning: {file_path} is not a valid YAML object")
                 return None
 
             # Basic validation

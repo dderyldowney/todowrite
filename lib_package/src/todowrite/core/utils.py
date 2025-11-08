@@ -21,15 +21,15 @@ def generate_node_id(prefix: str = "") -> str:
         prefix: Optional prefix for the node ID (e.g., "GOAL", "TASK")
 
     Returns:
-        A unique node ID in the format "PREFIX-UUID" or just "UUID" if no prefix
+        A unique node ID as "PREFIX-UUID" or just "UUID" if no prefix
     """
     uuid_part = uuid.uuid4().hex[:12].upper()
     return f"{prefix}-{uuid_part}" if prefix else uuid_part
 
 
 def safe_get_nested(
-    data: dict[str, object], *keys: str, default: T | None = None
-) -> T | None:
+    data: dict[str, object], *keys: str, default: object = None
+) -> object:
     """
     Safely get a nested value from a dictionary using dot notation.
 
