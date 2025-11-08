@@ -1,65 +1,25 @@
+# Root pyproject.toml for monorepo development tools
+# This configures the development environment for the entire monorepo
+# Individual packages are built from their own pyproject.toml files in:
+# - lib_package/ (todowrite library)
+# - cli_package/ (todowrite_cli)
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[project]
-name = "todowrite-dev"
-dynamic = ["version"]
-description = "Development meta-package for ToDoWrite monorepo"
-readme = "README.md"
-license = "MIT"
-requires-python = ">=3.12"
-authors = [
-    { name = "dderyldowney", email = "dderyldowney@gmail.com" },
-]
-keywords = [
-    "development",
-    "monorepo",
-    "todowrite",
-]
-
-classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-]
-dependencies = [
-    "click>=8.0.0",
-    "sqlalchemy>=2.0.0",
-    "typing-extensions>=4.0.0",
-    "PyYAML>=6.0.0",
-    "jsonschema>=4.0.0",
-    "psycopg2-binary>=2.9.0",
-]
-
-[project.urls]
-Issues = "https://github.com/dderyldowney/todowrite/issues"
-Documentation = "https://github.com/dderyldowney/todowrite"
-Homepage = "https://github.com/dderyldowney/todowrite"
-Repository = "https://github.com/dderyldowney/todowrite.git"
-
-[project.optional-dependencies]
+# Development environment configuration
+[dependency-groups]
 dev = [
     "pre-commit>=4.0.0",
-    "pyright>=1.1.0",
-    "pytest>=8.0.0",
+        "pytest>=8.0.0",
     "pytest-cov>=4.0.0",
     "ruff>=0.7.0",
     "types-click>=7.1.0",
     "types-jsonschema>=4.0.0",
     "types-PyYAML>=6.0.12",
+    "hatchling>=1.27.0",
 ]
-
-[tool.hatch.version]
-path = "shared_version.py"
-
-[tool.hatch.build.targets.wheel]
-# This is a development meta-package - no source files to ship
-packages = []
 
 # Ruff configuration for development
 [tool.ruff]
@@ -165,11 +125,6 @@ skip-magic-trailing-comma = false
     "ANN201", # missing-return-type-public-function (test functions often return None)
 ]
 
-# Pyright configuration for VSCode integration
-[tool.pyright]
-include = ["lib_package/src", "cli_package/src"]
-pythonVersion = "3.12"
-typeCheckingMode = "basic"
 
 
 # CLI code exclusions
@@ -245,11 +200,4 @@ exclude_lines = [
     "raise NotImplementedError",
     "if 0:",
     "if __name__ == .__main__.:",
-]
-
-[dependency-groups]
-dev = [
-    "asyncio>=4.0.0",
-    "hatchling>=1.27.0",
-    "pyright>=1.1.407",
 ]
