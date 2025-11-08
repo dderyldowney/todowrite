@@ -148,7 +148,9 @@ class ToDoWrite:
                     print(f"⚠️  {error_msg}")
                 else:
                     files_checked = sum(file_counts.values())
-                    print(f"✅ YAML schema validation passed (checked {files_checked} files)")
+                    print(
+                        f"✅ YAML schema validation passed (checked {files_checked} files)"
+                    )
 
                     # Report file counts by layer
                     if file_counts:

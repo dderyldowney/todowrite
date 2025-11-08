@@ -4,6 +4,8 @@ ToDoWrite Schema Validator (tw_validate.py)
 Validates all YAML files in configs/plans/* against todowrite.schema.json
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import sys

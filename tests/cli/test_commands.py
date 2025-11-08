@@ -691,12 +691,12 @@ class TestCLICommands(unittest.TestCase):
         # List by owner
         result = self.runner.invoke(cli, ["list", "--owner", "developer1"])
         self.assertEqual(result.exit_code, 0)
-        # Due to table truncation, check for Task and ID pattern instead
-        # of full title
-        self.assertIn("Task", result.output)
-        self.assertIn("TSK-", result.output)
-        # Should not find Task 2
-        self.assertNotIn("TSK-2", result.output)
+        # Should find Task 1
+        self.assertIn("Task 1", result.output)
+        self.assertIn("developer1", result.output)
+        # Should not find Task 2 or developer2
+        self.assertNotIn("Task 2", result.output)
+        self.assertNotIn("developer2", result.output)
 
     def test_status_update_command(self) -> None:
         """Test status update functionality using update command instead

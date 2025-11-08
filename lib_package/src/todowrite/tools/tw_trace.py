@@ -4,6 +4,8 @@ ToDoWrite Traceability Builder (tw_trace.py)
 Builds forward/backward traceability matrix and dependency graph
 """
 
+from __future__ import annotations
+
 import argparse
 import csv
 import json
