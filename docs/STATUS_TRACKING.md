@@ -1,6 +1,10 @@
-# Status Tracking Enhancement
+# Status Tracking
 
-This document describes the status tracking enhancement implemented in ToDoWrite, which provides comprehensive status management for nodes with progress tracking, dates, and assignee information.
+**Version**: 0.3.1
+**Status**: Production Ready
+**Last Updated**: November 8, 2025
+
+This document describes the status tracking functionality in ToDoWrite, which provides comprehensive status management for nodes with progress tracking, dates, and assignee information.
 
 ## Overview
 
@@ -45,67 +49,51 @@ The following fields have been added to support status tracking:
 
 ## CLI Commands
 
-### Status Update
-
 For project development utilities, see [Project Utilities](PROJECT_UTILITIES.md).
 
 ### Status Update
 
-Update the status of a node with additional tracking information:
+Update the status and progress of a node:
 
 ```bash
-python -m todowrite status update <NODE_ID> --status <STATUS> [OPTIONS]
+todowrite update --id <NODE_ID> --status <STATUS> --progress <PROGRESS> [OPTIONS]
 ```
 
 Options:
-- `--status`: Set the status (required)
+- `--status`: Set the status (planned, in_progress, completed, blocked, cancelled)
 - `--progress`: Set progress percentage (0-100)
-- `--owner`: Set the owner of the node
 - `--assignee`: Set the assignee of the node
-- `--started-date`: Set the started date (ISO 8601 format)
-- `--completion-date`: Set the completion date (ISO 8601 format)
 
 Examples:
 ```bash
 # Mark a task as in progress with 50% progress
-python -m todowrite status update TSK-123 --status in_progress --progress 50
+todowrite update --id TSK-123 --status in_progress --progress 50
 
-# Mark a task as completed with full progress and completion date
-python -m todowrite status update TSK-123 --status completed --progress 100 --completion-date "2025-01-20T15:30:00Z"
+# Mark a task as completed with full progress
+todowrite update --id TSK-123 --status completed --progress 100
 
-# Assign a task and set start date
-python -m todowrite status update TSK-123 --status in_progress --assignee john.doe --started-date "2025-01-20T10:00:00Z"
+# Assign a task
+todowrite update --id TSK-123 --assignee john.doe
 ```
 
-### Status Show
+### Node Details
 
-Display detailed status information for a node:
+Display detailed information for a node including status:
 
 ```bash
-python -m todowrite status show <NODE_ID>
+todowrite get --id <NODE_ID>
 ```
 
-### Status Complete
+### Status Listing
 
-Quickly mark a node as completed:
-
-```bash
-python -m todowrite status complete <NODE_ID>
-```
-
-### Status Report
-
-Generate a status report for nodes:
+List nodes with their current status:
 
 ```bash
-# Report by layer
-python -m todowrite status report --layer Task
+# List all nodes
+todowrite list
 
-# Report in table format
-python -m todowrite status report --format table
-
-# Report in JSON format
-python -m todowrite status report --format json
+# List nodes by status (using search)
+todowrite search "status:in_progress"
 ```
 
 ## Status Transitions
@@ -249,6 +237,15 @@ The status tracking enhancement is fully integrated with the ToDoWrite API:
 - POST/PUT requests can include status tracking fields
 - Validation is enforced at the API level
 
+## Additional Documentation
+
+- **[← Documentation Index](README.md)** - Complete documentation overview
+- **[Installation Guide](installation.md)** - Get ToDoWrite installed
+- **[Integration Guide](INTEGRATION_GUIDE.md)** - Real-world usage examples
+- **[Project Utilities](PROJECT_UTILITIES.md)** - Available utilities and helpers
+- **[Main Project Documentation](../README.md)** - Project overview and features
+- **[CLI Reference](../cli_package/README.md)** - Command-line interface reference
+
 ## Testing
 
 Comprehensive tests have been added to verify:
@@ -259,3 +256,10 @@ Comprehensive tests have been added to verify:
 4. **CLI Commands**: All status-related CLI commands function correctly
 5. **Database Integration**: Status tracking fields persist correctly
 6. **JSON Schema**: Schema validation works with new fields
+
+---
+
+**Current Version**: 0.3.1
+**Python Support**: 3.12+
+**Test Status**: 157/157 tests passing ✅
+**License**: MIT

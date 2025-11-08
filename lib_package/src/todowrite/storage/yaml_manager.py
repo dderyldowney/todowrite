@@ -126,7 +126,7 @@ class YAMLManager:
         except FileNotFoundError:
             print(f"File not found: {file_path}")
             return None
-        except Exception as e:
+        except (yaml.YAMLError, PermissionError, OSError) as e:
             print(f"Unexpected error loading {file_path}: {e}")
             return None
 
@@ -214,7 +214,12 @@ class YAMLManager:
                         results["total_imported"] += 1
                         print(f"  ✅ Imported {new_node.id}")
 
-                except Exception as e:
+                except (
+                    ValueError,
+                    KeyError,
+                    AttributeError,
+                    jsonschema.ValidationError,
+                ) as e:
                     error_msg = f"Error importing {node_id}: {e}"
                     results["errors"].append(error_msg)
                     print(f"  ❌ {error_msg}")
@@ -289,12 +294,17 @@ class YAMLManager:
                         results["total_exported"] += 1
                         print(f"  ✅ Exported {node.id}")
 
-                    except Exception as e:
+                    except (
+                        OSError,
+                        PermissionError,
+                        yaml.YAMLError,
+                        AttributeError,
+                    ) as e:
                         error_msg = f"Error exporting {node.id}: {e}"
                         results["errors"].append(error_msg)
                         print(f"  ❌ {error_msg}")
 
-        except Exception as e:
+        except (sqlalchemy.exc.SQLAlchemyError, AttributeError, KeyError) as e:
             error_msg = f"Error accessing database: {e}"
             results["errors"].append(error_msg)
             print(f"❌ {error_msg}")

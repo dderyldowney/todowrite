@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, cast
 
 import click
+import jsonschema
 from rich.console import Console
 from rich.table import Table
 
@@ -151,7 +152,7 @@ def init(database_path: str | None, yaml_path: str | None) -> None:
             console.print(f"Database path: {database_path}")
         if yaml_path:
             console.print(f"YAML path: {yaml_path}")
-    except Exception as e:
+    except (OSError, ValueError, RuntimeError) as e:
         console.print(f"[red]✗[/red] Error initializing database: {e}")
         sys.exit(1)
 
@@ -360,7 +361,13 @@ def create(
         console.print(
             f"[green]✓[/green] Created {layer}: {node.title} (ID: {node.id})"
         )
-    except Exception as e:
+    except (
+        ValueError,
+        KeyError,
+        AttributeError,
+        jsonschema.ValidationError,
+        RuntimeError,
+    ) as e:
         console.print(f"[red]✗[/red] Error creating node: {e}")
         sys.exit(1)
 
@@ -398,7 +405,7 @@ def get(_: click.Context, node_id: str) -> None:
         else:
             console.print(f"[red]✗[/red] Node with ID '{node_id}' not found")
             sys.exit(1)
-    except Exception as e:
+    except (ValueError, KeyError, RuntimeError) as e:
         console.print(f"[red]✗[/red] Error getting node: {e}")
         sys.exit(1)
 
