@@ -21,7 +21,7 @@ from .schema_validator import validate_node_data
 class YAMLStorage:
     """YAML-based storage backend for ToDoWrite when databases are unavailable."""
 
-    def __init__(self, base_path: Path | str | None = None) -> None:
+    def __init__(self: "YAMLStorage", base_path: Path | str | None = None) -> None:
         """Initialize YAML storage."""
         self.base_path = (
             Path(base_path) if base_path else Path(DEFAULT_BASE_PATH)
@@ -45,7 +45,7 @@ class YAMLStorage:
             layer_dir = self.plans_path / dir_name
             layer_dir.mkdir(parents=True, exist_ok=True)
 
-    def _get_file_path(self, node_id: str, layer: str) -> Path:
+    def _get_file_path(self: "YAMLStorage", node_id: str, layer: str) -> Path:
         """Get the file path for a node."""
         if layer == "Command":
             return self.commands_path / f"{node_id}.yaml"
@@ -55,7 +55,7 @@ class YAMLStorage:
                 raise ValueError(f"Unknown layer: {layer}")
             return self.plans_path / dir_name / f"{node_id}.yaml"
 
-    def _node_to_yaml(self, node: Node) -> dict[str, Any]:
+    def _node_to_yaml(self: "YAMLStorage", node: Node) -> dict[str, Any]:
         """Convert a Node object to YAML-compatible dictionary."""
         yaml_data: dict[str, Any] = {
             "id": node.id,
@@ -94,7 +94,7 @@ class YAMLStorage:
 
         return yaml_data
 
-    def _yaml_to_node(self, yaml_data: dict[str, Any]) -> Node:
+    def _yaml_to_node(self: "YAMLStorage", yaml_data: dict[str, Any]) -> Node:
         """Convert YAML data to Node object."""
         links = Link(
             parents=yaml_data.get("links", {}).get("parents", []),
@@ -127,7 +127,7 @@ class YAMLStorage:
             command=command,
         )
 
-    def load_node(self, node_id: str) -> Node | None:
+    def load_node(self: "YAMLStorage", node_id: str) -> Node | None:
         """Load a node by ID from YAML files."""
         # Search through all directories to find the node
         for layer_dir_name in self.layer_dirs.values():
@@ -150,7 +150,7 @@ class YAMLStorage:
 
         return None
 
-    def save_node(self, node_data: dict[str, Any] | Node) -> Node:
+    def save_node(self: "YAMLStorage", node_data: dict[str, Any] | Node) -> Node:
         """Save a node to YAML file."""
         # Handle both dict and Node objects
         if isinstance(node_data, dict):
@@ -220,7 +220,7 @@ class YAMLStorage:
 
         return node
 
-    def delete_node(self, node_id: str) -> bool:
+    def delete_node(self: "YAMLStorage", node_id: str) -> bool:
         """Delete a node from YAML files."""
         # Search through all directories to find and delete the node
         for layer_dir_name in self.layer_dirs.values():
@@ -376,7 +376,7 @@ class YAMLStorage:
 
         return nodes
 
-    def node_exists(self, node_id: str) -> bool:
+    def node_exists(self: "YAMLStorage", node_id: str) -> bool:
         """Check if a node exists in YAML files."""
         return self.load_node(node_id) is not None
 
@@ -393,7 +393,7 @@ class YAMLStorage:
         self.save_node(node)
         return True
 
-    def get_nodes_by_layer(self, layer: str) -> list[Node]:
+    def get_nodes_by_layer(self: "YAMLStorage", layer: str) -> list[Node]:
         """Get all nodes for a specific layer."""
         all_nodes = self.load_all_nodes()
         return all_nodes.get(layer, [])

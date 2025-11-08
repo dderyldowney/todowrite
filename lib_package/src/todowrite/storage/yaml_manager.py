@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 class YAMLManager:
     """Manages YAML import/export operations for ToDoWrite."""
 
-    def __init__(self, todowrite_app: ToDoWrite | None = None) -> None:
+    def __init__(self: "YAMLManager", todowrite_app: ToDoWrite | None = None) -> None:
         """Initialize YAML Manager."""
         if todowrite_app is None:
             # Lazy import to avoid circular dependency
@@ -91,7 +91,7 @@ class YAMLManager:
 
         return cast("dict[str, list[Path]]", yaml_files)
 
-    def load_yaml_file(self, file_path: Path) -> dict[str, Any] | None:
+    def load_yaml_file(self: "YAMLManager", file_path: Path) -> dict[str, Any] | None:
         """Load and validate a single YAML file."""
         try:
             with open(file_path, encoding="utf-8") as f:
@@ -311,7 +311,7 @@ class YAMLManager:
 
         return results
 
-    def node_to_yaml(self, node: Node) -> dict[str, Any]:
+    def node_to_yaml(self: "YAMLManager", node: Node) -> dict[str, Any]:
         """Convert a Node object to YAML-compatible dictionary."""
         yaml_data: dict[str, Any] = {
             "id": node.id,
