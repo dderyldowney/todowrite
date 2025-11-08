@@ -37,7 +37,7 @@ def extract_and_write_schema(
     except json.JSONDecodeError as e:
         print(f"❌ Invalid JSON in schema block: {e}")
         exit(1)
-    except Exception as e:
+    except (ValueError, KeyError, AttributeError) as e:
         print(f"❌ An unexpected error occurred: {e}")
         exit(1)
 

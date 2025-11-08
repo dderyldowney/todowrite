@@ -50,7 +50,7 @@ class SchemaValidator:
             raise e
         except jsonschema.SchemaError as e:
             errors.append(f"Schema error: {e.message}")
-        except Exception as e:
+        except (TypeError, ValueError, AttributeError) as e:
             errors.append(f"Unexpected validation error: {e}")
 
         return len(errors) == 0, errors
@@ -151,7 +151,7 @@ class SchemaValidator:
                         f"Missing commands columns: {missing_columns}"
                     )
 
-        except Exception as e:
+        except (sqlalchemy.exc.SQLAlchemyError, AttributeError, KeyError) as e:
             errors.append(f"Database schema validation error: {e}")
 
         return len(errors) == 0, errors
@@ -236,7 +236,12 @@ class SchemaValidator:
                             f"YAML parsing error in {file_path}: {e}"
                         )
                         all_valid = False
-                    except Exception as e:
+                    except (
+                        OSError,
+                        ValueError,
+                        AttributeError,
+                        KeyError,
+                    ) as e:
                         errors.append(f"Error processing {file_path}: {e}")
                         all_valid = False
 
@@ -306,11 +311,16 @@ class SchemaValidator:
                             f"YAML parsing error in {file_path}: {e}"
                         )
                         all_valid = False
-                    except Exception as e:
+                    except (
+                        OSError,
+                        ValueError,
+                        AttributeError,
+                        KeyError,
+                    ) as e:
                         errors.append(f"Error processing {file_path}: {e}")
                         all_valid = False
 
-        except Exception as e:
+        except (OSError, ValueError) as e:
             errors.append(f"YAML validation error: {e}")
             all_valid = False
 
@@ -387,7 +397,7 @@ class SchemaValidator:
                 ]
                 report["summary"] = f"Unsupported storage type: {storage_type}"
 
-        except Exception as e:
+        except (OSError, ValueError, AttributeError, KeyError) as e:
             report["errors"] = [f"Report generation error: {e}"]
             report["summary"] = f"Report generation failed: {e}"
 
@@ -488,7 +498,7 @@ def validate_yaml_files(
                 except jsonschema.ValidationError:
                     # Let jsonschema.ValidationError bubble up for single-node files
                     raise
-                except Exception as e:
+                except (OSError, ValueError, AttributeError, KeyError) as e:
                     all_errors.append(f"Error processing {path}: {e}")
                     all_valid = False
 

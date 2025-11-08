@@ -143,7 +143,7 @@ class YAMLStorage:
                     with open(file_path, encoding="utf-8") as f:
                         yaml_data = yaml.safe_load(f)
                     return self._yaml_to_node(yaml_data)
-                except Exception as e:
+                except (yaml.YAMLError, OSError, PermissionError) as e:
                     raise YAMLError(
                         f"Failed to load YAML file: {e}", str(file_path)
                     ) from e
@@ -235,7 +235,7 @@ class YAMLStorage:
                 try:
                     file_path.unlink()
                     return True
-                except Exception as e:
+                except (OSError, PermissionError) as e:
                     print(f"Error deleting {file_path}: {e}")
 
         return False
@@ -297,7 +297,12 @@ class YAMLStorage:
                                     (yaml_file, ["Invalid YAML structure"])
                                 )
 
-                        except Exception as e:
+                        except (
+                            yaml.YAMLError,
+                            OSError,
+                            PermissionError,
+                            ValueError,
+                        ) as e:
                             print(f"Error loading {yaml_file}: {e}")
                             invalid_nodes.append((yaml_file, [str(e)]))
 
@@ -351,7 +356,12 @@ class YAMLStorage:
                             (yaml_file, ["Invalid YAML structure"])
                         )
 
-                except Exception as e:
+                except (
+                    yaml.YAMLError,
+                    OSError,
+                    PermissionError,
+                    ValueError,
+                ) as e:
                     print(f"Error loading {yaml_file}: {e}")
                     invalid_command_nodes.append((yaml_file, [str(e)]))
 

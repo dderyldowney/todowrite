@@ -25,58 +25,58 @@ pip install 'todowrite-cli[postgres]'
 ### Initialize a project
 
 ```bash
-todowrite init --database-path myproject.db
+todowrite init
 ```
 
 ### Create a Goal
 
 ```bash
-todowrite create --goal "Implement User Authentication" --description "Create secure user authentication system"
+todowrite create --layer goal --title "Implement User Authentication" --description "Create secure user authentication system"
 ```
 
 ### Create a Task
 
 ```bash
-todowrite create --task "Design Database Schema" --description "Design and implement database schema for users"
+todowrite create --layer task --title "Design Database Schema" --description "Design and implement database schema for users"
 ```
 
 ### Create a Concept
 
 ```bash
-todowrite create --concept "OAuth2 Flow" --description "OAuth2 authentication flow implementation"
+todowrite create --layer concept --title "OAuth2 Flow" --description "OAuth2 authentication flow implementation"
 ```
 
 ### Create a Command
 
 ```bash
-todowrite create --command "Build Project" --description "Build the entire project" \
-  --run-shell "make build" --artifacts "dist/"
+todowrite create --layer command --title "Build Project" --description "Build the entire project"
 ```
 
 ### Link Nodes
 
 ```bash
-todowrite link --parent "GOAL-001" --child "TSK-001"
+# Use the update command to add parent-child relationships
+todowrite update --id "TSK-001" --add-parent "GOAL-001"
 ```
 
 ### Update Progress
 
 ```bash
-todowrite status update --id "TSK-001" --status in_progress --progress 50
+todowrite update --id "TSK-001" --status in_progress --progress 50
 ```
 
 ### View Project Status
 
 ```bash
-todowrite status list
-todowrite status show --id "GOAL-001"
+todowrite list
+todowrite get --id "GOAL-001"
 ```
 
 ### Import/Export YAML
 
 ```bash
-todowrite import-yaml --yaml ./configs/
-todowrite export-yaml --output ./backup/
+todowrite import-yaml
+todowrite export-yaml
 ```
 
 ## Commands

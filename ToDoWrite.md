@@ -1,7 +1,7 @@
 # ToDoWrite — Hierarchical Task Management System
 
 **Status:** PRODUCTION READY (Version 0.3.1) — Python library with CLI for hierarchical task management
-**Testing:** 119/119 tests passing with real implementations (no mocks)
+**Testing:** 157/157 tests passing with real implementations (no mocks)
 **Verification:** Comprehensive library verification completed November 2025
 
 ---

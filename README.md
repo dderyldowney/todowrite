@@ -4,7 +4,7 @@
 [![Version 0.3.1](https://img.shields.io/badge/version-0.3.1-green.svg)](https://github.com/dderyldowney/todowrite)
 [![PyPI](https://img.shields.io/badge/todowrite-0.3.1-blue.svg)](https://pypi.org/project/todowrite/)
 [![PyPI CLI](https://img.shields.io/badge/todowrite--cli-0.3.1-blue.svg)](https://pypi.org/project/todowrite-cli/)
-[![Tests Passing](https://img.shields.io/badge/tests-119%20passing-brightgreen.svg)](https://github.com/dderyldowney/todowrite)
+[![Tests Passing](https://img.shields.io/badge/tests-157%20passing-brightgreen.svg)](https://github.com/dderyldowney/todowrite)
 [![Real Implementations](https://img.shields.io/badge/tests-real%20implementations-blue.svg)](https://github.com/dderyldowney/todowrite)
 
 **ToDoWrite** is a hierarchical task management system designed for project planning and execution. It provides both CLI capabilities and Python module integration for developers and project managers who need structured task management with database persistence and schema validation.
@@ -80,7 +80,7 @@ ToDoWrite transforms complex project planning into a structured, hierarchical fr
 - **Import/Export**: JSON and YAML import/export functionality
 - **Type Safety**: Comprehensive type hints with Python 3.12+ syntax
 - **Status Management**: Track nodes through planned, in_progress, completed states
-- **Real Testing**: 119 tests using actual implementations (no mocks)
+- **Real Testing**: 157 tests using actual implementations (no mocks)
 
 ## 🚀 Quick Start
 
@@ -168,14 +168,14 @@ We welcome contributions to ToDoWrite! Please see our [Contributing Guidelines](
 - **Type Safety**: Perfect pyright compliance with strict mode
 - **Code Style**: Black, isort, and ruff format compliant
 - **Security**: Bandit-compliant with hardened subprocess calls
-- **Test Coverage**: 119/119 tests passing with comprehensive pytest suite (47.86% coverage)
+- **Test Coverage**: 157/157 tests passing with comprehensive pytest suite (54.25% coverage)
 - **Real Implementation Testing**: All tests use actual implementations, no mocks
 - **Pre-commit**: Automated quality gates for all commits
 
 ### Recent v0.3.1 Improvements
 - ✅ **Progress Field Fix**: Resolved storage/retrieval issue for node progress tracking
 - ✅ **Library Verification Complete**: Comprehensive verification of all library components
-- ✅ **Real Implementation Testing**: Verified all 119 tests use actual implementations, no mocks
+- ✅ **Real Implementation Testing**: Verified all 157 tests use actual implementations, no mocks
 - ✅ **Database Integrity Confirmed**: SQLite/PostgreSQL backends thoroughly tested
 - ✅ **Schema Validation Robust**: All 12 layer types and 5 status types validated
 - ✅ **Performance Verified**: Handles 100+ nodes efficiently (2.43s creation, 0.01s retrieval)
@@ -252,7 +252,7 @@ See [VERSION_MANAGEMENT.md](VERSION_MANAGEMENT.md) for complete details.
 **Architecture**: Hierarchical task management with 12-layer planning framework
 **Build System**: Hatchling + Twine
 **Quality Status**: Zero Tech Debt Achieved 🎉
-**Test Status**: 119/119 tests passing, real implementations verified ✅
+**Test Status**: 157/157 tests passing, real implementations verified ✅
 **License**: MIT
 
 ### Package Information

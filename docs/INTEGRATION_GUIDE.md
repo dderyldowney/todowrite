@@ -2,7 +2,7 @@
 
 **Version**: 0.3.1
 **Status**: Production Ready
-**Testing**: 119/119 tests passing with real implementations
+**Testing**: 157/157 tests passing with real implementations
 
 ## Overview
 
@@ -513,12 +513,22 @@ todowrite sync-status
 todowrite export-yaml
 
 # Run tests to verify functionality
-pytest tests/
+export PYTHONPATH="lib_package/src:cli_package/src"
+python -m pytest
 ```
+
+## Additional Documentation
+
+- **[← Documentation Index](README.md)** - Complete documentation overview
+- **[Installation Guide](installation.md)** - Get ToDoWrite installed
+- **[Project Utilities](PROJECT_UTILITIES.md)** - Available utilities and helpers
+- **[Status Tracking](STATUS_TRACKING.md)** - Progress and status management
+- **[Main Project Documentation](../README.md)** - Project overview and features
+- **[CLI Reference](../cli_package/README.md)** - Command-line interface reference
 
 ---
 
 **Status**: ✅ Production Ready
 **Version**: 0.3.1
-**Tests**: 119/119 passing
+**Tests**: 157/157 passing
 **Implementation**: Real (no mocks)

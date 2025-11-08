@@ -18,15 +18,23 @@ We welcome contributions to ToDoWrite! By following these guidelines, you can he
     ```
 4.  **Set up Development Environment**:
     ```bash
-    pip install -e .
+    # Install both packages in development mode
+    pip install -e "./lib_package[dev]"
+    pip install -e "./cli_package[dev]"
+
+    # Or run the provided setup script
+    ./setup_dev.sh
     ```
 5.  **Make Your Changes**: Implement your feature or fix the bug. Ensure your code adheres to the project's [Code Style](#code-style) and includes comprehensive [Testing](#testing) and [Documentation](#documentation).
 6.  **Run Tests**: Before submitting, run all tests to ensure your changes haven't introduced any regressions.
     ```bash
+    # Set PYTHONPATH to include both package source directories
+    export PYTHONPATH="lib_package/src:cli_package/src"
+
+    # Run all tests
     python -m pytest
-    ```
-    For PostgreSQL integration tests, ensure you have Docker running and the container is up:
-    ```bash
+
+    # For PostgreSQL integration tests, ensure you have Docker running and the container is up:
     docker-compose up -d
     python -m pytest
     docker-compose down
@@ -65,12 +73,23 @@ The release process for ToDoWrite involves the following steps:
 
 1.  **Feature Freeze**: All new features are merged into the `develop` branch.
 2.  **Testing**: Comprehensive testing is performed on the `develop` branch.
-3.  **Version Bump**: The project version is updated in `pyproject.toml` according to [Semantic Versioning](https://semver.org/).
+3.  **Version Bump**: The project version is updated using the centralized VERSION file:
+    ```bash
+    python scripts/bump_version.py patch  # or minor/major
+    ```
 4.  **Changelog Update**: A `CHANGELOG.md` file is updated with all changes since the last release.
 5.  **Merge to `main`**: The `develop` branch is merged into the `main` branch.
-6.  **Tag Release**: A Git tag is created for the new version (e.g., `v0.1.0`).
-7.  **Build and Publish**: The package is built and published to PyPI.
+6.  **Tag Release**: A Git tag is created for the new version (e.g., `v0.3.1`).
+7.  **Build and Publish**: Both packages are built and published to PyPI:
+    ```bash
+    ./scripts/build.sh
+    ./scripts/publish.sh
+    ```
 8.  **Release Notes**: Release notes are drafted on GitHub, summarizing the changes.
+
+### Version Management
+
+This project uses a centralized version management system with a single `VERSION` file as the source of truth. See [VERSION_MANAGEMENT.md](VERSION_MANAGEMENT.md) for complete details.
 
 ## Need Help?
 

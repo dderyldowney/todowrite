@@ -77,7 +77,7 @@ class ToDoWriteValidator:
         except yaml.YAMLError as e:
             print(f"ERROR: Invalid YAML in {file_path}: {e}")
             return {}, False
-        except Exception as e:
+        except (OSError, PermissionError) as e:
             print(f"ERROR: Failed to read {file_path}: {e}")
             return {}, False
 

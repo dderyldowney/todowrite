@@ -10,6 +10,8 @@ import os
 import time
 from collections import defaultdict
 
+import yaml
+
 # Forward declaration for type hints
 from collections.abc import Callable
 from contextlib import contextmanager
@@ -159,7 +161,7 @@ class ToDoWrite:
                         for layer, count in file_counts.items():
                             if count > 0:
                                 print(f"    {layer}: {count} files")
-            except Exception as e:
+            except (OSError, ValueError, yaml.YAMLError) as e:
                 print(f"⚠️  YAML validation error: {e}")
         else:
             self.yaml_storage = None
@@ -566,7 +568,12 @@ class ToDoWrite:
                 # Create the node
                 self.create_node(node_data)
                 results["imported"] += 1
-            except Exception as e:
+            except (
+                ValueError,
+                KeyError,
+                AttributeError,
+                jsonschema.ValidationError,
+            ) as e:
                 results["errors"].append(str(e))
 
         return results
@@ -1052,7 +1059,13 @@ class ToDoWrite:
                 if results["errors"]:
                     print(f"⚠️  {len(results['errors'])} auto-import errors")
 
-        except Exception as e:
+        except (
+            OSError,
+            ValueError,
+            yaml.YAMLError,
+            AttributeError,
+            KeyError,
+        ) as e:
             # Log the error but don't break normal operation
             logging.warning(f"Auto-import YAML failed: {e}")
             print(f"⚠️  Auto-import of YAML files failed: {e}")
