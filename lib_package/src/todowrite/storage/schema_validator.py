@@ -1,7 +1,8 @@
 """
 Schema Validation for ToDoWrite
 
-This module provides comprehensive schema validation across all storage backends:
+This module provides comprehensive schema validation across all storage
+backends:
 - PostgreSQL database schema validation
 - SQLite database schema validation
 - YAML file schema validation
@@ -106,7 +107,8 @@ class SchemaValidator:
                     col["name"]: col["type"] for col in node_columns
                 }
 
-                # Validate ID pattern constraint (can't check directly, but can check type)
+                # Validate ID pattern constraint (can't check directly, but can check
+                # type)
                 if (
                     "id" in column_types
                     and "VARCHAR" not in str(column_types["id"]).upper()
@@ -265,7 +267,7 @@ class SchemaValidator:
                             all_valid = False
                             continue
 
-                        # Skip validation for files that are known to have format issues
+                        # Skip validation for files known to have format issues
                         if file_path.name == "TEST-STATUS-DEMO.yaml":
                             continue
 
@@ -355,7 +357,8 @@ class SchemaValidator:
                     report["errors"] = errors
                     report["details"]["database_tables"] = "Validated"
                     report["summary"] = (
-                        f"Database schema validation {'passed' if is_valid else 'failed'}"
+                        f"Database schema validation "
+                        f"{'passed' if is_valid else 'failed'}"
                     )
                 else:
                     report["errors"] = ["No database engine provided"]
@@ -373,7 +376,8 @@ class SchemaValidator:
                 report["details"]["file_counts"] = file_counts
                 report["details"]["total_files"] = sum(file_counts.values())
                 report["summary"] = (
-                    f"YAML validation {'passed' if all_valid else 'failed'} for {report['details']['total_files']} files"
+                    f"YAML validation {'passed' if all_valid else 'failed'} "
+                    f"for {report['details']['total_files']} files"
                 )
 
             else:
@@ -441,7 +445,8 @@ def validate_yaml_files(
             if isinstance(path, str):
                 path = Path(path)
 
-            # Check if it's a file (direct validation) or directory (scan for files)
+            # Check if it's a file (direct validation) or directory (scan for
+            # files)
             if path.is_file():
                 # Direct file validation
                 try:
@@ -470,7 +475,8 @@ def validate_yaml_files(
                                         )
                                     all_valid = False
                     elif isinstance(yaml_data, dict):
-                        # File contains single node - let jsonschema.ValidationError bubble up
+                        # File contains single node - let jsonschema.ValidationError bubble
+                        # up
                         _schema_validator.validate_node_data(
                             cast("dict[str, Any]", yaml_data)
                         )
@@ -479,7 +485,7 @@ def validate_yaml_files(
                     all_errors.append(f"YAML parsing error in {path}: {e}")
                     all_valid = False
                 except jsonschema.ValidationError:
-                    # Let jsonschema.ValidationError bubble up for single node files
+                    # Let jsonschema.ValidationError bubble up for single-node files
                     raise
                 except Exception as e:
                     all_errors.append(f"Error processing {path}: {e}")
