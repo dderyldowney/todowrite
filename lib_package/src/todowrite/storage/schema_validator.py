@@ -16,7 +16,7 @@ from typing import Any, cast
 
 import jsonschema
 import yaml
-from sqlalchemy import Engine, Inspector, inspect
+from sqlalchemy import Engine, inspect
 
 from ..core.constants import LAYER_DIRS
 from ..core.schema import TODOWRITE_SCHEMA
@@ -55,7 +55,9 @@ class SchemaValidator:
 
         return len(errors) == 0, errors
 
-    def validate_database_schema(self, engine: Engine) -> tuple[bool, list[str]]:
+    def validate_database_schema(
+        self, engine: Engine
+    ) -> tuple[bool, list[str]]:
         """
         Validate database schema against the expected structure.
 
@@ -325,19 +327,19 @@ class SchemaValidator:
         return self.validate_database_schema(engine)
 
     def get_schema_compliance_report(
-        self, storage_type: str, **kwargs: Any
-    ) -> dict[str, Any]:
+        self, storage_type: str, engine: Engine | None = None
+    ) -> dict[str, object]:
         """
         Generate a comprehensive schema compliance report.
 
         Args:
             storage_type: Type of storage (postgresql, sqlite, yaml)
-            **kwargs: Additional arguments for specific storage types
+            engine: Database engine for validation
 
         Returns:
             Dictionary with compliance report
         """
-        report: dict[str, Any] = {
+        report: dict[str, object] = {
             "storage_type": storage_type,
             "schema_version": "0.1.7.1",
             "validation_timestamp": None,  # Will be set by caller
@@ -350,7 +352,6 @@ class SchemaValidator:
 
         try:
             if storage_type in ["postgresql", "sqlite"]:
-                engine = kwargs.get("engine")
                 if engine:
                     is_valid, errors = self.validate_database_schema(engine)
                     report["is_compliant"] = is_valid
@@ -521,20 +522,18 @@ def validate_yaml_files(
 
 
 def get_schema_compliance_report(
-    storage_type: str = "sqlite", **kwargs: Any
-) -> dict[str, Any]:
+    storage_type: str = "sqlite", engine: Engine | None = None
+) -> dict[str, object]:
     """Generate comprehensive schema compliance report."""
     # If no engine provided for database types, try to get the default one
-    if storage_type in ["postgresql", "sqlite"] and "engine" not in kwargs:
+    if storage_type in ["postgresql", "sqlite"] and engine is None:
         try:
             from ..core.app import ToDoWrite
 
             app = ToDoWrite()
-            kwargs["engine"] = app.engine
+            engine = app.engine
         except ImportError:
             # Let the underlying function handle the missing engine
             pass
 
-    return _schema_validator.get_schema_compliance_report(
-        storage_type, **kwargs
-    )
+    return _schema_validator.get_schema_compliance_report(storage_type, engine)

@@ -10,7 +10,7 @@ from __future__ import annotations
 import shutil
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 import yaml
 from sqlalchemy.exc import SQLAlchemyError
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 class YAMLManager:
     """Manages YAML import/export operations for ToDoWrite."""
 
-    def __init__(self, todowrite_app: Any = None) -> None:
+    def __init__(self, todowrite_app: ToDoWrite | None = None) -> None:
         """Initialize YAML Manager."""
         if todowrite_app is None:
             # Lazy import to avoid circular dependency
