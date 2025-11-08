@@ -8,11 +8,20 @@ import json
 import os
 import time
 from collections import defaultdict
-from contextlib import contextmanager
-from pathlib import Path
 
 # Forward declaration for type hints
-from typing import TYPE_CHECKING, Any, cast
+from collections.abc import Callable
+from contextlib import contextmanager
+from pathlib import Path
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Concatenate,
+    ParamSpec,
+    TypeVar,
+    cast,
+    overload,
+)
 
 import jsonschema
 from jsonschema.exceptions import ValidationError
@@ -36,6 +45,11 @@ from .app_node_updater import NodeUpdater
 from .types import Command, LayerType, Link, Metadata, Node, StatusType
 from .utils import generate_node_id
 
+# Type variables for generic functions
+P = ParamSpec("P")
+R = TypeVar("R")
+F = TypeVar("F", bound=Callable[..., object])
+
 if TYPE_CHECKING:
     from collections.abc import Generator
 
@@ -44,10 +58,15 @@ if TYPE_CHECKING:
     from ..storage.yaml_storage import YAMLStorage
 
 
-def _validate_literal(value: str, literal_type: Any) -> str:
-    if value not in literal_type.__args__:
+def _validate_literal(value: str, literal_type: type[object]) -> str:
+    if (
+        hasattr(literal_type, "__args__")
+        and literal_type.__args__
+        and value not in literal_type.__args__
+    ):
         raise ValueError(
-            f"Invalid literal value: {value}. Expected one of {literal_type.__args__}"
+            f"Invalid literal value: {value}. Expected one of "
+            f"{literal_type.__args__}"
         )
     return value
 
@@ -244,9 +263,22 @@ class ToDoWrite:
             raise RuntimeError("YAML storage not initialized")
         return self.yaml_storage
 
+    @overload
     def _execute_with_session(
-        self, func: Any, *args: Any, **kwargs: Any
-    ) -> Any:
+        self,
+        func: Callable[Concatenate[Session, P], R],
+        *args: P.args,
+        **kwargs: P.kwargs,
+    ) -> R: ...
+
+    @overload
+    def _execute_with_session(
+        self, func: Callable[..., R], *args: object, **kwargs: object
+    ) -> R: ...
+
+    def _execute_with_session(
+        self, func: Callable[..., object], *args: object, **kwargs: object
+    ) -> object:
         """Execute a function with a database session, handling None checks."""
         with self.get_session() as session:
             if session is None:

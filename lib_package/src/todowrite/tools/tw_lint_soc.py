@@ -8,9 +8,14 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from typing import Any, ClassVar, cast
+from typing import ClassVar, TypeAlias, cast
 
 import yaml
+
+# Type aliases for YAML data structures
+YAMLValue: TypeAlias = str | int | float | bool | None
+YAMLObject: TypeAlias = dict[str, YAMLValue | list[YAMLValue] | "YAMLObject"]
+YAMLData: TypeAlias = YAMLValue | list[YAMLValue | YAMLObject] | YAMLObject
 
 
 # pyright: ignore [reportUnknownVariableType, reportUnknownArgumentType, reportUnknownMemberType]
@@ -110,7 +115,7 @@ class SoCLinter:
 
         return violations
 
-    def _scan_recursive(self, data: Any, path: str) -> list[str]:
+    def _scan_recursive(self, data: YAMLData, path: str) -> list[str]:
         """Scan data recursively for executable patterns"""
         violations: list[str] = []
 
@@ -121,16 +126,13 @@ class SoCLinter:
                         f"Potential executable content found{path}: '{pattern.strip()}' matches in '{data[:100]}...'"
                     )
         elif isinstance(data, dict):
-            # Cast to dict[str, Any] to resolve type issues
-            data_dict = cast("dict[str, Any]", data)
+            data_dict: dict[str, YAMLData | YAMLValue] = data
             for key, value in data_dict.items():
                 current_path = f"{path}.{key}"
                 nested_violations = self._scan_recursive(value, current_path)
                 violations.extend(nested_violations)
         elif isinstance(data, list):
-            # Cast to list[Any] to resolve type issues
-            data_list = cast("list[Any]", data)
-            for i, item in enumerate(data_list):
+            for i, item in enumerate(data):
                 current_path = f"{path}[{i}]"
                 nested_violations = self._scan_recursive(item, current_path)
                 violations.extend(nested_violations)
@@ -138,7 +140,7 @@ class SoCLinter:
         return violations
 
     def _check_command_layer_requirements(
-        self, data: dict[str, Any], _file_path: Path
+        self, data: YAMLObject, _file_path: Path
     ) -> list[str]:
         """Check that Command layer has proper structure"""
         violations: list[str] = []
