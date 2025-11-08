@@ -17,15 +17,15 @@ import re
 import sys
 from pathlib import Path
 
-# Add parent directory to path to import shared_version
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
-try:
-    from shared_version import _get_version, get_version, sync_version
-except ImportError:
-    print("❌ Error: Cannot import shared_version module")
-    print("Make sure you're running this from the project root")
-    sys.exit(1)
+def get_version() -> str:
+    """Read version from VERSION file (single source of truth)."""
+    version_file = Path(__file__).parent.parent / "VERSION"
+    try:
+        return version_file.read_text(encoding="utf-8").strip()
+    except (FileNotFoundError, OSError) as e:
+        msg = f"VERSION file not found at {version_file}"
+        raise FileNotFoundError(msg) from e
 
 
 def parse_version(version_str: str) -> tuple[int, int, int]:
@@ -64,8 +64,7 @@ def bump_version_type(current: str, bump_type: str) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Bump version in VERSION file and sync "
-        "with shared_version.py"
+        description="Bump version in VERSION file"
     )
     parser.add_argument(
         "new_version",
@@ -81,7 +80,7 @@ def main() -> int:
 
     try:
         # Get current version
-        current_version = _get_version()
+        current_version = get_version()
         print(f"Current version: {current_version}")
 
         # Determine new version
@@ -105,10 +104,6 @@ def main() -> int:
         version_file = Path(__file__).parent.parent / "VERSION"
         version_file.write_text(f"{new_version}\n", encoding="utf-8")
         print(f"✅ Updated VERSION file to {new_version}")
-
-        # Sync with shared_version.py
-        sync_version()
-        print(f"✅ Synced shared_version.py to {new_version}")
 
         # Show current state
         print(f"✅ Verified: get_version() returns {get_version()}")

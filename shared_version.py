@@ -26,7 +26,7 @@ def _get_version() -> str:
 # This literal is kept in sync with VERSION file for Hatch build system
 # compatibility. Run sync_version() after editing VERSION file to update
 __version__ = (
-    "0.3.1"  # KEEP IN SYNC - run sync_version() after editing VERSION file
+    "0.3.1"  # KEEP IN SYNC - run sync_version() after editing VERSION
 )
 
 # Package metadata

@@ -70,25 +70,28 @@ build_package() {
 verify_artifacts() {
     print_status "Verifying build artifacts..."
 
+    # Get current version from VERSION file
+    local version=$(cat VERSION | tr -d '\n')
+
     # Check library package
-    if [ ! -f "lib_package/dist/todowrite-0.3.0-py3-none-any.whl" ]; then
-        print_error "Library package wheel not found"
+    if [ ! -f "lib_package/dist/todowrite-${version}-py3-none-any.whl" ]; then
+        print_error "Library package wheel not found (expected: todowrite-${version}-py3-none-any.whl)"
         exit 1
     fi
 
-    if [ ! -f "lib_package/dist/todowrite-0.3.0.tar.gz" ]; then
-        print_error "Library package sdist not found"
+    if [ ! -f "lib_package/dist/todowrite-${version}.tar.gz" ]; then
+        print_error "Library package sdist not found (expected: todowrite-${version}.tar.gz)"
         exit 1
     fi
 
     # Check CLI package
-    if [ ! -f "cli_package/dist/todowrite_cli-0.3.0-py3-none-any.whl" ]; then
-        print_error "CLI package wheel not found"
+    if [ ! -f "cli_package/dist/todowrite_cli-${version}-py3-none-any.whl" ]; then
+        print_error "CLI package wheel not found (expected: todowrite_cli-${version}-py3-none-any.whl)"
         exit 1
     fi
 
-    if [ ! -f "cli_package/dist/todowrite_cli-0.3.0.tar.gz" ]; then
-        print_error "CLI package sdist not found"
+    if [ ! -f "cli_package/dist/todowrite_cli-${version}.tar.gz" ]; then
+        print_error "CLI package sdist not found (expected: todowrite_cli-${version}.tar.gz)"
         exit 1
     fi
 
@@ -102,8 +105,11 @@ main() {
     # Clean if requested
     if [ "$1" = "clean" ]; then
         print_warning "Cleaning all build artifacts..."
-        rm -rf lib_package/dist/ lib_package/build/ lib_package/*.egg-info/
-        rm -rf cli_package/dist/ cli_package/build/ cli_package/*.egg-info/
+        rm -rf lib_package/dist/ lib_package/build/
+        rm -rf cli_package/dist/ cli_package/build/
+        # Remove egg-info directories if they exist (avoid glob errors)
+        find lib_package -name "*.egg-info" -type d -exec rm -rf {} + 2>/dev/null || true
+        find cli_package -name "*.egg-info" -type d -exec rm -rf {} + 2>/dev/null || true
         print_success "Clean completed"
     fi
 

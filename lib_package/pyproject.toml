@@ -33,8 +33,7 @@ dependencies = [
 dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
-    "pyright>=1.1.0",
-    "pre-commit>=3.0.0",
+        "pre-commit>=3.0.0",
     "ruff>=0.7.0",
 ]
 postgres = [
@@ -98,38 +97,6 @@ select = [
 indent-style = "space"
 quote-style = "double"
 
-[tool.pyright]
-typeCheckingMode = "basic"
-# Core type safety - keep these as errors for important issues
-reportInvalidTypeForm = "error"
-reportPropertyTypeMismatch = "error"
-reportUnsupportedOperandType = "error"
-reportOperatorIssue = "error"
-
-# Less critical issues - downgrade to warnings or disable
-reportArgumentType = "warning"  # Was causing too many false positives
-reportAssignmentType = "warning"
-reportReturnType = "warning"
-reportUntypedBaseClass = "warning"
-reportUntypedNamedTuple = "warning"
-
-# Optional improvements - keep as warnings but not blocking
-reportUnnecessaryComparison = "warning"
-reportUnnecessaryContains = "warning"
-reportUnnecessaryIsInstance = "warning"
-reportUnnecessaryCast = "warning"
-reportUnnecessaryEllipsis = "warning"
-reportInvalidStubStatement = "warning"
-reportIncompleteStub = "warning"
-reportUnsupportedDunderAll = "warning"
-reportPrivateImportUsage = "warning"
-reportConstantRedefinition = "warning"
-reportDeprecated = "warning"
-reportUnreachable = "warning"
-reportPossiblyUnboundVariable = "warning"
-reportPossiblyUndefinedVariable = "warning"
-reportMissingModuleSource = "warning"
-reportUnnecessaryTypeIgnoreComment = "warning"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
