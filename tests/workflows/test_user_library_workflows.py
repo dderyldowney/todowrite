@@ -1,8 +1,9 @@
 """
 User Library Workflows Tests
 
-These tests verify the step-by-step workflows that a user would follow to use ToDoWrite
-as a Python library. Each test represents a complete user scenario using the library API.
+These tests verify the step-by-step workflows that a user would follow to use
+ToDoWrite as a Python library. Each test represents a complete user scenario
+using the library API.
 """
 
 import os
@@ -12,6 +13,7 @@ import unittest
 from pathlib import Path
 
 from todowrite import ToDoWrite
+from todowrite.core.exceptions import InvalidNodeError, NodeNotFoundError
 
 
 class TestUserLibraryWorkflows(unittest.TestCase):
@@ -64,7 +66,8 @@ class TestUserLibraryWorkflows(unittest.TestCase):
             "id": "GOAL-001",
             "layer": "Goal",
             "title": "Achieve Product Market Fit",
-            "description": "Find product-market fit through continuous iteration",
+            "description": "Find product-market fit through continuous\n"
+            "                    iteration",
             "links": {"parents": [], "children": []},
             "metadata": {
                 "owner": "product-team",
@@ -140,7 +143,8 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 "id": "CON-002",
                 "layer": "Concept",
                 "title": "Customer Journey Mapping",
-                "description": "Map out the complete customer experience journey",
+                "description": "Map out the complete customer experience\n"
+                "                        journey",
                 "links": {"parents": [], "children": []},
                 "metadata": {"owner": "product", "labels": ["ux", "research"]},
             },
@@ -274,8 +278,10 @@ class TestUserLibraryWorkflows(unittest.TestCase):
         }
 
         updated_parent = app.update_node("GOAL-003", parent_update)
-        # Temporarily skip link validation until the core linking issue is resolved
-        # self.assertEqual(len(updated_parent.links.children), 2, "Goal should have 2 children")
+        # Temporarily skip link validation until the core linking
+        # issue is resolved
+        # self.assertEqual(len(updated_parent.links.children), 2,
+        #                  "Goal should have 2 children")
         self.assertIsNotNone(updated_parent, "Updated goal should exist")
 
         # Update tasks to reference parent
@@ -289,8 +295,10 @@ class TestUserLibraryWorkflows(unittest.TestCase):
         }
 
         updated_task1 = app.update_node("TSK-004", task1_update)
-        # Temporarily skip link validation until the core linking issue is resolved
-        # self.assertIn('GOAL-003', updated_task1.links.parents, "Task should reference parent goal")
+        # Temporarily skip link validation until the core linking
+        # issue is resolved
+        # self.assertIn('GOAL-003', updated_task1.links.parents,
+        #                "Task should reference parent goal")
         self.assertIsNotNone(updated_task1, "Updated task1 should exist")
 
         # Update task2 to reference parent
@@ -304,8 +312,10 @@ class TestUserLibraryWorkflows(unittest.TestCase):
         }
 
         updated_task2 = app.update_node("TSK-005", task2_update)
-        # Temporarily skip link validation until the core linking issue is resolved
-        # self.assertIn('GOAL-003', updated_task2.links.parents, "Task should reference parent goal")
+        # Temporarily skip link validation until the core linking
+        # issue is resolved
+        # self.assertIn('GOAL-003', updated_task2.links.parents,
+        #                "Task should reference parent goal")
         self.assertIsNotNone(updated_task2, "Updated task2 should exist")
 
     def test_library_complex_node_creation_workflow(self) -> None:
@@ -390,12 +400,12 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 invalid_node,
                 "Invalid node should not be created",
             )
-        except Exception as e:
+        except (ValueError, InvalidNodeError) as e:
             # Expected error handling
             self.assertIsInstance(
                 e,
-                Exception,
-                "Should raise appropriate exception",
+                (ValueError, InvalidNodeError),
+                "Should raise appropriate exception for invalid data",
             )
 
         # Step 3: Try to retrieve non-existent node
@@ -405,7 +415,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 non_existent,
                 "Should return None for non-existent node",
             )
-        except Exception as e:
+        except NodeNotFoundError as e:
             self.fail(f"Should handle non-existent node gracefully: {e}")
 
         # Step 4: Try to update non-existent node
@@ -425,7 +435,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 update_result,
                 "Should return None for non-existent node",
             )
-        except Exception as e:
+        except NodeNotFoundError as e:
             self.fail(f"Should handle non-existent update gracefully: {e}")
 
     def test_library_multilayer_hierarchical_workflow(self) -> None:
@@ -462,7 +472,8 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 "id": "CON-H-001",
                 "layer": "Concept",
                 "title": "Microservices Architecture",
-                "description": "Build using microservices architecture for scalability",
+                "description": "Build using microservices architecture\n"
+                "                            for scalability",
                 "links": {"parents": [], "children": []},
                 "metadata": {
                     "owner": "architecture-team",
@@ -473,7 +484,8 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 "id": "CST-H-001",
                 "layer": "Constraints",
                 "title": "Technical Constraints",
-                "description": "Must use cloud-native, containerized deployment",
+                "description": "Must use cloud-native,\n"
+                "                        containerized deployment",
                 "links": {"parents": [], "children": []},
                 "metadata": {
                     "owner": "platform-team",
@@ -484,7 +496,8 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 "id": "R-H-001",
                 "layer": "Requirements",
                 "title": "Core Requirements",
-                "description": "User management, payments, reporting, analytics",
+                "description": "User management, payments,\n"
+                "                        reporting, analytics",
                 "links": {"parents": [], "children": []},
                 "metadata": {
                     "owner": "product-team",
@@ -495,7 +508,8 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 "id": "AC-H-001",
                 "layer": "AcceptanceCriteria",
                 "title": "Launch Criteria",
-                "description": "1000 users, 99.9% uptime, payment processing working",
+                "description": "1000 users, 99.9% uptime,\n"
+                "                        payment processing working",
                 "links": {"parents": [], "children": []},
                 "metadata": {"owner": "qa-team", "labels": ["acceptance"]},
             },
@@ -519,7 +533,10 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 "id": "TSK-H-001",
                 "layer": "Task",
                 "title": "Create User Authentication",
-                "description": "Implement user login, registration, and session management",
+                "description": (
+                    "Implement user login, registration, and "
+                    "session management"
+                ),
                 "links": {"parents": [], "children": []},
                 "metadata": {
                     "owner": "dev-team",
@@ -530,7 +547,9 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 "id": "SUB-H-001",
                 "layer": "SubTask",
                 "title": "Design Database Schema",
-                "description": "Create database tables and relationships for users",
+                "description": (
+                    "Create database tables and relationships for users"
+                ),
                 "links": {"parents": [], "children": []},
                 "metadata": {"owner": "dev-team", "labels": ["database"]},
             },
@@ -601,7 +620,9 @@ class TestUserLibraryWorkflows(unittest.TestCase):
             "id": "TSK-H-001",
             "layer": "Task",
             "title": "Create User Authentication",
-            "description": "Implement user login, registration, and session management",
+            "description": (
+                "Implement user login, registration, and session management"
+            ),
             "links": {"parents": ["PH-H-001"], "children": ["SUB-H-001"]},
             "metadata": {"owner": "dev-team", "labels": ["authentication"]},
         }
@@ -612,26 +633,35 @@ class TestUserLibraryWorkflows(unittest.TestCase):
             "id": "SUB-H-001",
             "layer": "SubTask",
             "title": "Design Database Schema",
-            "description": "Create database tables and relationships for users",
+            "description": (
+                "Create database tables and relationships for users"
+            ),
             "links": {"parents": ["TSK-H-001"], "children": []},
             "metadata": {"owner": "dev-team", "labels": ["database"]},
         }
         app.update_node("SUB-H-001", subtask_update)
 
-        # Step 5: Validate complete hierarchy (skip link validation for now due to persistence issue)
+        # Step 5: Validate complete hierarchy (skip link validation for now due
+        # to persistence issue)
         final_goal = app.get_node("GOAL-H-001")
-        # Temporarily skip link validation until the core linking issue is resolved
-        # self.assertEqual(len(final_goal.links.children), 3, "Goal should have 3 children")
+        # Temporarily skip link validation until the core linking
+        # issue is resolved
+        # self.assertEqual(len(final_goal.links.children), 3,
+        #                  "Goal should have 3 children")
         self.assertIsNotNone(final_goal, "Goal should exist")
 
         final_task = app.get_node("TSK-H-001")
-        # Temporarily skip link validation until the core linking issue is resolved
-        # self.assertIn('PH-H-001', final_task.links.parents, "Task should reference parent phase")
-        # self.assertIn('SUB-H-001', final_task.links.children, "Task should have child subtask")
+        # Temporarily skip link validation until the core linking
+        # issue is resolved
+        # self.assertIn('PH-H-001', final_task.links.parents,
+        #                "Task should reference parent phase")
+        # self.assertIn('SUB-H-001', final_task.links.children,
+        #                "Task should have child subtask")
         self.assertIsNotNone(final_task, "Task should exist")
 
         final_subtask = app.get_node("SUB-H-001")
-        # self.assertIn('TSK-H-001', final_subtask.links.parents, "Subtask should reference parent task")
+        # self.assertIn('TSK-H-001', final_subtask.links.parents,
+        #                "Subtask should reference parent task")
         self.assertIsNotNone(final_subtask, "Subtask should exist")
 
         # Verify total count
@@ -756,7 +786,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                 export_result,
                 "Export should contain all nodes",
             )
-        except Exception as e:
+        except (ValueError, OSError, InvalidNodeError) as e:
             # If export fails, test that it handles the error gracefully
             self.assertIsInstance(
                 e,

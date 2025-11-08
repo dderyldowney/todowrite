@@ -4,8 +4,13 @@ Schema Validation Tests
 Tests for JSON schema validation, node validation, and data integrity.
 """
 
+import shutil
+import tempfile
 import unittest
 from pathlib import Path
+
+import jsonschema
+import yaml
 
 from todowrite.core import ToDoWrite
 from todowrite.storage import (
@@ -44,28 +49,28 @@ class TestSchemaValidation(unittest.TestCase):
         # Should pass validation
         try:
             validate_node_data(valid_node)
-        except Exception as e:
+        except jsonschema.ValidationError as e:
             self.fail(f"Valid node data should not raise exception: {e}")
 
         # Invalid node data - missing required field
         invalid_node = valid_node.copy()
         invalid_node.pop("title", None)
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(jsonschema.ValidationError):
             validate_node_data(invalid_node)
 
         # Invalid node data - wrong layer type
         invalid_node_layer = valid_node.copy()
         invalid_node_layer["layer"] = "InvalidLayer"
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(jsonschema.ValidationError):
             validate_node_data(invalid_node_layer)
 
         # Invalid node data - empty work_type
         invalid_node_work_type = valid_node.copy()
         invalid_node_work_type["metadata"]["work_type"] = ""
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(jsonschema.ValidationError):
             validate_node_data(invalid_node_work_type)
 
     def test_node_id_validation(self) -> None:
@@ -90,7 +95,7 @@ class TestSchemaValidation(unittest.TestCase):
             }
             try:
                 validate_node_data(node_data)
-            except Exception as e:
+            except jsonschema.ValidationError as e:
                 self.fail(
                     f"Valid ID {valid_id} should not raise exception: {e}",
                 )
@@ -113,7 +118,7 @@ class TestSchemaValidation(unittest.TestCase):
                 "links": {"parents": [], "children": []},
                 "metadata": {"owner": "test", "labels": []},
             }
-            with self.assertRaises(Exception):
+            with self.assertRaises(jsonschema.ValidationError):
                 validate_node_data(node_data)
 
     def test_metadata_validation(self) -> None:
@@ -140,7 +145,7 @@ class TestSchemaValidation(unittest.TestCase):
         node_data["metadata"].update(valid_metadata)
         try:
             validate_node_data(node_data)
-        except Exception as e:
+        except jsonschema.ValidationError as e:
             self.fail(f"Valid metadata should not raise exception: {e}")
 
         # Invalid severity
@@ -149,7 +154,7 @@ class TestSchemaValidation(unittest.TestCase):
 
         node_data = base_node.copy()
         node_data["metadata"].update(invalid_severity)
-        with self.assertRaises(Exception):
+        with self.assertRaises(jsonschema.ValidationError):
             validate_node_data(node_data)
 
         # Invalid work_type
@@ -158,7 +163,7 @@ class TestSchemaValidation(unittest.TestCase):
 
         node_data = base_node.copy()
         node_data["metadata"].update(invalid_work_type)
-        with self.assertRaises(Exception):
+        with self.assertRaises(jsonschema.ValidationError):
             validate_node_data(node_data)
 
     def test_links_validation(self) -> None:
@@ -181,7 +186,7 @@ class TestSchemaValidation(unittest.TestCase):
         node_data["links"] = valid_links
         try:
             validate_node_data(node_data)
-        except Exception as e:
+        except jsonschema.ValidationError as e:
             self.fail(f"Valid links should not raise exception: {e}")
 
         # Invalid links structure
@@ -189,7 +194,7 @@ class TestSchemaValidation(unittest.TestCase):
 
         node_data = base_node.copy()
         node_data["links"] = invalid_links
-        with self.assertRaises(Exception):
+        with self.assertRaises(jsonschema.ValidationError):
             validate_node_data(node_data)
 
         # Invalid parent ID format
@@ -197,7 +202,7 @@ class TestSchemaValidation(unittest.TestCase):
 
         node_data = base_node.copy()
         node_data["links"] = invalid_parent_id
-        with self.assertRaises(Exception):
+        with self.assertRaises(jsonschema.ValidationError):
             validate_node_data(node_data)
 
     def test_command_validation(self) -> None:
@@ -216,7 +221,7 @@ class TestSchemaValidation(unittest.TestCase):
             "ac_ref": "AC-001",
             "run": {
                 "shell": "echo hello",
-                "workdir": "/tmp",
+                "workdir": tempfile.gettempdir(),
                 "env": {"DEBUG": "true"},
             },
             "artifacts": ["output.txt", "log.txt"],
@@ -226,7 +231,7 @@ class TestSchemaValidation(unittest.TestCase):
         node_data["command"] = valid_command
         try:
             validate_node_data(node_data)
-        except Exception as e:
+        except jsonschema.ValidationError as e:
             self.fail(f"Valid command should not raise exception: {e}")
 
         # Invalid command - missing ac_ref
@@ -235,16 +240,16 @@ class TestSchemaValidation(unittest.TestCase):
 
         node_data = base_node.copy()
         node_data["command"] = invalid_command
-        with self.assertRaises(Exception):
+        with self.assertRaises(jsonschema.ValidationError):
             validate_node_data(node_data)
 
         # Invalid command - missing run shell
         invalid_command_shell = valid_command.copy()
-        invalid_command_shell["run"] = {"workdir": "/tmp"}
+        invalid_command_shell["run"] = {"workdir": tempfile.gettempdir()}
 
         node_data = base_node.copy()
         node_data["command"] = invalid_command_shell
-        with self.assertRaises(Exception):
+        with self.assertRaises(jsonschema.ValidationError):
             validate_node_data(node_data)
 
 
@@ -267,7 +272,7 @@ class TestDatabaseSchema(unittest.TestCase):
             result = validate_database_schema()
             self.assertIsNotNone(result)
             # Should pass validation for a properly initialized database
-        except Exception as e:
+        except jsonschema.ValidationError as e:
             self.fail(
                 f"Database schema validation should not raise exception: {e}",
             )
@@ -279,7 +284,7 @@ class TestDatabaseSchema(unittest.TestCase):
             self.assertIsInstance(report, dict)
             self.assertIn("summary", report)
             self.assertIn("details", report)
-        except Exception as e:
+        except jsonschema.ValidationError as e:
             self.fail(
                 f"Schema compliance report should not raise exception: {e}",
             )
@@ -295,8 +300,6 @@ class TestYAMLValidation(unittest.TestCase):
 
     def tearDown(self) -> None:
         """Clean up test YAML files."""
-        import shutil
-
         if self.test_dir.exists():
             shutil.rmtree(self.test_dir)
 
@@ -318,14 +321,12 @@ class TestYAMLValidation(unittest.TestCase):
 
         yaml_file = self.test_dir / "valid_goal.yaml"
         with open(yaml_file, "w") as f:
-            import yaml
-
             yaml.dump(valid_yaml_content, f)
 
         # Should pass validation
         try:
             validate_yaml_files([str(yaml_file)])
-        except Exception as e:
+        except jsonschema.ValidationError as e:
             self.fail(f"Valid YAML file should not raise exception: {e}")
 
     def test_invalid_yaml_file(self) -> None:
@@ -341,12 +342,10 @@ class TestYAMLValidation(unittest.TestCase):
 
         yaml_file = self.test_dir / "invalid_goal.yaml"
         with open(yaml_file, "w") as f:
-            import yaml
-
             yaml.dump(invalid_yaml_content, f)
 
         # Should fail validation
-        with self.assertRaises(Exception):
+        with self.assertRaises(jsonschema.ValidationError):
             validate_yaml_files([str(yaml_file)])
 
     def test_yaml_directory_validation(self) -> None:
@@ -391,14 +390,12 @@ class TestYAMLValidation(unittest.TestCase):
         for filename, content in test_files:
             yaml_file = self.test_dir / filename
             with open(yaml_file, "w") as f:
-                import yaml
-
                 yaml.dump(content, f)
 
         # Should validate all files
         try:
             validate_yaml_files([str(self.test_dir)])
-        except Exception as e:
+        except jsonschema.ValidationError as e:
             self.fail(f"Valid YAML files should not raise exception: {e}")
 
 

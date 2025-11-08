@@ -7,7 +7,11 @@ It's a wrapper that automatically initializes token-sage.
 """
 
 import sys
-from pathlib import Path
+
+try:
+    from hal_token_savvy_agent import filter_repo_for_llm
+except ImportError:
+    filter_repo_for_llm = None
 
 
 def ensure_token_sage() -> None:
@@ -16,7 +20,12 @@ def ensure_token_sage() -> None:
 
     # This would normally initialize token-sage
     # For now, we'll create the token-sage task
-    token_sage_command = '''Task subagent_type=token-sage description="Initialize token-sage" prompt="Initialize and prepare for code analysis tasks"'''  # nosec: B105
+    # This is not a password - it's a command description for token-sage
+    token_sage_command = (
+        "Task subagent_type=token-sage "
+        'description="Initialize token-sage" '
+        'prompt="Initialize and prepare for code analysis tasks"'
+    )
 
     print("📝 Token-sage initialization command:")
     print(f"   {token_sage_command}")
@@ -42,8 +51,9 @@ def run_with_hal_preprocessing(command_args: list[str]) -> int:
     # Step 2: Run HAL preprocessing
     print(f"🔍 Running HAL preprocessing for: {goal}")
     try:
-        sys.path.insert(0, str(Path(__file__).parent))
-        from hal_token_savvy_agent import filter_repo_for_llm
+        if filter_repo_for_llm is None:
+            msg = "hal_token_savvy_agent module not available"
+            raise ImportError(msg)
 
         # Extract pattern from goal if it looks like a search
         pattern = None
@@ -82,7 +92,7 @@ def run_with_hal_preprocessing(command_args: list[str]) -> int:
             print("⚠️ No suitable local context found")
             print("🧠 Proceeding with token-sage without local preprocessing")
 
-    except Exception as e:
+    except (ImportError, OSError, RuntimeError) as e:
         print(f"❌ HAL preprocessing failed: {e}")
         print("🧠 Proceeding with token-sage directly")
 
@@ -100,7 +110,8 @@ def main() -> int:
         print()
         print("Usage: python always_token_sage.py <your_goal>")
         print(
-            "Example: python always_token_sage.py 'analyze authentication system'",
+            "Example: python always_token_sage.py "
+            "'analyze authentication system'",
         )
         print()
 

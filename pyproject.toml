@@ -119,11 +119,9 @@ select = [
     "PLC", # pylint conventions
     "PLE", # pylint errors
     "PLW", # pylint warnings
-    "TC",  # type-checking (new rules)
     "ANN", # type annotations
 ]
 ignore = [
-    "E501",  # line too long (handled by formatter)
     "S101",  # assert used (acceptable in tests)
     "T20",   # print statements (needed for CLI output)
     "S110",  # try-except-pass (acceptable for graceful degradation)

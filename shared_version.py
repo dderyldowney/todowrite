@@ -21,7 +21,9 @@ def _get_version() -> str:
 
 
 # Single source of truth for version
-__version__ = _get_version()
+# NOTE: Hatch build system requires this to be a literal string for
+# regex parsing
+__version__ = "0.3.1"  # This should match VERSION file content
 
 # Package metadata
 __author__ = "D Deryl Downey"
