@@ -6,10 +6,16 @@ Automatically chains token-sage with HAL agents for maximum efficiency.
 This ensures zero wasted tokens through local-first processing.
 """
 
+import hashlib
 import json
 import sys
 from pathlib import Path
-from typing import Any, TypedDict
+from typing import TypedDict
+
+try:
+    from hal_token_savvy_agent import filter_repo_for_llm
+except ImportError:
+    filter_repo_for_llm = None
 
 
 class FilterParams(TypedDict):
@@ -48,7 +54,6 @@ class TokenOptimizedAgent:
         self,
         goal: str,
         pattern: str | None = None,
-        **kwargs: Any,
     ) -> str | None:
         """
         Run HAL agents for local preprocessing (0 tokens used)
@@ -56,8 +61,9 @@ class TokenOptimizedAgent:
         print(f"🔍 HAL agents preprocessing: {goal}")
 
         try:
-            sys.path.insert(0, str(Path(__file__).parent))
-            from hal_token_savvy_agent import filter_repo_for_llm
+            if filter_repo_for_llm is None:
+                msg = "hal_token_savvy_agent module not available"
+                raise ImportError(msg)
 
             # Token-optimized defaults
             filter_params: FilterParams = {
@@ -81,7 +87,7 @@ class TokenOptimizedAgent:
             print("⚠️ HAL preprocessing: Insufficient content")
             return None
 
-        except Exception as e:
+        except (ImportError, OSError, RuntimeError) as e:
             print(f"❌ HAL preprocessing failed: {e}")
             return None
 
@@ -117,7 +123,6 @@ Estimated Savings: ~10,000+ tokens
 
     def get_cache_key(self, goal: str, pattern: str | None = None) -> str:
         """Generate cache key for repeated queries"""
-        import hashlib
 
         key_data = f"{goal}:{pattern or ''}"
         return hashlib.md5(
@@ -134,7 +139,7 @@ Estimated Savings: ~10,000+ tokens
                 print("📋 Using cached result (saved tokens)")
                 result: str | None = data.get("result")
                 return result
-            except Exception:
+            except (OSError, json.JSONDecodeError):
                 pass
         return None
 
@@ -145,7 +150,7 @@ Estimated Savings: ~10,000+ tokens
             data = {"result": result, "timestamp": str(Path().resolve())}
             cache_file.write_text(json.dumps(data, indent=2))
             print("💾 Result cached for future use")
-        except Exception:
+        except (OSError, TypeError):
             pass
 
     def analyze(
@@ -202,7 +207,8 @@ def main() -> int:
     if len(sys.argv) < 2:
         print("Usage: python token_optimized_agent.py <goal> [pattern]")
         print(
-            "Example: python token_optimized_agent.py 'authentication system' 'class.*Auth'",
+            "Example: python token_optimized_agent.py "
+            "'authentication system' 'class.*Auth'",
         )
         return 1
 
@@ -214,7 +220,7 @@ def main() -> int:
         result = agent.analyze(goal, pattern)
         print("\n" + result)
         return 0
-    except Exception as e:
+    except (ImportError, OSError, RuntimeError, ValueError) as e:
         print(f"❌ Analysis failed: {e}")
         return 1
 

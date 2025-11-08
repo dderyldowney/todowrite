@@ -222,7 +222,8 @@ class TestCLICommands(unittest.TestCase):
             result.output,
         )  # Table header should be present
 
-        # Just check that some key layers are in the output (handling table truncation)
+        # Just check that some key layers are in the output (handling table
+        # truncation)
         self.assertIn("Goal", result.output)
         self.assertIn("Task", result.output)
         self.assertIn("Command", result.output)
@@ -375,8 +376,8 @@ class TestCLICommands(unittest.TestCase):
                 "Test description",
             ],
         )
-        # Extract node ID from output like "Created Task: Test Task (ID: TSK-A58B86E71041)"
-        import re
+        # Extract node ID from output like
+        # "Created Task: Test Task (ID: TSK-A58B86E71041)"
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
@@ -418,8 +419,8 @@ class TestCLICommands(unittest.TestCase):
                 "Original description",
             ],
         )
-        # Extract node ID from output like "Created Task: Test Task (ID: TSK-A58B86E71041)"
-        import re
+        # Extract node ID from output like
+        # "Created Task: Test Task (ID: TSK-A58B86E71041)"
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
@@ -467,8 +468,8 @@ class TestCLICommands(unittest.TestCase):
                 "Test description",
             ],
         )
-        # Extract node ID from output like "Created Task: Test Task (ID: TSK-A58B86E71041)"
-        import re
+        # Extract node ID from output like
+        # "Created Task: Test Task (ID: TSK-A58B86E71041)"
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
@@ -503,8 +504,8 @@ class TestCLICommands(unittest.TestCase):
                 "Test description",
             ],
         )
-        # Extract node ID from output like "Created Task: Test Task (ID: TSK-A58B86E71041)"
-        import re
+        # Extract node ID from output like
+        # "Created Task: Test Task (ID: TSK-A58B86E71041)"
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
@@ -541,8 +542,8 @@ class TestCLICommands(unittest.TestCase):
                 "Description",
             ],
         )
-        # Extract node ID from output like "Created Task: Test Task (ID: TSK-A58B86E71041)"
-        import re
+        # Extract node ID from output like
+        # "Created Task: Test Task (ID: TSK-A58B86E71041)"
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
@@ -690,14 +691,16 @@ class TestCLICommands(unittest.TestCase):
         # List by owner
         result = self.runner.invoke(cli, ["list", "--owner", "developer1"])
         self.assertEqual(result.exit_code, 0)
-        # Due to table truncation, check for Task and ID pattern instead of full title
+        # Due to table truncation, check for Task and ID pattern instead
+        # of full title
         self.assertIn("Task", result.output)
         self.assertIn("TSK-", result.output)
         # Should not find Task 2
         self.assertNotIn("TSK-2", result.output)
 
     def test_status_update_command(self) -> None:
-        """Test status update functionality using update command instead of status update."""
+        """Test status update functionality using update command instead
+        of status update."""
         os.chdir(self.temp_dir)
         self.runner.invoke(cli, ["init"])
 
@@ -714,8 +717,8 @@ class TestCLICommands(unittest.TestCase):
                 "Description",
             ],
         )
-        # Extract node ID from output like "Created Task: Test Task (ID: TSK-A58B86E71041)"
-        import re
+        # Extract node ID from output like
+        # "Created Task: Test Task (ID: TSK-A58B86E71041)"
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
@@ -757,8 +760,8 @@ class TestCLICommands(unittest.TestCase):
                 "Description",
             ],
         )
-        # Extract node ID from output like "Created Task: Test Task (ID: TSK-A58B86E71041)"
-        import re
+        # Extract node ID from output like
+        # "Created Task: Test Task (ID: TSK-A58B86E71041)"
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
@@ -791,8 +794,8 @@ class TestCLICommands(unittest.TestCase):
                 "Description",
             ],
         )
-        # Extract node ID from output like "Created Task: Test Task (ID: TSK-A58B86E71041)"
-        import re
+        # Extract node ID from output like
+        # "Created Task: Test Task (ID: TSK-A58B86E71041)"
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
@@ -824,8 +827,8 @@ class TestCLICommands(unittest.TestCase):
                 "Description",
             ],
         )
-        # Extract node ID from output like "Created Task: Test Task (ID: TSK-A58B86E71041)"
-        import re
+        # Extract node ID from output like
+        # "Created Task: Test Task (ID: TSK-A58B86E71041)"
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
@@ -903,8 +906,10 @@ class TestCLICommands(unittest.TestCase):
             title_parts = title.split()
             for part in title_parts:
                 if part not in result.output:
-                    # If we can't find the full title, that's ok due to table truncation
-                    # The layer check above is sufficient to verify the node exists
+                    # If we can't find the full title, that's ok due to
+                    # table truncation
+                    # The layer check above is sufficient to verify the
+                    # node exists
                     break
 
         # Test global status with layer filter
@@ -913,7 +918,8 @@ class TestCLICommands(unittest.TestCase):
             ["status", "global-status", "--layer", "Task"],
         )
         self.assertEqual(result.exit_code, 0)
-        # Check for Task in the output and Task ID pattern rather than full title
+        # Check for Task in the output and Task ID pattern rather than
+        # full title
         self.assertIn("Task", result.output)
         self.assertIn("TSK-", result.output)
         # Filter should only show Task nodes, not Goal nodes
@@ -947,16 +953,19 @@ class TestCLICommands(unittest.TestCase):
             ["status", "global-status", "--layer", "TASK"],
         )
         self.assertEqual(result.exit_code, 0)
-        # Due to table truncation, check for Task and ID pattern instead of full title
+        # Due to table truncation, check for Task and ID pattern instead
+        # of full title
         self.assertIn("Task", result.output)
         self.assertIn("TSK-", result.output)
 
     def test_no_na_values_display(self) -> None:
-        """Test that no N/A values are displayed - all fields have proper defaults."""
+        """Test that no N/A values are displayed - all fields have
+        proper defaults."""
         os.chdir(self.temp_dir)
         self.runner.invoke(cli, ["init"])
 
-        # Create node with minimal information (no severity, work_type specified)
+        # Create node with minimal information
+        # (no severity, work_type specified)
         result = self.runner.invoke(
             cli,
             [
@@ -1001,7 +1010,8 @@ class TestCLICommands(unittest.TestCase):
         self.assertIn("Chore", result.output)  # Should show default work type
 
     def test_capitalization_display_rules(self) -> None:
-        """Test that all fields except owner are properly capitalized in display."""
+        """Test that all fields except owner are properly capitalized in
+        display."""
         os.chdir(self.temp_dir)
         self.runner.invoke(cli, ["init"])
 
@@ -1305,7 +1315,8 @@ metadata:
             ["delete", "invalid-id"],
             ["status", "complete", "invalid-id"],
             ["status", "show", "invalid-id"],
-            # This case actually succeeds with exit code 0, so remove it from error cases
+            # This case actually succeeds with exit code 0,
+            # so remove it from error cases
             [
                 "create",
                 "--layer",
@@ -1319,7 +1330,8 @@ metadata:
 
         for args in error_cases:
             result = self.runner.invoke(cli, args)
-            # CLI usage errors return exit code 2, application errors return exit code 1
+            # CLI usage errors return exit code 2,
+            # application errors return exit code 1
             self.assertIn(result.exit_code, [1, 2])
 
     def test_cli_with_custom_config(self) -> None:
@@ -1391,7 +1403,8 @@ class TestCLIErrorHandling(unittest.TestCase):
 
         for args in commands:
             result = self.runner.invoke(cli, args)
-            # Commands without init actually work (CLI auto-initializes), but invalid IDs still fail
+            # Commands without init actually work (CLI auto-initializes),
+            # but invalid IDs still fail
             if args[0] in ["get", "update"]:
                 self.assertEqual(result.exit_code, 1)  # Invalid node ID
             else:
@@ -1419,7 +1432,8 @@ class TestCLIErrorHandling(unittest.TestCase):
 
         for args in missing_args_cases:
             result = self.runner.invoke(cli, args)
-            # Most missing args return exit code 2, but update with invalid ID returns 1
+            # Most missing args return exit code 2,
+            # but update with invalid ID returns 1
             if args == ["update", "node_id"]:
                 self.assertEqual(result.exit_code, 1)  # Invalid node ID
             else:
@@ -1441,7 +1455,8 @@ class TestCLIErrorHandling(unittest.TestCase):
 
         for node_id in invalid_ids:
             result = self.runner.invoke(cli, ["get", node_id])
-            # Invalid node IDs should fail with exit code 1 (application error - node not found)
+            # Invalid node IDs should fail with exit code 1
+            # (application error - node not found)
             self.assertEqual(result.exit_code, 1)
 
 

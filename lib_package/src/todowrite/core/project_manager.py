@@ -1,7 +1,8 @@
 """
 Project Manager for ToDoWrite Utilities
 
-This module provides centralized project utility methods that replace individual scripts.
+This module provides centralized project utility methods that
+replace individual scripts.
 It separates core functionality from AI-specific features.
 """
 
@@ -13,6 +14,29 @@ import shutil
 from pathlib import Path
 from textwrap import dedent
 from typing import Any, cast
+
+from typing_extensions import TypedDict
+
+
+class OptimizationParams(TypedDict, total=False):
+    """Parameters for token optimization functions"""
+
+    text: str
+    context: str
+    model: str
+    max_tokens: int
+
+
+class OptimizationResult(TypedDict, total=False):
+    """Result from token optimization"""
+
+    optimized: bool
+    error: str
+    tokens_saved: int
+    original_tokens: int
+    optimized_tokens: int
+    optimization_ratio: float
+    strategies_used: list[str]
 
 
 class ProjectManager:
@@ -77,11 +101,13 @@ class ProjectManager:
 
         if primary_core != deprecated_core:
             print(
-                "❌ Deprecated schema has different core properties than primary!"
+                "❌ Deprecated schema has different core properties than "
+                "primary!"
             )
             print("This suggests someone modified the deprecated schema.")
             print(
-                "All schema changes should be made to the primary schema location."
+                "All schema changes should be made to the "
+                "primary schema location."
             )
             return False
 
@@ -133,10 +159,12 @@ class ProjectManager:
                 and primary_title != deprecated_title
             ):
                 print(
-                    "WARNING: Deprecated schema has different content than primary schema!"
+                    "WARNING: Deprecated schema has different content "
+                    "than primary schema!"
                 )
                 print(
-                    "This may indicate changes were made in the wrong location."
+                    "This may indicate changes were made in the "
+                    "wrong location."
                 )
                 print(f"Primary: {primary_title}")
                 print(f"Deprecated: {deprecated_title}")
@@ -146,7 +174,8 @@ class ProjectManager:
         print(f"Primary schema: {primary_schema}")
         if deprecated_schema.exists():
             print(
-                f"Deprecated schema: {deprecated_schema} (should not be modified)"
+                f"Deprecated schema: {deprecated_schema} "
+                "(should not be modified)"
             )
 
         return True
@@ -199,7 +228,8 @@ class ProjectManager:
         return dedent(
             """
         -- ToDoWrite PostgreSQL Initialization Script
-        -- This script sets up the ToDoWrite database with proper permissions and extensions
+        -- This script sets up the ToDoWrite database with proper
+        -- permissions and extensions
 
         -- Create additional users if needed
         -- CREATE USER todowrite_readonly WITH PASSWORD 'readonly_password';
@@ -214,7 +244,8 @@ class ProjectManager:
         -- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
         -- CREATE EXTENSION IF NOT EXISTS "pg_trgm";
 
-        -- Create indexes for better performance (will be created by SQLAlchemy migrations)
+        -- Create indexes for better performance (will be created by
+        -- SQLAlchemy migrations)
         -- This file can be extended with additional setup as needed
 
         -- Set default database settings for ToDoWrite
@@ -347,7 +378,14 @@ class ProjectManager:
             # ToDoWrite Configuration
 
             # Database Configuration
-            TODOWRITE_DATABASE_URL={"postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite" if db_type == "postgres" else "sqlite:///todowrite.db"}
+TODOWRITE_DATABASE_URL={
+                (
+                    "postgresql://todowrite:todowrite_dev_password@"
+                    "localhost:5432/todowrite"
+                )
+                if db_type == "postgres"
+                else "sqlite:///todowrite.db"
+            }
 
             # Optional: Log level
             LOG_LEVEL=INFO
@@ -409,7 +447,8 @@ class ProjectManager:
 
         ## ToDoWrite Integration
 
-        This project is integrated with ToDoWrite for hierarchical task management.
+        This project is integrated with ToDoWrite for hierarchical
+        task management.
 
         ### Setup Instructions
 
@@ -424,7 +463,8 @@ class ProjectManager:
         python -m todowrite init
 
         # Create your first goal
-        python -m todowrite create --id GOAL-PROJECT-VISION --layer Goal --title "Project Vision"
+        python -m todowrite create --id GOAL-PROJECT-VISION --layer Goal \
+            --title "Project Vision"
         ```
         """
         ).strip()
@@ -503,7 +543,8 @@ class ProjectManager:
 
 
 class _AIOptimizationManager:
-    """Internal AI optimization features - not exposed to users without AI access."""
+    """Internal AI optimization features - not exposed to users
+    without AI access."""
 
     def __init__(self) -> None:
         self.cache_dir = Path.home() / ".todowrite_cache"
@@ -531,7 +572,7 @@ class _AIOptimizationManager:
 
             try:
                 # Try Anthropic
-                import anthropic
+                import anthropic  # type: ignore
 
                 # Use Anthropic's token counting
                 encoder = anthropic.HUMAN_PROMPT + text + anthropic.AI_PROMPT
@@ -547,8 +588,24 @@ class _AIOptimizationManager:
         return token_counts
 
     def optimize_token_usage(
-        self, _: str, **kwargs: Any
-    ) -> dict[str, Any] | None:
+        self, goal: str, **kwargs: OptimizationParams
+    ) -> OptimizationResult | None:
+        """
+        Internal AI token optimization.
+        Only works if AI dependencies are available.
+        """
+        text = cast("str", kwargs.get("text", ""))
+        if not text:
+            return None
+        return self._optimize_token_usage_internal(goal, text, **kwargs)
+
+    def ensure_token_sage(self) -> bool:
+        """Internal check for token-sage availability."""
+        return self._ai_available
+
+    def _optimize_token_usage_internal(
+        self, goal: str, text: str, **kwargs: OptimizationParams
+    ) -> OptimizationResult | None:
         """
         Internal method for token optimization.
         Analyzes text and provides optimization suggestions.
@@ -557,23 +614,32 @@ class _AIOptimizationManager:
         if not self._ai_available:
             return None
 
-        # Get the text to optimize from kwargs
-        text_to_optimize = kwargs.get("text", "")
+        # Validate text input
+        if not text:
+            return None
+
+        text_to_optimize = text
         if not text_to_optimize:
-            return {
-                "optimized": False,
-                "error": "No text provided for optimization",
-                "tokens_saved": 0,
-            }
+            return cast(
+                "OptimizationResult",
+                {
+                    "optimized": False,
+                    "error": "No text provided for optimization",
+                    "tokens_saved": 0,
+                },
+            )
 
         # Get original token counts
         original_counts = self._get_token_counts(text_to_optimize)
         if not original_counts:
-            return {
-                "optimized": False,
-                "error": "Could not count tokens",
-                "tokens_saved": 0,
-            }
+            return cast(
+                "OptimizationResult",
+                {
+                    "optimized": False,
+                    "error": "Could not count tokens",
+                    "tokens_saved": 0,
+                },
+            )
 
         # Apply optimization strategies
         optimization_strategies = []
@@ -604,7 +670,8 @@ class _AIOptimizationManager:
                 count = optimized_text.count(phrase)
                 optimized_text = optimized_text.replace(phrase, replacement)
                 optimization_strategies.append(
-                    f"Replaced {count} instances of '{phrase}' with '{replacement}'"
+                    f"Replaced {count} instances of '{phrase}' "
+                    f"with '{replacement}'"
                 )
                 optimizations_applied.append("phrase_optimization")
 
@@ -620,7 +687,8 @@ class _AIOptimizationManager:
 
         if len(optimized_lines) < len(lines):
             optimization_strategies.append(
-                f"Removed {len(lines) - len(optimized_lines)} empty/comment lines"
+                f"Removed {len(lines) - len(optimized_lines)} "
+                "empty/comment lines"
             )
             optimizations_applied.append("line_trimming")
 
@@ -655,19 +723,7 @@ class _AIOptimizationManager:
                 "Text is already well-optimized"
             ]
 
-        return result
-
-    def ensure_token_sage(self) -> bool:
-        """
-        Internal method to ensure token-sage is loaded.
-        Only works if AI components are available.
-        """
-        if not self._ai_available:
-            return False
-
-        # Implementation would go here
-        print("🚀 Token-sage loaded successfully")
-        return True
+        return cast("OptimizationResult", result)
 
 
 # Create instance for public use
@@ -709,7 +765,9 @@ def init_database_sql() -> str:
 
 
 # Public AI optimization functions
-def optimize_token_usage(goal: str, **kwargs: Any) -> dict[str, Any] | None:
+def optimize_token_usage(
+    goal: str, **kwargs: OptimizationParams
+) -> OptimizationResult | None:
     """
     Public function for token optimization.
     Returns None if AI dependencies are not available.

@@ -4,24 +4,156 @@ Hal Agent Loop - v2: local-filter-first + token guard + delta mode.
 
 What's new:
 - Token/char gate before API call (hard stop if over budget).
-- Delta-aware prompts: if local snippet unchanged, we send a tiny "no changes" marker.
+- Delta-aware prompts: if local snippet unchanged, we send a tiny "no"
+  "changes" marker.
 - Small, directive system prompt to save tokens.
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
 import os
+import subprocess
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING
+
+try:
+    from openai import OpenAI
+except ImportError:
+    OpenAI = None
+
+try:
+    import anthropic
+except ImportError:
+    anthropic = None
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
 # Removed circular import - function is implemented in this file
 
-# ---------- Repository Filtering -----------------------------------------------
+# ---------- Repository Filtering -------------------------------------------
+
+
+def _get_cached_result(hash_input: str, delta_mode: bool) -> str | None:
+    """Get cached result if available."""
+    if not delta_mode:
+        return None
+
+    hash_digest = hashlib.md5(
+        hash_input.encode(), usedforsecurity=False
+    ).hexdigest()
+    cache_file = Path.home() / ".hal_cache" / f"{hash_digest}.txt"
+
+    if cache_file.exists():
+        try:
+            cached_result = cache_file.read_text()
+            if cached_result:
+                return f"[CACHED] {cached_result}"
+        except (OSError, UnicodeDecodeError):
+            pass
+    return None
+
+
+def _build_ripgrep_cmd(
+    pattern: str | None,
+    context_lines: int,
+    per_file_max_lines: int,
+    max_file_size: int,
+    include_globs: list[str] | None,
+    exclude_globs: list[str] | None,
+) -> list[str]:
+    """Build ripgrep command with all options."""
+    cmd = [
+        "rg",
+        "-n",
+        "--max-count",
+        str(per_file_max_lines),
+        "-A",
+        str(context_lines),
+        "-B",
+        str(context_lines),
+        pattern or ".",
+        "--type",
+        "py",
+    ]
+
+    cmd.extend(["--max-filesize", str(max_file_size)])
+
+    if include_globs:
+        for glob in include_globs:
+            cmd.extend(["--glob", glob])
+    if exclude_globs:
+        for glob in exclude_globs:
+            cmd.extend(["--glob", f"!{glob}"])
+
+    return cmd
+
+
+def _process_line(
+    line: str,
+    json_filter: str | None,
+    abbreviate_paths: bool,
+) -> str | None:
+    """Process a single line of output."""
+    if not line.strip():
+        return None
+
+    # Apply JSON filtering if specified
+    if json_filter and "{" in line and "}" in line:
+        try:
+            json_data = json.loads(
+                line[line.find("{") : line.rfind("}") + 1],
+            )
+            if json_filter not in str(json_data):
+                return None
+        except (json.JSONDecodeError, ValueError):
+            pass
+
+    # Abbreviate paths if requested
+    if abbreviate_paths and ":" in line:
+        parts = line.split(":", 1)
+        if len(parts) == 2:
+            path = parts[0]
+            path_parts = path.split("/")
+            if len(path_parts) > 3:
+                path = "/".join(["...", *path_parts[-2:]])
+            return f"{path}:{parts[1]}"
+
+    return line
+
+
+def _should_stop_processing(
+    max_files: int,
+    max_hits: int,
+    max_bytes: int,
+    files_processed: int,
+    hits_found: int,
+    total_bytes: int,
+) -> bool:
+    """Check if processing should stop based on limits."""
+    return (
+        (max_files > 0 and files_processed >= max_files)
+        or (max_hits > 0 and hits_found >= max_hits)
+        or (total_bytes >= max_bytes)
+    )
+
+
+def _cache_result(hash_input: str, output: str) -> None:
+    """Cache the result for delta mode."""
+    try:
+        hash_digest = hashlib.md5(
+            hash_input.encode(), usedforsecurity=False
+        ).hexdigest()
+        cache_file = Path.home() / ".hal_cache" / f"{hash_digest}.txt"
+        cache_file.parent.mkdir(parents=True, exist_ok=True)
+        cache_file.write_text(output)
+    except (OSError, json.JSONDecodeError):
+        pass
 
 
 def filter_repo_for_llm(
@@ -46,12 +178,13 @@ def filter_repo_for_llm(
     This function searches through files and returns a compact snippet
     optimized for LLM context windows with comprehensive filtering options.
     """
-    import hashlib
-    import json
-    import subprocess
-    from pathlib import Path
-
     roots = roots or ["."]
+    hash_input = f"{goal}_{pattern}_{roots!s}"
+
+    # Check cache first
+    cached = _get_cached_result(hash_input, delta_mode)
+    if cached:
+        return cached
 
     # Initialize counters and limits
     files_processed = 0
@@ -59,23 +192,147 @@ def filter_repo_for_llm(
     hits_found = 0
     result_lines = []
 
-    # Delta mode: Check for cached results
-    cache_file = (
-        Path.home()
-        / ".hal_cache"
-        / f"{hashlib.md5(f'{goal}_{pattern}_{roots!s}'.encode(), usedforsecurity=False).hexdigest()}.txt"
-    )
-    if delta_mode and cache_file.exists():
-        try:
-            cached_result = cache_file.read_text()
-            if cached_result:
-                return f"[CACHED] {cached_result}"
-        except Exception:
-            pass  # Fall through to normal processing
+    # Calculate max file size
+    if max_files > 0:
+        max_file_size = min(
+            max(1024 * 1024, max_bytes // max_files),
+            10 * 1024 * 1024,
+        )
+    else:
+        max_file_size = 1024 * 1024
 
-    # Simple grep/rg search for pattern with full parameter implementation
+    # Try ripgrep search first
     try:
-        # Use ripgrep if available, otherwise fall back to grep
+        # Build ripgrep command
+        cmd = _build_ripgrep_cmd(
+            pattern,
+            context_lines,
+            per_file_max_lines,
+            max_file_size,
+            include_globs,
+            exclude_globs,
+        )
+
+        # Execute search
+        result = subprocess.run(
+            cmd, check=False, capture_output=True, text=True, cwd=roots[0]
+        )
+
+        # Process results
+        if result.returncode == 0:
+            lines = result.stdout.split("\n")
+
+            for line in lines:
+                # Check limits early
+                if _should_stop_processing(
+                    max_files,
+                    max_hits,
+                    max_bytes,
+                    files_processed,
+                    hits_found,
+                    total_bytes,
+                ):
+                    break
+
+                # Process individual line
+                processed_line = _process_line(
+                    line, json_filter, abbreviate_paths
+                )
+                if processed_line is None:
+                    continue
+
+                result_lines.append(processed_line)
+                total_bytes += len(line.encode("utf-8"))
+                hits_found += 1
+
+                if ":" in processed_line:
+                    files_processed += 1
+
+            # Format output and cache result
+            output = "\n".join(result_lines)
+            if len(output) > llm_snippet_chars:
+                output = output[:llm_snippet_chars] + "\n...[truncated]"
+
+            if delta_mode:
+                _cache_result(hash_input, output)
+
+            return output
+
+        return f"No matches found for pattern: {pattern}"
+
+    except FileNotFoundError:
+        # Try grep as fallback with full parameter support
+        try:
+            cmd = [
+                "grep",
+                "-r",
+                "-n",
+                "-A",
+                str(context_lines),
+                "-B",
+                str(context_lines),
+                pattern or ".",
+                "--include=*.py",
+            ]
+
+            result = subprocess.run(
+                cmd,
+                check=False,
+                capture_output=True,
+                text=True,
+                cwd=roots[0],
+            )
+
+            if result.returncode == 0:
+                lines = result.stdout.split("\n")
+
+                for line in lines:
+                    if not line.strip():
+                        continue
+
+                    # Apply same limits and filtering as above
+                    if _should_stop_processing(
+                        max_files,
+                        max_hits,
+                        max_bytes,
+                        files_processed,
+                        hits_found,
+                        total_bytes,
+                    ):
+                        break
+
+                    # Process individual line
+                    processed_line = _process_line(
+                        line, json_filter, abbreviate_paths
+                    )
+                    if processed_line is None:
+                        continue
+
+                    result_lines.append(processed_line)
+                    total_bytes += len(line.encode("utf-8"))
+                    hits_found += 1
+
+                output = "\n".join(result_lines)
+
+                if len(output) > llm_snippet_chars:
+                    output = output[:llm_snippet_chars] + "\n...[truncated]"
+
+                return output
+            return f"No matches found for pattern: {pattern}"
+
+        except FileNotFoundError:
+            # Final fallback with parameter information
+            info_parts = [
+                "Repository filtering not available. "
+                "Please install ripgrep or grep.",
+            ]
+            info_parts.append(f"Goal: {goal}")
+            info_parts.append(f"Pattern: {pattern}")
+            info_parts.append(f"Max files: {max_files}")
+            info_parts.append(f"Max hits: {max_hits}")
+            info_parts.append(f"Max bytes: {max_bytes}")
+            info_parts.append(f"Delta mode: {delta_mode}")
+            return "\n".join(info_parts)
         cmd = [
             "rg",
             "-n",
@@ -132,12 +389,14 @@ def filter_repo_for_llm(
                 # Apply JSON filtering if specified
                 if json_filter:
                     try:
-                        # Simple JSON filtering - look for lines containing JSON
+                        # Simple JSON filtering - look for lines
+                        # containing JSON
                         if "{" in line and "}" in line:
                             json_data = json.loads(
                                 line[line.find("{") : line.rfind("}") + 1],
                             )
-                            # Apply simple jq-like filter (basic implementation)
+                            # Apply simple jq-like filter
+                            # (basic implementation)
                             if json_filter and json_filter not in str(
                                 json_data,
                             ):
@@ -154,9 +413,9 @@ def filter_repo_for_llm(
                         path_parts = path.split("/")
                         if len(path_parts) > 3:
                             path = "/".join(["...", *path_parts[-2:]])
-                        line = f"{path}:{parts[1]}"
+                        formatted_line = f"{path}:{parts[1]}"
 
-                result_lines.append(line)
+                result_lines.append(formatted_line)
                 total_bytes += len(line.encode("utf-8"))
                 hits_found += 1
 
@@ -172,80 +431,13 @@ def filter_repo_for_llm(
 
             # Cache result for delta mode
             if delta_mode:
-                try:
-                    cache_file.parent.mkdir(parents=True, exist_ok=True)
-                    cache_file.write_text(output)
-                except Exception:
-                    pass  # Cache writing failed, but that's ok
+                _cache_result(hash_input, output)
 
             return output
         return f"No matches found for pattern: {pattern}"
 
-    except FileNotFoundError:
-        # Try grep as fallback with full parameter support
-        try:
-            cmd = [
-                "grep",
-                "-r",
-                "-n",
-                "-A",
-                str(context_lines),
-                "-B",
-                str(context_lines),
-                pattern or ".",
-                "--include=*.py",
-            ]
 
-            result = subprocess.run(
-                cmd,
-                check=False,
-                capture_output=True,
-                text=True,
-                cwd=roots[0],
-            )
-
-            if result.returncode == 0:
-                lines = result.stdout.split("\n")
-
-                for line in lines:
-                    if not line.strip():
-                        continue
-
-                    # Apply same limits and filtering as above
-                    if max_files > 0 and files_processed >= max_files:
-                        break
-                    if max_hits > 0 and hits_found >= max_hits:
-                        break
-                    if total_bytes >= max_bytes:
-                        break
-
-                    result_lines.append(line)
-                    total_bytes += len(line.encode("utf-8"))
-                    hits_found += 1
-
-                output = "\n".join(result_lines)
-
-                if len(output) > llm_snippet_chars:
-                    output = output[:llm_snippet_chars] + "\n...[truncated]"
-
-                return output
-            return f"No matches found for pattern: {pattern}"
-
-        except FileNotFoundError:
-            # Final fallback with parameter information
-            info_parts = [
-                "Repository filtering not available. Please install ripgrep or grep.",
-            ]
-            info_parts.append(f"Goal: {goal}")
-            info_parts.append(f"Pattern: {pattern}")
-            info_parts.append(f"Max files: {max_files}")
-            info_parts.append(f"Max hits: {max_hits}")
-            info_parts.append(f"Max bytes: {max_bytes}")
-            info_parts.append(f"Delta mode: {delta_mode}")
-            return "\n".join(info_parts)
-
-
-# ---------- Providers -----------------------------------------------------------
+# ---------- Providers -------------------------------------------------------
 
 
 class LLMProvider:
@@ -268,7 +460,9 @@ class OpenAIProvider(LLMProvider):
         model: str,
         max_tokens: int = 800,
     ) -> str:
-        from openai import OpenAI  # lazy import
+        if OpenAI is None:
+            msg = "OpenAI package not installed"
+            raise ImportError(msg)
 
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
@@ -297,7 +491,9 @@ class AnthropicProvider(LLMProvider):
         model: str,
         max_tokens: int = 800,
     ) -> str:
-        import anthropic
+        if anthropic is None:
+            msg = "Anthropic package not installed"
+            raise ImportError(msg)
 
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
@@ -317,26 +513,29 @@ class AnthropicProvider(LLMProvider):
         return "\n".join(parts).strip()
 
 
-# ---------- Prompts -------------------------------------------------------------
+# ---------- Prompts ---------------------------------------------------------
 
 # Short+directive system prompt (token-cheap)
 BASE_SYSTEM_PROMPT = (
-    "You are Hal, a terse, precise coding assistant. Prefer the given snippet. "
+    "You are Hal, a terse, precise coding assistant. "
+    "Prefer the given snippet. "
     "Answer in short steps. If uncertain, state assumptions briefly."
 )
 
 
 def build_user_prompt(user_goal: str, local_snippet: str) -> str:
-    # Keep this extremely compact; structure helps the model with minimal tokens.
+    # Keep this extremely compact; structure helps the model
+    # with minimal tokens.
     return (
         f"Goal: {user_goal}\n"
         "Context:\n"
         f"{local_snippet}\n"
-        "Instruction: Use the context first. Return only the next steps, code, or diffs."
+        "Instruction: Use the context first. Return only the next "
+        "steps, code, or diffs."
     )
 
 
-# ---------- Guards --------------------------------------------------------------
+# ---------- Guards -----------------------------------------------------------
 
 
 def _enforce_char_budget(text: str, max_chars: int) -> None:
@@ -350,7 +549,7 @@ def _enforce_char_budget(text: str, max_chars: int) -> None:
         )
 
 
-# ---------- Main ----------------------------------------------------------------
+# ---------- Main -----------------------------------------------------------
 
 
 def should_run_local_tools(pattern: str | None, jq_filter: str | None) -> bool:
