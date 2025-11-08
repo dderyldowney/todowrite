@@ -118,7 +118,11 @@ def get_postgresql_candidates() -> list[str]:
 
     # Docker container detection
     docker_path = shutil.which("docker")
-    if docker_path and os.path.isabs(docker_path) and os.path.exists(docker_path):
+    if (
+        docker_path
+        and os.path.isabs(docker_path)
+        and os.path.exists(docker_path)
+    ):
         try:
             # Validate docker path is safe (absolute path and executable)
             docker_args = [

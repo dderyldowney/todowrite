@@ -4,6 +4,8 @@ ToDoWrite Command Stub Generator (tw_stub_command.py)
 Generates executable command stubs from Acceptance Criteria
 """
 
+from __future__ import annotations
+
 import argparse
 import sys
 from pathlib import Path

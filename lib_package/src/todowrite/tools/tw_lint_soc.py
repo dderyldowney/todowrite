@@ -4,18 +4,20 @@ ToDoWrite Separation of Concerns Linter (tw_lint_soc.py)
 Ensures layers 1-11 are non-executable and only layer 12 (Command) contains executable content
 """
 
+from __future__ import annotations
+
 import argparse
 import re
 import sys
 from pathlib import Path
-from typing import ClassVar, TypeAlias, cast
+from typing import Any, ClassVar, cast
 
 import yaml
 
 # Type aliases for YAML data structures
-YAMLValue: TypeAlias = str | int | float | bool | None
-YAMLObject: TypeAlias = dict[str, YAMLValue | list[YAMLValue] | "YAMLObject"]
-YAMLData: TypeAlias = YAMLValue | list[YAMLValue | YAMLObject] | YAMLObject
+YAMLValue = str | int | float | bool | None
+YAMLObject = dict[str, Any]
+YAMLData = YAMLValue | list[YAMLValue | YAMLObject] | YAMLObject
 
 
 # pyright: ignore [reportUnknownVariableType, reportUnknownArgumentType, reportUnknownMemberType]
