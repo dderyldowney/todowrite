@@ -1,0 +1,106 @@
+# RUFF configuration for ToDoWrite Web Frontend (Python tooling)
+# RUFF replaces: black, isort, flake8, bandit
+
+# Line length (shorter for frontend code)
+line-length = 100
+
+# Target Python version (for build scripts, tests, etc.)
+target-version = "py312"
+
+# Exclude patterns
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    "node_modules",
+    ".venv",
+    ".env",
+    "*.egg-info",
+    # Frontend specific
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.js",
+    "src/**/*.jsx",
+    "public",
+    "coverage",
+    ".next",
+    ".nuxt",
+    ".output",
+]
+
+# Per-file ignores
+[lint.per-file-ignores]
+# Build scripts and Python tools can have different rules
+"scripts/**/*.py" = ["E501", "F401"]
+# Tests can have longer lines and unused imports
+"tests/**/*.py" = ["E501", "F401"]
+# __init__.py files can have unused imports
+"__init__.py" = ["F401"]
+
+# Select rules and rules to ignore
+[lint]
+# Enable rules relevant to frontend Python tooling
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # flake8-comprehensions
+    "C4",
+    # flake8-unused-arguments
+    "ARG",
+    # flake8-implicit-str-concat
+    "ISC",
+    # flake8-return
+    "RET",
+    # flake8-import-conventions
+    "ICN",
+    # flake8-pie
+    "PIE",
+    # flake8-quotes
+    "Q",
+    # flake8-debugger
+    "T10",
+    # flake8-raise
+    "RSE",
+    # flake8-tidy-imports
+    "TID",
+    # flake8-type-checking
+    "TCH",
+    # flake8-executable
+    "EXE",
+    # Security rules (replaces bandit)
+    "S",
+]
+
+ignore = [
+    # Allow longer lines for readability in frontend context
+    "E501",
+    # Allow unused variables when they start with underscore
+    "F841",
+]
+
+# Import sorting configuration
+[lint.isort]
+known-first-party = ["build_tools", "scripts"]
+known-third-party = ["pytest", "selenium", "requests"]
+split-on-trailing-comma = true
+
+# Format configuration
+[format]
+# Use double quotes for strings (consistent with JavaScript/TypeScript)
+quote-style = "double"
+# Use spaces for indentation
+indent-style = "space"
+# Line ending
+line-ending = "auto"
+
+# Security configuration (S rules replace bandit)
+# Hardcoded passwords and weak crypto are checked by default S rules

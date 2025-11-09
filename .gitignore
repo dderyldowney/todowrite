@@ -159,6 +159,7 @@ tests/test_token_usage_temp.db-wal
 todowrite/__pycache__/
 # ToDoWrite database files
 todowrite.db
+development_todowrite.db
 *.db
 
 # ToDoWrite configuration and generated files
