@@ -98,6 +98,7 @@ ignore = [
     "ANN001", # missing-type-function-argument
     "ANN002", # missing-type-argument
     "ANN003", # missing-type-kwargs
+    "ANN101", # missing-type-self (first argument of method)
     "ANN201", # missing-return-type-public-function
     "ANN202", # missing-return-type-private-function
     "ANN204", # missing-return-type-static-method

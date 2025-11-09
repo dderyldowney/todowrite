@@ -358,7 +358,7 @@ TODOWRITE_STORAGE_PREFERENCE="sqlite_only"
 ### Development Standards
 - All tests must use real implementations (no mocking)
 - 100% test pass rate required
-- Static analysis compliance (MyPy, Ruff)
+- Static analysis compliance (Ruff for linting and formatting)
 - Comprehensive schema validation
 - Clear documentation for new features
 
