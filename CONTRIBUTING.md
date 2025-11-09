@@ -81,9 +81,36 @@ We follow standard Python best practices and enforce code formatting:
 
 ## Release Process
 
-**📖 For the complete, detailed release process, see [docs/RELEASE_WORKFLOW.md](docs/RELEASE_WORKFLOW.md)**
+### 🚀 Automated Release (Recommended)
 
-The release process for ToDoWrite involves the following steps:
+**For a fully automated release, use the new release script:**
+
+```bash
+# Cut a specific release (e.g., 0.4.2)
+./scripts/release.sh 0.4.2
+
+# Cut a patch release (0.4.1 → 0.4.2)
+./scripts/release.sh patch
+
+# Preview a release without making changes
+./scripts/release.sh patch --dry-run
+```
+
+**Just say "cut a 0.4.2 release" and any agent will know to run `./scripts/release.sh 0.4.2`**
+
+The automated script handles the entire process:
+- ✅ Prerequisites checks (tests, linting, git status)
+- ✅ Version bumping with README/fallback updates
+- ✅ Git operations (merge, tag, push)
+- ✅ GitHub release creation
+- ✅ Package building and publishing to TestPyPI & PyPI
+- ✅ Error handling with rollback capabilities
+
+### 📖 Manual Process (Deprecated)
+
+**📖 For the complete manual release process, see [docs/RELEASE_WORKFLOW.md](docs/RELEASE_WORKFLOW.md)**
+
+The manual release process involves the following steps:
 
 1.  **Feature Freeze**: All new features are merged into the `develop` branch.
 2.  **Testing**: Comprehensive testing is performed on the `develop` branch.

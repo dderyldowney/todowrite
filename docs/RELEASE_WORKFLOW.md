@@ -2,6 +2,41 @@
 
 This document provides the **complete, step-by-step process** for releasing ToDoWrite from development to production (GitHub, TestPyPI, and PyPI).
 
+## ⚡ QUICK START: Automated Release (Recommended)
+
+**For a fully automated release, use the new release script:**
+
+```bash
+# Cut a specific release (e.g., 0.4.2)
+./scripts/release.sh 0.4.2
+
+# Cut a patch release (0.4.1 → 0.4.2)
+./scripts/release.sh patch
+
+# Cut a minor release (0.4.1 → 0.5.0)
+./scripts/release.sh minor
+
+# Preview a release without making changes
+./scripts/release.sh patch --dry-run
+```
+
+The automated script handles the entire process:
+- ✅ Prerequisites checks (tests, linting, git status)
+- ✅ Version bumping with README/fallback updates
+- ✅ Git operations (merge, tag, push)
+- ✅ GitHub release creation
+- ✅ Package building and publishing to TestPyPI & PyPI
+- ✅ Returns to develop branch
+- ✅ Error handling with rollback capabilities
+
+**Just say "cut a 0.4.2 release" and any agent will know to run `./scripts/release.sh 0.4.2`**
+
+---
+
+## 🚨 MANUAL PROCESS (DEPRECATED)
+
+**The following manual steps are provided for reference only. Use the automated script above.**
+
 ## 📋 Prerequisites Checklist
 
 Before starting any release, verify:
@@ -11,6 +46,8 @@ Before starting any release, verify:
 - [ ] You're on develop branch: `git branch` should show `* develop`
 - [ ] Develop is up to date: `git pull origin develop`
 - [ ] No uncommitted changes: `git status` should be clean
+
+**Note:** The automated script (`./scripts/release.sh`) handles all these checks automatically.
 
 ---
 

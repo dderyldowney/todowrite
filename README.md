@@ -270,6 +270,23 @@ Each layer uses a specific ID prefix for easy identification:
 ### CLI Documentation
 - **[CLI Reference](cli_package/README.md)**: Complete CLI command reference and examples
 
+## 🚀 Quick Release (For Maintainers)
+
+**To cut a new release, simply run:**
+
+```bash
+# Cut a specific release (e.g., 0.4.2)
+./scripts/release.sh 0.4.2
+
+# Cut a patch release automatically
+./scripts/release.sh patch
+
+# Preview what would happen
+./scripts/release.sh patch --dry-run
+```
+
+The automated script handles the entire process from version bump to PyPI publishing. Just say "cut a 0.4.2 release" and any agent will know what to run!
+
 ## 🤝 Contributing
 
 We welcome contributions to ToDoWrite! Please see our [Contributing Guidelines](CONTRIBUTING.md) for more information.
