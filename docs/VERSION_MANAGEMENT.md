@@ -30,6 +30,7 @@ The ToDoWrite project uses a **single source of truth** architecture for version
 - **Purpose**: Enhanced automated version bumping with proper synchronization
 - **Key Features**:
   - **README Badge Updates**: Automatically updates README.md version badges
+  - **Fallback Version Updates**: Updates fallback versions in package version.py files
   - **Verification System**: `--verify-only` flag to check current status
   - **Dry Run Mode**: `--dry-run` flag to preview changes
   - **Incremental Bumps**: `patch/minor/major` keywords
@@ -40,6 +41,7 @@ The ToDoWrite project uses a **single source of truth** architecture for version
 - Explicit version setting
 - Dry-run mode for testing
 - README.md badge automatic updates
+- Package fallback version automatic updates
 - Verification system (`--verify-only`)
 - Automatic synchronization between VERSION file and shared_version.py
 
@@ -88,6 +90,51 @@ print(f"Current version: {current}")
 
 # Sync after manual VERSION file edit
 sync_version()
+```
+
+## Fallback Version Management
+
+### What are Fallback Versions?
+
+Each package (`lib_package` and `cli_package`) contains fallback version definitions in their `version.py` files. These fallbacks are used when the central `shared_version.py` file is not available (e.g., during standalone testing or development).
+
+### Automatic Fallback Updates
+
+The enhanced `bump_version.py` script automatically updates fallback versions in:
+
+- `lib_package/src/todowrite/version.py`
+- `cli_package/src/todowrite_cli/version.py`
+
+### Fallback Version Structure
+
+```python
+# Package version.py files have this structure:
+if (project_root / "shared_version.py").exists():
+    sys.path.insert(0, str(project_root))
+    from shared_version import __author__, __email__, __version__
+else:
+    # Fallback for when shared_version.py is not available
+    __version__ = "0.4.1"  # <-- This gets updated automatically
+    __author__ = "D Deryl Downey"
+    __email__ = "dderyldowney@gmail.com"
+```
+
+### Why Fallback Updates Matter
+
+1. **Consistency**: Ensures fallbacks match the actual version
+2. **Development**: Standalone testing works with correct version
+3. **Build Safety**: Prevents version mismatches during package builds
+4. **Merge Conflicts**: Prevents "unknown" version issues during branch merging
+
+### Verification
+
+```bash
+# Test fallback updates with dry run
+python scripts/bump_version.py --dry-run patch
+
+# Check current fallback versions
+grep -n "__version__ = " lib_package/src/todowrite/version.py
+grep -n "__version__ = " cli_package/src/todowrite_cli/version.py
 ```
 
 ## Workflow Examples
