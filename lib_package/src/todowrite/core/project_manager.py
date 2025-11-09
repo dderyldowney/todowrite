@@ -342,7 +342,11 @@ class ProjectManager:
 
     def _setup_postgres_docker(self, project_path: Path) -> bool:
         """Set up PostgreSQL using Docker Compose."""
-        template_path = Path(__file__).parent.parent / "docker-compose.yml"
+        template_path = (
+            Path(__file__).parent.parent.parent.parent
+            / "tests"
+            / "docker-compose.yml"
+        )
         target_path = project_path / "docker-compose.todowrite.yml"
 
         if template_path.exists():

@@ -17,6 +17,18 @@ We welcome contributions to ToDoWrite! By following these guidelines, you can he
     git checkout -b bugfix/issue-description
     ```
 4.  **Set up Development Environment**:
+
+    **Option A: Using uv (Recommended)**
+    ```bash
+    # Install dependencies and packages using uv
+    uv sync
+
+    # Install both packages in development mode
+    uv pip install -e "./lib_package[dev]"
+    uv pip install -e "./cli_package[dev]"
+    ```
+
+    **Option B: Using pip**
     ```bash
     # Install both packages in development mode
     pip install -e "./lib_package[dev]"
@@ -25,6 +37,8 @@ We welcome contributions to ToDoWrite! By following these guidelines, you can he
     # Or run the provided setup script
     ./setup_dev.sh
     ```
+
+    **Note**: uv is our recommended package manager for faster dependency installation and better dependency resolution.
 5.  **Make Your Changes**: Implement your feature or fix the bug. Ensure your code adheres to the project's [Code Style](#code-style) and includes comprehensive [Testing](#testing) and [Documentation](#documentation).
 6.  **Run Tests**: Before submitting, run all tests to ensure your changes haven't introduced any regressions.
     ```bash
@@ -63,9 +77,7 @@ We follow standard Python best practices and enforce code formatting:
 *   **Modern union syntax**: Use `|` instead of `typing.Union`.
 *   **SQLAlchemy 2.0 patterns**: Adhere to the latest SQLAlchemy conventions.
 *   **Dataclasses**: Prefer dataclasses for data modeling where appropriate.
-*   **Black**: Code is formatted using [Black](https://github.com/psf/black).
-*   **isort**: Imports are sorted using [isort](https://pycqa.github.io/isort/).
-*   **Ruff**: Code is linted using [Ruff](https://beta.ruff.rs/docs/).
+*   **Ruff**: Code is linted and formatted using [Ruff](https://docs.astral.sh/ruff/), which provides both fast linting and formatting in a single tool.
 
 ## Release Process
 

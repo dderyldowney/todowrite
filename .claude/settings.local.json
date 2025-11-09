@@ -172,15 +172,20 @@
       "Bash(TODOWRITE_DATABASE_URL=\"sqlite:///tmp/manual_test.db\" PYTHONPATH=\"lib_package/src:cli_package/src\" python:*)",
       "Bash(PYTHONPATH=\"lib_package/src:cli_package/src\" python -c:*)",
       "Bash(PYTHONPATH=\"lib_package/src:cli_package/src\" mypy lib_package/src/todowrite --ignore-missing-imports)",
-      "mcp__plugin_episodic-memory_episodic-memory__search",
-      "Skill(episodic-memory:remembering-conversations)",
       "Bash(ruff:*)",
       "Bash(PYTHONPATH=\"lib_package/src:cli_package/src\" ruff rule:*)",
       "Bash(PYTHONPATH=lib_package/src:cli_package/src python:*)",
       "Bash(./run_token_tools.sh:*)",
       "Bash(./.claude/session_init.sh:*)",
       "Read(//Users/dderyldowney/.claude/**)",
-      "Bash(python3 .claude/session_startup.py:*)"
+      "Bash(python3 .claude/session_startup.py:*)",
+      "Bash(docker-compose config:*)",
+      "Bash(uv:*)",
+      "Bash(PYTHONPATH=\"lib_package/src:cli_package/src\" python -m todowrite_cli:*)",
+      "Bash(PYTHONPATH=\"lib_package/src:cli_package/src\" todowrite:*)",
+      "Bash(TODOWRITE_DATABASE_URL=\"sqlite:///development_todowrite.db\" PYTHONPATH=\"lib_package/src:cli_package/src\" python:*)",
+      "Bash(bash:*)",
+      "Bash(TODOWRITE_DATABASE_URL=\"sqlite:///development_todowrite.db\" PYTHONPATH=\"lib_package/src:cli_package/src\" python -m todowrite_cli create:*)"
     ],
     "deny": [],
     "ask": []

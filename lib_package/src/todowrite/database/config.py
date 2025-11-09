@@ -309,7 +309,7 @@ def get_setup_guidance() -> str:
 📋 SQLite detected (database fallback)
 
    To use PostgreSQL (recommended):
-   1. Run: docker-compose up -d postgres
+   1. Run: cd tests && docker-compose up -d postgres
    2. Optional: export TODOWRITE_DATABASE_URL=postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite
    3. Restart application (will auto-detect PostgreSQL)
         """.strip()
@@ -320,7 +320,7 @@ def get_setup_guidance() -> str:
    Database connections failed, using YAML files for storage.
 
    To use database storage:
-   1. For PostgreSQL: docker-compose up -d postgres
+   1. For PostgreSQL: cd tests && docker-compose up -d postgres
    2. For SQLite: Ensure write permissions in current directory
    3. Check: python -m todowrite db-status
         """.strip()
@@ -330,7 +330,7 @@ def get_setup_guidance() -> str:
 ❌ Storage configuration error
 
    To resolve:
-   1. Try: docker-compose up -d postgres (PostgreSQL)
+   1. Try: cd tests && docker-compose up -d postgres (PostgreSQL)
    2. Or: ensure current directory is writable (SQLite)
    3. Or: set TODOWRITE_STORAGE_PREFERENCE=yaml_only (YAML fallback)
         """.strip()
