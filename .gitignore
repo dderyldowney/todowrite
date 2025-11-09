@@ -24,6 +24,9 @@ share/python-wheels/
 .installed.cfg
 *.egg
 
+# ruff cache
+.ruff_cache/
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
