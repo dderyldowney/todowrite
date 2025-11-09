@@ -85,6 +85,10 @@ select = [
     "TCH", # type-checking
     "ANN", # type annotations
 ]
+ignore = [
+    "ANN101",  # Missing type annotation for self in method (deprecated)
+    "ANN102",  # Missing type annotation for cls in classmethod (deprecated)
+]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = [
@@ -96,6 +100,9 @@ select = [
     "ARG001",  # Unused function argument
     "ARG002",  # Unused method argument
     "S301",    # pickle can execute arbitrary code
+    "ANN101",  # Missing type annotation for self in method (deprecated)
+    "ANN102",  # Missing type annotation for cls in classmethod (deprecated)
+    "E501",    # Line too long (existing test files)
 ]
 
 [tool.ruff.format]

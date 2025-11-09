@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import pytest
+
 from todowrite.tools.tw_lint_soc import main as lint_main
 from todowrite.tools.tw_stub_command import main as stub_main
 from todowrite.tools.tw_trace import main as trace_main

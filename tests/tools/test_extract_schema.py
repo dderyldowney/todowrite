@@ -5,6 +5,7 @@ import tempfile
 from pathlib import Path
 
 import pytest
+
 from todowrite.tools.extract_schema import extract_and_write_schema
 
 

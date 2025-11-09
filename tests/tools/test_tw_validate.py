@@ -6,6 +6,7 @@ import tempfile
 from pathlib import Path
 
 import pytest
+
 from todowrite.tools.tw_validate import ToDoWriteValidator
 
 
