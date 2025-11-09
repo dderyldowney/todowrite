@@ -42,6 +42,108 @@ def format_version(major: int, minor: int, patch: int) -> str:
     return f"{major}.{minor}.{patch}"
 
 
+def update_readme_badges(
+    current_version: str, new_version: str, dry_run: bool = False
+) -> None:
+    """Update version badges in README.md file."""
+    readme_path = Path(__file__).parent.parent / "README.md"
+
+    if not readme_path.exists():
+        print(f"⚠️ README.md not found at {readme_path}")
+        return
+
+    try:
+        readme_content = readme_path.read_text(encoding="utf-8")
+        original_content = readme_content
+
+        # Update version badge
+        readme_content = re.sub(
+            r"\[!\[Version [^\]]*\]\([^\)]*\)\]\([^\)]*\)",
+            f"[![Version {new_version}](https://img.shields.io/badge/version-{new_version}-green.svg)](https://github.com/dderyldowney/todowrite)",
+            readme_content,
+        )
+
+        # Update PyPI todowrite badge
+        readme_content = re.sub(
+            r"\[!\[PyPI\]\([^\)]*todowrite-[^\)]*\)\]\([^\)]*\)",
+            f"[![PyPI](https://img.shields.io/badge/todowrite-{new_version}-blue.svg)](https://pypi.org/project/todowrite/)",
+            readme_content,
+        )
+
+        # Update PyPI todowrite-cli badge
+        readme_content = re.sub(
+            r"\[!\[PyPI CLI\]\([^\)]*todowrite--cli-[^\)]*\)\]\([^\)]*\)",
+            f"[![PyPI CLI](https://img.shields.io/badge/todowrite--cli-{new_version}-blue.svg)](https://pypi.org/project/todowrite-cli/)",
+            readme_content,
+        )
+
+        # Check if any changes were made
+        if readme_content != original_content:
+            if dry_run:
+                print("🔍 DRY RUN - README.md changes:")
+                # Show what would change
+                changes = []
+                lines_original = original_content.split("\n")
+                lines_new = readme_content.split("\n")
+                for i, (old, new) in enumerate(
+                    zip(lines_original, lines_new, strict=False)
+                ):
+                    if old != new:
+                        changes.append(f"Line {i+1}: {old.strip()}")
+                        changes.append(f"Line {i+1}: {new.strip()}")
+                for change in changes:
+                    print(f"  {change}")
+            else:
+                readme_path.write_text(readme_content, encoding="utf-8")
+                print(f"✅ Updated README.md badges to version {new_version}")
+        else:
+            print(
+                f"No README.md updates needed "
+                f"(version {current_version} not found)"
+            )
+
+    except (OSError, UnicodeDecodeError) as e:
+        print(f"⚠️ Error updating README.md: {e}")
+
+
+def verify_readme_versions(expected_version: str) -> bool:
+    """Verify that README.md badges contain the expected version."""
+    readme_path = Path(__file__).parent.parent / "README.md"
+
+    if not readme_path.exists():
+        print(f"⚠️ README.md not found at {readme_path}")
+        return False
+
+    try:
+        readme_content = readme_path.read_text(encoding="utf-8")
+
+        # Check for version in badges
+        version_patterns = [
+            rf"version-{re.escape(expected_version)}",
+            rf"todowrite-{re.escape(expected_version)}-blue\.svg",
+            rf"todowrite--cli-{re.escape(expected_version)}-blue\.svg",
+        ]
+
+        missing_patterns = []
+        for pattern in version_patterns:
+            if not re.search(pattern, readme_content):
+                missing_patterns.append(pattern)
+
+        if missing_patterns:
+            print(
+                f"❌ README.md missing version {expected_version} in badges:"
+            )
+            for pattern in missing_patterns:
+                print(f"  - Pattern not found: {pattern}")
+            return False
+        print(f"✅ README.md badges correctly show version {expected_version}")
+        return True
+
+    except (OSError, UnicodeDecodeError) as e:
+        print(f"⚠️ Error verifying README.md: {e}")
+        return False
+
+
 def bump_version_type(current: str, bump_type: str) -> str:
     """Bump version by type (patch, minor, major)."""
     major, minor, patch = parse_version(current)
@@ -64,10 +166,11 @@ def bump_version_type(current: str, bump_type: str) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Bump version in VERSION file"
+        description="Bump version in VERSION file and README.md badges"
     )
     parser.add_argument(
         "new_version",
+        nargs="?",
         help="New version (X.Y.Z) or bump type (patch, minor, major)",
     )
     parser.add_argument(
@@ -75,13 +178,28 @@ def main() -> int:
         action="store_true",
         help="Show what would be changed without making changes",
     )
+    parser.add_argument(
+        "--verify-only",
+        action="store_true",
+        help="Only verify current README.md versions without updating",
+    )
 
     args = parser.parse_args()
+
+    # Validate arguments
+    if not args.verify_only and not args.new_version:
+        parser.error("new_version is required when not using --verify-only")
 
     try:
         # Get current version
         current_version = get_version()
         print(f"Current version: {current_version}")
+
+        # Handle verify-only mode
+        if args.verify_only:
+            print("🔍 Verifying README.md versions...")
+            verify_readme_versions(current_version)
+            return 0
 
         # Determine new version
         if args.new_version in ["patch", "minor", "major"]:
@@ -96,17 +214,37 @@ def main() -> int:
             new_version = args.new_version
             print(f"Setting version: {current_version} → {new_version}")
 
+        print("\n📋 Checking README.md badges...")
+        verify_readme_versions(current_version)
+
         if args.dry_run:
-            print("🔍 DRY RUN - No changes made")
+            print("\n🔍 DRY RUN - No changes made")
+            update_readme_badges(current_version, new_version, dry_run=True)
             return 0
 
-        # Update VERSION file
+        print(f"\n📝 Updating files to version {new_version}...")
+
+        # Update README.md badges FIRST (before VERSION file)
+        print("🔄 Updating README.md badges...")
+        update_readme_badges(current_version, new_version, dry_run=False)
+
+        # Update VERSION file LAST
+        print("🔄 Updating VERSION file...")
         version_file = Path(__file__).parent.parent / "VERSION"
         version_file.write_text(f"{new_version}\n", encoding="utf-8")
         print(f"✅ Updated VERSION file to {new_version}")
 
-        # Show current state
+        # Verify the updates
+        print("\n✅ Verifying updates...")
         print(f"✅ Verified: get_version() returns {get_version()}")
+        verify_readme_versions(new_version)
+
+        print(
+            f"\nSuccessfully bumped version from {current_version} "
+            f"→ {new_version}"
+        )
+        print("💡 Both VERSION file and README.md badges have been updated")
+        print("📝 Files are ready for git commit")
 
         return 0
 
