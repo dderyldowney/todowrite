@@ -27,29 +27,41 @@ The ToDoWrite project uses a **single source of truth** architecture for version
 
 ### 3. scripts/bump_version.py
 - **Location**: `./scripts/bump_version.py`
-- **Purpose**: Automated version bumping with proper synchronization
-- **Features**:
-  - Semantic version bumping (patch, minor, major)
-  - Explicit version setting
-  - Dry-run mode for testing
-  - Automatic synchronization between VERSION file and shared_version.py
+- **Purpose**: Enhanced automated version bumping with proper synchronization
+- **Key Features**:
+  - **README Badge Updates**: Automatically updates README.md version badges
+  - **Verification System**: `--verify-only` flag to check current status
+  - **Dry Run Mode**: `--dry-run` flag to preview changes
+  - **Incremental Bumps**: `patch/minor/major` keywords
+  - **Comprehensive Reporting**: Detailed output of all changes
+
+### Enhanced Features
+- Semantic version bumping (patch, minor, major)
+- Explicit version setting
+- Dry-run mode for testing
+- README.md badge automatic updates
+- Verification system (`--verify-only`)
+- Automatic synchronization between VERSION file and shared_version.py
 
 ## Usage
 
 ### Method 1: Automated Version Bumping (Recommended)
 
 ```bash
-# Bump patch version (0.3.1 → 0.3.2)
+# Check current version status
+python scripts/bump_version.py --verify-only
+
+# Bump patch version (0.4.0 → 0.4.1)
 python scripts/bump_version.py patch
 
-# Bump minor version (0.3.1 → 0.4.0)
+# Bump minor version (0.4.0 → 0.5.0)
 python scripts/bump_version.py minor
 
-# Bump major version (0.3.1 → 1.0.0)
+# Bump major version (0.4.0 → 1.0.0)
 python scripts/bump_version.py major
 
 # Set specific version
-python scripts/bump_version.py 1.2.3
+python scripts/bump_version.py 0.4.1
 
 # Dry run to preview changes
 python scripts/bump_version.py --dry-run patch
