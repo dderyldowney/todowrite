@@ -11,9 +11,26 @@
 
 ## 🚀 Installation
 
-### Library + CLI (Recommended)
+### Using uv (Recommended)
 
-Install both the core library and CLI interface:
+Install both the core library and CLI interface using uv:
+
+```bash
+# Install core library
+uv add todowrite
+
+# Install CLI interface (requires todowrite library)
+uv add todowrite-cli
+
+# For PostgreSQL support
+uv add 'todowrite[postgres]'
+uv add 'todowrite-cli[postgres]'
+
+# Quick install (all-in-one)
+uv add todowrite todowrite-cli
+```
+
+### Using pip
 
 ```bash
 # Install core library
@@ -25,11 +42,8 @@ pip install todowrite-cli
 # For PostgreSQL support
 pip install 'todowrite[postgres]'
 pip install 'todowrite-cli[postgres]'
-```
 
-### Quick Install (All-in-One)
-
-```bash
+# Quick install (all-in-one)
 pip install todowrite todowrite-cli
 ```
 
@@ -51,12 +65,16 @@ If you want to contribute or modify the code:
 git clone https://github.com/dderyldowney/todowrite.git
 cd todowrite
 
-# Install development environment
-./setup_dev.sh
+# Install development environment using uv (recommended)
+uv sync --dev
 
-# Or install manually
+# Or install development environment using pip
 pip install -e "./lib_package[dev]"
 pip install -e "./cli_package[dev]"
+pip install -e "./web_package[dev]"
+
+# Run setup script (handles both uv and pip)
+./setup_dev.sh
 ```
 
 ### Requirements

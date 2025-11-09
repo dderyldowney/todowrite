@@ -1,8 +1,8 @@
 """
 YAML Import/Export Manager for ToDoWrite
 
-This module handles importing YAML to database and exporting database content to YAML.
-It supports the database-first approach with YAML as fallback.
+This module handles importing YAML to database and exporting database content
+to YAML. It supports the database-first approach with YAML as fallback.
 """
 
 from __future__ import annotations
@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 import jsonschema
 import yaml
+from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from ..core.constants import (
@@ -139,8 +140,6 @@ class YAMLManager:
         """Get all existing node IDs from the database."""
         try:
             with self.app.get_db_session() as session:
-                from sqlalchemy import select
-
                 from ..database.models import Node as DBNode
 
                 stmt = select(DBNode.id)
@@ -393,17 +392,13 @@ class YAMLManager:
             print("✅ All YAML files are already in the database")
             return
 
-        print(
-            f"📥 Found {len(sync_status['yaml_only'])} YAML files not in database"
-        )
+        print(f"📥 Found {len(sync_status['yaml_only'])} YAML files not in DB")
 
         # Import only the missing files
         results = self.import_yaml_files(force=False, dry_run=False)
 
         print(
-            f"✅ Auto-import completed: {results['total_imported']} files imported"
+            f"✅ Auto-import completed: {results['total_imported']} files done"
         )
         if results["errors"]:
-            print(
-                f"⚠️  {len(results['errors'])} errors occurred during auto-import"
-            )
+            print(f"⚠️  {len(results['errors'])} errors in auto-import")

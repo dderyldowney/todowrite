@@ -386,8 +386,6 @@ class ToDoWrite:
             )
             db_nodes = session.execute(stmt).unique().scalars().all()
             # Use defaultdict for more efficient dictionary building
-            from collections import defaultdict
-
             nodes: dict[str, list[Node]] = defaultdict(list)
             for db_node in db_nodes:
                 node = self._convert_db_node_to_node(db_node)
@@ -507,8 +505,6 @@ class ToDoWrite:
         all_nodes = self.get_all_nodes()
 
         if format.lower() == "yaml":
-            import yaml
-
             nodes_list: list[dict[str, Any]] = []
             for _layer, nodes in all_nodes.items():
                 for node in nodes:
@@ -516,8 +512,6 @@ class ToDoWrite:
             return yaml.dump(nodes_list, default_flow_style=False)
 
         elif format.lower() == "json":
-            import json
-
             nodes_dict = {}
             for layer, nodes in all_nodes.items():
                 nodes_dict[layer] = [node.to_dict() for node in nodes]
@@ -528,11 +522,6 @@ class ToDoWrite:
 
     def import_nodes(self: ToDoWrite, file_path: str) -> dict[str, Any]:
         """Import nodes from a file."""
-        import json
-        from pathlib import Path
-
-        import yaml
-
         path = Path(file_path)
         if not path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
@@ -1139,16 +1128,14 @@ def link_nodes(
     db_url: str, parent_id: str, child_id: str, _: dict[str, Any] | None = None
 ) -> bool:
     """Link two nodes together in the database."""
-    from sqlalchemy import create_engine
-    from sqlalchemy.orm import Session
+    from ..database.models import Link as DBLink
+    from ..database.models import Node as DBNode
 
     engine = create_engine(db_url)
     session = Session(engine)
 
     try:
         # Get both nodes
-        from ..database.models import Link as DBLink
-        from ..database.models import Node as DBNode
 
         parent_node = session.execute(
             select(DBNode).where(DBNode.id == parent_id)

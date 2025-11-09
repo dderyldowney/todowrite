@@ -21,18 +21,20 @@ We welcome contributions to ToDoWrite! By following these guidelines, you can he
     **Option A: Using uv (Recommended)**
     ```bash
     # Install dependencies and packages using uv
-    uv sync
+    uv sync --dev
 
-    # Install both packages in development mode
-    uv pip install -e "./lib_package[dev]"
-    uv pip install -e "./cli_package[dev]"
+    # This installs all three packages in development mode:
+    # - lib_package
+    # - cli_package
+    # - web_package
     ```
 
     **Option B: Using pip**
     ```bash
-    # Install both packages in development mode
+    # Install all packages in development mode
     pip install -e "./lib_package[dev]"
     pip install -e "./cli_package[dev]"
+    pip install -e "./web_package[dev]"
 
     # Or run the provided setup script
     ./setup_dev.sh
