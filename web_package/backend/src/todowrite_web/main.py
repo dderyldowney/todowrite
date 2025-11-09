@@ -6,7 +6,6 @@ This is the main entry point for the ToDoWrite web backend.
 
 from __future__ import annotations
 
-from typing import Dict
 
 from fastapi import FastAPI
 
@@ -18,12 +17,12 @@ app: FastAPI = FastAPI(
 
 
 @app.get("/")
-async def root() -> Dict[str, str]:
+async def root() -> dict[str, str]:
     """Root endpoint for health check."""
     return {"message": "ToDoWrite Web API is running"}
 
 
 @app.get("/health")
-async def health_check() -> Dict[str, str]:
+async def health_check() -> dict[str, str]:
     """Health check endpoint."""
     return {"status": "healthy", "service": "todowrite-web"}
