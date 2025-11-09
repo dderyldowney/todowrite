@@ -1,0 +1,36 @@
+{
+  "github.copilot.chat.provider": "anthropic",
+  "github.copilot.chat.models": [
+    "anthropic/glm-4.5-air",
+    "anthropic/glm-4.6"
+  ],
+  "github.copilot.enable": {
+    "*": true,
+    "yaml": true,
+    "python": true,
+    "plaintext": true,
+    "markdown": true
+  },
+  "python.defaultInterpreterPath": "./.venv/bin/python",
+  "python.terminal.activateEnvironment": true,
+  "python.terminal.activateInCurrentTerminal": true,
+  "editor.rulers": [
+    79
+  ],
+  "editor.wordWrap": "bounded",
+  "editor.wordWrapColumn": 79,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  "problems.showCurrentInStatus": true,
+  "terminal.integrated.env.osx": {
+    "PYTHONPATH": "${workspaceFolder}"
+  },
+  "terminal.integrated.env.linux": {
+    "PYTHONPATH": "${workspaceFolder}"
+  },
+  "terminal.integrated.env.windows": {
+    "PYTHONPATH": "${workspaceFolder}"
+  }
+}

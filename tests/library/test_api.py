@@ -8,9 +8,8 @@ and usage patterns for developers using the library as a Python package.
 import unittest
 from pathlib import Path
 
-from todowrite.core.app import link_nodes, unlink_nodes
-
 from todowrite import Node, ToDoWrite
+from todowrite.core.app import link_nodes, unlink_nodes
 
 
 class TestCoreAPI(unittest.TestCase):

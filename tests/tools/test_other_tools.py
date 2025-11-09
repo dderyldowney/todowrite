@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import pytest
+
 from todowrite.tools.tw_lint_soc import main as lint_main
 from todowrite.tools.tw_stub_command import main as stub_main
 from todowrite.tools.tw_trace import main as trace_main
@@ -79,9 +80,9 @@ class TestToolsIntegration:
 
         for module_name in expected_modules:
             module_path = tools_dir / module_name
-            assert module_path.exists(), (
-                f"Expected module {module_name} not found"
-            )
+            assert (
+                module_path.exists()
+            ), f"Expected module {module_name} not found"
 
     def test_tools_modules_are_python_files(self):
         """Test that tools modules are valid Python files"""
@@ -94,6 +95,4 @@ class TestToolsIntegration:
                     "import" in content
                     or "from" in content
                     or "def" in content
-                ), (
-                    f"Tool file {tool_file.name} doesn't appear to be a valid Python module"
-                )
+                ), f"Tool file {tool_file.name} doesn't appear to be a valid Python module"
