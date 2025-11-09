@@ -6,7 +6,6 @@ This is the main entry point for the ToDoWrite web backend.
 
 from __future__ import annotations
 
-
 from fastapi import FastAPI
 
 app: FastAPI = FastAPI(
