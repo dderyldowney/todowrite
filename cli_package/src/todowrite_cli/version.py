@@ -15,7 +15,7 @@ if (project_root / "shared_version.py").exists():
     from shared_version import __author__, __email__, __version__
 else:
     # Fallback for when shared_version.py is not available
-    __version__ = "unknown"
+    __version__ = "0.4.1"
     __author__ = "D Deryl Downey"
     __email__ = "dderyldowney@gmail.com"
 
