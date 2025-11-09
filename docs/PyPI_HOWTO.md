@@ -99,51 +99,59 @@ todowrite --version
 
 ## Publishing Process
 
-### Step 1: Publish to TestPyPI (Recommended First)
+**📖 For complete release workflow, see [RELEASE_WORKFLOW.md](RELEASE_WORKFLOW.md)**
+
+This project uses an **automated publishing script** that handles the complete publishing workflow.
+
+### Automated Publishing (Recommended)
 ```bash
-# Build both packages
-cd lib_package
-python -m hatchling build
+# Publish to TestPyPI with clean build
+./scripts/publish.sh test clean
 
-# Upload to TestPyPI
-twine upload --repository testpypi dist/*
-
-cd ../cli_package
-python -m hatchling build
-twine upload --repository testpypi dist/*
+# After verification, publish to production PyPI
+./scripts/publish.sh prod clean
 ```
 
-### Step 2: Verify TestPyPI Installation
-```bash
-# Install and test from TestPyPI
-pip install --index-url https://test.pypi.org/simple/ todowrite
-pip install --index-url https://test.pypi.org/simple/ todowrite-cli
+### What the Automated Script Does
+1. ✅ **Builds both packages** (lib_package and cli_package)
+2. ✅ **Cleans build artifacts** before building
+3. ✅ **Verifies package integrity** with twine check
+4. ✅ **Uploads to specified repository** (TestPyPI or PyPI)
+5. ✅ **Provides detailed logging** throughout the process
 
-# Test functionality
+### Manual Publishing (Legacy)
+For manual control or troubleshooting, you can publish manually:
+
+```bash
+# TestPyPI First
+cd lib_package && python -m hatchling build
+twine upload --repository testpypi dist/*
+cd ../cli_package && python -m hatchling build
+twine upload --repository testpypi dist/*
+
+# Production PyPI (after TestPyPI verification)
+cd lib_package && twine upload dist/*
+cd ../cli_package && twine upload dist/*
+```
+
+### Verify Installation
+```bash
+# TestPyPI verification
+pip install --index-url https://test.pypi.org/simple/ todowrite==0.4.0
+pip install --index-url https://test.pypi.org/simple/ todowrite-cli==0.4.0
+todowrite --help
+
+# Production PyPI verification
+pip install todowrite==0.4.0 todowrite-cli==0.4.0
 todowrite --help
 python -c "from todowrite import ToDoWrite; print('Library imported successfully')"
 ```
 
-### Step 3: Publish to Production PyPI
-```bash
-# Switch ~/.pypirc to use production API key
-# Uncomment the pypi section and comment out testpypi
+---
 
-# Build both packages
-cd lib_package
-python -m hatchling build
+## Publishing Tools Reference
 
-# Upload to Production PyPI
-twine upload dist/*
-
-cd ../cli_package
-python -m hatchling build
-twine upload dist/*
-```
-
-## Automated Publishing with Hatch
-
-### Using Hatch Publish Command
+### Hatch Publishing (Alternative Method)
 ```bash
 # For the library package
 cd lib_package
