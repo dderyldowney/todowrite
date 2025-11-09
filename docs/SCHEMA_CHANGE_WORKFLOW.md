@@ -2,192 +2,507 @@
 
 ## Overview
 
-This document establishes the standard workflow for making schema changes in the ToDoWrite project. **All schema changes must be made against the new package-integrated schema location** to ensure consistency and proper distribution.
+This document establishes the standard workflow for making changes to the ToDoWrite JSON schema and database models. All schema changes must follow this workflow to ensure consistency, backward compatibility, and proper testing.
 
-## Primary Schema Location
+## Current Schema Architecture
 
-### ✅ **Current Schema Location (PRIMARY)**
+### JSON Schema Location
 ```bash
-todowrite/schemas/todowrite.schema.json
+lib_package/src/todowrite/core/schemas/todowrite.schema.json
 ```
 
-### ❌ **Deprecated Schema Location (LEGACY)**
+### Database Models Location
 ```bash
-configs/schemas/todowrite.schema.json
+lib_package/src/todowrite/database/models.py
+```
+
+### Type Definitions Location
+```bash
+lib_package/src/todowrite/core/types.py
 ```
 
 ## Schema Change Workflow
 
-### Step 1: Edit the Package Schema
-All schema modifications must be made to the package schema:
-```bash
-# Edit the primary schema file
-vim todowrite/schemas/todowrite.schema.json
-```
+### Step 1: Design the Change
 
-### Step 2: Update Schema Export
-The schema is automatically exported through the package. No manual export needed.
+Before implementing any schema change, answer these questions:
 
-### Step 3: Test Package Import
-Verify the schema can be imported correctly:
+1. **What is the purpose of this change?**
+   - New feature requirement
+   - Bug fix in validation
+   - Performance optimization
+   - Data integrity improvement
+
+2. **What is the impact?**
+   - Breaking change (requires migration)
+   - Additive change (backward compatible)
+   - Validation change only
+   - Internal model change only
+
+3. **What testing is needed?**
+   - Unit tests for new validation rules
+   - Integration tests with existing data
+   - Migration tests (if applicable)
+   - Performance impact assessment
+
+### Step 2: Update Type Definitions
+
+If changing core data structures, update `lib_package/src/todowrite/core/types.py`:
+
 ```python
-# Test in Python
-import todowrite
-schema = todowrite.TODOWRITE_SCHEMA
-print(f"Schema loaded: {len(schema)} properties")
+# Example: Adding a new metadata field
+@dataclass
+class Metadata:
+    owner: str = ""
+    labels: list[str] = field(default_factory=list)
+    severity: str = "low"
+    work_type: str = "chore"
+    assignee: str = ""
+    priority: str = "medium"  # NEW: Add priority field
+
+    def __post_init__(self) -> None:
+        # Validation logic for new field
+        valid_priorities = ["low", "medium", "high", "urgent"]
+        if self.priority not in valid_priorities:
+            raise ValueError(f"Invalid priority: {self.priority}")
 ```
 
-### Step 4: Run Validation Tests
-```bash
-# Test CLI validation
-todowrite validate
+### Step 3: Update Database Models
 
-# Test if needed
-python -c "
-import todowrite
-from jsonschema import validate
-test_node = {
-    'id': 'TEST-001',
-    'layer': 'Goal',
-    'title': 'Test',
-    'description': 'Test node',
-    'links': {'parents': [], 'children': []}
+If changing the database schema, update `lib_package/src/todowrite/database/models.py`:
+
+```python
+class Node(Base):
+    """Represents a node in the ToDoWrite system."""
+
+    __tablename__ = "nodes"
+
+    # Existing fields...
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    layer: Mapped[str] = mapped_column(String, nullable=False)
+    # ... other existing fields
+
+    # NEW: Add priority field
+    priority: Mapped[str] = mapped_column(String, default="medium")
+```
+
+### Step 4: Update JSON Schema
+
+Update `lib_package/src/todowrite/core/schemas/todowrite.schema.json`:
+
+```json
+{
+  "title": "ToDoWrite Node",
+  "type": "object",
+  "required": ["id", "layer", "title", "description", "links"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^(GOAL|CON|CTX|CST|R|AC|IF|PH|STP|TSK|SUB|CMD)-[A-Za-z0-9_-]+$"
+    },
+    "layer": {
+      "type": "string",
+      "enum": ["Goal", "Concept", "Context", "Constraints", "Requirements", "AcceptanceCriteria", "InterfaceContract", "Phase", "Step", "Task", "SubTask", "Command"]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "owner": {"type": "string"},
+        "labels": {"type": "array", "items": {"type": "string"}},
+        "severity": {"type": "string", "enum": ["low", "medium", "high", "critical"]},
+        "work_type": {"type": "string", "enum": ["architecture", "spec", "interface", "validation", "implementation", "development", "docs", "ops", "refactor", "chore", "test"]},
+        "assignee": {"type": "string"},
+        "priority": {"type": "string", "enum": ["low", "medium", "high", "urgent"], "default": "medium"}  // NEW
+      }
+    }
+    // ... other properties
+  }
 }
-validate(instance=test_node, schema=todowrite.TODOWRITE_SCHEMA)
-print('Validation successful!')
-"
 ```
 
-## Development Tools
+### Step 5: Add Tests
 
-### Schema Generation
-The `extract_schema.py` tool now generates to the package location:
-```bash
-# Generate schema from documentation
-python todowrite/tools/extract_schema.py
-# Output: todowrite/schemas/todowrite.schema.json
-```
+Create comprehensive tests for the schema change:
 
-### Schema Validation
-The `tw_validate.py` tool now uses package schema by default:
-```bash
-# Validate using package schema
-python todowrite/tools/tw_validate.py
-
-# Legacy location fallback (automatic if package not available)
-python todowrite/tools/tw_validate.py --schema configs/schemas/todowrite.schema.json
-```
-
-## Automated Checks
-
-### Pre-commit Hook
-Add this check to `.pre-commit-config.yaml`:
-```yaml
-- repo: local
-  hooks:
-    - id: schema-check
-      name: Ensure schema changes are in package location
-      entry: todowrite utils check-schema
-      language: system
-      pass_filenames: true
-      always_run: true
-```
-
-### CI/CD Pipeline
-Add to GitHub Actions or similar CI:
-```yaml
-- name: Validate Schema Location
-  run: |
-    # Check that primary schema exists and is not empty
-    if [ ! -f "todowrite/schemas/todowrite.schema.json" ]; then
-      echo "ERROR: Primary schema file not found!"
-      exit 1
-    fi
-    # Check deprecated schema doesn't have new changes
-    todowrite utils check-deprecated
-```
-
-## Change Tracking
-
-### Version Control Pattern
-```bash
-# When making schema changes, commit with message format:
-git commit -m "feat(schema): Add new validation property
-
-- Add 'severity' field to metadata section
-- Update validation rules for Command layer
-- Ensure backward compatibility
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)"
-```
-
-### Change Log Entry
-```markdown
-## [0.1.7.0] - 2025-10-29
-
-### Added
-- New validation property: metadata.severity (enum: low, med, high)
-- Enhanced command layer validation
-- Improved error messages for validation failures
-```
-
-## Migration Guide Updates
-
-When making schema changes, update relevant documentation:
-- `SCHEMA_MIGRATION_GUIDE.md` - Add migration notes
-- `DEPRECATED.md` - Update deprecation timeline if needed
-- Any API documentation that references schema changes
-
-## Common Pitfalls to Avoid
-
-### ❌ **Don't Edit Deprecated Location**
-```bash
-# WRONG - Do not edit:
-vim configs/schemas/todowrite.schema.json
-```
-
-### ✅ **Do Edit Package Location**
-```bash
-# CORRECT - Edit package schema:
-vim todowrite/schemas/todowrite.schema.json
-```
-
-### ❌ **Don't Update Old References**
-- Tools should not reference deprecated schema location
-- Documentation should point to new import method
-
-### ✅ **Use Package Import**
 ```python
-# CORRECT - Use package import:
-import todowrite
-schema = todowrite.TODOWRITE_SCHEMA
+# tests/test_schema_changes.py
+import pytest
+from jsonschema import validate
+from todowrite.schema import TODOWRITE_SCHEMA
+
+class TestSchemaChanges:
+    """Test schema validation with new priority field"""
+
+    def test_valid_priority_values(self):
+        """Test that all valid priority values are accepted"""
+        for priority in ["low", "medium", "high", "urgent"]:
+            node_data = {
+                "id": "TEST-PRIORITY-001",
+                "layer": "Task",
+                "title": "Test Priority",
+                "description": "Test priority validation",
+                "links": {"parents": [], "children": []},
+                "metadata": {"priority": priority}
+            }
+
+            # Should not raise an exception
+            validate(instance=node_data, schema=TODOWRITE_SCHEMA)
+
+    def test_invalid_priority_value(self):
+        """Test that invalid priority values are rejected"""
+        node_data = {
+            "id": "TEST-PRIORITY-002",
+            "layer": "Task",
+            "title": "Test Priority",
+            "description": "Test priority validation",
+            "links": {"parents": [], "children": []},
+            "metadata": {"priority": "invalid"}  # Invalid priority
+        }
+
+        with pytest.raises(Exception) as exc_info:
+            validate(instance=node_data, schema=TODOWRITE_SCHEMA)
+
+        assert "priority" in str(exc_info.value)
+
+    def test_default_priority(self):
+        """Test that priority defaults to medium when not specified"""
+        node_data = {
+            "id": "TEST-PRIORITY-003",
+            "layer": "Task",
+            "title": "Test Priority",
+            "description": "Test priority default",
+            "links": {"parents": [], "children": []},
+            "metadata": {}  # No priority specified
+        }
+
+        # Should be valid (defaults to medium)
+        validate(instance=node_data, schema=TODOWRITE_SCHEMA)
 ```
 
-## Testing Checklist
+### Step 6: Update Migration Scripts
 
-Before committing schema changes:
-- [ ] Can schema be imported via `todowrite.TODOWRITE_SCHEMA`?
-- [ ] Does `todowrite validate` work correctly?
-- [ ] Are existing YAML files still valid?
-- [ ] Does the CLI work with new schema?
-- [ ] Are validation tests passing?
+If database schema changed, update migration procedures:
 
-## Emergency Procedures
+```python
+# scripts/migrations/add_priority_field.py
+from todowrite import ToDoWrite
+import sqlalchemy as sa
 
-### If Schema Breaks
-1. **Immediate Fix**: Edit `todowrite/schemas/todowrite.schema.json`
-2. **Test**: Import and validate with `todowrite.TODOWRITE_SCHEMA`
-3. **Document**: Add fix notes to change log
-4. **Communicate**: Notify team of breaking changes
+def add_priority_field(database_url):
+    """Add priority field to existing nodes table"""
 
-### Rollback Procedure
-1. **Revert to previous package schema**:
+    tdw = ToDoWrite(database_url)
+
+    with tdw.get_engine().connect() as conn:
+        # Check if column exists
+        inspector = sa.inspect(tdw.get_engine())
+        columns = [col['name'] for col in inspector.get_columns('nodes')]
+
+        if 'priority' not in columns:
+            # Add the column
+            conn.execute(
+                sa.text("ALTER TABLE nodes ADD COLUMN priority VARCHAR DEFAULT 'medium'")
+            )
+
+            # Set default value for existing records
+            conn.execute(
+                sa.text("UPDATE nodes SET priority = 'medium' WHERE priority IS NULL")
+            )
+
+            conn.commit()
+            print("Priority field added successfully")
+        else:
+            print("Priority field already exists")
+```
+
+### Step 7: Update Documentation
+
+Update relevant documentation:
+
+1. **SCHEMA_USAGE.md** - Add new field documentation
+2. **API_DOCUMENTATION.md** - Update API examples
+3. **CLI documentation** - Update command examples if needed
+
+### Step 8: Validation Testing
+
+Run comprehensive validation tests:
+
+```bash
+# Test JSON schema validation
+python -c "
+from todowrite.schema import TODOWRITE_SCHEMA
+from jsonschema import validate
+import json
+
+# Test with existing YAML files
+import glob
+for yaml_file in glob.glob('configs/**/*.yaml'):
+    # Load and validate each file
+    print(f'Validating {yaml_file}...')
+"
+
+# Test database operations
+PYTHONPATH="lib_package/src:cli_package/src" python -m pytest tests/ -v
+
+# Test CLI functionality
+todowrite --help
+todowrite create --layer task --title "Schema Test" --metadata '{"priority": "high"}'
+```
+
+## Change Categories
+
+### Additive Changes (Preferred)
+
+These changes add new functionality without breaking existing code:
+
+**Examples:**
+- Adding new optional fields
+- Adding new enum values
+- Adding new validation rules (that don't invalidate existing data)
+- Adding new indexes
+
+**Process:**
+1. Update models with default values
+2. Update JSON schema with optional fields
+3. Add tests for new functionality
+4. Update documentation
+5. No migration needed for existing data
+
+### Breaking Changes
+
+These changes require migration of existing data:
+
+**Examples:**
+- Removing fields
+- Changing field types
+- Making optional fields required
+- Changing enum values
+- Renaming fields
+
+**Process:**
+1. Create migration script
+2. Update models and schema
+3. Write comprehensive tests
+4. Test migration on copy of production data
+5. Schedule migration window
+6. Execute migration
+7. Validate results
+
+### Validation Changes
+
+These changes only affect validation rules:
+
+**Examples:**
+- Tightening pattern matching
+- Adding new constraints
+- Improving error messages
+
+**Process:**
+1. Update JSON schema
+2. Add validation tests
+3. Test against existing data
+4. Update documentation
+5. No database changes needed
+
+## Quality Gates
+
+### Before Commit
+
+Every schema change must pass these checks:
+
+- [ ] **Code Review**: Peer review of all changes
+- [ ] **Unit Tests**: All new tests pass
+- [ ] **Integration Tests**: Full test suite passes
+- [ ] **Schema Validation**: Existing YAML files still validate
+- [ ] **Documentation**: All documentation updated
+- [ ] **Performance**: No performance regression
+
+### Pre-merge Checks
+
+- [ ] **Backward Compatibility**: Existing installations unaffected
+- [ ] **Migration Path**: Clear upgrade path for breaking changes
+- [ ] **Rollback Plan**: Procedure to revert changes if needed
+- [ ] **Test Coverage**: At least 90% code coverage for changes
+
+## Release Process
+
+### Version Bumping
+
+For schema changes, follow semantic versioning:
+
+- **Patch (X.Y.Z+1)**: Additive changes, bug fixes
+- **Minor (X.Y+1.0)**: New features, breaking changes with migration
+- **Major (X+1.0.0)**: Major architectural changes
+
+### Release Checklist
+
+- [ ] Schema version updated in code
+- [ ] Migration scripts tested and documented
+- [ ] Release notes prepared
+- [ ] Documentation updated and published
+- [ ] Breaking changes communicated to users
+
+## Emergency Schema Changes
+
+For critical issues requiring immediate schema changes:
+
+1. **Create Hotfix Branch**
    ```bash
-   git checkout HEAD~1 -- todowrite/schemas/todowrite.schema.json
+   git checkout -b hotfix/schema-critical-fix
    ```
-2. **Test**: Ensure old functionality works
-3. **Document**: Note rollback in change log
+
+2. **Implement Minimal Fix**
+   - Fix only the critical issue
+   - Avoid additional changes
+   - Add targeted tests
+
+3. **Fast Review and Merge**
+   - expedite code review
+   - merge to develop branch
+   - create emergency release
+
+4. **Post-mortem**
+   - Document root cause
+   - Improve prevention measures
+   - Update testing procedures
+
+## Common Schema Changes
+
+### Adding New Metadata Fields
+
+```python
+# Step 1: Update types.py
+@dataclass
+class Metadata:
+    # existing fields...
+    new_field: str = "default_value"
+
+# Step 2: Update models.py (if database field needed)
+class Node(Base):
+    # existing fields...
+    new_field: Mapped[str] = mapped_column(String, default="default_value")
+
+# Step 3: Update JSON schema
+"metadata": {
+    "type": "object",
+    "properties": {
+        # existing properties...
+        "new_field": {
+            "type": "string",
+            "default": "default_value"
+        }
+    }
+}
+```
+
+### Adding New Enum Values
+
+```python
+# Step 1: Update types.py
+WorkType = Literal[
+    "architecture",
+    "spec",
+    "interface",
+    "validation",
+    "implementation",
+    "development",
+    "docs",
+    "ops",
+    "refactor",
+    "chore",
+    "test",
+    "security"  # NEW: Add new work type
+]
+
+# Step 2: Update JSON schema
+"work_type": {
+    "type": "string",
+    "enum": [
+        "architecture",
+        "spec",
+        "interface",
+        "validation",
+        "implementation",
+        "development",
+        "docs",
+        "ops",
+        "refactor",
+        "chore",
+        "test",
+        "security"  // NEW
+    ]
+}
+```
+
+### Changing Field Constraints
+
+```json
+// Example: Tightening ID pattern validation
+{
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^(GOAL|CON|CTX|CST|R|AC|IF|PH|STP|TSK|SUB|CMD)-[A-Z0-9_-]{1,20}$"  // Added length constraint
+    }
+  }
+}
+```
+
+## Tools and Utilities
+
+### Schema Validation Tool
+
+```bash
+# Validate all YAML files against current schema
+python -m todowrite.tools.validate_schema
+
+# Validate specific file
+python -m todowrite.tools.validate_schema --file configs/goals/project.yaml
+
+# Validate with custom schema
+python -m todowrite.tools.validate_schema --schema custom_schema.json
+```
+
+### Migration Testing Tool
+
+```bash
+# Test migration on copy of database
+python scripts/test_migration.py --source production.db --target test_migration.db
+
+# Dry run migration (show what would change)
+python scripts/migrate_schema.py --database production.db --dry-run
+
+# Execute migration
+python scripts/migrate_schema.py --database production.db
+```
+
+### Schema Diff Tool
+
+```bash
+# Compare two schema versions
+python scripts/schema_diff.py --old schema_v1.json --new schema_v2.json
+
+# Generate migration plan
+python scripts/schema_diff.py --old schema_v1.json --new schema_v2.json --migration-plan
+```
 
 ---
 
-**Remember**: All schema changes must go through the package schema location. The deprecated location is for legacy compatibility only and should not be modified for new features.
+## Conclusion
+
+Following this workflow ensures that schema changes are:
+
+- **Well-planned** with clear requirements and impact analysis
+- **Thoroughly tested** with comprehensive test coverage
+- **Properly documented** for future reference
+- **Safely deployed** with migration paths and rollback plans
+- **Maintained for quality** with ongoing validation and monitoring
+
+All schema changes should be treated carefully, as they affect both the application logic and the data integrity of existing ToDoWrite installations.
