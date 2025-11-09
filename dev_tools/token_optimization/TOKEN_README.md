@@ -37,10 +37,10 @@
 cd your-repo
 
 # Extract the package (if downloaded as zip)
-unzip token_optimization_package.zip
+unzip dev_tools/token_optimization.zip
 
 # Run automatic setup
-cd token_optimization_package
+cd dev_tools/token_optimization
 ./claude_auto_setup.sh
 
 # Restart your shell or run:
@@ -50,7 +50,7 @@ source ~/.zshrc  # or ~/.bashrc
 ### **Option 2: Manual Setup**
 ```bash
 # Copy all files to your repository root
-cp token_optimization_package/* your-repo/
+cp dev_tools/token_optimization/* your-repo/
 
 # Make scripts executable
 chmod +x always_token_sage.py token_optimized_agent.py auto_agent.py

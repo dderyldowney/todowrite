@@ -1,0 +1,28 @@
+# Ignore development tools directory for linting
+dev_tools/
+
+# Ignore common directories
+.git
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+# Ignore build artifacts
+build/
+dist/
+*.egg-info/
+
+# Ignore test coverage artifacts
+htmlcov/
+.coverage
+
+# Ignore IDE files
+.vscode/
+.idea/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db

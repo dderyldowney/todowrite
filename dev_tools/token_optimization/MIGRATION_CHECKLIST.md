@@ -20,7 +20,7 @@
 ## 🚀 Migration Steps
 
 ### **Step 1: Package Acquisition**
-- [ ] Download or copy the token_optimization_package
+- [ ] Download or copy the dev_tools/token_optimization
 - [ ] Extract files to repository root
 - [ ] Verify all files are present
 - [ ] Check file integrity (no corruption)

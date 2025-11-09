@@ -7,10 +7,17 @@ Always uses token-sage + HAL agents for maximum token efficiency.
 
 import sys
 from pathlib import Path
+from typing import Any
 
 
-def initialize_token_sage() -> bool | None:
-    """Initialize token-sage agent first"""
+class FilterParamsDict(dict[str, Any]):
+    """Type definition for filter_repo_for_llm parameters"""
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+
+def initialize_token_sage() -> bool:
     print("🚀 Initializing token-sage agent...")
     try:
         # This would normally be called through the Task tool
@@ -21,30 +28,35 @@ def initialize_token_sage() -> bool | None:
         return False
 
 
-def run_hal_filtering(goal: str, pattern: str | None = None, **kwargs):
+def run_hal_filtering(
+    goal: str,
+    pattern: str | None = None,
+    **kwargs: object,
+) -> str | None:
     """Run HAL agent filtering for maximum token efficiency"""
     print(f"🔍 Running HAL agent pre-filtering for: {goal}")
 
     try:
         # Add the current directory to Python path
-        sys.path.insert(0, str(Path(__file__).parent))
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
         from hal_token_savvy_agent import filter_repo_for_llm
 
         # Set token-efficient defaults
-        filter_params = {
-            "goal": goal,
-            "llm_snippet_chars": kwargs.get(
+        filter_params = FilterParamsDict(
+            goal=goal,
+            llm_snippet_chars=kwargs.get(
                 "llm_snippet_chars",
                 1500,
             ),  # Strict budget
-            "delta_mode": kwargs.get("delta_mode", True),  # Always use caching
-            "abbreviate_paths": kwargs.get("abbreviate_paths", True),
-            "max_files": kwargs.get("max_files", 100),  # Limit scope
-            "context_lines": kwargs.get("context_lines", 2),
-        }
-
-        if pattern:
-            filter_params["pattern"] = pattern
+            delta_mode=kwargs.get("delta_mode", True),  # Always use caching
+            abbreviate_paths=kwargs.get("abbreviate_paths", True),
+            max_files=kwargs.get("max_files", 100),  # Limit scope
+            context_lines=kwargs.get("context_lines", 2),
+            pattern=pattern,
+            roots=["."],
+            include_globs=["*.py", "*.md", "*.yaml", "*.yml"],
+            max_bytes=50000,
+        )
 
         result = filter_repo_for_llm(**filter_params)
 

@@ -41,8 +41,10 @@ class TokenOptimizedAgent:
         print(f"🔍 HAL agents preprocessing: {goal}")
 
         try:
-            sys.path.insert(0, str(Path(__file__).parent))
-            from hal_token_savvy_agent import filter_repo_for_llm
+            sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+            from dev_tools.agent_controls.hal_token_savvy_agent import (
+                filter_repo_for_llm,
+            )
 
             # Token-optimized defaults
             filter_params = {
