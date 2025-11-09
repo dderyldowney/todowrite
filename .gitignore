@@ -136,7 +136,6 @@ Thumbs.db
 .vscode/
 
 # Changelog file
-CHANGELOG.md
 
 # Commit message file
 commit_message.txt

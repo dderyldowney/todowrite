@@ -1,6 +1,6 @@
 # Project Utilities
 
-**Version**: 0.3.1
+**Version**: See VERSION file
 **Status**: Production Ready
 **Last Updated**: November 8, 2025
 
@@ -444,7 +444,7 @@ except Exception as e:
 
 ---
 
-**Current Version**: 0.3.1
+**Current Version**: See VERSION file
 **Python Support**: 3.12+
 **Test Status**: 157/157 tests passing ✅
 **License**: MIT
