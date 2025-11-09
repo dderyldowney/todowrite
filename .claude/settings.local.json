@@ -190,7 +190,8 @@
       "Bash(./scripts/publish.sh:*)",
       "Bash(ln:*)",
       "Bash(curl:*)",
-      "Bash(./scripts/release.sh:*)"
+      "Bash(./scripts/release.sh:*)",
+      "Skill(episodic-memory:remembering-conversations)"
     ],
     "deny": [],
     "ask": []

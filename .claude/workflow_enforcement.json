@@ -1,0 +1,11 @@
+{
+  "todowrite_cli_required": true,
+  "planning_steps": [
+    "Use todowrite_cli to create tasks for all work",
+    "Check episodic memory for past context",
+    "Plan implementation using todowrite_cli",
+    "Execute work with todowrite_cli tracking"
+  ],
+  "enforcement_time": "2025-11-09T12:58:30.913586",
+  "token_optimization_active": true
+}

@@ -1,0 +1,16 @@
+{
+  "claude-code": {
+    "last_seen": "2025-11-09T12:58:30.913312",
+    "agent_type": "development",
+    "capabilities": [
+      "code-generation",
+      "test-fixing",
+      "documentation"
+    ],
+    "workflow_enforcement": {
+      "requires_todowrite_cli": true,
+      "planning_required": true,
+      "token_optimization": true
+    }
+  }
+}
