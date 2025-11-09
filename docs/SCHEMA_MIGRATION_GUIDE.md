@@ -1,197 +1,439 @@
-# ToDoWrite Schema Migration Guide
+# ToDoWrite Database Schema Migration Guide
 
 ## Overview
 
-This document describes the migration of the ToDoWrite JSON schema from the external `configs/schemas/` directory to the internal `todowrite/schemas/` package directory. This change ensures that the schema is properly distributed with the ToDoWrite package and easily accessible to external projects.
+This guide covers database schema migrations for the ToDoWrite system using SQLAlchemy. The system supports automatic schema migrations and handles both SQLite and PostgreSQL backends.
 
-## Changes Made
+## Current Database Schema
 
-### 1. Schema Relocation
-- **Before**: `configs/schemas/todowrite.schema.json`
-- **After**: `todowrite/schemas/todowrite.schema.json`
+### SQLAlchemy Models (v0.3.1)
 
-### 2. Package Configuration
-Updated `pyproject.toml` to include schema files as package data:
-```toml
-[tool.setuptools.package-data]
-todowrite = ["schemas/*.json"]
-```
+The current schema consists of the following models defined in `lib_package/src/todowrite/database/models.py`:
 
-### 3. Schema Access Module
-Created `todowrite/schema.py` for easy external access:
-```python
-from todowrite.schema import TODOWRITE_SCHEMA
-```
+#### Core Models
+- **Node** - Central entity for all hierarchical items
+- **Link** - Parent-child relationships between nodes
+- **Label** - Categorization tags
+- **Command** - Executable commands (for Command layer nodes)
+- **Artifact** - Generated files from command execution
 
-### 4. Main Package Export
-Updated `todowrite/__init__.py` to export the schema:
-```python
-from .schema import TODOWRITE_SCHEMA
-```
+#### Association Tables
+- **node_labels** - Many-to-many relationship between nodes and labels
 
-### 5. Internal Loading Updates
-- Updated `todowrite/app.py` to load schema from package-relative location
-- Updated `todowrite/tools/tw_validate.py` with fallback to old location
-- Updated `todowrite/tools/extract_schema.py` to reference new location
+## Database Initialization
 
-## External Project Usage
-
-### Import and Use the Schema
+### Automatic Schema Creation
 
 ```python
-import todowrite
+from todowrite import ToDoWrite
 
-# Access the JSON schema
-schema = todowrite.TODOWRITE_SCHEMA
-
-# Use for validation
-import json
-from jsonschema import validate
-
-# Example node data
-node_data = {
-    "id": "GOAL-PROJECT-001",
-    "layer": "Goal",
-    "title": "Project Goal",
-    "description": "A high-level project goal",
-    "links": {
-        "parents": [],
-        "children": []
-    }
-}
-
-# Validate the data
-validate(instance=node_data, schema=schema)
+# Initialize with automatic schema creation
+tdw = ToDoWrite("sqlite:///project.db")
+tdw.init_database()  # Creates tables if they don't exist
 ```
 
-### Alternative Import Method
+### Manual Schema Control
 
 ```python
-from todowrite.schema import TODOWRITE_SCHEMA
+# Create all tables
+from todowrite.database.models import Base, engine
+Base.metadata.create_all(engine)
+
+# Drop all tables (development only)
+Base.metadata.drop_all(engine)
 ```
 
-## Backward Compatibility
+## Schema Versions
 
-### Legacy Support
-Tools that reference the old schema location (`configs/schemas/todowrite.schema.json`) will continue to work if the old file structure is maintained. However, it's recommended to use the new package-relative schema import.
+### Version 0.3.1 (Current)
 
-### Migration Path for Projects Using ToDoWrite
-1. **No Action Required**: The package maintains backward compatibility
-2. **Recommended Migration**: Update imports to use `todowrite.TODOWRITE_SCHEMA`
-3. **Tools Update**: Update custom tools to use the new package schema
+**Models:**
+- `Node` with 12 supported layers
+- `Link` for hierarchical relationships
+- `Label` system for categorization
+- `Command` and `Artifact` for executable nodes
 
-## Benefits
+**Key Features:**
+- Full 12-layer hierarchy support
+- Progress tracking (0-100%)
+- Status management (planned, in_progress, completed, blocked, cancelled)
+- Rich metadata (owner, severity, work_type, assignee)
+- Command execution with artifact tracking
 
-### 1. Package Distribution
-- Schema is now distributed with the package installation
-- No need for external projects to manage separate schema files
-- Schema version stays in sync with package version
+### Future Schema Changes
 
-### 2. External Project Integration
-- Easy schema import: `import todowrite; schema = todowrite.TODOWRITE_SCHEMA`
-- No file path management required
-- Consistent API for all ToDoWrite users
+Planned enhancements for future versions:
+- Enhanced indexing for performance
+- Additional metadata fields
+- Audit trail for node changes
+- Custom field support
 
-### 3. Maintainability
-- Single source of truth for schema definition
-- Schema updates are automatically available with package upgrades
-- Reduced risk of schema version mismatches
+## Migration Procedures
 
-## Implementation Details
+### Development Migration
 
-### Schema Loading Logic
-The new loading logic in `tw_validate.py`:
-1. First tries to load from package: `todowrite.schema.TODOWRITE_SCHEMA`
-2. Falls back to old location: `configs/schemas/todowrite.schema.json`
-3. Provides clear error messages if neither is available
+For development databases, it's often easiest to recreate:
 
-### Package Structure
-```
-todowrite/
-├── __init__.py              # Exports TODOWRITE_SCHEMA
-├── schema.py                # Schema loading module
-├── schemas/
-│   └── todowrite.schema.json # JSON schema definition
-└── app.py                   # Updated to use package schema
-```
-
-### Path Resolution
-- **Package Path**: `Path(__file__).parent / "schemas" / "todowrite.schema.json"`
-- **Old Path**: `Path(__file__).parent.parent / "configs" / "schemas" / "todowrite.schema.json"`
-
-## Testing
-
-### External Project Test
-```python
-# Test that schema can be imported
-import todowrite
-assert hasattr(todowrite, 'TODOWRITE_SCHEMA')
-assert isinstance(todowrite.TODOWRITE_SCHEMA, dict)
-
-# Test basic validation
-test_node = {
-    "id": "GOAL-TEST-001",
-    "layer": "Goal",
-    "title": "Test Goal",
-    "description": "A test goal",
-    "links": {"parents": [], "children": []}
-}
-
-from jsonschema import validate
-validate(instance=test_node, schema=todowrite.TODOWRITE_SCHEMA)
-print("Schema validation successful!")
-```
-
-### CLI Validation Test
 ```bash
-# Test CLI with new schema location
-todowrite validate
+# Backup existing data
+todowrite export-yaml > backup.yaml
 
-# Should validate using package schema with fallback to old location
+# Reinitialize database
+rm project.db
+todowrite init
+
+# Restore data
+todowrite import-yaml backup.yaml
 ```
 
-## Future Considerations
+### Production Migration
 
-### Deprecation Timeline
-- **Short Term**: Maintain backward compatibility with old schema location
-- **Medium Term**: Update internal tools to exclusively use package schema
-- **Long Term**: Consider removing old schema location dependency
+For production databases with data to preserve:
 
-### Enhancement Opportunities
-1. **Versioned Schema**: Support multiple schema versions
-2. **Schema Validation**: Add schema self-validation
-3. **Documentation**: Auto-generate documentation from schema
-4. **Registry Support**: Allow custom schema extensions
+```python
+from todowrite import ToDoWrite
+from todowrite.database.models import Base, engine
+from alembic import op
+import sqlalchemy as sa
+
+def migrate_database():
+    """Example migration function"""
+    # Connect to database
+    tdw = ToDoWrite("postgresql://user:pass@localhost/todowrite")
+
+    # Example: Add new column to nodes table
+    with engine.connect() as conn:
+        # Check if column exists
+        inspector = sa.inspect(engine)
+        columns = [col['name'] for col in inspector.get_columns('nodes')]
+
+        if 'new_field' not in columns:
+            conn.execute(
+                sa.text("ALTER TABLE nodes ADD COLUMN new_field VARCHAR")
+            )
+            conn.commit()
+
+    print("Migration completed successfully")
+```
+
+## Database Backend Migrations
+
+### SQLite to PostgreSQL
+
+```python
+def migrate_sqlite_to_postgres():
+    """Migrate from SQLite to PostgreSQL"""
+
+    # Initialize both connections
+    sqlite_tdw = ToDoWrite("sqlite:///project.db")
+    postgres_tdw = ToDoWrite("postgresql://user:pass@localhost/todowrite")
+
+    # Initialize PostgreSQL schema
+    postgres_tdw.init_database()
+
+    # Migrate data
+    all_nodes = sqlite_tdw.get_all_nodes()
+
+    for layer, nodes in all_nodes.items():
+        for node in nodes:
+            # Convert node to dict and create in PostgreSQL
+            node_dict = node.to_dict()
+            postgres_tdw.create_node(node_dict)
+
+    print("Migration completed successfully")
+```
+
+## Schema Validation
+
+### JSON Schema
+
+The system uses JSON Schema for validation:
+
+```python
+from todowrite.schema import TODOWRITE_SCHEMA
+from jsonschema import validate
+
+# Validate node data against current schema
+def validate_node_data(node_data):
+    try:
+        validate(instance=node_data, schema=TODOWRITE_SCHEMA)
+        return True, "Valid"
+    except Exception as e:
+        return False, str(e)
+```
+
+### Database Constraints
+
+The database enforces these constraints:
+
+```sql
+-- Primary key constraints
+ALTER TABLE nodes ADD CONSTRAINT pk_nodes PRIMARY KEY (id);
+ALTER TABLE labels ADD CONSTRAINT pk_labels PRIMARY KEY (label);
+
+-- Foreign key constraints
+ALTER TABLE links ADD CONSTRAINT fk_links_parent
+    FOREIGN KEY (parent_id) REFERENCES nodes(id) ON DELETE CASCADE;
+ALTER TABLE links ADD CONSTRAINT fk_links_child
+    FOREIGN KEY (child_id) REFERENCES nodes(id) ON DELETE CASCADE;
+```
+
+## Backup and Recovery
+
+### SQLite Backup
+
+```bash
+# File-based backup
+cp project.db project_backup.db
+
+# SQL dump
+sqlite3 project.db .dump > project_backup.sql
+
+# Using ToDoWrite export
+todowrite export-yaml > project_backup.yaml
+```
+
+### PostgreSQL Backup
+
+```bash
+# pg_dump
+pg_dump todowrite > todowrite_backup.sql
+
+# Custom format
+pg_dump -Fc todowrite > todowrite_backup.dump
+
+# Using ToDoWrite export
+todowrite export-yaml > todowrite_backup.yaml
+```
+
+### Recovery Procedures
+
+```python
+def restore_from_yaml(backup_file, database_url):
+    """Restore database from YAML backup"""
+    tdw = ToDoWrite(database_url)
+    tdw.init_database()
+
+    # Import from backup
+    from todowrite.storage.yaml_manager import YAMLManager
+    yaml_manager = YAMLManager(tdw)
+
+    # Move backup file to temporary location for import
+    import shutil
+    temp_path = f"configs/temp_backup.yaml"
+    shutil.copy(backup_file, temp_path)
+
+    # Import data
+    results = yaml_manager.import_yaml_files(force=True)
+    print(f"Imported {results['total_imported']} nodes")
+```
+
+## Performance Optimization
+
+### Indexing Strategy
+
+```python
+# Add indexes for common queries
+def add_performance_indexes():
+    with engine.connect() as conn:
+        # Layer-based queries
+        conn.execute(sa.text(
+            "CREATE INDEX IF NOT EXISTS idx_nodes_layer ON nodes(layer)"
+        ))
+
+        # Status-based queries
+        conn.execute(sa.text(
+            "CREATE INDEX IF NOT EXISTS idx_nodes_status ON nodes(status)"
+        ))
+
+        # Owner-based queries
+        conn.execute(sa.text(
+            "CREATE INDEX IF NOT EXISTS idx_nodes_owner ON nodes(owner)"
+        ))
+
+        # Date-based queries
+        conn.execute(sa.text(
+            "CREATE INDEX IF NOT EXISTS idx_nodes_dates ON nodes(started_date, completion_date)"
+        ))
+
+        conn.commit()
+```
+
+### Query Optimization
+
+```python
+# Efficient queries for common operations
+def get_active_tasks_by_owner(tdw, owner):
+    """Get active tasks for a specific owner"""
+    with tdw.get_db_session() as session:
+        from todowrite.database.models import Node
+
+        return session.query(Node).filter(
+            Node.layer == "Task",
+            Node.owner == owner,
+            Node.status.in_(["planned", "in_progress"])
+        ).all()
+
+def get_hierarchy_summary(tdw):
+    """Get summary of all nodes by layer and status"""
+    with tdw.get_db_session() as session:
+        from todowrite.database.models import Node
+        from sqlalchemy import func
+
+        return session.query(
+            Node.layer,
+            Node.status,
+            func.count(Node.id).label('count')
+        ).group_by(Node.layer, Node.status).all()
+```
 
 ## Troubleshooting
 
-### Common Issues
+### Common Migration Issues
 
-#### Import Error
+#### Foreign Key Constraint Errors
+```sql
+-- Check for orphaned records
+SELECT child_id FROM links
+WHERE parent_id NOT IN (SELECT id FROM nodes);
+
+-- Clean up orphaned records
+DELETE FROM links
+WHERE parent_id NOT IN (SELECT id FROM nodes);
+```
+
+#### Schema Mismatch Errors
 ```python
-# If you get import errors, ensure the package is properly installed
-pip install todowrite
+def debug_schema_mismatch():
+    """Debug schema validation issues"""
+    from todowrite.database.models import Base
+    from sqlalchemy import inspect
 
-# Then try importing
-import todowrite
-schema = todowrite.TODOWRITE_SCHEMA
+    inspector = inspect(engine)
+
+    # Check existing tables
+    tables = inspector.get_table_names()
+    print(f"Existing tables: {tables}")
+
+    # Check columns in nodes table
+    if 'nodes' in tables:
+        columns = inspector.get_columns('nodes')
+        print(f"Nodes table columns: {[col['name'] for col in columns]}")
 ```
 
-#### Schema Not Found
+#### Data Type Issues
 ```python
-# Check if the schema file exists in the package
-import todowrite.schema
-print(todowrite.schema._SCHEMA_PATH)
+def fix_data_types():
+    """Fix common data type issues"""
+    with engine.connect() as conn:
+        # Fix progress values outside 0-100 range
+        conn.execute(sa.text(
+            "UPDATE nodes SET progress = 0 WHERE progress < 0 OR progress IS NULL"
+        ))
+        conn.execute(sa.text(
+            "UPDATE nodes SET progress = 100 WHERE progress > 100"
+        ))
+
+        # Fix invalid status values
+        valid_statuses = ['planned', 'in_progress', 'completed', 'blocked', 'cancelled']
+        conn.execute(sa.text(
+            "UPDATE nodes SET status = 'planned' WHERE status NOT IN :valid_statuses"
+        ), {'valid_statuses': valid_statuses})
+
+        conn.commit()
 ```
 
-#### Validation Errors
-- Ensure your data matches the schema requirements
-- Check that all required fields are present
-- Validate layer types match the schema enum
+## Testing Migrations
 
-### Debug Mode
-Set environment variable for detailed schema loading information:
-```bash
-export TODOWRITE_DEBUG_SCHEMA=1
-todowrite validate
+### Migration Test Suite
+
+```python
+import pytest
+import tempfile
+import os
+
+def test_migration_backward_compatibility():
+    """Test that migration maintains backward compatibility"""
+
+    # Create temporary database
+    with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as f:
+        temp_db = f"sqlite:///{f.name}"
+
+    try:
+        # Initialize with current schema
+        tdw = ToDoWrite(temp_db)
+        tdw.init_database()
+
+        # Create test data
+        test_node = {
+            "id": "TEST-MIGRATION-001",
+            "layer": "Task",
+            "title": "Migration Test",
+            "description": "Test backward compatibility"
+        }
+        tdw.create_node(test_node)
+
+        # Verify data integrity
+        retrieved = tdw.get_node("TEST-MIGRATION-001")
+        assert retrieved.title == "Migration Test"
+
+    finally:
+        # Cleanup
+        if os.path.exists(f.name):
+            os.unlink(f.name)
+
+def test_schema_validation():
+    """Test schema validation works correctly"""
+    from todowrite.schema import TODOWRITE_SCHEMA
+    from jsonschema import validate
+
+    # Valid node should pass
+    valid_node = {
+        "id": "TEST-001",
+        "layer": "Goal",
+        "title": "Test Goal",
+        "description": "A test goal",
+        "links": {"parents": [], "children": []}
+    }
+
+    validate(instance=valid_node, schema=TODOWRITE_SCHEMA)
+
+    # Invalid node should fail
+    invalid_node = {
+        "id": "TEST-002",
+        "layer": "InvalidLayer",  # Invalid layer
+        "title": "Test",
+        "description": "Test",
+        "links": {"parents": [], "children": []}
+    }
+
+    with pytest.raises(Exception):
+        validate(instance=invalid_node, schema=TODOWRITE_SCHEMA)
 ```
+
+## Best Practices
+
+### Development Workflow
+1. **Always backup** before schema changes
+2. **Test migrations** on development databases first
+3. **Use transactions** for multi-step migrations
+4. **Validate data** after migration completion
+5. **Document changes** in migration scripts
+
+### Production Considerations
+1. **Schedule downtime** for major schema changes
+2. **Monitor performance** after migration
+3. **Have rollback plan** ready
+4. **Test with production data copy** first
+5. **Communicate changes** to all stakeholders
+
+### Schema Evolution
+1. **Additive changes** preferred over destructive changes
+2. **Backward compatibility** when possible
+3. **Version your migrations** with clear documentation
+4. **Test edge cases** thoroughly
+5. **Monitor for data integrity** post-migration
+
+---
+
+For detailed information about the current schema structure, see [SCHEMA_USAGE.md](SCHEMA_USAGE.md).
