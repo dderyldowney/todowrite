@@ -249,11 +249,26 @@ Each layer uses a specific ID prefix for easy identification:
 
 ## 📚 Documentation
 
-- **[BUILD_SYSTEM.md](BUILD_SYSTEM.md)**: Build system architecture and development workflows
-- **[VERSION_MANAGEMENT.md](VERSION_MANAGEMENT.md)**: Centralized version management system
-- **[PyPI_HOWTO.md](PyPI_HOWTO.md)**: Package publishing guide
-- **[MONOREPO_STRUCTURE.md](MONOREPO_STRUCTURE.md)**: Project architecture overview
-- **[CLI Documentation](cli_package/README.md)**: Complete CLI reference and examples
+### Core Documentation
+- **[ToDoWrite.md](ToDoWrite.md)**: Complete architectural overview and design principles
+- **[CONTRIBUTING.md](CONTRIBUTING.md)**: Development guidelines and contribution process
+
+### Technical Documentation (in `docs/`)
+- **[BUILD_SYSTEM.md](docs/BUILD_SYSTEM.md)**: Build system architecture and development workflows
+- **[VERSION_MANAGEMENT.md](docs/VERSION_MANAGEMENT.md)**: Centralized version management system
+- **[MONOREPO_STRUCTURE.md](docs/MONOREPO_STRUCTURE.md)**: Project architecture overview
+- **[PyPI_HOWTO.md](docs/PyPI_HOWTO.md)**: Package publishing guide
+- **[API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md)**: Complete API reference
+- **[CHANGELOG.md](docs/CHANGELOG.md)**: Version history and release notes
+
+### Development Guides (in `docs/`)
+- **[INSTALLATION_GUIDE.md](docs/INSTALLATION_GUIDE.md)**: Detailed installation instructions
+- **[CI_CD_HOWTO.md](docs/CI_CD_HOWTO.md)**: CI/CD pipeline setup and configuration
+- **[SCHEMA_USAGE.md](docs/SCHEMA_USAGE.md)**: Database schema usage guide
+- **[PROJECT_UTILITIES.md](docs/PROJECT_UTILITIES.md)**: Development tools and utilities
+
+### CLI Documentation
+- **[CLI Reference](cli_package/README.md)**: Complete CLI command reference and examples
 
 ## 🤝 Contributing
 
