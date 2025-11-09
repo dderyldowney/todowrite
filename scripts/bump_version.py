@@ -106,6 +106,90 @@ def update_readme_badges(
         print(f"⚠️ Error updating README.md: {e}")
 
 
+def update_fallback_versions(new_version: str, dry_run: bool = False) -> None:
+    """Update fallback versions in package version.py files."""
+    package_files = [
+        Path(__file__).parent.parent
+        / "lib_package"
+        / "src"
+        / "todowrite"
+        / "version.py",
+        Path(__file__).parent.parent
+        / "cli_package"
+        / "src"
+        / "todowrite_cli"
+        / "version.py",
+    ]
+
+    for package_file in package_files:
+        if not package_file.exists():
+            print(f"⚠️ Package version file not found: {package_file}")
+            continue
+
+        try:
+            content = package_file.read_text(encoding="utf-8")
+            original_content = content
+
+            # Update fallback version in else block only
+            # Look for pattern in else block: __version__ = "unknown" or
+            # __version__ = "0.4.1"
+            # We need to be careful to only update the fallback,
+            # not the import from shared_version.py
+            lines = content.split("\n")
+            in_else_block = False
+
+            for i, line in enumerate(lines):
+                stripped = line.strip()
+
+                # Detect else block
+                if stripped.startswith("else:"):
+                    in_else_block = True
+                    continue
+
+                # If we're in an else block and find a __version__ assignment,
+                # update it
+                if in_else_block and "__version__ = " in line:
+                    # Replace the version string
+                    lines[i] = re.sub(
+                        r'(__version__ = )"([^"]*)"',
+                        f'\\1"{new_version}"',
+                        line,
+                    )
+                    break  # Only update the first __version__ in else block
+
+                # If we encounter another block structure,
+                # we're no longer in the else block
+                keywords = ("def ", "class ", "if ")
+                if in_else_block and stripped.startswith(keywords):
+                    break
+
+            content = "\n".join(lines)
+
+            # Check if any changes were made
+            if content != original_content:
+                if dry_run:
+                    print(f"🔍 DRY RUN - {package_file.name} changes:")
+                    # Show what would change
+                    lines_original = original_content.split("\n")
+                    lines_new = content.split("\n")
+                    for i, (old, new) in enumerate(
+                        zip(lines_original, lines_new, strict=False)
+                    ):
+                        if old != new and "__version__" in old:
+                            print(f"  Line {i+1}: {old.strip()}")
+                            print(f"  Line {i+1}: {new.strip()}")
+                else:
+                    package_file.write_text(content, encoding="utf-8")
+                    print(
+                        f"✅ Updated fallback version in {package_file.name}"
+                    )
+            else:
+                print(f"No fallback version updates needed in {package_file}")
+
+        except (OSError, UnicodeDecodeError) as e:
+            print(f"⚠️ Error updating {package_file}: {e}")
+
+
 def verify_readme_versions(expected_version: str) -> bool:
     """Verify that README.md badges contain the expected version."""
     readme_path = Path(__file__).parent.parent / "README.md"
@@ -220,6 +304,7 @@ def main() -> int:
         if args.dry_run:
             print("\n🔍 DRY RUN - No changes made")
             update_readme_badges(current_version, new_version, dry_run=True)
+            update_fallback_versions(new_version, dry_run=True)
             return 0
 
         print(f"\n📝 Updating files to version {new_version}...")
@@ -227,6 +312,10 @@ def main() -> int:
         # Update README.md badges FIRST (before VERSION file)
         print("🔄 Updating README.md badges...")
         update_readme_badges(current_version, new_version, dry_run=False)
+
+        # Update fallback versions in package files
+        print("🔄 Updating fallback versions in package files...")
+        update_fallback_versions(new_version, dry_run=False)
 
         # Update VERSION file LAST
         print("🔄 Updating VERSION file...")
@@ -243,7 +332,10 @@ def main() -> int:
             f"\nSuccessfully bumped version from {current_version} "
             f"→ {new_version}"
         )
-        print("💡 Both VERSION file and README.md badges have been updated")
+        print(
+            "💡 VERSION file, README.md badges, and package fallback versions "
+            "have been updated"
+        )
         print("📝 Files are ready for git commit")
 
         return 0
