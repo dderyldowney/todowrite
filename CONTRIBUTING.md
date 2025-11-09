@@ -81,23 +81,34 @@ We follow standard Python best practices and enforce code formatting:
 
 ## Release Process
 
+**📖 For the complete, detailed release process, see [docs/RELEASE_WORKFLOW.md](docs/RELEASE_WORKFLOW.md)**
+
 The release process for ToDoWrite involves the following steps:
 
 1.  **Feature Freeze**: All new features are merged into the `develop` branch.
 2.  **Testing**: Comprehensive testing is performed on the `develop` branch.
-3.  **Version Bump**: The project version is updated using the centralized VERSION file:
+3.  **Version Bump**: The project version is updated using the enhanced bump script:
     ```bash
     python scripts/bump_version.py patch  # or minor/major
+    # This automatically updates VERSION file and README badges
     ```
 4.  **Changelog Update**: A `CHANGELOG.md` file is updated with all changes since the last release.
 5.  **Merge to `main`**: The `develop` branch is merged into the `main` branch.
 6.  **Tag Release**: A Git tag is created for the new version (e.g., `v1.2.3`).
-7.  **Build and Publish**: Both packages are built and published to PyPI:
+7.  **GitHub Release**: Release is created on GitHub with auto-generated notes.
+8.  **Build and Publish**: Both packages are published to TestPyPI first, then PyPI:
     ```bash
-    ./scripts/build.sh
-    ./scripts/publish.sh
+    ./scripts/publish.sh test clean  # Verify on TestPyPI
+    ./scripts/publish.sh prod clean   # Then publish to PyPI
     ```
-8.  **Release Notes**: Release notes are drafted on GitHub, summarizing the changes.
+
+**Key Improvements:**
+- ✅ **Automated README Updates**: No manual version updates needed in documentation
+- ✅ **TestPyPI Verification**: Always test on TestPyPI before production
+- ✅ **Enhanced Bump Script**: Supports `--verify-only`, `--dry-run`, and incremental bumps
+- ✅ **Comprehensive Documentation**: Step-by-step instructions with troubleshooting
+
+See [docs/RELEASE_WORKFLOW.md](docs/RELEASE_WORKFLOW.md) for the complete 8-step process with detailed commands, verification checkpoints, and rollback procedures.
 
 ### Version Management
 
