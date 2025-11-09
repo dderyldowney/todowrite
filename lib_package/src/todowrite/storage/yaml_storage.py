@@ -152,9 +152,7 @@ class YAMLStorage:
 
         return None
 
-    def save_node(
-        self: YAMLStorage, node_data: dict[str, Any] | Node
-    ) -> Node:
+    def save_node(self: YAMLStorage, node_data: dict[str, Any] | Node) -> Node:
         """Save a node to YAML file."""
         # Handle both dict and Node objects
         if isinstance(node_data, dict):

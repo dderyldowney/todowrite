@@ -7,7 +7,7 @@ when working with large language models and codebases.
 
 __version__ = "1.0.0"
 __all__ = [
-    "token_optimized_agent",
-    "auto_agent",
     "always_token_sage",
+    "auto_agent",
+    "token_optimized_agent",
 ]

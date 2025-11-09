@@ -177,9 +177,7 @@ class ToDoWrite:
             self._query_cache.clear()
             self._last_cache_clear = current_time
 
-    def _clear_node_cache(
-        self: ToDoWrite, node_id: str | None = None
-    ) -> None:
+    def _clear_node_cache(self: ToDoWrite, node_id: str | None = None) -> None:
         """Clear node cache entries."""
         if node_id:
             # Clear specific node cache

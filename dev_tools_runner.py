@@ -23,9 +23,8 @@ def run_token_optimization_tool(tool_name, *args):
     if not tool_path.exists():
         available_tools = list(dev_tools_path.glob("token_optimization/*.py"))
         tool_names = [t.stem for t in available_tools]
-        raise FileNotFoundError(
-            f"Tool '{tool_name}' not found. Available: {tool_names}"
-        )
+        msg = f"Tool '{tool_name}' not found. Available: {tool_names}"
+        raise FileNotFoundError(msg)
 
     # Execute the tool
     exec_globals = {}
@@ -46,9 +45,8 @@ def run_agent_control_tool(tool_name, *args):
     if not tool_path.exists():
         available_tools = list(dev_tools_path.glob("agent_controls/*.py"))
         tool_names = [t.stem for t in available_tools]
-        raise FileNotFoundError(
-            f"Agent tool '{tool_name}' not found. Available: {tool_names}"
-        )
+        msg = f"Agent tool '{tool_name}' not found. Available: {tool_names}"
+        raise FileNotFoundError(msg)
 
     # Execute the tool
     exec_globals = {}
