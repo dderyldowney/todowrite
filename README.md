@@ -285,13 +285,13 @@ We welcome contributions to ToDoWrite! Please see our [Contributing Guidelines](
 - **Real Implementation Testing**: All tests use actual implementations, no mocks
 - **Pre-commit**: Automated quality gates for all commits
 
-### Recent v0.3.1 Improvements
+### Recent Improvements
 - ✅ **Progress Field Fix**: Resolved storage/retrieval issue for node progress tracking
 - ✅ **Library Verification Complete**: Comprehensive verification of all library components
-- ✅ **Real Implementation Testing**: Verified all 157 tests use actual implementations, no mocks
+- ✅ **Real Implementation Testing**: Verified all tests use actual implementations, no mocks
 - ✅ **Database Integrity Confirmed**: SQLite/PostgreSQL backends thoroughly tested
 - ✅ **Schema Validation Robust**: All 12 layer types and 5 status types validated
-- ✅ **Performance Verified**: Handles 100+ nodes efficiently (2.43s creation, 0.01s retrieval)
+- ✅ **Performance Verified**: Handles 100+ nodes efficiently
 - ✅ **Static Analysis Compliant**: MyPy and Ruff validation passing
 - ✅ **Installation Verified**: Package installs and imports correctly
 - ✅ **Centralized Version Management**: Single source of truth for both packages
@@ -349,23 +349,26 @@ Version is centrally managed using the `VERSION` file:
 
 ```bash
 # Get current version
-python scripts/bump_version.py get
+python scripts/bump_version.py --verify-only
 
-# Bump version
-python scripts/bump_version.py bump 0.3.1
+# Bump patch version
+python scripts/bump_version.py patch
+
+# Set explicit version
+python scripts/bump_version.py 0.4.1
 ```
 
 See [VERSION_MANAGEMENT.md](VERSION_MANAGEMENT.md) for complete details.
 
 ---
 
-**Current Version**: 0.3.1
+**Current Version**: See VERSION file or README badges
 **Python**: 3.12+
 **Database**: SQLite (development) / PostgreSQL (production)
 **Architecture**: Hierarchical task management with 12-layer planning framework
 **Build System**: Hatchling + Twine
 **Quality Status**: Zero Tech Debt Achieved 🎉
-**Test Status**: 157/157 tests passing, real implementations verified ✅
+**Test Status**: All tests passing, real implementations verified ✅
 **License**: MIT
 
 ### Package Information

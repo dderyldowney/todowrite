@@ -1,6 +1,6 @@
 # Installation Guide
 
-**Version**: 0.3.1
+**Version**: See VERSION file
 **Status**: Production Ready
 **Last Updated**: November 8, 2025
 
@@ -95,7 +95,7 @@ python -m pytest
 - `pyyaml>=6.0` - YAML file support
 
 **CLI Package (`todowrite-cli`)**:
-- `todowrite>=0.3.1` - Core library
+- `todowrite>=0.3.0` - Core library
 - `click>=8.0.0` - CLI framework
 - `rich>=13.0.0` - Rich terminal output
 
@@ -226,7 +226,7 @@ After successful installation:
 
 ---
 
-**Current Version**: 0.3.1
+**Current Version**: See VERSION file
 **Python Support**: 3.12+
 **Test Status**: 157/157 tests passing ✅
 **License**: MIT

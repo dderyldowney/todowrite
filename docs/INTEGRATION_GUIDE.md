@@ -1,6 +1,6 @@
 # ToDoWrite Integration Guide
 
-**Version**: 0.3.1
+**Version**: See VERSION file
 **Status**: Production Ready
 **Testing**: 157/157 tests passing with real implementations
 
@@ -529,6 +529,6 @@ python -m pytest
 ---
 
 **Status**: ✅ Production Ready
-**Version**: 0.3.1
+**Version**: See VERSION file
 **Tests**: 157/157 passing
 **Implementation**: Real (no mocks)

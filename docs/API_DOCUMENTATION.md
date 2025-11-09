@@ -1,6 +1,6 @@
 # ToDoWrite API Documentation
 
-**Version**: 0.3.1
+**Version**: See VERSION file
 **Status**: Production Ready
 **Testing**: 157/157 tests passing with real implementations
 
@@ -304,7 +304,7 @@ pytest tests/database/test_models.py
 
 ## Version History
 
-### v0.3.1 (Current)
+### Current Version (See VERSION file)
 - ✅ Fixed progress field storage/retrieval issue
 - ✅ Comprehensive library verification completed
 - ✅ All 119 tests verified using real implementations
@@ -342,6 +342,6 @@ cd todowrite
 ---
 
 **Status**: ✅ Production Ready
-**Version**: 0.3.1
+**Version**: See VERSION file
 **Tests**: 119/119 passing
 **Implementation**: Real (no mocks)

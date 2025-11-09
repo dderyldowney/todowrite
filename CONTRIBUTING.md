@@ -91,7 +91,7 @@ The release process for ToDoWrite involves the following steps:
     ```
 4.  **Changelog Update**: A `CHANGELOG.md` file is updated with all changes since the last release.
 5.  **Merge to `main`**: The `develop` branch is merged into the `main` branch.
-6.  **Tag Release**: A Git tag is created for the new version (e.g., `v0.3.1`).
+6.  **Tag Release**: A Git tag is created for the new version (e.g., `v1.2.3`).
 7.  **Build and Publish**: Both packages are built and published to PyPI:
     ```bash
     ./scripts/build.sh

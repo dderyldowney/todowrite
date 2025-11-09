@@ -35,7 +35,7 @@ index-servers =
 
 ### Library Package (`todowrite`)
 - **Name**: `todowrite`
-- **Version**: `0.3.1` (centrally managed via VERSION file)
+- **Version**: See VERSION file (centrally managed)
 - **Directory**: `lib_package/`
 - **Dependencies**: `sqlalchemy>=2.0.0`, `jsonschema>=4.0.0`, `pyyaml>=6.0`
 - **Entry Point**: Library import (`from todowrite import ToDoWrite`)
@@ -43,9 +43,9 @@ index-servers =
 
 ### CLI Package (`todowrite-cli`)
 - **Name**: `todowrite-cli`
-- **Version**: `0.3.1` (centrally managed via VERSION file)
+- **Version**: See VERSION file (centrally managed)
 - **Directory**: `cli_package/`
-- **Dependencies**: `todowrite>=0.3.1`, `click>=8.0.0`, `rich>=13.0.0`
+- **Dependencies**: `todowrite` (version from VERSION file), `click>=8.0.0`, `rich>=13.0.0`
 - **Entry Point**: CLI command (`todowrite`)
 - **Type Checking**: Uses pyright for static type analysis
 
@@ -76,10 +76,10 @@ hatch build
 ### Check Build Artifacts
 ```bash
 cd lib_package
-ls dist/          # Should see todowrite-0.3.1-py3-none-any.whl and todowrite-0.3.1.tar.gz
+ls dist/          # Should see todowrite-X.Y.Z-py3-none-any.whl and todowrite-X.Y.Z.tar.gz
 
 cd ../cli_package
-ls dist/          # Should see todowrite-cli-0.3.1-py3-none-any.whl and todowrite-cli-0.3.1.tar.gz
+ls dist/          # Should see todowrite-cli-X.Y.Z-py3-none-any.whl and todowrite-cli-X.Y.Z.tar.gz
 ```
 
 ## Testing Builds (Optional but Recommended)
@@ -206,10 +206,10 @@ hatch publish                         # Production PyPI
 # Verify wheel contents
 cd lib_package
 pip install wheel
-wheel unpack dist/todowrite-0.2.0-py3-none-any.whl
+wheel unpack dist/todowrite-*-py3-none-any.whl
 
 cd ../cli_package
-wheel unpack dist/todowrite-cli-0.2.0-py3-none-any.whl
+wheel unpack dist/todowrite-cli-*-py3-none-any.whl
 ```
 
 ## Security Best Practices
