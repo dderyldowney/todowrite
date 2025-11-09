@@ -1,7 +1,7 @@
 # ToDoWrite Library Verification Report
 
 **Date**: November 8, 2025
-**Version**: 0.3.1
+**Version**: See VERSION file
 **Verification Method**: Comprehensive testing with real implementations
 
 ## Executive Summary
@@ -68,7 +68,7 @@ The TodoWrite library has been comprehensively verified and confirmed to be **pr
 ### 9. Installation and Integration ✅ VERIFIED
 - **Package Installation**: Installs correctly with pip
 - **Core Imports**: All major classes (ToDoWrite, Node) importable
-- **Version Detection**: Library version properly accessible (0.3.1)
+- **Version Detection**: Library version properly accessible (see VERSION file)
 
 ### 10. Static Analysis Compliance ✅ VERIFIED
 - **MyPy**: No type errors found
@@ -104,7 +104,7 @@ Implementation Type: Real ✅
 
 ### Minor Issues (Non-blocking)
 1. **Coverage**: Overall coverage 54.25% (includes CLI packages), library core has good coverage
-3. **Version**: Library reports 0.3.1 while some documentation may reference 0.3.0
+3. **Version**: Library reports current version (see VERSION file) while some documentation may reference older versions
 
 ### Issues Fixed During Verification
 1. ✅ **Progress Field Storage**: Fixed in database node creation
