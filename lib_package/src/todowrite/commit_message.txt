@@ -1,0 +1,9 @@
+revert(deps): Remove pytest-cov and jsonschema from pyproject.toml
+
+This commit reverts the addition of `pytest-cov` and `jsonschema` to the `pyproject.toml` dependencies.
+
+Reasoning:
+- The environment does not have `pytest-cov` or `coverage.py` installed, preventing code coverage reporting.
+- `jsonschema` was added as a dependency for schema validation, but since code coverage cannot be performed, and to maintain a clean state, it is also being removed from the dependencies for now.
+
+Further action is required to install these packages in the environment to enable code coverage reporting and full schema validation.

@@ -12,9 +12,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from todowrite.core.exceptions import InvalidNodeError, NodeNotFoundError
-
 from todowrite import ToDoWrite
+from todowrite.core.exceptions import InvalidNodeError, NodeNotFoundError
 
 
 class TestUserLibraryWorkflows(unittest.TestCase):

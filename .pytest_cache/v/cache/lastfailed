@@ -1,0 +1,9 @@
+{
+  "tests/development/test_team_collaboration.py": true,
+  "tests/web/test_simple_mode_user_journey.py": true,
+  "tests/web/test_template_based_creation.py": true,
+  "tests/web/test_visual_relationship_building.py": true,
+  "tests/web_package/e2e/test_complete_user_workflows.py": true,
+  "tests/web_package/frontend/test_simple_mode_ui.py": true,
+  "tests/web_package/integration/test_backend_frontend_communication.py": true
+}
