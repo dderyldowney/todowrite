@@ -185,7 +185,8 @@
       "Bash(PYTHONPATH=\"lib_package/src:cli_package/src\" todowrite:*)",
       "Bash(TODOWRITE_DATABASE_URL=\"sqlite:///development_todowrite.db\" PYTHONPATH=\"lib_package/src:cli_package/src\" python:*)",
       "Bash(bash:*)",
-      "Bash(TODOWRITE_DATABASE_URL=\"sqlite:///development_todowrite.db\" PYTHONPATH=\"lib_package/src:cli_package/src\" python -m todowrite_cli create:*)"
+      "Bash(TODOWRITE_DATABASE_URL=\"sqlite:///development_todowrite.db\" PYTHONPATH=\"lib_package/src:cli_package/src\" python -m todowrite_cli create:*)",
+      "Bash(git diff:*)"
     ],
     "deny": [],
     "ask": []
