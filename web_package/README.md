@@ -1,26 +1,159 @@
 # ToDoWrite Web Package
 
-This package provides the web frontend for the ToDoWrite hierarchical task management system.
+Modern web frontend for the ToDoWrite hierarchical task management system.
+
+## Overview
+
+This package provides a FastAPI-based web backend and frontend infrastructure for ToDoWrite, offering:
+
+- **Dual-mode interface**: Simple Mode for non-programmers, Advanced Mode for power users
+- **Visual relationship building**: Drag-and-drop task relationship management
+- **Template system**: Pre-built project templates with customization
+- **Real-time collaboration**: Multi-user support with live updates
+- **Comprehensive REST API**: Full CRUD operations for all 12 ToDoWrite layers
 
 ## Structure
 
-- `backend/` - FastAPI backend application
-- `frontend/` - React frontend application
-- `shared/` - Shared types and utilities
-- `docker-compose.yml` - Development environment setup
-- `nginx.conf` - Production reverse proxy configuration
+```
+web_package/
+├── src/
+│   └── todowrite_web/           # Main Python package
+│       ├── __init__.py
+│       ├── main.py             # FastAPI application entry point
+│       ├── api/                # API route modules
+│       ├── models/             # Database models
+│       ├── schemas/            # Pydantic schemas
+│       ├── services/           # Business logic
+│       └── utils/              # Utility functions
+├── backend/                    # Legacy backend files (being migrated)
+├── frontend/                   # React frontend (separate Node.js project)
+├── shared/                     # Shared types and utilities
+├── tests/                      # Test suite
+├── pyproject.toml              # Python package configuration
+└── README.md                   # This file
+```
+
+## Installation
+
+### From Source
+
+```bash
+# Clone the repository
+git clone https://github.com/dderyldowney/todowrite.git
+cd todowrite/web_package
+
+# Install in development mode
+pip install -e ".[dev]"
+
+# Or install with database dependencies
+pip install -e ".[dev,postgres]"  # For PostgreSQL
+pip install -e ".[dev,mysql]"     # For MySQL
+```
 
 ## Development
 
-### Backend Development
+### Setup Development Environment
 
 ```bash
-cd backend
-pip install -e .
-python -m uvicorn todowrite_web.main:app --reload --host 0.0.0.0 --port 8000
+# Install development dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Run with coverage
+pytest --cov=src/todowrite_web --cov-report=html
+
+# Code formatting and linting
+ruff check .
+ruff format .
 ```
 
-### Frontend Development
+### Running the Development Server
+
+```bash
+# Start the FastAPI development server
+uvicorn todowrite_web.main:app --reload --host 0.0.0.0 --port 8000
+
+# Or using the shortcut
+python -m uvicorn todowrite_web.main:app --reload
+```
+
+The API will be available at:
+- API: http://localhost:8000
+- Interactive docs: http://localhost:8000/docs
+- OpenAPI schema: http://localhost:8000/openapi.json
+
+## API Documentation
+
+The web package provides a comprehensive REST API for ToDoWrite operations:
+
+### Core Endpoints
+
+- `GET /` - Health check and service information
+- `GET /health` - Detailed health status
+- `GET /api/v1/` - API version information
+
+### CRUD Operations
+
+All 12 ToDoWrite layers are exposed via RESTful API endpoints:
+
+- **Goals**: `/api/v1/goals/`
+- **Concepts**: `/api/v1/concepts/`
+- **Contexts**: `/api/v1/contexts/`
+- **Constraints**: `/api/v1/constraints/`
+- **Requirements**: `/api/v1/requirements/`
+- **Acceptance Criteria**: `/api/v1/acceptance-criteria/`
+- **Interface Contracts**: `/api/v1/interface-contracts/`
+- **Phases**: `/api/v1/phases/`
+- **Steps**: `/api/v1/steps/`
+- **Tasks**: `/api/v1/tasks/`
+- **Subtasks**: `/api/v1/subtasks/`
+- **Commands**: `/api/v1/commands/`
+
+### Specialized Endpoints
+
+- **Templates**: `/api/v1/templates/`
+- **Relationships**: `/api/v1/relationships/`
+- **Search**: `/api/v1/search/`
+- **Collaboration**: `/api/v1/collaboration/`
+
+## Configuration
+
+### Environment Variables
+
+```bash
+# Database Configuration
+DATABASE_URL=sqlite:///./todowrite.db
+# or for PostgreSQL:
+# DATABASE_URL=postgresql://user:password@localhost/todowrite
+
+# Development Settings
+DEBUG=false
+LOG_LEVEL=INFO
+
+# CORS Settings (for frontend)
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+```
+
+### Database Setup
+
+The web package uses SQLAlchemy 2.0+ with async support. Configure your database URL in the environment or `.env` file:
+
+```bash
+# SQLite (default)
+DATABASE_URL=sqlite+aiosqlite:///./todowrite.db
+
+# PostgreSQL
+DATABASE_URL=postgresql+asyncpg://user:password@localhost/todowrite
+
+# MySQL
+DATABASE_URL=mysql+aiomysql://user:password@localhost/todowrite
+```
+
+## Frontend Development
+
+The React frontend is located in the `frontend/` directory and is managed separately:
 
 ```bash
 cd frontend
@@ -28,20 +161,57 @@ npm install
 npm run dev
 ```
 
-### Docker Development
+The frontend will be available at http://localhost:3000 and will automatically connect to the backend API.
+
+## Testing
+
+### Running Tests
 
 ```bash
-docker-compose up --build
+# Run all tests
+pytest
+
+# Run specific test file
+pytest tests/test_main.py
+
+# Run with coverage
+pytest --cov=src/todowrite_web
+
+# Run integration tests
+pytest tests/integration/
+
+# Run API tests
+pytest tests/api/
 ```
 
-## Features
+### Test Structure
 
-- **Dual-mode interface**: Simple mode for non-programmers, Advanced mode for power users
-- **Template system**: Pre-built project templates for common scenarios
-- **Visual relationship building**: Drag-and-drop interface for creating dependencies
-- **Real-time search**: Full-text search across all project data
-- **Import/Export**: YAML and JSON support with full metadata preservation
+```
+tests/
+├── unit/           # Unit tests
+├── integration/    # Integration tests
+├── api/           # API endpoint tests
+├── fixtures/      # Test data and fixtures
+└── conftest.py    # Pytest configuration
+```
 
-## Architecture
+## Contributing
 
-This follows the existing monorepo structure with `lib_package` and `cli_package`, adding `web_package` as the third package. The backend leverages existing SQLAlchemy models and validation schemas from the core library.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests (`pytest`)
+5. Ensure code quality (`ruff check . && ruff format .`)
+6. Commit your changes (`git commit -m 'Add amazing feature'`)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Related Projects
+
+- **todowrite**: Core Python library for hierarchical task management
+- **todowrite_cli**: Command-line interface for ToDoWrite
+- **todowrite_web**: Web frontend and API (this package)
