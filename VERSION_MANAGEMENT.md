@@ -80,34 +80,44 @@ sync_version()
 
 ## Workflow Examples
 
-### Typical Release Workflow
+### Typical Release Workflow (Develop → Main)
 
 ```bash
-# 1. Develop and test features
-# ... development work ...
+# 1. Complete feature development on develop branch
+# ... development work on develop branch ...
 
-# 2. Bump version for release
+# 2. Ensure all tests pass
+PYTHONPATH="lib_package/src:cli_package/src" python -m pytest
+
+# 3. Bump version for release on develop branch
 python scripts/bump_version.py patch
 
-# 3. Verify version bump
+# 4. Verify version bump
 python -c "from shared_version import get_version; print(f'Releasing version: {get_version()}')"
 
-# 4. Build and test package
-python -m build
-
-# 5. Commit and tag
-git add VERSION shared_version.py
+# 5. Commit version changes on develop
+git add VERSION
 git commit -m "bump: version 0.3.2"
+
+# 6. Merge develop to main
+git checkout main
+git merge develop
+
+# 7. Create release tag
 git tag v0.3.2
 
-# 6. Push and release
-git push origin main --tags
+# 8. Push to remote
+git push origin main
+git push origin v0.3.2
+git push origin develop  # Update develop branch on remote
 ```
 
 ### Feature Branch Workflow
 
 ```bash
-# 1. Create feature branch
+# 1. Create feature branch from develop
+git checkout develop
+git pull origin develop
 git checkout -b feature/new-feature
 
 # 2. Develop feature
@@ -118,11 +128,67 @@ python scripts/bump_version.py 0.3.2-rc1
 
 # 4. Complete feature development
 
-# 5. Merge to main and release
-git checkout main
+# 5. Merge feature branch to develop
+git checkout develop
 git merge feature/new-feature
-python scripts/bump_version.py patch  # Final release version
+
+# 6. Push to develop for integration
+git push origin develop
+
+# 7. Delete feature branch (optional)
+git branch -d feature/new-feature
 ```
+
+### Emergency Fix Workflow
+
+```bash
+# 1. Create hotfix branch from main
+git checkout main
+git pull origin main
+git checkout -b hotfix/critical-fix
+
+# 2. Fix the issue
+# ... coding ...
+
+# 3. Bump patch version
+python scripts/bump_version.py patch
+
+# 4. Merge hotfix directly to main (bypass develop)
+git checkout main
+git merge hotfix/critical-fix
+
+# 5. Tag and release
+git tag v0.3.3
+git push origin main
+git push origin v0.3.3
+
+# 6. Also merge hotfix back to develop for future releases
+git checkout develop
+git merge hotfix/critical-fix
+git push origin develop
+```
+
+## Git Branching Strategy
+
+This project uses **GitFlow** methodology with two primary branches:
+
+- **`main`**: Production-ready releases (stable)
+- **`develop`**: Integration branch for features (unstable)
+
+### Branch Rules
+
+- **All feature branches** start from `develop`
+- **Version bumping** happens on `develop` branch
+- **Release tags** are created on `main` branch after merging
+- **Hotfixes** can bypass `develop` and go directly to `main`
+
+**Important**: Never commit directly to `main` - always use a merge from `develop` or hotfix branches.
+
+### Branch Lifecycle
+
+1. **Feature Development**: `develop` → `feature/branch-name` → `develop`
+2. **Release**: `develop` → `main` (with version bump and tag)
+3. **Hotfix**: `main` → `hotfix/branch-name` → `main` + `develop`
 
 ## Troubleshooting
 
@@ -244,11 +310,17 @@ print(__version__)  # Both return the same version
 ### Updating Version
 
 ```bash
-# Bump to a new version
-python scripts/bump_version.py bump 1.0.0
+# Bump to a specific version
+python scripts/bump_version.py 1.0.0
+
+# Or bump by type (patch, minor, major)
+python scripts/bump_version.py patch
+python scripts/bump_version.py minor
+python scripts/bump_version.py major
 
 # Verify the change
-python scripts/bump_version.py get  # Should output "1.0.0"
+python scripts/bump_version.py --dry-run patch  # Preview change
+python -c "from shared_version import get_version; print(get_version())"  # Should output new version
 
 # Reinstall packages to pick up new version
 pip install -e lib_package/
@@ -346,20 +418,23 @@ todowrite --version
 ### Preparing a Release
 
 ```bash
-# 1. Update version
-python scripts/bump_version.py bump 1.0.0
+# 1. Update version on develop branch
+python scripts/bump_version.py patch  # or minor/major
 
 # 2. Verify version propagation
-python scripts/bump_version.py get  # Should show "1.0.0"
+python -c "from shared_version import get_version; print(get_version())"  # Should show new version
 
 # 3. Reinstall development packages
 pip install -e lib_package/
 pip install -e cli_package/
 
 # 4. Verify CLI shows new version
-todowrite --version  # Should show "1.0.0"
+todowrite --version  # Should show new version
 
-# 5. Build packages
+# 5. Run tests to ensure everything works
+PYTHONPATH="lib_package/src:cli_package/src" python -m pytest
+
+# 6. Build packages
 cd lib_package && python -m build
 cd ../cli_package && python -m build
 ```
