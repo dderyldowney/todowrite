@@ -42,12 +42,15 @@ web_package/
 git clone https://github.com/dderyldowney/todowrite.git
 cd todowrite/web_package
 
-# Install in development mode
-pip install -e ".[dev]"
+# Install in development mode using uv (recommended)
+uv sync --dev
 
-# Or install with database dependencies
+# Or install with database dependencies using uv
+uv sync --dev --extra postgres  # For PostgreSQL
+
+# Or install using pip
+pip install -e ".[dev]"
 pip install -e ".[dev,postgres]"  # For PostgreSQL
-pip install -e ".[dev,mysql]"     # For MySQL
 ```
 
 ## Development
@@ -55,16 +58,25 @@ pip install -e ".[dev,mysql]"     # For MySQL
 ### Setup Development Environment
 
 ```bash
-# Install development dependencies
+# Install development dependencies using uv (recommended)
+uv sync --dev
+
+# Or install using pip
 pip install -e ".[dev]"
 
-# Run tests
+# Run tests using uv
+uv run pytest
+
+# Run with coverage using uv
+uv run pytest --cov=src/todowrite_web --cov-report=html
+
+# Code formatting and linting using uv
+uv run ruff check .
+uv run ruff format .
+
+# Or using pip directly
 pytest
-
-# Run with coverage
 pytest --cov=src/todowrite_web --cov-report=html
-
-# Code formatting and linting
 ruff check .
 ruff format .
 ```
@@ -72,11 +84,14 @@ ruff format .
 ### Running the Development Server
 
 ```bash
-# Start the FastAPI development server
-uvicorn todowrite_web.main:app --reload --host 0.0.0.0 --port 8000
+# Start the FastAPI development server using uv (recommended)
+uv run uvicorn todowrite_web.main:app --reload --host 0.0.0.0 --port 8000
+
+# Or using python directly
+python -m uvicorn todowrite_web.main:app --reload
 
 # Or using the shortcut
-python -m uvicorn todowrite_web.main:app --reload
+uvicorn todowrite_web.main:app --reload
 ```
 
 The API will be available at:
@@ -168,19 +183,26 @@ The frontend will be available at http://localhost:3000 and will automatically c
 ### Running Tests
 
 ```bash
-# Run all tests
+# Run all tests using uv (recommended)
+uv run pytest
+
+# Run specific test file using uv
+uv run pytest tests/test_main.py
+
+# Run with coverage using uv
+uv run pytest --cov=src/todowrite_web
+
+# Run integration tests using uv
+uv run pytest tests/integration/
+
+# Run API tests using uv
+uv run pytest tests/api/
+
+# Or using pip directly
 pytest
-
-# Run specific test file
 pytest tests/test_main.py
-
-# Run with coverage
 pytest --cov=src/todowrite_web
-
-# Run integration tests
 pytest tests/integration/
-
-# Run API tests
 pytest tests/api/
 ```
 

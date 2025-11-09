@@ -10,7 +10,6 @@ import unittest
 from pathlib import Path
 
 import yaml
-
 from todowrite.core import ToDoWrite
 from todowrite.storage.yaml_manager import YAMLManager
 from todowrite.storage.yaml_storage import YAMLStorage

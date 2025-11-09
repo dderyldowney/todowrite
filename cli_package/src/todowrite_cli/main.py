@@ -3,12 +3,14 @@
 import getpass
 import os
 import sys
+import traceback
 from contextlib import suppress
 from pathlib import Path
 from typing import Any, cast
 
 import click
 import jsonschema
+import yaml
 from rich.console import Console
 from rich.table import Table
 
@@ -93,8 +95,6 @@ def get_app(
         # Try to get from config file or use default
         config_path = Path.home() / ".todowrite" / "config.yaml"
         if config_path.exists():
-            import yaml
-
             with open(config_path) as f:
                 config = yaml.safe_load(f)
             db_path = config.get("database", {}).get(
@@ -740,8 +740,6 @@ def import_yaml(_: click.Context, yaml_path: str) -> None:
 
         # Override the paths if custom path provided
         if yaml_path != "./configs":
-            from pathlib import Path
-
             custom_path = Path(yaml_path)
             yaml_manager.yaml_base_path = custom_path
             yaml_manager.plans_path = custom_path / "plans"
@@ -899,8 +897,6 @@ def db_status(_: click.Context) -> None:
             )
     except Exception as e:
         console.print(f"[red]✗[/red] Error getting database status: {e}")
-        import traceback
-
         traceback.print_exc()
         sys.exit(1)
 
