@@ -11,11 +11,11 @@ from pathlib import Path
 
 
 # Auto-initialize token optimization
-def ensure_token_optimization() -> bool:
+def ensure_token_optimization() -> bool | None:
     """Ensure token optimization is always active"""
     try:
         # Import the auto-initialization
-        sys.path.insert(0, str(Path(__file__).parent))
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
         from .claude_auto_init import initialize_claude_session
 
         # Initialize session

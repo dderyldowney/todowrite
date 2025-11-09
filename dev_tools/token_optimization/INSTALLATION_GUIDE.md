@@ -20,9 +20,9 @@ This guide shows how to add the complete token optimization system to any reposi
 #### **Option A: Download the Package**
 ```bash
 # Download the package files
-curl -L https://github.com/your-repo/token_optimization_package/archive/main.zip -o token_opt.zip
+curl -L https://github.com/your-repo/dev_tools/token_optimization/archive/main.zip -o token_opt.zip
 unzip token_opt.zip
-cd token_optimization_package-main
+cd dev_tools/token_optimization-main
 ```
 
 #### **Option B: Copy Files Manually**
