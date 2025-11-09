@@ -10,7 +10,6 @@ automatically load the session startup environment.
 """
 
 import sys
-import os
 from pathlib import Path
 
 # Get the directory containing this script
@@ -27,7 +26,7 @@ try:
         import session_startup
 
         # Call the main function if it exists
-        if hasattr(session_startup, 'main'):
+        if hasattr(session_startup, "main"):
             session_startup.main()
 
     else:

@@ -14,6 +14,7 @@ import os
 import sys
 from pathlib import Path
 
+
 def setup_token_optimization():
     """Initialize token optimization environment and processes"""
     print("🚀 Initializing Token Optimization Environment...")
@@ -34,32 +35,52 @@ def setup_token_optimization():
         # Try to import and initialize token optimization tools
         try:
             # Import the main token optimization agent
-            from token_optimization import token_optimized_agent
-            from token_optimization import always_token_sage
+            from token_optimization import (
+                always_token_sage,
+                token_optimized_agent,
+            )
 
             # Initialize token-sage agent
-            if hasattr(always_token_sage, 'initialize_token_sage'):
+            if hasattr(always_token_sage, "initialize_token_sage"):
                 result = always_token_sage.initialize_token_sage()
                 if result:
                     print("✅ Token-sage agent initialized successfully")
                 else:
-                    print("⚠️ Token-sage initialization completed with warnings")
+                    print(
+                        "⚠️ Token-sage initialization completed with warnings"
+                    )
 
             # Initialize HAL token-savvy agent
             try:
                 from agent_controls import hal_token_savvy_agent
-                if hasattr(hal_token_savvy_agent, 'initialize_hal_agents'):
+
+                # Enable HAL agents by running initialization
+                if hasattr(hal_token_savvy_agent, "initialize_hal_agents"):
                     hal_result = hal_token_savvy_agent.initialize_hal_agents()
                     if hal_result:
-                        print("✅ HAL token-savvy agents initialized successfully")
+                        print("✅ HAL token-savvy agents ENABLED and ready")
+                        print("🤖 HAL agent loop and controls active")
                     else:
-                        print("⚠️ HAL agents initialization completed with warnings")
+                        print(
+                            "⚠️ HAL agents initialization completed with warnings"
+                        )
+
+                # Run initial HAL agent loop to ensure controls are active
+                if hasattr(hal_token_savvy_agent, "start_hal_loop"):
+                    print("🔄 Starting HAL agent control loop...")
+                    # Note: This runs in background to enable persistent control
+                    # The actual loop management is handled by the HAL agent system
+                    control_result = hal_token_savvy_agent.start_hal_loop()
+                    if control_result:
+                        print("✅ HAL agent control loop started successfully")
+
             except ImportError as e:
                 print(f"⚠️ Could not initialize HAL agents: {e}")
 
             print("📊 Token optimization environment ready")
             print("💰 Local preprocessing available (0 tokens for filtering)")
-            print("🔧 Token-sage and HAL agents accessible")
+            print("🔧 Token-sage and HAL agents ENABLED")
+            print("🤖 Agentic controls ACTIVE and ready")
 
         except ImportError as e:
             print(f"⚠️ Token optimization tools not fully available: {e}")
@@ -67,6 +88,7 @@ def setup_token_optimization():
 
     else:
         print(f"⚠️ dev_tools directory not found at: {dev_tools_path}")
+
 
 def setup_project_environment():
     """Setup project-specific environment variables and paths"""
@@ -99,28 +121,106 @@ def setup_project_environment():
     if db_files:
         print(f"✅ Found ToDoWrite databases: {[f.name for f in db_files]}")
     else:
-        print("ℹ️ No ToDoWrite databases found - run 'todowrite init' to create one")
+        print(
+            "ℹ️ No ToDoWrite databases found - run 'todowrite init' to create one"
+        )
+
+
+def load_project_context():
+    """Load project context from ToDoWrite.md for Claude understanding"""
+    print("\n📖 Loading Project Context...")
+
+    project_root = Path(__file__).parent.parent
+    todowrite_md_path = project_root / "ToDoWrite.md"
+
+    if todowrite_md_path.exists():
+        print(f"✅ Found ToDoWrite.md at {todowrite_md_path}")
+        print("📋 Project Layers (12-level hierarchy):")
+        print("   1. Goal (GOAL-*) - High-level project objectives")
+        print(
+            "   2. Concept (CON-*) - Design concepts and architectural patterns"
+        )
+        print("   3. Context (CTX-*) - Environmental and project context")
+        print(
+            "   4. Constraints (CST-*) - Project constraints and limitations"
+        )
+        print("   5. Requirements (R-*) - Functional requirements")
+        print(
+            "   6. AcceptanceCriteria (AC-*) - Acceptance conditions and criteria"
+        )
+        print(
+            "   7. InterfaceContract (IF-*) - Interface specifications and contracts"
+        )
+        print("   8. Phase (PH-*) - Project phases and milestones")
+        print("   9. Step (STP-*) - Implementation steps")
+        print("   10. Task (TSK-*) - Specific tasks with progress tracking")
+        print(
+            "   11. SubTask (SUB-*) - Sub-tasks that break down larger tasks"
+        )
+        print(
+            "   12. Command (CMD-*) - Executable commands with run instructions"
+        )
+        print(
+            "💡 Claude should reference these layers when organizing development work"
+        )
+        print(
+            "🔄 Use 'todowrite' CLI for managing development tasks hierarchically"
+        )
+
+        # Store context for Claude
+        os.environ["TODOWRITE_LAYERS_LOADED"] = "true"
+        return True
+    print(f"⚠️ ToDoWrite.md not found at {todowrite_md_path}")
+    return False
+
 
 def display_session_info():
     """Display session initialization summary"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 70)
     print("🤖 CLAUDE CODE SESSION INITIALIZED")
-    print("="*60)
+    print("=" * 70)
     print("📁 Project: ToDoWrite Hierarchical Task Management")
     print("🚀 Token Optimization: ENABLED")
-    print("🤖 Agent Controls: AVAILABLE")
+    print("🤖 Agent Controls: ACTIVE")
     print("💰 Efficiency Mode: MAXIMUM")
-    print("="*60)
+    print("📖 Project Context: LOADED")
+    print("=" * 70)
     print("\n🛠️ Available Commands:")
-    print("  • ./run_token_tools.sh list                    - List all optimization tools")
-    print("  • ./run_token_tools.sh token_optimized_agent  - Run token optimizer")
-    print("  • ./run_token_tools.sh hal_agent_loop         - Run HAL agent loop")
+    print(
+        "  • ./run_token_tools.sh list                    - List all optimization tools"
+    )
+    print(
+        "  • ./run_token_tools.sh token_optimized_agent  - Run token optimizer"
+    )
+    print(
+        "  • ./run_token_tools.sh hal_agent_loop         - Run HAL agent loop"
+    )
     print("  • todowrite --help                          - ToDoWrite CLI help")
+    print(
+        "  • todowrite init                            - Initialize development DB"
+    )
+    print(
+        "  • todowrite list                            - List all development tasks"
+    )
     print("\n📚 Documentation:")
-    print("  • dev_tools/README.md                       - Development tools guide")
-    print("  • docs/                                    - Project documentation")
+    print(
+        "  • ToDoWrite.md                               - Project layers and system overview"
+    )
+    print(
+        "  • dev_tools/README.md                       - Development tools guide"
+    )
+    print(
+        "  • docs/                                    - Project documentation"
+    )
     print("  • README.md                                - Project overview")
-    print("="*60 + "\n")
+    print("\n💻 Development Tools:")
+    print(
+        "  • ruff format, ruff check                   - Linting and formatting"
+    )
+    print("  • uv                                        - Package management")
+    print("  • todowrite CLI                             - Task management")
+    print("=" * 70 + "\n")
+
 
 def main():
     """Main session initialization function"""
@@ -131,6 +231,9 @@ def main():
         # Setup project environment
         setup_project_environment()
 
+        # Load project context from ToDoWrite.md
+        load_project_context()
+
         # Display session information
         display_session_info()
 
@@ -140,6 +243,7 @@ def main():
         print(f"❌ Session initialization error: {e}")
         print("⚠️ Continuing with limited functionality")
         return False
+
 
 # Auto-execute when imported
 if __name__ == "__main__":

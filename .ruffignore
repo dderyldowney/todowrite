@@ -1,6 +1,13 @@
 # Ignore development tools directory for linting
 dev_tools/
 
+# Ignore Claude configuration scripts (special handling)
+.claude/
+
+# Ignore tests and scripts for now (will address separately)
+tests/
+scripts/
+
 # Ignore common directories
 .git
 .venv

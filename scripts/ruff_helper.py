@@ -13,7 +13,7 @@ from pathlib import Path
 class RuffHelper:
     """Helper class for properly parsing ruff output and managing linting."""
 
-    def __init__(self, root_path: str = None):
+    def __init__(self, root_path: str | None = None):
         self.root_path = Path(root_path) if root_path else Path.cwd()
 
     def run_ruff_check(
@@ -59,9 +59,7 @@ class RuffHelper:
             # Skip empty lines, context markers, and statistics
             if (
                 not line
-                or line.startswith("|")
-                or line.startswith("-")
-                or line.startswith("-->")
+                or line.startswith(("|", "-", "-->"))
                 or re.match(r"^\d+\s+[A-Z]\d+", line)
             ):
                 i += 1
@@ -166,7 +164,7 @@ def main():
     print("🔧 Testing Ruff Helper...")
 
     # Run ruff check
-    returncode, stdout, stderr = helper.run_ruff_check()
+    _returncode, stdout, _stderr = helper.run_ruff_check()
 
     # Parse output
     parsed = helper.parse_ruff_output(stdout)
