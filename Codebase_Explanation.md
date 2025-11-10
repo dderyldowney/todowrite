@@ -147,7 +147,8 @@ todowrite/database/                                    # Database package
         └── command_id (String, PK, FK)               # Associated command (FK to commands.node_id)
 ```
 
-**Database Schema Layout**
+**Database Schema Layout (`lib_package/src/todowrite/core/schemas/todowrite.schema.json`)**
+
 ```
                     ToDoWrite Database Schema
 
