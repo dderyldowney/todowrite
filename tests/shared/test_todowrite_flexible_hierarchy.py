@@ -7,7 +7,7 @@ This test suite validates two critical ToDoWrite system requirements:
 
 The 12-layer hierarchy:
 1. Goal → 2. Concept → 3. Context → 4. Constraints → 5. Requirements →
-6. Acceptance Criteria → 7. Interface Contract → 8. Phase → 9. Step →
+6. AcceptanceCriteria → 7. InterfaceContract → 8. Phase → 9. Step →
 10. Task → 11. SubTask → 12. Command
 """
 
@@ -23,20 +23,193 @@ from typing import Any
 import pytest
 
 from todowrite.core.app import (
+    ToDoWrite,
     create_node,
-    update_node,
 )
 
 
+def add_goal(
+    title: str, description: str, parent_id: str | None = None
+) -> tuple[dict[str, Any] | None, str | None]:
+    """Add a goal node."""
+    return create_node_without_parent("Goal", title, description)
+
+
+def add_phase(
+    parent_id: str | None, title: str, description: str
+) -> tuple[dict[str, Any] | None, str | None]:
+    """Add a phase node."""
+    return create_node_without_parent("Phase", title, description)
+
+
+def add_task(
+    parent_id: str | None, title: str, description: str
+) -> tuple[dict[str, Any] | None, str | None]:
+    """Add a task node."""
+    return create_node_without_parent("Task", title, description)
+
+
+def add_command(
+    parent_id: str | None,
+    title: str,
+    description: str,
+    command: str | None = None,
+    ac_ref: str | None = None,
+) -> tuple[dict[str, Any] | None, str | None]:
+    """Add a command node."""
+    return create_node_without_parent(
+        "Command", title, description, command=command, ac_ref=ac_ref
+    )
+
+
+def add_concept(
+    parent_id: str | None, title: str, description: str
+) -> tuple[dict[str, Any] | None, str | None]:
+    """Add a concept node."""
+    return create_node_without_parent("Concept", title, description)
+
+
+def add_context(
+    parent_id: str | None, title: str, description: str
+) -> tuple[dict[str, Any] | None, str | None]:
+    """Add a context node."""
+    return create_node_without_parent("Context", title, description)
+
+
+def add_constraints(
+    parent_id: str | None, title: str, description: str
+) -> tuple[dict[str, Any] | None, str | None]:
+    """Add a constraints node."""
+    return create_node_without_parent("Constraints", title, description)
+
+
+def add_constraint(
+    parent_id: str | None, title: str, description: str
+) -> tuple[dict[str, Any] | None, str | None]:
+    """Add a constraint node (alias for add_constraints)."""
+    return create_node_without_parent("Constraints", title, description)
+
+
+def add_requirements(
+    parent_id: str | None, title: str, description: str
+) -> tuple[dict[str, Any] | None, str | None]:
+    """Add a requirements node."""
+    return create_node_without_parent("Requirements", title, description)
+
+
+def add_requirement(
+    parent_id: str | None, title: str, description: str
+) -> tuple[dict[str, Any] | None, str | None]:
+    """Add a requirement node (alias for add_requirements)."""
+    return create_node_without_parent("Requirements", title, description)
+
+
+def add_acceptance_criteria(
+    parent_id: str | None, title: str, description: str
+) -> tuple[dict[str, Any] | None, str | None]:
+    """Add an acceptance criteria node."""
+    return create_node_without_parent("AcceptanceCriteria", title, description)
+
+
+def add_interface_contract(
+    parent_id: str | None, title: str, description: str
+) -> tuple[dict[str, Any] | None, str | None]:
+    """Add an interface contract node."""
+    return create_node_without_parent("InterfaceContract", title, description)
+
+
+def add_step(
+    parent_id: str | None, title: str, description: str
+) -> tuple[dict[str, Any] | None, str | None]:
+    """Add a step node."""
+    if parent_id:
+        # Create with parent
+        from todowrite.core.app import create_node
+        from todowrite.core.utils import generate_node_id
+
+        node_id = generate_node_id("STP")
+        node_data = {
+            "id": node_id,
+            "layer": "Step",
+            "title": title,
+            "description": description,
+            "status": "planned",
+            "links": {"parents": [parent_id], "children": []},
+            "metadata": {
+                "owner": "system",
+                "labels": [],
+                "work_type": "development",
+                "severity": "low",
+                "assignee": "",
+            },
+        }
+
+        try:
+            node = create_node(node_data)
+            if node:
+                return {
+                    "id": node.id,
+                    "title": node.title,
+                    "status": node.status,
+                    "links": node.links,
+                }, None
+            return None, "Failed to create node"
+        except Exception as e:
+            return None, str(e)
+    else:
+        # Create without parent
+        return create_node_without_parent("Step", title, description)
+
+
+def add_subtask(
+    parent_id: str | None, title: str, description: str
+) -> tuple[dict[str, Any] | None, str | None]:
+    """Add a subtask node."""
+    return create_node_without_parent("SubTask", title, description)
+
+
+def get_layer_prefix(layer: str) -> str:
+    """Get the correct prefix for a given layer name."""
+    prefix_mapping = {
+        "Goal": "GOAL",
+        "Concept": "CON",
+        "Context": "CTX",
+        "Constraints": "CST",
+        "Requirements": "R",
+        "AcceptanceCriteria": "AC",
+        "InterfaceContract": "IF",
+        "Phase": "PH",
+        "Step": "STP",
+        "Task": "TSK",
+        "SubTask": "SUB",
+        "Command": "CMD",
+    }
+    return prefix_mapping.get(layer, layer.upper()[:3])
+
+
+def load_todos() -> dict[str, list[Any]]:
+    """Load all todos from the database."""
+    from todowrite.core.app import ToDoWrite
+
+    app = ToDoWrite(auto_import=False)
+    app.init_database()
+
+    return app.get_all_nodes()
+
+
 def create_node_without_parent(
-    layer: str, title: str, description: str
+    layer: str,
+    title: str,
+    description: str,
+    command: str | None = None,
+    ac_ref: str | None = None,
 ) -> tuple[dict[str, Any] | None, str | None]:
     """Create a node without requiring a parent - for flexible entry points."""
     import uuid
 
-    from todowrite.manager import create_node
+    from todowrite.core.utils import generate_node_id
 
-    node_id = f"{layer.lower()}-{uuid.uuid4().hex[:12]}"
+    node_id = generate_node_id(get_layer_prefix(layer))
     node_data = {
         "id": node_id,
         "layer": layer,
@@ -47,16 +220,19 @@ def create_node_without_parent(
         "metadata": {
             "owner": "system",
             "labels": [],
-            "severity": "",
-            "work_type": "",
+            "work_type": "development",
+            "severity": "low",
+            "assignee": "",
         },
     }
 
     # Add command structure for Command layer
     if layer == "Command":
         node_data["command"] = {
-            "ac_ref": f"AC-{uuid.uuid4().hex[:8].upper()}",
-            "run": {"shell": "echo 'test command'"},
+            "ac_ref": ac_ref
+            if ac_ref
+            else f"AC-{uuid.uuid4().hex[:8].upper()}",
+            "run": {"shell": command if command else "echo 'test command'"},
             "artifacts": [],
         }
 
@@ -67,6 +243,7 @@ def create_node_without_parent(
                 "id": node.id,
                 "title": node.title,
                 "status": node.status,
+                "links": node.links,
             }, None
         return None, "Failed to create node"
     except Exception as e:
@@ -80,23 +257,22 @@ class TestToDoWriteFlexibleHierarchy:
     def setup_clean_database(self):
         """Initialize clean database for each test."""
         # Clear existing database and reinitialize
-        from todowrite.db.models import Base
-        from todowrite.manager import reset_database_engine
+        from sqlalchemy import create_engine
 
-        # Reset the module-level singleton engine to dispose connections
-        reset_database_engine()
+        # todowrite.manager doesn't exist - use core.app instead
+        # Simple database setup using current architecture
+        from todowrite.database.models import Base
 
-        # Now get the fresh engine and drop/create tables
-        from todowrite import manager as manager_module
+        # Use test database
+        test_db_url = "sqlite:///testing_todowrite.db"
+        engine = create_engine(test_db_url)
 
-        fresh_engine = manager_module.engine
-        Base.metadata.drop_all(fresh_engine)
-        Base.metadata.create_all(fresh_engine)
+        # Drop and recreate tables
+        Base.metadata.drop_all(engine)
+        Base.metadata.create_all(engine)
 
-        # Initialize with empty database
-        init_database()
+        engine.dispose()
         yield
-        # Cleanup is handled by database reinitialization
 
     def test_can_start_at_goal_layer(self):
         """Test starting at Goal (Layer 1) - the traditional top-down approach."""
@@ -190,8 +366,8 @@ class TestToDoWriteFlexibleHierarchy:
         assert len(todos.get("Context", [])) == 1
         assert len(todos.get("Constraints", [])) == 1
         assert len(todos.get("Requirements", [])) == 1
-        assert len(todos.get("Acceptance Criteria", [])) == 1
-        assert len(todos.get("Interface Contract", [])) == 1
+        assert len(todos.get("AcceptanceCriteria", [])) == 1
+        assert len(todos.get("InterfaceContract", [])) == 1
         assert len(todos.get("Phase", [])) == 1
         assert len(todos.get("Step", [])) == 1
         assert len(todos.get("Task", [])) == 1
@@ -323,8 +499,8 @@ class TestToDoWriteFlexibleHierarchy:
             "Context",
             "Constraints",
             "Requirements",
-            "Acceptance Criteria",
-            "Interface Contract",
+            "AcceptanceCriteria",
+            "InterfaceContract",
             "Phase",
             "Step",
             "Task",
@@ -531,8 +707,8 @@ class TestToDoWriteFlexibleHierarchy:
                 "Context",
                 "Constraints",
                 "Requirements",
-                "Acceptance Criteria",
-                "Interface Contract",
+                "AcceptanceCriteria",
+                "InterfaceContract",
                 "Phase",
                 "Step",
                 "Task",
@@ -590,7 +766,9 @@ class TestToDoWriteFlexibleHierarchy:
         assert "Command" in validation["present_layers"]
 
         # Test incomplete hierarchy
-        init_database()  # Reset
+        # Reset database
+        app = ToDoWrite(auto_import=False)
+        app.init_database()
         incomplete_phase, error = add_phase(
             None, "Incomplete Phase", "Missing children"
         )
@@ -619,7 +797,7 @@ class TestToDoWriteFlexibleHierarchy:
         # Verify that ONLY having Requirements is incomplete
         todos = load_todos()
         assert len(todos.get("Requirements", [])) == 1
-        assert len(todos.get("Acceptance Criteria", [])) == 0  # Missing!
+        assert len(todos.get("AcceptanceCriteria", [])) == 0  # Missing!
         assert len(todos.get("Command", [])) == 0  # Missing!
 
         # Now complete the mandatory hierarchy below Requirements
@@ -672,8 +850,8 @@ class TestToDoWriteFlexibleHierarchy:
         # Verify complete hierarchy now exists
         todos = load_todos()
         assert len(todos.get("Requirements", [])) == 1
-        assert len(todos.get("Acceptance Criteria", [])) == 1
-        assert len(todos.get("Interface Contract", [])) == 1
+        assert len(todos.get("AcceptanceCriteria", [])) == 1
+        assert len(todos.get("InterfaceContract", [])) == 1
         assert len(todos.get("Phase", [])) == 1
         assert len(todos.get("Step", [])) == 1
         assert len(todos.get("Task", [])) == 1
@@ -693,8 +871,8 @@ class TestToDoWriteFlexibleHierarchy:
                 "Context",
                 "Constraints",
                 "Requirements",
-                "Acceptance Criteria",
-                "Interface Contract",
+                "AcceptanceCriteria",
+                "InterfaceContract",
                 "Phase",
                 "Step",
                 "Task",
@@ -723,7 +901,9 @@ class TestToDoWriteFlexibleHierarchy:
             }
 
         # Test Case 1: Step without Task/SubTask/Command (incomplete)
-        init_database()
+        # Reset database
+        app = ToDoWrite(auto_import=False)
+        app.init_database()
         step, error = add_step(
             None, "Incomplete Step", "Step without children"
         )
@@ -762,7 +942,9 @@ class TestToDoWriteFlexibleHierarchy:
         """Test real-world agricultural robotics scenarios with different entry points."""
 
         # Scenario 1: Research Project - Start at Goal (full planning)
-        init_database()
+        # Reset database
+        app = ToDoWrite(auto_import=False)
+        app.init_database()
         goal, error = add_goal(
             "Autonomous Corn Harvesting Research",
             "Develop autonomous harvesting for 500-acre corn operation",

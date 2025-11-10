@@ -4,7 +4,7 @@ This package provides common types, models, and utilities for
 backend-frontend communication in the ToDoWrite web application.
 """
 
-from .backend import (
+from .api.backend import (
     APIConfig,
     Command,
     CommandRun,
