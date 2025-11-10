@@ -93,47 +93,46 @@ todowrite/core/
 
 **Database Models (`lib_package/src/todowrite/database/models.py`)**
 ```
-todowrite/database/
-└── models.py
-    ├── Base                      # SQLAlchemy declarative base
-    ├── Node                      # Main database entity
-    │   ├── id (String, PK)       # Unique identifier
-    │   ├── layer (String)        # Layer type (Goal, Task, etc.)
-    │   ├── title (String)        # Node title
-    │   ├── description (Text)    # Optional description
-    │   ├── status (String)       # Status (6 types)
-    │   ├── progress (Integer)    # Progress (0-100)
-    │   ├── started_date (String) # Start date (ISO format)
-    │   ├── completion_date (Str) # Completion date (ISO format)
-    │   ├── owner (String)        # Node owner
-    │   ├── severity (String)     # Severity level
-    │   ├── work_type (String)    # Work type (10 types)
-    │   ├── assignee (String)     # Assigned person
-    │   └── Relationships:
-    │       ├── labels (M:M)      # → node_labels → Label
-    │       ├── command (1:1)     # → Command
-    │       ├── parents (M:M)     # → links → Node (self)
-    │       └── children (M:M)    # → links → Node (self)
-    ├── Link                      # Parent-child relationships
-    │   ├── parent_id (String, PK, FK) # Parent node ID
-    │   └── child_id (String, PK, FK)  # Child node ID
-    ├── Label                     # Tag system
-    │   ├── label (String, PK)    # Label name (unique)
-    │   └── nodes (M:M)           # → node_labels → Node
-    ├── node_labels               # Node-Label Association Table
-    │   ├── node_id (String, PK, FK) # Node reference
-    │   └── label (String, PK, FK)  # Label reference
-    ├── Command                   # Executable commands
-    │   ├── node_id (String, PK, FK) # Associated node ID
-    │   ├── ac_ref (String)       # Acceptance criteria reference
-    │   ├── run (Text)            # Command definition (JSON/YAML)
-    │   └── Relationships:
-    │       ├── node (1:1)        # ← Node
-    │       └── artifacts (1:N)   # → Artifact
-    └── Artifact                  # Command outputs/artifacts
-        ├── artifact (String, PK) # Artifact identifier/file path
-        └── command_id (String, PK, FK) # Associated command
-└── config.py                    # Storage configuration
+todowrite/database/                                    # Database package
+└── models.py                                          # Database models definition
+    ├── Base                                           # SQLAlchemy declarative base class
+    ├── Node                                           # Main database entity with all node fields
+    │   ├── id (String, PK)                           # Unique identifier
+    │   ├── layer (String)                            # Layer type (Goal, Task, etc.)
+    │   ├── title (String)                            # Node title
+    │   ├── description (Text)                        # Optional description
+    │   ├── status (String)                           # Status (6 types)
+    │   ├── progress (Integer)                        # Progress (0-100)
+    │   ├── started_date (String)                     # Start date (ISO format)
+    │   ├── completion_date (String)                  # Completion date (ISO format)
+    │   ├── owner (String)                            # Node owner
+    │   ├── severity (String)                         # Severity level
+    │   ├── work_type (String)                        # Work type (10 types)
+    │   ├── assignee (String)                         # Assigned person
+    │   └── Relationships                             # Node relationships
+    │       ├── labels (M:M)                          # Many-to-many via node_labels
+    │       ├── command (1:1)                         # One-to-one → Command
+    │       ├── parents (M:M)                         # Many-to-many via links
+    │       └── children (M:M)                        # Many-to-many via links
+    ├── Link                                           # Parent-child relationships
+    │   ├── parent_id (String, PK, FK)                # Parent node ID (FK to nodes.id)
+    │   └── child_id (String, PK, FK)                 # Child node ID (FK to nodes.id)
+    ├── Label                                          # Tag system
+    │   ├── label (String, PK)                        # Label name (unique, PK)
+    │   └── nodes (M:M)                               # Many-to-many via node_labels
+    ├── node_labels                                    # Node-Label Association Table
+    │   ├── node_id (String, PK, FK)                  # Node reference (FK to nodes.id)
+    │   └── label (String, PK, FK)                    # Label reference (FK to labels.label)
+    ├── Command                                        # Executable commands
+    │   ├── node_id (String, PK, FK)                  # Associated node ID (FK to nodes.id)
+    │   ├── ac_ref (String)                           # Acceptance criteria reference
+    │   ├── run (Text)                                # Command definition (JSON/YAML)
+    │   └── Relationships                             # Command relationships
+    │       ├── node (1:1)                            # One-to-one ← Node
+    │       └── artifacts (1:N)                       # One-to-many → Artifact
+    └── Artifact                                      # Command outputs/artifacts
+        ├── artifact (String, PK)                     # Artifact identifier/file path (PK)
+        └── command_id (String, PK, FK)               # Associated command (FK to commands.node_id)
 ```
 
 **Database Schema Layout**
