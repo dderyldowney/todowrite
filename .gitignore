@@ -168,3 +168,4 @@ development_todowrite.db
 # ToDoWrite configuration and generated files
 .env.todowrite
 export_test/
+*.db
