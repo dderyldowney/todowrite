@@ -8,16 +8,26 @@
 ## Architecture
 
 ### 1. **Monorepo Structure**
+
+**Published Packages:**
+- [lib_package](https://pypi.org/project/todowrite/) - Core library (business logic)
+- [cli_package](https://pypi.org/project/todowrite-cli/) - Command-line interface
+
+**Repository Structure:**
 ```
 todowrite/
-├── lib_package/          # Core library (business logic) [PyPI](https://pypi.org/project/todowrite/)
-├── cli_package/          # Command-line interface [PyPI](https://pypi.org/project/todowrite-cli/)
+├── lib_package/          # Core library (business logic)
+├── cli_package/          # Command-line interface
 ├── web_package/          # Web interface (Docker-based)
 ├── tests/               # Comprehensive test suite
 ├── scripts/             # Build/deployment automation
-├── docs/                # [Documentation](https://github.com/dderyldowney/todowrite/tree/develop/docs)
+├── docs/                # Documentation
 └── dev_tools/           # Development utilities
 ```
+
+**Quick Links:**
+- [Documentation](https://github.com/dderyldowney/todowrite/tree/develop/docs) - Project documentation
+- [Repository](https://github.com/dderyldowney/todowrite) - GitHub repository
 
 ### 2. **Core Library (lib_package)**
 The heart of the system with these key components:
