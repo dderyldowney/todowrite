@@ -20,49 +20,43 @@ class TestWebPackageDirectoryStructure:
 
     def test_backend_directory_structure(self):
         """RED: Test that backend directory structure exists."""
-        backend_path = pathlib.Path("web_package/backend")
+        backend_path = pathlib.Path("web_package/src/todowrite_web")
         assert (
             backend_path.exists()
-        ), "web_package/backend directory should exist"
+        ), "web_package/src/todowrite_web directory should exist"
         assert (
             backend_path.is_dir()
-        ), "web_package/backend should be a directory"
+        ), "web_package/src/todowrite_web should be a directory"
 
     def test_backend_src_structure(self):
         """RED: Test that backend/src/todowrite_web structure exists."""
-        backend_src_path = pathlib.Path(
-            "web_package/backend/src/todowrite_web"
-        )
+        backend_src_path = pathlib.Path("web_package/src/todowrite_web")
         assert (
             backend_src_path.exists()
-        ), "web_package/backend/src/todowrite_web should exist"
+        ), "web_package/src/todowrite_web should exist"
         assert (
             backend_src_path.is_dir()
-        ), "web_package/backend/src/todowrite_web should be a directory"
+        ), "web_package/src/todowrite_web should be a directory"
 
     def test_backend_init_file_exists(self):
         """RED: Test that backend __init__.py exists."""
-        init_path = pathlib.Path(
-            "web_package/backend/src/todowrite_web/__init__.py"
-        )
+        init_path = pathlib.Path("web_package/src/todowrite_web/__init__.py")
         assert (
             init_path.exists()
-        ), "web_package/backend/src/todowrite_web/__init__.py should exist"
+        ), "web_package/src/todowrite_web/__init__.py should exist"
         assert (
             init_path.is_file()
-        ), "web_package/backend/src/todowrite_web/__init__.py should be a file"
+        ), "web_package/src/todowrite_web/__init__.py should be a file"
 
     def test_backend_main_py_exists(self):
         """RED: Test that backend main.py exists."""
-        main_path = pathlib.Path(
-            "web_package/backend/src/todowrite_web/main.py"
-        )
+        main_path = pathlib.Path("web_package/src/todowrite_web/main.py")
         assert (
             main_path.exists()
-        ), "web_package/backend/src/todowrite_web/main.py should exist"
+        ), "web_package/src/todowrite_web/main.py should exist"
         assert (
             main_path.is_file()
-        ), "web_package/backend/src/todowrite_web/main.py should be a file"
+        ), "web_package/src/todowrite_web/main.py should be a file"
 
     def test_frontend_directory_structure(self):
         """RED: Test that frontend directory structure exists."""
@@ -130,13 +124,15 @@ class TestWebPackageDirectoryStructure:
 
     def test_backend_pyproject_toml_exists(self):
         """RED: Test that backend pyproject.toml exists."""
-        pyproject_path = pathlib.Path("web_package/backend/pyproject.toml")
+        pyproject_path = pathlib.Path(
+            "web_package/src/todowrite_web/pyproject.toml"
+        )
         assert (
             pyproject_path.exists()
-        ), "web_package/backend/pyproject.toml should exist"
+        ), "web_package/src/todowrite_web/pyproject.toml should exist"
         assert (
             pyproject_path.is_file()
-        ), "web_package/backend/pyproject.toml should be a file"
+        ), "web_package/src/todowrite_web/pyproject.toml should be a file"
 
     def test_frontend_package_json_exists(self):
         """RED: Test that frontend package.json exists."""
@@ -150,7 +146,9 @@ class TestWebPackageDirectoryStructure:
 
     def test_backend_pyproject_toml_content(self):
         """RED: Test that backend pyproject.toml has required content."""
-        pyproject_path = pathlib.Path("web_package/backend/pyproject.toml")
+        pyproject_path = pathlib.Path(
+            "web_package/src/todowrite_web/pyproject.toml"
+        )
         assert pyproject_path.exists(), "pyproject.toml should exist"
 
         content = pyproject_path.read_text()

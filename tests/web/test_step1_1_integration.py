@@ -14,7 +14,7 @@ class TestWebPackageIntegration:
 
     def test_backend_python_package_installable(self):
         """RED: Test that backend package can be installed."""
-        backend_path = pathlib.Path("web_package/backend")
+        backend_path = pathlib.Path("web_package/src/todowrite_web")
         assert backend_path.exists(), "Backend directory should exist"
 
         # Test that the package structure is installable
@@ -22,7 +22,7 @@ class TestWebPackageIntegration:
             [
                 "python",
                 "-c",
-                "import sys; sys.path.insert(0, './web_package/backend/src'); import todowrite_web; print('Backend import successful')",
+                "import sys; sys.path.insert(0, './web_package/src'); import todowrite_web; print('Backend import successful')",
             ],
             capture_output=True,
             text=True,
@@ -120,7 +120,7 @@ class TestWebPackageIntegration:
 
     def test_python_path_integration(self):
         """RED: Test that PYTHONPATH works with web_package structure."""
-        backend_src_path = pathlib.Path("web_package/backend/src")
+        backend_src_path = pathlib.Path("web_package/src/todowrite_web")
         if backend_src_path.exists():
             # Test that we can add backend to PYTHONPATH
             test_result = subprocess.run(
