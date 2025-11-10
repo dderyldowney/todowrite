@@ -57,31 +57,31 @@ class TestWebPackageBackendDirectoryStructure:
     def test_backend_main_py_exists(self) -> None:
         """RED: Test that backend main.py exists."""
         main_path: pathlib.Path = pathlib.Path(
-            "web_package/src/todowrite_web/main.py"
+            "web_package/src/todowrite_web/api/backend/main.py"
         )
         assert (
             main_path.exists()
-        ), "web_package/src/todowrite_web/main.py should exist"
+        ), "web_package/src/todowrite_web/api/backend/main.py should exist"
         assert (
             main_path.is_file()
-        ), "web_package/src/todowrite_web/main.py should be a file"
+        ), "web_package/src/todowrite_web/api/backend/main.py should be a file"
 
     def test_backend_pyproject_toml_exists(self) -> None:
         """RED: Test that backend pyproject.toml exists."""
         pyproject_path: pathlib.Path = pathlib.Path(
-            "web_package/src/todowrite_web/pyproject.toml"
+            "web_package/pyproject.toml"
         )
         assert (
             pyproject_path.exists()
-        ), "web_package/src/todowrite_web/pyproject.toml should exist"
+        ), "web_package/pyproject.toml should exist"
         assert (
             pyproject_path.is_file()
-        ), "web_package/src/todowrite_web/pyproject.toml should be a file"
+        ), "web_package/pyproject.toml should be a file"
 
     def test_backend_pyproject_toml_content(self) -> None:
         """RED: Test that backend pyproject.toml has required content."""
         pyproject_path: pathlib.Path = pathlib.Path(
-            "web_package/src/todowrite_web/pyproject.toml"
+            "web_package/pyproject.toml"
         )
         assert pyproject_path.exists(), "pyproject.toml should exist"
 
@@ -90,7 +90,7 @@ class TestWebPackageBackendDirectoryStructure:
             "[tool.poetry]" in content or "[build-system]" in content
         ), "pyproject.toml should have build system"
         assert (
-            'name = "todowrite-web"' in content
+            'name = "todowrite_web"' in content
         ), "pyproject.toml should have correct package name"
 
     def test_backend_api_structure(self) -> None:
@@ -104,7 +104,7 @@ class TestWebPackageBackendDirectoryStructure:
     def test_backend_api_v1_structure(self) -> None:
         """RED: Test that backend API v1 directory structure exists."""
         api_v1_path: pathlib.Path = pathlib.Path(
-            "web_package/src/todowrite_web/api/v1"
+            "web_package/src/todowrite_web/api/backend/v1"
         )
         assert api_v1_path.exists(), "Backend API v1 directory should exist"
         assert (
@@ -114,8 +114,12 @@ class TestWebPackageBackendDirectoryStructure:
     def test_backend_init_files_in_api_structure(self) -> None:
         """RED: Test that __init__.py files exist in API structure."""
         api_inits: list[pathlib.Path] = [
-            pathlib.Path("web_package/src/todowrite_web/api/__init__.py"),
-            pathlib.Path("web_package/src/todowrite_web/api/v1/__init__.py"),
+            pathlib.Path(
+                "web_package/src/todowrite_web/api/backend/__init__.py"
+            ),
+            pathlib.Path(
+                "web_package/src/todowrite_web/api/backend/v1/__init__.py"
+            ),
         ]
 
         for init_file in api_inits:

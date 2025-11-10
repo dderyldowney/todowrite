@@ -4,11 +4,11 @@
 # - lib_package/ (todowrite library)
 # - cli_package/ (todowrite_cli)
 
-requires-python = ">=3.12"
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+requires-python = ">=3.12"
 
 # Development environment configuration
 [dependency-groups]

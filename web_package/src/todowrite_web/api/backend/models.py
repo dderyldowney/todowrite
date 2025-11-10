@@ -119,7 +119,7 @@ class Node(BaseModel):
     command: Command | None = None
 
     model_config = ConfigDict(
-        extra="allow", json_encoders={datetime: lambda v: v.isoformat() if v else None}
+        extra="allow",
     )
 
     @model_validator(mode="after")
@@ -217,7 +217,7 @@ class Project(BaseModel):
     completed_count: int
     last_updated: datetime
 
-    model_config = ConfigDict(json_encoders={datetime: lambda v: v.isoformat()})
+    model_config = ConfigDict()
 
 
 class ProjectListResponse(BaseModel):

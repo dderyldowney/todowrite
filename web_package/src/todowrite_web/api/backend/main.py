@@ -5,6 +5,7 @@ This is a minimal FastAPI application that provides the web API for the ToDoWrit
 """
 
 from fastapi import FastAPI
+
 from todowrite_web.backend.models import HealthResponse
 
 app = FastAPI(

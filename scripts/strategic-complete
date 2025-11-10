@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+"""
+Strategic Goal Completion Script
+
+This script marks strategic goals as complete using enhanced features
+including date completion tracking and validation logging.
+
+Usage:
+    python scripts/strategic-complete <search_term>
+    python scripts/strategic-complete --help
+
+Examples:
+    python scripts/strategic-complete goal-123
+    python scripts/strategic-complete "automation system"
+"""
+
+import argparse
+import sys
+from pathlib import Path
+
+# Add project root to Python path for imports
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+try:
+    from todowrite.core.app import complete_goal
+except ImportError as e:
+    print(f"Error importing todowrite modules: {e}")
+    print(
+        "Make sure you're running this from the project root with proper PYTHONPATH"
+    )
+    sys.exit(1)
+
+
+def parse_arguments():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Mark a strategic goal as complete",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  %(prog)s goal-123              # Complete by exact ID
+  %(prog)s "automation system"    # Complete by title substring
+  %(prog)s --help                # Show this help message
+        """,
+    )
+    parser.add_argument(
+        "search_term",
+        help="Goal ID or title substring to search for and complete",
+    )
+    return parser.parse_args()
+
+
+def main():
+    """Main entry point for strategic-complete script."""
+    try:
+        args = parse_arguments()
+
+        # Use the enhanced complete_goal function
+        result = complete_goal(args.search_term)
+
+        if result:
+            # Success - the complete_goal function already prints the details
+            sys.exit(0)
+        else:
+            # Failed to find or complete the goal
+            # Error messages are already printed by complete_goal function
+            sys.exit(1)
+
+    except KeyboardInterrupt:
+        print("\nOperation cancelled by user")
+        sys.exit(130)
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

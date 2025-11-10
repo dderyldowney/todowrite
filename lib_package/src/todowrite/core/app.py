@@ -13,6 +13,7 @@ from collections import defaultdict
 # Forward declaration for type hints
 from collections.abc import Callable
 from contextlib import contextmanager
+from datetime import UTC
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -1104,6 +1105,86 @@ def search_nodes(query: str) -> dict[str, list[Node]]:
     app = ToDoWrite(auto_import=False)
     app.init_database()
     return app.search_nodes(query)
+
+
+def complete_goal(search_term: str) -> Node | None:
+    """
+    Complete a strategic goal with enhanced features.
+
+    Args:
+        search_term: Goal ID or title substring to search for
+
+    Returns:
+        The completed node if found and completed, None otherwise
+    """
+    import logging
+    from datetime import datetime
+
+    app = ToDoWrite(auto_import=False)
+    app.init_database()
+
+    # Set up logging for validation
+    logger = logging.getLogger(__name__)
+
+    # Try to find goal by exact ID first
+    node = app.get_node(search_term)
+
+    if not node:
+        # Try to find by title substring (case-insensitive)
+        all_nodes = app.get_all_nodes()
+        goals = [
+            n
+            for n in all_nodes.get("Goal", [])
+            if search_term.lower() in n.title.lower()
+        ]
+
+        if len(goals) == 1:
+            node = goals[0]
+        elif len(goals) > 1:
+            print(f'Error: Multiple goals found matching "{search_term}"')
+            print("Found goals:")
+            for goal in goals:
+                print(f"  - {goal.id}: {goal.title}")
+            return None
+        else:
+            print(f'Error: No goal found matching "{search_term}"')
+            print("Use 'get_goals()' to see available goals.")
+            return None
+
+    # Check if node is already completed
+    if node.status == "completed":
+        print(f"Goal already completed: {node.title}")
+        return node
+
+    # Mark goal as completed with enhanced features
+    from .types import StatusType
+
+    completion_data = {
+        "status": StatusType.COMPLETED,
+        "metadata": {
+            **node.metadata,
+            "date_completed": datetime.now(UTC).isoformat(),
+            "validation_log": f"Goal completed via strategic-complete script at {datetime.now(UTC).isoformat()}",
+        },
+    }
+
+    updated_node = app.update_node(node.id, completion_data)
+
+    if updated_node:
+        print("✓ Goal marked as completed!")
+        print(f"  ID: {updated_node.id}")
+        print(f"  Title: {updated_node.title}")
+        print(f"  Status: {updated_node.status}")
+        print(
+            f"  Date completed: {updated_node.metadata.get('date_completed', 'Unknown')}"
+        )
+        logger.info(
+            f"Strategic goal completed: {updated_node.id} - {updated_node.title}"
+        )
+        return updated_node
+    else:
+        print(f"Error: Failed to complete goal: {node.title}")
+        return None
 
 
 def export_nodes(format: str = "yaml") -> str:
