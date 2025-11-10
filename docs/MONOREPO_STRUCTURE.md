@@ -54,8 +54,7 @@ todowrite/
 │   │       └── version.py
 │   ├── pyproject.toml           # CLI build configuration
 │   ├── README.md
-│   ├── LICENSE
-│   └── setup.py
+│   └── LICENSE
 ├── web_package/                  # todowrite_web package (FastAPI + TypeScript)
 │   ├── src/
 │   │   └── todowrite_web/       # Web package source code
@@ -78,33 +77,39 @@ todowrite/
 │   │           ├── public/
 │   │           │   └── index.html
 │   │           └── src/
-│   │               ├── components/
 │   │               └── types/
 │   │                   └── index.ts
+│   ├── docker-compose.yml        # Docker compose configuration
+│   ├── nginx.conf               # Nginx configuration
 │   ├── pyproject.toml           # Web package build configuration
 │   ├── README.md
 │   ├── LICENSE
-│   └── setup.py
+│   └── MANIFEST.in
 ├── tests/                       # Test files organized by package and subsystem
+│   ├── cli/                     # CLI package tests
 │   ├── lib/                     # Library package tests
 │   │   ├── api/                 # General library API tests
 │   │   ├── core/                # Core application logic tests
 │   │   ├── database/            # Database models and configuration tests
-│   │   ├── storage/             # Storage backend tests (YAML, etc.)
 │   │   ├── schema/              # Schema validation tests
+│   │   ├── storage/             # Storage backend tests (YAML, etc.)
 │   │   └── tools/               # Utility tools and scripts tests
-│   ├── cli/                     # CLI package tests
 │   ├── web/                     # Web package tests
 │   │   ├── api/                 # API endpoint tests
 │   │   ├── backend/             # FastAPI application tests
 │   │   ├── frontend/            # Frontend TypeScript tests
 │   │   ├── models/              # Shared model tests
 │   │   └── utils/               # Shared utility tests
+│   │   ├── test_directory_structure.py
+│   │   ├── test_simple_mode_user_journey.py
+│   │   ├── test_step1_1_directory_structure.py
+│   │   ├── test_step1_1_integration.py
+│   │   ├── test_template_based_creation.py
+│   │   └── test_visual_relationship_building.py
 │   └── shared/                  # Cross-package shared tests
 │       ├── development/         # Development workflow tests
 │       ├── unit/                # Multi-package unit tests
 │       ├── workflows/           # End-to-end workflow tests
-│       ├── features/            # Feature-specific tests
 │       ├── test_flexible_entry_points.py
 │       └── test_todowrite_flexible_hierarchy.py
 ├── pyproject.toml               # Root development configuration
