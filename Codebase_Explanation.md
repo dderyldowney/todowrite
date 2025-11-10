@@ -95,101 +95,99 @@ todowrite/core/
 ```
 todowrite/database/
 └── models.py
-    ├── Base                              # SQLAlchemy declarative base
-    ├── Node                              # Main database entity
-    │   ├── id (String, PK, NOT NULL)     # Unique identifier
-    │   ├── layer (String, NOT NULL)      # Layer type (Goal, Task, etc.)
-    │   ├── title (String, NOT NULL)      # Node title
-    │   ├── description (Text, NULLABLE)  # Optional description
-    │   ├── status (String, DEFAULT 'planned') # Status (planned, in_progress, completed, blocked, cancelled, rejected)
-    │   ├── progress (Integer, NULLABLE)  # Progress percentage (0-100)
-    │   ├── started_date (String, NULLABLE) # Start date (ISO format)
-    │   ├── completion_date (String, NULLABLE) # Completion date (ISO format)
-    │   ├── owner (String, NULLABLE)      # Node owner
-    │   ├── severity (String, NULLABLE)   # Severity level (low, med, high, critical)
-    │   ├── work_type (String, NULLABLE)  # Work type (architecture, implementation, test, etc.)
-    │   ├── assignee (String, NULLABLE)   # Assigned person
+    ├── Base                      # SQLAlchemy declarative base
+    ├── Node                      # Main database entity
+    │   ├── id (String, PK)       # Unique identifier
+    │   ├── layer (String)        # Layer type (Goal, Task, etc.)
+    │   ├── title (String)        # Node title
+    │   ├── description (Text)    # Optional description
+    │   ├── status (String)       # Status (6 types)
+    │   ├── progress (Integer)    # Progress (0-100)
+    │   ├── started_date (String) # Start date (ISO format)
+    │   ├── completion_date (Str) # Completion date (ISO format)
+    │   ├── owner (String)        # Node owner
+    │   ├── severity (String)     # Severity level
+    │   ├── work_type (String)    # Work type (10 types)
+    │   ├── assignee (String)     # Assigned person
     │   └── Relationships:
-    │       ├── labels (Many-to-Many)     # → node_labels → Label
-    │       ├── command (One-to-One)      # → Command (1:1)
-    │       ├── parents (Many-to-Many)    # → links → Node (self-referential)
-    │       └── children (Many-to-Many)   # → links → Node (self-referential)
-    ├── Link                              # Parent-child relationships (Association Table)
-    │   ├── parent_id (String, FK→nodes.id, PK) # Parent node ID
-    │   └── child_id (String, FK→nodes.id, PK)  # Child node ID
-    ├── Label                             # Tag system
-    │   ├── label (String, PK, NOT NULL)  # Label name (unique)
-    │   └── nodes (Many-to-Many)          # → node_labels → Node
-    ├── node_labels                       # Node-Label Association Table
-    │   ├── node_id (String, FK→nodes.id, PK) # Node reference
-    │   └── label (String, FK→labels.label, PK) # Label reference
-    ├── Command                           # Executable commands
-    │   ├── node_id (String, FK→nodes.id, PK, NOT NULL) # Associated node ID
-    │   ├── ac_ref (String, NULLABLE)     # Acceptance criteria reference
-    │   ├── run (Text, NULLABLE)          # Command definition (JSON/YAML)
+    │       ├── labels (M:M)      # → node_labels → Label
+    │       ├── command (1:1)     # → Command
+    │       ├── parents (M:M)     # → links → Node (self)
+    │       └── children (M:M)    # → links → Node (self)
+    ├── Link                      # Parent-child relationships
+    │   ├── parent_id (String, PK, FK) # Parent node ID
+    │   └── child_id (String, PK, FK)  # Child node ID
+    ├── Label                     # Tag system
+    │   ├── label (String, PK)    # Label name (unique)
+    │   └── nodes (M:M)           # → node_labels → Node
+    ├── node_labels               # Node-Label Association Table
+    │   ├── node_id (String, PK, FK) # Node reference
+    │   └── label (String, PK, FK)  # Label reference
+    ├── Command                   # Executable commands
+    │   ├── node_id (String, PK, FK) # Associated node ID
+    │   ├── ac_ref (String)       # Acceptance criteria reference
+    │   ├── run (Text)            # Command definition (JSON/YAML)
     │   └── Relationships:
-    │       ├── node (One-to-One)         # ← Node (1:1)
-    │       └── artifacts (One-to-Many)   # → Artifact (1:N)
-    └── Artifact                          # Command outputs/artifacts
-        ├── artifact (String, PK, NOT NULL) # Artifact identifier/file path
-        └── command_id (String, FK→commands.node_id, PK) # Associated command
-└── config.py                            # Storage configuration
+    │       ├── node (1:1)        # ← Node
+    │       └── artifacts (1:N)   # → Artifact
+    └── Artifact                  # Command outputs/artifacts
+        ├── artifact (String, PK) # Artifact identifier/file path
+        └── command_id (String, PK, FK) # Associated command
+└── config.py                    # Storage configuration
 ```
 
 **Database Schema Layout**
 ```
-                       ToDoWrite Database Schema
+                    ToDoWrite Database Schema
 
-┌─────────────────┐         ┌─────────────────┐         ┌─────────────────┐
-│     nodes       │◄──────►│     links       │         │     labels      │
-├─────────────────┤         ├─────────────────┤         ├─────────────────┤
-│ id (PK)         │         │ parent_id (PK)  │         │ label (PK)      │
-│ layer           │         │ child_id (PK)   │◄────────┤                 │
-│ title           │         └─────────────────┘         └─────────────────┘
-│ description     │                   ▲                           ▲
-│ status          │                   │                           │
-│ progress        │                   │                           │
-│ started_date    │                   │                           │
-│ completion_date │                   │                           │
-│ owner           │                   │                           │
-│ severity        │                   │                           │
-│ work_type       │                   │                           │
-│ assignee        │                   │                           │
-└─────────────────┘                   │                           │
-         ▲                            │                           │
-         │                            │                           │
-         │                            │                           │
-         │                ┌─────────────────┐                    │
-         │                │  node_labels    │                    │
-         │                ├─────────────────┤                    │
-         │                │ node_id (PK)    │                    │
-         │                │ label (PK)      │                    │
-         │                └─────────────────┘                    │
-         │                           ▲                            │
-         │                           │                            │
-┌─────────────────┐                   │                            │
-│    commands     │                   │                            │
-├─────────────────┤                   │                            │
-│ node_id (PK)    │◄──────────────────┘                            │
-│ ac_ref          │                                                    │
-│ run             │                                                    │
-└─────────────────┘                                                    │
-         ▲                                                             │
-         │                                                             │
-         │                ┌─────────────────┐                           │
-         │                │   artifacts     │                           │
-         │                ├─────────────────┤                           │
-         │                │ artifact (PK)   │                           │
-         │                │ command_id (PK) │                           │
-         │                └─────────────────┘                           │
-         │                                                             │
-         └─────────────────────────────────────────────────────────────┘
+          ┌─────────────────┐
+          │     labels      │
+          ├─────────────────┤
+          │ label (PK)      │
+          └─────────────────┘
+                   ▲
+                   │
+┌─────────────────┐    │    ┌─────────────────┐
+│     nodes       │◄───┼────│  node_labels    │
+├─────────────────┤    │    ├─────────────────┤
+│ id (PK)         │    │    │ node_id (PK)    │
+│ layer           │    │    │ label (PK)      │
+│ title           │    │    └─────────────────┘
+│ description     │    │           ▲
+│ status          │    │           │
+│ progress        │    │           │
+│ started_date    │    │           │
+│ completion_date │    │           │
+│ owner           │    │    ┌─────────────────┐
+│ severity        │    │    │     links       │
+│ work_type       │    │    ├─────────────────┤
+│ assignee        │    │    │ parent_id (PK)  │
+└─────────────────┘    │    │ child_id (PK)   │
+         ▲             │    └─────────────────┘
+         │             │             ▲
+         │             │             │
+         │             │             │
+┌─────────────────┐    │             │
+│    commands     │◄───┼─────────────┘
+├─────────────────┤    │
+│ node_id (PK)    │    │
+│ ac_ref          │    │
+│ run             │    │
+└─────────────────┘    │
+         ▲             │
+         │             │
+         │    ┌─────────────────┐
+         │    │   artifacts     │
+         └────┤─────────────────┤
+              │ artifact (PK)   │
+              │ command_id (PK) │
+              └─────────────────┘
 
 Relationship Summary:
-• nodes ↔ nodes (Many-to-Many via links) - Hierarchical parent/child
-• nodes ↔ labels (Many-to-Many via node_labels) - Tagging system
-• nodes → commands (One-to-One) - Each node can have one command
-• commands → artifacts (One-to-Many) - Commands generate artifacts
+• nodes ↔ nodes (M:M via links) - Hierarchical parent/child
+• nodes ↔ labels (M:M via node_labels) - Tagging system
+• nodes → commands (1:1) - Each node can have one command
+• commands → artifacts (1:N) - Commands generate artifacts
 
 Key Constraints:
 • String-based IDs for UUID/semantic identifiers
