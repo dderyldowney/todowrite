@@ -12,6 +12,7 @@
 **Published Packages:**
 - [lib_package](https://pypi.org/project/todowrite/) - Core library (business logic)
 - [cli_package](https://pypi.org/project/todowrite-cli/) - Command-line interface
+- web_package - Web interface (Docker-based) *[PyPI - Coming Soon]*
 
 **Repository Structure:**
 ```
