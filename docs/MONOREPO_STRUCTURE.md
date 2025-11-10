@@ -56,14 +56,57 @@ todowrite/
 │   ├── README.md
 │   ├── LICENSE
 │   └── setup.py
-├── tests/                       # Test files (shared for both packages)
-│   ├── cli/
-│   ├── core/
-│   ├── database/
-│   ├── library/
-│   ├── schema/
-│   ├── storage/
-│   └── workflows/
+├── web_package/                  # todowrite_web package (FastAPI + TypeScript)
+│   ├── src/
+│   │   └── todowrite_web/       # Web package source code
+│   │       ├── __init__.py      # Main package interface (imports from backend)
+│   │       ├── backend/          # Python backend module
+│   │       │   ├── __init__.py  # Backend module interface
+│   │       │   ├── models.py    # Pydantic models for all entities
+│   │       │   ├── utils.py     # Utility functions for node management
+│   │       │   └── api/         # FastAPI API structure
+│   │       │       ├── __init__.py
+│   │       │       ├── middleware/
+│   │       │       │   └── __init__.py
+│   │       │       └── v1/
+│   │       │           ├── __init__.py
+│   │       │           └── endpoints/
+│   │       │               └── __init__.py
+│   │       └── frontend/        # TypeScript frontend
+│   │           ├── jest.config.js
+│   │           ├── package.json
+│   │           ├── public/
+│   │           │   └── index.html
+│   │           └── src/
+│   │               ├── components/
+│   │               └── types/
+│   │                   └── index.ts
+│   ├── pyproject.toml           # Web package build configuration
+│   ├── README.md
+│   ├── LICENSE
+│   └── setup.py
+├── tests/                       # Test files organized by package and subsystem
+│   ├── lib/                     # Library package tests
+│   │   ├── api/                 # General library API tests
+│   │   ├── core/                # Core application logic tests
+│   │   ├── database/            # Database models and configuration tests
+│   │   ├── storage/             # Storage backend tests (YAML, etc.)
+│   │   ├── schema/              # Schema validation tests
+│   │   └── tools/               # Utility tools and scripts tests
+│   ├── cli/                     # CLI package tests
+│   ├── web/                     # Web package tests
+│   │   ├── api/                 # API endpoint tests
+│   │   ├── backend/             # FastAPI application tests
+│   │   ├── frontend/            # Frontend TypeScript tests
+│   │   ├── models/              # Shared model tests
+│   │   └── utils/               # Shared utility tests
+│   └── shared/                  # Cross-package shared tests
+│       ├── development/         # Development workflow tests
+│       ├── unit/                # Multi-package unit tests
+│       ├── workflows/           # End-to-end workflow tests
+│       ├── features/            # Feature-specific tests
+│       ├── test_flexible_entry_points.py
+│       └── test_todowrite_flexible_hierarchy.py
 ├── pyproject.toml               # Root development configuration
 ├── pyrightconfig.json
 ├── .pre-commit-config.yaml
@@ -75,14 +118,15 @@ todowrite/
 
 - **todowrite** (library): Core functionality for managing Goals, Tasks, Concepts, and Commands
 - **todowrite_cli** (CLI): Thin wrapper around the library that provides command-line interface
+- **todowrite_web** (web package): FastAPI backend + TypeScript frontend for web interface
 
-The CLI package depends on the library (`todowrite>=0.2.0`), but the library is completely independent and can be used on its own.
+The CLI and web packages depend on the library (`todowrite>=0.2.0`), but the library is completely independent and can be used on its own. The web package provides both REST API endpoints and a modern TypeScript frontend.
 
 ## Building and Installation
 
 ### Development Installation
 
-For development, install both packages in editable mode:
+For development, install all packages in editable mode:
 
 ```bash
 # Install the library
@@ -90,6 +134,9 @@ pip install -e ./lib_package
 
 # Install the CLI
 pip install -e ./cli_package
+
+# Install the web package
+pip install -e ./web_package
 ```
 
 ### Running Tests
@@ -97,14 +144,21 @@ pip install -e ./cli_package
 Tests are located in the `tests/` directory and can be run from the project root:
 
 ```bash
-# Set PYTHONPATH to include both src directories
-export PYTHONPATH="lib_package/src:cli_package/src"
+# Set PYTHONPATH to include all src directories
+export PYTHONPATH="lib_package/src:cli_package/src:web_package/src"
 
 # Run all tests
 python -m pytest tests/
 
-# Run tests for specific module
-python -m pytest tests/core/
+# Run tests for specific package
+python -m pytest tests/lib/
+python -m pytest tests/cli/
+python -m pytest tests/web/
+
+# Run tests for specific subsystem
+python -m pytest tests/lib/core/
+python -m pytest tests/web/api/
+python -m pytest tests/shared/
 ```
 
 ### Building Packages
@@ -119,6 +173,10 @@ python -m build
 # Build the CLI
 cd ../cli_package
 python -m build
+
+# Build the web package
+cd ../web_package
+python -m build
 ```
 
 ### Installing from PyPI
@@ -129,6 +187,9 @@ pip install todowrite
 
 # Install the CLI (will also install the library)
 pip install todowrite-cli
+
+# Install the web package (will also install the library)
+pip install todowrite-web
 ```
 
 ## Development Workflow
@@ -161,19 +222,22 @@ python -m pytest tests/ --cov=src --cov-report=html
 
 ## Key Benefits of This Structure
 
-1. **Clear Separation**: Library and CLI are separate packages with their own build configurations
-2. **Standard Layout**: Follows Python packaging guidelines with `src/` layout
+1. **Clear Separation**: Library, CLI, and Web are separate packages with their own build configurations
+2. **Standard Layout**: Follows Python packaging guidelines with `src/` layout for all packages
 3. **Independent Development**: Each package can be developed, tested, and released independently
-4. **Shared Tests**: Common test infrastructure for both packages
+4. **Organized Tests**: Tests organized by package and subsystem for better maintainability
 5. **Clean Dependencies**: Clear dependency relationship between packages
+6. **Full-Stack Support**: Complete stack from library core to CLI and web interface
 
 ## Migration Notes
 
 This structure was migrated from a non-standard layout to follow Python packaging best practices. The key changes were:
 
-1. Moved source code from `lib_package/todowrite/` and `cli_package/todowrite_cli/` to `src/todowrite/` and `src/todowrite_cli/`
+1. Moved source code from `lib_package/todowrite/`, `cli_package/todowrite_cli/`, and `web_package/todowrite_web/` to `src/todowrite/`, `src/todowrite_cli/`, and `src/todowrite_web/`
 2. Updated all `pyproject.toml` files to reference the new `src/` structure
-3. Adjusted build configurations, test paths, and coverage settings
-4. Maintained backward compatibility for all imports and functionality
+3. Added comprehensive web package with FastAPI backend and TypeScript frontend
+4. Reorganized tests by package and subsystem for better maintainability
+5. Adjusted build configurations, test paths, and coverage settings
+6. Maintained backward compatibility for all imports and functionality
 
-The API and functionality remain exactly the same - only the project structure has been improved.
+The API and functionality remain exactly the same - only the project structure has been improved and extended with full-stack capabilities.
