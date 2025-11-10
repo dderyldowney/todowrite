@@ -388,7 +388,7 @@ The database schema is designed around a hierarchical node system:
 - [Pre-commit hooks](https://pre-commit.com/) for code quality
 - Comprehensive [type annotations](https://typing.python.org/en/latest/) (Python 3.12+)
 - Security auditing with [Ruff](https://github.com/astral-sh/ruff) in S mode
-- 46+ test files covering all components
+- 46+ [test files](https://docs.python.org/3/library/unittest.html) covering all components
 
 ### 7. **Data Flow**
 
