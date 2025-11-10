@@ -1,7 +1,9 @@
 # ToDoWrite Codebase Explanation
 
 ## Overview
-**ToDoWrite** is a sophisticated **hierarchical task management system** designed for managing complex software projects. It's built as a Python monorepo with a clean separation between core business logic and user interfaces.
+**ToDoWrite** is a sophisticated **hierarchical task management system** designed for managing complex software projects. It's built as a [Python 3.12+](https://docs.python.org/release/3.12.12/) monorepo with a clean separation between core business logic and user interfaces.
+
+**Project Homepage**: [ToDoWrite GitHub Repository](https://github.com/dderyldowney/todowrite)
 
 ## Architecture
 
@@ -218,11 +220,65 @@ todowrite/storage/
 **Tools (`lib_package/src/todowrite/tools/`)**
 ```
 todowrite/tools/
-├── tw_validate.py                        # Node validation utilities
-├── tw_trace.py                           # Relationship tracing and analysis
-├── tw_lint_soc.py                        # Social coding linting
-├── tw_stub_command.py                    # Command stubbing utilities
-└── extract_schema.py                     # Schema extraction utilities
+├── tw_validate.py                        # Schema validation tool
+│   └── ToDoWriteValidator
+│       ├── __init__()                    # Initialize validator with schema
+│       ├── _load_schema()                # Load JSON schema from file
+│       ├── validate_file()               # Validate single YAML file
+│       ├── validate_directory()          # Validate all YAML files in directory
+│       ├── validate_schema()             # Validate database against schema
+│       └── print_validation_report()     # Generate validation report
+├── tw_trace.py                           # Traceability analysis tool
+│   └── TraceabilityBuilder
+│       ├── __init__()                    # Initialize traceability builder
+│       ├── _find_yaml_files()            # Discover all YAML files
+│       ├── _load_yaml_file()             # Load and parse YAML file
+│       ├── build_traceability_matrix()   # Build forward/backward links
+│       ├── find_orphaned_nodes()         # Find disconnected nodes
+│       ├── detect_circular_dependencies() # Find circular dependencies
+│       ├── export_csv()                  # Export traceability to CSV
+│       └── generate_report()             # Generate analysis report
+├── tw_lint_soc.py                        # Separation of Concerns linter
+│   └── SoCLinter
+│       ├── __init__()                    # Initialize SoC linter
+│       ├── _check_executable_patterns()   # Check for executable content
+│       ├── _validate_layer_separation()  # Ensure proper layer separation
+│       ├── lint_file()                   # Lint single YAML file
+│       ├── lint_directory()              # Lint all YAML files
+│       ├── _check_command_layer()        # Validate Command layer content
+│       └── print_violations()            # Print SoC violations
+├── tw_stub_command.py                    # Command stub generator
+│   └── CommandStubGenerator
+│       ├── __init__()                    # Initialize stub generator
+│       ├── _find_acceptance_criteria_files() # Find AC files
+│       ├── _find_existing_commands()     # Find existing command files
+│       ├── _generate_command_stub()      # Generate command from AC
+│       ├── _create_command_yaml()        # Create command YAML structure
+│       ├── _generate_executable_content() # Generate executable stub
+│       └── generate_all_stubs()          # Generate all missing commands
+└── extract_schema.py                     # Schema extraction utility
+    ├── extract_and_write_schema()        # Extract JSON schema from Markdown
+    ├── _find_schema_block()              # Find schema in Markdown file
+    └── _validate_schema_structure()      # Validate extracted schema
+```
+
+**Built-in Libraries and Dependencies**
+```
+Core Libraries Used:
+├── [SQLAlchemy](https://www.sqlalchemy.org/)           # ORM and database interaction
+├── [jsonschema](https://python-jsonschema.readthedocs.io/)  # JSON schema validation
+├── [PyYAML](https://pyyaml.org/)                       # YAML file parsing and generation
+├── [Click](https://click.palletsprojects.com/)         # CLI framework (cli_package)
+├── [Rich](https://rich.readthedocs.io/)                # Terminal formatting (cli_package)
+├── [pathlib](https://docs.python.org/3/library/pathlib.html)  # File system operations
+├── [typing](https://docs.python.org/3/library/typing.html)     # Type hints and annotations
+└── [argparse](https://docs.python.org/3/library/argparse.html) # Command-line argument parsing
+
+Validation & Processing:
+├── [Draft202012Validator](https://python-jsonschema.readthedocs.io/en/stable/validate/#jsonschema.Draft202012Validator)  # JSON Schema validator
+├── [ValidationError](https://python-jsonschema.readthedocs.io/en/stable/exceptions/#jsonschema.exceptions.ValidationError)  # Schema validation errors
+├── [yaml.safe_load()](https://pyyaml.org/wiki/PyYAMLDocumentation#loading-yaml)  # Secure YAML loading
+└── [re (regex)](https://docs.python.org/3/library/re.html)  # Pattern matching and validation
 ```
 
 ### 3. **CLI Interface (cli_package)**
