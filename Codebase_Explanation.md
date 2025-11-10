@@ -10,12 +10,12 @@
 ### 1. **Monorepo Structure**
 ```
 todowrite/
-├── lib_package/          # Core library (business logic)
-├── cli_package/          # Command-line interface
+├── lib_package/          # Core library (business logic) [PyPI](https://pypi.org/project/todowrite/)
+├── cli_package/          # Command-line interface [PyPI](https://pypi.org/project/todowrite-cli/)
 ├── web_package/          # Web interface (Docker-based)
 ├── tests/               # Comprehensive test suite
 ├── scripts/             # Build/deployment automation
-├── docs/                # Documentation
+├── docs/                # [Documentation](https://github.com/dderyldowney/todowrite/tree/develop/docs)
 └── dev_tools/           # Development utilities
 ```
 
