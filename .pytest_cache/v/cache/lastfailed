@@ -45,5 +45,6 @@
   "tests/web/test_visual_relationship_building.py::TestVisualRelationshipBuilding": true,
   "tests/shared/unit/test_manager.py::TestTodosManager::test_get_node": true,
   "tests/shared/unit/test_manager.py::TestTodosManager::test_list_nodes": true,
-  "tests/shared/unit/test_manager.py::TestTodosManager::test_search_nodes": true
+  "tests/shared/unit/test_manager.py::TestTodosManager::test_search_nodes": true,
+  "tests/shared/unit/test_database_isolation.py::TestDatabaseIsolation::test_table_isolation_between_tests": true
 }

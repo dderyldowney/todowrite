@@ -31,7 +31,10 @@ from todowrite.core.app import (
 def create_standalone_node(
     layer: str, title: str, description: str
 ) -> dict[str, Any]:
-    """Create a node without requiring a parent - demonstrates flexible entry."""
+    """Create a node without requiring a parent - demonstrates flexible entry.
+
+    Uses real database operations with proper UUID generation for uniqueness.
+    """
     layer_prefix_map = {
         "Goal": "GOAL",
         "Concept": "CON",
@@ -73,6 +76,7 @@ def create_standalone_node(
             "artifacts": [],
         }
 
+    # Create node using real database operation
     node = create_node(node_data)
     return {"id": node.id, "title": node.title, "status": node.status}
 
