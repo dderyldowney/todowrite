@@ -39,9 +39,9 @@ The heart of the system with these key components:
 - **Rich Metadata**: owner, labels, severity, work_type, assignee
 
 #### **Multi-Backend Storage**
-1. **PostgreSQL** (primary)
-2. **SQLite** (fallback)
-3. **YAML files** (last resort)
+1. **[PostgreSQL](https://www.postgresql.org/)** (primary)
+2. **[SQLite](https://www.sqlite.org/)** (fallback)
+3. **[YAML](https://yaml.org/) files** (last resort)
 4. **Automatic fallback** with smart detection
 
 #### **Core Library Classes**
@@ -379,15 +379,15 @@ The database schema is designed around a hierarchical node system:
 ### 6. **Build System & Development**
 
 #### **Modern Python Tooling**
-- **uv**: Modern package management (recently integrated)
-- **Hatchling**: Build backend with shared version management
-- **Ruff**: All-in-one linting and formatting
-- **Pytest**: Testing with coverage requirements
+- **[uv](https://github.com/astral-sh/uv)**: Modern package management (recently integrated)
+- **[Hatchling](https://hatch.pypa.io/)**: Build backend with shared version management
+- **[Ruff](https://github.com/astral-sh/ruff)**: All-in-one linting and formatting
+- **[Pytest](https://pytest.org/)**: Testing with coverage requirements
 
 #### **Quality Assurance**
-- Pre-commit hooks for code quality
-- Comprehensive type annotations (Python 3.12+)
-- Security auditing with Bandit
+- [Pre-commit hooks](https://pre-commit.com/) for code quality
+- Comprehensive [type annotations](https://typing.python.org/en/latest/) (Python 3.12+)
+- Security auditing with [Ruff](https://github.com/astral-sh/ruff) in S mode
 - 46+ test files covering all components
 
 ### 7. **Data Flow**
