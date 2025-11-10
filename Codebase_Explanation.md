@@ -138,65 +138,62 @@ todowrite/database/
 
 **Database Schema Layout**
 ```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                                 ToDoWrite Database Schema                     │
-└─────────────────────────────────────────────────────────────────────────────────┘
+                       ToDoWrite Database Schema
 
-┌─────────────────────┐    ┌─────────────────────┐    ┌─────────────────────┐
-│       nodes         │    │       links         │    │       labels        │
-├─────────────────────┤    ├─────────────────────┤    ├─────────────────────┤
-│ id (PK)             │◄──►│ parent_id (PK,FK)   │    │ label (PK)          │
-│ layer (NOT NULL)    │    │ child_id (PK,FK)    │◄──►│                     │
-│ title (NOT NULL)    │    └─────────────────────┘    └─────────────────────┘
-│ description         │              ▲                            ▲
-│ status (DEFAULT)    │              │                            │
-│ progress            │              │                            │
-│ started_date        │              │                            │
-│ completion_date     │              │                            │
-│ owner               │              │                            │
-│ severity            │              │                            │
-│ work_type           │              │                            │
-│ assignee            │              │                            │
-└─────────────────────┘              │                            │
-          ▲                         │                            │
-          │                         │                            │
-          │                         │                            │
-          │              ┌─────────────────────┐               │
-          │              │    node_labels      │               │
-          │              ├─────────────────────┤               │
-          │              │ node_id (PK,FK)    │               │
-          │              │ label (PK,FK)      │               │
-          │              └─────────────────────┘               │
-          │                         ▲                            │
-          │                         │                            │
-┌─────────────────────┐              │                            │
-│      commands       │              │                            │
-├─────────────────────┤              │                            │
-│ node_id (PK,FK)     │◄─────────────┘                            │
-│ ac_ref              │                                           │
-│ run                 │                                           │
-└─────────────────────┘                                           │
-          ▲                                                      │
-          │                                                      │
-          │              ┌─────────────────────┐                 │
-          │              │     artifacts       │                 │
-          │              ├─────────────────────┤                 │
-          │              │ artifact (PK)      │                 │
-          │              │ command_id (PK,FK) │                 │
-          │              └─────────────────────┘                 │
-          │                                                      │
-          └──────────────────────────────────────────────────────┘
+┌─────────────────┐         ┌─────────────────┐         ┌─────────────────┐
+│     nodes       │◄──────►│     links       │         │     labels      │
+├─────────────────┤         ├─────────────────┤         ├─────────────────┤
+│ id (PK)         │         │ parent_id (PK)  │         │ label (PK)      │
+│ layer           │         │ child_id (PK)   │◄────────┤                 │
+│ title           │         └─────────────────┘         └─────────────────┘
+│ description     │                   ▲                           ▲
+│ status          │                   │                           │
+│ progress        │                   │                           │
+│ started_date    │                   │                           │
+│ completion_date │                   │                           │
+│ owner           │                   │                           │
+│ severity        │                   │                           │
+│ work_type       │                   │                           │
+│ assignee        │                   │                           │
+└─────────────────┘                   │                           │
+         ▲                            │                           │
+         │                            │                           │
+         │                            │                           │
+         │                ┌─────────────────┐                    │
+         │                │  node_labels    │                    │
+         │                ├─────────────────┤                    │
+         │                │ node_id (PK)    │                    │
+         │                │ label (PK)      │                    │
+         │                └─────────────────┘                    │
+         │                           ▲                            │
+         │                           │                            │
+┌─────────────────┐                   │                            │
+│    commands     │                   │                            │
+├─────────────────┤                   │                            │
+│ node_id (PK)    │◄──────────────────┘                            │
+│ ac_ref          │                                                    │
+│ run             │                                                    │
+└─────────────────┘                                                    │
+         ▲                                                             │
+         │                                                             │
+         │                ┌─────────────────┐                           │
+         │                │   artifacts     │                           │
+         │                ├─────────────────┤                           │
+         │                │ artifact (PK)   │                           │
+         │                │ command_id (PK) │                           │
+         │                └─────────────────┘                           │
+         │                                                             │
+         └─────────────────────────────────────────────────────────────┘
 
-**Relationship Summary:**
-• nodes ↔ nodes (Many-to-Many via links) - Hierarchical parent/child relationships
+Relationship Summary:
+• nodes ↔ nodes (Many-to-Many via links) - Hierarchical parent/child
 • nodes ↔ labels (Many-to-Many via node_labels) - Tagging system
 • nodes → commands (One-to-One) - Each node can have one command
-• commands → artifacts (One-to-Many) - Commands can generate multiple artifacts
+• commands → artifacts (One-to-Many) - Commands generate artifacts
 
-**Key Constraints:**
-• All ID fields use String type for UUID/semantic IDs
-• Links table uses composite primary key (parent_id, child_id)
-• node_labels table uses composite primary key (node_id, label)
+Key Constraints:
+• String-based IDs for UUID/semantic identifiers
+• Composite primary keys for association tables
 • Foreign key constraints ensure referential integrity
 • Self-referential relationships allow unlimited hierarchy depth
 ```
