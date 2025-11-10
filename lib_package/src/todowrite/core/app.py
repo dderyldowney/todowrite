@@ -880,7 +880,7 @@ class ToDoWrite:
         active_items: dict[str, list[Node]] = defaultdict(list)
         for layer, nodes in todos.items():
             for node in nodes:
-                if node.status not in ["done", "rejected"]:
+                if node.status not in ["completed", "rejected"]:
                     active_items[layer].append(node)
         return dict(active_items)
 
