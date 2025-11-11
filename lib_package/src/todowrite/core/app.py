@@ -1,5 +1,20 @@
 """
-This module contains the core ToDoWrite application class.
+ToDoWrite Core Application Module.
+
+This module contains the main ToDoWrite application class that provides
+hierarchical task management functionality with 12-layer architecture.
+
+The ToDoWrite system supports:
+- 12-layer hierarchical task management (Goal → Command)
+- Database and YAML storage backends
+- Node creation, updates, and relationship management
+- Schema validation and integrity checks
+- Traceability and reporting capabilities
+
+Example:
+    >>> tw = ToDoWrite(database_url="sqlite:///todowrite.db")
+    >>> goal = tw.create_node("goal", "My Goal", "Description")
+    >>> print(f"Created goal: {goal['id']}")
 """
 
 from __future__ import annotations
@@ -75,7 +90,45 @@ def _validate_literal(value: str, literal_type: type[object]) -> str:
 
 
 class ToDoWrite:
-    """The main ToDoWrite application class."""
+    """
+    The main ToDoWrite application class for hierarchical task management.
+
+    This class provides the core functionality for managing hierarchical
+    tasks across 12 layers, from Goals down to Commands. It supports
+    both database and YAML storage backends with full schema validation.
+
+    The 12 layers are:
+    1. Goal - Strategic objectives
+    2. Concept - Architectural concepts
+    3. Context - Environmental contexts
+    4. Constraint - System constraints
+    5. Requirement - Functional requirements
+    6. AcceptanceCriteria - Testable acceptance criteria
+    7. InterfaceContract - Interface specifications
+    8. Phase - Development phases
+    9. Step - Implementation steps
+    10. Task - Specific tasks
+    11. Subtask - Detailed subtasks
+    12. Command - Executable commands
+
+    Attributes:
+        database_url: Database connection string
+        storage_backend: Storage backend type ('database' or 'yaml')
+        yaml_storage: YAML storage manager (when yaml backend is used)
+        project_dir: Project directory for YAML storage
+        engine: SQLAlchemy database engine (when database backend is used)
+
+    Example:
+        >>> # Database storage
+        >>> tw = ToDoWrite(database_url="sqlite:///project.db")
+        >>>
+        >>> # YAML storage
+        >>> tw = ToDoWrite(project_dir="/path/to/project")
+        >>>
+        >>> # Create a goal
+        >>> goal = tw.create_node("goal", "Automate Testing", "Full test automation")
+        >>> print(f"Created: {goal['id']}")
+    """
 
     _SCHEMA: dict[str, Any] | None = None
 

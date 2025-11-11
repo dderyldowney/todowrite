@@ -79,8 +79,28 @@ All MCP tools are permanently authorized in `.claude/settings.local.json`:
 ### Search-Covered Projects
 
 - **todowrite**: Current project - hierarchical task management
-- **afs-fastapi**: FastAPI project with authentication
-- Plus 427+ other conversations across multiple projects
+- Plus 600+ other conversations across multiple projects
+
+### Deployment Tools Configuration (MCP Indexed)
+
+**Build System (MANDATORY):**
+- hatchling ONLY (NEVER setuptools)
+- Command: `uv run hatchling build` (PREFERRED & RECOMMENDED)
+
+**Package Publishing (MANDATORY):**
+- twine ONLY for PyPI/TestPyPI
+- ALWAYS TestPyPI first, then production PyPI
+- Commands:
+  - `uv run twine upload --repository testpypi dist/*` (TestPyPI FIRST)
+  - `uv run twine upload dist/*` (Production PyPI SECOND)
+
+**GitHub Releases (MANDATORY):**
+- GitHub CLI ONLY (NEVER web interface)
+- Releases are for the entire codebase, not dist/* files
+- Command: `gh release create v0.4.1 --title "Release v0.4.1" --notes "Release notes"`
+
+**Documentation Reference:**
+- See `docs/development/DEPLOYMENT_TOOLS.md` for complete deployment procedures
 
 ### Memory Efficiency
 

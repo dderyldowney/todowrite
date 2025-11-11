@@ -351,12 +351,19 @@ def create_nodes_batch(nodes: list[NodeData]) -> list[str]:
 
 ### Required Tools (NEVER alternatives)
 - **uv**: Fast package management (NO pip for complex ops)
-- **ruff**: Formatting and linting (NO black, flake8)
-- **pyright**: Type checking (NEVER mypy)
-- **pytest**: Testing framework
-- **bandit**: Security scanning
-- **hatchling**: Build system (NEVER setuptools)
-- **twine**: Package publishing
+- **ruff**: Formatting and linting (NO black, flake8) - Use `uv run ruff`
+- **pyright**: Type checking (NEVER mypy) - Use `uv run pyright`
+- **pytest**: Testing framework - Use `uv run pytest`
+- **bandit**: Security scanning - Use `uv run bandit`
+- **hatchling**: Build system (NEVER setuptools) - Use `uv run hatchling build` (PREFERRED & RECOMMENDED)
+- **twine**: Package publishing (PyPI/TestPyPI) - Use `uv run twine upload`
+- **gh**: GitHub CLI for releases (NEVER web interface) - Use `gh release create`
+
+### Deployment Tools (MANDATORY)
+- **Build System**: hatchling ONLY (NEVER setuptools)
+- **PyPI Publishing**: twine ONLY (TestPyPI and production)
+- **GitHub Releases**: GitHub CLI ONLY (NEVER web interface)
+- **Version Management**: Central VERSION file with automation
 
 ### Frontend Architecture
 - **Claude Code CLI**: Agentic frontend (NO web UI planned)
