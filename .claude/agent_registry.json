@@ -1,6 +1,6 @@
 {
   "claude-code": {
-    "last_seen": "2025-11-11T17:12:05.706896",
+    "last_seen": "2025-11-11T18:20:00.000000",
     "agent_type": "development",
     "capabilities": [
       "code-generation",
@@ -11,6 +11,45 @@
       "requires_todowrite_cli": true,
       "planning_required": true,
       "token_optimization": true
+    },
+    "semantic_scoping_aware": true,
+    "semantic_scopes_loaded": [
+      "lib",
+      "cli",
+      "web",
+      "tests",
+      "docs",
+      "build",
+      "config",
+      "ci",
+      "deps"
+    ],
+    "semantic_scoping_loaded_time": "2025-11-11T18:20:00.000000",
+    "monorepo_packages": {
+      "lib_package": {
+        "package_name": "todowrite",
+        "package_type": "library",
+        "package_scope": "lib",
+        "published": true,
+        "pypi_name": "todowrite",
+        "version_locked_with": ["cli_package"]
+      },
+      "cli_package": {
+        "package_name": "todowrite-cli",
+        "package_type": "cli",
+        "package_scope": "cli",
+        "published": true,
+        "pypi_name": "todowrite_cli",
+        "version_locked_with": ["lib_package"]
+      },
+      "web_package": {
+        "package_name": "todowrite-web",
+        "package_type": "webapp",
+        "package_scope": "web",
+        "published": false,
+        "independent_versioning": true,
+        "has_own_claude_config": true
+      }
     }
   }
 }
