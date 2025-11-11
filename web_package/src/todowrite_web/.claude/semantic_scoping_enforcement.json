@@ -1,0 +1,235 @@
+{
+  "semantic_scoping_enforced": true,
+  "enforcement_level": "strict",
+  "applies_to_all_agents": true,
+  "agent_coverage": {
+    "human_agents": {
+      "enforced": true,
+      "description": "Human developers and contributors"
+    },
+    "ai_agents": {
+      "enforced": true,
+      "description": "AI agents and assistants"
+    },
+    "subagents": {
+      "enforced": true,
+      "description": "Subagent-driven development agents"
+    },
+    "code_review_agents": {
+      "enforced": true,
+      "description": "Code review and validation agents"
+    },
+    "planning_agents": {
+      "enforced": true,
+      "description": "Planning and architecture agents"
+    },
+    "test_agents": {
+      "enforced": true,
+      "description": "Testing and quality assurance agents"
+    }
+  },
+  "semantic_scopes": {
+    "lib": {
+      "description": "Core todowrite library functionality",
+      "file_patterns": [
+        "lib_package/",
+        "src/todowrite/",
+        "todowrite/"
+      ],
+      "enforced": true,
+      "examples": [
+        "feat(lib): add hierarchical task relationships",
+        "fix(lib): resolve database connection timeout",
+        "refactor(lib): optimize node traversal algorithm"
+      ]
+    },
+    "cli": {
+      "description": "Command-line interface and CLI tools",
+      "file_patterns": [
+        "cli_package/",
+        "src/todowrite_cli/",
+        "todowrite_cli/"
+      ],
+      "enforced": true,
+      "examples": [
+        "feat(cli): add interactive mode for task management",
+        "fix(cli): resolve argument parsing bug",
+        "docs(cli): update command-line help text"
+      ]
+    },
+    "web": {
+      "description": "Web interface and API endpoints",
+      "file_patterns": [
+        "web_package/",
+        "src/todowrite_web/",
+        "todowrite_web/"
+      ],
+      "enforced": true,
+      "examples": [
+        "feat(web): implement real-time task updates",
+        "fix(web): resolve authentication session handling",
+        "style(web): improve responsive design for mobile"
+      ]
+    },
+    "tests": {
+      "description": "Test suite and testing infrastructure",
+      "file_patterns": [
+        "tests/",
+        "test_",
+        "_test.py",
+        "conftest.py"
+      ],
+      "enforced": true,
+      "examples": [
+        "test(lib): add comprehensive integration tests",
+        "fix(tests): resolve fixture teardown issues",
+        "refactor(tests): simplify test data management"
+      ]
+    },
+    "docs": {
+      "description": "Documentation and guides",
+      "file_patterns": [
+        "docs/",
+        "*.md",
+        "README*",
+        "CHANGELOG*",
+        "*.rst"
+      ],
+      "enforced": true,
+      "examples": [
+        "docs(readme): update installation instructions",
+        "docs(api): add REST API documentation",
+        "fix(docs): correct broken links in user guide"
+      ]
+    },
+    "build": {
+      "description": "Build system, packaging, and deployment",
+      "file_patterns": [
+        "pyproject.toml",
+        "setup.py",
+        "Makefile",
+        "Dockerfile",
+        "docker-compose*",
+        "build/",
+        "dist/"
+      ],
+      "enforced": true,
+      "examples": [
+        "build(lib): update packaging configuration for Python 3.12",
+        "fix(build): resolve Docker image caching issues",
+        "chore(build): upgrade build dependencies"
+      ]
+    },
+    "config": {
+      "description": "Configuration files and settings",
+      "file_patterns": [
+        ".pre-commit-config.yaml",
+        "commitlint.config.js",
+        ".env*",
+        "*.ini",
+        "*.cfg",
+        "config/",
+        ".claude/"
+      ],
+      "enforced": true,
+      "examples": [
+        "feat(config): add semantic scoping validation",
+        "fix(config): resolve pre-commit hook configuration",
+        "chore(config): update development environment settings"
+      ]
+    },
+    "ci": {
+      "description": "Continuous integration and deployment",
+      "file_patterns": [
+        ".github/",
+        ".gitlab-ci.yml",
+        ".circleci/",
+        "*.yml"
+      ],
+      "enforced": true,
+      "examples": [
+        "ci(github): add automated testing workflow",
+        "fix(ci): resolve deployment pipeline timeout",
+        "chore(ci): update action versions"
+      ]
+    },
+    "deps": {
+      "description": "Dependencies and requirements",
+      "file_patterns": [
+        "requirements*",
+        "poetry.lock",
+        "Pipfile*",
+        "uv.lock"
+      ],
+      "enforced": true,
+      "examples": [
+        "deps(lib): upgrade SQLAlchemy to latest stable",
+        "fix(deps): resolve conflicting package versions",
+        "chore(deps): remove unused development dependencies"
+      ]
+    }
+  },
+  "validation_rules": {
+    "scope_required": true,
+    "scope_pattern": "^[a-z][a-z0-9_-]*$",
+    "max_scope_length": 20,
+    "case_sensitive": false,
+    "enforce_scope_file_mapping": true,
+    "validate_scope_content": true,
+    "reject_invalid_scopes": true,
+    "provide_scope_suggestions": true
+  },
+  "conventional_types": [
+    "feat",
+    "fix",
+    "docs",
+    "style",
+    "refactor",
+    "perf",
+    "test",
+    "build",
+    "ci",
+    "chore",
+    "revert"
+  ],
+  "enforcement_hooks": {
+    "semantic_scope_validator": {
+      "enabled": true,
+      "executable": "./.hooks/semantic-scope-validator.py",
+      "stages": [
+        "commit-msg"
+      ],
+      "require_serial": true
+    },
+    "conventional_commits": {
+      "enabled": true,
+      "repo": "https://github.com/compilerla/conventional-pre-commit",
+      "rev": "v3.3.0"
+    }
+  },
+  "agent_instructions": {
+    "mandatory_for_all_agents": true,
+    "subagent_driven_development": "All subagents must use semantic scoping",
+    "test_driven_development": "Test commits must include semantic scope",
+    "code_review_agents": "Review commits must validate semantic scoping",
+    "planning_agents": "Planning commits must use appropriate scope"
+  },
+  "error_messages": {
+    "missing_scope": "Scope is required. Use semantic scoping based on changed files.",
+    "invalid_scope": "Invalid scope. Use one of the project-defined semantic scopes.",
+    "scope_mismatch": "Scope doesn't match changed files. Consider using appropriate scope.",
+    "format_error": "Invalid commit format. Use <type>(scope): description format."
+  },
+  "compliance_features": {
+    "automatic_scope_detection": true,
+    "file_based_suggestions": true,
+    "scope_help_examples": true,
+    "validation_with_correction_suggestions": true,
+    "integration_with_existing_workflows": true
+  },
+  "enabled_time": "2025-11-11T16:56:39.741616",
+  "permanent_enforcement": true,
+  "applies_to_all_sessions": true,
+  "agent_validation_required": true,
+  "cross_agent_consistency": true
+}

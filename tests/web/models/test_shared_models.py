@@ -96,13 +96,15 @@ class TestCommand:
 
     def test_command_creation(self):
         """Test creating a valid command."""
-        command = Command(
-            ac_ref="AC-TEST123",
-            run=CommandRun(shell="echo hello", workdir="/tmp"),
-        )
-        assert command.ac_ref == "AC-TEST123"
-        assert command.run.shell == "echo hello"
-        assert command.run.workdir == "/tmp"
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            command = Command(
+                ac_ref="AC-TEST123",
+                run=CommandRun(shell="echo hello", workdir=tmp_dir),
+            )
+            assert command.ac_ref == "AC-TEST123"
+            assert command.run.shell == "echo hello"
+            assert command.run.workdir == tmp_dir
         assert command.artifacts is None
 
     def test_command_with_artifacts(self):

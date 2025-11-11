@@ -138,17 +138,191 @@ def enforce_todowrite_cli_workflow():
     return True
 
 
+def enforce_comprehensive_code_quality():
+    """Activate comprehensive code quality enforcement across all tools."""
+    session_root = get_session_root()
+    session_dir = session_root / ".claude"
+    quality_config_file = session_dir / "comprehensive_quality_enforcement.json"
+
+    # Updated comprehensive quality configuration with all new tools
+    quality_config = {
+        "enforcement_level": "strict",
+        "enforcement_time": datetime.now().isoformat(),
+        "tools": {
+            "semantic_scoping": {
+                "active": True,
+                "enforced_via": "pre_commit_hooks",
+                "configuration": ".hooks/semantic-scope-validator.py",
+                "description": "Project-specific commit message scoping (lib, cli, web, tests, docs, build, config, ci, deps)"
+            },
+            "red_green_refactor": {
+                "active": True,
+                "enforced_via": "pre_commit_hooks",
+                "configuration": ".hooks/red-green-refactor-enforcer.py",
+                "description": "TDD methodology enforcement (RED test, GREEN code, REFACTOR clean)"
+            },
+            "ruff": {
+                "active": True,
+                "enforced_via": "pre_commit_hooks",
+                "configuration": "pyproject.toml",
+                "description": "Comprehensive Python linting, formatting, import sorting, security analysis",
+                "features": [
+                    "Linting with comprehensive rule set",
+                    "Code formatting with consistent style",
+                    "Import sorting and organization",
+                    "Security vulnerability detection",
+                    "E402: module import enforcement",
+                    "PLC0415: import location enforcement"
+                ]
+            },
+            "bandit": {
+                "active": True,
+                "enforced_via": "pre_commit_hooks",
+                "configuration": "pyproject.toml",
+                "description": "Security-focused static analysis for common vulnerabilities"
+            },
+            "detect_secrets": {
+                "active": True,
+                "enforced_via": "pre_commit_hooks",
+                "configuration": ".secrets.baseline",
+                "description": "Secret scanning to prevent API keys, passwords, tokens from being committed"
+            },
+            "sqlfluff": {
+                "active": True,
+                "enforced_via": "pre_commit_hooks",
+                "configuration": ".sqlfluff-config",
+                "description": "SQL linting and formatting for database consistency"
+            },
+            "token_optimization": {
+                "active": True,
+                "enforced_via": "pre_commit_hooks",
+                "configuration": ".hooks/token-optimizer.py",
+                "description": "Token usage analysis and optimization for AI model efficiency",
+                "features": [
+                    "Redundant comment removal",
+                    "Verbose docstring simplification",
+                    "Unused import detection",
+                    "Simple function inlining opportunities",
+                    "Code structure optimization"
+                ]
+            },
+            "conventional_commits": {
+                "active": True,
+                "enforced_via": "pre_commit_hooks",
+                "configuration": "commitizen + custom validators",
+                "description": "Standardized commit message format (type(scope): description)"
+            },
+            "pre_commit_hooks": {
+                "active": True,
+                "enforced_via": "git_hooks",
+                "configuration": ".pre-commit-config.yaml",
+                "description": "Automated code quality checks before commits",
+                "hooks": [
+                    "check-builtin-literals",
+                    "check-executables-have-shebangs",
+                    "check-toml",
+                    "check-yaml",
+                    "debug-statements",
+                    "trailing-whitespace",
+                    "end-of-file-fixer",
+                    "check-added-large-files",
+                    "check-json",
+                    "check-xml",
+                    "check-ast",
+                    "check-case-conflict",
+                    "check-docstring-first",
+                    "check-shebang-scripts-are-executable"
+                ]
+            }
+        },
+        "quality_gates": {
+            "zero_tolerance_violations": [
+                "semantic_scope_violations",
+                "commit_message_format_errors",
+                "security_vulnerabilities",
+                "secret_detection",
+                "syntax_errors"
+            ],
+            "warning_thresholds": {
+                "token_inefficiency": 0.15,  # 15% threshold for token optimization
+                "code_complexity": 10,
+                "file_size_mb": 1.0
+            }
+        },
+        "agent_requirements": {
+            "mandatory_workflows": [
+                "episodic_memory_search_before_work",
+                "semantic_scoping_awareness",
+                "red_green_refactor_methodology",
+                "token_optimization_consideration",
+                "todowrite_cli_usage"
+            ],
+            "forbidden_practices": [
+                "mocking_frameworks",
+                "committing_without_tests",
+                "ignoring_quality_gates",
+                "bypassing_pre_commit_hooks"
+            ]
+        },
+        "verification_commands": {
+            "pre_commit_install": "pre-commit install",
+            "run_all_checks": "pre-commit run --all-files",
+            "token_analysis": ".hooks/token-optimizer.py --report",
+            "secret_scan": "detect-secrets scan --baseline .secrets.baseline",
+            "sql_linting": "sqlfluff lint",
+            "security_audit": "bandit -r .",
+            "code_quality": "ruff check . && ruff format ."
+        }
+    }
+
+    with open(quality_config_file, "w") as f:
+        json.dump(quality_config, f, indent=2)
+
+    print("✓ Comprehensive code quality enforcement activated")
+    print("  - Semantic scoping: ENFORCED")
+    print("  - Red-Green-Refactor: ENFORCED")
+    print("  - Ruff (lint/format/sort): ENFORCED")
+    print("  - Bandit (security): ENFORCED")
+    print("  - Detect-secrets: ENFORCED")
+    print("  - SQLFluff: ENFORCED")
+    print("  - Token optimization: ENFORCED")
+    print("  - Conventional commits: ENFORCED")
+    print("  - All pre-commit hooks: ENFORCED")
+    return True
+
+
+def activate_permanent_enforcement():
+    """Activate permanent enforcement that survives /clear commands."""
+    project_root = get_session_root()
+    autorun_script = project_root / ".claude" / "autorun.py"
+
+    if autorun_script.exists():
+        try:
+            import subprocess
+            result = subprocess.run(["python", str(autorun_script)],
+                                  capture_output=True, text=True, cwd=project_root)
+            if result.stdout:
+                print(result.stdout.strip())
+        except Exception as e:
+            print(f"⚠️  Could not activate permanent enforcement: {e}")
+
+
 def main():
     """Main session initialization logic."""
+    # Always activate permanent enforcement first
+    activate_permanent_enforcement()
+
     if check_session_freshness():
         update_heartbeat()
         print("Session active - heartbeat updated")
         enforce_todowrite_cli_workflow()
+        enforce_comprehensive_code_quality()
         return 0
     create_session_markers()
     register_agent()
     enforce_todowrite_cli_workflow()
-    print("New session initialized with todowrite_cli workflow enforcement")
+    enforce_comprehensive_code_quality()
+    print("New session initialized with comprehensive code quality enforcement")
     return 0
 
 

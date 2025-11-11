@@ -14,7 +14,7 @@ requires-python = ">=3.12"
 [dependency-groups]
 dev = [
     "pre-commit>=4.0.0",
-        "pytest>=8.0.0",
+    "pytest>=8.0.0",
     "pytest-cov>=4.0.0",
     "ruff>=0.7.0",
     "bandit>=1.7.0",
@@ -23,9 +23,13 @@ dev = [
     "types-jsonschema>=4.0.0",
     "types-PyYAML>=6.0.12",
     "hatchling>=1.27.0",
+    "detect-secrets>=1.4.0",
+    "sqlfluff>=3.0.0",
+    "alembic>=1.17.1",
+    "jsonschema>=4.25.1",
 ]
 
-# Ruff configuration for development
+# Ruff configuration for development with strict enforcement
 [tool.ruff]
 line-length = 100
 target-version = "py312"
@@ -44,9 +48,19 @@ extend-exclude = [
     "cli_package/dist",
     "lib_package/build",
     "lib_package/dist",
+    ".hooks/",
+    "htmlcov",
+    "coverage.xml",
+    ".coverage",
+    "*.egg-info",
+    "*.so",
+    "*.pyc",
+    "*.pyo",
+    "*.pyd",
 ]
 
 [tool.ruff.lint]
+# Comprehensive rule selection for maximum code quality
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
@@ -85,6 +99,12 @@ select = [
     "PLW", # pylint warnings
     "ANN", # type annotations
 ]
+
+# Specifically enforce import location rules
+extend-select = [
+    "E402", # module level import not at top of file
+    "PLC0415", # import-outside-top-level
+]
 ignore = [
     "S101",  # assert used (acceptable in tests)
     "T20",   # print statements (needed for CLI output)
@@ -98,14 +118,13 @@ ignore = [
     "ISC001", # implicit string concatenation (conflicts with formatter)
     "C901",  # too complex (acceptable in test cleanup functions)
 
-    # Type annotation rules to ignore (stricter than needed)
+    # Type annotation rules to ignore (allow flexible typing)
     "ANN001", # missing-type-function-argument
     "ANN002", # missing-type-argument
     "ANN003", # missing-type-kwargs
-    "ANN101", # missing-type-self (first argument of method)
     "ANN201", # missing-return-type-public-function
     "ANN202", # missing-return-type-private-function
-    "ANN204", # missing-return-type-static-method
+    "ANN204", # missing-return-type-static-method (__init__ methods)
     "ANN206", # missing-return-type-class-method
     "ANN401", # any-type (sometimes needed for dynamic data)
 ]
@@ -158,6 +177,45 @@ skip-magic-trailing-comma = false
     "S404",  # subprocess module import (needed for build tools)
 ]
 
+# Hook scripts and enforcement tools
+".hooks/*" = [
+    "ANN001", # missing-type-function-argument (hook scripts may have dynamic args)
+    "ANN201", # missing-return-type-public-function (hook scripts)
+    "ANN202", # missing-return-type-private-function (hook scripts)
+    "ANN204", # missing-return-type-static-method (__init__ methods)
+    "S603",  # subprocess call (needed for tool execution)
+    "S604",  # subprocess call with shell=True (needed for hooks)
+    "S607",  # start-process-with-partial-path (python is expected)
+    "E501",  # line-too-long (allow longer lines in scripts)
+    "E722",  # bare-except (simpler error handling in scripts)
+    "BLE001", # blind-except (acceptable in enforcement scripts)
+    "PLC0415", # import-outside-top-level (needed for conditional imports)
+    "PLW1510", # subprocess-run-without-check (intentional behavior)
+    "DTZ005", # datetime-now-without-tzinfo (acceptable in scripts)
+    "PLW2901", # redefined-loop-name (acceptable in simple loops)
+]
+
+# Claude configuration and enforcement scripts
+".claude/*" = [
+    "ANN001", # missing-type-function-argument (config scripts)
+    "ANN201", # missing-return-type-public-function (config scripts)
+    "ANN202", # missing-return-type-private-function (config scripts)
+    "ANN204", # missing-return-type-static-method (__init__ methods)
+    "S603",  # subprocess call (needed for setup scripts)
+    "S604",  # subprocess call with shell=True (needed for setup)
+    "S607",  # start-process-with-partial-path (python is expected)
+    "E501",  # line-too-long (allow longer lines in scripts)
+    "E722",  # bare-except (simpler error handling in scripts)
+    "BLE001", # blind-except (acceptable in enforcement scripts)
+    "PLC0415", # import-outside-top-level (needed for conditional imports)
+    "PLW1510", # subprocess-run-without-check (intentional behavior)
+    "DTZ005", # datetime-now-without-tzinfo (acceptable in scripts)
+    "PLW2901", # redefined-loop-name (acceptable in simple loops)
+    "RET505", # superfluous-else-return (acceptable in control flow)
+    "Q000",  # bad-quotes-inline-string (allow single quotes)
+    "W292",  # missing-newline-at-end-of-file (minor issue)
+]
+
 
 
 # pytest configuration
@@ -183,7 +241,7 @@ markers = [
 
 # Bandit configuration
 [tool.bandit]
-exclude_dirs = ["tests", "build", "dist", "cli_package", "lib_package"]
+exclude_dirs = ["tests", "build", "dist", "cli_package", "lib_package", ".venv", "venv", "htmlcov", ".git", "__pycache__", ".pytest_cache", "htmlcov", "coverage.xml"]
 skips = ["B101", "B110", "B404", "B602", "B603", "B607"]  # Skip acceptable security warnings for CLI tool
 
 # Coverage configuration
@@ -193,6 +251,14 @@ omit = [
     "*/tests/*",
     "*/test_*",
     "setup.py",
+    ".venv/*",
+    "venv/*",
+    "htmlcov/*",
+    ".pytest_cache/*",
+    ".ruff_cache/*",
+    "build/*",
+    "dist/*",
+    "*.egg-info/*",
 ]
 
 [tool.coverage.report]

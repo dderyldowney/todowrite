@@ -1,0 +1,198 @@
+{
+  "semantic_scopes_loaded": true,
+  "project_name": "ToDoWrite",
+  "enforcement_active": true,
+  "available_scopes": {
+    "lib": {
+      "description": "Core todowrite library functionality",
+      "file_patterns": [
+        "lib_package/",
+        "src/todowrite/",
+        "todowrite/"
+      ],
+      "usage_examples": [
+        "feat(lib): add hierarchical task relationships",
+        "fix(lib): resolve database connection timeout",
+        "refactor(lib): optimize node traversal algorithm"
+      ],
+      "auto_detect_patterns": [
+        "lib_package/",
+        "src/todowrite/"
+      ]
+    },
+    "cli": {
+      "description": "Command-line interface and CLI tools",
+      "file_patterns": [
+        "cli_package/",
+        "src/todowrite_cli/",
+        "todowrite_cli/"
+      ],
+      "usage_examples": [
+        "feat(cli): add interactive mode for task management",
+        "fix(cli): resolve argument parsing bug",
+        "docs(cli): update command-line help text"
+      ],
+      "auto_detect_patterns": [
+        "cli_package/",
+        "src/todowrite_cli/"
+      ]
+    },
+    "web": {
+      "description": "Web interface and API endpoints",
+      "file_patterns": [
+        "web_package/",
+        "src/todowrite_web/",
+        "todowrite_web/"
+      ],
+      "usage_examples": [
+        "feat(web): implement real-time task updates",
+        "fix(web): resolve authentication session handling",
+        "style(web): improve responsive design for mobile"
+      ],
+      "auto_detect_patterns": [
+        "web_package/",
+        "src/todowrite_web/"
+      ]
+    },
+    "tests": {
+      "description": "Test suite and testing infrastructure",
+      "file_patterns": [
+        "tests/",
+        "test_",
+        "_test.py",
+        "conftest.py"
+      ],
+      "usage_examples": [
+        "test(lib): add comprehensive integration tests",
+        "fix(tests): resolve fixture teardown issues",
+        "refactor(tests): simplify test data management"
+      ],
+      "auto_detect_patterns": [
+        "tests/",
+        "test_",
+        "_test.py"
+      ]
+    },
+    "docs": {
+      "description": "Documentation and guides",
+      "file_patterns": [
+        "docs/",
+        "*.md",
+        "README*",
+        "CHANGELOG*",
+        "*.rst"
+      ],
+      "usage_examples": [
+        "docs(readme): update installation instructions",
+        "docs(api): add REST API documentation",
+        "fix(docs): correct broken links in user guide"
+      ],
+      "auto_detect_patterns": [
+        "docs/",
+        "*.md",
+        "README*"
+      ]
+    },
+    "build": {
+      "description": "Build system, packaging, and deployment",
+      "file_patterns": [
+        "pyproject.toml",
+        "setup.py",
+        "Makefile",
+        "Dockerfile",
+        "docker-compose*",
+        "build/",
+        "dist/"
+      ],
+      "usage_examples": [
+        "build(lib): update packaging configuration for Python 3.12",
+        "fix(build): resolve Docker image caching issues",
+        "chore(build): upgrade build dependencies"
+      ],
+      "auto_detect_patterns": [
+        "pyproject.toml",
+        "Dockerfile",
+        "Makefile"
+      ]
+    },
+    "config": {
+      "description": "Configuration files and settings",
+      "file_patterns": [
+        ".pre-commit-config.yaml",
+        "commitlint.config.js",
+        ".env*",
+        "*.ini",
+        "*.cfg",
+        "config/",
+        ".claude/"
+      ],
+      "usage_examples": [
+        "feat(config): add semantic scoping validation",
+        "fix(config): resolve pre-commit hook configuration",
+        "chore(config): update development environment settings"
+      ],
+      "auto_detect_patterns": [
+        ".pre-commit-config.yaml",
+        ".env*",
+        ".claude/"
+      ]
+    },
+    "ci": {
+      "description": "Continuous integration and deployment",
+      "file_patterns": [
+        ".github/",
+        ".gitlab-ci.yml",
+        ".circleci/",
+        "*.yml"
+      ],
+      "usage_examples": [
+        "ci(github): add automated testing workflow",
+        "fix(ci): resolve deployment pipeline timeout",
+        "chore(ci): update action versions"
+      ],
+      "auto_detect_patterns": [
+        ".github/",
+        ".gitlab-ci.yml"
+      ]
+    },
+    "deps": {
+      "description": "Dependencies and requirements",
+      "file_patterns": [
+        "requirements*",
+        "poetry.lock",
+        "Pipfile*",
+        "uv.lock"
+      ],
+      "usage_examples": [
+        "deps(lib): upgrade SQLAlchemy to latest stable",
+        "fix(deps): resolve conflicting package versions",
+        "chore(deps): remove unused development dependencies"
+      ],
+      "auto_detect_patterns": [
+        "requirements*",
+        "poetry.lock",
+        "uv.lock"
+      ]
+    }
+  },
+  "commit_message_format": "<type>(scope): description",
+  "auto_scope_detection": {
+    "enabled": true,
+    "method": "file_pattern_matching",
+    "confidence_threshold": 0.7
+  },
+  "agent_instructions": {
+    "mandatory_usage": "ALWAYS use semantic scoping for ALL git commits",
+    "auto_selection": "Automatically detect scope based on changed files",
+    "format_compliance": "Follow <type>(scope): description format strictly",
+    "error_prevention": "If uncertain about scope, ask for clarification before committing"
+  },
+  "integration_points": {
+    "session_initialization": true,
+    "pre_commit_validation": true,
+    "subagent_coordination": true,
+    "code_review_integration": true
+  },
+  "loaded_time": "2025-11-11T16:56:39.739036",
+  "permanent_awareness": true
+}

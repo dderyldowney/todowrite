@@ -1,0 +1,32 @@
+{
+  "claude-code": {
+    "last_seen": "2025-11-11T16:56:39.738745",
+    "agent_type": "development",
+    "capabilities": [
+      "code-generation",
+      "test-fixing",
+      "documentation"
+    ],
+    "workflow_enforcement": {
+      "requires_todowrite_cli": true,
+      "planning_required": true,
+      "token_optimization": true
+    },
+    "semantic_scoping_aware": true,
+    "semantic_scopes_loaded": [
+      "lib",
+      "cli",
+      "web",
+      "tests",
+      "docs",
+      "build",
+      "config",
+      "ci",
+      "deps"
+    ],
+    "semantic_scoping_loaded_time": "2025-11-11T16:56:39.739708",
+    "package_type": "webapp",
+    "package_name": "todowrite-web",
+    "package_scope": "web"
+  }
+}

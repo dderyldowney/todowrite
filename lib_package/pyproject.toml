@@ -79,8 +79,7 @@ select = [
     "ANN", # type annotations
 ]
 ignore = [
-    "ANN101",  # Missing type annotation for self in method (deprecated)
-    "ANN102",  # Missing type annotation for cls in classmethod (deprecated)
+    # ANN101 and ANN102 removed - these rules are deprecated in newer ruff versions
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -93,8 +92,7 @@ ignore = [
     "ARG001",  # Unused function argument
     "ARG002",  # Unused method argument
     "S301",    # pickle can execute arbitrary code
-    "ANN101",  # Missing type annotation for self in method (deprecated)
-    "ANN102",  # Missing type annotation for cls in classmethod (deprecated)
+    # ANN101 and ANN102 removed - these rules are deprecated in newer ruff versions
     "E501",    # Line too long (existing test files)
 ]
 "src/todowrite/cli.py" = [
