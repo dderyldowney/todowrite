@@ -1,6 +1,8 @@
-# ToDoWrite Web Package
+# ToDoWrite Web Application
 
-Modern web frontend for the ToDoWrite hierarchical task management system.
+**Package Type**: `webapp` | **Package Name**: `todowrite-web` | **Status**: 🚧 In Development
+
+Modern FastAPI-based web application for the ToDoWrite hierarchical task management system.
 
 ## Overview
 
@@ -12,26 +14,53 @@ This package provides a FastAPI-based web backend and frontend infrastructure fo
 - **Real-time collaboration**: Multi-user support with live updates
 - **Comprehensive REST API**: Full CRUD operations for all 12 ToDoWrite layers
 
-## Structure
+## 📦 Package Context
 
+This is the **web application** package of the ToDoWrite monorepo:
+
+```
+todowrite/                          # Monorepo root
+├── lib_package/                    # Core library (dependency)
+├── cli_package/                   # CLI interface (separate)
+├── web_package/                   # ✅ This package (Web Application)
+│   ├── src/todowrite_web/         # Web application source code
+│   ├── .claude/                   # Independent development environment
+│   └── README.md                  # This documentation
+└── docs/                          # Project documentation
+```
+
+### Package Relationships
+- **Dependencies**: `lib_package` (todowrite)
+- **Independent Versioning**: Separate version lifecycle
+- **Semantic Scope**: Uses `web` scope for commits
+- **Development Environment**: Independent Claude configuration
+
+## 🏗️ Architecture
+
+### Current Structure
 ```
 web_package/
 ├── src/
 │   └── todowrite_web/           # Main Python package
 │       ├── __init__.py
-│       ├── main.py             # FastAPI application entry point
 │       ├── api/                # API route modules
-│       ├── models/             # Database models
-│       ├── schemas/            # Pydantic schemas
-│       ├── services/           # Business logic
-│       └── utils/              # Utility functions
-├── backend/                    # Legacy backend files (being migrated)
-├── frontend/                   # React frontend (separate Node.js project)
-├── shared/                     # Shared types and utilities
-├── tests/                      # Test suite
-├── pyproject.toml              # Python package configuration
-└── README.md                   # This file
+│       │   └── backend/        # FastAPI backend
+│       │       ├── main.py     # FastAPI application entry point
+│       │       ├── models.py   # Pydantic models
+│       │       └── v1/         # API v1 endpoints
+│       └── [frontend code]      # Planned React frontend
+├── .claude/                     # Independent development environment
+├── tests/                       # Test suite
+├── pyproject.toml               # Python package configuration
+└── README.md                    # This file
 ```
+
+### Technology Stack
+- **Backend**: FastAPI with async support
+- **Database**: SQLAlchemy 2.0+ (SQLite/PostgreSQL)
+- **Frontend**: React (planned)
+- **API**: RESTful with WebSocket support (planned)
+- **Testing**: pytest with comprehensive coverage
 
 ## Installation
 

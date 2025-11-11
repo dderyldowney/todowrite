@@ -1,24 +1,52 @@
-# ToDoWrite CLI
+# ToDoWrite CLI Interface
 
-A command-line interface for managing complex software projects with Goals, Tasks, Concepts, and Commands.
+**Package Type**: `cli` | **Package Name**: `todowrite-cli` | **Status**: ✅ Published
 
-## Prerequisites
+A command-line interface for managing complex software projects with hierarchical task management through Goals, Tasks, Concepts, and Commands.
 
-You must first install the todowrite library:
-```bash
-pip install todowrite
-```
+## 🚀 Installation
 
-## Installation
-
+### From PyPI (Recommended)
 ```bash
 pip install todowrite-cli
 ```
 
-For PostgreSQL support:
+### With PostgreSQL Support
 ```bash
 pip install 'todowrite-cli[postgres]'
 ```
+
+### Development Installation
+```bash
+git clone https://github.com/dderyldowney/todowrite.git
+cd todowrite/cli_package
+pip install -e .[dev]
+```
+
+### Version Information
+- **Current Version**: Synchronized with `todowrite` library
+- **Version Lock**: Always published together with core library
+- **Dependencies**: Requires `todowrite` library
+- **Python Requirements**: 3.12+
+
+## 📦 Package Context
+
+This is the **CLI interface** package of the ToDoWrite monorepo:
+
+```
+todowrite/                          # Monorepo root
+├── lib_package/                    # Core library (dependency)
+├── cli_package/                   # ✅ This package (CLI Interface)
+│   ├── src/todowrite_cli/         # CLI source code
+│   └── README.md                  # This documentation
+├── web_package/                   # Web application (separate)
+└── docs/                          # Project documentation
+```
+
+### Package Relationships
+- **Dependencies**: `lib_package` (todowrite)
+- **Version Locked**: Always published with same version as core library
+- **Semantic Scope**: Uses `cli` scope for commits
 
 ## Quick Start
 
