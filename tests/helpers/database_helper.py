@@ -7,9 +7,9 @@ that don't use pytest fixtures directly.
 
 import os
 import sys
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Generator
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker

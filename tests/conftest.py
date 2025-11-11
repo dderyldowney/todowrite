@@ -7,11 +7,12 @@ database tables between tests while using a single test database file.
 
 import os
 import sys
+from collections.abc import Generator
 from pathlib import Path
-from typing import Any, Generator
+from typing import Any
 
 import pytest
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 # Add project root to sys.path for imports

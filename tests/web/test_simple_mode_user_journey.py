@@ -76,9 +76,9 @@ class TestSimpleModeUserJourney:
         for term in technical_terms:
             # These should not be prominent in Simple Mode
             term_count: int = page_text.count(term)
-            assert term_count <= 2, (
-                f"Technical term '{term}' should not be prominent in Simple Mode"
-            )
+            assert (
+                term_count <= 2
+            ), f"Technical term '{term}' should not be prominent in Simple Mode"
 
     def test_template_selection_screen(self, setup_web_driver: webdriver.Chrome) -> None:
         """RED: Test that template selection screen appears correctly."""
@@ -115,9 +115,9 @@ class TestSimpleModeUserJourney:
                     template_element = driver.find_element(
                         By.XPATH, f"//*[contains(text(), '{template}')]"
                     )
-                    assert template_element.is_displayed(), (
-                        f"Template '{template}' should be visible"
-                    )
+                    assert (
+                        template_element.is_displayed()
+                    ), f"Template '{template}' should be visible"
                 except:
                     pytest.skip(f"Template '{template}' not implemented yet")
 
@@ -151,9 +151,9 @@ class TestSimpleModeUserJourney:
                     By.CSS_SELECTOR, "[data-testid='project-input-field']"
                 )
                 placeholder = input_field.get_attribute("placeholder")
-                assert placeholder and len(placeholder) > 10, (
-                    "Input field should have helpful placeholder"
-                )
+                assert (
+                    placeholder and len(placeholder) > 10
+                ), "Input field should have helpful placeholder"
 
             except:
                 pytest.skip("Wizard input fields not implemented yet")

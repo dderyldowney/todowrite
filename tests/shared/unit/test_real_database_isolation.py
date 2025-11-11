@@ -6,9 +6,8 @@ session and SQLAlchemy operations instead of the app layer functions.
 """
 
 import uuid
-from typing import Any
 
-from todowrite.database.models import Base, Node as DBNode
+from todowrite.database.models import Node as DBNode
 
 
 class TestRealDatabaseIsolation:

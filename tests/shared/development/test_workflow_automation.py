@@ -60,9 +60,9 @@ exit 0
                 check=False,
             )
 
-            assert cmd_result.returncode == 0, (
-                f"Failed to create build command: {cmd_result.stderr}"
-            )
+            assert (
+                cmd_result.returncode == 0
+            ), f"Failed to create build command: {cmd_result.stderr}"
             assert "CMD-" in cmd_result.stdout, "Command should be created with CMD- ID"
 
             # Extract command ID and execute it
@@ -186,9 +186,9 @@ exit 0
                     check=False,
                 )
 
-                assert cmd_result.returncode == 0, (
-                    f"Failed to create {env['title']}: {cmd_result.stderr}"
-                )
+                assert (
+                    cmd_result.returncode == 0
+                ), f"Failed to create {env['title']}: {cmd_result.stderr}"
                 assert "CMD-" in cmd_result.stdout, f"{env['title']} should be created with CMD- ID"
 
             finally:
@@ -244,9 +244,9 @@ exit 0
                     check=False,
                 )
 
-                assert cmd_result.returncode == 0, (
-                    f"Failed to create {cmd['title']}: {cmd_result.stderr}"
-                )
+                assert (
+                    cmd_result.returncode == 0
+                ), f"Failed to create {cmd['title']}: {cmd_result.stderr}"
                 assert "CMD-" in cmd_result.stdout, f"{cmd['title']} should be created with CMD- ID"
 
             finally:
@@ -280,9 +280,9 @@ Reusable build command template for Python projects:
             check=False,
         )
 
-        assert template_result.returncode == 0, (
-            f"Failed to create command template: {template_result.stderr}"
-        )
+        assert (
+            template_result.returncode == 0
+        ), f"Failed to create command template: {template_result.stderr}"
         assert "CON-" in template_result.stdout, "Template should be created with CON- ID"
 
     def test_command_execution_monitoring(self) -> None:
@@ -327,9 +327,9 @@ exit 0
                 check=False,
             )
 
-            assert cmd_result.returncode == 0, (
-                f"Failed to create monitoring command: {cmd_result.stderr}"
-            )
+            assert (
+                cmd_result.returncode == 0
+            ), f"Failed to create monitoring command: {cmd_result.stderr}"
             assert "CMD-" in cmd_result.stdout, "Monitoring command should be created with CMD- ID"
 
         finally:
@@ -379,9 +379,9 @@ exit 0
                 check=False,
             )
 
-            assert cmd_result.returncode == 0, (
-                f"Failed to create artifact command: {cmd_result.stderr}"
-            )
+            assert (
+                cmd_result.returncode == 0
+            ), f"Failed to create artifact command: {cmd_result.stderr}"
             assert "CMD-" in cmd_result.stdout, "Artifact command should be created with CMD- ID"
 
         finally:

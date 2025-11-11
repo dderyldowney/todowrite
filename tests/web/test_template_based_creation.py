@@ -48,9 +48,9 @@ class TestTemplateBasedProjectCreation:
                     category_element = driver.find_element(
                         By.XPATH, f"//*[contains(text(), '{category}')]"
                     )
-                    assert category_element.is_displayed(), (
-                        f"Category '{category}' should be visible"
-                    )
+                    assert (
+                        category_element.is_displayed()
+                    ), f"Category '{category}' should be visible"
                 except:
                     pytest.skip(f"Template category '{category}' not implemented yet")
 
@@ -122,9 +122,9 @@ class TestTemplateBasedProjectCreation:
                     milestone_element = preview.find_element(
                         By.XPATH, f"//*[contains(text(), '{milestone}')]"
                     )
-                    assert milestone_element.is_displayed(), (
-                        f"Milestone '{milestone}' should be in preview"
-                    )
+                    assert (
+                        milestone_element.is_displayed()
+                    ), f"Milestone '{milestone}' should be in preview"
                 except:
                     pytest.skip(f"Template milestone '{milestone}' not implemented yet")
 
@@ -141,9 +141,9 @@ class TestTemplateBasedProjectCreation:
             use_template_button = preview.find_element(
                 By.CSS_SELECTOR, "[data-testid='use-template-button']"
             )
-            assert use_template_button.is_displayed(), (
-                "'Use This Template' button should be visible"
-            )
+            assert (
+                use_template_button.is_displayed()
+            ), "'Use This Template' button should be visible"
 
         except:
             pytest.skip("Template preview not implemented yet")
@@ -188,9 +188,9 @@ class TestTemplateBasedProjectCreation:
 
                     # Check for helpful defaults
                     placeholder = field.get_attribute("placeholder")
-                    assert placeholder and len(placeholder) > 0, (
-                        f"{field_info['name']} should have placeholder"
-                    )
+                    assert (
+                        placeholder and len(placeholder) > 0
+                    ), f"{field_info['name']} should have placeholder"
 
                 except:
                     pytest.skip(f"Customization field '{field_info['name']}' not implemented yet")
@@ -433,9 +433,9 @@ class TestTemplateBasedProjectCreation:
                 saved_template = driver.find_element(
                     By.XPATH, "//*[contains(text(), 'Business Trip Template')]"
                 )
-                assert saved_template.is_displayed(), (
-                    "Saved template should appear in template library"
-                )
+                assert (
+                    saved_template.is_displayed()
+                ), "Saved template should appear in template library"
             except:
                 pytest.skip("Template saving to library not implemented yet")
 
