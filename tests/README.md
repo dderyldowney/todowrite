@@ -26,25 +26,25 @@ tests/
 
 ### Run all tests:
 ```bash
-python -m pytest tests/
+uv run pytest tests/
 ```
 
 ### Run tests by directory:
 ```bash
 # CLI tests only
-python -m pytest tests/cli/
+uv run pytest tests/cli/
 
 # Core tests only
-python -m pytest tests/core/
+uv run pytest tests/core/
 
 # Workflow tests only
-python -m pytest tests/workflows/
+uv run pytest tests/workflows/
 ```
 
 ### Run specific test file:
 ```bash
-python -m pytest tests/cli/test_cli.py
-python -m pytest tests/workflows/test_user_cli_workflows.py
+uv run pytest tests/cli/test_cli.py
+uv run pytest tests/workflows/test_user_cli_workflows.py
 ```
 
 ## Test Categories

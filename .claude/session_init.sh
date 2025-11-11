@@ -13,6 +13,18 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
 echo "🚀 Initializing Claude Code session for ToDoWrite project..."
 
+# Load project virtual environment
+echo "🐍 Loading virtual environment..."
+if [ -f "$PROJECT_ROOT/.venv/bin/activate" ]; then
+    source "$PROJECT_ROOT/.venv/bin/activate"
+    echo "✅ Virtual environment loaded"
+else
+    echo "⚠️  .venv not found, creating virtual environment..."
+    python3 -m venv "$PROJECT_ROOT/.venv"
+    source "$PROJECT_ROOT/.venv/bin/activate"
+    pip install -e .
+fi
+
 # Add dev_tools to Python path for this session
 export PYTHONPATH="$PROJECT_ROOT/dev_tools:$PYTHONPATH"
 

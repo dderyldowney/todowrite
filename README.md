@@ -206,7 +206,7 @@ command_data = {
     "description": "Test email validation logic",
     "links": {"parents": [task.id], "children": []},
     "metadata": {"owner": "dev-team"},
-    "run": "python -m pytest tests/test_email_validation.py",
+    "run": "uv run pytest tests/test_email_validation.py",
     "artifacts": ["test_report.html"]
 }
 command = tdw.create_node(command_data)

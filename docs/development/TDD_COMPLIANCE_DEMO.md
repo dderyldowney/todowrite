@@ -35,7 +35,7 @@ def test_create_node_endpoint_returns_201():
 **Run Test (Expected to FAIL):**
 ```bash
 # Using pytest with coverage
-pytest tests/test_web_package_api.py::test_create_node_endpoint_returns_201 -v
+uv run pytest tests/test_web_package_api.py::test_create_node_endpoint_returns_201 -v
 
 # Expected output: FAILED - AttributeError: module 'todowrite_web.api.backend.main' has no attribute 'app'
 ```
@@ -79,7 +79,7 @@ def create_node(request: NodeCreateRequest) -> NodeResponse:
 
 **Run Test (Expected to PASS):**
 ```bash
-pytest tests/test_web_package_api.py::test_create_node_endpoint_returns_201 -v
+uv run pytest tests/test_web_package_api.py::test_create_node_endpoint_returns_201 -v
 
 # Expected output: PASSED
 ```
@@ -166,7 +166,7 @@ def create_node(request: NodeCreateRequest, db=Depends(get_database)) -> NodeRes
 
 **Run All Tests (Expected to PASS):**
 ```bash
-pytest tests/test_web_package_api.py -v --cov=todowrite_web.api.backend
+uv run pytest tests/test_web_package_api.py -v --cov=todowrite_web.api.backend
 
 # Expected output: PASSED with coverage report
 ```
@@ -308,23 +308,23 @@ For EVERY development session:
 # Edit tests/test_web_package_api.py
 
 # 3. Run test (expect failure)
-pytest tests/test_web_package_api.py::test_create_node_endpoint_returns_201 -v
+uv run pytest tests/test_web_package_api.py::test_create_node_endpoint_returns_201 -v
 
 # 4. Implement minimal code (GREEN)
 # Edit web_package/src/todowrite_web/api/backend/main.py
 
 # 5. Run test (expect success)
-pytest tests/test_web_package_api.py::test_create_node_endpoint_returns_201 -v
+uv run pytest tests/test_web_package_api.py::test_create_node_endpoint_returns_201 -v
 
 # 6. Refactor and enhance
 # Improve implementation with validation and error handling
 
 # 7. Run all tests (ensure no regressions)
-pytest tests/test_web_package_api.py -v --cov=todowrite_web.api.backend
+uv run uv run pytest tests/test_web_package_api.py -v --cov=todowrite_web.api.backend
 
 # 8. Use CLI tools for code quality
-ruff check web_package/src/todowrite_web/api/backend/main.py
-pyright web_package/src/todowrite_web/api/backend/main.py
+uv run ruff check web_package/src/todowrite_web/api/backend/main.py
+uv run pyright web_package/src/todowrite_web/api/backend/main.py
 
 # 9. Index knowledge for future sessions
 ~/.claude/plugins/cache/episodic-memory/cli/episodic-memory index --cleanup

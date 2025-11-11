@@ -48,7 +48,7 @@ pip install -e .
 
 ```bash
 # Copy the todowrite module into your project
-cp -r /path/to/afs_fastapi/todowrite ./your_project/
+cp -r /path/to/todowrite ./your_project/
 ```
 
 #### Method 3: Git Submodule (Recommended for Teams)
