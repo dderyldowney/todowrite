@@ -160,7 +160,7 @@ tests/test_token_usage_temp.db-wal
 # ToDoWrite data directory (generated content, not source)
 /todowrite.egg-info/
 todowrite/__pycache__/
-# ToDoWrite database files
+# ToDoWrite database files (development - we dogfood our own system)
 todowrite.db
 development_todowrite.db
 *.db
@@ -168,4 +168,3 @@ development_todowrite.db
 # ToDoWrite configuration and generated files
 .env.todowrite
 export_test/
-*.db
