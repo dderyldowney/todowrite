@@ -1,0 +1,39 @@
+{
+  "tdd_enabled": true,
+  "enforcement_level": "strict",
+  "mandatory_skills": [
+    "superpowers:test-driven-development",
+    "superpowers:testing-skills-with-subagents"
+  ],
+  "workflow_rules": {
+    "red_phase": {
+      "description": "Write failing test before any production code",
+      "verification": "Must watch test fail for correct reason",
+      "forbidden": [
+        "Write production code first",
+        "Skip watching test fail"
+      ]
+    },
+    "green_phase": {
+      "description": "Write minimal code to pass the test",
+      "verification": "All tests must pass with clean output",
+      "forbidden": [
+        "Add features beyond test requirements",
+        "Over-engineering"
+      ]
+    },
+    "refactor_phase": {
+      "description": "Clean up code while keeping tests green",
+      "verification": "Tests must remain green throughout refactoring",
+      "forbidden": [
+        "Adding new behavior during refactoring"
+      ]
+    }
+  },
+  "auto_enable_skills": true,
+  "zero_mocking_policy": true,
+  "real_implementations_only": true,
+  "enabled_time": "2025-11-11T16:28:44.264656",
+  "reminder_frequency": "always",
+  "exceptions_require_explicit_permission": true
+}

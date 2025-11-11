@@ -33,3 +33,10 @@ repos:
       - id: no-commit-to-branch
         args: [--branch, main]
         name: "Don't commit directly to main - use develop branch"
+
+  # Conventional Commits enforcement
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.3.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]

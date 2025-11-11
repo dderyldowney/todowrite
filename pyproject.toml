@@ -18,6 +18,7 @@ dev = [
     "pytest-cov>=4.0.0",
     "ruff>=0.7.0",
     "bandit>=1.7.0",
+    "commitizen>=3.29.0",
     "types-click>=7.1.0",
     "types-jsonschema>=4.0.0",
     "types-PyYAML>=6.0.12",
@@ -204,4 +205,41 @@ exclude_lines = [
     "raise NotImplementedError",
     "if 0:",
     "if __name__ == .__main__.:",
+]
+
+# Commitizen configuration for conventional commits
+[tool.commitizen]
+name = "conventional_commits"
+version = "0.4.1"
+version_files = [
+    "lib_package/pyproject.toml:version",
+    "cli_package/pyproject.toml:version",
+    "web_package/pyproject.toml:version",
+    "VERSION",
+]
+tag_format = "v{version}"
+bump_message = "chore(release): bump version from ${current_version} to ${new_version}"
+major_version_zero = true
+update_changelog_on_bump = true
+style = [
+    "feat",
+    "fix",
+    "docs",
+    "style",
+    "refactor",
+    "perf",
+    "test",
+    "build",
+    "ci",
+    "chore",
+    "revert"
+]
+scope_choices = [
+    "lib",
+    "cli",
+    "web",
+    "tests",
+    "docs",
+    "build",
+    "config"
 ]

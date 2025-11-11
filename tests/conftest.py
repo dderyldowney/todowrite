@@ -23,7 +23,8 @@ sys.path.insert(0, str(project_root))
 os.environ["TODOWRITE_DATABASE_URL"] = "sqlite:///testing_todowrite.db"
 os.environ["TODOWRITE_STORAGE_PREFERENCE"] = "sqlite_only"
 
-from todowrite.database.models import Base
+# Import after environment setup (required for test configuration)
+from todowrite.database.models import Base  # noqa: E402
 
 
 @pytest.fixture(scope="session")
@@ -70,8 +71,8 @@ def test_db_session(test_database_engine: Any) -> Generator[Session, None, None]
     Base.metadata.create_all(test_database_engine)
 
     # Create session
-    SessionLocal = sessionmaker(bind=test_database_engine)
-    session = SessionLocal()
+    session_local = sessionmaker(bind=test_database_engine)
+    session = session_local()
 
     try:
         yield session
@@ -92,6 +93,24 @@ def setup_test_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     # Set test environment variables
     monkeypatch.setenv("TODOWRITE_DATABASE_URL", "sqlite:///testing_todowrite.db")
     monkeypatch.setenv("TODOWRITE_STORAGE_PREFERENCE", "sqlite_only")
+
+    # Ensure no production todowrite.db exists in test directories
+    # This enforces the convention: dev=development_todowrite.db,
+    # test=testing_todowrite.db, prod=todowrite.db
+    prod_db_file = Path("todowrite.db")
+    if prod_db_file.exists():
+        # Warn and remove production database from test environment
+        import warnings
+
+        warnings.warn(
+            "Production todowrite.db found in test environment. "
+            "Removing to enforce database naming conventions. "
+            "Use: development_todowrite.db (dev), testing_todowrite.db (test), "
+            "todowrite.db (prod)",
+            UserWarning,
+            stacklevel=2,
+        )
+        prod_db_file.unlink()
 
 
 @pytest.fixture
