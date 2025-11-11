@@ -33,7 +33,7 @@
   "auto_enable_skills": true,
   "zero_mocking_policy": true,
   "real_implementations_only": true,
-  "enabled_time": "2025-11-11T16:28:44.264656",
+  "enabled_time": "2025-11-11T16:42:35.232665",
   "reminder_frequency": "always",
   "exceptions_require_explicit_permission": true
 }
