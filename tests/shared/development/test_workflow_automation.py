@@ -30,9 +30,7 @@ exit 0
 """
 
         # Write build script to temporary file
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".sh", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".sh", delete=False) as f:
             f.write(build_script)
             script_path: str = f.name
 
@@ -62,12 +60,10 @@ exit 0
                 check=False,
             )
 
-            assert (
-                cmd_result.returncode == 0
-            ), f"Failed to create build command: {cmd_result.stderr}"
-            assert (
-                "CMD-" in cmd_result.stdout
-            ), "Command should be created with CMD- ID"
+            assert cmd_result.returncode == 0, (
+                f"Failed to create build command: {cmd_result.stderr}"
+            )
+            assert "CMD-" in cmd_result.stdout, "Command should be created with CMD- ID"
 
             # Extract command ID and execute it
             cmd_id: str = ""
@@ -106,9 +102,7 @@ echo "All tests completed successfully!"
 exit 0
 """
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".sh", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".sh", delete=False) as f:
             f.write(test_script)
             script_path: str = f.name
 
@@ -136,12 +130,8 @@ exit 0
                 check=False,
             )
 
-            assert (
-                cmd_result.returncode == 0
-            ), f"Failed to create test command: {cmd_result.stderr}"
-            assert (
-                "CMD-" in cmd_result.stdout
-            ), "Test command should be created with CMD- ID"
+            assert cmd_result.returncode == 0, f"Failed to create test command: {cmd_result.stderr}"
+            assert "CMD-" in cmd_result.stdout, "Test command should be created with CMD- ID"
 
         finally:
             subprocess.run(["rm", "-f", script_path], check=False)
@@ -168,9 +158,7 @@ exit 0
         ]
 
         for env in environments:
-            with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".sh", delete=False
-            ) as f:
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".sh", delete=False) as f:
                 f.write(f"#!/bin/bash\n{env['script']}\nexit 0\n")
                 script_path: str = f.name
 
@@ -198,12 +186,10 @@ exit 0
                     check=False,
                 )
 
-                assert (
-                    cmd_result.returncode == 0
-                ), f"Failed to create {env['title']}: {cmd_result.stderr}"
-                assert (
-                    "CMD-" in cmd_result.stdout
-                ), f"{env['title']} should be created with CMD- ID"
+                assert cmd_result.returncode == 0, (
+                    f"Failed to create {env['title']}: {cmd_result.stderr}"
+                )
+                assert "CMD-" in cmd_result.stdout, f"{env['title']} should be created with CMD- ID"
 
             finally:
                 subprocess.run(["rm", "-f", script_path], check=False)
@@ -230,9 +216,7 @@ exit 0
         ]
 
         for cmd in quality_commands:
-            with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".sh", delete=False
-            ) as f:
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".sh", delete=False) as f:
                 f.write(f"#!/bin/bash\n{cmd['script']}\nexit 0\n")
                 script_path: str = f.name
 
@@ -260,12 +244,10 @@ exit 0
                     check=False,
                 )
 
-                assert (
-                    cmd_result.returncode == 0
-                ), f"Failed to create {cmd['title']}: {cmd_result.stderr}"
-                assert (
-                    "CMD-" in cmd_result.stdout
-                ), f"{cmd['title']} should be created with CMD- ID"
+                assert cmd_result.returncode == 0, (
+                    f"Failed to create {cmd['title']}: {cmd_result.stderr}"
+                )
+                assert "CMD-" in cmd_result.stdout, f"{cmd['title']} should be created with CMD- ID"
 
             finally:
                 subprocess.run(["rm", "-f", script_path], check=False)
@@ -298,12 +280,10 @@ Reusable build command template for Python projects:
             check=False,
         )
 
-        assert (
-            template_result.returncode == 0
-        ), f"Failed to create command template: {template_result.stderr}"
-        assert (
-            "CON-" in template_result.stdout
-        ), "Template should be created with CON- ID"
+        assert template_result.returncode == 0, (
+            f"Failed to create command template: {template_result.stderr}"
+        )
+        assert "CON-" in template_result.stdout, "Template should be created with CON- ID"
 
     def test_command_execution_monitoring(self) -> None:
         """RED: Test that developer can monitor command execution."""
@@ -319,9 +299,7 @@ echo "Task completed successfully!"
 exit 0
 """
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".sh", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".sh", delete=False) as f:
             f.write(long_script)
             script_path: str = f.name
 
@@ -349,12 +327,10 @@ exit 0
                 check=False,
             )
 
-            assert (
-                cmd_result.returncode == 0
-            ), f"Failed to create monitoring command: {cmd_result.stderr}"
-            assert (
-                "CMD-" in cmd_result.stdout
-            ), "Monitoring command should be created with CMD- ID"
+            assert cmd_result.returncode == 0, (
+                f"Failed to create monitoring command: {cmd_result.stderr}"
+            )
+            assert "CMD-" in cmd_result.stdout, "Monitoring command should be created with CMD- ID"
 
         finally:
             subprocess.run(["rm", "-f", script_path], check=False)
@@ -373,9 +349,7 @@ echo "Artifacts generated successfully!"
 exit 0
 """
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".sh", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".sh", delete=False) as f:
             f.write(artifact_script)
             script_path: str = f.name
 
@@ -405,12 +379,10 @@ exit 0
                 check=False,
             )
 
-            assert (
-                cmd_result.returncode == 0
-            ), f"Failed to create artifact command: {cmd_result.stderr}"
-            assert (
-                "CMD-" in cmd_result.stdout
-            ), "Artifact command should be created with CMD- ID"
+            assert cmd_result.returncode == 0, (
+                f"Failed to create artifact command: {cmd_result.stderr}"
+            )
+            assert "CMD-" in cmd_result.stdout, "Artifact command should be created with CMD- ID"
 
         finally:
             subprocess.run(["rm", "-f", script_path], check=False)

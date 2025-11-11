@@ -42,9 +42,7 @@ class TestCLIMainCoverage:
         assert capitalize_status("test") == "Test"
 
         # Test multiple underscores (.title() behavior)
-        assert (
-            capitalize_status("multiple_word_status") == "Multiple_Word_Status"
-        )
+        assert capitalize_status("multiple_word_status") == "Multiple_Word_Status"
 
         # Test with numbers
         assert capitalize_status("status_1") == "Status_1"
@@ -79,9 +77,7 @@ class TestCLIMainCoverage:
                 assert callable(cli_func)
 
                 # Check if it has click decorator attributes
-                assert hasattr(cli_func, "callback") or hasattr(
-                    cli_func, "__name__"
-                )
+                assert hasattr(cli_func, "callback") or hasattr(cli_func, "__name__")
         except ImportError:
             pytest.skip("CLI function not available")
 

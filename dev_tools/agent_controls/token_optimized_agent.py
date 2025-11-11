@@ -207,8 +207,7 @@ def main() -> int:
     if len(sys.argv) < 2:
         print("Usage: python token_optimized_agent.py <goal> [pattern]")
         print(
-            "Example: python token_optimized_agent.py "
-            "'authentication system' 'class.*Auth'",
+            "Example: python token_optimized_agent.py 'authentication system' 'class.*Auth'",
         )
         return 1
 

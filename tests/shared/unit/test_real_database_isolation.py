@@ -94,8 +94,8 @@ class TestRealDatabaseIsolation:
             node = DBNode(
                 id=f"GOAL-{unique_id}",
                 layer="Goal",
-                title=f"Test Goal {i+1} - {unique_id}",
-                description=f"Test goal {i+1}",
+                title=f"Test Goal {i + 1} - {unique_id}",
+                description=f"Test goal {i + 1}",
                 status="planned",
                 owner=None,
                 severity=None,

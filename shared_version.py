@@ -25,9 +25,7 @@ def _get_version() -> str:
 # The VERSION file is the authoritative source - always edit it to bump
 # This literal is kept in sync with VERSION file for Hatch build system
 # compatibility. Run sync_version() after editing VERSION file to update
-__version__ = (
-    "0.3.1"  # KEEP IN SYNC - run sync_version() after editing VERSION
-)
+__version__ = "0.3.1"  # KEEP IN SYNC - run sync_version() after editing VERSION
 
 # Package metadata
 __author__ = "D Deryl Downey"
@@ -66,18 +64,14 @@ def sync_version() -> None:
     version_pattern = r'^__version__ = "[^"]*"'
     new_line = f'__version__ = "{new_version}"'
 
-    new_content = re.sub(
-        version_pattern, new_line, content, flags=re.MULTILINE
-    )
+    new_content = re.sub(version_pattern, new_line, content, flags=re.MULTILINE)
 
     # Only write if changed
     if new_content != content:
         current_file.write_text(new_content, encoding="utf-8")
         print(f"✅ Synced __version__ to {new_version}")
     else:
-        msg = (
-            f"✅ __version__ already in sync with VERSION file ({new_version})"
-        )
+        msg = f"✅ __version__ already in sync with VERSION file ({new_version})"
         print(msg)
 
 

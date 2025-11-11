@@ -38,9 +38,7 @@ class TestFastAPIBackendApplication:
 
         main_app_path = Path("web_package/src/todowrite_web/main.py")
         # In RED phase, this file doesn't exist yet, but we test for the expected structure
-        assert (
-            True
-        ), "RED phase test - main.py should exist in future implementation"
+        assert True, "RED phase test - main.py should exist in future implementation"
 
     def test_fastapi_server_startup(self) -> None:
         """RED: Test that FastAPI server can start up."""

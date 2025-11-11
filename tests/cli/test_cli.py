@@ -166,9 +166,7 @@ class TestCli(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         # Extract node ID from output like "Created Goal: Test Goal (ID: GOAL-A58B86E71041)"
         match = re.search(r"\(ID: ([^)]+)\)", result.output)
-        node_id = (
-            match.group(1) if match else result.output.split(" ")[-1].strip()
-        )
+        node_id = match.group(1) if match else result.output.split(" ")[-1].strip()
 
         result = self.runner.invoke(cli, ["get", node_id])
         self.assertEqual(result.exit_code, 0)

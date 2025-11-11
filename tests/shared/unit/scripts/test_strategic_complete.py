@@ -130,9 +130,7 @@ class TestStrategicCompleteScript(unittest.TestCase):
                 "  Date completed: 2025-10-16T12:00:00.123456\n"
                 "  Enhanced: Validation log updated\n"
             )
-            mock_run.return_value = MagicMock(
-                returncode=0, stdout=enhanced_output, stderr=""
-            )
+            mock_run.return_value = MagicMock(returncode=0, stdout=enhanced_output, stderr="")
 
             subprocess.run(
                 ["python", str(self.script_path), "goal-123"],

@@ -37,9 +37,7 @@ class TestDevelopmentProjectLifecycleManagement:
             check=False,
         )
 
-        assert (
-            result.returncode == 0
-        ), f"Failed to create development goal: {result.stderr}"
+        assert result.returncode == 0, f"Failed to create development goal: {result.stderr}"
 
         # Extract the goal ID from output
         assert "GOAL-" in result.stdout, "Goal should be created with GOAL- ID"
@@ -64,12 +62,8 @@ class TestDevelopmentProjectLifecycleManagement:
             check=False,
         )
 
-        assert (
-            concept_result.returncode == 0
-        ), f"Failed to create concept: {concept_result.stderr}"
-        assert (
-            "CON-" in concept_result.stdout
-        ), "Concept should be created with CON- ID"
+        assert concept_result.returncode == 0, f"Failed to create concept: {concept_result.stderr}"
+        assert "CON-" in concept_result.stdout, "Concept should be created with CON- ID"
 
     def test_requirements_and_acceptance_criteria_management(self) -> None:
         """RED: Test that developer can define requirements and acceptance criteria."""
@@ -93,12 +87,8 @@ class TestDevelopmentProjectLifecycleManagement:
             check=False,
         )
 
-        assert (
-            req_result.returncode == 0
-        ), f"Failed to create requirement: {req_result.stderr}"
-        assert (
-            "R-" in req_result.stdout
-        ), "Requirement should be created with R- ID"
+        assert req_result.returncode == 0, f"Failed to create requirement: {req_result.stderr}"
+        assert "R-" in req_result.stdout, "Requirement should be created with R- ID"
 
         # Create acceptance criteria for the requirement
         ac_result = subprocess.run(
@@ -120,12 +110,10 @@ class TestDevelopmentProjectLifecycleManagement:
             check=False,
         )
 
-        assert (
-            ac_result.returncode == 0
-        ), f"Failed to create acceptance criteria: {ac_result.stderr}"
-        assert (
-            "AC-" in ac_result.stdout
-        ), "Acceptance criteria should be created with AC- ID"
+        assert ac_result.returncode == 0, (
+            f"Failed to create acceptance criteria: {ac_result.stderr}"
+        )
+        assert "AC-" in ac_result.stdout, "Acceptance criteria should be created with AC- ID"
 
     def test_interface_contract_definition(self) -> None:
         """RED: Test that team can define interface contracts between components."""
@@ -149,12 +137,8 @@ class TestDevelopmentProjectLifecycleManagement:
             check=False,
         )
 
-        assert (
-            if_result.returncode == 0
-        ), f"Failed to create interface contract: {if_result.stderr}"
-        assert (
-            "IF-" in if_result.stdout
-        ), "Interface contract should be created with IF- ID"
+        assert if_result.returncode == 0, f"Failed to create interface contract: {if_result.stderr}"
+        assert "IF-" in if_result.stdout, "Interface contract should be created with IF- ID"
 
     def test_development_phase_creation(self) -> None:
         """RED: Test that project manager can create development phases."""
@@ -195,12 +179,12 @@ class TestDevelopmentProjectLifecycleManagement:
                 check=False,
             )
 
-            assert (
-                phase_result.returncode == 0
-            ), f"Failed to create phase {phase_title}: {phase_result.stderr}"
-            assert (
-                "PH-" in phase_result.stdout
-            ), f"Phase should be created with PH- ID: {phase_title}"
+            assert phase_result.returncode == 0, (
+                f"Failed to create phase {phase_title}: {phase_result.stderr}"
+            )
+            assert "PH-" in phase_result.stdout, (
+                f"Phase should be created with PH- ID: {phase_title}"
+            )
 
     def test_implementation_step_breakdown(self) -> None:
         """RED: Test that developers can break phases into implementation steps."""
@@ -244,12 +228,12 @@ class TestDevelopmentProjectLifecycleManagement:
                 check=False,
             )
 
-            assert (
-                step_result.returncode == 0
-            ), f"Failed to create step {step_title}: {step_result.stderr}"
-            assert (
-                "STP-" in step_result.stdout
-            ), f"Step should be created with STP- ID: {step_title}"
+            assert step_result.returncode == 0, (
+                f"Failed to create step {step_title}: {step_result.stderr}"
+            )
+            assert "STP-" in step_result.stdout, (
+                f"Step should be created with STP- ID: {step_title}"
+            )
 
     def test_command_execution_and_artifact_tracking(self) -> None:
         """RED: Test that team can execute commands and track artifacts."""
@@ -275,12 +259,8 @@ class TestDevelopmentProjectLifecycleManagement:
             check=False,
         )
 
-        assert (
-            cmd_result.returncode == 0
-        ), f"Failed to create command: {cmd_result.stderr}"
-        assert (
-            "CMD-" in cmd_result.stdout
-        ), "Command should be created with CMD- ID"
+        assert cmd_result.returncode == 0, f"Failed to create command: {cmd_result.stderr}"
+        assert "CMD-" in cmd_result.stdout, "Command should be created with CMD- ID"
 
     def test_layer_relationships_and_dependencies(self) -> None:
         """RED: Test that layers can be linked to show dependencies."""
@@ -314,9 +294,7 @@ class TestDevelopmentProjectLifecycleManagement:
                 goal_id = line.split("✓ Created")[1].split(":")[0].strip()
                 break
 
-        assert goal_id.startswith(
-            "GOAL-"
-        ), f"Expected GOAL- ID, got: {goal_id}"
+        assert goal_id.startswith("GOAL-"), f"Expected GOAL- ID, got: {goal_id}"
 
         # Create a task to link to the goal
         task_result = subprocess.run(

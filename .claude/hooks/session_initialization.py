@@ -59,9 +59,7 @@ def check_session_freshness():
         with open(heartbeat_marker) as f:
             heartbeat_data = json.load(f)
 
-        last_heartbeat = datetime.fromisoformat(
-            heartbeat_data["last_heartbeat"]
-        )
+        last_heartbeat = datetime.fromisoformat(heartbeat_data["last_heartbeat"])
         time_diff = datetime.now() - last_heartbeat
 
         return time_diff < timedelta(minutes=5)

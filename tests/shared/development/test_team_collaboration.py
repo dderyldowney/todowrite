@@ -68,12 +68,12 @@ class TestTeamCollaborationInDevelopment:
                 check=False,
             )
 
-            assert (
-                task_result.returncode == 0
-            ), f"Failed to create task {task['title']}: {task_result.stderr}"
-            assert (
-                "TSK-" in task_result.stdout
-            ), f"Task {task['title']} should be created with TSK- ID"
+            assert task_result.returncode == 0, (
+                f"Failed to create task {task['title']}: {task_result.stderr}"
+            )
+            assert "TSK-" in task_result.stdout, (
+                f"Task {task['title']} should be created with TSK- ID"
+            )
 
             # Extract task ID
             task_id: str = ""
@@ -82,9 +82,7 @@ class TestTeamCollaborationInDevelopment:
                     task_id = line.split("✓ Created")[1].split(":")[0].strip()
                     break
 
-            assert task_id.startswith(
-                "TSK-"
-            ), f"Expected TSK- ID, got: {task_id}"
+            assert task_id.startswith("TSK-"), f"Expected TSK- ID, got: {task_id}"
             created_task_ids.append(task_id)
 
             # Update task status if not the default
@@ -105,9 +103,9 @@ class TestTeamCollaborationInDevelopment:
                     check=False,
                 )
 
-                assert (
-                    status_result.returncode == 0
-                ), f"Failed to update task status: {status_result.stderr}"
+                assert status_result.returncode == 0, (
+                    f"Failed to update task status: {status_result.stderr}"
+                )
 
         # Verify we can see all team members' work
         list_result = subprocess.run(
@@ -120,12 +118,10 @@ class TestTeamCollaborationInDevelopment:
 
         assert list_result.returncode == 0, "Failed to list tasks"
         for task in team_tasks:
-            assert (
-                task["assignee"] in list_result.stdout
-            ), f"Should see {task['assignee']}'s work in list"
-            assert (
-                task["title"] in list_result.stdout
-            ), f"Should see task '{task['title']}' in list"
+            assert task["assignee"] in list_result.stdout, (
+                f"Should see {task['assignee']}'s work in list"
+            )
+            assert task["title"] in list_result.stdout, f"Should see task '{task['title']}' in list"
 
     def test_code_review_coordination(self) -> None:
         """RED: Test that team can coordinate code reviews."""
@@ -151,20 +147,16 @@ class TestTeamCollaborationInDevelopment:
             check=False,
         )
 
-        assert (
-            review_task_result.returncode == 0
-        ), "Failed to create code review task"
-        assert (
-            "TSK-" in review_task_result.stdout
-        ), "Code review task should be created with TSK- ID"
+        assert review_task_result.returncode == 0, "Failed to create code review task"
+        assert "TSK-" in review_task_result.stdout, (
+            "Code review task should be created with TSK- ID"
+        )
 
         # Extract review task ID
         review_task_id: str = ""
         for line in review_task_result.stdout.split("\n"):
             if "TSK-" in line:
-                review_task_id = (
-                    line.split("✓ Created")[1].split(":")[0].strip()
-                )
+                review_task_id = line.split("✓ Created")[1].split(":")[0].strip()
                 break
 
         # Create subtasks for review process
@@ -197,12 +189,10 @@ class TestTeamCollaborationInDevelopment:
                 check=False,
             )
 
-            assert (
-                subtask_result.returncode == 0
-            ), f"Failed to create subtask {subtask['title']}"
-            assert (
-                "SUB-" in subtask_result.stdout
-            ), f"Subtask {subtask['title']} should be created with SUB- ID"
+            assert subtask_result.returncode == 0, f"Failed to create subtask {subtask['title']}"
+            assert "SUB-" in subtask_result.stdout, (
+                f"Subtask {subtask['title']} should be created with SUB- ID"
+            )
 
     def test_technical_debt_management(self) -> None:
         """RED: Test that team can manage technical debt and refactoring."""
@@ -257,12 +247,12 @@ class TestTeamCollaborationInDevelopment:
                 check=False,
             )
 
-            assert (
-                task_result.returncode == 0
-            ), f"Failed to create technical debt task {task['title']}"
-            assert (
-                "TSK-" in task_result.stdout
-            ), f"Technical debt task {task['title']} should be created with TSK- ID"
+            assert task_result.returncode == 0, (
+                f"Failed to create technical debt task {task['title']}"
+            )
+            assert "TSK-" in task_result.stdout, (
+                f"Technical debt task {task['title']} should be created with TSK- ID"
+            )
 
     def test_knowledge_sharing_coordination(self) -> None:
         """RED: Test that team can coordinate knowledge sharing."""
@@ -313,12 +303,10 @@ class TestTeamCollaborationInDevelopment:
                 check=False,
             )
 
-            assert (
-                task_result.returncode == 0
-            ), f"Failed to create knowledge task {task['title']}"
-            assert (
-                "TSK-" in task_result.stdout
-            ), f"Knowledge task {task['title']} should be created with TSK- ID"
+            assert task_result.returncode == 0, f"Failed to create knowledge task {task['title']}"
+            assert "TSK-" in task_result.stdout, (
+                f"Knowledge task {task['title']} should be created with TSK- ID"
+            )
 
     def test_release_coordination(self) -> None:
         """RED: Test that team can coordinate releases."""
@@ -342,12 +330,8 @@ class TestTeamCollaborationInDevelopment:
             check=False,
         )
 
-        assert (
-            release_phase_result.returncode == 0
-        ), "Failed to create release phase"
-        assert (
-            "PH-" in release_phase_result.stdout
-        ), "Release phase should be created with PH- ID"
+        assert release_phase_result.returncode == 0, "Failed to create release phase"
+        assert "PH-" in release_phase_result.stdout, "Release phase should be created with PH- ID"
 
         # Extract phase ID
         phase_id: str = ""
@@ -404,12 +388,10 @@ class TestTeamCollaborationInDevelopment:
                 check=False,
             )
 
-            assert (
-                task_result.returncode == 0
-            ), f"Failed to create release task {task['title']}"
-            assert (
-                "TSK-" in task_result.stdout
-            ), f"Release task {task['title']} should be created with TSK- ID"
+            assert task_result.returncode == 0, f"Failed to create release task {task['title']}"
+            assert "TSK-" in task_result.stdout, (
+                f"Release task {task['title']} should be created with TSK- ID"
+            )
 
     def test_incident_response_management(self) -> None:
         """RED: Test that team can handle incident response."""
@@ -435,12 +417,8 @@ class TestTeamCollaborationInDevelopment:
             check=False,
         )
 
-        assert (
-            incident_task_result.returncode == 0
-        ), "Failed to create incident response task"
-        assert (
-            "TSK-" in incident_task_result.stdout
-        ), "Incident task should be created with TSK- ID"
+        assert incident_task_result.returncode == 0, "Failed to create incident response task"
+        assert "TSK-" in incident_task_result.stdout, "Incident task should be created with TSK- ID"
 
         # Extract incident task ID
         incident_id: str = ""
@@ -490,12 +468,12 @@ class TestTeamCollaborationInDevelopment:
                 check=False,
             )
 
-            assert (
-                subtask_result.returncode == 0
-            ), f"Failed to create incident subtask {subtask['title']}"
-            assert (
-                "SUB-" in subtask_result.stdout
-            ), f"Incident subtask {subtask['title']} should be created with SUB- ID"
+            assert subtask_result.returncode == 0, (
+                f"Failed to create incident subtask {subtask['title']}"
+            )
+            assert "SUB-" in subtask_result.stdout, (
+                f"Incident subtask {subtask['title']} should be created with SUB- ID"
+            )
 
     def test_team_workload_visibility(self) -> None:
         """RED: Test that team can see workload distribution."""
@@ -516,7 +494,7 @@ class TestTeamCollaborationInDevelopment:
                         "--layer",
                         "task",
                         "--title",
-                        f"Task for {member} #{i+1}",
+                        f"Task for {member} #{i + 1}",
                         "--description",
                         f"Work item assigned to {member}",
                         "--owner",
@@ -528,12 +506,10 @@ class TestTeamCollaborationInDevelopment:
                     check=False,
                 )
 
-                assert (
-                    task_result.returncode == 0
-                ), f"Failed to create task for {member}"
-                assert (
-                    "TSK-" in task_result.stdout
-                ), f"Task for {member} should be created with TSK- ID"
+                assert task_result.returncode == 0, f"Failed to create task for {member}"
+                assert "TSK-" in task_result.stdout, (
+                    f"Task for {member} should be created with TSK- ID"
+                )
 
         # Search for tasks by owner to verify workload visibility
         for member in team_members:
@@ -545,9 +521,5 @@ class TestTeamCollaborationInDevelopment:
                 check=False,
             )
 
-            assert (
-                search_result.returncode == 0
-            ), f"Failed to search for {member}'s tasks"
-            assert (
-                member in search_result.stdout
-            ), f"Should find {member}'s tasks in search results"
+            assert search_result.returncode == 0, f"Failed to search for {member}'s tasks"
+            assert member in search_result.stdout, f"Should find {member}'s tasks in search results"

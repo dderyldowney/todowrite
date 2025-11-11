@@ -383,9 +383,7 @@ class TestCLICommands(unittest.TestCase):
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
-            match.group(1)
-            if match
-            else create_result.output.split("Node created: ")[1].strip()
+            match.group(1) if match else create_result.output.split("Node created: ")[1].strip()
         )
 
         # Get node
@@ -426,9 +424,7 @@ class TestCLICommands(unittest.TestCase):
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
-            match.group(1)
-            if match
-            else create_result.output.split("Node created: ")[1].strip()
+            match.group(1) if match else create_result.output.split("Node created: ")[1].strip()
         )
 
         # Update node
@@ -475,9 +471,7 @@ class TestCLICommands(unittest.TestCase):
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
-            match.group(1)
-            if match
-            else create_result.output.split("Node created: ")[1].strip()
+            match.group(1) if match else create_result.output.split("Node created: ")[1].strip()
         )
 
         # Update only status
@@ -511,9 +505,7 @@ class TestCLICommands(unittest.TestCase):
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
-            match.group(1)
-            if match
-            else create_result.output.split("Node created: ")[1].strip()
+            match.group(1) if match else create_result.output.split("Node created: ")[1].strip()
         )
 
         # Update with invalid status
@@ -549,9 +541,7 @@ class TestCLICommands(unittest.TestCase):
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
-            match.group(1)
-            if match
-            else create_result.output.split("Node created: ")[1].strip()
+            match.group(1) if match else create_result.output.split("Node created: ")[1].strip()
         )
 
         # Delete node
@@ -724,9 +714,7 @@ class TestCLICommands(unittest.TestCase):
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
-            match.group(1)
-            if match
-            else create_result.output.split("Node created: ")[1].strip()
+            match.group(1) if match else create_result.output.split("Node created: ")[1].strip()
         )
 
         # Update status using update command
@@ -767,9 +755,7 @@ class TestCLICommands(unittest.TestCase):
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
-            match.group(1)
-            if match
-            else create_result.output.split("Node created: ")[1].strip()
+            match.group(1) if match else create_result.output.split("Node created: ")[1].strip()
         )
 
         # Show status
@@ -801,9 +787,7 @@ class TestCLICommands(unittest.TestCase):
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
-            match.group(1)
-            if match
-            else create_result.output.split("Node created: ")[1].strip()
+            match.group(1) if match else create_result.output.split("Node created: ")[1].strip()
         )
 
         # Complete node (no --message option available)
@@ -834,9 +818,7 @@ class TestCLICommands(unittest.TestCase):
 
         match = re.search(r"\(ID: ([^)]+)\)", create_result.output)
         node_id = (
-            match.group(1)
-            if match
-            else create_result.output.split("Node created: ")[1].strip()
+            match.group(1) if match else create_result.output.split("Node created: ")[1].strip()
         )
 
         self.runner.invoke(cli, ["status", "complete", node_id])
@@ -1072,9 +1054,7 @@ database:
             node_id = match.group(1) if match else None
 
             # Check individual status show command
-            result = self.runner.invoke(
-                cli, ["status", "show", node_id], env=env
-            )
+            result = self.runner.invoke(cli, ["status", "show", node_id], env=env)
             if result.exit_code != 0:
                 print(f"Command failed with exit code {result.exit_code}")
                 print(f"Output: {result.output}")
@@ -1083,9 +1063,7 @@ database:
 
             # Verify capitalization rules
             self.assertIn("Task", result.output)  # Layer should be capitalized
-            self.assertIn(
-                "Planned", result.output
-            )  # Status should be capitalized
+            self.assertIn("Planned", result.output)  # Status should be capitalized
             self.assertIn(
                 "Medium",
                 result.output,
@@ -1098,9 +1076,7 @@ database:
             # Progress should show as "0%"
 
             # Check global status display
-            global_result = self.runner.invoke(
-                cli, ["status", "global-status"], env=env
-            )
+            global_result = self.runner.invoke(cli, ["status", "global-status"], env=env)
             self.assertEqual(global_result.exit_code, 0)
 
             # Verify capitalization in global status - handle table truncation

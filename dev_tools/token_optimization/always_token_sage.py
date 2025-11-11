@@ -49,10 +49,7 @@ def run_with_hal_preprocessing(command_args) -> int:
 
         # Extract pattern from goal if it looks like a search
         pattern = None
-        if any(
-            word in goal.lower()
-            for word in ["find", "search", "class", "def", "import"]
-        ):
+        if any(word in goal.lower() for word in ["find", "search", "class", "def", "import"]):
             # Simple pattern extraction
             words = goal.split()
             for word in words:

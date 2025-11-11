@@ -164,9 +164,7 @@ class TestNode:
     def test_complete_node(self):
         """Test creating a complete node with all fields."""
         started_date = datetime.utcnow()
-        command = Command(
-            ac_ref="AC-TEST789", run=CommandRun(shell="run tests")
-        )
+        command = Command(ac_ref="AC-TEST789", run=CommandRun(shell="run tests"))
 
         node = Node(
             id="TSK-COMPLETE456",
@@ -182,9 +180,7 @@ class TestNode:
             progress=75,
             started_date=started_date,
             assignee="developer",
-            links=NodeLinks(
-                parents=["GOAL-PARENT"], children=["SUBTASK-CHILD"]
-            ),
+            links=NodeLinks(parents=["GOAL-PARENT"], children=["SUBTASK-CHILD"]),
         )
 
         assert node.id == "TSK-COMPLETE456"
@@ -202,9 +198,7 @@ class TestNode:
     def test_command_node_validation(self):
         """Test that command nodes require command field."""
         # Command node without command should fail
-        with pytest.raises(
-            ValueError, match="Command layer nodes must have a command"
-        ):
+        with pytest.raises(ValueError, match="Command layer nodes must have a command"):
             Node(
                 id="CMD-INVALID123",
                 layer=NodeLayer.COMMAND,
@@ -215,13 +209,9 @@ class TestNode:
 
     def test_non_command_node_with_command_fails(self):
         """Test that non-command nodes cannot have command field."""
-        command = Command(
-            ac_ref="AC-TEST123", run=CommandRun(shell="echo test")
-        )
+        command = Command(ac_ref="AC-TEST123", run=CommandRun(shell="echo test"))
 
-        with pytest.raises(
-            ValueError, match="Only Command layer nodes can have a command"
-        ):
+        with pytest.raises(ValueError, match="Only Command layer nodes can have a command"):
             Node(
                 id="GOAL-INVALID456",
                 layer=NodeLayer.GOAL,
@@ -233,9 +223,7 @@ class TestNode:
 
     def test_command_node_with_command(self):
         """Test that command nodes with command field succeed."""
-        command = Command(
-            ac_ref="AC-VALID123", run=CommandRun(shell="run something")
-        )
+        command = Command(ac_ref="AC-VALID123", run=CommandRun(shell="run something"))
 
         node = Node(
             id="CMD-VALID123",
@@ -314,9 +302,7 @@ class TestCreateNodeRequest:
 
     def test_full_request(self):
         """Test create request with all fields."""
-        command = Command(
-            ac_ref="AC-REQUEST123", run=CommandRun(shell="run command")
-        )
+        command = Command(ac_ref="AC-REQUEST123", run=CommandRun(shell="run command"))
 
         request = CreateNodeRequest(
             layer=NodeLayer.COMMAND,
@@ -346,9 +332,7 @@ class TestUpdateNodeRequest:
 
     def test_partial_update(self):
         """Test partial update request."""
-        request = UpdateNodeRequest(
-            title="Updated Title", status=NodeStatus.COMPLETED
-        )
+        request = UpdateNodeRequest(title="Updated Title", status=NodeStatus.COMPLETED)
         assert request.title == "Updated Title"
         assert request.status == NodeStatus.COMPLETED
         assert request.description is None
@@ -389,9 +373,7 @@ class TestErrorResponse:
 
     def test_minimal_error(self):
         """Test minimal error response."""
-        error = ErrorResponse(
-            error="ValidationError", message="Invalid input data"
-        )
+        error = ErrorResponse(error="ValidationError", message="Invalid input data")
         assert error.error == "ValidationError"
         assert error.message == "Invalid input data"
         assert error.details is None
@@ -484,9 +466,7 @@ class TestModelSerialization:
             layer=NodeLayer.GOAL,
             title="Serialization Test",
             description="Testing serialization",
-            metadata=NodeMetadata(
-                owner="test_user", labels=["test", "serialization"]
-            ),
+            metadata=NodeMetadata(owner="test_user", labels=["test", "serialization"]),
             links=NodeLinks(parents=["PHASE-PARENT"], children=["TASK-CHILD"]),
         )
 

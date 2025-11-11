@@ -42,9 +42,7 @@ def format_version(major: int, minor: int, patch: int) -> str:
     return f"{major}.{minor}.{patch}"
 
 
-def update_readme_badges(
-    current_version: str, new_version: str, dry_run: bool = False
-) -> None:
+def update_readme_badges(current_version: str, new_version: str, dry_run: bool = False) -> None:
     """Update version badges in README.md file."""
     readme_path = Path(__file__).parent.parent / "README.md"
 
@@ -85,22 +83,17 @@ def update_readme_badges(
                 changes = []
                 lines_original = original_content.split("\n")
                 lines_new = readme_content.split("\n")
-                for i, (old, new) in enumerate(
-                    zip(lines_original, lines_new, strict=False)
-                ):
+                for i, (old, new) in enumerate(zip(lines_original, lines_new, strict=False)):
                     if old != new:
-                        changes.append(f"Line {i+1}: {old.strip()}")
-                        changes.append(f"Line {i+1}: {new.strip()}")
+                        changes.append(f"Line {i + 1}: {old.strip()}")
+                        changes.append(f"Line {i + 1}: {new.strip()}")
                 for change in changes:
                     print(f"  {change}")
             else:
                 readme_path.write_text(readme_content, encoding="utf-8")
                 print(f"✅ Updated README.md badges to version {new_version}")
         else:
-            print(
-                f"No README.md updates needed "
-                f"(version {current_version} not found)"
-            )
+            print(f"No README.md updates needed (version {current_version} not found)")
 
     except (OSError, UnicodeDecodeError) as e:
         print(f"⚠️ Error updating README.md: {e}")
@@ -109,16 +102,8 @@ def update_readme_badges(
 def update_fallback_versions(new_version: str, dry_run: bool = False) -> None:
     """Update fallback versions in package version.py files."""
     package_files = [
-        Path(__file__).parent.parent
-        / "lib_package"
-        / "src"
-        / "todowrite"
-        / "version.py",
-        Path(__file__).parent.parent
-        / "cli_package"
-        / "src"
-        / "todowrite_cli"
-        / "version.py",
+        Path(__file__).parent.parent / "lib_package" / "src" / "todowrite" / "version.py",
+        Path(__file__).parent.parent / "cli_package" / "src" / "todowrite_cli" / "version.py",
     ]
 
     for package_file in package_files:
@@ -172,17 +157,13 @@ def update_fallback_versions(new_version: str, dry_run: bool = False) -> None:
                     # Show what would change
                     lines_original = original_content.split("\n")
                     lines_new = content.split("\n")
-                    for i, (old, new) in enumerate(
-                        zip(lines_original, lines_new, strict=False)
-                    ):
+                    for i, (old, new) in enumerate(zip(lines_original, lines_new, strict=False)):
                         if old != new and "__version__" in old:
-                            print(f"  Line {i+1}: {old.strip()}")
-                            print(f"  Line {i+1}: {new.strip()}")
+                            print(f"  Line {i + 1}: {old.strip()}")
+                            print(f"  Line {i + 1}: {new.strip()}")
                 else:
                     package_file.write_text(content, encoding="utf-8")
-                    print(
-                        f"✅ Updated fallback version in {package_file.name}"
-                    )
+                    print(f"✅ Updated fallback version in {package_file.name}")
             else:
                 print(f"No fallback version updates needed in {package_file}")
 
@@ -214,9 +195,7 @@ def verify_readme_versions(expected_version: str) -> bool:
                 missing_patterns.append(pattern)
 
         if missing_patterns:
-            print(
-                f"❌ README.md missing version {expected_version} in badges:"
-            )
+            print(f"❌ README.md missing version {expected_version} in badges:")
             for pattern in missing_patterns:
                 print(f"  - Pattern not found: {pattern}")
             return False
@@ -288,10 +267,7 @@ def main() -> int:
         # Determine new version
         if args.new_version in ["patch", "minor", "major"]:
             new_version = bump_version_type(current_version, args.new_version)
-            print(
-                f"Bumping {args.new_version}: {current_version} → "
-                f"{new_version}"
-            )
+            print(f"Bumping {args.new_version}: {current_version} → {new_version}")
         else:
             # Validate explicit version format
             parse_version(args.new_version)
@@ -328,14 +304,8 @@ def main() -> int:
         print(f"✅ Verified: get_version() returns {get_version()}")
         verify_readme_versions(new_version)
 
-        print(
-            f"\nSuccessfully bumped version from {current_version} "
-            f"→ {new_version}"
-        )
-        print(
-            "💡 VERSION file, README.md badges, and package fallback versions "
-            "have been updated"
-        )
+        print(f"\nSuccessfully bumped version from {current_version} → {new_version}")
+        print("💡 VERSION file, README.md badges, and package fallback versions have been updated")
         print("📝 Files are ready for git commit")
 
         return 0

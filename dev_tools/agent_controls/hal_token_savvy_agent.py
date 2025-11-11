@@ -44,9 +44,7 @@ def _get_cached_result(hash_input: str, delta_mode: bool) -> str | None:
     if not delta_mode:
         return None
 
-    hash_digest = hashlib.md5(
-        hash_input.encode(), usedforsecurity=False
-    ).hexdigest()
+    hash_digest = hashlib.md5(hash_input.encode(), usedforsecurity=False).hexdigest()
     cache_file = Path.home() / ".hal_cache" / f"{hash_digest}.txt"
 
     if cache_file.exists():
@@ -146,9 +144,7 @@ def _should_stop_processing(
 def _cache_result(hash_input: str, output: str) -> None:
     """Cache the result for delta mode."""
     try:
-        hash_digest = hashlib.md5(
-            hash_input.encode(), usedforsecurity=False
-        ).hexdigest()
+        hash_digest = hashlib.md5(hash_input.encode(), usedforsecurity=False).hexdigest()
         cache_file = Path.home() / ".hal_cache" / f"{hash_digest}.txt"
         cache_file.parent.mkdir(parents=True, exist_ok=True)
         cache_file.write_text(output)
@@ -214,9 +210,7 @@ def filter_repo_for_llm(
         )
 
         # Execute search
-        result = subprocess.run(
-            cmd, check=False, capture_output=True, text=True, cwd=roots[0]
-        )
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True, cwd=roots[0])
 
         # Process results
         if result.returncode == 0:
@@ -235,9 +229,7 @@ def filter_repo_for_llm(
                     break
 
                 # Process individual line
-                processed_line = _process_line(
-                    line, json_filter, abbreviate_paths
-                )
+                processed_line = _process_line(line, json_filter, abbreviate_paths)
                 if processed_line is None:
                     continue
 
@@ -302,9 +294,7 @@ def filter_repo_for_llm(
                         break
 
                     # Process individual line
-                    processed_line = _process_line(
-                        line, json_filter, abbreviate_paths
-                    )
+                    processed_line = _process_line(line, json_filter, abbreviate_paths)
                     if processed_line is None:
                         continue
 
@@ -323,8 +313,7 @@ def filter_repo_for_llm(
         except FileNotFoundError:
             # Final fallback with parameter information
             info_parts = [
-                "Repository filtering not available. "
-                "Please install ripgrep or grep.",
+                "Repository filtering not available. Please install ripgrep or grep.",
             ]
             info_parts.append(f"Goal: {goal}")
             info_parts.append(f"Pattern: {pattern}")
@@ -614,9 +603,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         max_chars=args.chars + 800,
     )  # allow small overhead
 
-    provider: LLMProvider = (
-        OpenAIProvider() if args.provider == "openai" else AnthropicProvider()
-    )
+    provider: LLMProvider = OpenAIProvider() if args.provider == "openai" else AnthropicProvider()
     out = provider.generate(
         system_prompt=BASE_SYSTEM_PROMPT,
         user_prompt=user_prompt,

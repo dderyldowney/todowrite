@@ -150,9 +150,7 @@ class TestUserCliWorkflows(unittest.TestCase):
         # Extract node ID from output like "Created Task: Develop Prototype (ID: TSK-A58B86E71041)"
 
         match = re.search(r"\(ID: ([^)]+)\)", result.output)
-        task_id = (
-            match.group(1) if match else result.output.split(" ")[-1].strip()
-        )
+        task_id = match.group(1) if match else result.output.split(" ")[-1].strip()
 
         # Step 2: Start working on task - use update command instead of status update
         # Clean task_id by removing any trailing parenthesis
