@@ -1,4 +1,4 @@
-"""ToDoWrite: Hierarchical Task Management System
+"""ToDoWrite: Hierarchical Task Management System.
 
 A sophisticated hierarchical task management system designed for complex
 project planning and execution. Built with a 12-layer declarative framework,
@@ -110,8 +110,8 @@ def init_project(_project_path: str = ".", _db_type: str = "postgres") -> bool:
 
     Returns:
         True if initialization was successful (placeholder implementation).
-    """
 
+    """
     # Placeholder implementation. Project initialization helpers live in
     # ``ProjectManager`` and will be wired into this convenience helper when
     # those APIs are stabilized.

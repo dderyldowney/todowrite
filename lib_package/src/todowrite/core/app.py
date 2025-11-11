@@ -1,5 +1,4 @@
-"""
-ToDoWrite Core Application Module.
+"""ToDoWrite Core Application Module.
 
 This module contains the main ToDoWrite application class that provides
 hierarchical task management functionality with 12-layer architecture.
@@ -15,6 +14,7 @@ Example:
     >>> tw = ToDoWrite(database_url="sqlite:///todowrite.db")
     >>> goal = tw.create_node("goal", "My Goal", "Description")
     >>> print(f"Created goal: {goal['id']}")
+
 """
 
 from __future__ import annotations
@@ -126,7 +126,9 @@ class ToDoWrite:
         >>> tw = ToDoWrite(project_dir="/path/to/project")
         >>>
         >>> # Create a goal
-        >>> goal = tw.create_node("goal", "Automate Testing", "Full test automation")
+        >>> goal = tw.create_node(
+        ...     "goal", "Automate Testing", "Full test automation"
+        ... )
         >>> print(f"Created: {goal['id']}")
     """
 
@@ -138,7 +140,7 @@ class ToDoWrite:
         auto_import: bool = True,
         storage_preference: StoragePreference | None = None,
     ) -> None:
-        """Initializes the ToDoWrite application."""
+        """Initialize the ToDoWrite application."""
 
         # Set storage preference if provided
         if storage_preference:
@@ -1217,7 +1219,10 @@ def complete_goal(search_term: str) -> Node | None:
         "metadata": {
             **node.metadata,
             "date_completed": datetime.now(UTC).isoformat(),
-            "validation_log": f"Goal completed via strategic-complete script at {datetime.now(UTC).isoformat()}",
+            "validation_log": (
+                f"Goal completed via strategic-complete script at "
+                f"{datetime.now(UTC).isoformat()}"
+            ),
         },
     }
 
@@ -1229,7 +1234,8 @@ def complete_goal(search_term: str) -> Node | None:
         print(f"  Title: {updated_node.title}")
         print(f"  Status: {updated_node.status}")
         print(
-            f"  Date completed: {updated_node.metadata.get('date_completed', 'Unknown')}"
+            f"  Date completed: "
+            f"{updated_node.metadata.get('date_completed', 'Unknown')}"
         )
         logger.info(
             f"Strategic goal completed: {updated_node.id} - {updated_node.title}"
