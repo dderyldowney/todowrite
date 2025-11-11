@@ -57,9 +57,7 @@ def add_command(
     ac_ref: str | None = None,
 ) -> tuple[dict[str, Any] | None, str | None]:
     """Add a command node."""
-    return create_node_without_parent(
-        "Command", title, description, command=command, ac_ref=ac_ref
-    )
+    return create_node_without_parent("Command", title, description, command=command, ac_ref=ac_ref)
 
 
 def add_concept(
@@ -229,9 +227,7 @@ def create_node_without_parent(
     # Add command structure for Command layer
     if layer == "Command":
         node_data["command"] = {
-            "ac_ref": ac_ref
-            if ac_ref
-            else f"AC-{uuid.uuid4().hex[:8].upper()}",
+            "ac_ref": ac_ref if ac_ref else f"AC-{uuid.uuid4().hex[:8].upper()}",
             "run": {"shell": command if command else "echo 'test command'"},
             "artifacts": [],
         }
@@ -327,27 +323,19 @@ class TestToDoWriteFlexibleHierarchy:
         )
         assert error is None
 
-        phase, error = add_phase(
-            goal_id, "Hardware Integration", "Install and configure hardware"
-        )
+        phase, error = add_phase(goal_id, "Hardware Integration", "Install and configure hardware")
         assert error is None
         phase_id = phase["id"]
 
-        step, error = add_step(
-            phase_id, "CAN Bus Setup", "Configure CAN network"
-        )
+        step, error = add_step(phase_id, "CAN Bus Setup", "Configure CAN network")
         assert error is None
         step_id = step["id"]
 
-        task, error = add_task(
-            step_id, "Install CAN Transceivers", "Mount hardware on tractors"
-        )
+        task, error = add_task(step_id, "Install CAN Transceivers", "Mount hardware on tractors")
         assert error is None
         task_id = task["id"]
 
-        subtask, error = add_subtask(
-            task_id, "Test CAN Throughput", "Validate 250kbps performance"
-        )
+        subtask, error = add_subtask(task_id, "Test CAN Throughput", "Validate 250kbps performance")
         assert error is None
         subtask_id = subtask["id"]
 
@@ -430,9 +418,7 @@ class TestToDoWriteFlexibleHierarchy:
 
         # Verify parent-child relationships
         phase_node = todos["Phase"][0]
-        assert (
-            phase_node.links.parents == []
-        )  # Phase is root in this hierarchy
+        assert phase_node.links.parents == []  # Phase is root in this hierarchy
 
         step_node = todos["Step"][0]
         assert phase_id in step_node.links.parents
@@ -515,16 +501,12 @@ class TestToDoWriteFlexibleHierarchy:
     def test_hierarchy_validation_enforces_completion(self):
         """Test that hierarchy validation catches incomplete hierarchies."""
         # Create a Phase without required child layers
-        phase, error = add_phase(
-            None, "Incomplete Phase", "Phase without complete hierarchy"
-        )
+        phase, error = add_phase(None, "Incomplete Phase", "Phase without complete hierarchy")
         assert error is None
         phase_id = phase["id"]
 
         # Add Step but skip Task/SubTask/Command
-        step, error = add_step(
-            phase_id, "Incomplete Step", "Step without tasks"
-        )
+        step, error = add_step(phase_id, "Incomplete Step", "Step without tasks")
         assert error is None
 
         # Hierarchy is incomplete - missing Task, SubTask, Command
@@ -548,33 +530,23 @@ class TestToDoWriteFlexibleHierarchy:
         assert error is None
         goal_id = goal["id"]
 
-        phase1, error = add_phase(
-            goal_id, "Strategic Phase", "Goal-driven phase"
-        )
+        phase1, error = add_phase(goal_id, "Strategic Phase", "Goal-driven phase")
         assert error is None
 
         # Entry point 2: Start at Phase (independent)
-        phase2, error = create_node_without_parent(
-            "Phase", "Independent Phase", "Standalone phase"
-        )
+        phase2, error = create_node_without_parent("Phase", "Independent Phase", "Standalone phase")
         assert error is None
         phase2_id = phase2["id"]
 
-        step2, error = add_step(
-            phase2_id, "Independent Step", "Standalone step"
-        )
+        step2, error = add_step(phase2_id, "Independent Step", "Standalone step")
         assert error is None
 
         # Entry point 3: Start at Task (independent)
-        task3, error = create_node_without_parent(
-            "Task", "Independent Task", "Standalone task"
-        )
+        task3, error = create_node_without_parent("Task", "Independent Task", "Standalone task")
         assert error is None
         task3_id = task3["id"]
 
-        subtask3, error = add_subtask(
-            task3_id, "Independent SubTask", "Standalone subtask"
-        )
+        subtask3, error = add_subtask(task3_id, "Independent SubTask", "Standalone subtask")
         assert error is None
         subtask3_id = subtask3["id"]
 
@@ -589,21 +561,15 @@ class TestToDoWriteFlexibleHierarchy:
         # Verify all entry points coexist
         todos = load_todos()
         assert len(todos.get("Goal", [])) == 1
-        assert (
-            len(todos.get("Phase", [])) == 2
-        )  # One from goal, one independent
+        assert len(todos.get("Phase", [])) == 2  # One from goal, one independent
         assert len(todos.get("Step", [])) == 1  # Only from independent phase
         assert len(todos.get("Task", [])) == 1  # Independent task
         assert len(todos.get("SubTask", [])) == 1
         assert len(todos.get("Command", [])) == 1
 
         # Verify parent relationships
-        goal_phase = next(
-            p for p in todos["Phase"] if goal_id in p.links.parents
-        )
-        independent_phase = next(
-            p for p in todos["Phase"] if not p.links.parents
-        )
+        goal_phase = next(p for p in todos["Phase"] if goal_id in p.links.parents)
+        independent_phase = next(p for p in todos["Phase"] if not p.links.parents)
         independent_task = todos["Task"][0]
 
         assert goal_phase.title == "Strategic Phase"
@@ -697,9 +663,7 @@ class TestToDoWriteFlexibleHierarchy:
     def test_validation_helper_functions(self):
         """Test helper functions for validating hierarchy completion."""
 
-        def validate_hierarchy_completion(
-            starting_layer: str, todos: dict
-        ) -> dict[str, Any]:
+        def validate_hierarchy_completion(starting_layer: str, todos: dict) -> dict[str, Any]:
             """Validate that all required layers below starting layer are present."""
             layer_order = [
                 "Goal",
@@ -735,9 +699,7 @@ class TestToDoWriteFlexibleHierarchy:
                 "valid": len(missing_layers) == 0,
                 "missing_layers": missing_layers,
                 "required_layers": required_layers,
-                "present_layers": [
-                    layer for layer in required_layers if todos.get(layer, [])
-                ],
+                "present_layers": [layer for layer in required_layers if todos.get(layer, [])],
             }
 
         # Test complete hierarchy starting at Phase
@@ -753,9 +715,7 @@ class TestToDoWriteFlexibleHierarchy:
         subtask, error = add_subtask(task_id, "Test SubTask", "Test subtask")
         subtask_id = subtask["id"]
 
-        command, error = add_command(
-            "Test Command", "Test command", "echo test", subtask_id
-        )
+        command, error = add_command("Test Command", "Test command", "echo test", subtask_id)
 
         todos = load_todos()
         validation = validate_hierarchy_completion("Phase", todos)
@@ -769,9 +729,7 @@ class TestToDoWriteFlexibleHierarchy:
         # Reset database
         app = ToDoWrite(auto_import=False)
         app.init_database()
-        incomplete_phase, error = add_phase(
-            None, "Incomplete Phase", "Missing children"
-        )
+        incomplete_phase, error = add_phase(None, "Incomplete Phase", "Missing children")
 
         todos = load_todos()
         validation = validate_hierarchy_completion("Phase", todos)
@@ -815,27 +773,19 @@ class TestToDoWriteFlexibleHierarchy:
         assert error is None
 
         # Skip to Phase (can start at Phase independently)
-        phase, error = add_phase(
-            None, "GPS Testing Phase", "Validate GPS accuracy"
-        )
+        phase, error = add_phase(None, "GPS Testing Phase", "Validate GPS accuracy")
         assert error is None
         phase_id = phase["id"]
 
-        step, error = add_step(
-            phase_id, "Field GPS Testing", "Test GPS in actual field"
-        )
+        step, error = add_step(phase_id, "Field GPS Testing", "Test GPS in actual field")
         assert error is None
         step_id = step["id"]
 
-        task, error = add_task(
-            step_id, "Measure GPS Accuracy", "Record GPS measurements"
-        )
+        task, error = add_task(step_id, "Measure GPS Accuracy", "Record GPS measurements")
         assert error is None
         task_id = task["id"]
 
-        subtask, error = add_subtask(
-            task_id, "Run GPS Accuracy Test", "Execute test protocol"
-        )
+        subtask, error = add_subtask(task_id, "Run GPS Accuracy Test", "Execute test protocol")
         assert error is None
         subtask_id = subtask["id"]
 
@@ -904,9 +854,7 @@ class TestToDoWriteFlexibleHierarchy:
         # Reset database
         app = ToDoWrite(auto_import=False)
         app.init_database()
-        step, error = add_step(
-            None, "Incomplete Step", "Step without children"
-        )
+        step, error = add_step(None, "Incomplete Step", "Step without children")
         assert error is None
 
         result = check_hierarchy_completeness("Step")
@@ -921,9 +869,7 @@ class TestToDoWriteFlexibleHierarchy:
         task, error = add_task(step_id, "Complete Task", "Now with task")
         task_id = task["id"]
 
-        subtask, error = add_subtask(
-            task_id, "Complete SubTask", "Now with subtask"
-        )
+        subtask, error = add_subtask(task_id, "Complete SubTask", "Now with subtask")
         subtask_id = subtask["id"]
 
         command, error = add_command(
@@ -933,10 +879,7 @@ class TestToDoWriteFlexibleHierarchy:
         result = check_hierarchy_completeness("Step")
         assert result["complete"] is True
         assert result["missing"] == []
-        assert all(
-            layer in result["present"]
-            for layer in ["Step", "Task", "SubTask", "Command"]
-        )
+        assert all(layer in result["present"] for layer in ["Step", "Task", "SubTask", "Command"])
 
     def test_real_world_agricultural_scenarios(self):
         """Test real-world agricultural robotics scenarios with different entry points."""
@@ -967,9 +910,7 @@ class TestToDoWriteFlexibleHierarchy:
         assert error is None
         phase_id = phase["id"]
 
-        step, error = add_step(
-            phase_id, "Sensor Integration", "Install yield monitoring sensors"
-        )
+        step, error = add_step(phase_id, "Sensor Integration", "Install yield monitoring sensors")
         assert error is None
         step_id = step["id"]
 
@@ -1029,12 +970,8 @@ class TestToDoWriteFlexibleHierarchy:
         assert len(todos.get("Command", [])) == 2  # Both scenarios
 
         # Verify independent hierarchies
-        research_task = next(
-            t for t in todos["Task"] if "Calibrate" in t.title
-        )
-        production_task = next(
-            t for t in todos["Task"] if "GPS Issue" in t.title
-        )
+        research_task = next(t for t in todos["Task"] if "Calibrate" in t.title)
+        production_task = next(t for t in todos["Task"] if "GPS Issue" in t.title)
 
         # Research task has parents (Step -> Phase -> Goal)
         assert len(research_task.links.parents) == 1
@@ -1050,9 +987,7 @@ class TestToDoWriteFlexibleHierarchy:
         # when starting from a higher layer
 
         # Start with a Phase
-        phase, error = add_phase(
-            None, "Test Phase", "Testing layer dependencies"
-        )
+        phase, error = add_phase(None, "Test Phase", "Testing layer dependencies")
         assert error is None
         phase_id = phase["id"]
 
@@ -1088,9 +1023,7 @@ class TestToDoWriteFlexibleHierarchy:
         assert error is None
         task_id = task["id"]
 
-        subtask, error = add_subtask(
-            task_id, "Proper SubTask", "Following hierarchy"
-        )
+        subtask, error = add_subtask(task_id, "Proper SubTask", "Following hierarchy")
         assert error is None
         subtask_id = subtask["id"]
 
@@ -1115,7 +1048,5 @@ class TestToDoWriteFlexibleHierarchy:
         assert subtask_node.id in task_node.links.children
 
         # Command should be child of SubTask
-        proper_command_node = next(
-            c for c in todos["Command"] if c.title == "Proper Command"
-        )
+        proper_command_node = next(c for c in todos["Command"] if c.title == "Proper Command")
         assert subtask_node.id in proper_command_node.links.parents

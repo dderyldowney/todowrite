@@ -70,9 +70,7 @@ class TestNodeUtilities:
         assert is_valid_node_id("goal-test123") is False
         assert is_valid_node_id("GOAL") is False
         assert is_valid_node_id("") is False
-        assert (
-            is_valid_node_id("GOAL-TEST-INVALID") is True
-        )  # This is actually valid
+        assert is_valid_node_id("GOAL-TEST-INVALID") is True  # This is actually valid
 
     def test_get_layer_prefix(self):
         """Test layer prefix retrieval."""
@@ -128,34 +126,15 @@ class TestStatusUtilities:
     def test_can_transition_to(self):
         """Test valid status transitions."""
         # Valid transitions
-        assert (
-            can_transition_to(NodeStatus.PLANNED, NodeStatus.IN_PROGRESS)
-            is True
-        )
-        assert (
-            can_transition_to(NodeStatus.PLANNED, NodeStatus.CANCELLED) is True
-        )
-        assert (
-            can_transition_to(NodeStatus.IN_PROGRESS, NodeStatus.COMPLETED)
-            is True
-        )
-        assert (
-            can_transition_to(NodeStatus.IN_PROGRESS, NodeStatus.BLOCKED)
-            is True
-        )
+        assert can_transition_to(NodeStatus.PLANNED, NodeStatus.IN_PROGRESS) is True
+        assert can_transition_to(NodeStatus.PLANNED, NodeStatus.CANCELLED) is True
+        assert can_transition_to(NodeStatus.IN_PROGRESS, NodeStatus.COMPLETED) is True
+        assert can_transition_to(NodeStatus.IN_PROGRESS, NodeStatus.BLOCKED) is True
 
         # Invalid transitions
-        assert (
-            can_transition_to(NodeStatus.COMPLETED, NodeStatus.PLANNED)
-            is False
-        )
-        assert (
-            can_transition_to(NodeStatus.PLANNED, NodeStatus.BLOCKED) is False
-        )
-        assert (
-            can_transition_to(NodeStatus.CANCELLED, NodeStatus.IN_PROGRESS)
-            is False
-        )
+        assert can_transition_to(NodeStatus.COMPLETED, NodeStatus.PLANNED) is False
+        assert can_transition_to(NodeStatus.PLANNED, NodeStatus.BLOCKED) is False
+        assert can_transition_to(NodeStatus.CANCELLED, NodeStatus.IN_PROGRESS) is False
 
 
 class TestProgressUtilities:
@@ -239,9 +218,7 @@ class TestHierarchyUtilities:
         root = create_test_node("GOAL-ROOT")
         child1 = create_test_node("TSK-CHILD1")
         child2 = create_test_node("TSK-CHILD2")
-        grandchild = create_test_node(
-            "SUB-GRANDCHILD", layer=NodeLayer.SUBTASK
-        )
+        grandchild = create_test_node("SUB-GRANDCHILD", layer=NodeLayer.SUBTASK)
 
         # Set up relationships
         root.links.children = ["TSK-CHILD1", "TSK-CHILD2"]
@@ -282,9 +259,7 @@ class TestHierarchyUtilities:
         """Test calculating node depth."""
         root = create_test_node("GOAL-ROOT")
         child = create_test_node("TSK-CHILD")
-        grandchild = create_test_node(
-            "SUB-GRANDCHILD", layer=NodeLayer.SUBTASK
-        )
+        grandchild = create_test_node("SUB-GRANDCHILD", layer=NodeLayer.SUBTASK)
 
         # Set up relationships
         root.links.children = ["TSK-CHILD"]
@@ -307,12 +282,8 @@ class TestHierarchyUtilities:
         root = create_test_node("GOAL-ROOT")
         child1 = create_test_node("TSK-CHILD1")
         child2 = create_test_node("TSK-CHILD2")
-        grandchild1 = create_test_node(
-            "SUB-GRANDCHILD1", layer=NodeLayer.SUBTASK
-        )
-        grandchild2 = create_test_node(
-            "SUB-GRANDCHILD2", layer=NodeLayer.SUBTASK
-        )
+        grandchild1 = create_test_node("SUB-GRANDCHILD1", layer=NodeLayer.SUBTASK)
+        grandchild2 = create_test_node("SUB-GRANDCHILD2", layer=NodeLayer.SUBTASK)
 
         # Set up relationships
         root.links.children = ["TSK-CHILD1", "TSK-CHILD2"]
@@ -342,9 +313,7 @@ class TestHierarchyUtilities:
         """Test getting all ancestors of a node."""
         root = create_test_node("GOAL-ROOT")
         child = create_test_node("TSK-CHILD")
-        grandchild = create_test_node(
-            "SUB-GRANDCHILD", layer=NodeLayer.SUBTASK
-        )
+        grandchild = create_test_node("SUB-GRANDCHILD", layer=NodeLayer.SUBTASK)
 
         # Set up relationships
         root.links.children = ["TSK-CHILD"]
@@ -396,9 +365,7 @@ class TestSearchAndFilterUtilities:
         assert len(goals) == 2
         assert all(node.layer == NodeLayer.GOAL for node in goals)
 
-        tasks_and_concepts = filter_nodes_by_layer(
-            nodes, [NodeLayer.TASK, NodeLayer.CONCEPT]
-        )
+        tasks_and_concepts = filter_nodes_by_layer(nodes, [NodeLayer.TASK, NodeLayer.CONCEPT])
         assert len(tasks_and_concepts) == 2
 
     def test_filter_nodes_by_status(self):
@@ -425,9 +392,7 @@ class TestSearchAndFilterUtilities:
             create_test_node("TSK-1", NodeStatus.PLANNED, assignee="alice"),
             create_test_node("TSK-2", NodeStatus.COMPLETED, assignee="bob"),
             create_test_node("TSK-3", NodeStatus.PLANNED),  # No assignee
-            create_test_node(
-                "TSK-4", NodeStatus.IN_PROGRESS, assignee="alice"
-            ),
+            create_test_node("TSK-4", NodeStatus.IN_PROGRESS, assignee="alice"),
         ]
 
         alice_tasks = filter_nodes_by_assignee(nodes, "alice")
@@ -617,10 +582,7 @@ class TestValidationUtilities:
 
         is_valid, errors = validate_node_structure(invalid_progress_node)
         assert is_valid is False
-        assert any(
-            "Progress must be an integer between 0 and 100" in error
-            for error in errors
-        )
+        assert any("Progress must be an integer between 0 and 100" in error for error in errors)
 
     def test_validate_node_structure_command_validation(self):
         """Test command validation for different layers."""
@@ -634,10 +596,7 @@ class TestValidationUtilities:
 
         is_valid, errors = validate_node_structure(command_without_command)
         assert is_valid is False
-        assert any(
-            "Command layer nodes must have a command" in error
-            for error in errors
-        )
+        assert any("Command layer nodes must have a command" in error for error in errors)
 
         # Non-command node with command
         goal_with_command = {
@@ -650,10 +609,7 @@ class TestValidationUtilities:
 
         is_valid, errors = validate_node_structure(goal_with_command)
         assert is_valid is False
-        assert any(
-            "Only Command layer nodes can have a command" in error
-            for error in errors
-        )
+        assert any("Only Command layer nodes can have a command" in error for error in errors)
 
 
 class TestExportUtilities:
@@ -819,9 +775,7 @@ class TestMetadataUtilities:
     def test_merge_node_metadata_label_merge(self):
         """Test specific label merging behavior."""
         base = {"labels": ["base1", "base2"]}
-        updates = {
-            "labels": ["update1", "base2"]
-        }  # base2 should be deduplicated
+        updates = {"labels": ["update1", "base2"]}  # base2 should be deduplicated
 
         result = merge_node_metadata(base, updates)
         assert set(result["labels"]) == {"base1", "base2", "update1"}

@@ -59,13 +59,9 @@ def verify_token_optimization():
             return False
 
         print("✓ Token optimization is enabled")
-        print(
-            f"  - HAL preprocessing: {token_opt.get('hal_preprocessing', False)}"
-        )
+        print(f"  - HAL preprocessing: {token_opt.get('hal_preprocessing', False)}")
         print(f"  - Cache enabled: {token_opt.get('cache_enabled', False)}")
-        print(
-            f"  - Max context chars: {token_opt.get('max_context_chars', 'N/A')}"
-        )
+        print(f"  - Max context chars: {token_opt.get('max_context_chars', 'N/A')}")
 
         return True
 
@@ -100,9 +96,7 @@ def main():
 
     # Check todowrite_cli availability
     if not check_todowrite_cli_available():
-        print(
-            "⚠️  todowrite_cli not available - make sure PYTHONPATH is set correctly"
-        )
+        print("⚠️  todowrite_cli not available - make sure PYTHONPATH is set correctly")
         print('   export PYTHONPATH="lib_package/src:cli_package/src"')
         sys.exit(1)
 

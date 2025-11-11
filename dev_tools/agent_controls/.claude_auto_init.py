@@ -88,7 +88,9 @@ def get_optimized_analysis_command(goal, pattern=None) -> str:
             return f'python {always_token_sage} "{goal}" --pattern "{pattern}"'
         return f'python {always_token_sage} "{goal}"'
     # Fallback to token-sage Task
-    return f'Task subagent_type=token-sage description="Optimized analysis" prompt="Analyze: {goal}"'
+    return (
+        f'Task subagent_type=token-sage description="Optimized analysis" prompt="Analyze: {goal}"'
+    )
 
 
 def auto_optimize_query(query):
@@ -114,9 +116,7 @@ def auto_optimize_query(query):
     ]
 
     query_lower = query.lower()
-    is_code_query = any(
-        indicator in query_lower for indicator in code_indicators
-    )
+    is_code_query = any(indicator in query_lower for indicator in code_indicators)
 
     if is_code_query:
         return get_optimized_analysis_command(query)

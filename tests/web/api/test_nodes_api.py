@@ -75,9 +75,7 @@ class TestNodesAPI:
 
         assert response.status_code == 201
         data = response.json()
-        assert (
-            data["node"]["links"]["parents"] == sample_task_data["parent_ids"]
-        )
+        assert data["node"]["links"]["parents"] == sample_task_data["parent_ids"]
 
     def test_get_node_by_id(self, client):
         """Test GET /api/v1/nodes/{id}."""
@@ -293,9 +291,7 @@ class TestNodesAPI:
         ]
 
         # Test bulk create (if implemented)
-        response = client.post(
-            "/api/v1/nodes/bulk", json={"nodes": nodes_data}
-        )
+        response = client.post("/api/v1/nodes/bulk", json={"nodes": nodes_data})
 
         if response.status_code == 404:
             pytest.skip("Bulk operations not implemented yet")
@@ -306,9 +302,7 @@ class TestNodesAPI:
 
         # Test bulk delete
         node_ids = [node["id"] for node in data["nodes"]]
-        response = client.delete(
-            "/api/v1/nodes/bulk", json={"node_ids": node_ids}
-        )
+        response = client.delete("/api/v1/nodes/bulk", json={"node_ids": node_ids})
         assert response.status_code == 204
 
         # Verify all nodes are deleted

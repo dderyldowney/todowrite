@@ -211,9 +211,7 @@ class TestSearchAPI:
         assigned_node = response.json()["node"]
 
         # Search for nodes by assignee
-        search_response = client.get(
-            "/api/v1/search?q=task&assignee=developer1"
-        )
+        search_response = client.get("/api/v1/search?q=task&assignee=developer1")
 
         if search_response.status_code == 404:
             pytest.skip("Search endpoint not implemented yet")
@@ -225,9 +223,7 @@ class TestSearchAPI:
 
     def test_search_complex_query(self, client, sample_nodes):
         """Test search with complex query and multiple filters."""
-        response = client.get(
-            "/api/v1/search?q=implement&layer=Task&status=planned"
-        )
+        response = client.get("/api/v1/search?q=implement&layer=Task&status=planned")
 
         if response.status_code == 404:
             pytest.skip("Search endpoint not implemented yet")
@@ -239,8 +235,7 @@ class TestSearchAPI:
         for node in data["nodes"]:
             assert node["layer"] == "Task"
             assert (
-                "implement" in node["title"].lower()
-                or "implement" in node["description"].lower()
+                "implement" in node["title"].lower() or "implement" in node["description"].lower()
             )
 
     def test_search_response_format(self, client, sample_nodes):

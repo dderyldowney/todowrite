@@ -58,7 +58,7 @@ def isolated_test_database() -> Generator[Session, None, None]:
 
     finally:
         # Always close session and dispose engine
-        if 'session' in locals():
+        if "session" in locals():
             session.close()
         engine.dispose()
 

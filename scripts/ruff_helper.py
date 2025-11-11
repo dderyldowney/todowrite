@@ -16,9 +16,7 @@ class RuffHelper:
     def __init__(self, root_path: str | None = None):
         self.root_path = Path(root_path) if root_path else Path.cwd()
 
-    def run_ruff_check(
-        self, with_statistics: bool = False
-    ) -> tuple[int, str, str]:
+    def run_ruff_check(self, with_statistics: bool = False) -> tuple[int, str, str]:
         """Run ruff check and return proper results with correct error parsing."""
         cmd = [sys.executable, "-m", "ruff", "check", "."]
         if with_statistics:
@@ -57,11 +55,7 @@ class RuffHelper:
             line = lines[i].strip()
 
             # Skip empty lines, context markers, and statistics
-            if (
-                not line
-                or line.startswith(("|", "-", "-->"))
-                or re.match(r"^\d+\s+[A-Z]\d+", line)
-            ):
+            if not line or line.startswith(("|", "-", "-->")) or re.match(r"^\d+\s+[A-Z]\d+", line):
                 i += 1
                 continue
 
@@ -75,15 +69,11 @@ class RuffHelper:
                     # Look for file location in next few lines
                     file_info = None
                     j = i + 1
-                    while (
-                        j < len(lines) and j <= i + 3
-                    ):  # Look ahead up to 3 lines
+                    while j < len(lines) and j <= i + 3:  # Look ahead up to 3 lines
                         next_line = lines[j].strip()
                         if next_line.startswith("-->"):
                             # Extract file info from arrow line
-                            match = re.search(
-                                r"-->\s*([^:]+):(\d+):(\d+)", next_line
-                            )
+                            match = re.search(r"-->\s*([^:]+):(\d+):(\d+)", next_line)
                             if match:
                                 file_info = {
                                     "file": match.group(1),
@@ -121,9 +111,7 @@ class RuffHelper:
         for error in parsed_output["errors"]:
             code = error.get("code", "UNKNOWN")
             error_counts[code] = error_counts.get(code, 0) + 1
-        return dict(
-            sorted(error_counts.items(), key=lambda x: x[1], reverse=True)
-        )
+        return dict(sorted(error_counts.items(), key=lambda x: x[1], reverse=True))
 
     def format_error_report(self, parsed_output: dict, limit: int = 10) -> str:
         """Format a readable error report."""

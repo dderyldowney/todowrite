@@ -28,9 +28,7 @@ from todowrite.core.app import (
 )
 
 
-def create_standalone_node(
-    layer: str, title: str, description: str
-) -> dict[str, Any]:
+def create_standalone_node(layer: str, title: str, description: str) -> dict[str, Any]:
     """Create a node without requiring a parent - demonstrates flexible entry.
 
     Uses real database operations with proper UUID generation for uniqueness.
@@ -117,9 +115,7 @@ class TestFlexibleEntryPoints:
         assert goal_node["id"] is not None
         assert goal_node["title"] == "Autonomous Harvesting"
 
-        print(
-            "✅ FLEXIBLE ENTRY DEMONSTRATED: Started at 4 different layers independently"
-        )
+        print("✅ FLEXIBLE ENTRY DEMONSTRATED: Started at 4 different layers independently")
 
     def test_mandatory_hierarchy_completion_from_task(self):
         """Demonstrate that starting at Task requires completing mandatory lower layers."""
@@ -144,6 +140,4 @@ class TestFlexibleEntryPoints:
         )
         assert command_node["id"] is not None
 
-        print(
-            "✅ MANDATORY COMPLETION DEMONSTRATED: Task + SubTask + Command layers created"
-        )
+        print("✅ MANDATORY COMPLETION DEMONSTRATED: Task + SubTask + Command layers created")

@@ -65,8 +65,8 @@ class TestProjectsAPI:
                 "/api/v1/nodes",
                 json={
                     "layer": "Task",
-                    "title": f"Task {i+1}",
-                    "description": f"Task {i+1} description",
+                    "title": f"Task {i + 1}",
+                    "description": f"Task {i + 1} description",
                     "parent_ids": [phase2_response.json()["node"]["id"]],
                     "status": "completed" if i < 1 else "planned",
                 },
@@ -233,9 +233,7 @@ class TestProjectsAPI:
             },
         }
 
-        response = client.put(
-            f"/api/v1/projects/{project_id}", json=update_data
-        )
+        response = client.put(f"/api/v1/projects/{project_id}", json=update_data)
 
         if response.status_code == 404:
             pytest.skip("Projects update endpoint not implemented yet")

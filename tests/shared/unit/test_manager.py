@@ -100,7 +100,11 @@ class TestTodosManagerWithDatabaseIsolation:
                 "description": "Main project goal",
                 "layer": "Goal",
                 "status": "planned",
-                "metadata": {"created_at": "2024-01-01T00:00:00Z", "updated_at": "2024-01-01T00:00:00Z", "version": 1},
+                "metadata": {
+                    "created_at": "2024-01-01T00:00:00Z",
+                    "updated_at": "2024-01-01T00:00:00Z",
+                    "version": 1,
+                },
                 "links": {"parents": [], "children": []},
             },
             {
@@ -109,7 +113,11 @@ class TestTodosManagerWithDatabaseIsolation:
                 "description": "Task to implement the project",
                 "layer": "Task",
                 "status": "planned",
-                "metadata": {"created_at": "2024-01-01T00:00:00Z", "updated_at": "2024-01-01T00:00:00Z", "version": 1},
+                "metadata": {
+                    "created_at": "2024-01-01T00:00:00Z",
+                    "updated_at": "2024-01-01T00:00:00Z",
+                    "version": 1,
+                },
                 "links": {"parents": [], "children": []},
             },
             {
@@ -123,7 +131,11 @@ class TestTodosManagerWithDatabaseIsolation:
                     "run": {"shell": "echo 'build complete'"},
                     "artifacts": [],
                 },
-                "metadata": {"created_at": "2024-01-01T00:00:00Z", "updated_at": "2024-01-01T00:00:00Z", "version": 1},
+                "metadata": {
+                    "created_at": "2024-01-01T00:00:00Z",
+                    "updated_at": "2024-01-01T00:00:00Z",
+                    "version": 1,
+                },
                 "links": {"parents": [], "children": []},
             },
         ]
@@ -173,7 +185,11 @@ class TestTodosManagerWithDatabaseIsolation:
             "description": f"Testing database isolation {unique_id}",
             "layer": "Goal",
             "status": "planned",
-            "metadata": {"created_at": "2024-01-01T00:00:00Z", "updated_at": "2024-01-01T00:00:00Z", "version": 1},
+            "metadata": {
+                "created_at": "2024-01-01T00:00:00Z",
+                "updated_at": "2024-01-01T00:00:00Z",
+                "version": 1,
+            },
             "links": {"parents": [], "children": []},
         }
 
@@ -204,7 +220,11 @@ class TestTodosManagerWithDatabaseIsolation:
                 "description": f"Complete {term.lower()} system implementation",
                 "layer": "Goal",
                 "status": "planned",
-                "metadata": {"created_at": "2024-01-01T00:00:00Z", "updated_at": "2024-01-01T00:00:00Z", "version": 1},
+                "metadata": {
+                    "created_at": "2024-01-01T00:00:00Z",
+                    "updated_at": "2024-01-01T00:00:00Z",
+                    "version": 1,
+                },
                 "links": {"parents": [], "children": []},
             }
             created_node = create_node(node_data)
@@ -224,5 +244,3 @@ class TestTodosManagerWithDatabaseIsolation:
 
             assert len(found_matching_nodes) >= 1
             assert any(term in node.title for node in found_matching_nodes)
-
-

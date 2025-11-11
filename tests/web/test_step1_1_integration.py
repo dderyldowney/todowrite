@@ -30,9 +30,9 @@ class TestWebPackageIntegration:
         )
 
         # This should fail initially (RED phase)
-        assert (
-            setup_result.returncode == 0
-        ), f"Backend package should be importable: {setup_result.stderr}"
+        assert setup_result.returncode == 0, (
+            f"Backend package should be importable: {setup_result.stderr}"
+        )
 
     def test_frontend_npm_installable(self):
         """RED: Test that frontend package can be installed with npm."""
@@ -81,14 +81,10 @@ class TestWebPackageIntegration:
         frontend_path = web_package_path / "frontend"
 
         if backend_path.exists():
-            assert os.access(
-                backend_path, os.R_OK
-            ), "Backend directory should be readable"
+            assert os.access(backend_path, os.R_OK), "Backend directory should be readable"
 
         if frontend_path.exists():
-            assert os.access(
-                frontend_path, os.R_OK
-            ), "Frontend directory should be readable"
+            assert os.access(frontend_path, os.R_OK), "Frontend directory should be readable"
 
     def test_monorepo_structure_integration(self):
         """RED: Test that web_package integrates with existing monorepo structure."""
