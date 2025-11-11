@@ -1,17 +1,51 @@
-# ToDoWrite
+# ToDoWrite Core Library
 
-A Python library for managing complex software projects with Goals, Tasks, Concepts, and Commands.
+**Package Type**: `library` | **Package Name**: `todowrite` | **Status**: ✅ Published
 
-## Installation
+A Python library for managing complex software projects with hierarchical task management through Goals, Tasks, Concepts, and Commands.
 
+## 🚀 Installation
+
+### From PyPI (Recommended)
 ```bash
 pip install todowrite
 ```
 
-For PostgreSQL support:
+### With PostgreSQL Support
 ```bash
 pip install 'todowrite[postgres]'
 ```
+
+### Development Installation
+```bash
+git clone https://github.com/dderyldowney/todowrite.git
+cd todowrite/lib_package
+pip install -e .[dev]
+```
+
+### Version Information
+- **Current Version**: Synchronized with `todowrite-cli`
+- **Version Lock**: Always published together with CLI package
+- **Python Requirements**: 3.12+
+
+## 📦 Package Context
+
+This is the **core library** package of the ToDoWrite monorepo:
+
+```
+todowrite/                          # Monorepo root
+├── lib_package/                    # ✅ This package (Core Library)
+│   ├── src/todowrite/             # Library source code
+│   └── README.md                  # This documentation
+├── cli_package/                   # CLI interface (depends on this library)
+├── web_package/                   # Web application (depends on this library)
+└── docs/                          # Project documentation
+```
+
+### Package Relationships
+- **Dependents**: `cli_package` (todowrite-cli), `web_package` (todowrite-web)
+- **Version Locked**: Always published with same version as CLI
+- **Semantic Scope**: Uses `lib` scope for commits
 
 ## Quick Start
 

@@ -1,248 +1,326 @@
 # ToDoWrite Monorepo Structure
 
-This document describes the updated monorepo structure that follows Python packaging best practices.
+This document describes the complete structure of the ToDoWrite monorepo, including all packages, their purposes, and their relationships.
 
-## Project Structure
+## 📁 Repository Overview
 
-The project follows the standard `src/` layout as recommended by the [Python Packaging User Guide](https://packaging.python.org/en/latest/tutorials/packaging-projects/):
+ToDoWrite is a hierarchical task management system organized as a monorepo with three main packages:
 
 ```
 todowrite/
-├── lib_package/                  # todowrite library package
-│   ├── src/
-│   │   └── todowrite/           # Library source code
-│   │       ├── __init__.py
-│   │       ├── core/            # Core application logic
-│   │       │   ├── __init__.py
-│   │       │   ├── app.py
-│   │       │   ├── app_node_updater.py
-│   │       │   ├── constants.py
-│   │       │   ├── exceptions.py
-│   │       │   ├── project_manager.py
-│   │       │   ├── schema.py
-│   │       │   ├── types.py
-│   │       │   ├── utils.py
-│   │       │   └── schemas/
-│   │       ├── database/        # Database models and configuration
-│   │       │   ├── __init__.py
-│   │       │   ├── config.py
-│   │       │   └── models.py
-│   │       ├── storage/         # Storage backends (YAML, etc.)
-│   │       │   ├── __init__.py
-│   │       │   ├── yaml_manager.py
-│   │       │   ├── yaml_storage.py
-│   │       │   └── schema_validator.py
-│   │       ├── tools/           # Utility tools and scripts
-│   │       │   ├── __init__.py
-│   │       │   ├── extract_schema.py
-│   │       │   ├── tw_lint_soc.py
-│   │       │   ├── tw_stub_command.py
-│   │       │   ├── tw_trace.py
-│   │       │   └── tw_validate.py
-│   │       ├── version.py
-│   │       └── py.typed
-│   ├── pyproject.toml           # Library build configuration
-│   ├── README.md
-│   ├── LICENSE
-│   └── setup.py
-├── cli_package/                  # todowrite_cli package
-│   ├── src/
-│   │   └── todowrite_cli/       # CLI source code
-│   │       ├── __init__.py
-│   │       ├── __main__.py
-│   │       ├── main.py
-│   │       └── version.py
-│   ├── pyproject.toml           # CLI build configuration
-│   ├── README.md
-│   └── LICENSE
-├── web_package/                  # todowrite_web package (FastAPI + TypeScript)
-│   ├── src/
-│   │   └── todowrite_web/       # Web package source code
-│   │       ├── __init__.py      # Main package interface (imports from backend)
-│   │       ├── backend/          # Python backend module
-│   │       │   ├── __init__.py  # Backend module interface
-│   │       │   ├── models.py    # Pydantic models for all entities
-│   │       │   ├── utils.py     # Utility functions for node management
-│   │       │   └── api/         # FastAPI API structure
-│   │       │       ├── __init__.py
-│   │       │       ├── middleware/
-│   │       │       │   └── __init__.py
-│   │       │       └── v1/
-│   │       │           ├── __init__.py
-│   │       │           └── endpoints/
-│   │       │               └── __init__.py
-│   │       └── frontend/        # TypeScript frontend
-│   │           ├── jest.config.js
-│   │           ├── package.json
-│   │           ├── public/
-│   │           │   └── index.html
-│   │           └── src/
-│   │               └── types/
-│   │                   └── index.ts
-│   ├── docker-compose.yml        # Docker compose configuration
-│   ├── nginx.conf               # Nginx configuration
-│   ├── pyproject.toml           # Web package build configuration
-│   ├── README.md
-│   ├── LICENSE
-│   └── MANIFEST.in
-├── tests/                       # Test files organized by package and subsystem
-│   ├── cli/                     # CLI package tests
-│   ├── lib/                     # Library package tests
-│   │   ├── api/                 # General library API tests
-│   │   ├── core/                # Core application logic tests
-│   │   ├── database/            # Database models and configuration tests
-│   │   ├── schema/              # Schema validation tests
-│   │   ├── storage/             # Storage backend tests (YAML, etc.)
-│   │   └── tools/               # Utility tools and scripts tests
-│   ├── web/                     # Web package tests
-│   │   ├── api/                 # API endpoint tests
-│   │   ├── backend/             # FastAPI application tests
-│   │   ├── frontend/            # Frontend TypeScript tests
-│   │   ├── models/              # Shared model tests
-│   │   └── utils/               # Shared utility tests
-│   │   ├── test_directory_structure.py
-│   │   ├── test_simple_mode_user_journey.py
-│   │   ├── test_step1_1_directory_structure.py
-│   │   ├── test_step1_1_integration.py
-│   │   ├── test_template_based_creation.py
-│   │   └── test_visual_relationship_building.py
-│   └── shared/                  # Cross-package shared tests
-│       ├── development/         # Development workflow tests
-│       ├── unit/                # Multi-package unit tests
-│       ├── workflows/           # End-to-end workflow tests
-│       ├── test_flexible_entry_points.py
-│       └── test_todowrite_flexible_hierarchy.py
-├── pyproject.toml               # Root development configuration
-├── pyrightconfig.json
-├── .pre-commit-config.yaml
-├── Makefile
-└── README.md
+├── lib_package/          # Core library (todowrite)
+├── cli_package/          # Command-line interface (todowrite-cli)
+├── web_package/          # Web application (todowrite-web)
+├── tests/                # Shared test suite
+├── docs/                 # Project documentation
+├── .claude/              # Claude Code development environment
+├── .hooks/               # Quality enforcement hooks
+└── [config files]        # Project configuration
 ```
 
-## Package Dependencies
+## 📦 Package Details
 
-- **todowrite** (library): Core functionality for managing Goals, Tasks, Concepts, and Commands
-- **todowrite_cli** (CLI): Thin wrapper around the library that provides command-line interface
-- **todowrite_web** (web package): FastAPI backend + TypeScript frontend for web interface
+### 1. lib_package/ - Core Library
+**Package Name**: `todowrite`
+**Package Type**: `library`
+**Published**: ✅ Yes (PyPI & TestPyPI)
+**Version Locked**: With `cli_package`
 
-The CLI and web packages depend on the library (`todowrite>=0.2.0`), but the library is completely independent and can be used on its own. The web package provides both REST API endpoints and a modern TypeScript frontend.
+#### Purpose
+The core library providing hierarchical task management functionality with database persistence.
 
-## Building and Installation
+#### Key Features
+- 12-layer hierarchical architecture (Goal → Concept → Task → Command)
+- Database persistence (SQLite & PostgreSQL)
+- Schema validation with JSON Schema
+- Import/Export capabilities (JSON & YAML)
+- Type safety with Python 3.12+
 
-### Development Installation
-
-For development, install all packages in editable mode:
-
-```bash
-# Install the library
-pip install -e ./lib_package
-
-# Install the CLI
-pip install -e ./cli_package
-
-# Install the web package
-pip install -e ./web_package
+#### Structure
+```
+lib_package/
+├── src/todowrite/
+│   ├── __init__.py           # Public API
+│   ├── core/
+│   │   ├── app.py           # Main ToDoWrite class
+│   │   ├── types.py         # Type definitions
+│   │   └── [models/]        # Data models
+│   ├── storage/             # Storage backends
+│   └── utils/               # Utilities
+├── pyproject.toml          # Package configuration
+└── README.md               # Package documentation
 ```
 
-### Running Tests
+#### Publication
+- **PyPI**: https://pypi.org/project/todowrite/
+- **TestPyPI**: https://test.pypi.org/project/todowrite/
+- **Version**: Synchronized with `todowrite-cli`
 
-Tests are located in the `tests/` directory and can be run from the project root:
+---
 
-```bash
-# Set PYTHONPATH to include all src directories
-export PYTHONPATH="lib_package/src:cli_package/src:web_package/src"
+### 2. cli_package/ - Command-Line Interface
+**Package Name**: `todowrite-cli`
+**Package Type**: `cli`
+**Published**: ✅ Yes (PyPI & TestPyPI)
+**Version Locked**: With `lib_package`
 
-# Run all tests
-python -m pytest tests/
+#### Purpose
+Command-line interface providing full access to ToDoWrite functionality from the terminal.
 
-# Run tests for specific package
-python -m pytest tests/lib/
-python -m pytest tests/cli/
-python -m pytest tests/web/
+#### Key Features
+- Complete CRUD operations for hierarchical tasks
+- Interactive mode with Rich UI
+- Batch operations and scripting support
+- Configuration management
+- Database migration tools
 
-# Run tests for specific subsystem
-python -m pytest tests/lib/core/
-python -m pytest tests/web/api/
-python -m pytest tests/shared/
+#### Structure
+```
+cli_package/
+├── src/todowrite_cli/
+│   ├── __init__.py          # Public API
+│   ├── main.py             # CLI entry point
+│   ├── commands/           # CLI command implementations
+│   ├── config/             # Configuration management
+│   └── utils/              # CLI utilities
+├── pyproject.toml         # Package configuration
+└── README.md              # Package documentation
 ```
 
-### Building Packages
+#### Publication
+- **PyPI**: https://pypi.org/project/todowrite-cli/
+- **TestPyPI**: https://test.pypi.org/project/todowrite-cli/
+- **Version**: Synchronized with `todowrite`
 
-Each package can be built independently:
+---
 
-```bash
-# Build the library
-cd lib_package
-python -m build
+### 3. web_package/ - Web Application
+**Package Name**: `todowrite-web`
+**Package Type**: `webapp`
+**Published**: ❌ Not yet (in development)
+**Versioning**: Independent
 
-# Build the CLI
-cd ../cli_package
-python -m build
+#### Purpose
+FastAPI-based web application providing a modern interface for ToDoWrite functionality.
 
-# Build the web package
-cd ../web_package
-python -m build
+#### Key Features
+- RESTful API endpoints
+- Real-time task updates
+- Web-based task management interface
+- Database integration
+- Authentication and authorization (planned)
+
+#### Architecture
+- **Backend**: FastAPI
+- **Frontend**: React (planned)
+- **Database**: PostgreSQL/SQLite
+- **API**: REST with WebSocket support
+
+#### Structure
+```
+web_package/
+├── src/todowrite_web/
+│   ├── __init__.py          # Package initialization
+│   ├── api/
+│   │   ├── backend/
+│   │   │   ├── main.py      # FastAPI application
+│   │   │   ├── models.py    # Pydantic models
+│   │   │   ├── v1/          # API v1 endpoints
+│   │   │   └── middleware/  # Custom middleware
+│   │   └── frontend/        # Frontend code (planned)
+│   ├── database/            # Database models and migrations
+│   └── static/              # Static assets
+├── pyproject.toml          # Package configuration
+├── .claude/                 # Independent development environment
+└── README.md               # Package documentation
 ```
 
-### Installing from PyPI
+#### Development Status
+- **Backend API**: Basic structure implemented
+- **Database Models**: Defined and ready for implementation
+- **Frontend**: Planned (React-based)
+- **Publication**: Will be published when baseline implementation is complete
 
-```bash
-# Install the library
-pip install todowrite
+---
 
-# Install the CLI (will also install the library)
-pip install todowrite-cli
+## 🔗 Package Relationships
 
-# Install the web package (will also install the library)
-pip install todowrite-web
+### Version Locking
+- `lib_package` (todowrite) ↔ `cli_package` (todowrite-cli)
+- Always published together with the same version number
+- API compatibility guaranteed between locked packages
+
+### Dependencies
+```
+cli_package (todowrite-cli)
+    depends on → lib_package (todowrite)
+
+web_package (todowrite-web)
+    depends on → lib_package (todowrite)
 ```
 
-## Development Workflow
+### Configuration Hierarchy
+```
+.claude/                           # Root configuration (applies to all)
+├── agent_registry.json           # Monorepo package definitions
+├── semantic_scoping_*.json       # Universal semantic scoping
+└── [30+ enforcement files]       # Quality enforcement system
 
-### Code Quality Tools
-
-The project uses several code quality tools configured in the root `pyproject.toml`:
-
-- **Black**: Code formatting
-- **Ruff**: Linting and import sorting
-- **Pyright**: Type checking
-- **pytest**: Testing
-- **Coverage**: Test coverage
-
-### Development Commands
-
-```bash
-# Format code
-black src/ tests/
-
-# Lint code
-ruff check src/ tests/
-
-# Type check
-pyright src/
-
-# Run tests with coverage
-python -m pytest tests/ --cov=src --cov-report=html
+web_package/src/todowrite_web/.claude/  # Independent web environment
+└── agent_registry.json               # Web-specific configuration
 ```
 
-## Key Benefits of This Structure
+---
 
-1. **Clear Separation**: Library, CLI, and Web are separate packages with their own build configurations
-2. **Standard Layout**: Follows Python packaging guidelines with `src/` layout for all packages
-3. **Independent Development**: Each package can be developed, tested, and released independently
-4. **Organized Tests**: Tests organized by package and subsystem for better maintainability
-5. **Clean Dependencies**: Clear dependency relationship between packages
-6. **Full-Stack Support**: Complete stack from library core to CLI and web interface
+## 🏗️ Development Workflow
 
-## Migration Notes
+### Semantic Scoping
+All packages use unified semantic scoping with the following scopes:
+- `lib`: Core library functionality
+- `cli`: Command-line interface
+- `web`: Web application
+- `tests`: Test suite and infrastructure
+- `docs`: Documentation
+- `build`: Build system and packaging
+- `config`: Configuration files
+- `ci`: Continuous integration
+- `deps`: Dependencies
 
-This structure was migrated from a non-standard layout to follow Python packaging best practices. The key changes were:
+### Quality Enforcement
+Comprehensive quality enforcement system including:
+- Semantic scoping validation
+- Conventional commits enforcement
+- Code formatting (Ruff)
+- Security analysis (Bandit)
+- Secret detection (detect-secrets)
+- Database migration validation (Alembic)
+- Test artifact cleanup
+- Token usage optimization
 
-1. Moved source code from `lib_package/todowrite/`, `cli_package/todowrite_cli/`, and `web_package/todowrite_web/` to `src/todowrite/`, `src/todowrite_cli/`, and `src/todowrite_web/`
-2. Updated all `pyproject.toml` files to reference the new `src/` structure
-3. Added comprehensive web package with FastAPI backend and TypeScript frontend
-4. Reorganized tests by package and subsystem for better maintainability
-5. Adjusted build configurations, test paths, and coverage settings
-6. Maintained backward compatibility for all imports and functionality
+### Claude Code Integration
+- Root `.claude/` configuration governs `lib_package` and `cli_package`
+- `web_package` has independent Claude configuration for autonomous development
+- Semantic scoping awareness enabled across all packages
+- Permanent enforcement survives session resets
 
-The API and functionality remain exactly the same - only the project structure has been improved and extended with full-stack capabilities.
+---
+
+## 📋 File Organization
+
+### Configuration Files
+```
+.todowrite/
+├── VERSION              # Shared version file
+├── development_todowrite.db  # Development database
+└── [config files]
+
+.pyproject.toml         # Meta-package configuration
+.uv.lock               # Dependency lock file
+.pre-commit-config.yaml  # Pre-commit hooks
+.alembic.ini           # Database migration configuration
+.sqlfluff-config       # SQL linting configuration
+.secrets.baseline      # Secret detection baseline
+```
+
+### Development Infrastructure
+```
+.claude/                           # Claude Code development environment
+├── agent_registry.json           # Agent configuration + monorepo packages
+├── semantic_scoping_*.json       # Semantic scoping configuration
+├── comprehensive_quality_*.json  # Quality enforcement
+├── conventional_commits_*.json   # Commit message enforcement
+├── tdd_workflow.json             # Test-driven development
+├── skills_testing_*.json         # Skills testing workflow
+├── workflow_enforcement.json     # Development workflow enforcement
+├── autorun.py                    # Automatic setup script
+├── hooks/                        # Claude hooks
+└── [30+ enforcement files]       # Various quality enforcement configs
+
+.hooks/                           # Quality enforcement hooks
+├── red-green-refactor-enforcer.py    # TDD methodology enforcement
+├── alembic-enforcer.py               # Database migration enforcement
+├── test-cleanup-enforcer.py          # Test artifact cleanup
+├── tmp-file-enforcer.py              # Hardcoded tmp file prevention
+├── token-optimizer.py                # Token usage optimization
+└── [additional hooks]                # Various enforcement hooks
+
+alembic/                         # Database migrations
+├── versions/                     # Migration files
+├── env.py                       # Alembic environment
+└── script.py.mako              # Migration template
+```
+
+### Testing
+```
+tests/                           # Shared test suite
+├── lib/                         # Library tests
+├── cli/                         # CLI tests
+├── web/                         # Web tests
+├── integration/                 # Integration tests
+├── conftest.py                  # pytest configuration
+└── [test utilities]             # Test helpers
+```
+
+---
+
+## 🚀 Getting Started
+
+### Development Setup
+1. Clone the repository
+2. Install dependencies: `uv sync`
+3. Install pre-commit hooks: `pre-commit install`
+4. Initialize development environment: `python .claude/autorun.py`
+
+### Package Development
+- **Library**: Work in `lib_package/`
+- **CLI**: Work in `cli_package/`
+- **Web**: Work in `web_package/` (independent environment)
+
+### Building and Publishing
+- **Individual packages**: `uv build` in package directory
+- **All packages**: `uv build` in root (builds all packages)
+- **Publishing**: Use `uv publish` for individual packages
+
+---
+
+## 📝 Version Management
+
+### Shared Version File
+All packages read from the shared `VERSION` file in the project root.
+
+### Version Locking
+- `lib_package` and `cli_package` always have the same version
+- `web_package` has independent versioning
+- Version updates are synchronized across locked packages
+
+### Release Process
+1. Update `VERSION` file
+2. Update changelogs
+3. Build all packages
+4. Test thoroughly
+5. Publish `lib_package` and `cli_package` together
+6. `web_package` published independently when ready
+
+---
+
+## 🔧 Maintenance
+
+### Adding New Packages
+1. Create package directory
+2. Add package definition to `.claude/agent_registry.json`
+3. Configure semantic scoping patterns
+4. Add to build system configuration
+5. Update this documentation
+
+### Updating Configuration
+- Root configuration affects all packages
+- Package-specific configuration only for `web_package`
+- Semantic scoping patterns defined in root configuration
+- Quality enforcement rules applied universally
+
+### Quality Assurance
+- All changes go through comprehensive quality gates
+- Semantic scoping required for all commits
+- Tests must pass for all packages
+- Security scans and secret detection enforced
+- Code formatting and linting applied automatically

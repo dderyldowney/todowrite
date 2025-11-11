@@ -269,24 +269,38 @@ Each layer uses a specific ID prefix for easy identification:
 
 ### Core Documentation
 - **[ToDoWrite.md](ToDoWrite.md)**: Complete architectural overview and design principles
+- **[MONOREPO_STRUCTURE.md](docs/MONOREPO_STRUCTURE.md)**: Detailed monorepo architecture and package relationships
+- **[ENFORCEMENT_SYSTEM.md](docs/ENFORCEMENT_SYSTEM.md)**: Comprehensive quality enforcement system overview
+- **[DEVELOPMENT_WORKFLOW.md](docs/DEVELOPMENT_WORKFLOW.md)**: Claude Code powered development workflow
 - **[CONTRIBUTING.md](CONTRIBUTING.md)**: Development guidelines and contribution process
 
-### Technical Documentation (in `docs/`)
+### Technical Documentation
 - **[BUILD_SYSTEM.md](docs/BUILD_SYSTEM.md)**: Build system architecture and development workflows
 - **[VERSION_MANAGEMENT.md](docs/VERSION_MANAGEMENT.md)**: Centralized version management system
-- **[MONOREPO_STRUCTURE.md](docs/MONOREPO_STRUCTURE.md)**: Project architecture overview
 - **[PyPI_HOWTO.md](docs/PyPI_HOWTO.md)**: Package publishing guide
 - **[API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md)**: Complete API reference
 - **[CHANGELOG.md](docs/CHANGELOG.md)**: Version history and release notes
 
-### Development Guides (in `docs/`)
+### Development Guides
 - **[INSTALLATION_GUIDE.md](docs/INSTALLATION_GUIDE.md)**: Detailed installation instructions
 - **[CI_CD_HOWTO.md](docs/CI_CD_HOWTO.md)**: CI/CD pipeline setup and configuration
 - **[SCHEMA_USAGE.md](docs/SCHEMA_USAGE.md)**: Database schema usage guide
 - **[PROJECT_UTILITIES.md](docs/PROJECT_UTILITIES.md)**: Development tools and utilities
 
-### CLI Documentation
+### Package Documentation
+- **[Library Documentation](lib_package/README.md)**: Core todowrite library documentation
 - **[CLI Reference](cli_package/README.md)**: Complete CLI command reference and examples
+- **[Web Documentation](web_package/README.md)**: FastAPI web application documentation (in development)
+
+### Quality Enforcement
+- **🔧 Semantic Scoping**: Automatic scope detection for conventional commits
+- **🚦 Conventional Commits**: Enforced commit message format
+- **🧪 Test-Driven Development**: Red-Green-Refactor methodology enforcement
+- **🔍 Security Analysis**: Automated vulnerability scanning
+- **📊 Code Quality**: Comprehensive linting, formatting, and type checking
+- **🔒 Secret Detection**: Prevents accidental credential commits
+- **🗃️ Database Migration**: Automated migration validation
+- **⚡ Token Optimization**: AI model efficiency optimization
 
 ## 🚀 Quick Release (For Maintainers)
 
