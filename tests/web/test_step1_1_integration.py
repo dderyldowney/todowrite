@@ -30,9 +30,9 @@ class TestWebPackageIntegration:
         )
 
         # This should fail initially (RED phase)
-        assert setup_result.returncode == 0, (
-            f"Backend package should be importable: {setup_result.stderr}"
-        )
+        assert (
+            setup_result.returncode == 0
+        ), f"Backend package should be importable: {setup_result.stderr}"
 
     def test_frontend_npm_installable(self):
         """RED: Test that frontend package can be installed with npm."""
