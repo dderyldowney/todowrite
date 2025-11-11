@@ -1,0 +1,186 @@
+[sqlfluff]
+# SQLFluff configuration for ToDoWrite project
+# Enforces consistent SQL formatting and linting across all SQL files
+
+[sqlfluff:dialect]
+# SQL dialect to use (templating may affect this)
+sql_file_exts = .sql
+
+[sqlfluff:templater]
+# Templater to use
+jinja_dbt = dbt
+
+[sqlfluff:templater:jinja]
+# Load macros etc from dbt_project.yml
+dbt_project_dir = .
+
+[sqlfluff:indentation]
+# Indentation settings
+indented_joins = false
+indented_using_on = true
+template_blocks_indent = 4
+
+[sqlfluff:rules:L010]  # Keywords
+capitalisation_policy = upper
+
+[sqlfluff:rules:L014]  # Unquoted identifiers
+capitalisation_policy = lower
+
+[sqlfluff:rules:L030]  # Function names
+capitalisation_policy = upper
+
+[sqlfluff:rules:L040]  # Null & Boolean literals
+capitalisation_policy = upper
+
+[sqlfluff:rules:L042]  # Quoted identifiers
+prefer_quoted_identifiers = false
+
+[sqlfluff:rules:L043]  # Avoid unnecessary quoted identifiers
+allow_unquoted_identifiers = true
+
+[sqlfluff:rules:L051]  # Trailing commas
+select_clause_trailing_comma = forbid
+
+[sqlfluff:rules:L027]  # Use UNION instead of UNION ALL
+allow_union_all = true
+
+[sqlfluff:rules:L044]  # Query limits
+select_clause_trailing_comma = forbid
+
+[sqlfluff:rules:L028]  # Coalesce function
+coalesce_capitalisation = upper
+
+[sqlfluff:rules:L034]  # Wildcard aliases
+alias_order = column
+
+[sqlfluff:rules:L035]  # Keywords as identifiers
+ignore_words = user,order,group,partition,extract,cast,table,column,index,constraint,foreign,primary,key,references,unique,check,not,null,default,auto_increment,timestamp,datetime,date,time,year,month,day,hour,minute,second,decimal,integer,varchar,char,text,blob,enum,boolean,tinyint,smallint,mediumint,bigint,float,double,real,bit,json,geometry,point,linestring,polygon,multipoint,multilinestring,multipolygon,geometrycollection,serial,bigserial
+
+# Exclude rules for specific contexts
+[sqlfluff:rules:L016]  # Line length
+max_line_length = 100
+
+[sqlfluff:rules:L025]  # Tables should not be aliased if that alias is not used
+ignore_words = select
+
+[sqlfluff:rules:L021]  # Table aliases should be unique within each clause
+allow_self_join = false
+
+[sqlfluff:rules:L022]  # Blank line requirements
+space_allowed = false
+
+[sqlfluff:rules:L019]  # Rules for comma placement
+comma_style = trailing
+
+[sqlfluff:rules:L020]  # Table aliasing
+aliasing = explicit
+
+[sqlfluff:rules:L031]  # Avoid table aliases in where clauses
+allow_left_join_condition = false
+
+[sqlfluff:rules:L032]  # Avoid specifying null in the not in list
+allow_in_not = false
+
+[sqlfluff:rules:L033]  # Avoid unnecessary distinct
+ignore_words = select
+
+[sqlfluff:rules:L036]  # Select targets to be grouped
+allow_scalar = false
+
+[sqlfluff:rules:L037]  # Ambiguous column resolution
+ignore_words = select
+
+[sqlfluff:rules:L038]  # Truncate spaces
+include = select
+
+[sqlfluff:rules:L039]  # Unnecessary whitespace
+ignore_words = select
+
+[sqlfluff:rules:L046]  # Jinja templating
+ignore_templated_areas = true
+
+[sqlfluff:rules:L047]  # Consistent naming convention
+quoted_identifiers_policy = consistent
+
+[sqlfluff:rules:L048]  # Quoted literal policy
+quoted_literal_policy = double_quotes
+
+[sqlfluff:rules:L049]  # Star character usage
+allow_space_after_star = true
+
+[sqlfluff:rules:L050]  # Files must contain trailing newline
+require_final_newline = true
+
+[sqlfluff:rules:L052]  # Statements must end with semicolon
+require_final_semicolon = true
+
+[sqlfluff:rules:L053]  # Top-level statements per file
+max_statements_per_file = 1
+
+[sqlfluff:rules:L054]  # Column references
+group_by_and_order_by_style = consistent
+
+[sqlfluff:rules:L055]  # Use consistent syntax around union
+unspecified_union_op_position = before
+
+[sqlfluff:rules:L056]  # Overriding operator type mismatches
+allow_overlapping_alias_types = false
+
+[sqlfluff:rules:L057]  # Special characters in words
+unquoted_identifiers_policy = all
+
+[sqlfluff:rules:L058]  # Merge conditions
+merge_condition_target = column
+
+[sqlfluff:rules:L059]  # Informational elements
+include_informational_comments = true
+
+[sqlfluff:rules:L060]  # Aggregate function subqueries
+allow_subquery_in_aggregate = false
+
+[sqlfluff:rules:L061]  # CTE column naming
+allow_column_using_in_cte = false
+
+[sqlfluff:rules:L062]  # Bare Join and From clauses
+require_where_with_group_by = false
+
+[sqlfluff:rules:L063]  # Inconsistent capitalization for datatypes
+capitalisation_policy = upper
+
+[sqlfluff:rules:L064]  # Use consistent syntax around join keywords
+join_condition_style = on
+
+[sqlfluff:rules:L065]  # Set operators
+set_operators_style = consistent
+
+[sqlfluff:rules:L066]  - Enforce column names in primary keys
+require_primary_key = false
+
+[sqlfluff:rules:L067]  - Enforce naming convention for aliasing
+aliasing = explicit
+
+[sqlfluff:core]
+# Enable verbose output
+verbose = 1
+
+# Color output
+color = true
+
+# Template blocks indentation
+templater_obj = sqlfluff:templater{jinja_dbt}
+
+[sqlfluff:logger]
+# Logging configuration
+level = INFO
+
+# Exclude patterns for files/directories
+exclude_rules =
+
+# Include only specific rules
+include_rules =
+
+# File patterns to ignore
+ignore_file_extensions = .pyc,.pyo,.pyd,.db,.sqlite,.sqlite3
+
+# Directories to ignore
+ignore_dirs = .git,__pycache__,.pytest_cache,.venv,venv,.ruff_cache,build,dist,htmlcov,.coverage

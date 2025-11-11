@@ -1,0 +1,174 @@
+{
+  "comprehensive_quality_enforced": true,
+  "enforcement_level": "strict",
+  "pre_commit_hooks": {
+    "core_quality_hooks": {
+      "enabled": true,
+      "hooks": [
+        "trailing-whitespace",
+        "end-of-file-fixer",
+        "check-yaml",
+        "check-added-large-files",
+        "check-merge-conflict",
+        "check-toml",
+        "debug-statements",
+        "mixed-line-ending",
+        "check-builtin-literals",
+        "check-executables-have-shebangs"
+      ]
+    },
+    "python_specific_hooks": {
+      "enabled": true,
+      "hooks": [
+        "ruff",
+        "ruff-format",
+        "bandit"
+      ]
+    },
+    "additional_validation_hooks": {
+      "enabled": true,
+      "hooks": [
+        "check-json",
+        "check-xml",
+        "check-ast",
+        "check-case-conflict",
+        "check-docstring-first",
+        "check-executables",
+        "check-shebang-scripts-are-executable"
+      ]
+    }
+  },
+  "ruff_configuration": {
+    "linting_enforced": true,
+    "formatting_enforced": true,
+    "security_enforced": true,
+    "import_rules_enforced": true,
+    "specific_rules": {
+      "E402": {
+        "enforced": true,
+        "description": "All imports must be at top level except where test setup requires otherwise",
+        "auto_fix": true
+      },
+      "PLC0415": {
+        "enforced": true,
+        "description": "Imports must be at module top level",
+        "auto_fix": true
+      }
+    },
+    "comprehensive_rules": [
+      "E",
+      "W",
+      "F",
+      "I",
+      "B",
+      "C4",
+      "UP",
+      "RUF",
+      "S",
+      "SIM",
+      "ARG",
+      "PTH",
+      "BLE",
+      "COM",
+      "DTZ",
+      "EM",
+      "EXE",
+      "G",
+      "ICN",
+      "INP",
+      "ISC",
+      "PIE",
+      "Q",
+      "RET",
+      "T10",
+      "TID",
+      "YTT",
+      "N",
+      "A",
+      "PLC",
+      "PLE",
+      "PLW",
+      "ANN"
+    ],
+    "zero_toleranced_violations": [
+      "E402",
+      "PLC0415",
+      "S",
+      "T10"
+    ]
+  },
+  "red_green_refactor_enforcement": {
+    "enabled": true,
+    "methodology": "RED-GREEN-REFACTOR",
+    "phases": {
+      "red": {
+        "description": "Write failing test before production code",
+        "verification": "Must watch test fail for correct reason",
+        "forbidden": [
+          "Write production code before test",
+          "Skip watching test fail"
+        ]
+      },
+      "green": {
+        "description": "Write minimal code to make test pass",
+        "verification": "All tests must pass with clean output",
+        "forbidden": [
+          "Add features beyond test requirements",
+          "Over-engineering"
+        ]
+      },
+      "refactor": {
+        "description": "Clean up code while keeping tests green",
+        "verification": "Tests must remain green throughout refactoring",
+        "forbidden": [
+          "Adding new behavior during refactoring",
+          "Breaking tests"
+        ]
+      }
+    },
+    "quality_gates": {
+      "require_test_for_new_code": true,
+      "zero_mocking_policy": true,
+      "real_implementations_only": true,
+      "test_coverage_threshold": 0.8
+    }
+  },
+  "enforcement_mechanisms": {
+    "pre_commit_hooks": true,
+    "automatic_formatting": true,
+    "automatic_linting": true,
+    "security_scanning": true,
+    "import_validation": true,
+    "test_coverage_validation": true,
+    "code_style_validation": true,
+    "documentation_validation": true
+  },
+  "quality_metrics": {
+    "line_length": 100,
+    "target_version": "py312",
+    "max_complexity": 10,
+    "min_test_coverage": 80,
+    "zero_security_issues": true,
+    "zero_lint_violations": true,
+    "consistent_formatting": true
+  },
+  "integration_features": {
+    "semantic_scoping_integration": true,
+    "conventional_commits_integration": true,
+    "tdd_workflow_integration": true,
+    "agent_coordination": true,
+    "automated_fixes": true,
+    "comprehensive_reporting": true
+  },
+  "error_handling": {
+    "reject_on_violations": true,
+    "auto_fix_when_possible": true,
+    "provide_detailed_errors": true,
+    "suggest_solutions": true,
+    "quality_gate_strictness": "fail_fast"
+  },
+  "enabled_time": "2025-11-11T16:56:39.742327",
+  "permanent_enforcement": true,
+  "applies_to_all_sessions": true,
+  "comprehensive_coverage": true
+}
