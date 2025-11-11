@@ -1,0 +1,101 @@
+{
+  "conventional_commits_enforced": true,
+  "enforcement_level": "strict",
+  "pre_commit_hooks": {
+    "conventional_pre_commit": {
+      "enabled": true,
+      "repo": "https://github.com/compilerla/conventional-pre-commit",
+      "rev": "v3.3.0",
+      "stages": [
+        "commit-msg"
+      ],
+      "validation_types": [
+        "feat",
+        "fix",
+        "docs",
+        "style",
+        "refactor",
+        "perf",
+        "test",
+        "build",
+        "ci",
+        "chore",
+        "revert"
+      ]
+    }
+  },
+  "commit_format_rules": {
+    "required_pattern": "^(type)[(scope)]: description$",
+    "type_required": true,
+    "scope_optional": true,
+    "subject_required": true,
+    "subject_capitalized": true,
+    "subject_max_length": 72,
+    "no_period_at_end": true,
+    "body_max_line_length": 72,
+    "footer_max_line_length": 72
+  },
+  "allowed_types": [
+    "feat",
+    "fix",
+    "docs",
+    "style",
+    "refactor",
+    "perf",
+    "test",
+    "build",
+    "ci",
+    "chore",
+    "revert"
+  ],
+  "recommended_scopes": [
+    "lib",
+    "cli",
+    "web",
+    "tests",
+    "docs",
+    "build",
+    "config"
+  ],
+  "enforcement_mechanisms": {
+    "pre_commit_hook": true,
+    "commit_msg_validation": true,
+    "format_validation": true,
+    "type_validation": true,
+    "scope_validation": false,
+    "subject_validation": true,
+    "line_length_validation": true
+  },
+  "examples": {
+    "good_commits": [
+      "feat(lib): add hierarchical task relationship support",
+      "fix(cli): resolve authentication timeout issue",
+      "test(web): add comprehensive coverage for user interface",
+      "docs(readme): update installation instructions",
+      "refactor(api): simplify database connection logic"
+    ],
+    "bad_commits": [
+      "Add new feature",
+      "feat: add new feature",
+      "fix(lib): fix stuff",
+      "implement comprehensive system"
+    ]
+  },
+  "integration_features": {
+    "changelog_generation": true,
+    "semantic_versioning": true,
+    "automated_release_notes": true,
+    "git_integration": true,
+    "ci_cd_pipeline_support": true
+  },
+  "error_handling": {
+    "reject_invalid_commits": true,
+    "provide_helpful_errors": true,
+    "suggest_corrections": true,
+    "show_examples": true
+  },
+  "enabled_time": "2025-11-11T16:42:35.233742",
+  "permanent_enforcement": true,
+  "applies_to_all_sessions": true,
+  "auto_install_hooks": true
+}
