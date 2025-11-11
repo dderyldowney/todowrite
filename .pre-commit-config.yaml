@@ -40,3 +40,13 @@ repos:
     hooks:
       - id: conventional-pre-commit
         stages: [commit-msg]
+
+  # Semantic Scoping enforcement for ToDoWrite project
+  - repo: local
+    hooks:
+      - id: semantic-scope-validator
+        name: Semantic Scope Validator
+        entry: ./.hooks/semantic-scope-validator.py
+        language: system
+        stages: [commit-msg]
+        require_serial: true
