@@ -31,6 +31,7 @@ try:
     )
     from todowrite.core import Node, ToDoWrite, generate_node_id
     from todowrite.storage import get_schema_compliance_report
+    from todowrite.utils.database_utils import get_project_database_name
 except ImportError:
     click.echo(
         "Error: todowrite library not found. Please install it first: "
@@ -85,6 +86,8 @@ def get_app(
 ) -> ToDoWrite:
     """Get or create ToDoWrite application instance."""
     if database_path:
+        # Expand ~ to user home directory
+        database_path = os.path.expanduser(database_path)
         # Convert file path to SQLite URL
         if not database_path.startswith(("sqlite:///", "postgresql://")):
             db_url = f"sqlite:///{database_path}"
@@ -97,16 +100,22 @@ def get_app(
         if config_path.exists():
             with open(config_path) as f:
                 config = yaml.safe_load(f)
+            default_db = f"~/dbs/{get_project_database_name('development')}"
             db_path = config.get("database", {}).get(
-                "default_path", "./todowrite.db"
+                "default_path", default_db
             )
+            # Expand ~ to user home directory
+            db_path = os.path.expanduser(db_path)
             if not db_path.startswith(("sqlite:///", "postgresql://")):
                 db_url = f"sqlite:///{db_path}"
             else:
                 db_url = db_path
             app = ToDoWrite(db_url)
         else:
-            app = ToDoWrite("sqlite:///./todowrite.db")
+            # Expand ~ to user home directory for fallback with project-specific name
+            fallback_name = get_project_database_name('development')
+            fallback_path = os.path.expanduser(f"~/dbs/{fallback_name}")
+            app = ToDoWrite(f"sqlite:///{fallback_path}")
 
     with suppress(Exception):
         app.init_database()

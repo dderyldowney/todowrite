@@ -7,6 +7,8 @@ database tables between tests while using a single test database file.
 
 import os
 import sys
+import uuid
+import warnings
 from collections.abc import Generator
 from pathlib import Path
 from typing import Any
@@ -19,12 +21,14 @@ from sqlalchemy.orm import Session, sessionmaker
 project_root = Path(__file__).resolve().parent
 sys.path.insert(0, str(project_root))
 
-# Set test environment variables before importing todowrite modules
-os.environ["TODOWRITE_DATABASE_URL"] = "sqlite:///testing_todowrite.db"
-os.environ["TODOWRITE_STORAGE_PREFERENCE"] = "sqlite_only"
-
-# Import after environment setup (required for test configuration)
+# Import todowrite modules first
 from todowrite.database.models import Base  # noqa: E402
+from todowrite.utils.database_utils import get_project_database_name
+
+# Set test environment variables after importing todowrite modules
+test_db_name = get_project_database_name("testing")
+os.environ["TODOWRITE_DATABASE_URL"] = f"sqlite:///{test_db_name}"
+os.environ["TODOWRITE_STORAGE_PREFERENCE"] = "sqlite_only"
 
 
 @pytest.fixture(scope="session")
@@ -34,11 +38,12 @@ def test_database_engine() -> Generator[Any, None, None]:
     This fixture creates the database file and tables once per test session.
     Individual tests will use the table recreation fixture for isolation.
     """
-    # Use a consistent test database file
-    database_url = "sqlite:///testing_todowrite.db"
+    # Use a consistent project-specific test database file
+    test_db_name = get_project_database_name("testing")
+    database_url = f"sqlite:///{test_db_name}"
 
     # Remove existing test database if it exists
-    db_file = Path("testing_todowrite.db")
+    db_file = Path(test_db_name)
     if db_file.exists():
         db_file.unlink()
 
@@ -84,29 +89,30 @@ def test_db_session(test_database_engine: Any) -> Generator[Session, None, None]
 @pytest.fixture(scope="function")
 def test_database_url() -> str:
     """Provide the test database URL for tests that need it."""
-    return "sqlite:///testing_todowrite.db"
+    test_db_name = get_project_database_name("testing")
+    return f"sqlite:///{test_db_name}"
 
 
 @pytest.fixture(autouse=True)
 def setup_test_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     """Automatically set up test environment for all tests."""
-    # Set test environment variables
-    monkeypatch.setenv("TODOWRITE_DATABASE_URL", "sqlite:///testing_todowrite.db")
+    # Set test environment variables with project-specific naming
+    test_db_name = get_project_database_name("testing")
+    monkeypatch.setenv("TODOWRITE_DATABASE_URL", f"sqlite:///{test_db_name}")
     monkeypatch.setenv("TODOWRITE_STORAGE_PREFERENCE", "sqlite_only")
 
     # Ensure no production todowrite.db exists in test directories
-    # This enforces the convention: dev=development_todowrite.db,
-    # test=testing_todowrite.db, prod=todowrite.db
+    # This enforces the convention: dev=todowrite_todowrite_development.db,
+    # test=todowrite_todowrite_testing.db, prod=todowrite_todowrite_production.db
     prod_db_file = Path("todowrite.db")
     if prod_db_file.exists():
         # Warn and remove production database from test environment
-        import warnings
-
         warnings.warn(
             "Production todowrite.db found in test environment. "
             "Removing to enforce database naming conventions. "
-            "Use: development_todowrite.db (dev), testing_todowrite.db (test), "
-            "todowrite.db (prod)",
+            f"Use: {get_project_database_name('development')} (dev), "
+            f"{get_project_database_name('testing')} (test), "
+            f"{get_project_database_name('production')} (prod)",
             UserWarning,
             stacklevel=2,
         )
@@ -116,8 +122,6 @@ def setup_test_environment(monkeypatch: pytest.MonkeyPatch) -> None:
 @pytest.fixture
 def sample_node_data() -> dict[str, Any]:
     """Provide unique sample node data for each test call."""
-    import uuid
-
     # Generate unique data for each fixture call
     unique_id = uuid.uuid4().hex[:8].upper()
     return {
