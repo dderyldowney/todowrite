@@ -3,14 +3,17 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
-*.so
-
-# Distribution / packaging
+# Python cache files - comprehensive coverage
+**/__pycache__/
+**/*.py[cod]
+**/*.pyo
+**/*.pyd
+**/*$py.class
 .Python
 build/
 develop-eggs/
 dist/
+downloads/
 eggs/
 .eggs/
 lib/
@@ -23,6 +26,37 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# C extensions
+*.so
+
+# Distribution / packaging (handled above in comprehensive section)
 
 # ruff cache
 .ruff_cache/
@@ -31,15 +65,7 @@ share/python-wheels/
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Unit test / coverage reports
-.coverage
-.coverage.*
-.hypothesis/
-.pytest_cache/
-nosetests.xml
-coverage.xml
-*.cover
-*.moqs
+# Unit test / coverage reports (handled above in comprehensive section)
 
 # Translations
 *.mo
@@ -159,7 +185,7 @@ tests/test_token_usage_temp.db-wal
 
 # ToDoWrite data directory (generated content, not source)
 /todowrite.egg-info/
-todowrite/__pycache__/
+# __pycache__ handled in comprehensive section above
 # ToDoWrite database files (development - we dogfood our own system)
 todowrite.db
 development_todowrite.db
