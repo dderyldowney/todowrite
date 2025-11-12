@@ -169,11 +169,13 @@ class TestStrategicCompleteDirectLogic(unittest.TestCase):
     def setUpClass(cls) -> None:
         # todowrite.manager doesn't exist - use todowrite.core.app
         from sqlalchemy import create_engine
-
         from todowrite.database.models import Base
 
-        # Setup test database
-        test_db_url = "sqlite:///testing_todowrite.db"
+        # Setup test database with project-specific naming
+        from todowrite.utils.database_utils import get_project_database_name
+
+        test_db_name = get_project_database_name("testing")
+        test_db_url = f"sqlite:///{test_db_name}"
         engine = create_engine(test_db_url)
         Base.metadata.drop_all(engine)
         Base.metadata.create_all(engine)
@@ -184,11 +186,13 @@ class TestStrategicCompleteDirectLogic(unittest.TestCase):
         """Clean up the test database for ToDoWrite."""
         # todowrite.manager doesn't exist - use todowrite.core.app
         from sqlalchemy import create_engine
-
         from todowrite.database.models import Base
 
-        # Setup test database
-        test_db_url = "sqlite:///testing_todowrite.db"
+        # Setup test database with project-specific naming
+        from todowrite.utils.database_utils import get_project_database_name
+
+        test_db_name = get_project_database_name("testing")
+        test_db_url = f"sqlite:///{test_db_name}"
         engine = create_engine(test_db_url)
         Base.metadata.drop_all(engine)
         Base.metadata.create_all(engine)

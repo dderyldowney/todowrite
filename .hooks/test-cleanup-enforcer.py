@@ -29,6 +29,8 @@ class TestCleanupEnforcer:
             "survives_session_reset": True,
             "forbidden_artifacts": [
                 "tests_todowrite.db",
+                "todowrite_*_testing.db",
+                "todowrite_*_development.db",
                 "commit-msgs.txt",
                 "test_*.db",
                 "*_test.db",
@@ -61,6 +63,8 @@ class TestCleanupEnforcer:
             ],
             "cleanup_commands": [
                 "find . -name 'tests_todowrite.db' -delete 2>/dev/null || true",
+                "find . -name 'todowrite_*_testing.db' -delete 2>/dev/null || true",
+                "find . -name 'todowrite_*_development.db' -delete 2>/dev/null || true",
                 "find . -name 'commit-msgs.txt' -delete 2>/dev/null || true",
                 "find . -name '*.db' -not -path './.git/*' -not -path './.venv/*' -not -path './venv/*' -delete 2>/dev/null || true",
                 "find . -name 'commit-msgs*.txt' -not -path './.git/*' -delete 2>/dev/null || true",

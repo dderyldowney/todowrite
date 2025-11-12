@@ -29,10 +29,25 @@ def check_todowrite_cli_available():
 def setup_todowrite_environment():
     """Set up environment variables for todowrite_cli."""
     import os
+    import sys
+    from pathlib import Path
+
+    # Add project root to path so we can import the utility
+    project_root = Path(__file__).resolve().parent.parent
+    sys.path.insert(0, str(project_root / "lib_package" / "src"))
+
+    try:
+        from todowrite.utils.database_utils import get_project_database_name
+
+        dev_db_name = get_project_database_name("development")
+        dev_db_url = f"sqlite:///{dev_db_name}"
+    except ImportError:
+        # Fallback to original naming if utility not available
+        dev_db_url = "sqlite:///development_todowrite.db"
 
     env_vars = {
         "PYTHONPATH": "lib_package/src:cli_package/src",
-        "TODOWRITE_DATABASE_URL": "sqlite:///development_todowrite.db",
+        "TODOWRITE_DATABASE_URL": dev_db_url,
     }
 
     for key, value in env_vars.items():

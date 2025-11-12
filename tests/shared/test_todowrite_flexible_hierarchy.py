@@ -21,7 +21,6 @@ sys.path.insert(0, str(project_root))
 from typing import Any
 
 import pytest
-
 from todowrite.core.app import (
     ToDoWrite,
     create_node,
@@ -259,8 +258,11 @@ class TestToDoWriteFlexibleHierarchy:
         # Simple database setup using current architecture
         from todowrite.database.models import Base
 
-        # Use test database
-        test_db_url = "sqlite:///testing_todowrite.db"
+        # Use test database with project-specific naming
+        from todowrite.utils.database_utils import get_project_database_name
+
+        test_db_name = get_project_database_name("testing")
+        test_db_url = f"sqlite:///{test_db_name}"
         engine = create_engine(test_db_url)
 
         # Drop and recreate tables
