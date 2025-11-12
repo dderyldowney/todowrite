@@ -3,13 +3,14 @@
 
 echo "🚀 Setting up ToDoWrite development environment..."
 
-# Get the directory where this script is located
+# Get the project root directory (parent of dev_tools)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
 # Install packages in development mode
 echo "📦 Installing packages in development mode..."
-pip install -e "$SCRIPT_DIR/lib_package"
-pip install -e "$SCRIPT_DIR/cli_package"
+pip install -e "$PROJECT_ROOT/lib_package"
+pip install -e "$PROJECT_ROOT/cli_package"
 
 # Set up PYTHONPATH permanently
 echo "🔧 Setting up permanent PYTHONPATH..."
@@ -35,19 +36,19 @@ if [[ -n "$SHELL_PROFILE" ]]; then
     # Add new PYTHONPATH configuration
     echo "" >> "$SHELL_PROFILE"
     echo "# ToDoWrite development environment" >> "$SHELL_PROFILE"
-    echo "export TODOWRITE_PYTHONPATH=\"$SCRIPT_DIR/lib_package:$SCRIPT_DIR/cli_package\"" >> "$SHELL_PROFILE"
+    echo "export TODOWRITE_PYTHONPATH=\"$PROJECT_ROOT/lib_package:$PROJECT_ROOT/cli_package\"" >> "$SHELL_PROFILE"
     echo "export PYTHONPATH=\"\$TODOWRITE_PYTHONPATH:\$PYTHONPATH\"" >> "$SHELL_PROFILE"
     echo "# End ToDoWrite development environment" >> "$SHELL_PROFILE"
     echo "✅ Added to $SHELL_PROFILE"
     echo "🔄 Please restart your shell or run: source $SHELL_PROFILE"
 else
     echo "⚠️  Could not find shell profile. Please manually add:"
-    echo "export TODOWRITE_PYTHONPATH=\"$SCRIPT_DIR/lib_package:$SCRIPT_DIR/cli_package\""
+    echo "export TODOWRITE_PYTHONPATH=\"$PROJECT_ROOT/lib_package:$PROJECT_ROOT/cli_package\""
     echo "export PYTHONPATH=\"\$TODOWRITE_PYTHONPATH:\$PYTHONPATH\""
 fi
 
 # Set current session PYTHONPATH
-export TODOWRITE_PYTHONPATH="$SCRIPT_DIR/lib_package:$SCRIPT_DIR/cli_package"
+export TODOWRITE_PYTHONPATH="$PROJECT_ROOT/lib_package:$PROJECT_ROOT/cli_package"
 export PYTHONPATH="$TODOWRITE_PYTHONPATH:$PYTHONPATH"
 
 # Verify installation

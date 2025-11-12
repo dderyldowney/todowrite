@@ -20,7 +20,7 @@ from pathlib import Path
 
 def get_version() -> str:
     """Read version from VERSION file (single source of truth)."""
-    version_file = Path(__file__).parent.parent / "VERSION"
+    version_file = Path(__file__).parent.parent.parent / "VERSION"
     try:
         return version_file.read_text(encoding="utf-8").strip()
     except (FileNotFoundError, OSError) as e:
@@ -44,7 +44,7 @@ def format_version(major: int, minor: int, patch: int) -> str:
 
 def update_readme_badges(current_version: str, new_version: str, dry_run: bool = False) -> None:
     """Update version badges in README.md file."""
-    readme_path = Path(__file__).parent.parent / "README.md"
+    readme_path = Path(__file__).parent.parent.parent / "README.md"
 
     if not readme_path.exists():
         print(f"⚠️ README.md not found at {readme_path}")
@@ -102,8 +102,8 @@ def update_readme_badges(current_version: str, new_version: str, dry_run: bool =
 def update_fallback_versions(new_version: str, dry_run: bool = False) -> None:
     """Update fallback versions in package version.py files."""
     package_files = [
-        Path(__file__).parent.parent / "lib_package" / "src" / "todowrite" / "version.py",
-        Path(__file__).parent.parent / "cli_package" / "src" / "todowrite_cli" / "version.py",
+        Path(__file__).parent.parent.parent / "lib_package" / "src" / "todowrite" / "version.py",
+        Path(__file__).parent.parent.parent / "cli_package" / "src" / "todowrite_cli" / "version.py",
     ]
 
     for package_file in package_files:
@@ -173,7 +173,7 @@ def update_fallback_versions(new_version: str, dry_run: bool = False) -> None:
 
 def verify_readme_versions(expected_version: str) -> bool:
     """Verify that README.md badges contain the expected version."""
-    readme_path = Path(__file__).parent.parent / "README.md"
+    readme_path = Path(__file__).parent.parent.parent / "README.md"
 
     if not readme_path.exists():
         print(f"⚠️ README.md not found at {readme_path}")
@@ -295,7 +295,7 @@ def main() -> int:
 
         # Update VERSION file LAST
         print("🔄 Updating VERSION file...")
-        version_file = Path(__file__).parent.parent / "VERSION"
+        version_file = Path(__file__).parent.parent.parent / "VERSION"
         version_file.write_text(f"{new_version}\n", encoding="utf-8")
         print(f"✅ Updated VERSION file to {new_version}")
 
