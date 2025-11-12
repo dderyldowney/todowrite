@@ -57,11 +57,28 @@ def get_database_path(
     Returns:
         Full path to the database file.
     """
-    if base_dir is None:
-        base_dir = "~/dbs"
+    if project_name is None:
+        project_name = get_project_name()
 
     db_name = get_project_database_name(environment, project_name)
-    db_path = os.path.join(base_dir, db_name)
 
-    # Expand ~ to user home directory
-    return os.path.expanduser(db_path)
+    # Handle different environments with different base directories
+    if environment == "testing":
+        # Testing databases go in project_root/tmp
+        from pathlib import Path
+        project_root = Path.cwd()
+        tmp_dir = project_root / "tmp"
+        tmp_dir.mkdir(exist_ok=True)
+        db_path = tmp_dir / db_name
+    elif environment == "production":
+        # Production databases go in ~/dbs
+        if base_dir is None:
+            base_dir = "~/dbs"
+        db_path = os.path.join(os.path.expanduser(base_dir), db_name)
+    else:
+        # Development databases go in ~/dbs
+        if base_dir is None:
+            base_dir = "~/dbs"
+        db_path = os.path.join(os.path.expanduser(base_dir), db_name)
+
+    return str(db_path)

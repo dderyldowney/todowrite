@@ -10,6 +10,7 @@ from typing import Any, cast
 
 import click
 import jsonschema
+import sqlalchemy
 import yaml
 from rich.console import Console
 from rich.table import Table
@@ -216,6 +217,10 @@ def init(database_path: str | None, yaml_path: str | None) -> None:
     "--artifacts",
     help="Comma-separated artifact paths (for Commands)",
 )
+@click.option(
+    "--parent-id",
+    help="Parent node ID to link this node as a child",
+)
 @click.pass_context
 def create(
     _: click.Context,
@@ -229,6 +234,7 @@ def create(
     ac_ref: str | None,
     run_shell: str | None,
     artifacts: str | None,
+    parent_id: str | None,
 ) -> None:
     """Creates a new node."""
     # Convert layer input to proper case (case-insensitive)
@@ -291,6 +297,23 @@ def create(
         "links": {"parents": [], "children": []},
         "metadata": {},
     }
+
+    # Handle parent linking if parent_id is provided
+    if parent_id:
+        # Validate that parent exists
+        try:
+            parent_node = get_node(parent_id)
+            if not parent_node:
+                console.print(f"[red]✗[/red] Parent node with ID '{parent_id}' not found")
+                sys.exit(1)
+
+            # Add parent to links
+            node_data["links"]["parents"] = [parent_id]
+            console.print(f"[green]✓[/green] Will link to parent: {parent_id}")
+
+        except (ValueError, KeyError, RuntimeError) as e:
+            console.print(f"[red]✗[/red] Error validating parent node: {e}")
+            sys.exit(1)
 
     # Add metadata
     metadata = cast("dict[str, Any]", node_data["metadata"])
@@ -367,6 +390,22 @@ def create(
         # Validate data before creating
         validate_node(node_data)
         node = create_node(node_data)
+
+        # If parent linking was specified, update the parent node's children
+        if parent_id:
+            try:
+                from todowrite import link_nodes
+                # Get the current app to access its database URL
+                app = get_app()
+                link_nodes(app.db_url, parent_id, node.id)
+                console.print(
+                    f"[green]✓[/green] Linked parent {parent_id} → child {node.id}"
+                )
+            except (ValueError, KeyError, RuntimeError, sqlalchemy.exc.SQLAlchemyError) as e:
+                console.print(
+                    f"[yellow]⚠[/yellow] Warning: Could not link parent → child: {e}"
+                )
+
         console.print(
             f"[green]✓[/green] Created {layer}: {node.title} (ID: {node.id})"
         )
