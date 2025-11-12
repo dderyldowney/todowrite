@@ -43,7 +43,17 @@ repos:
       - id: detect-secrets
         args: [--baseline, .secrets.baseline]
 
-  
+  # Universal Python cache file prevention (applies to ALL projects)
+  - repo: local
+    hooks:
+      - id: prevent-pycache
+        name: Prevent Python cache files
+        entry: ./.hooks/prevent-pycache-commit.py
+        language: script
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
   # Prevent direct commits to main branch
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
