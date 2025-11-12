@@ -36,19 +36,19 @@ if [[ -n "$SHELL_PROFILE" ]]; then
     # Add new PYTHONPATH configuration
     echo "" >> "$SHELL_PROFILE"
     echo "# ToDoWrite development environment" >> "$SHELL_PROFILE"
-    echo "export TODOWRITE_PYTHONPATH=\"$PROJECT_ROOT/lib_package:$PROJECT_ROOT/cli_package\"" >> "$SHELL_PROFILE"
+    echo "export TODOWRITE_PYTHONPATH=\"$PROJECT_ROOT/lib_package/src:$PROJECT_ROOT/cli_package/src:$PROJECT_ROOT/web_package/src\"" >> "$SHELL_PROFILE"
     echo "export PYTHONPATH=\"\$TODOWRITE_PYTHONPATH:\$PYTHONPATH\"" >> "$SHELL_PROFILE"
     echo "# End ToDoWrite development environment" >> "$SHELL_PROFILE"
     echo "✅ Added to $SHELL_PROFILE"
     echo "🔄 Please restart your shell or run: source $SHELL_PROFILE"
 else
     echo "⚠️  Could not find shell profile. Please manually add:"
-    echo "export TODOWRITE_PYTHONPATH=\"$PROJECT_ROOT/lib_package:$PROJECT_ROOT/cli_package\""
+    echo "export TODOWRITE_PYTHONPATH=\"$PROJECT_ROOT/lib_package/src:$PROJECT_ROOT/cli_package/src:$PROJECT_ROOT/web_package/src\""
     echo "export PYTHONPATH=\"\$TODOWRITE_PYTHONPATH:\$PYTHONPATH\""
 fi
 
 # Set current session PYTHONPATH
-export TODOWRITE_PYTHONPATH="$PROJECT_ROOT/lib_package:$PROJECT_ROOT/cli_package"
+export TODOWRITE_PYTHONPATH="$PROJECT_ROOT/lib_package/src:$PROJECT_ROOT/cli_package/src:$PROJECT_ROOT/web_package/src"
 export PYTHONPATH="$TODOWRITE_PYTHONPATH:$PYTHONPATH"
 
 # Verify installation

@@ -233,7 +233,7 @@ addopts = [
     "--cov-fail-under=80",
 ]
 testpaths = ["tests"]
-pythonpath = ["lib_package/src", "cli_package/src"]
+pythonpath = ["lib_package/src", "cli_package/src", "web_package/src"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
@@ -246,7 +246,7 @@ skips = ["B101", "B110", "B404", "B602", "B603", "B607"]  # Skip acceptable secu
 
 # Coverage configuration
 [tool.coverage.run]
-source = ["lib_package/src", "cli_package/src"]
+source = ["lib_package/src", "cli_package/src", "web_package/src"]
 omit = [
     "*/tests/*",
     "*/test_*",
