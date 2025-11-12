@@ -8,12 +8,9 @@ and directories to ensure secure and portable code.
 
 import ast
 import json
-import os
 import re
 import sys
-import tempfile
 from pathlib import Path
-from typing import List, Set, Tuple
 
 
 class TmpFileEnforcer:
@@ -122,9 +119,9 @@ class TmpFileEnforcer:
             return {"file_path": str(file_path), "violations": [], "line_count": 0}
 
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
-                lines = content.split('\n')
+                lines = content.split("\n")
 
             violations = []
 
@@ -132,35 +129,44 @@ class TmpFileEnforcer:
             for line_num, line in enumerate(lines, 1):
                 # Skip lines that are clearly in help text, docstrings, or comments about the enforcer
                 skip_line = any(skip_indicator in line.lower() for skip_indicator in [
-                    'forbidden tmp patterns',
-                    'hardcoded tmp paths',
-                    'tempfile alternatives',
-                    'help: add return type annotation',
-                    'forbidden artifacts',
-                    'test_todowrite.db',
-                    'commit-msgs.txt',
-                    'examples:',
-                    'replace with',
-                    'secure alternatives'
+                    "forbidden tmp patterns",
+                    "hardcoded tmp paths",
+                    "tempfile alternatives",
+                    "help: add return type annotation",
+                    "forbidden artifacts",
+                    "test_todowrite.db",
+                    "commit-msgs.txt",
+                    "examples:",
+                    "replace with",
+                    "secure alternatives"
                 ])
 
                 if skip_line:
                     continue
 
-                for pattern in self.config["forbidden_patterns"]:
-                    if re.search(pattern, line, re.IGNORECASE):
-                        # Skip if it's in a comment (unless it's a todo/fixme about tmp)
-                        if '#' in line and not any(keyword in line.lower() for keyword in ['todo', 'fixme', 'note', 'hack']):
-                            comment_part = line.split('#')[1]
-                            if not re.search(pattern, comment_part, re.IGNORECASE):
-                                continue
+                # Check if line matches any allowed patterns first
+                allowed = False
+                if "allowed_patterns" in self.config:
+                    for allowed_pattern in self.config["allowed_patterns"]:
+                        if re.search(allowed_pattern, line):
+                            allowed = True
+                            break
 
-                        violations.append({
-                            "line_number": line_num,
-                            "line_content": line.strip(),
-                            "pattern_matched": pattern,
-                            "violation_type": "hardcoded_tmp_path"
-                        })
+                if not allowed:
+                    for pattern in self.config["forbidden_patterns"]:
+                        if re.search(pattern, line, re.IGNORECASE):
+                            # Skip if it's in a comment (unless it's a todo/fixme about tmp)
+                            if "#" in line and not any(keyword in line.lower() for keyword in ["todo", "fixme", "note", "hack"]):
+                                comment_part = line.split("#")[1]
+                                if not re.search(pattern, comment_part, re.IGNORECASE):
+                                    continue
+
+                            violations.append({
+                                "line_number": line_num,
+                                "line_content": line.strip(),
+                                "pattern_matched": pattern,
+                                "violation_type": "hardcoded_tmp_path"
+                            })
 
             # AST analysis disabled due to false positives in docstrings and comments
             # The pattern-based approach is more accurate for hardcoded tmp detection
@@ -179,7 +185,7 @@ class TmpFileEnforcer:
                 "error": str(e)
             }
 
-    def _analyze_ast_for_tmp(self, tree: ast.AST, lines: List[str]) -> List[dict]:
+    def _analyze_ast_for_tmp(self, tree: ast.AST, lines: list[str]) -> list[dict]:
         """Analyze AST for hardcoded tmp usage."""
         violations = []
 
@@ -188,7 +194,7 @@ class TmpFileEnforcer:
                 # Check for string literals containing tmp patterns
                 if isinstance(node.value, str):
                     value_lower = node.value.lower()
-                    if any(pattern in value_lower for pattern in ['tmp', '/tmp', 'temp', '/temp']):
+                    if any(pattern in value_lower for pattern in ["tmp", "/tmp", "temp", "/temp"]):  # nosec: B108  # noqa: S108
                         # Skip if it's clearly a comment or docstring (shouldn't be in AST anyway)
                         line_num = node.lineno
                         if line_num <= len(lines):
@@ -206,7 +212,7 @@ class TmpFileEnforcer:
                 # Python 3.8+ uses Constant instead of Str
                 if isinstance(node.value, str):
                     value_lower = node.value.lower()
-                    if any(pattern in value_lower for pattern in ['tmp', '/tmp', 'temp', '/temp']):
+                    if any(pattern in value_lower for pattern in ["tmp", "/tmp", "temp", "/temp"]):  # nosec: B108  # noqa: S108
                         line_num = node.lineno
                         if line_num <= len(lines):
                             line_content = lines[line_num - 1]
@@ -218,7 +224,7 @@ class TmpFileEnforcer:
                             })
                 self.generic_visit(node)
 
-            def _is_in_string_literal(self, node, line_content):
+            def _is_in_string_literal(self, _node, _line_content):
                 """Helper to check if AST node is part of string literal."""
                 # This is a simplified check - in practice, AST nodes don't
                 # typically represent comment content
@@ -243,7 +249,7 @@ class TmpFileEnforcer:
                 return False
 
         # Only check Python files
-        if not file_path.suffix == '.py':
+        if file_path.suffix != ".py":
             return False
 
         # Skip if file doesn't exist
@@ -252,29 +258,30 @@ class TmpFileEnforcer:
 
         # Skip enforcement files completely
         if any(enforcement_file in file_path.name for enforcement_file in [
-            'tmp-file-enforcer.py',
-            'test-cleanup-enforcer.py',
-            'semantic-scope-validator.py',
-            'red-green-refactor-enforcer.py',
-            'token-optimizer.py',
-            'permanent_enforcement.py'
+            "tmp-file-enforcer.py",
+            "test-cleanup-enforcer.py",
+            "semantic-scope-validator.py",
+            "red-green-refactor-enforcer.py",
+            "token-optimizer.py",
+            "permanent_enforcement.py"
         ]):
             return False
 
         # Skip if file contains enforcement-related content
         try:
-            with open(file_path, encoding='utf-8') as f:
-                first_lines = ''.join(f.readlines()[:20])  # Check first 20 lines
+            with open(file_path, encoding="utf-8") as f:
+                first_lines = "".join(f.readlines()[:20])  # Check first 20 lines
                 if any(indicator in first_lines.lower() for indicator in [
-                    'tmp file enforcement',
-                    'forbidden tmp patterns',
-                    'hardcoded tmp violations',
-                    'test artifact cleanup',
-                    'semantic scoping',
-                    'red green refactor'
+                    "tmp file enforcement",
+                    "forbidden tmp patterns",
+                    "hardcoded tmp violations",
+                    "test artifact cleanup",
+                    "semantic scoping",
+                    "red green refactor"
                 ]):
                     return False
-        except:
+        except (OSError, UnicodeDecodeError):
+            # This is a safety check - we don't want to crash if file reading fails
             pass
 
         return True
@@ -316,7 +323,7 @@ class TmpFileEnforcer:
             "most_violated_files": self._get_most_violated_files(all_violations)
         }
 
-    def _get_most_violated_files(self, violations: List[dict]) -> List[dict]:
+    def _get_most_violated_files(self, violations: list[dict]) -> list[dict]:
         """Get files with the most violations."""
         file_counts = {}
         for violation in violations:
@@ -329,7 +336,7 @@ class TmpFileEnforcer:
             reverse=True
         )[:10]
 
-    def suggest_secure_alternatives(self, violation: dict) -> List[str]:
+    def suggest_secure_alternatives(self, violation: dict) -> list[str]:
         """Suggest secure alternatives for hardcoded tmp usage."""
         alternatives = [
             "Use tempfile.mkdtemp() for temporary directories",
@@ -349,7 +356,7 @@ class TmpFileEnforcer:
 
         return alternatives
 
-    def generate_fix_suggestions(self, violations: List[dict]) -> str:
+    def generate_fix_suggestions(self, violations: list[dict]) -> str:
         """Generate comprehensive fix suggestions."""
         if not violations:
             return "No hardcoded tmp violations found."
@@ -385,7 +392,7 @@ class TmpFileEnforcer:
 
         return "\n".join(suggestions)
 
-    def verify_compliance(self) -> tuple[bool, List[str]]:
+    def verify_compliance(self) -> tuple[bool, list[str]]:
         """Verify compliance with no hardcoded tmp policy."""
         results = self.scan_project_for_tmp_violations()
 
@@ -504,14 +511,14 @@ def main():
         enforcer = TmpFileEnforcer()
         results = enforcer.scan_project_for_tmp_violations()
 
-        print(f"📊 TMP FILE VIOLATION REPORT")
+        print("📊 TMP FILE VIOLATION REPORT")
         print(f"Files scanned: {results['files_scanned']}")
         print(f"Files with violations: {results['files_with_violations']}")
         print(f"Total violations: {results['total_violations']}")
 
-        if results['total_violations'] > 0:
+        if results["total_violations"] > 0:
             print()
-            suggestions = enforcer.generate_fix_suggestions(results['all_violations'])
+            suggestions = enforcer.generate_fix_suggestions(results["all_violations"])
             print(suggestions)
         sys.exit(0)
 
