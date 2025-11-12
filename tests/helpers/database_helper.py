@@ -19,7 +19,7 @@ project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from todowrite.database.models import Base
-from todowrite.utils.database_utils import get_project_database_name
+from todowrite.utils.database_utils import get_database_path
 
 
 @contextmanager
@@ -38,13 +38,13 @@ def isolated_test_database() -> Generator[Session, None, None]:
             # Tables are fresh for this test
             pass
     """
-    # Set test environment with project-specific naming
-    test_db_name = get_project_database_name("testing")
-    os.environ["TODOWRITE_DATABASE_URL"] = f"sqlite:///{test_db_name}"
+    # Set test environment with project-specific naming in project_root/tmp
+    test_db_path = get_database_path("testing")
+    os.environ["TODOWRITE_DATABASE_URL"] = f"sqlite:///{test_db_path}"
     os.environ["TODOWRITE_STORAGE_PREFERENCE"] = "sqlite_only"
 
     # Database setup
-    database_url = f"sqlite:///{test_db_name}"
+    database_url = f"sqlite:///{test_db_path}"
     engine = create_engine(database_url)
 
     try:
@@ -66,15 +66,15 @@ def isolated_test_database() -> Generator[Session, None, None]:
 
 
 def get_test_database_url() -> str:
-    """Get the test database URL with project-specific naming."""
-    test_db_name = get_project_database_name("testing")
-    return f"sqlite:///{test_db_name}"
+    """Get the test database URL with project-specific naming in project_root/tmp."""
+    test_db_path = get_database_path("testing")
+    return f"sqlite:///{test_db_path}"
 
 
 def ensure_test_database() -> None:
     """Ensure the test database exists and has proper schema."""
-    test_db_name = get_project_database_name("testing")
-    database_url = f"sqlite:///{test_db_name}"
+    test_db_path = get_database_path("testing")
+    database_url = f"sqlite:///{test_db_path}"
     engine = create_engine(database_url)
 
     # Create tables if they don't exist

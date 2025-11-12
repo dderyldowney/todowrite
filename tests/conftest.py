@@ -23,11 +23,11 @@ sys.path.insert(0, str(project_root))
 
 # Import todowrite modules first
 from todowrite.database.models import Base  # noqa: E402
-from todowrite.utils.database_utils import get_project_database_name
+from todowrite.utils.database_utils import get_database_path
 
 # Set test environment variables after importing todowrite modules
-test_db_name = get_project_database_name("testing")
-os.environ["TODOWRITE_DATABASE_URL"] = f"sqlite:///{test_db_name}"
+test_db_path = get_database_path("testing")
+os.environ["TODOWRITE_DATABASE_URL"] = f"sqlite:///{test_db_path}"
 os.environ["TODOWRITE_STORAGE_PREFERENCE"] = "sqlite_only"
 
 
@@ -38,18 +38,23 @@ def test_database_engine() -> Generator[Any, None, None]:
     This fixture creates the database file and tables once per test session.
     Individual tests will use the table recreation fixture for isolation.
     """
-    # Use a consistent project-specific test database file
-    test_db_name = get_project_database_name("testing")
-    database_url = f"sqlite:///{test_db_name}"
+    # Use a consistent project-specific test database file in project_root/tmp
+    test_db_path = get_database_path("testing")
+    database_url = f"sqlite:///{test_db_path}"
 
     # Remove existing test database if it exists
-    db_file = Path(test_db_name)
+    db_file = Path(test_db_path)
     if db_file.exists():
         db_file.unlink()
 
     # Create engine and tables
     engine = create_engine(database_url)
     Base.metadata.create_all(engine)
+
+    # Vacuum to minimize database size
+    from sqlalchemy import text
+    with engine.connect() as conn:
+        conn.execute(text("VACUUM"))
 
     yield engine
 
@@ -89,16 +94,16 @@ def test_db_session(test_database_engine: Any) -> Generator[Session, None, None]
 @pytest.fixture(scope="function")
 def test_database_url() -> str:
     """Provide the test database URL for tests that need it."""
-    test_db_name = get_project_database_name("testing")
-    return f"sqlite:///{test_db_name}"
+    test_db_path = get_database_path("testing")
+    return f"sqlite:///{test_db_path}"
 
 
 @pytest.fixture(autouse=True)
 def setup_test_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     """Automatically set up test environment for all tests."""
-    # Set test environment variables with project-specific naming
-    test_db_name = get_project_database_name("testing")
-    monkeypatch.setenv("TODOWRITE_DATABASE_URL", f"sqlite:///{test_db_name}")
+    # Set test environment variables with project-specific naming in project_root/tmp
+    test_db_path = get_database_path("testing")
+    monkeypatch.setenv("TODOWRITE_DATABASE_URL", f"sqlite:///{test_db_path}")
     monkeypatch.setenv("TODOWRITE_STORAGE_PREFERENCE", "sqlite_only")
 
     # Ensure no production todowrite.db exists in test directories
