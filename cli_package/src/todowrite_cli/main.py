@@ -113,7 +113,7 @@ def get_app(
             app = ToDoWrite(db_url)
         else:
             # Expand ~ to user home directory for fallback with project-specific name
-            fallback_name = get_project_database_name('development')
+            fallback_name = get_project_database_name("development")
             fallback_path = os.path.expanduser(f"~/dbs/{fallback_name}")
             app = ToDoWrite(f"sqlite:///{fallback_path}")
 
