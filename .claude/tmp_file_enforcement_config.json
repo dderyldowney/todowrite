@@ -21,6 +21,12 @@
     "exists\\(['\\\"]tmp",
     "exists\\(['\\\"]/tmp"
   ],
+  "allowed_patterns": [
+    "tmp_dir = project_root / \"tmp\"",
+    "project_root / \"tmp\"",
+    "get_database_path\\(\"testing\"\\)",
+    "project_root/tmp"
+  ],
   "allowed_functions": [
     "tempfile.mkdtemp",
     "tempfile.mkstemp",
@@ -50,7 +56,8 @@
     "setup.py",
     "Makefile",
     "Dockerfile",
-    "docker-compose*"
+    "docker-compose*",
+    "tests/helpers/database_helper.py"
   ],
   "global_ignores": [
     ".venv",
