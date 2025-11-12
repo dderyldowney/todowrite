@@ -39,8 +39,8 @@ def find_python_cache_files(root_dir: str) -> List[str]:
         "*.pyd",                  # Python dynamic files
         "*$py.class",             # Java class files (from Jython)
         ".Python",                # Build directory
-        "build/",                  # Build directory
     ]
+    # Note: dist/ and sdist/ excluded by directory exclusions above
 
     # Directories to exclude from cache file search
     exclude_dirs = {
@@ -53,7 +53,11 @@ def find_python_cache_files(root_dir: str) -> List[str]:
         ".pytest_cache",          # Pytest cache
         ".coverage",              # Coverage reports
         "htmlcov",                # HTML coverage reports
-        "dist",                   # Distribution directories
+        "dist",                   # Distribution directories (rebuilt each release)
+        "sdist",                  # Source distributions (rebuilt each release)
+        "build",                  # Build directories (rebuilt each build)
+        # Note: Some projects use build/ for legitimate build scripts,
+        # but for most projects, build/ should be gitignored
     }
 
     root_path = Path(root_dir)
@@ -63,17 +67,34 @@ def find_python_cache_files(root_dir: str) -> List[str]:
         if pattern.endswith("/"):
             # Directory pattern
             for path in root_path.rglob(pattern.rstrip("/")):
-                if path.is_dir() and not any(exclude in str(path) for exclude in exclude_dirs):
-                    cache_files.extend(str(p) for p in path.rglob("*") if p.is_file())
+                if path.is_dir():
+                    # Check if path is under any excluded directory
+                    path_str = str(path)
+                    should_exclude = False
+                    for exclude in exclude_dirs:
+                        # Check if the path contains the excluded directory as a path component
+                        if f"/{exclude}/" in path_str or path_str.startswith(f"{exclude}/") or path_str.endswith(f"/{exclude}") or path_str == exclude:
+                            should_exclude = True
+                            break
+                    if not should_exclude:
+                        cache_files.extend(str(p) for p in path.rglob("*") if p.is_file())
         else:
             # File pattern
             for path in root_path.rglob(pattern):
+                path_str = str(path)
+                # Check if path is under any excluded directory
+                should_exclude = False
+                for exclude in exclude_dirs:
+                    # Check if the path contains the excluded directory as a path component
+                    if f"/{exclude}/" in path_str or path_str.startswith(f"{exclude}/") or path_str.endswith(f"/{exclude}") or path_str == exclude:
+                        should_exclude = True
+                        break
                 if (path.is_file() and
-                    not any(exclude in str(path) for exclude in exclude_dirs) and
+                    not should_exclude and
                     # Exclude build/dist directories that are legitimate
-                    "dist/" not in str(path) and
-                    "build/" not in str(path)):
-                    cache_files.append(str(path))
+                    "dist/" not in path_str and
+                    "build/" not in path_str):
+                    cache_files.append(path_str)
 
     return cache_files
 
@@ -88,8 +109,41 @@ def find_pycache_directories(root_dir: str) -> List[str]:
     Returns:
         List of __pycache__ directory paths
     """
+    # Directories to exclude from cache file search
+    exclude_dirs = {
+        ".git",
+        ".venv",                  # Virtual environments
+        "venv",                   # Virtual environments
+        "env",                    # Virtual environments
+        "__pycache__",           # Handled separately
+        "node_modules",           # Node.js modules
+        ".pytest_cache",          # Pytest cache
+        ".coverage",              # Coverage reports
+        "htmlcov",                # HTML coverage reports
+        "dist",                   # Distribution directories (rebuilt each release)
+        "sdist",                  # Source distributions (rebuilt each release)
+        "build",                  # Build directories (rebuilt each build)
+        # Note: Some projects use build/ for legitimate build scripts,
+        # but for most projects, build/ should be gitignored
+    }
+
     root_path = Path(root_dir)
-    return [str(p) for p in root_path.rglob("__pycache__") if p.is_dir()]
+    pycache_dirs = []
+
+    for path in root_path.rglob("__pycache__"):
+        if path.is_dir():
+            # Check if path is under any excluded directory
+            path_str = str(path)
+            should_exclude = False
+            for exclude in exclude_dirs:
+                # Check if the path contains the excluded directory as a path component
+                if f"/{exclude}/" in path_str or path_str.startswith(f"{exclude}/") or path_str.endswith(f"/{exclude}") or path_str == exclude:
+                    should_exclude = True
+                    break
+            if not should_exclude:
+                pycache_dirs.append(path_str)
+
+    return pycache_dirs
 
 
 def check_for_pycache_violations(root_dir: str) -> tuple[int, List[str]]:
