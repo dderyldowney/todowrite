@@ -68,6 +68,10 @@ web_package/dist/
 alembic/versions/*.py
 !alembic/versions/.gitkeep
 
+# ToDoWrite exported data (generated from database)
+exported/
+!exported/.gitkeep
+
 # ruff cache
 .ruff_cache/
 
