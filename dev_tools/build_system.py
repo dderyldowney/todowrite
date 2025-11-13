@@ -22,14 +22,12 @@ class ValidationResult:
     warnings: list[str]
 
     @classmethod
-    def success(cls) -> "ValidationResult":
+    def success(cls, warnings: list[str] | None = None) -> "ValidationResult":
         """Create a successful validation result."""
-        return cls(is_valid=True, errors=[], warnings=[])
+        return cls(is_valid=True, errors=[], warnings=warnings or [])
 
     @classmethod
-    def failure(
-        cls, errors: list[str], warnings: list[str] | None = None
-    ) -> "ValidationResult":
+    def failure(cls, errors: list[str], warnings: list[str] | None = None) -> "ValidationResult":
         """Create a failed validation result."""
         return cls(is_valid=False, errors=errors, warnings=warnings or [])
 
@@ -50,7 +48,6 @@ class BuildSystemValidator(ABC):
     @abstractmethod
     def validate(self, project_root: Path) -> ValidationResult:
         """Validate the build system configuration."""
-        pass
 
 
 class WorkspaceValidator(BuildSystemValidator):
@@ -83,11 +80,7 @@ class WorkspaceValidator(BuildSystemValidator):
         except Exception as e:
             errors.append(f"Failed to read pyproject.toml: {e}")
 
-        return (
-            ValidationResult.failure(errors)
-            if errors
-            else ValidationResult.success()
-        )
+        return ValidationResult.failure(errors) if errors else ValidationResult.success()
 
 
 class VersionValidator(BuildSystemValidator):
@@ -122,17 +115,11 @@ class VersionValidator(BuildSystemValidator):
                 try:
                     content = pkg_pyproject.read_text()
                     if 'path = "../VERSION"' not in content:
-                        errors.append(
-                            f"{pkg} doesn't reference central VERSION file"
-                        )
+                        errors.append(f"{pkg} doesn't reference central VERSION file")
                 except Exception:
                     errors.append(f"Failed to read {pkg}/pyproject.toml")
 
-        return (
-            ValidationResult.failure(errors)
-            if errors
-            else ValidationResult.success()
-        )
+        return ValidationResult.failure(errors) if errors else ValidationResult.success()
 
 
 class BuildManager:
@@ -151,8 +138,8 @@ class BuildManager:
             project_root: Path to project root. If None, auto-detect.
         """
         if project_root is None:
-            # Auto-detect project root (4 levels up from this file)
-            self.project_root = Path(__file__).parent.parent.parent.parent
+            # Auto-detect project root (1 level up from this file)
+            self.project_root = Path(__file__).parent.parent
         else:
             self.project_root = Path(project_root)
 
@@ -208,6 +195,7 @@ class BuildManager:
         # Execute build script
         result = subprocess.run(
             [str(build_script), command],
+            check=False,
             capture_output=True,
             text=True,
             cwd=self.project_root,
@@ -263,14 +251,13 @@ class BuildManager:
 
         if package_name not in packages:
             available = list(packages.keys())
-            raise ValueError(
-                f"Package '{package_name}' not found. Available: {available}"
-            )
+            raise ValueError(f"Package '{package_name}' not found. Available: {available}")
 
         package_info = packages[package_name]
 
         result = subprocess.run(
             [sys.executable, "-m", "build", str(package_info.path)],
+            check=False,
             capture_output=True,
             text=True,
             cwd=package_info.path,
@@ -342,11 +329,7 @@ class BuildManager:
 
         # Find dependencies shared by all packages
         if pkg_deps:
-            shared_deps = (
-                set.intersection(*pkg_deps.values())
-                if len(pkg_deps) > 1
-                else set()
-            )
+            shared_deps = set.intersection(*pkg_deps.values()) if len(pkg_deps) > 1 else set()
             analysis["shared_dependencies"] = shared_deps
             analysis["summary"]["shared_dependency_count"] = len(shared_deps)
 
@@ -386,11 +369,7 @@ class BuildManager:
                 # Extract package names (simple regex for common patterns)
                 for line in deps_section.split("\n"):
                     line = line.strip()
-                    if (
-                        line
-                        and not line.startswith("#")
-                        and not line.startswith("[")
-                    ):
+                    if line and not line.startswith("#") and not line.startswith("["):
                         # Extract package name before version spec
                         match = re.match(r"^([a-zA-Z0-9\-_.]+)", line)
                         if match:

@@ -17,7 +17,7 @@ class TestOptimizedTDDFeatures:
         """GREEN: Test BuildManager dependency analysis without heavy operations."""
         # Import and test the method directly without subprocess
         try:
-            from todowrite.build_system import BuildManager
+            from build_system import BuildManager
 
             manager = BuildManager()
             analysis = manager.analyze_dependencies()
@@ -140,7 +140,7 @@ class TestOptimizedTDDFeatures:
     def test_build_manager_class_structure(self):
         """GREEN: Test BuildManager class has proper structure."""
         try:
-            from todowrite.build_system import BuildManager
+            from build_system import BuildManager
 
             # Check class can be instantiated
             manager = BuildManager()
@@ -189,7 +189,7 @@ class TestTDDIntegrationFast:
         required_files = [
             "dev_tools/build.sh",
             "pyproject.toml",
-            "lib_package/src/todowrite/build_system.py",
+            "dev_tools/build_system.py",
         ]
 
         for file_path in required_files:
@@ -205,7 +205,7 @@ class TestTDDIntegrationFast:
         """GREEN: Test critical Python imports work."""
         try:
             # Test core imports
-            from todowrite.build_system import BuildManager
+            from build_system import BuildManager
 
             assert BuildManager is not None, "BuildManager should be importable"
 

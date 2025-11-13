@@ -66,7 +66,7 @@ class TestUnifiedBuildSystem:
         """RED: Test that build system has proper Python API interface."""
         # This should fail - we're testing for an API that doesn't exist yet
         try:
-            from todowrite.build_system import BuildManager
+            from build_system import BuildManager
 
             build_manager = BuildManager()
             assert build_manager is not None, "BuildManager should be available"
