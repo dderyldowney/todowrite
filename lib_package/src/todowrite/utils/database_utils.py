@@ -4,11 +4,37 @@ import os
 from pathlib import Path
 
 
+def find_project_root() -> str:
+    """Find the project root (monorepo root) by looking for characteristic package structure."""
+    search_dir = Path.cwd()
+
+    # Search up the directory tree for project root (contains lib_package, cli_package, web_package)
+    while str(search_dir) != "/":
+        if (
+            (search_dir / "lib_package").exists()
+            and (search_dir / "cli_package").exists()
+            and (search_dir / "web_package").exists()
+        ):
+            return str(search_dir)
+        search_dir = search_dir.parent
+
+    # If not found, return current directory (fallback for non-monorepo projects)
+    return str(Path.cwd())
+
+
 def get_project_name() -> str:
-    """Get the current project name based on current working directory."""
-    # Get current working directory name
-    cwd = Path.cwd()
-    project_name = cwd.name
+    """Get the current project name based on project root detection."""
+    # Try to find project root first
+    project_root = find_project_root()
+    project_name = Path(project_root).name
+
+    # If we found a project root that's different from current directory, use its name
+    if project_root != str(Path.cwd()):
+        # We're in a package directory, use the project root name
+        pass  # project_name already set correctly
+    else:
+        # Fallback to current directory name for non-monorepo projects
+        project_name = Path.cwd().name
 
     # If directory name is generic or empty, use a timestamp-based fallback
     generic_names = {"", ".", "src", "lib", "app", "project", "home"}
@@ -65,8 +91,7 @@ def get_database_path(
     # Handle different environments with different base directories
     if environment == "testing":
         # Testing databases go in project_root/tmp
-        from pathlib import Path
-        project_root = Path.cwd()
+        project_root = Path(find_project_root())
         tmp_dir = project_root / "tmp"
         tmp_dir.mkdir(exist_ok=True)
         db_path = tmp_dir / db_name

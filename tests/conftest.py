@@ -23,7 +23,7 @@ sys.path.insert(0, str(project_root))
 
 # Import todowrite modules first
 from todowrite.database.models import Base  # noqa: E402
-from todowrite.utils.database_utils import get_database_path
+from todowrite.utils.database_utils import get_database_path, get_project_database_name
 
 # Set test environment variables after importing todowrite modules
 test_db_path = get_database_path("testing")
@@ -53,6 +53,7 @@ def test_database_engine() -> Generator[Any, None, None]:
 
     # Vacuum to minimize database size
     from sqlalchemy import text
+
     with engine.connect() as conn:
         conn.execute(text("VACUUM"))
 
