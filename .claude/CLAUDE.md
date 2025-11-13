@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file defines **non-negotiable, permanent rules** for Claude and all agents working in this repository.  
+This file defines **non-negotiable, permanent rules** for Claude and all agents working in this repository.
 These mandates apply **at all times** with **zero exceptions**.
 
 ---
@@ -51,7 +51,13 @@ These mandates apply **at all times** with **zero exceptions**.
 
 ## 10. Agents MUST read and load `docs/ToDoWrite.md`
 
-# 11. Monorepo Structure
+# 11. Working Directory Boundary
+
+- **Root Directory**: `./` refers to `/Users/dderyldowney/Documents/GitHub/dderyldowney/todowrite`
+- **ALL operations must be confined within this directory structure**
+- **NO operations outside the project root directory**
+
+# 12. Monorepo Structure
 
 ```
 $project_root/
