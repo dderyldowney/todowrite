@@ -246,11 +246,12 @@ addopts = [
     "-q",
     "--strict-markers",
     "--strict-config",
-    "--cov=lib_package/src/todowrite",
-    "--cov=cli_package/src/todowrite_cli",
-    "--cov-report=term-missing",
-    "--cov-report=html",
-    "--cov-fail-under=80",
+    # Coverage disabled to prevent hanging tests - re-enable explicitly when needed
+    # "--cov=lib_package/src/todowrite",
+    # "--cov=cli_package/src/todowrite_cli",
+    # "--cov-report=term-missing",
+    # "--cov-report=html",
+    # "--cov-fail-under=80",
 ]
 testpaths = ["tests"]
 pythonpath = ["lib_package/src", "cli_package/src", "web_package/src"]

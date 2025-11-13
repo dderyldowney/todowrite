@@ -59,7 +59,6 @@ class WorkspaceValidator(BuildSystemValidator):
     def validate(self, project_root: Path) -> ValidationResult:
         """Validate UV workspace setup."""
         errors = []
-        warnings = []
 
         # Check pyproject.toml exists
         pyproject_path = project_root / "pyproject.toml"
@@ -110,7 +109,7 @@ class VersionValidator(BuildSystemValidator):
                 if not version_content:
                     errors.append("VERSION file is empty")
                 elif len(version_content.split(".")) != 3:
-                    warnings.append(
+                    errors.append(
                         f"Version '{version_content}' doesn't follow semantic versioning (x.y.z)"
                     )
             except Exception:
@@ -144,7 +143,7 @@ class BuildManager:
     separation of concerns and proper error handling.
     """
 
-    def __init__(self, project_root: str | None = None):
+    def __init__(self, project_root: str | None = None) -> None:
         """
         Initialize BuildManager with project root path.
 
