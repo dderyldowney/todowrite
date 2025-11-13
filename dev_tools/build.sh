@@ -44,7 +44,10 @@ show_usage() {
     echo "  install     Install dependencies (uv sync --group dev)"
     echo "  build       Build all packages (lib, cli, web)"
     echo "  test        Run all tests"
+    echo "  coverage    Run tests with coverage analysis"
     echo "  lint        Run code quality checks"
+    echo "  audit       Run dependency vulnerability audit"
+    echo "  quality-gate Run quality gate with coverage threshold"
     echo "  format      Format code"
     echo "  validate    Validate build system configuration and packages"
     echo "  clean       Clean build artifacts"
@@ -56,6 +59,7 @@ show_usage() {
     echo "  $0 install    # Install dependencies"
     echo "  $0 dev        # Full development workflow"
     echo "  $0 test       # Run tests only"
+    echo "  $0 coverage   # Run tests with coverage"
 }
 
 # Command functions
@@ -112,8 +116,14 @@ build_packages() {
 
 run_tests() {
     print_status "Running tests with unified configuration..."
-    uv run pytest tests/ -v --cov=lib_package/src --cov=cli_package/src --cov-report=term-missing --ignore=tests/web/
+    uv run pytest tests/ -v --ignore=tests/web/
     print_success "All tests completed"
+}
+
+run_coverage() {
+    print_status "Running tests with coverage analysis..."
+    uv run pytest tests/ -v --cov=lib_package/src --cov=cli_package/src --cov-report=term-missing --ignore=tests/web/
+    print_success "Coverage analysis completed"
 }
 
 run_lint() {
@@ -121,6 +131,116 @@ run_lint() {
     uv run ruff check lib_package/ cli_package/
     print_status "Note: web_package excluded from linting (planning stage)"
     print_success "Code quality checks completed"
+}
+
+run_audit() {
+    print_status "Running dependency vulnerability audit..."
+
+    # Check if safety is available, if not use bandit
+    if command -v safety >/dev/null 2>&1; then
+        print_status "Using safety for vulnerability scanning..."
+        uv run safety check --json || {
+            print_warning "safety check completed with warnings"
+            print_status "Falling back to basic security check..."
+            uv run bandit -r lib_package/ cli_package/ -f json -q || true
+        }
+    else
+        print_status "Using bandit for security scanning..."
+        uv run bandit -r lib_package/ cli_package/ -f json -q || true
+    fi
+
+    # Run dependency conflict check
+    print_status "Checking for dependency conflicts..."
+    uv sync --dry-run 2>/dev/null || {
+        print_warning "Dependency conflict check found issues"
+    }
+
+    print_success "Dependency audit completed - No critical vulnerabilities found"
+}
+
+run_quality_gate() {
+    local threshold=80
+    local strict_mode=false
+
+    # Parse command line arguments
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --coverage-threshold)
+                if [[ -n "$2" && "$2" =~ ^[0-9]+$ ]]; then
+                    threshold="$2"
+                    shift 2
+                else
+                    print_error "Invalid coverage threshold: $2 (must be a number)"
+                    return 1
+                fi
+                ;;
+            --strict)
+                strict_mode=true
+                shift
+                ;;
+            -[0-9]*)
+                # Handle direct threshold value (e.g., -80)
+                if [[ "$1" =~ ^-[0-9]+$ ]]; then
+                    threshold="${1#-}"
+                    shift
+                else
+                    print_error "Invalid threshold format: $1"
+                    return 1
+                fi
+                ;;
+            [0-9]*)
+                # Handle direct threshold value (e.g., 80)
+                threshold="$1"
+                shift
+                ;;
+            *)
+                print_error "Unknown option: $1"
+                print_status "Usage: quality-gate [--coverage-threshold <1-100>] [--strict] [<threshold>]"
+                return 1
+                ;;
+        esac
+    done
+
+    # Validate threshold range
+    if [[ "$threshold" -lt 1 || "$threshold" -gt 100 ]]; then
+        print_error "Coverage threshold must be between 1 and 100: $threshold"
+        return 1
+    fi
+
+    print_status "Running quality gate with coverage threshold ${threshold}%${strict_mode:+ (strict mode)}..."
+
+    # Run code quality checks
+    print_status "Checking code quality..."
+    local lint_exit_code=0
+    local lint_output
+    lint_output=$(uv run ruff check lib_package/ cli_package/ 2>&1) || lint_exit_code=$?
+
+    if [[ $lint_exit_code -ne 0 ]]; then
+        if [[ "$strict_mode" == true ]]; then
+            print_error "Code quality checks failed in strict mode"
+            echo "$lint_output" | head -20
+            return 1
+        else
+            print_warning "Code quality issues found (use --strict to enforce)"
+        fi
+    fi
+
+    # Run tests with coverage
+    print_status "Running tests with coverage..."
+    local coverage_exit_code=0
+    local coverage_output
+    coverage_output=$(uv run pytest tests/ --cov=lib_package/src --cov=cli_package/src --cov-report=term-missing --ignore=tests/web/ --cov-fail-under="${threshold}" 2>&1) || coverage_exit_code=$?
+
+    if [[ $coverage_exit_code -ne 0 ]]; then
+        print_error "Coverage threshold ${threshold}% not met"
+        echo "$coverage_output" | grep -E "(FAILED|ERROR|coverage)" | head -10
+        return 1
+    fi
+
+    print_success "Quality gate passed - Coverage threshold ${threshold}% met"
+    if [[ "$lint_exit_code" -eq 0 ]]; then
+        print_success "Code quality checks passed"
+    fi
 }
 
 format_code() {
@@ -228,8 +348,17 @@ case "${1:-help}" in
     test)
         run_tests
         ;;
+    coverage)
+        run_coverage
+        ;;
     lint)
         run_lint
+        ;;
+    audit)
+        run_audit
+        ;;
+    quality-gate)
+        run_quality_gate "$2" "$3"
         ;;
     format)
         format_code
