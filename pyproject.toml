@@ -254,7 +254,7 @@ addopts = [
     # "--cov-fail-under=80",
 ]
 testpaths = ["tests"]
-pythonpath = ["lib_package/src", "cli_package/src", "web_package/src"]
+pythonpath = ["lib_package/src", "cli_package/src", "web_package/src", "dev_tools"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
