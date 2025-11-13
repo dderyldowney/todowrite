@@ -304,7 +304,9 @@ def create(
         try:
             parent_node = get_node(parent_id)
             if not parent_node:
-                console.print(f"[red]✗[/red] Parent node with ID '{parent_id}' not found")
+                console.print(
+                    f"[red]✗[/red] Parent node with ID '{parent_id}' not found"
+                )
                 sys.exit(1)
 
             # Add parent to links
@@ -395,13 +397,19 @@ def create(
         if parent_id:
             try:
                 from todowrite import link_nodes
+
                 # Get the current app to access its database URL
                 app = get_app()
                 link_nodes(app.db_url, parent_id, node.id)
                 console.print(
                     f"[green]✓[/green] Linked parent {parent_id} → child {node.id}"
                 )
-            except (ValueError, KeyError, RuntimeError, sqlalchemy.exc.SQLAlchemyError) as e:
+            except (
+                ValueError,
+                KeyError,
+                RuntimeError,
+                sqlalchemy.exc.SQLAlchemyError,
+            ) as e:
                 console.print(
                     f"[yellow]⚠[/yellow] Warning: Could not link parent → child: {e}"
                 )
