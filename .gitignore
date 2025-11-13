@@ -57,6 +57,16 @@ cover/
 *.so
 
 # Distribution / packaging (handled above in comprehensive section)
+# Explicit package dist directories - NEVER COMMIT THESE
+lib_package/dist/
+cli_package/dist/
+web_package/dist/
+**/dist/
+
+# Alembic migration files that should be generated per environment
+# Do not commit environment-specific migrations
+alembic/versions/*.py
+!alembic/versions/.gitkeep
 
 # ruff cache
 .ruff_cache/
