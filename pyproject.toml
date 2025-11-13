@@ -10,8 +10,28 @@ build-backend = "hatchling.build"
 
 requires-python = ">=3.12"
 
+# UV workspace configuration for unified dependency management
+[tool.uv.workspace]
+members = [
+    "lib_package",
+    "cli_package",
+    "web_package",
+]
+
+# UV workspace sources for internal dependencies
+[tool.uv.sources]
+todowrite = { workspace = true }
+
 # Development environment configuration
 [dependency-groups]
+core = [
+    "sqlalchemy>=2.0.0",
+    "jsonschema>=4.0.0",
+    "pyyaml>=6.0",
+    "click>=8.0.0",
+    "rich>=13.0.0",
+]
+
 dev = [
     "pre-commit>=4.0.0",
     "pytest>=8.0.0",
