@@ -212,7 +212,17 @@ class AlembicEnforcer:
         """Verify alembic installation and requirements."""
         try:
             import alembic
-            alembic_version = alembic.__version__
+            # Get version using importlib.metadata (alembic.__version__ doesn't exist in newer versions)
+            try:
+                import importlib.metadata
+                alembic_version = importlib.metadata.version('alembic')
+            except Exception:
+                # Fallback to pkg_resources if importlib.metadata fails
+                try:
+                    import pkg_resources
+                    alembic_version = pkg_resources.get_distribution('alembic').version
+                except Exception:
+                    alembic_version = "unknown"
         except ImportError:
             return {
                 "status": "alembic_not_installed",
