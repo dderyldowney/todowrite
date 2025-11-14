@@ -105,7 +105,7 @@ repos:
     hooks:
       - id: alembic-check
         name: Alembic Migration Check
-        entry: ./.hooks/alembic-enforcer.py
+        entry: uv run python ./.hooks/alembic-enforcer.py
         language: system
         args: [--check]
         pass_filenames: false
