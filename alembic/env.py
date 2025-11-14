@@ -4,9 +4,9 @@ from logging.config import fileConfig
 from pathlib import Path
 
 from sqlalchemy import engine_from_config, pool
+from todowrite.database.models import Base
 
 from alembic import context
-from todowrite.database.models import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
