@@ -1,7 +1,6 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
@@ -16,15 +15,17 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-import sys
 import os
+import sys
+
 # MONOREPO: Add lib_package/src to path for SQLAlchemy 2 models
 # __file__ is in alembic/ directory, so we need to go up one level to project root
 project_root = os.path.dirname(os.path.dirname(__file__))
-lib_package_src = os.path.join(project_root, 'lib_package', 'src')
+lib_package_src = os.path.join(project_root, "lib_package", "src")
 sys.path.insert(0, lib_package_src)
 
 from todowrite.database.models import Base
+
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
