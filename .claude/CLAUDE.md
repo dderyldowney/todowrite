@@ -51,6 +51,11 @@ These mandates apply **at all times** with **zero exceptions**.
 
 ## 10. Agents MUST read and load `docs/ToDoWrite.md`
 
+## 11. Agents MUST read `AGENT_STARTUP.md` before beginning any development work
+- Contains essential tooling configuration and startup checklist
+- Defines UV, Ruff, Bandit, and build system requirements
+- Specifies correct workflows and prohibited direct tool usage
+
 # 11. Working Directory Boundary
 
 - **Root Directory**: `./` refers to `/Users/dderyldowney/Documents/GitHub/dderyldowney/todowrite`
