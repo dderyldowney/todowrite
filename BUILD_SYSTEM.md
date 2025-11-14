@@ -5,6 +5,7 @@ This document describes the unified monorepo build system implemented for the To
 ## 🎯 Overview
 
 The ToDoWrite monorepo uses a modern, unified build system that provides:
+
 - **UV-based environment management** replacing virtualenv+pip
 - **Hatchling for package building** within UV environment
 - **Consistent tooling** across all implemented packages
@@ -17,15 +18,17 @@ The ToDoWrite monorepo uses a modern, unified build system that provides:
 ## 🏗️ Architecture
 
 ### Workspace Configuration
-```
+
+```text
 todowrite/
 ├── pyproject.toml              # Root workspace configuration
 ├── lib_package/               # Core library (todowrite) - PRODUCTION READY
+│   └── src/todowrite/build_system.py    # Library API for programmatic use
 ├── cli_package/               # CLI interface (todowrite_cli) - PRODUCTION READY
 ├── web_package/               # Web application (todowrite_web) - PLANNING STAGE
 ├── dev_tools/                 # Development scripts and tools
-│   ├── build.sh               # Main build script
-│   ├── build_system.py        # Build system Python API
+│   ├── build.sh               # Main build script (PRIMARY INTERFACE)
+│   ├── build_system.py        # Development tool API
 │   └── deploy.sh              # Deployment script
 └── tests/                     # Test suites (NO MOCKING ALLOWED)
     ├── test_tdd_build_system_optimized.py
@@ -52,17 +55,24 @@ todowrite/
   - Creates build isolation environments (shows "virtualenv+pip" messages internally)
   - Builds distribution artifacts (wheels and tarballs)
 
-- **Build System Python API** (`dev_tools/build_system.py`)
-  - Programmatic access to build system functionality
-  - BuildManager class for workspace management
-  - ValidationResult and PackageInfo data classes
-  - Clean architecture with proper separation of concerns
+- **Build System Library API** (`lib_package/src/todowrite/build_system.py`)
+  - Importable library module for programmatic use
+  - Clean architecture with validation and analysis capabilities
+  - Used by tests and applications that need build system integration
+  - Auto-detects project root (4 levels up from file location)
+
+- **Build System Development Tool** (`dev_tools/build_system.py`)
+  - Standalone development utility in dev_tools directory
+  - Similar API but configured for development workflow
+  - Auto-detects project root (1 level up from file location)
 
 - **Enhanced Build Scripts** (`dev_tools/build.sh`)
+  - Primary CLI interface for all build operations
   - Security vulnerability scanning with `audit` command
   - Quality gate enforcement with configurable thresholds
   - TDD-driven development support
   - Comprehensive argument validation and error handling
+  - **The actual implementation that all tools call**
 
 - **Twine**: PyPI/TestPyPI deployment
   - Uploads packages to PyPI and TestPyPI
@@ -98,6 +108,7 @@ todowrite/
 ## 🚀 Quick Start
 
 ### Initial Setup
+
 ```bash
 # Clone the repository
 git clone https://github.com/dderyldowney/todowrite
@@ -111,6 +122,7 @@ cd todowrite
 ```
 
 ### Daily Development
+
 ```bash
 # Install/update dependencies (recommended)
 ./dev_tools/build.sh install
@@ -133,6 +145,7 @@ cd todowrite
 ## 📋 Build Scripts
 
 ### build.sh - Main Build Script
+
 Primary script for all build operations:
 
 ```bash
@@ -160,6 +173,7 @@ Primary script for all build operations:
 ```
 
 #### Quality Gate Command Options
+
 ```bash
 # Basic quality gate (80% coverage threshold)
 ./dev_tools/build.sh quality-gate
@@ -181,12 +195,14 @@ Primary script for all build operations:
 The build system gracefully handles packages at different development stages:
 
 #### Production Ready Packages (lib_package, cli_package)
+
 - ✅ Full test coverage included
 - ✅ Code quality enforcement
 - ✅ Complete build and deployment support
 - ✅ All build scripts operations apply
 
 #### Planning Stage Packages (web_package)
+
 - 🚧 Tests excluded from test runs (`--ignore=tests/web/`)
 - 🚧 Linting excluded from quality checks
 - 🚧 Formatting excluded from code formatting
@@ -194,6 +210,7 @@ The build system gracefully handles packages at different development stages:
 - 📝 Clear messaging about exclusion status
 
 #### Example Output
+
 ```bash
 $ ./dev_tools/build.sh test
 [BUILD] Running tests with unified configuration...
@@ -207,6 +224,7 @@ $ ./dev_tools/build.sh lint
 ```
 
 ### deploy.sh - Deployment Script
+
 For PyPI/TestPyPI deployments:
 
 ```bash
@@ -227,6 +245,7 @@ For PyPI/TestPyPI deployments:
 ```
 
 ### setup_dev.sh - Environment Setup
+
 Legacy environment setup (updated for unified system):
 
 ```bash
@@ -237,6 +256,7 @@ Legacy environment setup (updated for unified system):
 ## 🛠️ Development Workflows
 
 ### 1. New Development
+
 ```bash
 # 1. Install dependencies
 ./dev_tools/build.sh install
@@ -258,6 +278,7 @@ git push origin feature/new-feature
 ```
 
 ### 2. Testing
+
 ```bash
 # Run all tests
 ./dev_tools/build.sh test
@@ -273,6 +294,7 @@ uv run pytest tests/integration/
 ```
 
 ### 3. Code Quality
+
 ```bash
 # Check code quality
 ./dev_tools/build.sh lint
@@ -286,6 +308,7 @@ uv run ruff format .
 ```
 
 ### 4. Release Process
+
 ```bash
 # 1. Update version
 echo "0.5.0" > VERSION
@@ -306,6 +329,7 @@ echo "0.5.0" > VERSION
 ## 📦 Package Structure
 
 ### lib_package (todowrite)
+
 ```bash
 # Build package
 python -m build lib_package/
@@ -318,6 +342,7 @@ uv run pytest tests/lib_package/
 ```
 
 ### cli_package (todowrite_cli)
+
 ```bash
 # Build package
 python -m build cli_package/
@@ -330,6 +355,7 @@ python -m todowrite_cli.main --help
 ```
 
 ### web_package (todowrite_web)
+
 ```bash
 # Build package
 python -m build web_package/
@@ -344,6 +370,7 @@ uv run pytest tests/web_package/
 ## 🔧 Configuration
 
 ### Dependencies
+
 Dependencies are managed through UV dependency groups in `pyproject.toml`:
 
 ```bash
@@ -361,12 +388,15 @@ uv sync --group all
 ```
 
 ### Code Quality
+
 Unified Ruff configuration across all packages:
+
 - **Line length**: 100 characters
 - **Python version**: 3.12+
 - **Comprehensive rules**: pycodestyle, pyflakes, isort, security, etc.
 
 ### Version Management
+
 - **Single source of truth**: `VERSION` file in project root (currently 0.4.1)
 - **Dynamic version reading**: All packages use `dynamic = ["version"]` with path to central VERSION
 - **Build integration**: Hatchling automatically reads VERSION during package builds
@@ -376,31 +406,38 @@ Unified Ruff configuration across all packages:
 ## 📚 Best Practices
 
 ### Development
+
 1. **Always run the dev workflow** before committing:
+
    ```bash
    ./dev_tools/build.sh dev  # install + format + lint + test
    ```
 
 2. **Use UV for dependency management**:
+
    ```bash
    ./dev_tools/build.sh install  # Recommended approach
    # OR directly: uv sync --group dev
    ```
 
 3. **Follow the conventional commit format**:
+
    ```bash
    git commit -m "feat: add new feature"
    git commit -m "fix: resolve bug in CLI"
    ```
 
 ### Code Quality
+
 1. **Use unified build scripts for quality checks**:
+
    ```bash
    ./dev_tools/build.sh format  # Formats implemented packages only
    ./dev_tools/build.sh lint    # Lints implemented packages only
    ```
 
 2. **Direct UV commands (for specific needs)**:
+
    ```bash
    uv run ruff format lib_package/ cli_package/  # Specific packages
    uv run ruff check lib_package/ cli_package/
@@ -411,7 +448,9 @@ Unified Ruff configuration across all packages:
    - Focus on lib_package and cli_package coverage
 
 ### Release
+
 1. **Test thoroughly before release**:
+
    ```bash
    ./dev_tools/build.sh test      # Tests implemented packages
    ./dev_tools/build.sh validate  # Validates build system
@@ -419,17 +458,20 @@ Unified Ruff configuration across all packages:
    ```
 
 2. **Deploy to TestPyPI first**:
+
    ```bash
    ./dev_tools/deploy.sh testpypi  # Builds and deploys all packages
    ```
 
 3. **Deploy production packages** (main branch only):
+
    ```bash
    git checkout main
    ./dev_tools/deploy.sh pypi      # Production deployment
    ```
 
 4. **Single package deployment**:
+
    ```bash
    ./dev_tools/deploy.sh pypi-single lib   # Deploy just lib_package
    ./dev_tools/deploy.sh pypi-single cli   # Deploy just cli_package
@@ -445,6 +487,7 @@ Unified Ruff configuration across all packages:
 ### Common Issues
 
 **Dependency conflicts**:
+
 ```bash
 # Clean and reinstall using UV
 ./dev_tools/build.sh clean
@@ -456,6 +499,7 @@ uv sync --group dev --refresh
 ```
 
 **Build failures**:
+
 ```bash
 # Check package-specific issues with UV environment
 ./dev_tools/build.sh build lib    # Build specific package
@@ -466,6 +510,7 @@ uv run python -m build lib_package/
 ```
 
 **Test failures**:
+
 ```bash
 # Run tests with verbose output (excludes web_package)
 ./dev_tools/build.sh test
@@ -478,6 +523,7 @@ uv run pytest tests/lib/test_specific.py -v
 ```
 
 **web_package build issues (expected)**:
+
 ```bash
 # web_package is in planning stage - some failures are expected
 # Tests are excluded, but basic building may work
@@ -485,6 +531,7 @@ uv run pytest tests/lib/test_specific.py -v
 ```
 
 **Linting errors**:
+
 ```bash
 # Auto-fix linting issues (implemented packages only)
 ./dev_tools/build.sh lint      # Shows issues
@@ -498,6 +545,7 @@ uv run ruff check --fix lib_package/ cli_package/  # Auto-fixes
 ### Getting Help
 
 1. **Check build script help**:
+
    ```bash
    ./dev_tools/build.sh help
    ./dev_tools/deploy.sh help
@@ -506,11 +554,13 @@ uv run ruff check --fix lib_package/ cli_package/  # Auto-fixes
 2. **Consult logs** for detailed error messages
 
 3. **Check UV workspace status**:
+
    ```bash
    uv tree
    ```
 
 4. **Verify package builds**:
+
    ```bash
    ./dev_tools/build.sh build      # Uses UV + hatchling
    # OR directly: uv run python -m build lib_package/
@@ -519,6 +569,7 @@ uv run ruff check --fix lib_package/ cli_package/  # Auto-fixes
 ## 📈 Implementation Status
 
 ### ✅ **PRODUCTION READY**
+
 - **UV Workspace**: Complete with all packages configured
 - **Build Scripts**: Full development and deployment automation
 - **Version Management**: Centralized VERSION file system
@@ -527,12 +578,14 @@ uv run ruff check --fix lib_package/ cli_package/  # Auto-fixes
 - **Package Building**: Hatchling + UV integration
 
 ### 🚧 **PLANNING STAGE**
+
 - **web_package**: Basic structure exists, tests excluded
   - FastAPI backend models implemented
   - Missing runtime dependencies (httpx, etc.)
   - Not ready for production deployment
 
 ### 🎯 **KEY ACCOMPLISHMENTS**
+
 - Replaced virtualenv+pip with UV completely
 - Unified build system with comprehensive scripts
 - Graceful handling of mixed package development stages
@@ -552,6 +605,7 @@ The unified build system provides:
 ## 🧪 TDD-Driven Development
 
 ### Test-Driven Development Process
+
 The build system follows strict TDD methodology: **RED → GREEN → REFACTOR**
 
 1. **RED**: Write failing tests first
@@ -559,6 +613,7 @@ The build system follows strict TDD methodology: **RED → GREEN → REFACTOR**
 3. **REFACTOR**: Clean up while maintaining test coverage
 
 ### STRICT NO-MOCKING POLICY
+
 **PROJECT-WIDE BAN: NO MOCKING ALLOWED**
 
 - ❌ **FORBIDDEN**: `@patch`, `MagicMock`, `Mock`, `mock_open`
@@ -568,6 +623,7 @@ The build system follows strict TDD methodology: **RED → GREEN → REFACTOR**
 - ✅ **REQUIRED**: Real subprocess calls and API interactions
 
 ### Testing Strategy
+
 ```python
 # ✅ CORRECT: Real implementation with temporary files
 def test_workspace_validation():
@@ -589,20 +645,62 @@ def test_workspace_validation_mocked(mock_read, mock_exists):
 ```
 
 ### Test Suites
+
 - **`test_build_system_comprehensive.py`**: 22 tests with zero mocking
 - **`test_tdd_build_system_optimized.py`**: Fast optimized tests (1.2 seconds)
 - **Coverage disabled by default** to prevent hanging (re-enable explicitly)
 
 ## 🐍 Build System Python API
 
-### Overview
-The build system provides a programmatic Python API for automation and integration:
+### Architecture Overview
+
+The build system provides **dual Python interfaces** for different use cases:
+
+#### 1. Library API (`lib_package/src/todowrite/build_system.py`)
+
+**Purpose**: Importable module for applications and tests
+**Import**: `from todowrite.build_system import BuildManager`
+**Auto-detection**: 4 levels up from file location
+**Use Cases**:
+
+- Test infrastructure
+- Application integration
+- Programmatic build management
+- CI/CD pipelines
+
+#### 2. Development Tool (`dev_tools/build_system.py`)
+
+**Purpose**: Standalone development utility
+**Import**: `from dev_tools.build_system import BuildManager`
+**Auto-detection**: 1 level up from file location
+**Use Cases**:
+
+- Development scripts
+- Local tooling
+- Build system debugging
+
+#### 3. CLI Interface (`dev_tools/build.sh`)
+
+**Purpose**: Primary command-line interface
+**Execution**: Direct script execution
+**Use Cases**:
+
+- Manual development workflow
+- Build automation
+- CI/CD scripts
+- Human interaction
+
+**Key Difference**: Both Python APIs are **wrappers** that eventually call the bash script (`dev_tools/build.sh`) which contains the actual build implementation.
+
+### Usage Examples
+
+#### Library API (for Applications)
 
 ```python
-from dev_tools.build_system import BuildManager, ValidationResult
+from todowrite.build_system import BuildManager, ValidationResult
 
-# Initialize build manager
-manager = BuildManager()  # Auto-detects project root
+# Initialize build manager (auto-detects from library location)
+manager = BuildManager()
 # OR: manager = BuildManager("/custom/path")
 
 # Validate configuration
@@ -617,7 +715,7 @@ analysis = manager.analyze_dependencies()
 print(f"Total packages: {analysis['total_packages']}")
 print(f"Shared dependencies: {analysis['shared_dependencies']}")
 
-# Run build commands
+# Run build commands (calls dev_tools/build.sh internally)
 result = manager.run_build_script("test")
 print(f"Build output: {result.stdout}")
 
@@ -627,10 +725,35 @@ for name, info in packages.items():
     print(f"{name}: {info.path}")
 ```
 
+#### Development Tool API (for Scripts)
+
+```python
+from dev_tools.build_system import BuildManager
+
+# Initialize build manager (auto-detects from dev_tools location)
+manager = BuildManager()
+
+# Same API as library but configured for development workflow
+result = manager.validate_configuration()
+packages = manager.get_workspace_packages()
+```
+
+#### CLI Interface (Primary Usage)
+
+```bash
+# Primary interface - this is the actual implementation
+./dev_tools/build.sh dev        # Complete development workflow
+./dev_tools/build.sh test       # Run tests
+./dev_tools/build.sh build      # Build packages
+./dev_tools/build.sh validate   # Validate configuration
+```
+
 ### Key Classes
 
 #### BuildManager
+
 Main interface for build system operations:
+
 - `validate_configuration()`: Validates UV workspace and version management
 - `analyze_dependencies()`: Comprehensive dependency analysis
 - `run_build_script(command)`: Execute build.sh commands programmatically
@@ -638,7 +761,9 @@ Main interface for build system operations:
 - `build_package(name)`: Build specific packages with hatchling
 
 #### ValidationResult
+
 Standardized result object for all validation operations:
+
 ```python
 @dataclass
 class ValidationResult:
@@ -653,7 +778,9 @@ class ValidationResult:
 ```
 
 #### PackageInfo
+
 Information about workspace packages:
+
 ```python
 @dataclass
 class PackageInfo:
@@ -666,8 +793,10 @@ class PackageInfo:
 ### Real-World Usage Examples
 
 #### CI/CD Integration
+
 ```python
-from dev_tools.build_system import BuildManager
+# Use library API for CI/CD pipelines
+from todowrite.build_system import BuildManager
 
 def validate_build_system():
     """Validate build system in CI pipeline"""
@@ -694,8 +823,10 @@ def check_quality_gates(threshold=80):
 ```
 
 #### Dependency Management
+
 ```python
-from dev_tools.build_system import BuildManager
+# Use library API for application integration
+from todowrite.build_system import BuildManager
 
 def analyze_workspace_health():
     """Generate workspace health report"""
@@ -711,6 +842,19 @@ def analyze_workspace_health():
     # Check for dependency issues
     if analysis['summary']['shared_dependency_count'] == 0:
         print("⚠️  No shared dependencies found")
+```
+
+#### Development Scripts
+
+```python
+# Use development tool for local scripts
+from dev_tools.build_system import BuildManager
+
+def debug_build_system():
+    """Debug build system locally"""
+    manager = BuildManager()  # Auto-detects from dev_tools location
+    packages = manager.get_workspace_packages()
+    print(f"Found {len(packages)} packages for debugging")
 ```
 
 ## 🔄 Migration
