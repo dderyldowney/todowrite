@@ -147,32 +147,110 @@ class TestClaudeConfigValidation:
         for site in authoritative_sites:
             assert site in rule_3_content, f"Rule #3 must reference {site} as authoritative source"
 
-    def test_simplicity_over_complexity_rule(self) -> None:
-        """Test that Rule #9 emphasizes simplicity over complexity."""
+    def test_never_fake_code_rule(self) -> None:
+        """Test that Rule #4 prohibits fake code and mandates real implementations."""
         config_path = Path(".claude/CLAUDE.md")
         content = config_path.read_text()
         lines = content.split("\n")
 
-        # Find Rule #9
-        rule_9_found = False
-        rule_9_content = ""
+        # Find Rule #4
+        rule_4_found = False
+        rule_4_content = ""
         for i, line in enumerate(lines):
-            if line.strip().startswith("## 9."):
-                rule_9_found = True
-                # Get content of Rule #9 (until next rule or end)
+            if line.strip().startswith("## 4."):
+                rule_4_found = True
+                # Get content of Rule #4 (until next rule or end)
                 rule_lines = [line]
                 for j in range(i + 1, len(lines)):
                     if lines[j].strip().startswith("## "):
                         break
                     rule_lines.append(lines[j])
-                rule_9_content = "\n".join(rule_lines)
+                rule_4_content = "\n".join(rule_lines)
                 break
 
-        assert rule_9_found, "Rule #9 must exist"
-        assert "Simplicity over complexity" in rule_9_content, \
-            "Rule #9 must be about simplicity over complexity"
-        assert "ALWAYS prefer" in rule_9_content, \
-            "Rule #9 must emphasize ALWAYS preferring simplicity"
+        assert rule_4_found, "Rule #4 must exist"
+        assert "NEVER fake code" in rule_4_content, \
+            "Rule #4 must be about never faking code"
+        assert "REAL implementations only" in rule_4_content, \
+            "Rule #4 must require real implementations only"
+
+        # Check for key anti-faking principles
+        anti_faking_principles = [
+            "use 'pass'",
+            "fake implementations",
+            "write actual",
+            "NO TRICKS"
+        ]
+
+        for principle in anti_faking_principles:
+            assert principle in rule_4_content, \
+                f"Rule #4 must include {principle}"
+
+    def test_always_test_actual_implementation_rule(self) -> None:
+        """Test that Rule #5 requires testing actual implementation."""
+        config_path = Path(".claude/CLAUDE.md")
+        content = config_path.read_text()
+        lines = content.split("\n")
+
+        # Find Rule #5
+        rule_5_found = False
+        rule_5_content = ""
+        for i, line in enumerate(lines):
+            if line.strip().startswith("## 5."):
+                rule_5_found = True
+                # Get content of Rule #5 (until next rule or end)
+                rule_lines = [line]
+                for j in range(i + 1, len(lines)):
+                    if lines[j].strip().startswith("## "):
+                        break
+                    rule_lines.append(lines[j])
+                rule_5_content = "\n".join(rule_lines)
+                break
+
+        assert rule_5_found, "Rule #5 must exist"
+        assert "test actual implementation" in rule_5_content, \
+            "Rule #5 must be about testing actual implementation"
+        assert "REAL testing only" in rule_5_content, \
+            "Rule #5 must require real testing only"
+
+        # Check for key real testing principles
+        real_testing_principles = [
+            "test the actual implementation",
+            "REAL INTERACTIONS",
+            "NO MOCKING",
+            "VERIFIABLE BEHAVIOR"
+        ]
+
+        for principle in real_testing_principles:
+            assert principle in rule_5_content, \
+                f"Rule #5 must include {principle}"
+
+    def test_simplicity_over_complexity_rule(self) -> None:
+        """Test that Rule #11 emphasizes simplicity over complexity."""
+        config_path = Path(".claude/CLAUDE.md")
+        content = config_path.read_text()
+        lines = content.split("\n")
+
+        # Find Rule #11
+        rule_11_found = False
+        rule_11_content = ""
+        for i, line in enumerate(lines):
+            if line.strip().startswith("## 11."):
+                rule_11_found = True
+                # Get content of Rule #11 (until next rule or end)
+                rule_lines = [line]
+                for j in range(i + 1, len(lines)):
+                    if lines[j].strip().startswith("## "):
+                        break
+                    rule_lines.append(lines[j])
+                rule_11_content = "\n".join(rule_lines)
+                break
+
+        assert rule_11_found, "Rule #11 must exist"
+        assert "Simplicity over complexity" in rule_11_content, \
+            "Rule #11 must be about simplicity over complexity"
+        assert "ALWAYS prefer" in rule_11_content, \
+            "Rule #11 must emphasize ALWAYS preferring simplicity"
 
         # Check for key simplicity principles
         simplicity_principles = [
@@ -183,35 +261,35 @@ class TestClaudeConfigValidation:
         ]
 
         for principle in simplicity_principles:
-            assert principle in rule_9_content, \
-                f"Rule #9 must include {principle}"
+            assert principle in rule_11_content, \
+                f"Rule #11 must include {principle}"
 
     def test_natural_language_code_rule(self) -> None:
-        """Test that Rule #10 emphasizes natural language code."""
+        """Test that Rule #12 emphasizes natural language code."""
         config_path = Path(".claude/CLAUDE.md")
         content = config_path.read_text()
         lines = content.split("\n")
 
-        # Find Rule #10
-        rule_10_found = False
-        rule_10_content = ""
+        # Find Rule #12
+        rule_12_found = False
+        rule_12_content = ""
         for i, line in enumerate(lines):
-            if line.strip().startswith("## 10."):
-                rule_10_found = True
-                # Get content of Rule #10 (until next rule or end)
+            if line.strip().startswith("## 12."):
+                rule_12_found = True
+                # Get content of Rule #12 (until next rule or end)
                 rule_lines = [line]
                 for j in range(i + 1, len(lines)):
                     if lines[j].strip().startswith("## "):
                         break
                     rule_lines.append(lines[j])
-                rule_10_content = "\n".join(rule_lines)
+                rule_12_content = "\n".join(rule_lines)
                 break
 
-        assert rule_10_found, "Rule #10 must exist"
-        assert "read like natural language" in rule_10_content, \
-            "Rule #10 must be about natural language code"
-        assert "ALWAYS write naturally" in rule_10_content, \
-            "Rule #10 must emphasize ALWAYS writing naturally"
+        assert rule_12_found, "Rule #12 must exist"
+        assert "read like natural language" in rule_12_content, \
+            "Rule #12 must be about natural language code"
+        assert "ALWAYS write naturally" in rule_12_content, \
+            "Rule #12 must emphasize ALWAYS writing naturally"
 
         # Check for key natural language principles
         natural_language_principles = [
@@ -222,8 +300,8 @@ class TestClaudeConfigValidation:
         ]
 
         for principle in natural_language_principles:
-            assert principle in rule_10_content, \
-                f"Rule #10 must include {principle}"
+            assert principle in rule_12_content, \
+                f"Rule #12 must include {principle}"
 
     def test_rule_numbering_consistency(self) -> None:
         """Test that rule numbering is consistent without gaps."""
