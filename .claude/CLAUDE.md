@@ -50,7 +50,18 @@ These mandates apply **at all times** with **zero exceptions**.
 - **REAL BEHAVIOR**: Code must actually do what it's supposed to do
 - **PROPER FUNCTIONALITY**: Implementation must solve the real problem, not just satisfy test assertions
 
-## 5. ALWAYS test actual implementation - REAL testing only
+## 5. NO GENERIC EXCEPTIONS - Use Specific Exception Types
+- **NEVER** use generic `except Exception:` - MUST catch specific exception types
+- **ALWAYS** identify and catch the specific exception types that can occur
+- **MUST** handle ValueError, KeyError, AttributeError, TypeError, etc. specifically
+- **ALWAYS** raise specific, meaningful exceptions instead of generic Exception
+- **NEVER** use bare except clauses - must specify exception types
+- **MUST** understand which exceptions each operation can throw and handle them explicitly
+- **EXAMPLE**:
+  - ✅ `except (ValueError, KeyError) as e:`
+  - ❌ `except Exception as e:`
+
+## 6. ALWAYS test actual implementation - REAL testing only
 - **ALWAYS** test the actual implementation, not fake/test doubles
 - **REAL INTERACTIONS**: Tests must exercise real functionality
 - **NO MOCKING**: This rule reinforces Rule #1 - no mocking of any kind

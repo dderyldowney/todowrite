@@ -149,11 +149,35 @@ class SQLiteBackend(StorageBackend):
                 # Extract related data from node_data
                 labels_data = node_data.pop("labels", [])
                 command_data = node_data.pop("command", None)
-                parents_data = node_data.pop("parents", [])
-                children_data = node_data.pop("children", [])
+                links_data = node_data.pop(
+                    "links", {"parents": [], "children": []}
+                )
+                parents_data = links_data.get("parents", [])
+                children_data = links_data.get("children", [])
+
+                # Filter node_data to only include valid Node fields
+                valid_node_fields = {
+                    "id",
+                    "layer",
+                    "title",
+                    "description",
+                    "status",
+                    "progress",
+                    "started_date",
+                    "completion_date",
+                    "owner",
+                    "severity",
+                    "work_type",
+                    "assignee",
+                }
+                filtered_node_data = {
+                    k: v
+                    for k, v in node_data.items()
+                    if k in valid_node_fields
+                }
 
                 # Create the main node
-                new_node = Node(**node_data)
+                new_node = Node(**filtered_node_data)
                 session.add(new_node)
 
                 # Handle labels

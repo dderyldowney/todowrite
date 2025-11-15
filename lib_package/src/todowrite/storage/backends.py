@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
 
-from ..database.models import Node
+from ..core.types import Node
 
 
 class StorageError(Exception):
@@ -149,12 +149,12 @@ class StorageBackend(ABC):
         pass
 
     @abstractmethod
-    def create_new_node(self, node_data: dict[str, Any]) -> NodeCreationResult:
+    def create_new_node(self, app_node: Node) -> NodeCreationResult:
         """
-        Create a new node in storage with the provided data.
+        Create a new node in storage with the provided Node object.
 
         Args:
-            node_data: Dictionary containing all node fields and relationships
+            app_node: Application Node object containing all node fields and relationships
 
         Returns:
             NodeCreationResult with the created node and whether it was newly created
@@ -183,15 +183,12 @@ class StorageBackend(ABC):
         pass
 
     @abstractmethod
-    def update_existing_node(
-        self, node_id: str, update_data: dict[str, Any]
-    ) -> Node:
+    def update_existing_node(self, app_node: Node) -> Node:
         """
         Update an existing node with new data and return the updated version.
 
         Args:
-            node_id: The unique identifier of the node to update
-            update_data: Dictionary containing fields to update and their new values
+            app_node: The updated Node object containing all fields
 
         Returns:
             The updated Node object

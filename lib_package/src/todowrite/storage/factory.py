@@ -18,7 +18,7 @@ def create_storage_backend(database_url: str) -> StorageBackend:
     storage backend instance with proper configuration.
 
     Args:
-        database_url: The database connection URL (e.g., 'postgresql://user:pass@host/db',
+        database_url: The database connection URL (e.g., 'postgresql://user:password@host/db',  # pragma: allowlist secret
                      'sqlite:///path/to/file.db', or 'path/to/file.yaml')
 
     Returns:
@@ -238,7 +238,7 @@ DEVELOPMENT_CONFIG = {
 }
 
 PRODUCTION_CONFIG = {
-    "default_url": "postgresql://user:password@localhost:5432/todowrite",
+    "default_url": "postgresql://user:password@localhost:5432/todowrite",  # pragma: allowlist secret
     "pool_size": 20,
     "max_overflow": 40,
 }
