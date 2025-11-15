@@ -32,13 +32,16 @@ ToDoWrite is a hierarchical task management system that allows you to:
 - **Database-First**: All data stored in SQL databases with proper relationships and auto-import
 - **Schema Validated**: JSON Schema validation ensures data integrity
 - **Type Safe**: Comprehensive type hints with Python 3.12+
-- **Real Testing**: Component and subsystem organized tests with actual implementations, no mocks
+
+### Development Standards
+**See**: `.claude/CLAUDE.md` for complete development rules and policies
 - **TDD Methodology**: Strict Red-Green-Refactor development workflow
-- **Documentation-Driven**: Mandatory consultation of authoritative sources
-- **No Fake Code**: Real implementations only, no placeholders or workarounds
-- **Local Tool Preference**: Always prefer local command-line tools over internal CLI tools
-- **Simplicity First**: Write code and tests that read like natural language
-- **Progressive Disclosure**: From high-level goals to detailed executable commands
+- **Real Testing**: Component-organized tests with actual implementations
+- **No Mocking/Fake Code**: Real implementations only, no placeholders
+- **Documentation-Driven**: Consult authoritative sources for all decisions
+- **Local Tools Preferred**: Use command-line tools over internal tools
+- **Simplicity First**: Code and tests that read like natural language
+- **Progressive Disclosure**: From high-level goals to detailed commands
 
 ## Node Types (Layers)
 
@@ -356,12 +359,14 @@ uv run pytest tests/lib/ tests/cli/
 - `tests/web/` - todowrite_web web application tests (planning stage)
 - `tests/shared/` - Shared test utilities, fixtures, and helpers
 
-### Testing Principles
-- **No Mocking**: All tests use real implementations and actual system resources
-- **No Fake Code**: Never use `pass`, `...`, or placeholder implementations
-- **TDD Workflow**: Follow Red → Green → Refactor methodology
-- **Component Organization**: Tests organized by packages and subsystems
-- **Natural Language**: Tests read like human-readable specifications
+### Testing Strategy
+**Implementation**: See `BUILD_SYSTEM.md` for detailed testing architecture
+
+- **Component Organization**: Tests organized by packages (lib/, cli/, web/)
+- **Real Implementations**: No mocking or fake code allowed
+- **TDD Workflow**: Red → Green → Refactor methodology
+- **Natural Language**: Tests that read like specifications
+- **Test Commands**: Use `./dev_tools/build.sh test` or `uv run pytest`
 
 ## Configuration
 

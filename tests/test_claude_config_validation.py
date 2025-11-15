@@ -453,7 +453,7 @@ class TestClaudeConfigValidation:
                 f"Working Directory Boundary must include {principle}"
 
     def test_tooling_and_environment_rules(self) -> None:
-        """Test that Rule #18 properly emphasizes UV, Ruff, and Bandit with UV execution."""
+        """Test that Rule #18 properly emphasizes UV-first tooling with execution hierarchy."""
         config_path = Path(".claude/CLAUDE.md")
         content = config_path.read_text()
         lines = content.split("\n")
@@ -476,15 +476,15 @@ class TestClaudeConfigValidation:
 
         assert tooling_section_found, "Tooling & Environment Rules section must exist"
 
-        # Check for key tooling principles
+        # Check for key tooling principles (refactored content)
         tooling_principles = [
+            "Virtual Environment Management",
             "UV ONLY",
             "PREFERRED METHOD",
+            "Code Quality and Security",
             "Ruff PRIMARY",
             "Bandit SECONDARY",
-            "NO MYPY",
-            "Command Execution Hierarchy",
-            "uv run <command>"
+            "Command Execution Hierarchy"
         ]
 
         for principle in tooling_principles:
