@@ -135,14 +135,16 @@ These mandates apply **at all times** with **zero exceptions**.
 - **MINIMAL DEPENDENCIES**: Use only what's necessary to solve the problem
 - **READABILITY FIRST**: If complexity is unavoidable, prioritize readability over cleverness
 
-## 12. Code must read like natural language - ALWAYS write naturally
+## 12. Code AND Tests must read like natural language - ALWAYS write naturally
 - **ALWAYS** write code that reads like human conversation
+- **APPLIES TO**: Both production code AND test code - no exceptions
 - **CONVERSATIONAL NAMING**: Use names that tell a story (user_authenticates, not auth)
 - **NATURAL FLOW**: Code should read like sentences, not puzzles
 - **SELF-DOCUMENTING**: Code should explain itself without excessive comments
 - **CLEAR LOGIC**: Each line should have an obvious purpose
 - **HELPFUL DOCSTRINGS**: Write documentation that speaks to humans
-- **TESTS TOO**: Tests must also read like natural language, not technical specifications
+- **READABLE TESTS**: Test names and content should describe behavior in plain language
+- **NO TECHNICAL JARGON**: Avoid overly technical test descriptions, use human-readable terms
 
 ## 13. FULL TYPE HINTING & TYPE ANNOTATIONS REQUIRED
 - All code must include complete type hints:
