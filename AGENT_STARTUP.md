@@ -6,12 +6,32 @@ This document provides **essential startup information** for all AI agents worki
 
 All agents **must complete this checklist** before beginning any work:
 
-- [ ] **Environment**: UV workspace is active and recognized
+- [ ] **Environment**: UV workspace is active and venv is loaded (`source .venv/bin/activate`)
+- [ ] **Verification**: Confirm .venv is active with `which python` and `uv --version`
 - [ ] **Code Quality**: Ruff configured for formatting, linting, and security (S mode)
 - [ ] **Security**: Bandit available for deep security scans
 - [ ] **Build System**: Using `./dev_tools/build.sh` commands (not direct tools)
 - [ ] **Testing**: pytest configured with `--ignore=tests/web/`
 - [ ] **No Mocking**: STRICT no-mocking policy understood and followed
+
+### 🚨 CRITICAL: VENV ACTIVATION REQUIRED
+
+**EVERY SESSION MUST START WITH VENV ACTIVATION**:
+
+```bash
+# ALWAYS start each session by activating the virtual environment
+source .venv/bin/activate
+
+# Verify activation
+which python      # Should point to .venv/bin/python
+uv --version      # Should show UV version
+```
+
+**Why this is critical**:
+- Ensures all dependencies are available
+- Maintains consistent tool versions
+- Prevents system Python conflicts
+- Guarantees reproducible environments
 
 ## 🛠️ TOOLING CONFIGURATION
 
@@ -245,6 +265,9 @@ uv tree                        # Show dependency tree
 For agents who need to get started immediately:
 
 ```bash
+# 0. CRITICAL: Always start with venv activation
+source .venv/bin/activate
+
 # 1. Setup environment
 ./dev_tools/build.sh install
 
@@ -257,5 +280,7 @@ For agents who need to get started immediately:
 # 4. Check quality gates
 ./dev_tools/build.sh quality-gate
 ```
+
+**🚨 NEVER SKIP STEP 0**: The `source .venv/bin/activate` command is mandatory for every session.
 
 **Remember**: Always use build script commands, never direct tool calls. The build system is optimized and configured for this specific project structure.

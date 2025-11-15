@@ -152,12 +152,19 @@ These mandates apply **at all times** with **zero exceptions**.
   - Typed attributes
   - No implicit `Any`
 
-## 14. Agents MUST read `AGENT_STARTUP.md` before beginning any development work
+## 14. Agents MUST read `docs/ToDoWrite.md` before beginning any development work
+- Contains comprehensive project documentation and API references
+- Updated with latest monorepo structure and testing organization
+- Defines key principles: TDD, no mocking, component organization, authoritative sources
+- Specifies database-first architecture with auto-import functionality
+- Includes installation, usage, and development guidelines
+
+## 15. Agents MUST read `AGENT_STARTUP.md` before beginning any development work
 - Contains essential tooling configuration and startup checklist
 - Defines UV, Ruff, Bandit, and build system requirements
 - Specifies correct workflows and prohibited direct tool usage
 
-# 15. Working Directory Boundary
+# 16. Working Directory Boundary
 
 - **Root Directory**: `./` refers to the current project's root directory
 - **Project Context**: Each project has its own root directory boundary
@@ -167,7 +174,7 @@ These mandates apply **at all times** with **zero exceptions**.
 - **NO CROSS-PROJECT**: Never operate outside the current project's root directory
 - **RESPECT BOUNDARIES**: Honor each project's working directory boundary independently
 
-# 16. Monorepo Structure
+# 17. Monorepo Structure
 
 ```
 $project_root/
@@ -179,7 +186,7 @@ $project_root/
 └── web_package/   # planning only
 ```
 
-# 17. Tooling & Environment Rules
+# 18. Tooling & Environment Rules
 
 - `uv` for environments
 - `ruff` for formatting, linting, basic security

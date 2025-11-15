@@ -12,8 +12,11 @@ The ToDoWrite monorepo uses a modern, unified build system that provides:
 - **Simplified development workflows** with comprehensive build scripts
 - **Automated code quality enforcement** using Ruff and Bandit
 - **Graceful handling** of packages in different development stages
-- **TDD-driven development** with NO MOCKING allowed per strict directive
+- **TDD-driven development** with NO MOCKING and NO FAKE CODE per strict directives
 - **Build system Python API** for programmatic access
+- **Enhanced configuration management** with mandatory documentation loading
+- **Authoritative sources consultation** for all development decisions
+- **Local command-line tools preference** over internal CLI tools
 
 ## 🏗️ Architecture
 
@@ -612,15 +615,18 @@ The build system follows strict TDD methodology: **RED → GREEN → REFACTOR**
 2. **GREEN**: Implement minimal code to make tests pass
 3. **REFACTOR**: Clean up while maintaining test coverage
 
-### STRICT NO-MOCKING POLICY
+### STRICT NO-MOCKING AND NO-FAKE-CODE POLICY
 
-**PROJECT-WIDE BAN: NO MOCKING ALLOWED**
+**PROJECT-WIDE BAN: NO MOCKING OR FAKE IMPLEMENTATIONS ALLOWED**
 
 - ❌ **FORBIDDEN**: `@patch`, `MagicMock`, `Mock`, `mock_open`
 - ❌ **FORBIDDEN**: Test doubles, stubs, dependency injection of fakes
+- ❌ **FORBIDDEN**: `pass`, `...`, `raise NotImplementedError`, placeholder code
+- ❌ **FORBIDDEN**: Fake implementations just to pass tests
 - ✅ **REQUIRED**: Real implementations with actual system resources
 - ✅ **REQUIRED**: Temporary directories and files for testing
 - ✅ **REQUIRED**: Real subprocess calls and API interactions
+- ✅ **REQUIRED**: Actual functional code that solves real problems
 
 ### Testing Strategy
 
@@ -642,12 +648,20 @@ def test_workspace_validation_mocked(mock_read, mock_exists):
     mock_exists.return_value = True
     mock_read.return_value = "[tool.uv.workspace]"
     # This violates the no-mocking directive
+
+# ❌ FORBIDDEN: Fake implementation
+def fake_function():
+    pass  # This violates the no-fake-code directive
 ```
 
-### Test Suites
+### Component-Organized Test Suites
 
-- **`test_build_system_comprehensive.py`**: 22 tests with zero mocking
-- **`test_tdd_build_system_optimized.py`**: Fast optimized tests (1.2 seconds)
+- **`tests/lib/`**: Core todowrite library tests (models, database, schema, storage, api)
+- **`tests/cli/`**: todowrite_cli command-line interface tests
+- **`tests/web/`**: todowrite_web web application tests (planning stage)
+- **`tests/shared/`**: Shared test utilities, fixtures, and helpers
+- **`test_build_system_comprehensive.py`**: Build system validation tests
+- **`test_claude_config_validation.py`**: Configuration validation tests
 - **Coverage disabled by default** to prevent hanging (re-enable explicitly)
 
 ## 🐍 Build System Python API
