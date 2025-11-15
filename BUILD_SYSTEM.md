@@ -615,54 +615,23 @@ The build system follows strict TDD methodology: **RED → GREEN → REFACTOR**
 2. **GREEN**: Implement minimal code to make tests pass
 3. **REFACTOR**: Clean up while maintaining test coverage
 
-### STRICT NO-MOCKING AND NO-FAKE-CODE POLICY
+### Testing Implementation Requirements
 
-**PROJECT-WIDE BAN: NO MOCKING OR FAKE IMPLEMENTATIONS ALLOWED**
+**All testing must follow project policies** - see `.claude/CLAUDE.md` for complete rules
 
-- ❌ **FORBIDDEN**: `@patch`, `MagicMock`, `Mock`, `mock_open`
-- ❌ **FORBIDDEN**: Test doubles, stubs, dependency injection of fakes
-- ❌ **FORBIDDEN**: `pass`, `...`, `raise NotImplementedError`, placeholder code
-- ❌ **FORBIDDEN**: Fake implementations just to pass tests
-- ✅ **REQUIRED**: Real implementations with actual system resources
-- ✅ **REQUIRED**: Temporary directories and files for testing
-- ✅ **REQUIRED**: Real subprocess calls and API interactions
-- ✅ **REQUIRED**: Actual functional code that solves real problems
+- **Component-Organized Tests**: `tests/lib/`, `tests/cli/`, `tests/web/`, `tests/shared/`
+- **Real Implementations Only**: No mocking, no fake code, actual system resources
+- **TDD Workflow**: RED → GREEN → REFACTOR methodology enforced
+- **Build System Tests**: `test_build_system_comprehensive.py`, `test_claude_config_validation.py`
 
-### Testing Strategy
+**Testing Command Reference**:
+```bash
+# Use build scripts (recommended)
+./dev_tools/build.sh test
 
-```python
-# ✅ CORRECT: Real implementation with temporary files
-def test_workspace_validation():
-    with tempfile.TemporaryDirectory() as temp_dir:
-        project_root = Path(temp_dir)
-        # Create real files and test actual behavior
-        pyproject_file = project_root / "pyproject.toml"
-        pyproject_file.write_text("[tool.uv.workspace]\nmembers = ['lib_package']")
-        result = validator.validate(project_root)
-        assert result.is_valid
-
-# ❌ FORBIDDEN: Mocking the file system
-@patch('pathlib.Path.exists')
-@patch('pathlib.Path.read_text')
-def test_workspace_validation_mocked(mock_read, mock_exists):
-    mock_exists.return_value = True
-    mock_read.return_value = "[tool.uv.workspace]"
-    # This violates the no-mocking directive
-
-# ❌ FORBIDDEN: Fake implementation
-def fake_function():
-    pass  # This violates the no-fake-code directive
+# Direct UV execution when needed
+uv run pytest tests/ --ignore=tests/web/
 ```
-
-### Component-Organized Test Suites
-
-- **`tests/lib/`**: Core todowrite library tests (models, database, schema, storage, api)
-- **`tests/cli/`**: todowrite_cli command-line interface tests
-- **`tests/web/`**: todowrite_web web application tests (planning stage)
-- **`tests/shared/`**: Shared test utilities, fixtures, and helpers
-- **`test_build_system_comprehensive.py`**: Build system validation tests
-- **`test_claude_config_validation.py`**: Configuration validation tests
-- **Coverage disabled by default** to prevent hanging (re-enable explicitly)
 
 ## 🐍 Build System Python API
 

@@ -50,32 +50,23 @@ uv sync --group dev  # Install dependencies
 - Package building via `uv run python -m build`
 - Development tool execution via `uv run`
 
-### Code Quality: Ruff (Primary)
-**REQUIRED**: Ruff for ALL formatting, linting, and S-mode security
+### Code Quality & Security
+**REQUIRED**: Use build scripts for all operations (preferred) or UV for direct execution
 
 ```bash
-# Format code (NOT black, not autopep8)
+# Preferred: Use build scripts (handles all tools)
+./dev_tools/build.sh format    # Uses Ruff via UV
+./dev_tools/build.sh lint      # Uses Ruff via UV
+./dev_tools/build.sh audit      # Uses Bandit + Ruff S-mode
+
+# Direct: Use UV when needed
 uv run ruff format lib_package/ cli_package/
-
-# Lint code (NOT flake8, not pylint directly)
 uv run ruff check lib_package/ cli_package/
-
-# Security checks (S mode enabled in Ruff)
-uv run ruff check lib_package/ cli_package/ --select=S
+uv run bandit -r lib_package/ cli_package/
 ```
 
-**Ruff Configuration** (pyproject.toml):
-- Line length: 100 characters
-- Security rules (S) enabled for basic security
-- Comprehensive rule set for code quality
-
-### Security: Bandit (Deep Security)
-**REQUIRED**: Bandit for additional security analysis
-
-```bash
-# Deep security scanning
-uv run bandit -r lib_package/ cli_package/ -f json -q
-```
+**Tools Used**: Ruff (formatting, linting, S-mode security), Bandit (deep security)
+**See**: `BUILD_SYSTEM.md` for detailed tooling configuration
 
 ### Testing: pytest
 **REQUIRED**: pytest with specific exclusions
@@ -184,21 +175,25 @@ todowrite/
    ./dev_tools/build.sh quality-gate --strict
    ```
 
-## 🚨 CRITICAL RULES
+## 🚨 CRITICAL POLICIES
 
-### NO MOCKING POLICY
-**ABSOLUTELY FORBIDDEN**: No mocking, stubs, fakes, or test doubles
-- ❌ `@patch`, `MagicMock`, `Mock`, `mock_open`
-- ❌ Test doubles or dependency injection of fakes
-- ✅ Real implementations with actual system resources
-- ✅ Temporary directories and files for testing
-- ✅ Real subprocess calls and API interactions
+### Development Methodologies
+**MANDATORY**: See `.claude/CLAUDE.md` for detailed rules
+- **TDD Required**: RED → GREEN → REFACTOR workflow enforced
+- **No Mocking**: Real implementations only, no test doubles
+- **No Fake Code**: No `pass`, `...`, or placeholder implementations
+- **Authoritative Sources**: Must consult official documentation
+- **Local Tools Preferred**: Use command-line tools over internal tools
 
-### TDD REQUIREMENT
-**MANDATORY**: All code must follow RED → GREEN → REFACTOR
-1. **RED**: Write failing test first
-2. **GREEN**: Implement minimal code to pass
-3. **REFACTOR**: Clean up with tests still passing
+### Quick Reference
+```bash
+# Write test first (RED)
+# Implement minimal code (GREEN)
+# Refactor while tests pass (REFACTOR)
+
+# Use real implementations only
+# Test with actual system resources
+```
 
 ### EXCLUSIONS
 **web_package is in PLANNING STAGE**:
