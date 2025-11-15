@@ -32,8 +32,11 @@ These mandates apply **at all times** with **zero exceptions**.
 - **Git**: https://git-scm.com/docs (version control operations)
 - **GitHub**: https://docs.github.com/en (platform-specific operations)
 - **Python Packaging**: https://packaging.python.org/en/latest/ (packaging standards and practices)
-- **SQLite**: https://sqlite.org/docs.html (database operations)
-- **PostgreSQL**: https://www.postgresql.org/docs/ (database operations)
+- **SQLite3**: https://docs.python.org/3/library/sqlite3.html and https://sqlite.org/docs.html (database operations)
+- **PostgreSQL**: https://www.postgresql.org/docs/current/ (database operations)
+- **YAML**: https://yaml.org/spec/1.2.2/ (data serialization format)
+- **Hatchling**: https://pypi.org/project/hatchling/ (build system - see Documentation links)
+- **Twine**: https://twine-bhrutledge.readthedocs.io/en/stable/ (PyPI publishing tool)
 - **TDD Methodology**: https://tddbuddy.com/references/tdd-cycle.html and https://www.ibm.com/think/topics/test-driven-development (preferred references)
 - **NO ASSUMPTIONS**: Always verify syntax, semantics, and logic against authoritative sources
 - **CODE GENERATION**: Must reference current official documentation, not memory or assumptions
