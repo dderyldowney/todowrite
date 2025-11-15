@@ -21,7 +21,7 @@ These mandates apply **at all times** with **zero exceptions**.
 - **AFTER '/quit'**: Re-load all three files IN ORDER in new session before any other work
 
 ## 3. Authoritative sources have final say - MUST be consulted
-- **Python**: https://python.org (official) and https://docs.python.org/3/library/typing.html (typing)
+- **Python**: https://python.org (official), https://docs.python.org/3/library/typing.html (typing), and https://docs.python.org/3/library/asyncio.html (async programming)
 - **UV**: https://docs.astral.sh/uv (package management and environments)
 - **Ruff**: https://docs.astral.sh/ruff (linting, formatting, security)
 - **Bandit**: https://bandit.readthedocs.io/en/latest/ (security scanning)
