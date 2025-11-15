@@ -91,6 +91,47 @@ class TestClaudeConfigValidation:
         assert Path("BUILD_SYSTEM.md").exists(), "BUILD_SYSTEM.md must exist"
         assert Path(".claude/CLAUDE.md").exists(), ".claude/CLAUDE.md must exist"
 
+    def test_authoritative_sources_rule(self) -> None:
+        """Test that Rule #3 requires authoritative sources consultation."""
+        config_path = Path(".claude/CLAUDE.md")
+        content = config_path.read_text()
+        lines = content.split("\n")
+
+        # Find Rule #3
+        rule_3_found = False
+        rule_3_content = ""
+        for i, line in enumerate(lines):
+            if line.strip().startswith("## 3."):
+                rule_3_found = True
+                # Get content of Rule #3 (until next rule or end)
+                rule_lines = [line]
+                for j in range(i + 1, len(lines)):
+                    if lines[j].strip().startswith("## "):
+                        break
+                    rule_lines.append(lines[j])
+                rule_3_content = "\n".join(rule_lines)
+                break
+
+        assert rule_3_found, "Rule #3 must exist"
+        assert "Authoritative sources" in rule_3_content, (
+            "Rule #3 must be about authoritative sources"
+        )
+        assert "MUST be consulted" in rule_3_content, (
+            "Rule #3 must require consultation of authoritative sources"
+        )
+
+        # Check for specific authoritative sites
+        authoritative_sites = [
+            "python.org",
+            "docs.astral.sh/uv",
+            "docs.astral.sh/ruff",
+            "bandit.readthedocs.io",
+            "conventionalcommits.org",
+        ]
+
+        for site in authoritative_sites:
+            assert site in rule_3_content, f"Rule #3 must reference {site} as authoritative source"
+
     def test_rule_numbering_consistency(self) -> None:
         """Test that rule numbering is consistent without gaps."""
         config_path = Path(".claude/CLAUDE.md")

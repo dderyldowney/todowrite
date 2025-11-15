@@ -20,37 +20,51 @@ These mandates apply **at all times** with **zero exceptions**.
 - **AFTER '/clear'**: Immediately re-load all three files IN ORDER before any other work
 - **AFTER '/quit'**: Re-load all three files IN ORDER in new session before any other work
 
-## 3. Test-Driven Development only (Red → Green → Refactor)
+## 3. Authoritative sources have final say - MUST be consulted
+- **Python**: https://python.org (official) and https://docs.python.org/3/library/typing.html (typing)
+- **UV**: https://docs.astral.sh/uv (package management and environments)
+- **Ruff**: https://docs.astral.sh/ruff (linting, formatting, security)
+- **Bandit**: https://bandit.readthedocs.io/en/latest/ (security scanning)
+- **Semantic Commits**: https://here-be-pythons.readthedocs.io/en/latest/git/semantic-commit-messages.html
+- **Conventional Commits**: https://www.conventionalcommits.org/en/v1.0.0/#specification
+- **Pytest**: https://docs.pytest.org (testing framework)
+- **SQLite**: https://sqlite.org/docs.html (database operations)
+- **PostgreSQL**: https://www.postgresql.org/docs/ (database operations)
+- **NO ASSUMPTIONS**: Always verify syntax, semantics, and logic against authoritative sources
+- **CODE GENERATION**: Must reference current official documentation, not memory or assumptions
+- **TEST CREATION**: Must validate behavior against authoritative specifications
+
+## 4. Test-Driven Development only (Red → Green → Refactor)
 - Strict Red → Green → Refactor workflow:
   1. Write a failing test (**Red**).
   2. Implement the **minimal** code needed to pass (**Green**).
   3. Clean up with tests still passing (**Refactor**).
 
-## 4. No code without tests FIRST
+## 5. No code without tests FIRST
 - All production code must originate from a failing test.
 - No feature work or fixes happen without the test created first.
 
-## 5. Tests must be broken down by component and subsystem
+## 6. Tests must be broken down by component and subsystem
 - Tests must be organized by:
   - High-level **components**
   - Lower-level **component subsystems**
 
-## 6. Agents MUST use the token-optimization system
+## 7. Agents MUST use the token-optimization system
 - Prefer local tools (`grep`, `rg`, `sed`, `awk`, `jq`, `greptool`) over long LLM reasoning.
 - Reuse existing context.
 - Produce small, efficient, incremental changes.
 
-## 7. Use local command-line tools
+## 8. Use local command-line tools
 - Prefer CLI utilities for all inspection and transformation tasks.
 
-## 8. Simplicity over complexity
+## 9. Simplicity over complexity
 - Favor concise, direct, expressive solutions.
 
-## 9. Code must read like natural language
+## 10. Code must read like natural language
 - Use conversational naming.
 - Clear logic and helpful docstrings.
 
-## 10. FULL TYPE HINTING & TYPE ANNOTATIONS REQUIRED
+## 11. FULL TYPE HINTING & TYPE ANNOTATIONS REQUIRED
 - All code must include complete type hints:
   - Typed `self`
   - Typed parameters
@@ -58,18 +72,18 @@ These mandates apply **at all times** with **zero exceptions**.
   - Typed attributes
   - No implicit `Any`
 
-## 11. Agents MUST read `AGENT_STARTUP.md` before beginning any development work
+## 12. Agents MUST read `AGENT_STARTUP.md` before beginning any development work
 - Contains essential tooling configuration and startup checklist
 - Defines UV, Ruff, Bandit, and build system requirements
 - Specifies correct workflows and prohibited direct tool usage
 
-# 11. Working Directory Boundary
+# 13. Working Directory Boundary
 
 - **Root Directory**: `./` refers to `/Users/dderyldowney/Documents/GitHub/dderyldowney/todowrite`
 - **ALL operations must be confined within this directory structure**
 - **NO operations outside the project root directory**
 
-# 12. Monorepo Structure
+# 14. Monorepo Structure
 
 ```
 $project_root/
@@ -81,7 +95,7 @@ $project_root/
 └── web_package/   # planning only
 ```
 
-# 13. Tooling & Environment Rules
+# 15. Tooling & Environment Rules
 
 - `uv` for environments
 - `ruff` for formatting, linting, basic security
