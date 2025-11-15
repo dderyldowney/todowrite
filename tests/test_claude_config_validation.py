@@ -360,10 +360,13 @@ class TestClaudeConfigValidation:
 
         # Check for key natural language principles
         natural_language_principles = [
+            "APPLIES TO",
+            "Both production code AND test code",
             "CONVERSATIONAL NAMING",
             "NATURAL FLOW",
             "SELF-DOCUMENTING",
-            "TESTS TOO"
+            "READABLE TESTS",
+            "NO TECHNICAL JARGON"
         ]
 
         for principle in natural_language_principles:
