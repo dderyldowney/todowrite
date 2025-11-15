@@ -70,6 +70,18 @@ class TestClaudeConfigValidation:
             assert example in rule_8_content, \
                 f"Rule #8 must include {example} directory example"
 
+        # Check for monorepo package mapping
+        package_mappings = [
+            "MONOREPO PACKAGE MAPPING",
+            "todowrite",
+            "todowrite_cli",
+            "todowrite_web"
+        ]
+
+        for mapping in package_mappings:
+            assert mapping in rule_8_content, \
+                f"Rule #8 must include {mapping} package reference"
+
     def test_claude_md_contains_documentation_loading_rule(self) -> None:
         """Test that CLAUDE.md contains mandatory documentation loading requirements."""
         config_path = Path(".claude/CLAUDE.md")
