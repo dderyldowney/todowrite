@@ -56,6 +56,20 @@ class TestClaudeConfigValidation:
             assert principle in rule_8_content, \
                 f"Rule #8 must include {principle}"
 
+        # Check for directory structure examples
+        directory_examples = [
+            "lib/",
+            "cli/",
+            "web/",
+            "features/",
+            "unittests/",
+            "shared/"
+        ]
+
+        for example in directory_examples:
+            assert example in rule_8_content, \
+                f"Rule #8 must include {example} directory example"
+
     def test_claude_md_contains_documentation_loading_rule(self) -> None:
         """Test that CLAUDE.md contains mandatory documentation loading requirements."""
         config_path = Path(".claude/CLAUDE.md")
