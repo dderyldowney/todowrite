@@ -83,13 +83,13 @@ These mandates apply **at all times** with **zero exceptions**.
 - **DIRECTORY STRUCTURE EXAMPLES** (not exhaustive):
   ```
   tests/
-  ├── lib/                          # Core library tests
+  ├── lib/                          # todowrite package tests
   │   ├── models/                   # Data model tests
   │   ├── api/                      # API interface tests
   │   ├── database/                 # Database layer tests
   │   └── schema/                   # Schema validation tests
-  ├── cli/                          # Command-line interface tests
-  ├── web/                          # Web application tests
+  ├── cli/                          # todowrite_cli package tests
+  ├── web/                          # todowrite_web package tests
   │   ├── models/                   # Web data models
   │   ├── frontend/
   │   │   └── api/                  # Frontend API tests
@@ -102,6 +102,10 @@ These mandates apply **at all times** with **zero exceptions**.
   ├── unittests/                    # Unit test collections
   └── shared/                       # Shared test utilities and fixtures
   ```
+- **MONOREPO PACKAGE MAPPING**:
+  - `lib/` → `todowrite` package tests
+  - `cli/` → `todowrite_cli` package tests
+  - `web/` → `todowrite_web` package tests
 
 ## 9. Agents MUST use the token-optimization system
 - Prefer local tools (`grep`, `rg`, `sed`, `awk`, `jq`, `greptool`) over long LLM reasoning.
