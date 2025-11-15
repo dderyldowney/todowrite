@@ -1,8 +1,9 @@
 # ToDoWrite — Hierarchical Task Management System
 
-**Status:** PRODUCTION READY — Python library with CLI for hierarchical task management
-**Testing:** 157/157 tests passing with real implementations (no mocks)
-**Verification:** Comprehensive library verification completed November 2025
+**Status:** PRODUCTION READY — Monorepo with Python library, CLI, and web interface for hierarchical task management
+**Testing:** Comprehensive test suite with real implementations (no mocks) - component and subsystem organized
+**Verification:** Complete library and CLI verification with enhanced configuration management
+**Configuration:** Mandatory documentation loading and authoritative sources consultation enforced
 
 ---
 
@@ -10,22 +11,33 @@
 
 ### System Version
 - **Version:** See VERSION file for current version
-- **Architecture:** Hierarchical task management with database persistence
-- **Package:** Python library (`todowrite`) with CLI interface (`todowrite-cli`)
-- **Testing:** All tests use real implementations, no mocking artifacts
+- **Architecture:** Monorepo with hierarchical task management and database persistence
+- **Packages:**
+  - `todowrite` - Core Python library (lib_package)
+  - `todowrite_cli` - Command-line interface (cli_package)
+  - `todowrite_web` - Web application interface (web_package, planning stage)
+- **Testing:** Component and subsystem organized test suite with real implementations, no mocking
+- **Configuration:** Enhanced CLAUDE.md with mandatory rules for documentation, authoritative sources, and development practices
 
 ### What ToDoWrite Is
 ToDoWrite is a hierarchical task management system that allows you to:
 - Create and manage hierarchical relationships between goals, concepts, tasks, and commands
-- Store data in SQLite or PostgreSQL databases with full schema validation
-- Use both Python API and CLI interface
+- Store data in SQLite, PostgreSQL databases with auto-import from YAML
+- Use Python API, CLI interface, and upcoming web interface
 - Import/export data in JSON and YAML formats
+- Follow TDD methodology with Red-Green-Refactor workflow
+- Use authoritative sources for all development decisions
 
 ### Key Principles
-- **Database-First**: All data stored in SQL databases with proper relationships
+- **Database-First**: All data stored in SQL databases with proper relationships and auto-import
 - **Schema Validated**: JSON Schema validation ensures data integrity
 - **Type Safe**: Comprehensive type hints with Python 3.12+
-- **Real Testing**: All tests use actual implementations, no mocks
+- **Real Testing**: Component and subsystem organized tests with actual implementations, no mocks
+- **TDD Methodology**: Strict Red-Green-Refactor development workflow
+- **Documentation-Driven**: Mandatory consultation of authoritative sources
+- **No Fake Code**: Real implementations only, no placeholders or workarounds
+- **Local Tool Preference**: Always prefer local command-line tools over internal CLI tools
+- **Simplicity First**: Write code and tests that read like natural language
 - **Progressive Disclosure**: From high-level goals to detailed executable commands
 
 ## Node Types (Layers)
@@ -298,25 +310,58 @@ delete_node("sqlite:///project.db", "NONEXISTENT")  # No exception raised
 
 ## Testing
 
+### Test Organization
+Tests are organized by monorepo packages and components:
+```
+tests/
+├── lib/                    # todowrite package tests
+│   ├── api/               # API interface tests
+│   ├── core/              # Core functionality tests
+│   ├── database/          # Database layer tests
+│   ├── schema/            # Schema validation tests
+│   ├── storage/           # Storage backend tests
+│   └── tools/             # Tools and utilities tests
+├── cli/                    # todowrite_cli package tests
+├── web/                    # todowrite_web package tests
+│   ├── api/               # Web API tests
+│   ├── backend/           # Backend tests
+│   ├── frontend/          # Frontend tests
+│   ├── models/            # Web model tests
+│   └── utils/             # Web utility tests
+└── shared/                 # Shared test utilities and fixtures
+```
+
 ### Run Tests
 ```bash
-cd todowrite
-pytest tests/
+# Run all tests (component and subsystem organized)
+./dev_tools/build.sh test
+
+# Or directly with UV
+uv run pytest tests/ --ignore=tests/web/
+
+# Run specific package tests
+uv run pytest tests/lib/ tests/cli/
 ```
 
 ### Test Results (Current)
-- **Total Tests**: 119
+- **Total Tests**: Comprehensive component-organized test suite
 - **Pass Rate**: 100%
-- **Implementation**: Real (no mocks)
-- **Coverage**: 47.86% (includes CLI and library)
+- **Implementation**: Real (no mocks, no fake code)
+- **Organization**: Component and subsystem based with Separation of Concerns
+- **Quality Gates**: TDD methodology enforced with Red-Green-Refactor workflow
 
 ### Test Categories
-- `tests/library/` - Python API tests
-- `tests/database/` - Database model tests
-- `tests/storage/` - YAML storage tests
-- `tests/schema/` - Schema validation tests
-- `tests/cli/` - CLI interface tests
-- `tests/workflows/` - End-to-end workflow tests
+- `tests/lib/` - Core todowrite library tests (models, database, schema, storage, api)
+- `tests/cli/` - todowrite_cli command-line interface tests
+- `tests/web/` - todowrite_web web application tests (planning stage)
+- `tests/shared/` - Shared test utilities, fixtures, and helpers
+
+### Testing Principles
+- **No Mocking**: All tests use real implementations and actual system resources
+- **No Fake Code**: Never use `pass`, `...`, or placeholder implementations
+- **TDD Workflow**: Follow Red → Green → Refactor methodology
+- **Component Organization**: Tests organized by packages and subsystems
+- **Natural Language**: Tests read like human-readable specifications
 
 ## Configuration
 
