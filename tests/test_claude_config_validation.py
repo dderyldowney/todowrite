@@ -132,6 +132,12 @@ class TestClaudeConfigValidation:
             "git-scm.com/docs",
             "docs.github.com/en",
             "packaging.python.org",
+            "docs.python.org/3/library/sqlite3.html",
+            "sqlite.org/docs.html",
+            "postgresql.org/docs/current",
+            "yaml.org/spec/1.2.2",
+            "pypi.org/project/hatchling",
+            "twine-bhrutledge.readthedocs.io/en/stable",
             "tddbuddy.com/references/tdd-cycle.html",
             "ibm.com/think/topics/test-driven-development",
         ]
