@@ -65,12 +65,21 @@ These mandates apply **at all times** with **zero exceptions**.
 ## 8. Use local command-line tools
 - Prefer CLI utilities for all inspection and transformation tasks.
 
-## 9. Simplicity over complexity
-- Favor concise, direct, expressive solutions.
+## 9. Simplicity over complexity - ALWAYS prefer
+- **ALWAYS** choose the simplest solution that works
+- **NO OVER-ENGINEERING**: Avoid unnecessary complexity, abstraction, or indirection
+- **DIRECT SOLUTIONS**: Favor straightforward, explicit, clear approaches
+- **MINIMAL DEPENDENCIES**: Use only what's necessary to solve the problem
+- **READABILITY FIRST**: If complexity is unavoidable, prioritize readability over cleverness
 
-## 10. Code must read like natural language
-- Use conversational naming.
-- Clear logic and helpful docstrings.
+## 10. Code must read like natural language - ALWAYS write naturally
+- **ALWAYS** write code that reads like human conversation
+- **CONVERSATIONAL NAMING**: Use names that tell a story (user_authenticates, not auth)
+- **NATURAL FLOW**: Code should read like sentences, not puzzles
+- **SELF-DOCUMENTING**: Code should explain itself without excessive comments
+- **CLEAR LOGIC**: Each line should have an obvious purpose
+- **HELPFUL DOCSTRINGS**: Write documentation that speaks to humans
+- **TESTS TOO**: Tests must also read like natural language, not technical specifications
 
 ## 11. FULL TYPE HINTING & TYPE ANNOTATIONS REQUIRED
 - All code must include complete type hints:
