@@ -1,27 +1,17 @@
 """
-This module contains the configuration for the database connection.
+Simplified database connection configuration for ToDoWrite.
 
-ToDoWrite uses a DATABASE-FIRST approach with cascading fallbacks:
-1. PostgreSQL (preferred, especially via Docker)
-2. SQLite3 (reliable fallback)
-3. YAML files (last resort when databases are unavailable)
+Supports PostgreSQL, SQLite3, and YAML fallback for simplicity over complexity.
+Priority: PostgreSQL (if available) → SQLite3 (fallback) → YAML (last resort)
 
-The system automatically tries each option in order until one works.
+No complex auto-detection, no Docker discovery.
+Simple, direct database connections.
 """
 
 from __future__ import annotations
 
 import os
-import shutil
-import subprocess
-import time
 from enum import Enum
-from typing import Any, cast
-
-# Configuration cache
-_storage_cache: dict[str, Any] = {}
-_cache_timestamp: float = 0.0
-_cache_ttl: float = 600.0  # 10 minutes cache
 
 
 class StorageType(Enum):
@@ -35,7 +25,7 @@ class StorageType(Enum):
 class StoragePreference(Enum):
     """Storage preference options."""
 
-    AUTO = "auto"  # Use automatic fallback chain
+    AUTO = "auto"  # Try PostgreSQL → SQLite → YAML
     POSTGRESQL_ONLY = "postgresql_only"  # Only try PostgreSQL
     SQLITE_ONLY = "sqlite_only"  # Only try SQLite
     YAML_ONLY = "yaml_only"  # Only use YAML files
@@ -44,23 +34,28 @@ class StoragePreference(Enum):
 # Global storage preference - can be overridden
 storage_preference: StoragePreference = StoragePreference.AUTO
 
-# Explicit database URL override
-DATABASE_URL: str = os.getenv(
-    "TODOWRITE_DATABASE_URL",
-    os.getenv("DATABASE_URL", ""),  # Check standard DATABASE_URL too
-)
-"""The URL for the database connection.
 
-Environment Variables:
-    TODOWRITE_DATABASE_URL: Full database URL (overrides automatic detection)
-    DATABASE_URL: Standard database URL environment variable
-    TODOWRITE_STORAGE_PREFERENCE: Storage preference (auto, pg, sqlite, yaml)
+def get_database_url() -> str:
+    """Get database URL from environment variables.
 
-Examples:
-    PostgreSQL: postgresql://user:password@localhost:5432/todowrite_db
-    SQLite: sqlite:///todowrite.db
-    YAML: yaml (uses YAML files instead of database)
-"""
+    Environment Variables:
+        TODOWRITE_DATABASE_URL: Full database URL (overrides automatic detection)
+        DATABASE_URL: Standard database URL environment variable
+        TODOWRITE_STORAGE_PREFERENCE: Storage preference (auto, postgresql_only, sqlite_only, yaml_only)
+
+    Examples:
+        PostgreSQL: postgresql://user:password@localhost:5432/todowrite_db
+        SQLite: sqlite:///todowrite.db
+        YAML: leave empty for YAML fallback
+    """
+    return os.getenv(
+        "TODOWRITE_DATABASE_URL",
+        os.getenv("DATABASE_URL", ""),  # Check standard DATABASE_URL too
+    )
+
+
+# Legacy compatibility - use get_database_url() instead
+DATABASE_URL = get_database_url()
 
 
 def set_storage_preference(preference: StoragePreference) -> None:
@@ -82,7 +77,7 @@ def get_storage_preference() -> StoragePreference:
     return storage_preference
 
 
-def test_postgresql_connection(url: str) -> bool:
+def check_postgresql_connection(url: str) -> bool:
     """Test if PostgreSQL connection is available."""
     try:
         from sqlalchemy import create_engine, text
@@ -95,7 +90,7 @@ def test_postgresql_connection(url: str) -> bool:
         return False
 
 
-def test_sqlite_connection(url: str) -> bool:
+def check_sqlite_connection(url: str) -> bool:
     """Test if SQLite connection is available."""
     try:
         from sqlalchemy import create_engine, text
@@ -112,50 +107,15 @@ def get_postgresql_candidates() -> list[str]:
     """Get list of potential PostgreSQL connection URLs to try."""
     candidates: list[str] = []
 
-    # Explicit URL from environment
-    if DATABASE_URL and DATABASE_URL.startswith("postgresql:"):
-        candidates.append(DATABASE_URL)
+    # Explicit URL from environment (read dynamically)
+    db_url = get_database_url()
+    if db_url and db_url.startswith("postgresql:"):
+        candidates.append(db_url)
 
-    # Docker container detection
-    docker_path = shutil.which("docker")
-    if (
-        docker_path
-        and os.path.isabs(docker_path)
-        and os.path.exists(docker_path)
-    ):
-        try:
-            # Validate docker path is safe (absolute path and executable)
-            docker_args = [
-                docker_path,
-                "ps",
-                "--filter",
-                "name=todowrite-postgres",
-                "--format",
-                "{{.Names}}",
-            ]
-            result = subprocess.run(
-                docker_args,
-                capture_output=True,
-                text=True,
-                timeout=5,
-                shell=False,
-            )
-            if "todowrite-postgres" in result.stdout:
-                candidates.append(
-                    "postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"
-                )
-        except (
-            subprocess.TimeoutExpired,
-            FileNotFoundError,
-            subprocess.SubprocessError,
-        ):
-            pass
-
-    # Standard localhost
-    if not any("localhost" in url for url in candidates):
-        candidates.append(
-            "postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"
-        )
+    # Standard localhost (simple, no Docker detection)
+    candidates.append(
+        "postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"
+    )
 
     return candidates
 
@@ -164,31 +124,20 @@ def get_sqlite_candidates() -> list[str]:
     """Get list of potential SQLite connection URLs to try."""
     candidates: list[str] = []
 
-    # Explicit URL from environment
-    if DATABASE_URL and DATABASE_URL.startswith("sqlite:"):
-        candidates.append(DATABASE_URL)
+    # Explicit URL from environment (read dynamically)
+    db_url = get_database_url()
+    if db_url and db_url.startswith("sqlite:"):
+        candidates.append(db_url)
 
-    # Default SQLite locations
-    default_paths = [
-        "sqlite:///todowrite.db",
-        "sqlite:///./data/todowrite.db",
-        "sqlite:///~/.todowrite/todowrite.db",
-    ]
-
-    for path in default_paths:
-        if path not in candidates:
-            candidates.append(path)
+    # Simple default locations
+    candidates.extend(
+        [
+            "sqlite:///todowrite.db",
+            "sqlite:///./todowrite.db",
+        ]
+    )
 
     return candidates
-
-
-def _clear_storage_cache() -> None:
-    """Clear expired storage cache."""
-    global _storage_cache, _cache_timestamp
-    current_time = time.time()
-    if current_time - _cache_timestamp > _cache_ttl:
-        _storage_cache.clear()
-        _cache_timestamp = float(current_time)
 
 
 def determine_storage_backend() -> tuple[StorageType, str | None]:
@@ -196,62 +145,56 @@ def determine_storage_backend() -> tuple[StorageType, str | None]:
     Determine storage backend based on preference and availability.
 
     Returns:
-        Tuple of (StorageType, connection_url_or_none)
+        Tuple of (StorageType, connection_url_or_none_for_yaml)
     """
-    # Check cache first
-    _clear_storage_cache()
-    cache_key = "determine_storage_backend"
-    cached_result = _storage_cache.get(cache_key)
-    if cached_result is not None:
-        return cast("tuple[StorageType, str | None]", cached_result)
-
     preference = get_storage_preference()
 
-    # Use a single result variable with proper typing from the start
-    result: tuple[StorageType, str | None]
-
+    # YAML preference - skip database detection
     if preference == StoragePreference.YAML_ONLY:
-        result = StorageType.YAML, None
-        _storage_cache[cache_key] = result
-        return result
+        return StorageType.YAML, None
 
-    elif preference == StoragePreference.POSTGRESQL_ONLY:
+    # If explicit URL provided, use it (read dynamically)
+    db_url = get_database_url()
+    if db_url:
+        if db_url.startswith("postgresql:"):
+            if preference == StoragePreference.SQLITE_ONLY:
+                raise RuntimeError(
+                    "SQLite requested but PostgreSQL URL provided"
+                )
+            return StorageType.POSTGRESQL, db_url
+        elif db_url.startswith("sqlite:"):
+            if preference == StoragePreference.POSTGRESQL_ONLY:
+                raise RuntimeError(
+                    "PostgreSQL requested but SQLite URL provided"
+                )
+            return StorageType.SQLITE, db_url
+
+    # Auto-detection based on preference
+    if preference == StoragePreference.POSTGRESQL_ONLY:
         for url in get_postgresql_candidates():
-            if test_postgresql_connection(url):
-                result = StorageType.POSTGRESQL, url
-                _storage_cache[cache_key] = result
-                return result
+            if check_postgresql_connection(url):
+                return StorageType.POSTGRESQL, url
         raise RuntimeError("PostgreSQL requested but not available")
 
     elif preference == StoragePreference.SQLITE_ONLY:
         for url in get_sqlite_candidates():
-            if test_sqlite_connection(url):
-                result = StorageType.SQLITE, url
-                _storage_cache[cache_key] = result
-                return result
+            if check_sqlite_connection(url):
+                return StorageType.SQLITE, url
         raise RuntimeError("SQLite requested but not available")
 
     else:  # StoragePreference.AUTO
         # Try PostgreSQL first
         for url in get_postgresql_candidates():
-            if test_postgresql_connection(url):
-                result = StorageType.POSTGRESQL, url
-                _storage_cache[cache_key] = result
-                return result
+            if check_postgresql_connection(url):
+                return StorageType.POSTGRESQL, url
 
         # Try SQLite second
         for url in get_sqlite_candidates():
-            if test_sqlite_connection(url):
-                result = StorageType.SQLITE, url
-                _storage_cache[cache_key] = result
-                return result
+            if check_sqlite_connection(url):
+                return StorageType.SQLITE, url
 
         # Fall back to YAML
-        result = StorageType.YAML, None
-
-        # Cache the result
-        _storage_cache[cache_key] = result
-        return result
+        return StorageType.YAML, None
 
 
 def get_storage_info() -> dict[str, str]:

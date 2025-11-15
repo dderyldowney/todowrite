@@ -3,15 +3,11 @@
 import getpass
 import os
 import sys
-import traceback
-from contextlib import suppress
 from pathlib import Path
 from typing import Any, cast
 
 import click
 import jsonschema
-import sqlalchemy
-import yaml
 from rich.console import Console
 from rich.table import Table
 
@@ -28,11 +24,8 @@ try:
         search_nodes,
         update_node,
         validate_node,
-        validate_schema,
     )
     from todowrite.core import Node, ToDoWrite, generate_node_id
-    from todowrite.storage import get_schema_compliance_report
-    from todowrite.utils.database_utils import get_project_database_name
 except ImportError:
     click.echo(
         "Error: todowrite library not found. Please install it first: "
@@ -85,7 +78,7 @@ def get_app(
     database_path: str | None = None,
     _yaml_base_path: str | None = None,
 ) -> ToDoWrite:
-    """Get or create ToDoWrite application instance."""
+    """Get or create ToDoWrite application instance using simplified library connection."""
     if database_path:
         # Expand ~ to user home directory
         database_path = os.path.expanduser(database_path)
@@ -94,32 +87,15 @@ def get_app(
             db_url = f"sqlite:///{database_path}"
         else:
             db_url = database_path
-        app = ToDoWrite(db_url)
-    else:
-        # Try to get from config file or use default
-        config_path = Path.home() / ".todowrite" / "config.yaml"
-        if config_path.exists():
-            with open(config_path) as f:
-                config = yaml.safe_load(f)
-            default_db = f"~/dbs/{get_project_database_name('development')}"
-            db_path = config.get("database", {}).get(
-                "default_path", default_db
-            )
-            # Expand ~ to user home directory
-            db_path = os.path.expanduser(db_path)
-            if not db_path.startswith(("sqlite:///", "postgresql://")):
-                db_url = f"sqlite:///{db_path}"
-            else:
-                db_url = db_path
-            app = ToDoWrite(db_url)
-        else:
-            # Expand ~ to user home directory for fallback with project-specific name
-            fallback_name = get_project_database_name("development")
-            fallback_path = os.path.expanduser(f"~/dbs/{fallback_name}")
-            app = ToDoWrite(f"sqlite:///{fallback_path}")
 
-    with suppress(Exception):
-        app.init_database()
+        # Use library's simplified connection
+        app = ToDoWrite(db_url=db_url)
+    else:
+        # Let library handle auto-detection (PostgreSQL → SQLite → YAML)
+        app = ToDoWrite()
+
+    # Initialize database through library
+    app.init_database()
     return app
 
 
@@ -129,7 +105,7 @@ def get_app(
     "--storage-preference",
     type=click.Choice(["auto", "postgresql_only", "sqlite_only", "yaml_only"]),
     default="auto",
-    help="Override default storage preference",
+    help="Override default storage preference (auto, postgresql_only, sqlite_only, yaml_only)",
 )
 @click.pass_context
 def cli(ctx: click.Context, storage_preference: str) -> None:
@@ -137,31 +113,42 @@ def cli(ctx: click.Context, storage_preference: str) -> None:
     ctx.ensure_object(dict)
     ctx.obj["storage_preference"] = storage_preference
 
+    # Set storage preference for library globally
+    if storage_preference != "auto":
+        os.environ["TODOWRITE_STORAGE_PREFERENCE"] = storage_preference
+
 
 @cli.command()
 @click.option(
     "--database-path",
     "-d",
     default=None,
-    help="Database file path (default: ./todowrite.db)",
+    help="Database file path (default: auto-detect via library)",
 )
 @click.option(
     "--yaml-path",
     "-y",
     default=None,
-    help="YAML configuration path (default: ./configs)",
+    help="YAML configuration path (default: auto-detect via library)",
 )
-def init(database_path: str | None, yaml_path: str | None) -> None:
+@click.pass_context
+def init(
+    ctx: click.Context, database_path: str | None, yaml_path: str | None
+) -> None:
     """Initialize the database."""
+    # Pass storage preference from context to library via environment
+    if ctx.obj.get("storage_preference"):
+        os.environ["TODOWRITE_STORAGE_PREFERENCE"] = ctx.obj[
+            "storage_preference"
+        ]
+
     app = get_app(database_path, yaml_path)
 
     try:
-        app.init_database()
         console.print("[green]✓[/green] Database initialized successfully!")
-        if database_path:
-            console.print(f"Database path: {database_path}")
-        if yaml_path:
-            console.print(f"YAML path: {yaml_path}")
+        console.print(f"Storage type: {app.storage_type.value}")
+        if hasattr(app, "db_url") and app.db_url:
+            console.print(f"Database URL: {app.db_url}")
     except (OSError, ValueError, RuntimeError) as e:
         console.print(f"[red]✗[/red] Error initializing database: {e}")
         sys.exit(1)
@@ -408,7 +395,6 @@ def create(
                 ValueError,
                 KeyError,
                 RuntimeError,
-                sqlalchemy.exc.SQLAlchemyError,
             ) as e:
                 console.print(
                     f"[yellow]⚠[/yellow] Warning: Could not link parent → child: {e}"
@@ -891,69 +877,40 @@ def sync_status(_: click.Context) -> None:
 
 @cli.command()
 @click.pass_context
-def db_status(_: click.Context) -> None:
-    """Show storage configuration and status."""
-    app = get_app()
-
+def db_status(ctx: click.Context) -> None:
+    """Show storage configuration and status using simplified library approach."""
     try:
-        # Show database info
+        # Use library's simplified connection
+        app = get_app()
+
+        # Show storage info using library's approach
         table = Table(title="Database Status")
         table.add_column("Property", style="cyan")
         table.add_column("Value", style="magenta")
 
-        # Show schema validation
-        schema_valid = validate_schema(app.engine)
-        table.add_row("Schema Valid", "✓" if schema_valid else "✗")
+        # Show storage type
+        storage_type = app.storage_type.value
+        table.add_row("Storage Type", storage_type.title())
 
-        # Show node counts
-        nodes = list_nodes()
+        # Show database URL if available
+        if hasattr(app, "db_url") and app.db_url:
+            table.add_row("Database URL", app.db_url)
+        else:
+            table.add_row("Database URL", "N/A (YAML mode)")
+
+        # Show node counts using library
+        nodes = app.get_all_nodes()
         total_nodes = sum(len(layer_nodes) for layer_nodes in nodes.values())
         table.add_row("Total Nodes", str(total_nodes))
 
+        # Show storage preference
+        preference = ctx.obj.get("storage_preference", "auto")
+        table.add_row("Storage Preference", preference)
+
         console.print(table)
 
-        # Show schema compliance
-        try:
-            # Create a temporary app for storage type
-            temp_app = ToDoWrite()
-            compliance_report: Any = get_schema_compliance_report(
-                (
-                    temp_app.storage_type.value
-                    if hasattr(temp_app.storage_type, "value")
-                    else str(temp_app.storage_type)
-                ),
-                engine=temp_app.engine,
-            )
-            # Handle different report structures gracefully
-            if compliance_report and isinstance(compliance_report, dict):
-                if compliance_report.get("is_compliant", False):
-                    console.print("[green]✓[/green] Schema is compliant")
-                else:
-                    console.print(
-                        "[yellow]⚠️[/yellow] Schema compliance issues found:"
-                    )
-                    if compliance_report.get("errors"):
-                        for error in compliance_report["errors"]:
-                            console.print(f"  • {error}")
-                    if compliance_report.get("warnings"):
-                        for warning in compliance_report["warnings"]:
-                            console.print(f"  • {warning}")
-            else:
-                console.print(
-                    "[yellow]Schema compliance check returned "
-                    "unexpected format[/yellow]"
-                )
-        except Exception as e:
-            console.print(
-                f"[yellow]⚠️ Schema compliance check failed: {e}[/yellow]"
-            )
-            console.print(
-                "[dim]This is not critical - core functionality still "
-                "works[/dim]"
-            )
     except Exception as e:
         console.print(f"[red]✗[/red] Error getting database status: {e}")
-        traceback.print_exc()
         sys.exit(1)
 
 
