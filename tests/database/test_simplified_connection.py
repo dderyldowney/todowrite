@@ -155,7 +155,9 @@ class TestSimplifiedConnection:
 
     def test_determine_storage_backend_uses_explicit_postgresql_url(self) -> None:
         """Test storage backend uses explicit PostgreSQL URL when provided."""
-        explicit_url = "postgresql://testuser:testpass@localhost:5432/testdb"  # pragma: allowlist secret
+        explicit_url = (
+            "postgresql://testuser:testpass@localhost:5432/testdb"  # pragma: allowlist secret
+        )
 
         import os
 
