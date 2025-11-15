@@ -452,6 +452,45 @@ class TestClaudeConfigValidation:
             assert principle in boundary_content, \
                 f"Working Directory Boundary must include {principle}"
 
+    def test_tooling_and_environment_rules(self) -> None:
+        """Test that Rule #18 properly emphasizes UV, Ruff, and Bandit with UV execution."""
+        config_path = Path(".claude/CLAUDE.md")
+        content = config_path.read_text()
+        lines = content.split("\n")
+
+        # Find Rule #18 section
+        tooling_section_found = False
+        tooling_content = ""
+        in_tooling_section = False
+
+        for line in lines:
+            if "# 18. Tooling & Environment Rules" in line:
+                tooling_section_found = True
+                in_tooling_section = True
+                tooling_content = line
+                continue
+            elif in_tooling_section:
+                if line.startswith("# Standard Workflow"):
+                    break
+                tooling_content += "\n" + line
+
+        assert tooling_section_found, "Tooling & Environment Rules section must exist"
+
+        # Check for key tooling principles
+        tooling_principles = [
+            "UV ONLY",
+            "PREFERRED METHOD",
+            "Ruff PRIMARY",
+            "Bandit SECONDARY",
+            "NO MYPY",
+            "Command Execution Hierarchy",
+            "uv run <command>"
+        ]
+
+        for principle in tooling_principles:
+            assert principle in tooling_content, \
+                f"Tooling rules must include {principle}"
+
     def test_rule_numbering_consistency(self) -> None:
         """Test that rule numbering is consistent without gaps."""
         config_path = Path(".claude/CLAUDE.md")

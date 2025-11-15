@@ -188,12 +188,30 @@ $project_root/
 
 # 18. Tooling & Environment Rules
 
-- `uv` for environments
-- `ruff` for formatting, linting, basic security
-- **NO mypy**
-- `bandit` for security scanning
-- `hatchling` for builds
-- `twine` for PyPI uploads
+## Virtual Environment Management
+- **UV ONLY**: Use `uv` for all virtual environment management (replaces virtualenv+pip)
+- **PREFERRED METHOD**: Always use `uv run <command>` for executing tools in the virtual environment
+- **NO VIRTUALENV**: Never use virtualenv, venv, or pip directly for environment management
+- **WORKSPACE**: Use UV workspace for managing multi-package dependencies
+
+## Code Quality and Security
+- **Ruff PRIMARY**: Use `ruff` for ALL formatting, linting, and S-mode security checks
+  - `uv run ruff format <paths>` for formatting
+  - `uv run ruff check <paths>` for linting
+  - `uv run ruff check <paths> --select=S` for S-mode security
+- **Bandit SECONDARY**: Use `bandit` for deeper security analysis
+  - `uv run bandit -r <paths>` for comprehensive security scanning
+- **NO MYPY**: Do not use mypy for type checking
+
+## Build and Deployment
+- **Hatchling**: Use `hatchling` for building packages (via UV environment)
+- **Twine**: Use `twine` for PyPI uploads (via UV environment)
+- **UV RUN PREFERRED**: All tool execution should use `uv run <tool>` format
+
+## Command Execution Hierarchy
+1. **FIRST**: Use `./dev_tools/build.sh` scripts (preferred)
+2. **SECOND**: Use `uv run <command>` for direct tool execution
+3. **NEVER**: Use tools directly without UV (e.g., `pytest`, `ruff`, `bandit` without prefix)
 
 # Standard Workflow
 1. **MANDATORY**: Load documentation files IN ORDER (CLAUDE.md → ToDoWrite.md → BUILD_SYSTEM.md)
