@@ -6,16 +6,16 @@ This guide covers database schema migrations for the ToDoWrite system using SQLA
 
 ## Current Database Schema
 
-### SQLAlchemy Models (v0.3.1)
+### Unified Node Architecture (v0.4.0+)
 
-The current schema consists of the following models defined in `lib_package/src/todowrite/database/models.py`:
+The current schema uses a unified approach defined in `lib_package/src/todowrite/database/node_mapping.py`:
 
-#### Core Models
-- **Node** - Central entity for all hierarchical items
-- **Link** - Parent-child relationships between nodes
-- **Label** - Categorization tags
-- **Command** - Executable commands (for Command layer nodes)
-- **Artifact** - Generated files from command execution
+#### Core Architecture
+- **NodeTable** - Simple database table for Node storage (thin persistence layer)
+- **core.types.Node** - Single source of truth for Node objects and business logic
+- **Association Tables** - Simplified tables for links, labels, commands, and artifacts
+
+**Key Change**: No separate database models - everything works with `core.types.Node` objects directly.
 
 #### Association Tables
 - **node_labels** - Many-to-many relationship between nodes and labels
@@ -36,8 +36,8 @@ tdw.init_database()  # Creates tables if they don't exist
 
 ```python
 # Create all tables
-from todowrite.database.models import Base, engine
-Base.metadata.create_all(engine)
+from todowrite.database.node_mapping import Base, create_database_tables, engine
+create_database_tables(engine)
 
 # Drop all tables (development only)
 Base.metadata.drop_all(engine)

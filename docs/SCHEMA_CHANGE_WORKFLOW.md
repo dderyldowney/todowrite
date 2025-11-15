@@ -11,10 +11,12 @@ This document establishes the standard workflow for making changes to the ToDoWr
 lib_package/src/todowrite/core/schemas/todowrite.schema.json
 ```
 
-### Database Models Location
+### Database Mapping Location
 ```bash
-lib_package/src/todowrite/database/models.py
+lib_package/src/todowrite/database/node_mapping.py
 ```
+
+**Note**: The unified Node architecture uses a simplified SQLAlchemy mapping that works directly with `core.types.Node`. There is no separate database model - the mapping is just a thin persistence layer.
 
 ### Type Definitions Location
 ```bash
@@ -67,13 +69,17 @@ class Metadata:
             raise ValueError(f"Invalid priority: {self.priority}")
 ```
 
-### Step 3: Update Database Models
+### Step 3: Update Database Mapping
 
-If changing the database schema, update `lib_package/src/todowrite/database/models.py`:
+If changing the database schema, update `lib_package/src/todowrite/database/node_mapping.py`:
 
 ```python
-class Node(Base):
-    """Represents a node in the ToDoWrite system."""
+class NodeTable(Base):
+    """Simple database table for Node storage.
+
+    This is just a thin persistence layer for core.types.Node.
+    All business logic stays in the core.types.Node.
+    """
 
     __tablename__ = "nodes"
 
