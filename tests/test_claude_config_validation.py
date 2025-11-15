@@ -127,6 +127,13 @@ class TestClaudeConfigValidation:
             "docs.astral.sh/ruff",
             "bandit.readthedocs.io",
             "conventionalcommits.org",
+            "docs.pytest.org/en/stable",
+            "docs.pypi.org",
+            "git-scm.com/docs",
+            "docs.github.com/en",
+            "packaging.python.org",
+            "tddbuddy.com/references/tdd-cycle.html",
+            "ibm.com/think/topics/test-driven-development",
         ]
 
         for site in authoritative_sites:

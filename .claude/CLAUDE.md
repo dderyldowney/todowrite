@@ -27,9 +27,14 @@ These mandates apply **at all times** with **zero exceptions**.
 - **Bandit**: https://bandit.readthedocs.io/en/latest/ (security scanning)
 - **Semantic Commits**: https://here-be-pythons.readthedocs.io/en/latest/git/semantic-commit-messages.html
 - **Conventional Commits**: https://www.conventionalcommits.org/en/v1.0.0/#specification
-- **Pytest**: https://docs.pytest.org (testing framework)
+- **Pytest**: https://docs.pytest.org/en/stable/ (testing framework)
+- **TestPyPI/PyPI**: https://docs.pypi.org/ (package publishing and distribution)
+- **Git**: https://git-scm.com/docs (version control operations)
+- **GitHub**: https://docs.github.com/en (platform-specific operations)
+- **Python Packaging**: https://packaging.python.org/en/latest/ (packaging standards and practices)
 - **SQLite**: https://sqlite.org/docs.html (database operations)
 - **PostgreSQL**: https://www.postgresql.org/docs/ (database operations)
+- **TDD Methodology**: https://tddbuddy.com/references/tdd-cycle.html and https://www.ibm.com/think/topics/test-driven-development (preferred references)
 - **NO ASSUMPTIONS**: Always verify syntax, semantics, and logic against authoritative sources
 - **CODE GENERATION**: Must reference current official documentation, not memory or assumptions
 - **TEST CREATION**: Must validate behavior against authoritative specifications
