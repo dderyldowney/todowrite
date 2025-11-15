@@ -303,6 +303,50 @@ class TestClaudeConfigValidation:
             assert principle in rule_12_content, \
                 f"Rule #12 must include {principle}"
 
+    def test_local_command_line_tools_rule(self) -> None:
+        """Test that Rule #10 enforces local command-line tools preference."""
+        config_path = Path(".claude/CLAUDE.md")
+        content = config_path.read_text()
+        lines = content.split("\n")
+
+        # Find Rule #10
+        rule_10_found = False
+        rule_10_content = ""
+        for i, line in enumerate(lines):
+            if line.strip().startswith("## 10."):
+                rule_10_found = True
+                # Get content of Rule #10 (until next rule or end)
+                rule_lines = [line]
+                for j in range(i + 1, len(lines)):
+                    if lines[j].strip().startswith("## "):
+                        break
+                    rule_lines.append(lines[j])
+                rule_10_content = "\n".join(rule_lines)
+                break
+
+        assert rule_10_found, "Rule #10 must exist"
+        assert "local command-line tools" in rule_10_content, \
+            "Rule #10 must be about local command-line tools"
+        assert "ALWAYS preferred" in rule_10_content, \
+            "Rule #10 must emphasize ALWAYS preferring local tools"
+
+        # Check for key local tool principles
+        local_tool_principles = [
+            "ALWAYS PREFER",
+            "NO LIMITATIONS",
+            "sed",
+            "awk",
+            "grep",
+            "jq",
+            "PIPELINES",
+            "EFFICIENCY",
+            "RELIABILITY"
+        ]
+
+        for principle in local_tool_principles:
+            assert principle in rule_10_content, \
+                f"Rule #10 must include {principle}"
+
     def test_working_directory_boundary_rule(self) -> None:
         """Test that Rule #15 clarifies working directory boundary for each project."""
         config_path = Path(".claude/CLAUDE.md")

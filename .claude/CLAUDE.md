@@ -78,8 +78,21 @@ These mandates apply **at all times** with **zero exceptions**.
 - Reuse existing context.
 - Produce small, efficient, incremental changes.
 
-## 10. Use local command-line tools
-- Prefer CLI utilities for all inspection and transformation tasks.
+## 10. Use local command-line tools - ALWAYS preferred over internal CLI tools
+- **ALWAYS PREFER**: Local command-line tools over internal CLI tools
+- **NO LIMITATIONS**: Not limited to the examples given - use appropriate tools
+- **Primary Examples**: `sed`, `awk`, `grep/greptool`, `jq`, `patch`, `cat`, `head`, `gperf`, `ls`, `rm`
+- **TEXT PROCESSING**: Use `sed`, `awk`, `grep` for text manipulation and searching
+- **JSON PROCESSING**: Use `jq` for JSON parsing, filtering, and transformation
+- **FILE OPERATIONS**: Use `cat`, `head`, `tail`, `ls`, `rm` for file inspection and management
+- **PATCH MANAGEMENT**: Use `patch` for applying and managing code changes
+- **PERFORMANCE**: Use `gperf` for perfect hash functions when needed
+- **PIPELINES**: Combine tools with pipes (`|`) for powerful multi-step operations
+- **SHELL SCRIPTING**: Prefer shell commands over Python scripts for simple operations
+- **DIRECT EXECUTION**: Use subprocess/system calls to execute local tools directly
+- **EFFICIENCY**: Local tools are typically faster and more resource-efficient than internal implementations
+- **RELIABILITY**: Well-tested system tools are more reliable than custom implementations
+- **STANDARDS**: Use POSIX-compliant tools for maximum portability
 
 ## 11. Simplicity over complexity - ALWAYS prefer
 - **ALWAYS** choose the simplest solution that works
