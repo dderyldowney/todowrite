@@ -15,6 +15,47 @@ class TestClaudeConfigValidation:
         config_path = Path(".claude/CLAUDE.md")
         assert config_path.exists(), ".claude/CLAUDE.md must exist"
 
+    def test_test_organization_rule(self) -> None:
+        """Test that Rule #8 emphasizes component and subsystem test organization."""
+        config_path = Path(".claude/CLAUDE.md")
+        content = config_path.read_text()
+        lines = content.split("\n")
+
+        # Find Rule #8
+        rule_8_found = False
+        rule_8_content = ""
+        for i, line in enumerate(lines):
+            if line.strip().startswith("## 8."):
+                rule_8_found = True
+                # Get content of Rule #8 (until next rule or end)
+                rule_lines = [line]
+                for j in range(i + 1, len(lines)):
+                    if lines[j].strip().startswith("## "):
+                        break
+                    rule_lines.append(lines[j])
+                rule_8_content = "\n".join(rule_lines)
+                break
+
+        assert rule_8_found, "Rule #8 must exist"
+        assert "component and subsystem" in rule_8_content, \
+            "Rule #8 must be about component and subsystem organization"
+        assert "SoC REQUIRED" in rule_8_content, \
+            "Rule #8 must require Separation of Concerns"
+
+        # Check for key test organization principles
+        test_organization_principles = [
+            "SEPARATION OF CONCERNS",
+            "NO MONOLITHIC FILES",
+            "COMPONENT-FIRST",
+            "SUBSYSTEM-SPECIFIC",
+            "MAINTAINABILITY",
+            "SCALABILITY"
+        ]
+
+        for principle in test_organization_principles:
+            assert principle in rule_8_content, \
+                f"Rule #8 must include {principle}"
+
     def test_claude_md_contains_documentation_loading_rule(self) -> None:
         """Test that CLAUDE.md contains mandatory documentation loading requirements."""
         config_path = Path(".claude/CLAUDE.md")

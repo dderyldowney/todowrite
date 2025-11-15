@@ -68,10 +68,23 @@ These mandates apply **at all times** with **zero exceptions**.
 - All production code must originate from a failing test.
 - No feature work or fixes happen without the test created first.
 
-## 8. Tests must be broken down by component and subsystem
-- Tests must be organized by:
-  - High-level **components**
-  - Lower-level **component subsystems**
+## 8. Tests must be broken down by component and subsystem - SoC REQUIRED
+- **SEPARATION OF CONCERNS**: SoC in both code AND tests is preferred
+- **COMPONENT ORGANIZATION**: Tests must be organized by high-level components
+- **SUBSYSTEM BREAKDOWN**: Each component's tests must be divided into subsystem tests
+- **NO MONOLITHIC FILES**: Never attempt to put all tests into a single file
+- **LOGICAL GROUPING**: Group related functionality tests together
+- **CLEAR BOUNDARIES**: Each test file should have a single, clear responsibility
+- **COMPONENT-FIRST**: Structure tests to mirror the component architecture
+- **SUBSYSTEM-SPECIFIC**: Create focused test files for each subsystem within components
+- **MAINTAINABILITY**: Smaller, focused test files are easier to maintain and understand
+- **SCALABILITY**: Component-based test structure scales better as projects grow
+- **NAVIGABILITY**: Developers can quickly find tests for specific functionality
+- **EXAMPLE STRUCTURE**:
+  - `tests/components/auth/` - Authentication component tests
+    - `test_login.py` - Login subsystem tests
+    - `test_registration.py` - Registration subsystem tests
+    - `test_token_management.py` - Token management subsystem tests
 
 ## 9. Agents MUST use the token-optimization system
 - Prefer local tools (`grep`, `rg`, `sed`, `awk`, `jq`, `greptool`) over long LLM reasoning.
