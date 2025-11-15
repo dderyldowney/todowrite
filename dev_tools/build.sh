@@ -51,6 +51,7 @@ show_usage() {
     echo "  format      Format code"
     echo "  validate    Validate build system configuration and packages"
     echo "  clean       Clean build artifacts"
+    echo "  status      Check build status of packages"
     echo "  dev         Full development workflow (install + format + lint + test)"
     echo "  release     Prepare release (build all packages)"
     echo "  help        Show this help message"
@@ -77,25 +78,25 @@ build_packages() {
         case "$package_name" in
             lib)
                 print_status "Building lib_package with hatchling in UV environment..."
-                uv run python -m build lib_package/
+                cd lib_package && uv run hatchling build && cd ..
                 print_success "Built lib_package"
                 ;;
             cli)
                 print_status "Building cli_package with hatchling in UV environment..."
-                uv run python -m build cli_package/
+                cd cli_package && uv run hatchling build && cd ..
                 print_success "Built cli_package"
                 ;;
             web)
                 print_status "Building web_package with hatchling in UV environment..."
-                uv run python -m build web_package/
+                cd web_package && uv run hatchling build && cd ..
                 print_success "Built web_package"
                 ;;
             all)
                 # Build all packages (explicit)
                 print_status "Building all packages with hatchling in UV environment..."
-                uv run python -m build lib_package/
-                uv run python -m build cli_package/
-                uv run python -m build web_package/
+                cd lib_package && uv run hatchling build && cd ..
+                cd cli_package && uv run hatchling build && cd ..
+                cd web_package && uv run hatchling build && cd ..
                 print_success "Built all packages"
                 ;;
             *)
@@ -107,9 +108,9 @@ build_packages() {
     else
         # Build all packages (default)
         print_status "Building all packages with hatchling in UV environment..."
-        uv run python -m build lib_package/
-        uv run python -m build cli_package/
-        uv run python -m build web_package/
+        cd lib_package && uv run hatchling build && cd ..
+        cd cli_package && uv run hatchling build && cd ..
+        cd web_package && uv run hatchling build && cd ..
         print_success "All packages built successfully"
     fi
 }
@@ -238,6 +239,7 @@ run_quality_gate() {
     fi
 
     print_success "Quality gate passed - Coverage threshold ${threshold}% met"
+    print_success "Coverage threshold ${threshold}% met"
     if [[ "$lint_exit_code" -eq 0 ]]; then
         print_success "Code quality checks passed"
     fi
@@ -337,6 +339,58 @@ prepare_release() {
     ls -la lib_package/dist/ cli_package/dist/ web_package/dist/ 2>/dev/null || true
 }
 
+show_status() {
+    local package_name="$1"
+
+    print_status "Checking package status..."
+
+    if [ -n "$package_name" ]; then
+        case "$package_name" in
+            lib)
+                print_status "lib_package status:"
+                if [ -d "lib_package/dist" ] && [ "$(ls -A lib_package/dist 2>/dev/null)" ]; then
+                    print_success "lib_package: Built packages available"
+                    ls -la lib_package/dist/
+                else
+                    print_warning "lib_package: No built packages found"
+                fi
+                ;;
+            cli)
+                print_status "cli_package status:"
+                if [ -d "cli_package/dist" ] && [ "$(ls -A cli_package/dist 2>/dev/null)" ]; then
+                    print_success "cli_package: Built packages available"
+                    ls -la cli_package/dist/
+                else
+                    print_warning "cli_package: No built packages found"
+                fi
+                ;;
+            web)
+                print_status "web_package status:"
+                if [ -d "web_package/dist" ] && [ "$(ls -A web_package/dist 2>/dev/null)" ]; then
+                    print_success "web_package: Built packages available"
+                    ls -la web_package/dist/
+                else
+                    print_warning "web_package: No built packages found"
+                fi
+                ;;
+            *)
+                print_error "Unknown package: $package_name"
+                print_status "Available packages: lib, cli, web"
+                exit 1
+                ;;
+        esac
+    else
+        print_status "All packages status:"
+        for pkg in lib cli web; do
+            if [ -d "${pkg}_package/dist" ] && [ "$(ls -A ${pkg}_package/dist 2>/dev/null)" ]; then
+                echo "  ${pkg}_package: ✅ Built"
+            else
+                echo "  ${pkg}_package: ❌ Not built"
+            fi
+        done
+    fi
+}
+
 # Main script logic
 case "${1:-help}" in
     install)
@@ -374,6 +428,9 @@ case "${1:-help}" in
         ;;
     release)
         prepare_release
+        ;;
+    status)
+        show_status "$2"
         ;;
     help|--help|-h)
         show_usage

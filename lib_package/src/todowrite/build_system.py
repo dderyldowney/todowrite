@@ -44,6 +44,14 @@ class PackageInfo:
     dist_path: Path
 
 
+@dataclass
+class HealthCheckResult:
+    """Result of a workspace health check."""
+
+    overall_status: str
+    checks: dict[str, bool]
+
+
 class BuildSystemValidator(ABC):
     """Abstract base for build system validators."""
 
@@ -407,6 +415,55 @@ class BuildManager:
             ]
 
         return dependencies
+
+    def health_check(self) -> HealthCheckResult:
+        """
+        Perform a comprehensive workspace health check.
+
+        Returns:
+            HealthCheckResult with overall status and detailed checks.
+        """
+        checks = {}
+
+        # Check if project root exists
+        checks["project_root_exists"] = self.project_root.exists()
+
+        # Check if essential files exist
+        checks["has_pyproject_toml"] = (
+            self.project_root / "pyproject.toml"
+        ).exists()
+        checks["has_version_file"] = (self.project_root / "VERSION").exists()
+        checks["has_build_script"] = (
+            self.project_root / "dev_tools" / "build.sh"
+        ).exists()
+
+        # Check if packages exist
+        checks["lib_package_exists"] = (
+            self.project_root / "lib_package"
+        ).exists()
+        checks["cli_package_exists"] = (
+            self.project_root / "cli_package"
+        ).exists()
+        checks["web_package_exists"] = (
+            self.project_root / "web_package"
+        ).exists()
+
+        # Check workspace configuration
+        try:
+            validation = self.validate_configuration()
+            checks["workspace_config_valid"] = validation.is_valid
+        except Exception:
+            checks["workspace_config_valid"] = False
+
+        # Determine overall status
+        if all(checks.values()):
+            overall_status = "healthy"
+        elif any(checks.values()):
+            overall_status = "degraded"
+        else:
+            overall_status = "unhealthy"
+
+        return HealthCheckResult(overall_status=overall_status, checks=checks)
 
     def __repr__(self) -> str:
         """Repr representation of BuildManager."""
