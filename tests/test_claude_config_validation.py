@@ -362,11 +362,15 @@ class TestClaudeConfigValidation:
         natural_language_principles = [
             "APPLIES TO",
             "Both production code AND test code",
+            "FULL TYPING REQUIRED",
+            "NATURAL CONSTRUCTS",
             "CONVERSATIONAL NAMING",
             "NATURAL FLOW",
+            "CONTEXTUAL FUNCTIONALITY",
             "SELF-DOCUMENTING",
             "READABLE TESTS",
-            "NO TECHNICAL JARGON"
+            "NO TECHNICAL JARGON",
+            "AGENT RESPONSIBILITY"
         ]
 
         for principle in natural_language_principles:
