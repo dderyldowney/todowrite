@@ -123,6 +123,8 @@ class TestClaudeConfigValidation:
         # Check for specific authoritative sites
         authoritative_sites = [
             "python.org",
+            "docs.python.org/3/library/typing.html",
+            "docs.python.org/3/library/asyncio.html",
             "docs.astral.sh/uv",
             "docs.astral.sh/ruff",
             "bandit.readthedocs.io",
