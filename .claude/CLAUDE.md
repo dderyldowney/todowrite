@@ -80,11 +80,28 @@ These mandates apply **at all times** with **zero exceptions**.
 - **MAINTAINABILITY**: Smaller, focused test files are easier to maintain and understand
 - **SCALABILITY**: Component-based test structure scales better as projects grow
 - **NAVIGABILITY**: Developers can quickly find tests for specific functionality
-- **EXAMPLE STRUCTURE**:
-  - `tests/components/auth/` - Authentication component tests
-    - `test_login.py` - Login subsystem tests
-    - `test_registration.py` - Registration subsystem tests
-    - `test_token_management.py` - Token management subsystem tests
+- **DIRECTORY STRUCTURE EXAMPLES** (not exhaustive):
+  ```
+  tests/
+  ├── lib/                          # Core library tests
+  │   ├── models/                   # Data model tests
+  │   ├── api/                      # API interface tests
+  │   ├── database/                 # Database layer tests
+  │   └── schema/                   # Schema validation tests
+  ├── cli/                          # Command-line interface tests
+  ├── web/                          # Web application tests
+  │   ├── models/                   # Web data models
+  │   ├── frontend/
+  │   │   └── api/                  # Frontend API tests
+  │   └── backend/
+  │       └── api/                  # Backend API tests
+  ├── features/                     # Feature-based tests
+  │   ├── feature1/                 # Specific feature tests
+  │   └── scenarios/
+  │       └── scenario1/            # Test scenario groupings
+  ├── unittests/                    # Unit test collections
+  └── shared/                       # Shared test utilities and fixtures
+  ```
 
 ## 9. Agents MUST use the token-optimization system
 - Prefer local tools (`grep`, `rg`, `sed`, `awk`, `jq`, `greptool`) over long LLM reasoning.
