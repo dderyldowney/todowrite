@@ -42,37 +42,53 @@ These mandates apply **at all times** with **zero exceptions**.
 - **CODE GENERATION**: Must reference current official documentation, not memory or assumptions
 - **TEST CREATION**: Must validate behavior against authoritative specifications
 
-## 4. Test-Driven Development only (Red → Green → Refactor)
+## 4. NEVER fake code - write REAL implementations only
+- **NEVER** use 'pass', '...', 'raise NotImplementedError', or placeholder code
+- **NEVER** write fake implementations just to pass tests
+- **ALWAYS** write actual, functional implementation code when writing code
+- **NO TRICKS**: No clever hacks, workarounds, or test-cheating techniques
+- **REAL BEHAVIOR**: Code must actually do what it's supposed to do
+- **PROPER FUNCTIONALITY**: Implementation must solve the real problem, not just satisfy test assertions
+
+## 5. ALWAYS test actual implementation - REAL testing only
+- **ALWAYS** test the actual implementation, not fake/test doubles
+- **REAL INTERACTIONS**: Tests must exercise real functionality
+- **NO MOCKING**: This rule reinforces Rule #1 - no mocking of any kind
+- **INTEGRATION FOCUS**: Test how components actually work together
+- **VERIFIABLE BEHAVIOR**: Tests must verify real, observable behavior
+- **END-TO-END VALIDATION**: Prefer testing complete workflows over isolated pieces
+
+## 6. Test-Driven Development only (Red → Green → Refactor)
 - Strict Red → Green → Refactor workflow:
   1. Write a failing test (**Red**).
   2. Implement the **minimal** code needed to pass (**Green**).
   3. Clean up with tests still passing (**Refactor**).
 
-## 5. No code without tests FIRST
+## 7. No code without tests FIRST
 - All production code must originate from a failing test.
 - No feature work or fixes happen without the test created first.
 
-## 6. Tests must be broken down by component and subsystem
+## 8. Tests must be broken down by component and subsystem
 - Tests must be organized by:
   - High-level **components**
   - Lower-level **component subsystems**
 
-## 7. Agents MUST use the token-optimization system
+## 9. Agents MUST use the token-optimization system
 - Prefer local tools (`grep`, `rg`, `sed`, `awk`, `jq`, `greptool`) over long LLM reasoning.
 - Reuse existing context.
 - Produce small, efficient, incremental changes.
 
-## 8. Use local command-line tools
+## 10. Use local command-line tools
 - Prefer CLI utilities for all inspection and transformation tasks.
 
-## 9. Simplicity over complexity - ALWAYS prefer
+## 11. Simplicity over complexity - ALWAYS prefer
 - **ALWAYS** choose the simplest solution that works
 - **NO OVER-ENGINEERING**: Avoid unnecessary complexity, abstraction, or indirection
 - **DIRECT SOLUTIONS**: Favor straightforward, explicit, clear approaches
 - **MINIMAL DEPENDENCIES**: Use only what's necessary to solve the problem
 - **READABILITY FIRST**: If complexity is unavoidable, prioritize readability over cleverness
 
-## 10. Code must read like natural language - ALWAYS write naturally
+## 12. Code must read like natural language - ALWAYS write naturally
 - **ALWAYS** write code that reads like human conversation
 - **CONVERSATIONAL NAMING**: Use names that tell a story (user_authenticates, not auth)
 - **NATURAL FLOW**: Code should read like sentences, not puzzles
@@ -81,7 +97,7 @@ These mandates apply **at all times** with **zero exceptions**.
 - **HELPFUL DOCSTRINGS**: Write documentation that speaks to humans
 - **TESTS TOO**: Tests must also read like natural language, not technical specifications
 
-## 11. FULL TYPE HINTING & TYPE ANNOTATIONS REQUIRED
+## 13. FULL TYPE HINTING & TYPE ANNOTATIONS REQUIRED
 - All code must include complete type hints:
   - Typed `self`
   - Typed parameters
@@ -89,18 +105,18 @@ These mandates apply **at all times** with **zero exceptions**.
   - Typed attributes
   - No implicit `Any`
 
-## 12. Agents MUST read `AGENT_STARTUP.md` before beginning any development work
+## 14. Agents MUST read `AGENT_STARTUP.md` before beginning any development work
 - Contains essential tooling configuration and startup checklist
 - Defines UV, Ruff, Bandit, and build system requirements
 - Specifies correct workflows and prohibited direct tool usage
 
-# 13. Working Directory Boundary
+# 15. Working Directory Boundary
 
 - **Root Directory**: `./` refers to `/Users/dderyldowney/Documents/GitHub/dderyldowney/todowrite`
 - **ALL operations must be confined within this directory structure**
 - **NO operations outside the project root directory**
 
-# 14. Monorepo Structure
+# 16. Monorepo Structure
 
 ```
 $project_root/
@@ -112,7 +128,7 @@ $project_root/
 └── web_package/   # planning only
 ```
 
-# 15. Tooling & Environment Rules
+# 17. Tooling & Environment Rules
 
 - `uv` for environments
 - `ruff` for formatting, linting, basic security
