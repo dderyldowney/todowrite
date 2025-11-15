@@ -112,9 +112,13 @@ These mandates apply **at all times** with **zero exceptions**.
 
 # 15. Working Directory Boundary
 
-- **Root Directory**: `./` refers to `/Users/dderyldowney/Documents/GitHub/dderyldowney/todowrite`
-- **ALL operations must be confined within this directory structure**
-- **NO operations outside the project root directory**
+- **Root Directory**: `./` refers to the current project's root directory
+- **Project Context**: Each project has its own root directory boundary
+  - Example: For `afs_fastapi` project: `~/Documentation/GitHub/dderyldowney/afs_fastapi/`
+  - Example: For this `todowrite` project: `~/Documentation/GitHub/dderyldowney/todowrite/`
+- **Boundary Rule**: ALL operations must be confined within the current project's directory structure
+- **NO CROSS-PROJECT**: Never operate outside the current project's root directory
+- **RESPECT BOUNDARIES**: Honor each project's working directory boundary independently
 
 # 16. Monorepo Structure
 

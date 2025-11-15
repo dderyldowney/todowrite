@@ -303,6 +303,44 @@ class TestClaudeConfigValidation:
             assert principle in rule_12_content, \
                 f"Rule #12 must include {principle}"
 
+    def test_working_directory_boundary_rule(self) -> None:
+        """Test that Rule #15 clarifies working directory boundary for each project."""
+        config_path = Path(".claude/CLAUDE.md")
+        content = config_path.read_text()
+        lines = content.split("\n")
+
+        # Find Rule #15 section
+        boundary_section_found = False
+        boundary_content = ""
+        in_boundary_section = False
+
+        for line in lines:
+            if "# 15. Working Directory Boundary" in line:
+                boundary_section_found = True
+                in_boundary_section = True
+                boundary_content = line
+                continue
+            elif in_boundary_section:
+                if line.startswith("# ") and "Working Directory Boundary" not in line:
+                    break
+                boundary_content += "\n" + line
+
+        assert boundary_section_found, "Working Directory Boundary section must exist"
+
+        # Check for key boundary principles
+        boundary_principles = [
+            "current project's root directory",
+            "Each project has its own root directory boundary",
+            "afs_fastapi",
+            "todowrite",
+            "NO CROSS-PROJECT",
+            "RESPECT BOUNDARIES"
+        ]
+
+        for principle in boundary_principles:
+            assert principle in boundary_content, \
+                f"Working Directory Boundary must include {principle}"
+
     def test_rule_numbering_consistency(self) -> None:
         """Test that rule numbering is consistent without gaps."""
         config_path = Path(".claude/CLAUDE.md")
