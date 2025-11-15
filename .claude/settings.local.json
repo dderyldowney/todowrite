@@ -98,7 +98,8 @@
       "Bash(/.hooks/alembic-enforcer.py:*)",
       "Bash(TODOWRITE_DATABASE_URL=\"sqlite:///tmp/todowrite_todowrite_testing.db\" uv run pytest:*)",
       "Bash(echo:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(PYTHONPATH=lib_package/src uv run python:*)"
     ]
   },
   "project": {
