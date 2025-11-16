@@ -1,0 +1,172 @@
+{
+  "enforcement_level": "moderate",
+  "scope_required": false,
+  "case_sensitive": false,
+  "semantic_scopes": {
+    "lib": {
+      "description": "Core todowrite library",
+      "patterns": [
+        "lib_package/",
+        "src/todowrite/",
+        "todowrite/"
+      ],
+      "file_types": [
+        ".py"
+      ],
+      "enforce": true
+    },
+    "cli": {
+      "description": "Command-line interface",
+      "patterns": [
+        "cli_package/",
+        "src/todowrite_cli/",
+        "todowrite_cli/"
+      ],
+      "file_types": [
+        ".py",
+        ".md"
+      ],
+      "enforce": true
+    },
+    "web": {
+      "description": "Web interface",
+      "patterns": [
+        "web_package/",
+        "src/todowrite_web/",
+        "todowrite_web/"
+      ],
+      "file_types": [
+        ".py",
+        ".js",
+        ".html",
+        ".css",
+        ".md"
+      ],
+      "enforce": true
+    },
+    "tests": {
+      "description": "Test suite and testing infrastructure",
+      "patterns": [
+        "tests/",
+        "test_",
+        "_test.py"
+      ],
+      "file_types": [
+        ".py"
+      ],
+      "enforce": true
+    },
+    "docs": {
+      "description": "Documentation",
+      "patterns": [
+        "docs/",
+        "*.md",
+        "README*",
+        "CHANGELOG*"
+      ],
+      "file_types": [
+        ".md",
+        ".rst",
+        ".txt"
+      ],
+      "enforce": true
+    },
+    "build": {
+      "description": "Build system and packaging",
+      "patterns": [
+        "pyproject.toml",
+        "setup.py",
+        "Makefile",
+        "Dockerfile",
+        "docker-compose*",
+        "build/",
+        "dist/"
+      ],
+      "file_types": [
+        ".toml",
+        ".yaml",
+        ".yml",
+        ".json",
+        ".dockerfile"
+      ],
+      "enforce": true
+    },
+    "config": {
+      "description": "Configuration files and settings",
+      "patterns": [
+        ".pre-commit-config.yaml",
+        "commitlint.config.js",
+        ".env*",
+        "*.ini",
+        "*.cfg",
+        "config/"
+      ],
+      "file_types": [
+        ".yaml",
+        ".yml",
+        ".js",
+        ".json",
+        ".ini"
+      ],
+      "enforce": true
+    },
+    "ci": {
+      "description": "Continuous integration and deployment",
+      "patterns": [
+        ".github/",
+        ".gitlab-ci.yml",
+        ".circleci/"
+      ],
+      "file_types": [
+        ".yml",
+        ".yaml"
+      ],
+      "enforce": true
+    },
+    "deps": {
+      "description": "Dependencies and requirements",
+      "patterns": [
+        "requirements*",
+        "poetry.lock",
+        "Pipfile*"
+      ],
+      "file_types": [
+        ".txt",
+        ".lock",
+        ".toml"
+      ],
+      "enforce": true
+    }
+  },
+  "conventional_types": [
+    "feat",
+    "fix",
+    "docs",
+    "style",
+    "refactor",
+    "perf",
+    "test",
+    "build",
+    "ci",
+    "chore",
+    "revert"
+  ],
+  "scope_mapping": {
+    "lib_package/": "lib",
+    "src/todowrite/": "lib",
+    "cli_package/": "cli",
+    "src/todowrite_cli/": "cli",
+    "web_package/": "web",
+    "src/todowrite_web/": "web",
+    "tests/": "tests",
+    "docs/": "docs",
+    ".github/": "ci"
+  },
+  "scope_validators": {
+    "type_pattern": "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)",
+    "scope_pattern": "^[a-z][a-z0-9_-]*$",
+    "max_scope_length": 20,
+    "min_subject_length": 5,
+    "max_subject_length": 100
+  }
+}
