@@ -441,6 +441,16 @@ build(schema): generate updated todowrite.schema.json
 chore(config): update import organization standards
 ```
 
+### Extended Commit Message Format with Body
+
+For more detailed commits, use this exact pattern:
+
+```
+chore(config): <Short description goes here>
+
+Full description goes here for as long as needed.
+```
+
 ### Examples of INCORRECT Format
 
 ```bash
