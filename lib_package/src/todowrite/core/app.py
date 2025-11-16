@@ -25,11 +25,11 @@ from __future__ import annotations
 
 import json
 import logging
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
 import jsonschema
-from collections.abc import Iterator
 from sqlalchemy import Engine
 
 from ..storage import (
