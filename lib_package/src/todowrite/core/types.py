@@ -450,7 +450,8 @@ class ActiveCollection:
         Determine if we should use optimized JOIN queries or simple queries.
 
         Returns:
-            True for large datasets (optimized JOIN), False for small datasets (simple queries)
+            True for large datasets (optimized JOIN),
+            False for small datasets (simple queries)
         """
         # Quick count check to determine dataset size
         count_query = (
@@ -490,7 +491,7 @@ class ActiveCollection:
             )
             nodes = self.session.execute(nodes_query).scalars().all()
         else:
-            # Small dataset: Use simple separate queries (faster for < 20 items)
+            # Small dataset: Use simple separate queries (faster for <20 items)
             # This avoids JOIN overhead for small datasets
             association_query = select(
                 self.association_table.c[self.child_col]
@@ -518,7 +519,7 @@ class ActiveCollection:
         if not self.session:
             raise RuntimeError("No database session configured")
 
-        # Simple count query - no JOIN needed since we're just counting relationships
+        # Simple count query - no JOIN needed for counting relationships
         count_query = (
             select(func.count())
             .select_from(self.association_table)
@@ -641,7 +642,7 @@ class ActiveCollection:
 
         if parent_child_key in self.parent_to_child_mappings:
             # Use the mapped columns for this specific parent-child relationship
-            table, parent_col, child_col = self.parent_to_child_mappings[
+            _table, parent_col, child_col = self.parent_to_child_mappings[
                 parent_child_key
             ]
             insert_values = {parent_col: parent.id, child_col: child.id}
@@ -1316,7 +1317,7 @@ class Node(Base):
         # Different databases have different syntax for INSERT OR IGNORE
         # For SQLite: INSERT OR IGNORE
         # For PostgreSQL: INSERT ... ON CONFLICT DO NOTHING
-        if hasattr(insert_stmt.prefix_with, "__call__"):
+        if callable(insert_stmt.prefix_with):
             insert_stmt = insert_stmt.prefix_with("OR IGNORE")
         else:
             # SQLAlchemy 2.0+ style
@@ -1480,7 +1481,7 @@ class Node(Base):
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Node":
+    def from_dict(cls, data: dict[str, Any]) -> Node:
         """Create a Node instance from a dictionary."""
         # Extract required fields
         node_id = data.get("id")
@@ -1488,7 +1489,9 @@ class Node(Base):
         title = data.get("title")
 
         if not node_id or not layer or not title:
-            raise ValueError("Node data must contain 'id', 'layer', and 'title' fields")
+            raise ValueError(
+                "Node data must contain 'id', 'layer', and 'title' fields"
+            )
 
         # Extract optional fields
         description = data.get("description", "")
@@ -1517,7 +1520,7 @@ class Node(Base):
             owner=owner,
             severity=severity,
             work_type=work_type,
-            assignee=assignee
+            assignee=assignee,
         )
 
     def is_completed(self) -> bool:
@@ -1528,8 +1531,8 @@ class Node(Base):
         """Check if node is actively being worked on."""
         return self.status in ("planned", "in_progress")
 
-    def add_parent(self, parent_id: str) -> None:
-        """Add a parent relationship."""
+    def add_parent_id(self, parent_id: str) -> None:
+        """Add a parent relationship by ID."""
         if parent_id not in self.links.parents:
             self.links.parents.append(parent_id)
 

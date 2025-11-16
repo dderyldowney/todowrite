@@ -26,7 +26,7 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import jsonschema
 
@@ -40,6 +40,11 @@ from ..storage import (
 )
 from ..storage.schema_validator import validate_database_schema
 from .types import Node
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from sqlalchemy import Engine
 
 logger = logging.getLogger(__name__)
 
@@ -70,8 +75,8 @@ class ToDoWrite:
         Initialize the ToDoWrite application with a storage backend.
 
         Args:
-            database_url: Storage backend URL (e.g., 'postgresql://...', 'sqlite://...',
-                         or file path)
+            database_url: Storage backend URL (e.g., 'postgresql://...', 'sqlite://...', or
+                          file path)
             auto_import: Whether to auto-import YAML files on initialization
         """
         self.database_url = database_url
@@ -131,17 +136,26 @@ class ToDoWrite:
                 logger.error(error_msg)
 
     def init_database(self) -> None:
-        """Public method to initialize database schema (wrapper for compatibility)."""
+        """Public method to initialize database schema.
+
+        Wrapper for compatibility.
+        """
         self._initialize_database_schema()
 
-    def get_db_session(self):
-        """Get database session from storage backend (for compatibility with tests)."""
+    def get_db_session(self) -> Iterator[Any]:
+        """Get database session from storage backend.
+
+        For compatibility with tests.
+        """
         return self.storage._get_session()
 
     @property
-    def engine(self):
-        """Get database engine from storage backend (for compatibility with schema validation)."""
-        return getattr(self.storage, 'engine', None)
+    def engine(self) -> Engine | None:
+        """Get database engine from storage backend.
+
+        For compatibility with schema validation.
+        """
+        return getattr(self.storage, "engine", None)
 
     def _auto_import_yaml_files(self) -> None:
         """Auto-import YAML files if configured and using database backend."""

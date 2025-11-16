@@ -38,11 +38,14 @@ class YAMLManager:
         """Initialize YAML Manager."""
         if todowrite_app is None:
             # Lazy import to avoid circular dependency
-            from ..core import ToDoWrite
             import os
 
+            from ..core import ToDoWrite
+
             # Use environment variable or default to SQLite
-            db_url = os.environ.get("TODOWRITE_DATABASE_URL", "sqlite:///todowrite.db")
+            db_url = os.environ.get(
+                "TODOWRITE_DATABASE_URL", "sqlite:///todowrite.db"
+            )
             self.app = ToDoWrite(db_url)
         else:
             self.app = todowrite_app

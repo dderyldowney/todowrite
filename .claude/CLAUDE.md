@@ -5,13 +5,15 @@ These mandates apply **at all times** with **zero exceptions**.
 
 ---
 
-# Core Mandates (Must ALWAYS Be Followed)
+## Core Mandates (Must ALWAYS Be Followed)
 
 ## 1. No mocking allowed, ever
+
 - No mocks, stubs, fakes, or any test double.
 - Tests must use real implementations or real in-memory components shared with production.
 
 ## 2. Agents MUST read and load documentation files IN ORDER on startup and across '/clear'
+
 - **FIRST**: Read `.claude/CLAUDE.md` (this file)
 - **SECOND**: Read `docs/ToDoWrite.md` to understand project structure
 - **THIRD**: Read `BUILD_SYSTEM.md` to understand build requirements
@@ -21,31 +23,33 @@ These mandates apply **at all times** with **zero exceptions**.
 - **AFTER '/quit'**: Re-load all three files IN ORDER in new session before any other work
 
 ## 3. Authoritative sources have final say - MUST be consulted
-- **Python**: https://python.org (official), https://docs.python.org/3/library/typing.html (typing), and https://docs.python.org/3/library/asyncio.html (async programming)
-- **UV**: https://docs.astral.sh/uv (package management and environments)
-- **Ruff**: https://docs.astral.sh/ruff (linting, formatting, security)
-- **Bandit**: https://bandit.readthedocs.io/en/latest/ (security scanning)
-- **Semantic Commits**: https://here-be-pythons.readthedocs.io/en/latest/git/semantic-commit-messages.html
-- **Conventional Commits**: https://www.conventionalcommits.org/en/v1.0.0/#specification
-- **Pytest**: https://docs.pytest.org/en/stable/ (testing framework)
-- **TestPyPI/PyPI**: https://docs.pypi.org/ (package publishing and distribution)
-- **Git**: https://git-scm.com/docs (version control operations)
-- **GitHub**: https://docs.github.com/en (platform-specific operations)
-- **Python Packaging**: https://packaging.python.org/en/latest/ (packaging standards and practices)
-- **SQLite3**: https://docs.python.org/3/library/sqlite3.html and https://sqlite.org/docs.html (database operations)
-- **PostgreSQL**: https://www.postgresql.org/docs/current/ (database operations)
-- **YAML**: https://yaml.org/spec/1.2.2/ (data serialization format)
-- **Hatchling**: https://pypi.org/project/hatchling/ (build system - see Documentation links)
-- **Twine**: https://twine-bhrutledge.readthedocs.io/en/stable/ (PyPI publishing tool)
-- **TDD Methodology**: https://tddbuddy.com/references/tdd-cycle.html and https://www.ibm.com/think/topics/test-driven-development (preferred references)
-- **Ruby on Rails**: https://guides.rubyonrails.org/ (official Rails guides for Active Record patterns)
-- **Rails ActiveRecord API**: https://api.rubyonrails.org/classes/ActiveRecord/Associations/ClassMethods.html (ActiveRecord association methods and patterns)
-- **Rails Association Basics**: https://guides.rubyonrails.org/association_basics.html (Rails has_many, belongs_to, collection methods)
+
+- **Python**: <https://python.org> (official), <https://docs.python.org/3/library/typing.html> (typing), and <https://docs.python.org/3/library/asyncio.html> (async programming)
+- **UV**: <https://docs.astral.sh/uv> (package management and environments)
+- **Ruff**: <https://docs.astral.sh/ruff> (linting, formatting, security)
+- **Bandit**: <https://bandit.readthedocs.io/en/latest/> (security scanning)
+- **Semantic Commits**: <https://here-be-pythons.readthedocs.io/en/latest/git/semantic-commit-messages.html>
+- **Conventional Commits**: <https://www.conventionalcommits.org/en/v1.0.0/#specification>
+- **Pytest**: <https://docs.pytest.org/en/stable/> (testing framework)
+- **TestPyPI/PyPI**: <https://docs.pypi.org/> (package publishing and distribution)
+- **Git**: <https://git-scm.com/docs> (version control operations)
+- **GitHub**: <https://docs.github.com/en> (platform-specific operations)
+- **Python Packaging**: <https://packaging.python.org/en/latest/> (packaging standards and practices)
+- **SQLite3**: <https://docs.python.org/3/library/sqlite3.html> and <https://sqlite.org/docs.html> (database operations)
+- **PostgreSQL**: <https://www.postgresql.org/docs/current/> (database operations)
+- **YAML**: <https://yaml.org/spec/1.2.2/> (data serialization format)
+- **Hatchling**: <https://pypi.org/project/hatchling/> (build system - see Documentation links)
+- **Twine**: <https://twine-bhrutledge.readthedocs.io/en/stable/> (PyPI publishing tool)
+- **TDD Methodology**: <https://tddbuddy.com/references/tdd-cycle.html> and <https://www.ibm.com/think/topics/test-driven-development> (preferred references)
+- **Ruby on Rails**: <https://guides.rubyonrails.org/> (official Rails guides for Active Record patterns)
+- **Rails ActiveRecord API**: <https://api.rubyonrails.org/classes/ActiveRecord/Associations/ClassMethods.html> (ActiveRecord association methods and patterns)
+- **Rails Association Basics**: <https://guides.rubyonrails.org/association_basics.html> (Rails has_many, belongs_to, collection methods)
 - **NO ASSUMPTIONS**: Always verify syntax, semantics, and logic against authoritative sources
 - **CODE GENERATION**: Must reference current official documentation, not memory or assumptions
 - **TEST CREATION**: Must validate behavior against authoritative specifications
 
 ## 4. TRIPLE-CHECK before modifying - understand existing architecture FIRST
+
 - **NEVER** modify architecture without fully understanding existing system
 - **ALWAYS** cross-verify changes don't break existing relationships/patterns
 - **RESEARCH thoroughly** before changing core data models, relationships, or imports
@@ -55,6 +59,7 @@ These mandates apply **at all times** with **zero exceptions**.
 - **TEST** both creation patterns AND database-loaded object patterns
 
 ## 5. NEVER fake code - write REAL implementations only
+
 - **NEVER** use 'pass', '...', 'raise NotImplementedError', or placeholder code
 - **NEVER** write fake implementations just to pass tests
 - **ALWAYS** write actual, functional implementation code when writing code
@@ -63,6 +68,7 @@ These mandates apply **at all times** with **zero exceptions**.
 - **PROPER FUNCTIONALITY**: Implementation must solve the real problem, not just satisfy test assertions
 
 ## 6. NO GENERIC EXCEPTIONS - Use Specific Exception Types
+
 - **NEVER** use generic `except Exception:` - MUST catch specific exception types
 - **ALWAYS** identify and catch the specific exception types that can occur
 - **MUST** handle ValueError, KeyError, AttributeError, TypeError, etc. specifically
@@ -73,7 +79,8 @@ These mandates apply **at all times** with **zero exceptions**.
   - ✅ `except (ValueError, KeyError) as e:`
   - ❌ `except Exception as e:`
 
-## 6. ALWAYS test actual implementation - REAL testing only
+## 7. ALWAYS test actual implementation - REAL testing only
+
 - **ALWAYS** test the actual implementation, not fake/test doubles
 - **REAL INTERACTIONS**: Tests must exercise real functionality
 - **NO MOCKING**: This rule reinforces Rule #1 - no mocking of any kind
@@ -81,17 +88,20 @@ These mandates apply **at all times** with **zero exceptions**.
 - **VERIFIABLE BEHAVIOR**: Tests must verify real, observable behavior
 - **END-TO-END VALIDATION**: Prefer testing complete workflows over isolated pieces
 
-## 7. Test-Driven Development only (Red → Green → Refactor)
+## 8. Test-Driven Development only (Red → Green → Refactor)
+
 - Strict Red → Green → Refactor workflow:
   1. Write a failing test (**Red**).
   2. Implement the **minimal** code needed to pass (**Green**).
   3. Clean up with tests still passing (**Refactor**).
 
-## 8. No code without tests FIRST
+## 9. No code without tests FIRST
+
 - All production code must originate from a failing test.
 - No feature work or fixes happen without the test created first.
 
-## 9. Tests must be broken down by component and subsystem - SoC REQUIRED
+## 10. Tests must be broken down by component and subsystem - SoC REQUIRED
+
 - **SEPARATION OF CONCERNS**: SoC in both code AND tests is preferred
 - **COMPONENT ORGANIZATION**: Tests must be organized by high-level components
 - **SUBSYSTEM BREAKDOWN**: Each component's tests must be divided into subsystem tests
@@ -103,8 +113,9 @@ These mandates apply **at all times** with **zero exceptions**.
 - **MAINTAINABILITY**: Smaller, focused test files are easier to maintain and understand
 - **SCALABILITY**: Component-based test structure scales better as projects grow
 - **NAVIGABILITY**: Developers can quickly find tests for specific functionality
-- **DIRECTORY STRUCTURE EXAMPLES** (not exhaustive):
-  ```
+-- **DIRECTORY STRUCTURE EXAMPLES** (not exhaustive):
+
+  ```text
   tests/
   ├── lib/                          # todowrite package tests
   │   ├── models/                   # Data model tests
@@ -125,12 +136,14 @@ These mandates apply **at all times** with **zero exceptions**.
   ├── unittests/                    # Unit test collections
   └── shared/                       # Shared test utilities and fixtures
   ```
+
 - **MONOREPO PACKAGE MAPPING**:
   - `lib/` → `todowrite` package tests
   - `cli/` → `todowrite_cli` package tests
   - `web/` → `todowrite_web` package tests
 
-## 10. MINIMIZE DATABASE CALLS - Optimize for performance
+## 11. MINIMIZE DATABASE CALLS - Optimize for performance
+
 - **NEVER** make redundant database calls that could be combined
 - **ALWAYS** batch operations when possible to minimize round trips
 - **THINK** about database efficiency: one query vs multiple queries
@@ -143,7 +156,8 @@ These mandates apply **at all times** with **zero exceptions**.
 - Reuse existing context.
 - Produce small, efficient, incremental changes.
 
-## 11. Agents MUST use the token-optimization system
+## 12. Agents MUST use the token-optimization system
+
 - **ALWAYS PREFER**: Local command-line tools over internal CLI tools
 - **NO LIMITATIONS**: Not limited to the examples given - use appropriate tools
 - **Primary Examples**: `sed`, `awk`, `grep/greptool`, `jq`, `patch`, `cat`, `head`, `gperf`, `ls`, `rm`
@@ -159,14 +173,16 @@ These mandates apply **at all times** with **zero exceptions**.
 - **RELIABILITY**: Well-tested system tools are more reliable than custom implementations
 - **STANDARDS**: Use POSIX-compliant tools for maximum portability
 
-## 12. Use local command-line tools - ALWAYS preferred over internal CLI tools
+## 13. Use local command-line tools - ALWAYS preferred over internal CLI tools
+
 - **ALWAYS** choose the simplest solution that works
 - **NO OVER-ENGINEERING**: Avoid unnecessary complexity, abstraction, or indirection
 - **DIRECT SOLUTIONS**: Favor straightforward, explicit, clear approaches
 - **MINIMAL DEPENDENCIES**: Use only what's necessary to solve the problem
 - **READABILITY FIRST**: If complexity is unavoidable, prioritize readability over cleverness
 
-## 13. Simplicity over complexity - ALWAYS prefer
+## 14. Simplicity over complexity - ALWAYS prefer
+
 - **ALWAYS** write code that reads like human conversation
 - **APPLIES TO**: Both production code AND test code - no exceptions
 - **FULL TYPING REQUIRED**: All generated code must include complete type hints
@@ -181,27 +197,103 @@ These mandates apply **at all times** with **zero exceptions**.
 - **NO TECHNICAL JARGON**: Avoid overly technical descriptions unless absolutely necessary
 - **AGENT RESPONSIBILITY**: AI-generated code must be production-ready with full typing
 
-## 14. Code AND Tests must read like natural language - ALWAYS write naturally
-- All code must include complete type hints:
-  - Typed `self`
-  - Typed parameters
-  - Typed returns
-  - Typed attributes
-  - No implicit `Any`
+## 15. Code AND Tests must read like natural language - ALWAYS write naturally
 
-## 15. FULL TYPE HINTING & TYPE ANNOTATIONS REQUIRED
-- Contains comprehensive project documentation and API references
-- Updated with latest monorepo structure and testing organization
-- Defines key principles: TDD, no mocking, component organization, authoritative sources
-- Specifies database-first architecture with auto-import functionality
-- Includes installation, usage, and development guidelines
+- **ALWAYS** write code that reads like human conversation
+- **APPLIES TO**: Both production code AND test code - no exceptions
+- **FULL TYPING REQUIRED**: All generated code must include complete type hints
+- **NATURAL CONSTRUCTS**: Use clear, readable code patterns and flow
+- **CONVERSATIONAL NAMING**: Use names that tell a story (user_authenticates, not auth)
+- **NATURAL FLOW**: Code should read like sentences, not puzzles
+- **CONTEXTUAL FUNCTIONALITY**: Code should follow natural business logic flow
+- **SELF-DOCUMENTING**: Code should explain itself without excessive comments
+- **CLEAR LOGIC**: Each line should have an obvious purpose
+- **HELPFUL DOCSTRINGS**: Write documentation that speaks to humans
+- **READABLE TESTS**: Test names and content should describe behavior in plain language
+- **NO TECHNICAL JARGON**: Avoid overly technical descriptions unless absolutely necessary
+- **AGENT RESPONSIBILITY**: AI-generated code must be production-ready with full typing
 
-## 16. Agents MUST read `docs/ToDoWrite.md` before beginning any development work
-- Contains essential tooling configuration and startup checklist
-- Defines UV, Ruff, Bandit, and build system requirements
-- Specifies correct workflows and prohibited direct tool usage
+## 16. FULL TYPE HINTING & TYPE ANNOTATIONS REQUIRED
 
-## 17. Agents MUST read `AGENT_STARTUP.md` before beginning any development work
+**MANDATORY**: All code MUST include complete type hints following Python 3.12+ standards
+
+### Required Type Annotations
+
+- **Typed `self`**: All method parameters must include type hints for `self`
+- **Typed parameters**: All function/method parameters must have explicit type hints
+- **Typed returns**: All functions/methods must have explicit return type annotations
+- **Typed attributes**: All class attributes must have type hints
+- **NO IMPLICIT `Any`**: Never rely on implicit `Any` types
+- **STRICT PROHIBITION ON `Any`**: `Any` type is NOT allowed unless ABSOLUTELY NECESSARY! Types MUST be resolved to concrete types or proper unions/interfaces
+
+### Python 3.12+ Features Required
+
+- **Modern typing syntax**: Use Python 3.12+ typing features and syntax
+- **Union types**: Use `|` syntax for union types (e.g., `str | int` instead of `Union[str, int]`)
+- **Generic types**: Use proper generic type syntax
+- **Type guards**: Implement proper type guards where needed
+- **Protocol types**: Use `Protocol` for structural typing where appropriate
+
+### Strict Requirements
+
+- **Complete coverage**: Every public function/method must be fully typed
+- **Private methods**: Private methods should also be typed for clarity
+- **Lambda functions**: Use proper type annotations for lambda functions where possible
+- **Complex types**: Use `typing` module for complex types (Dict, List, Optional, etc.)
+- **Forward references**: Use proper forward references for circular imports
+- **ABSOLUTELY NO `Any` TYPES**: `Any` is FORBIDDEN unless absolutely unavoidable - types MUST be resolved to concrete types or proper unions/protocols
+
+### Enforcement
+
+- **Static analysis**: Code must pass ruff type checking
+- **IDE compatibility**: Type hints must work with modern IDE type checking
+- **Runtime type checking**: Consider runtime type checking for critical paths
+- **Documentation**: Type hints serve as documentation - make them meaningful
+
+### Examples
+
+```python
+# ✅ CORRECT: Complete type hints
+class NodeManager:
+    def __init__(self: Self, database_url: str) -> None:
+        self.database_url: str = database_url
+        self.nodes: dict[str, Node] = {}
+
+    def create_node(
+        self: Self,
+        node_data: dict[str, Any],
+        layer: NodeLayer
+    ) -> Node:
+        """Create a new node with proper type hints."""
+        return Node.from_dict(node_data, layer)
+
+# ❌ WRONG: Missing type hints
+class NodeManager:
+    def __init__(self, database_url):
+        self.database_url = database_url
+        self.nodes = {}
+
+    def create_node(self, node_data, layer):
+        return Node.from_dict(node_data, layer)
+
+# ❌ EXTREMELY WRONG: Using Any types
+class BadNodeManager:
+    def __init__(self: Self, database_url: Any) -> Any:  # FORBIDDEN Any types!
+        self.database_url: Any = database_url  # FORBIDDEN!
+        self.nodes: dict[str, Any] = {}  # FORBIDDEN Any usage!
+
+    def create_node(self: Self, node_data: Any, layer: Any) -> Any:  # ALL FORBIDDEN!
+        """NEVER use Any unless absolutely unavoidable!"""
+        return Node.from_dict(node_data, layer)
+```
+
+**ABSOLUTE REQUIREMENT**: `Any` types are FORBIDDEN unless absolutely unavoidable. Always resolve to concrete types, proper unions, or Protocol interfaces. Type ambiguity is unacceptable - resolve your types!
+
+**NO EXCEPTIONS**: All production code must follow these typing requirements without exception.
+
+## 17. Agents MUST read `docs/ToDoWrite.md` before beginning any development work
+
+## 18. Agents MUST respect Working Directory Boundaries
 
 - **Root Directory**: `./` refers to the current project's root directory
 - **Project Context**: Each project has its own root directory boundary
@@ -211,46 +303,129 @@ These mandates apply **at all times** with **zero exceptions**.
 - **NO CROSS-PROJECT**: Never operate outside the current project's root directory
 - **RESPECT BOUNDARIES**: Honor each project's working directory boundary independently
 
-# 18. Working Directory Boundary
+## Agent Startup Checklist & Quick Commands
 
+**CRITICAL: VENV ACTIVATION REQUIRED**
+
+Every session MUST start with virtual environment activation. This is non-negotiable:
+
+```bash
+# ALWAYS start each session by activating the virtual environment
+source .venv/bin/activate
+
+# Verify activation
+which python      # Should point to .venv/bin/python
+uv --version      # Should show UV version
 ```
-$project_root/
-├── BUILD_SYSTEM.md
-├── docs/ToDoWrite.md
-├── tests/
-├── lib_package/
-├── cli_package/
-└── web_package/   # planning only
+
+**Why this is critical**:
+- Ensures all dependencies are available
+- Maintains consistent tool versions
+- Prevents system Python conflicts
+- Guarantees reproducible environments
+
+### MANDATORY Startup Checklist
+
+All agents MUST complete this checklist before beginning any work:
+
+- [ ] **Environment**: UV workspace is active and venv is loaded (`source .venv/bin/activate`)
+- [ ] **Verification**: Confirm .venv is active with `which python` and `uv --version`
+- [ ] **Code Quality**: Ruff configured for formatting, linting, and security (S mode)
+- [ ] **Security**: Bandit available for deep security scans
+- [ ] **Build System**: Using `./dev_tools/build.sh` commands (not direct tools)
+- [ ] **Testing**: pytest configured with `--ignore=tests/web/`
+- [ ] **No Mocking**: STRICT no-mocking policy understood and followed
+
+### Preferred Tool Invocation
+
+Use the build script `./dev_tools/build.sh` for day-to-day tasks. Use `uv run <tool>` only when the build script does not expose the required action.
+
+```bash
+# Preferred high-level workflow
+./dev_tools/build.sh install    # Install/update dependencies
+./dev_tools/build.sh format     # Format code (ruff)
+./dev_tools/build.sh lint       # Lint code (ruff)
+./dev_tools/build.sh test       # Run tests (pytest)
+./dev_tools/build.sh audit      # Security scan (bandit + ruff S-mode)
+./dev_tools/build.sh validate   # Validate build system
+./dev_tools/build.sh dev        # Full dev workflow (install+format+lint+test)
+
+# Quality gate examples
+./dev_tools/build.sh quality-gate --coverage-threshold 80
+./dev_tools/build.sh quality-gate --strict
 ```
 
-# 19. Monorepo Structure
+### Direct UV Examples (Only When Necessary)
 
-## Virtual Environment Management
-- **UV ONLY**: Use `uv` for all virtual environment management (replaces virtualenv+pip)
-- **PREFERRED METHOD**: Always use `uv run <command>` for executing tools in the virtual environment
-- **NO VIRTUALENV**: Never use virtualenv, venv, or pip directly for environment management
-- **WORKSPACE**: Use UV workspace for managing multi-package dependencies
+```bash
+uv run ruff format lib_package/ cli_package/
+uv run ruff check lib_package/ cli_package/
+uv run bandit -r lib_package/ cli_package/
+uv run pytest tests/ --ignore=tests/web/
+uv run pytest tests/ --cov=lib_package/src --cov=cli_package/src --ignore=tests/web/
+```
 
-## Code Quality and Security
-- **Ruff PRIMARY**: Use `ruff` for ALL formatting, linting, and S-mode security checks
-  - `uv run ruff format <paths>` for formatting
-  - `uv run ruff check <paths>` for linting
-  - `uv run ruff check <paths> --select=S` for S-mode security
-- **Bandit SECONDARY**: Use `bandit` for deeper security analysis
-  - `uv run bandit -r <paths>` for comprehensive security scanning
-- **NO MYPY**: Do not use mypy for type checking
+### Essential File Locations
 
-## Build and Deployment
-- **Hatchling**: Use `hatchling` for building packages (via UV environment)
-- **Twine**: Use `twine` for PyPI uploads (via UV environment)
-- **UV RUN PREFERRED**: All tool execution should use `uv run <tool>` format
+**Configuration Files**:
+- **`pyproject.toml`**: UV workspace, Ruff, Bandit configuration
+- **`VERSION`**: Central version management
+- **`.claude/CLAUDE.md`**: Project rules and mandates
 
-## Command Execution Hierarchy
-1. **FIRST**: Use `./dev_tools/build.sh` scripts (preferred)
-2. **SECOND**: Use `uv run <command>` for direct tool execution
-3. **NEVER**: Use tools directly without UV (e.g., `pytest`, `ruff`, `bandit` without prefix)
+**Build System Files**:
+- **`dev_tools/build.sh`**: PRIMARY build interface (use this!)
+- **`lib_package/src/todowrite/build_system.py`**: Library API for applications
+- **`dev_tools/build_system.py`**: Development tool API
 
-# 20. Standard Workflow
+**Package Structure**:
+```text
+todowrite/
+├── lib_package/     # Core library (todowrite) - PRODUCTION READY
+├── cli_package/     # CLI interface (todowrite_cli) - PRODUCTION READY
+├── web_package/     # Web application - PLANNING STAGE (excluded from tools)
+└── tests/           # Test suites (NO MOCKING ALLOWED)
+```
+
+### Agent Workflows
+
+**Before Starting Work**:
+1. Verify UV environment: `uv sync --group dev` and `uv tree`
+2. Run validation: `./dev_tools/build.sh validate`
+3. Check code quality: `./dev_tools/build.sh lint` and `./dev_tools/build.sh format`
+
+**During Development**:
+1. Use build scripts ONLY (never direct tool calls)
+2. Security scanning: `./dev_tools/build.sh audit`
+
+**Before Committing**:
+1. Run complete workflow: `./dev_tools/build.sh dev`
+2. Quality gate validation: `./dev_tools/build.sh quality-gate --strict`
+
+### Quick Start (Copyable)
+
+```bash
+# 0. CRITICAL: Always start with venv activation
+source .venv/bin/activate
+
+# 1. Setup environment
+./dev_tools/build.sh install
+
+# 2. Validate everything works
+./dev_tools/build.sh validate
+
+# 3. Run complete development workflow
+./dev_tools/build.sh dev
+
+# 4. Check quality gates
+./dev_tools/build.sh quality-gate
+```
+
+**Notes**:
+- `web_package` is intentionally excluded from automated tests and formatting; build scripts handle exclusions automatically.
+- These items are operational details to be followed by agents; the authoritative policies (TDD, no-mocking, type hints, etc.) remain in the main CLAUDE mandates above.
+
+## 18. Standard Workflow
+
 1. **MANDATORY**: Load documentation files IN ORDER (CLAUDE.md → ToDoWrite.md → BUILD_SYSTEM.md)
    - **On session start**: Load before any other work
    - **After '/clear'**: Immediately reload before any other work
@@ -262,13 +437,16 @@ $project_root/
 6. Refactor
 7. Commit (never using --no-verify without permission)
 
-# Emergency Documentation Verification
+## Emergency Documentation Verification
+
 **If agent appears to have lost context after '/clear' or '/quit':**
+
 1. IMMEDIATELY command: "Re-read CLAUDE.md, ToDoWrite.md, and BUILD_SYSTEM.md IN ORDER"
 2. Verify compliance by asking: "Confirm you have loaded all three documentation files"
 3. Do not proceed with any work until compliance is confirmed
 
-# Conflict Resolution
+## Conflict Resolution
+
 - Identify the violated rule
 - Propose an alternative
 - Execute only once aligned

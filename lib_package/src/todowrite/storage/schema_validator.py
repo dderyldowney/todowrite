@@ -110,8 +110,7 @@ class SchemaValidator:
                     col["name"]: col["type"] for col in node_columns
                 }
 
-                # Validate ID pattern constraint (can't check directly, but can check
-                # type)
+                # Validate ID pattern constraint (can't check directly, but can check type)
                 if (
                     "id" in column_types
                     and "VARCHAR" not in str(column_types["id"]).upper()
@@ -158,7 +157,7 @@ class SchemaValidator:
         return len(errors) == 0, errors
 
     def _validate_yaml_file_content(
-        self, file_path: Path, yaml_data: Any
+        self, file_path: Path, yaml_data: dict[str, object] | list[object]
     ) -> tuple[bool, list[str]]:
         """Validate content of a single YAML file."""
         errors: list[str] = []
@@ -422,11 +421,14 @@ def validate_database_schema(
     # If no engine provided, try to get the default one
     if engine is None:
         try:
-            from ..core.app import ToDoWrite
-
             # Try to get database URL from environment
             import os
-            db_url = os.environ.get("TODOWRITE_DATABASE_URL", "sqlite:///todowrite.db")
+
+            from ..core.app import ToDoWrite
+
+            db_url = os.environ.get(
+                "TODOWRITE_DATABASE_URL", "sqlite:///todowrite.db"
+            )
             app = ToDoWrite(db_url)
             engine = app.engine
         except Exception as err:

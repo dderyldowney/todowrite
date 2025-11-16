@@ -296,9 +296,6 @@ def build_update_data(
     status: str | None,
     progress: int | None,
     labels: str | None,
-    ac_ref: str | None,
-    run_shell: str | None,
-    artifacts: str | None,
 ) -> dict[str, Any]:
     """Build update data dictionary from command line arguments."""
     update_data: dict[str, Any] = {}
@@ -328,7 +325,8 @@ def build_update_data(
                 sorted(["low", "medium", "med", "high", "critical"])
             )
             raise ValueError(
-                f"Invalid severity: '{severity}'. Valid options: {valid_severities}"
+                f"Invalid severity: '{severity}'. "
+                f"Valid options: {valid_severities}"
             )
         metadata_updates["severity"] = severity_normalized
 
@@ -353,7 +351,8 @@ def build_update_data(
                 )
             )
             raise ValueError(
-                f"Invalid work_type: '{work_type}'. Valid options: {valid_work_types}"
+                f"Invalid work_type: '{work_type}'. "
+                f"Valid options: {valid_work_types}"
             )
         metadata_updates["work_type"] = work_type_normalized
 
@@ -410,7 +409,8 @@ def display_update_results(
 ) -> None:
     """Display the results of a node update."""
     console.print(
-        f"[green]✓[/green] Updated {getattr(updated_node, 'id', 'Unknown')}: "
+        f"[green]✓[/green] Updated "
+        f"{getattr(updated_node, 'id', 'Unknown')}: "
         f"{getattr(updated_node, 'title', 'Unknown')}"
     )
 
@@ -1271,9 +1271,6 @@ def update(
                 status,
                 progress,
                 labels,
-                ac_ref,
-                run_shell,
-                artifacts,
             )
         except ValueError as e:
             console.print(f"[red]✗[/red] {e}")
