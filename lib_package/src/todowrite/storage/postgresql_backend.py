@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import Any
 
@@ -44,7 +45,7 @@ class PostgreSQLBackend(StorageBackend):
 
     def __init__(
         self, database_url: str, pool_size: int = 10, max_overflow: int = 20
-    ):
+    ) -> None:
         """
         Initialize PostgreSQL backend with connection pooling configuration.
 
@@ -100,7 +101,7 @@ class PostgreSQLBackend(StorageBackend):
             self._is_connected = False
             raise StorageConnectionError(
                 self.backend_name, f"Failed to connect to PostgreSQL: {e!s}"
-            )
+            ) from e
 
     def disconnect_from_storage(self) -> None:
         """Close PostgreSQL connection pool and cleanup resources."""
@@ -112,7 +113,7 @@ class PostgreSQLBackend(StorageBackend):
             logger.info("Disconnected from PostgreSQL database")
 
     @contextmanager
-    def _get_session(self):
+    def _get_session(self) -> Iterator[Session]:
         """Context manager for database sessions with proper error handling."""
         if not self._is_connected or not self.Session:
             raise StorageConnectionError(
@@ -204,7 +205,7 @@ class PostgreSQLBackend(StorageBackend):
                 node_data.get("id", "unknown"),
                 f"Database creation failed: {e!s}",
                 self.backend_name,
-            )
+            ) from e
 
     def retrieve_node_by_id(self, node_id: str) -> Node:
         """Retrieve a node from PostgreSQL by its unique identifier."""
@@ -221,7 +222,7 @@ class PostgreSQLBackend(StorageBackend):
             raise StorageConnectionError(
                 self.backend_name,
                 f"Failed to retrieve node '{node_id}': {e!s}",
-            )
+            ) from e
 
     def update_existing_node(
         self, node_id: str, update_data: dict[str, Any]
@@ -273,7 +274,7 @@ class PostgreSQLBackend(StorageBackend):
         except Exception as e:
             raise NodeUpdateError(
                 node_id, f"Database update failed: {e!s}", self.backend_name
-            )
+            ) from e
 
     def remove_node_by_id(self, node_id: str) -> bool:
         """Remove a node from PostgreSQL and clean up all its relationships."""
@@ -310,7 +311,7 @@ class PostgreSQLBackend(StorageBackend):
         except Exception as e:
             raise NodeDeletionError(
                 node_id, f"Database deletion failed: {e!s}", self.backend_name
-            )
+            ) from e
 
     def list_all_nodes_in_layer(
         self, layer_name: str | None = None
@@ -328,7 +329,7 @@ class PostgreSQLBackend(StorageBackend):
         except Exception as e:
             raise StorageConnectionError(
                 self.backend_name, f"Failed to list nodes: {e!s}"
-            )
+            ) from e
 
     def search_nodes_by_criteria(
         self, search_criteria: dict[str, Any]
@@ -360,7 +361,7 @@ class PostgreSQLBackend(StorageBackend):
                 str(search_criteria),
                 f"Database search failed: {e!s}",
                 self.backend_name,
-            )
+            ) from e
 
     def create_parent_child_relationship(
         self, parent_id: str, child_id: str
@@ -415,7 +416,7 @@ class PostgreSQLBackend(StorageBackend):
                 child_id,
                 f"Database relationship creation failed: {e!s}",
                 self.backend_name,
-            )
+            ) from e
 
     def remove_parent_child_relationship(
         self, parent_id: str, child_id: str
@@ -436,7 +437,7 @@ class PostgreSQLBackend(StorageBackend):
         except Exception as e:
             raise StorageConnectionError(
                 self.backend_name, f"Failed to remove relationship: {e!s}"
-            )
+            ) from e
 
     def get_all_parents_of_node(self, node_id: str) -> list[Node]:
         """Retrieve all direct parent nodes for the given node from PostgreSQL."""
@@ -462,7 +463,7 @@ class PostgreSQLBackend(StorageBackend):
             raise StorageConnectionError(
                 self.backend_name,
                 f"Failed to retrieve parents for node '{node_id}': {e!s}",
-            )
+            ) from e
 
     def get_all_children_of_node(self, node_id: str) -> list[Node]:
         """Retrieve all direct child nodes for the given node from PostgreSQL."""
@@ -488,7 +489,7 @@ class PostgreSQLBackend(StorageBackend):
             raise StorageConnectionError(
                 self.backend_name,
                 f"Failed to retrieve children for node '{node_id}': {e!s}",
-            )
+            ) from e
 
     def count_nodes_in_storage(self) -> int:
         """Count the total number of nodes currently stored in PostgreSQL."""
@@ -500,7 +501,7 @@ class PostgreSQLBackend(StorageBackend):
         except Exception as e:
             raise StorageConnectionError(
                 self.backend_name, f"Failed to count nodes: {e!s}"
-            )
+            ) from e
 
     def storage_is_healthy(self) -> bool:
         """Check if PostgreSQL storage is healthy and accessible."""

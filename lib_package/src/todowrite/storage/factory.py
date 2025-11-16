@@ -36,7 +36,7 @@ def create_storage_backend(database_url: str) -> StorageBackend:
         raise StorageConnectionError(
             "StorageBackendFactory",
             f"Failed to create backend for URL '{database_url}': {e!s}",
-        )
+        ) from e
 
 
 def _create_backend_by_url_type(database_url: str) -> StorageBackend:
@@ -83,7 +83,7 @@ def _create_postgresql_backend(database_url: str) -> PostgreSQLBackend:
     except Exception as e:
         raise StorageConnectionError(
             "PostgreSQL", f"Failed to configure PostgreSQL backend: {e!s}"
-        )
+        ) from e
 
 
 def _create_sqlite_backend_from_url(database_url: str) -> SQLiteBackend:
@@ -102,7 +102,7 @@ def _create_sqlite_backend_from_url(database_url: str) -> SQLiteBackend:
     except Exception as e:
         raise StorageConnectionError(
             "SQLite", f"Failed to create SQLite backend from URL: {e!s}"
-        )
+        ) from e
 
 
 def _create_sqlite_backend_from_path(database_path: str) -> SQLiteBackend:
@@ -120,7 +120,7 @@ def _create_sqlite_backend_from_path(database_path: str) -> SQLiteBackend:
     except Exception as e:
         raise StorageConnectionError(
             "SQLite", f"Failed to create SQLite backend from path: {e!s}"
-        )
+        ) from e
 
 
 def _create_yaml_backend(yaml_path: str) -> StorageBackend:

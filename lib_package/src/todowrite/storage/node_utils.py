@@ -5,12 +5,13 @@ This module provides clean conversion functions to work with the unified Node ar
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from ..core.types import Link as AppLink
-from ..core.types import Metadata
-from ..core.types import Node as AppNode
-from ..database.models import Node as DBNode
+if TYPE_CHECKING:
+    from ..core.types import Link as AppLink
+    from ..core.types import Metadata
+    from ..core.types import Node as AppNode
+    from ..database.models import Node as DBNode
 
 
 def app_node_to_db_node(app_node: AppNode) -> dict[str, Any]:

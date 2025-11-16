@@ -7,12 +7,11 @@ that ensure proper table recreation for each test.
 
 import uuid
 
-from todowrite.core.app import (
+from todowrite import (
     create_node,
     get_node,
     list_nodes,
     search_nodes,
-    update_node_status,
 )
 
 
@@ -76,7 +75,7 @@ class TestTodosManagerWithDatabaseIsolation:
         assert created_node.status == "planned"
 
         # Update status
-        updated_node = update_node_status(created_node.id, "in_progress")
+        updated_node = update_node(created_node.id, {"status": "in_progress"})
         assert updated_node is not None
         assert updated_node.status == "in_progress"
 
@@ -86,7 +85,7 @@ class TestTodosManagerWithDatabaseIsolation:
         assert retrieved_node.status == "in_progress"
 
         # Update to completed
-        completed_node = update_node_status(created_node.id, "completed")
+        completed_node = update_node(created_node.id, {"status": "completed"})
         assert completed_node is not None
         assert completed_node.status == "completed"
 
@@ -213,7 +212,7 @@ class TestTodosManagerWithDatabaseIsolation:
         search_terms = ["Autonomous", "Database", "User Interface"]
         created_nodes = []
 
-        for i, term in enumerate(search_terms):
+        for term in search_terms:
             node_data = {
                 "id": f"GOAL-{uuid.uuid4().hex[:8].upper()}",
                 "title": f"{term} System",

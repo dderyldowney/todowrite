@@ -7,22 +7,22 @@ using real database operations - no mocking allowed.
 
 import uuid
 
-from todowrite.core.app import (
+from todowrite import (
     create_node,
     get_node,
     list_nodes,
     search_nodes,
-    update_node_status,
+    update_node,
 )
 
 
 class TestDatabaseIsolation:
     """Test database isolation with real table recreation."""
 
-    def test_create_and_retrieve_node(self, sample_node_data: dict) -> None:
+    def test_create_and_retrieve_node(self, sample_node_data: dict, test_database_url: str) -> None:
         """Test creating and retrieving a node with real database operations."""
         # Create node using real database operation
-        created_node = create_node(sample_node_data)
+        created_node = create_node(test_database_url, sample_node_data)
 
         # Verify node was actually created in real database
         assert created_node.id == sample_node_data["id"]
@@ -31,14 +31,14 @@ class TestDatabaseIsolation:
         assert created_node.status == sample_node_data["status"]
 
         # Retrieve node from real database
-        retrieved_node = get_node(created_node.id)
+        retrieved_node = get_node(test_database_url, created_node.id)
 
         # Verify retrieval from real database
         assert retrieved_node is not None
         assert retrieved_node.id == created_node.id
         assert retrieved_node.title == sample_node_data["title"]
 
-    def test_multiple_nodes_in_same_test(self, test_db_session) -> None:
+    def test_multiple_nodes_in_same_test(self, test_db_session, test_database_url: str) -> None:
         """Test creating multiple nodes within the same test."""
         # Create multiple unique nodes
         node_data_1 = {
@@ -70,40 +70,44 @@ class TestDatabaseIsolation:
         }
 
         # Create both nodes in real database
-        created_node_1 = create_node(node_data_1)
-        created_node_2 = create_node(node_data_2)
+        created_node_1 = create_node(test_database_url, node_data_1)
+        created_node_2 = create_node(test_database_url, node_data_2)
 
         # Verify both nodes exist
-        retrieved_1 = get_node(created_node_1.id)
-        retrieved_2 = get_node(created_node_2.id)
+        retrieved_1 = get_node(test_database_url, created_node_1.id)
+        retrieved_2 = get_node(test_database_url, created_node_2.id)
 
         assert retrieved_1 is not None
         assert retrieved_2 is not None
         assert retrieved_1.id != retrieved_2.id
 
         # Test list_nodes shows both
-        nodes_list = list_nodes()
-        assert len(nodes_list.get("nodes", [])) >= 2
+        nodes_list = list_nodes(test_database_url)
+        assert len(nodes_list) >= 2
 
-    def test_node_status_update_real_database(self, sample_node_data: dict) -> None:
+    def test_node_status_update_real_database(
+        self, sample_node_data: dict, test_database_url: str
+    ) -> None:
         """Test updating node status using real database operations."""
         # Create node in real database
-        created_node = create_node(sample_node_data)
+        created_node = create_node(test_database_url, sample_node_data)
         assert created_node.status == "planned"
 
         # Update status using real database operation
-        updated_node = update_node_status(created_node.id, "in_progress")
+        updated_node = update_node(test_database_url, created_node.id, {"status": "in_progress"})
 
         # Verify update persisted to real database
         assert updated_node is not None
         assert updated_node.status == "in_progress"
 
         # Retrieve again to confirm persistence
-        retrieved_node = get_node(created_node.id)
+        retrieved_node = get_node(test_database_url, created_node.id)
         assert retrieved_node is not None
         assert retrieved_node.status == "in_progress"
 
-    def test_search_functionality_real_database(self, test_db_session) -> None:
+    def test_search_functionality_real_database(
+        self, test_db_session, test_database_url: str
+    ) -> None:
         """Test search functionality using real database operations."""
         # Create searchable nodes
         searchable_titles = ["Autonomous System", "User Management", "Data Processing"]
@@ -123,17 +127,16 @@ class TestDatabaseIsolation:
                 },
                 "links": {"parents": [], "children": []},
             }
-            created_node = create_node(node_data)
+            created_node = create_node(test_database_url, node_data)
             created_nodes.append(created_node)
 
         # Test search functionality on real database
-        search_results = search_nodes("User")
-        assert isinstance(search_results, dict)
-        assert "nodes" in search_results
+        search_results = search_nodes(test_database_url, {"title": "User"})
+        assert isinstance(search_results, list)
 
         # Should find the "User Management" node
         found_user_node = False
-        for node in search_results["nodes"]:
+        for node in search_results:
             if "User" in node.title:
                 found_user_node = True
                 break

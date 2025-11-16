@@ -101,7 +101,7 @@ class ToDoWrite:
         except Exception as e:
             raise StorageConnectionError(
                 "ToDoWrite", f"Failed to connect to storage backend: {e!s}"
-            )
+            ) from e
 
     def _load_node_schema(self) -> None:
         """Load the node schema for validation."""
@@ -124,17 +124,21 @@ class ToDoWrite:
                     f"{self.storage.backend_name} schema validation passed"
                 )
             except Exception as e:
-                logger.error(
-                    f"{self.storage.backend_name} schema validation failed: {e}"
+                error_msg = (
+                    f"{self.storage.backend_name} schema validation "
+                    f"failed: {e}"
                 )
+                logger.error(error_msg)
 
     def _auto_import_yaml_files(self) -> None:
         """Auto-import YAML files if configured and using database backend."""
         # This would be implemented to use the storage backend for imports
         # For now, we'll leave the placeholder
-        logger.info(
-            "Auto-import of YAML files not yet implemented in refactored version"
+        info_msg = (
+            "Auto-import of YAML files not yet implemented in "
+            "refactored version"
         )
+        logger.info(info_msg)
 
     def create_new_node(self, node_data: dict[str, Any]) -> Node:
         """
@@ -153,9 +157,9 @@ class ToDoWrite:
             # Validate and convert dict to Node
             app_node = self._validate_and_convert_to_node(node_data)
 
-            # Use storage backend to create node - no conversion needed!
-            result = self.storage.create_new_node(app_node)
-            return result.created_node
+            # Convert app Node to database Node and create it
+            result = self.create_node_from_object(app_node)
+            return result
 
         except (
             ValueError,
@@ -169,7 +173,7 @@ class ToDoWrite:
                 node_data.get("id", "unknown"),
                 f"Node creation failed: {e!s}",
                 self.storage.backend_name,
-            )
+            ) from e
 
     def create_node_from_object(self, app_node: Node) -> Node:
         """
@@ -204,7 +208,7 @@ class ToDoWrite:
                 app_node.id,
                 f"Node creation failed: {e!s}",
                 self.storage.backend_name,
-            )
+            ) from e
 
     def retrieve_node_by_id(self, node_id: str) -> Node:
         """
@@ -224,8 +228,10 @@ class ToDoWrite:
             return self.storage.retrieve_node_by_id(node_id)
         except (ValueError, KeyError, AttributeError) as e:
             if "not found" in str(e).lower():
-                raise NodeNotFoundError(node_id, self.storage.backend_name)
-            raise NodeNotFoundError(node_id, self.storage.backend_name)
+                raise NodeNotFoundError(
+                    node_id, self.storage.backend_name
+                ) from e
+            raise NodeNotFoundError(node_id, self.storage.backend_name) from e
 
     def update_existing_node(
         self, node_id: str, update_data: dict[str, Any]
@@ -257,12 +263,14 @@ class ToDoWrite:
             if isinstance(e, (NodeNotFoundError, NodeUpdateError)):
                 raise
             if "not found" in str(e).lower():
-                raise NodeNotFoundError(node_id, self.storage.backend_name)
+                raise NodeNotFoundError(
+                    node_id, self.storage.backend_name
+                ) from e
             raise NodeUpdateError(
                 node_id,
                 f"Node update failed: {e!s}",
                 self.storage.backend_name,
-            )
+            ) from e
 
     def remove_node_by_id(self, node_id: str) -> bool:
         """
@@ -346,7 +354,8 @@ class ToDoWrite:
             return result.was_newly_linked
         except Exception as e:
             logger.error(
-                f"Failed to create relationship between '{parent_id}' and '{child_id}': {e!s}"
+                f"Failed to create relationship between "
+                f"'{parent_id}' and '{child_id}': {e!s}"
             )
             return False
 
@@ -369,7 +378,8 @@ class ToDoWrite:
             )
         except Exception as e:
             logger.error(
-                f"Failed to remove relationship between '{parent_id}' and '{child_id}': {e!s}"
+                f"Failed to remove relationship between "
+                f"'{parent_id}' and '{child_id}': {e!s}"
             )
             return False
 
@@ -454,7 +464,7 @@ class ToDoWrite:
 
                 jsonschema.validate(node_data, self._node_schema)
             except Exception as e:
-                raise ValueError(f"Node data validation failed: {e}")
+                raise ValueError(f"Node data validation failed: {e}") from e
 
         # Convert dict to Node object using Node.from_dict method
         return Node.from_dict(node_data)
@@ -469,7 +479,7 @@ class ToDoWrite:
                 node_dict = app_node.to_dict()
                 jsonschema.validate(node_dict, self._node_schema)
             except Exception as e:
-                raise ValueError(f"Node validation failed: {e}")
+                raise ValueError(f"Node validation failed: {e}") from e
 
     def _validate_node_data(
         self, node_data: dict[str, Any], is_update: bool = False
@@ -485,7 +495,7 @@ class ToDoWrite:
             jsonschema.validate(node_data, self._node_schema)
         except Exception as e:
             if not is_update:
-                raise ValueError(f"Node data validation failed: {e}")
+                raise ValueError(f"Node data validation failed: {e}") from e
             # For updates, log warning but continue
             logger.warning(f"Update data validation warning: {e}")
 
@@ -524,11 +534,13 @@ class ToDoWrite:
         return self.search_nodes_by_criteria(criteria)
 
     def link_nodes(self, parent_id: str, child_id: str) -> bool:
-        """Backward compatibility alias for create_parent_child_relationship."""
+        """Backward compatibility alias for
+        create_parent_child_relationship."""
         return self.create_parent_child_relationship(parent_id, child_id)
 
     def unlink_nodes(self, parent_id: str, child_id: str) -> bool:
-        """Backward compatibility alias for remove_parent_child_relationship."""
+        """Backward compatibility alias for
+        remove_parent_child_relationship."""
         return self.remove_parent_child_relationship(parent_id, child_id)
 
     def get_parents(self, node_id: str) -> list[Node]:

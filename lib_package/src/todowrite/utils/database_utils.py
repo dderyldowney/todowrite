@@ -5,10 +5,18 @@ from pathlib import Path
 
 
 def find_project_root() -> str:
-    """Find the project root (monorepo root) by looking for characteristic package structure."""
+    """Find the project root (monorepo root) by looking for package structure.
+
+    Searches up the directory tree for a directory containing lib_package,
+    cli_package, and web_package subdirectories.
+
+    Returns:
+        Path to project root directory, or current directory if not found
+    """
     search_dir = Path.cwd()
 
-    # Search up the directory tree for project root (contains lib_package, cli_package, web_package)
+    # Search up the directory tree for project root
+    # (contains lib_package, cli_package, web_package)
     while str(search_dir) != "/":
         if (
             (search_dir / "lib_package").exists()
@@ -18,7 +26,8 @@ def find_project_root() -> str:
             return str(search_dir)
         search_dir = search_dir.parent
 
-    # If not found, return current directory (fallback for non-monorepo projects)
+    # If not found, return current directory
+    # (fallback for non-monorepo projects)
     return str(Path.cwd())
 
 
@@ -28,7 +37,8 @@ def get_project_name() -> str:
     project_root = find_project_root()
     project_name = Path(project_root).name
 
-    # If we found a project root that's different from current directory, use its name
+    # If we found a project root that's different from current directory,
+    # use its name
     if project_root != str(Path.cwd()):
         # We're in a package directory, use the project root name
         pass  # project_name already set correctly
@@ -56,8 +66,9 @@ def get_project_database_name(
     """Generate a project-specific database name for the given environment.
 
     Args:
-        environment: The environment type (development, testing, production, etc.)
-        project_name: Optional project name override. If None, detected from CWD.
+        environment: The environment type (development, testing, production)
+        project_name: Optional project name override. If None,
+                    detected from CWD.
 
     Returns:
         Database filename with project-specific naming.
@@ -76,7 +87,7 @@ def get_database_path(
     """Get a full database path with project-specific naming.
 
     Args:
-        environment: The environment type (development, testing, production, etc.)
+        environment: The environment type (development, testing, production)
         base_dir: Base directory for databases. Defaults to ~/dbs
         project_name: Optional project name override.
 

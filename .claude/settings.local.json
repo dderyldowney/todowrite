@@ -42,7 +42,8 @@
       "Bash(find:*)",
       "Bash(uv run ruff:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(chmod:*)"
     ],
     "deny": [],
     "ask": []

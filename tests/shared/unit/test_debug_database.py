@@ -4,7 +4,7 @@ Debug database operations to understand isolation issues.
 
 import uuid
 
-from todowrite.core.app import (
+from todowrite import (
     create_node,
     get_node,
     list_nodes,

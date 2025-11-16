@@ -3,16 +3,11 @@
 from __future__ import annotations
 
 import tempfile
-from pathlib import Path
 
 import pytest
+from todowrite import ToDoWrite
 
-from lib_package.src.todowrite.core.app_refactored import ToDoWrite
-from lib_package.src.todowrite.core.types import Node, Link, Metadata
-from lib_package.src.todowrite.storage import (
-    NodeNotFoundError,
-    NodeCreationError,
-)
+from lib_package.src.todowrite.core.types import Link, Metadata, Node
 
 
 class TestUnifiedNodeArchitecture:
@@ -21,7 +16,7 @@ class TestUnifiedNodeArchitecture:
     @pytest.fixture
     def temp_db_path(self):
         """Create a temporary database path."""
-        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as temp_file:
             yield temp_file.name
 
     @pytest.fixture
@@ -97,7 +92,7 @@ class TestUnifiedNodeArchitecture:
                 "owner": "test-user",
                 "labels": ["test", "validation"],
                 "severity": "high",
-                "work_type": "feature"
+                "work_type": "feature",
             },
         }
         node = todowrite_app.create_new_node(node_data)
@@ -109,8 +104,8 @@ class TestUnifiedNodeArchitecture:
         assert node.title == "Properties Test"
 
         # Test complex properties
-        assert hasattr(node, 'links')
-        assert hasattr(node, 'metadata')
+        assert hasattr(node, "links")
+        assert hasattr(node, "metadata")
         assert isinstance(node.links, Link)
         assert isinstance(node.metadata, Metadata)
         assert node.links.parents == ["GOAL-PARENT-001"]
@@ -148,6 +143,7 @@ class TestUnifiedNodeArchitecture:
         # No database.models.Node should exist
         try:
             from lib_package.src.todowrite.database.models import Node as DBNode
+
             # If this import succeeds, we still have duplicate Node types
             pytest.skip("Database Node model still exists - migration not complete")
         except ImportError:
@@ -156,8 +152,8 @@ class TestUnifiedNodeArchitecture:
 
         # Verify Node is the expected class
         assert Node is not None
-        assert hasattr(Node, 'to_dict')
-        assert hasattr(Node, 'from_dict')
+        assert hasattr(Node, "to_dict")
+        assert hasattr(Node, "from_dict")
 
 
 class TestUnifiedNodeStorage:
@@ -179,8 +175,8 @@ class TestUnifiedNodeStorage:
 
     def test_node_persistence_roundtrip(self):
         """Test Node objects survive storage roundtrip."""
+        from lib_package.src.todowrite.core.types import Link, Metadata, Node
         from lib_package.src.todowrite.storage.sqlite_unified import SQLiteUnifiedBackend
-        from lib_package.src.todowrite.core.types import Node, Link, Metadata
 
         backend = SQLiteUnifiedBackend(":memory:")
         backend.connect_to_storage()

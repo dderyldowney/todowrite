@@ -19,9 +19,7 @@ from typing import Any
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from todowrite.core.app import (
-    create_node,
-)
+from todowrite import create_node
 
 
 def create_standalone_node(layer: str, title: str, description: str) -> dict[str, Any]:

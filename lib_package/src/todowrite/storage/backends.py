@@ -2,15 +2,18 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from ..core.types import Node
+if TYPE_CHECKING:
+    from ..core.types import Node
 
 
 class StorageError(Exception):
     """Base exception for all storage backend operations."""
 
-    def __init__(self, message: str, backend_name: str, operation: str):
+    def __init__(
+        self, message: str, backend_name: str, operation: str
+    ) -> None:
         self.backend_name = backend_name
         self.operation = operation
         super().__init__(f"{backend_name} {operation} failed: {message}")
@@ -19,7 +22,7 @@ class StorageError(Exception):
 class NodeNotFoundError(StorageError):
     """Raised when a requested node cannot be found in storage."""
 
-    def __init__(self, node_id: str, backend_name: str):
+    def __init__(self, node_id: str, backend_name: str) -> None:
         super().__init__(
             f"Node '{node_id}' not found", backend_name, "retrieve node"
         )
@@ -28,7 +31,7 @@ class NodeNotFoundError(StorageError):
 class NodeCreationError(StorageError):
     """Raised when node creation fails due to validation or storage constraints."""
 
-    def __init__(self, node_id: str, reason: str, backend_name: str):
+    def __init__(self, node_id: str, reason: str, backend_name: str) -> None:
         super().__init__(
             f"Cannot create node '{node_id}': {reason}",
             backend_name,
@@ -39,7 +42,7 @@ class NodeCreationError(StorageError):
 class NodeUpdateError(StorageError):
     """Raised when node update fails due to conflicts or storage constraints."""
 
-    def __init__(self, node_id: str, reason: str, backend_name: str):
+    def __init__(self, node_id: str, reason: str, backend_name: str) -> None:
         super().__init__(
             f"Cannot update node '{node_id}': {reason}",
             backend_name,
@@ -50,7 +53,7 @@ class NodeUpdateError(StorageError):
 class NodeDeletionError(StorageError):
     """Raised when node deletion fails due to constraints or storage issues."""
 
-    def __init__(self, node_id: str, reason: str, backend_name: str):
+    def __init__(self, node_id: str, reason: str, backend_name: str) -> None:
         super().__init__(
             f"Cannot delete node '{node_id}': {reason}",
             backend_name,
@@ -63,7 +66,7 @@ class RelationshipError(StorageError):
 
     def __init__(
         self, parent_id: str, child_id: str, reason: str, backend_name: str
-    ):
+    ) -> None:
         super().__init__(
             f"Cannot link parent '{parent_id}' to child '{child_id}': {reason}",
             backend_name,
@@ -74,7 +77,7 @@ class RelationshipError(StorageError):
 class StorageConnectionError(StorageError):
     """Raised when backend cannot establish or maintain connection."""
 
-    def __init__(self, backend_name: str, connection_details: str):
+    def __init__(self, backend_name: str, connection_details: str) -> None:
         super().__init__(
             f"Connection failed: {connection_details}",
             backend_name,
@@ -85,7 +88,9 @@ class StorageConnectionError(StorageError):
 class StorageQueryError(StorageError):
     """Raised when search or query operations fail."""
 
-    def __init__(self, query_description: str, reason: str, backend_name: str):
+    def __init__(
+        self, query_description: str, reason: str, backend_name: str
+    ) -> None:
         super().__init__(
             f"Query failed for '{query_description}': {reason}",
             backend_name,

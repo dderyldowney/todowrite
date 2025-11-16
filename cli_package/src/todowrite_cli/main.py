@@ -78,7 +78,15 @@ def get_app(
     database_path: str | None = None,
     _yaml_base_path: str | None = None,
 ) -> ToDoWrite:
-    """Get or create ToDoWrite application instance using simplified library connection."""
+    """Get or create ToDoWrite application instance using simplified library
+
+    Args:
+        database_path: Path to database file or full database URL
+        _yaml_base_path: Base path for YAML files (currently unused)
+
+    Returns:
+        Configured ToDoWrite application instance
+    """
     if database_path:
         # Expand ~ to user home directory
         database_path = os.path.expanduser(database_path)
@@ -105,7 +113,8 @@ def get_app(
     "--storage-preference",
     type=click.Choice(["auto", "postgresql_only", "sqlite_only", "yaml_only"]),
     default="auto",
-    help="Override default storage preference (auto, postgresql_only, sqlite_only, yaml_only)",
+    help="Override default storage preference "
+    "(auto=auto-detect, postgresql_only, sqlite_only, yaml_only)",
 )
 @click.pass_context
 def cli(ctx: click.Context, storage_preference: str) -> None:
@@ -388,17 +397,21 @@ def create(
                 # Get the current app to access its database URL
                 app = get_app()
                 link_nodes(app.db_url, parent_id, node.id)
-                console.print(
-                    f"[green]✓[/green] Linked parent {parent_id} → child {node.id}"
+                success_msg = (
+                    f"[green]✓[/green] Linked parent {parent_id} "
+                    f"→ child {node.id}"
                 )
+                console.print(success_msg)
             except (
                 ValueError,
                 KeyError,
                 RuntimeError,
             ) as e:
-                console.print(
-                    f"[yellow]⚠[/yellow] Warning: Could not link parent → child: {e}"
+                warning_msg = (
+                    f"[yellow]⚠[/yellow] Warning: Could not link "
+                    f"parent → child: {e}"
                 )
+                console.print(warning_msg)
 
         console.print(
             f"[green]✓[/green] Created {layer}: {node.title} (ID: {node.id})"
@@ -878,7 +891,10 @@ def sync_status(_: click.Context) -> None:
 @cli.command()
 @click.pass_context
 def db_status(ctx: click.Context) -> None:
-    """Show storage configuration and status using simplified library approach."""
+    """Show storage configuration and status using simplified library approach.
+
+    Displays current database URL, storage backend info, and system status.
+    """
     try:
         # Use library's simplified connection
         app = get_app()

@@ -18,7 +18,8 @@ import yaml
 
 
 class TraceabilityBuilder:
-    """Builds traceability matrix and dependency graph for ToDoWrite framework"""
+    """Builds traceability matrix and dependency graph for
+    ToDoWrite framework"""
 
     def __init__(self) -> None:
         self.nodes: dict[str, dict[str, Any]] = {}
@@ -28,7 +29,8 @@ class TraceabilityBuilder:
         self.circular_deps: list[list[str]] = []
 
     def _find_yaml_files(self) -> list[Path]:
-        """Find all YAML files in configs/plans/* and configs/commands/* directories"""
+        """Find all YAML files in configs/plans/* and configs/commands/*
+        directories"""
         yaml_files: list[Path] = []
 
         # Plans directory (layers 1-11)
@@ -134,7 +136,8 @@ class TraceabilityBuilder:
             has_parents = bool(node_data["parents"])
             has_children = bool(node_data["children"])
 
-            # Goal nodes can have no parents, Command nodes can have no children
+            # Goal nodes can have no parents, Command nodes can have no
+            # children
             layer = node_data["layer"]
             if (
                 (layer == "Goal" and not has_children)

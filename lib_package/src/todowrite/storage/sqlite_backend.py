@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
@@ -17,7 +18,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Session, sessionmaker
 
-from ..database.models import Artifact, Command, Label, Link, Node, node_labels
+from ..core.types import Node, links
 from .backends import (
     NodeCreationError,
     NodeCreationResult,
@@ -36,18 +37,21 @@ logger = logging.getLogger(__name__)
 
 class SQLiteBackend(StorageBackend):
     """
-    SQLite storage backend optimized for development and single-user environments.
+    SQLite storage backend optimized for development and single-user
+    environments.
 
-    This backend provides lightweight, file-based storage for ToDoWrite nodes using SQLite
-    with optimizations for speed and simplicity in development environments.
+    This backend provides lightweight, file-based storage for ToDoWrite
+    nodes using SQLite with optimizations for speed and simplicity in
+    development environments.
     """
 
-    def __init__(self, database_path: str | Path):
+    def __init__(self, database_path: str | Path) -> None:
         """
         Initialize SQLite backend with database file path.
 
         Args:
-            database_path: Path to SQLite database file (will be created if it doesn't exist)
+            database_path: Path to SQLite database file (will be created if
+                it doesn't exist)
         """
         self.database_path = Path(database_path)
         self.database_url = f"sqlite:///{self.database_path}"
@@ -101,8 +105,9 @@ class SQLiteBackend(StorageBackend):
             self._is_connected = False
             raise StorageConnectionError(
                 self.backend_name,
-                f"Failed to connect to SQLite database at {self.database_path}: {e!s}",
-            )
+                f"Failed to connect to SQLite database at "
+                f"{self.database_path}: {e!s}",
+            ) from e
 
     def disconnect_from_storage(self) -> None:
         """Close SQLite connection and cleanup resources."""
@@ -114,8 +119,9 @@ class SQLiteBackend(StorageBackend):
             logger.info("Disconnected from SQLite database")
 
     @contextmanager
-    def _get_session(self):
-        """Context manager for SQLite database sessions with proper error handling."""
+    def _get_session(self) -> Iterator[Session]:
+        """Context manager for SQLite database sessions with proper error
+        handling."""
         if not self._is_connected or not self.Session:
             raise StorageConnectionError(
                 self.backend_name,
@@ -135,85 +141,42 @@ class SQLiteBackend(StorageBackend):
         finally:
             session.close()
 
-    def create_new_node(self, node_data: dict[str, Any]) -> NodeCreationResult:
-        """Create a new node in SQLite with all its relationships."""
+    def create_new_node(self, node: Node) -> NodeCreationResult:
+        """Create a new node using Active Record patterns."""
         try:
             with self._get_session() as session:
+                # Configure Node with session for Active Record operations
+                Node.configure_session(session)
+
                 # Check if node already exists
-                existing_node = session.get(Node, node_data["id"])
+                existing_node = session.get(Node, node.id)
                 if existing_node:
                     return NodeCreationResult(
-                        created_node=existing_node, was_newly_created=False
+                        created_node=existing_node,
+                        was_newly_created=False,
                     )
 
-                # Extract related data from node_data
-                labels_data = node_data.pop("labels", [])
-                command_data = node_data.pop("command", None)
-                links_data = node_data.pop(
-                    "links", {"parents": [], "children": []}
-                )
-                parents_data = links_data.get("parents", [])
-                children_data = links_data.get("children", [])
-
-                # Filter node_data to only include valid Node fields
-                valid_node_fields = {
-                    "id",
-                    "layer",
-                    "title",
-                    "description",
-                    "status",
-                    "progress",
-                    "started_date",
-                    "completion_date",
-                    "owner",
-                    "severity",
-                    "work_type",
-                    "assignee",
-                }
-                filtered_node_data = {
-                    k: v
-                    for k, v in node_data.items()
-                    if k in valid_node_fields
-                }
-
-                # Create the main node
-                new_node = Node(**filtered_node_data)
-                session.add(new_node)
-
-                # Handle labels
-                if labels_data:
-                    self._attach_labels_to_node(session, new_node, labels_data)
-
-                # Handle command if this is a Command layer
-                if command_data and new_node.layer == "Command":
-                    self._attach_command_to_node(
-                        session, new_node, command_data
-                    )
-
-                # Handle parent-child relationships
-                if parents_data or children_data:
-                    self._attach_relationships_to_node(
-                        session, new_node, parents_data, children_data
-                    )
-
-                session.flush()  # Get the node ID without committing
-                session.refresh(new_node)
+                # Use Active Record pattern - Node saves itself
+                node.save()
 
                 return NodeCreationResult(
-                    created_node=new_node, was_newly_created=True
+                    created_node=node,
+                    was_newly_created=True,
                 )
 
         except Exception as e:
             raise NodeCreationError(
-                node_data.get("id", "unknown"),
+                node.id if hasattr(node, "id") else "unknown",
                 f"SQLite creation failed: {e!s}",
                 self.backend_name,
-            )
+            ) from e
 
     def retrieve_node_by_id(self, node_id: str) -> Node:
         """Retrieve a node from SQLite by its unique identifier."""
         try:
             with self._get_session() as session:
+                Node.configure_session(session)
+
                 node = session.get(Node, node_id)
                 if not node:
                     raise NodeNotFoundError(node_id, self.backend_name)
@@ -225,14 +188,16 @@ class SQLiteBackend(StorageBackend):
             raise StorageConnectionError(
                 self.backend_name,
                 f"Failed to retrieve node '{node_id}': {e!s}",
-            )
+            ) from e
 
     def update_existing_node(
         self, node_id: str, update_data: dict[str, Any]
     ) -> Node:
-        """Update an existing node in SQLite with new data."""
+        """Update an existing node using Active Record patterns."""
         try:
             with self._get_session() as session:
+                Node.configure_session(session)
+
                 node = session.get(Node, node_id)
                 if not node:
                     raise NodeNotFoundError(node_id, self.backend_name)
@@ -268,8 +233,8 @@ class SQLiteBackend(StorageBackend):
                         session, node, parents_data, children_data
                     )
 
-                session.flush()
-                session.refresh(node)
+                # Use Active Record pattern - Node saves itself
+                node.save()
                 return node
 
         except NodeNotFoundError:
@@ -277,44 +242,27 @@ class SQLiteBackend(StorageBackend):
         except Exception as e:
             raise NodeUpdateError(
                 node_id, f"SQLite update failed: {e!s}", self.backend_name
-            )
+            ) from e
 
     def remove_node_by_id(self, node_id: str) -> bool:
-        """Remove a node from SQLite and clean up all its relationships."""
+        """Remove a node using Active Record patterns."""
         try:
             with self._get_session() as session:
+                Node.configure_session(session)
+
                 node = session.get(Node, node_id)
                 if not node:
                     return False  # Node didn't exist, nothing to remove
 
-                # Delete relationships first (foreign key constraints)
-                session.execute(
-                    delete(Link).where(
-                        or_(
-                            Link.c.parent_id == node_id,
-                            Link.c.child_id == node_id,
-                        )
-                    )
-                )
-
-                # Delete label associations
-                session.execute(
-                    delete(node_labels).where(node_labels.c.node_id == node_id)
-                )
-
-                # Delete command if it exists
-                session.execute(
-                    delete(Command).where(Command.c.node_id == node_id)
-                )
-
-                # Finally delete the node
-                session.delete(node)
+                # Use Active Record pattern - Node destroys itself and
+                # cleans up relationships
+                node.destroy()
                 return True
 
         except Exception as e:
             raise NodeDeletionError(
                 node_id, f"SQLite deletion failed: {e!s}", self.backend_name
-            )
+            ) from e
 
     def list_all_nodes_in_layer(
         self, layer_name: str | None = None
@@ -332,7 +280,7 @@ class SQLiteBackend(StorageBackend):
         except Exception as e:
             raise StorageConnectionError(
                 self.backend_name, f"Failed to list nodes: {e!s}"
-            )
+            ) from e
 
     def search_nodes_by_criteria(
         self, search_criteria: dict[str, Any]
@@ -365,14 +313,16 @@ class SQLiteBackend(StorageBackend):
                 str(search_criteria),
                 f"SQLite search failed: {e!s}",
                 self.backend_name,
-            )
+            ) from e
 
     def create_parent_child_relationship(
         self, parent_id: str, child_id: str
     ) -> RelationshipCreationResult:
-        """Create a parent-child relationship between two nodes in SQLite."""
+        """Create a parent-child relationship using Active Record patterns."""
         try:
             with self._get_session() as session:
+                Node.configure_session(session)
+
                 # Verify both nodes exist
                 parent_node = session.get(Node, parent_id)
                 child_node = session.get(Node, child_id)
@@ -382,29 +332,16 @@ class SQLiteBackend(StorageBackend):
                 if not child_node:
                     raise NodeNotFoundError(child_id, self.backend_name)
 
-                # Check if relationship already exists
-                existing_link = session.execute(
-                    select(Link).where(
-                        and_(
-                            Link.c.parent_id == parent_id,
-                            Link.c.child_id == child_id,
-                        )
-                    )
-                ).first()
-
-                if existing_link:
+                # Check if relationship already exists using Active Record
+                if child_node in parent_node.children:
                     return RelationshipCreationResult(
                         parent_id=parent_id,
                         child_id=child_id,
                         was_newly_linked=False,
                     )
 
-                # Create the relationship
-                session.execute(
-                    Link.insert().values(
-                        parent_id=parent_id, child_id=child_id
-                    )
-                )
+                # Use Active Record pattern - parent adds child
+                parent_node.add_child(child_node)
 
                 return RelationshipCreationResult(
                     parent_id=parent_id,
@@ -420,7 +357,7 @@ class SQLiteBackend(StorageBackend):
                 child_id,
                 f"SQLite relationship creation failed: {e!s}",
                 self.backend_name,
-            )
+            ) from e
 
     def remove_parent_child_relationship(
         self, parent_id: str, child_id: str
@@ -431,8 +368,8 @@ class SQLiteBackend(StorageBackend):
                 result = session.execute(
                     delete(Link).where(
                         and_(
-                            Link.c.parent_id == parent_id,
-                            Link.c.child_id == child_id,
+                            links.c.parent_id == parent_id,
+                            links.c.child_id == child_id,
                         )
                     )
                 )
@@ -441,7 +378,7 @@ class SQLiteBackend(StorageBackend):
         except Exception as e:
             raise StorageConnectionError(
                 self.backend_name, f"Failed to remove relationship: {e!s}"
-            )
+            ) from e
 
     def get_all_parents_of_node(self, node_id: str) -> list[Node]:
         """Retrieve all direct parent nodes for the given node from SQLite."""
@@ -454,8 +391,8 @@ class SQLiteBackend(StorageBackend):
                 # Query for parents
                 query = (
                     select(Node)
-                    .join(Link, Node.id == Link.c.parent_id)
-                    .where(Link.c.child_id == node_id)
+                    .join(links, Node.id == links.c.parent_id)
+                    .where(links.c.child_id == node_id)
                     .order_by(Node.title)
                 )
 
@@ -467,7 +404,7 @@ class SQLiteBackend(StorageBackend):
             raise StorageConnectionError(
                 self.backend_name,
                 f"Failed to retrieve parents for node '{node_id}': {e!s}",
-            )
+            ) from e
 
     def get_all_children_of_node(self, node_id: str) -> list[Node]:
         """Retrieve all direct child nodes for the given node from SQLite."""
@@ -480,8 +417,8 @@ class SQLiteBackend(StorageBackend):
                 # Query for children
                 query = (
                     select(Node)
-                    .join(Link, Node.id == Link.c.child_id)
-                    .where(Link.c.parent_id == node_id)
+                    .join(links, Node.id == links.c.child_id)
+                    .where(links.c.parent_id == node_id)
                     .order_by(Node.title)
                 )
 
@@ -493,7 +430,7 @@ class SQLiteBackend(StorageBackend):
             raise StorageConnectionError(
                 self.backend_name,
                 f"Failed to retrieve children for node '{node_id}': {e!s}",
-            )
+            ) from e
 
     def count_nodes_in_storage(self) -> int:
         """Count the total number of nodes currently stored in SQLite."""
@@ -505,7 +442,7 @@ class SQLiteBackend(StorageBackend):
         except Exception as e:
             raise StorageConnectionError(
                 self.backend_name, f"Failed to count nodes: {e!s}"
-            )
+            ) from e
 
     def storage_is_healthy(self) -> bool:
         """Check if SQLite storage is healthy and accessible."""
@@ -610,7 +547,7 @@ class SQLiteBackend(StorageBackend):
         # Clear existing relationships
         session.execute(
             delete(Link).where(
-                or_(Link.c.parent_id == node.id, Link.c.child_id == node.id)
+                or_(links.c.parent_id == node.id, links.c.child_id == node.id)
             )
         )
 

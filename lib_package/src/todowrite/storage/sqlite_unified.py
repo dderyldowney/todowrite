@@ -7,6 +7,7 @@ throughout and using simple SQL for persistence.
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
@@ -56,7 +57,7 @@ class SQLiteUnifiedBackend:
     Node objects throughout, using simple SQL for persistence.
     """
 
-    def __init__(self, database_path: str | Path):
+    def __init__(self, database_path: str | Path) -> None:
         """
         Initialize SQLite backend with database file path.
         """
@@ -111,7 +112,7 @@ class SQLiteUnifiedBackend:
             raise StorageConnectionError(
                 self.backend_name,
                 f"Failed to connect to SQLite database at {self.database_path}: {e!s}",
-            )
+            ) from e
 
     def disconnect_from_storage(self) -> None:
         """Close SQLite connection."""
@@ -123,7 +124,7 @@ class SQLiteUnifiedBackend:
             logger.info("Disconnected from SQLite database")
 
     @contextmanager
-    def _get_session(self):
+    def _get_session(self) -> Iterator[Session]:
         """Get database session with proper error handling."""
         if not self._is_connected or not self.Session:
             raise StorageConnectionError(
@@ -224,7 +225,7 @@ class SQLiteUnifiedBackend:
                 app_node.id,
                 f"SQLite creation failed: {e!s}",
                 self.backend_name,
-            )
+            ) from e
 
     def retrieve_node_by_id(self, node_id: str) -> Node:
         """Retrieve a node by ID."""
@@ -234,11 +235,11 @@ class SQLiteUnifiedBackend:
 
         except (ValueError, KeyError, AttributeError) as e:
             if "not found" in str(e).lower():
-                raise NodeNotFoundError(node_id, self.backend_name)
+                raise NodeNotFoundError(node_id, self.backend_name) from e
             raise StorageConnectionError(
                 self.backend_name,
                 f"Failed to retrieve node '{node_id}': {e!s}",
-            )
+            ) from e
 
     def _load_node_with_relationships(
         self, session: Session, node_id: str
@@ -413,7 +414,7 @@ class SQLiteUnifiedBackend:
         except (ValueError, KeyError, AttributeError) as e:
             raise NodeUpdateError(
                 app_node.id, f"SQLite update failed: {e!s}", self.backend_name
-            )
+            ) from e
 
     def remove_node_by_id(self, node_id: str) -> bool:
         """Remove a node."""
@@ -447,7 +448,7 @@ class SQLiteUnifiedBackend:
         except (ValueError, KeyError, AttributeError) as e:
             raise NodeDeletionError(
                 node_id, f"SQLite deletion failed: {e!s}", self.backend_name
-            )
+            ) from e
 
     def create_parent_child_relationship(
         self, parent_id: str, child_id: str
@@ -502,7 +503,7 @@ class SQLiteUnifiedBackend:
                 child_id,
                 f"SQLite relationship creation failed: {e!s}",
                 self.backend_name,
-            )
+            ) from e
 
     def remove_parent_child_relationship(
         self, parent_id: str, child_id: str
@@ -523,7 +524,7 @@ class SQLiteUnifiedBackend:
         except Exception as e:
             raise StorageConnectionError(
                 self.backend_name, f"Failed to remove relationship: {e!s}"
-            )
+            ) from e
 
     def list_all_nodes_in_layer(
         self, layer_name: str | None = None
@@ -545,7 +546,7 @@ class SQLiteUnifiedBackend:
         except Exception as e:
             raise StorageConnectionError(
                 self.backend_name, f"Failed to list nodes: {e!s}"
-            )
+            ) from e
 
     def get_all_children_of_node(self, node_id: str) -> list[Node]:
         """Get children of a node."""
@@ -576,7 +577,7 @@ class SQLiteUnifiedBackend:
             raise StorageConnectionError(
                 self.backend_name,
                 f"Failed to get children for node '{node_id}': {e!s}",
-            )
+            ) from e
 
     def get_all_parents_of_node(self, node_id: str) -> list[Node]:
         """Get parents of a node."""
@@ -607,7 +608,7 @@ class SQLiteUnifiedBackend:
             raise StorageConnectionError(
                 self.backend_name,
                 f"Failed to get parents for node '{node_id}': {e!s}",
-            )
+            ) from e
 
     def count_nodes_in_storage(self) -> int:
         """Count total nodes."""
@@ -619,7 +620,7 @@ class SQLiteUnifiedBackend:
         except Exception as e:
             raise StorageConnectionError(
                 self.backend_name, f"Failed to count nodes: {e!s}"
-            )
+            ) from e
 
     def search_nodes_by_criteria(
         self, search_criteria: dict[str, Any]
@@ -656,7 +657,7 @@ class SQLiteUnifiedBackend:
                 str(search_criteria),
                 f"SQLite search failed: {e!s}",
                 self.backend_name,
-            )
+            ) from e
 
     def storage_is_healthy(self) -> bool:
         """Check storage health."""

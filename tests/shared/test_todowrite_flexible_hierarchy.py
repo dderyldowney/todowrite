@@ -21,10 +21,7 @@ sys.path.insert(0, str(project_root))
 from typing import Any
 
 import pytest
-from todowrite.core.app import (
-    ToDoWrite,
-    create_node,
-)
+from todowrite import ToDoWrite, create_node
 
 
 def add_goal(

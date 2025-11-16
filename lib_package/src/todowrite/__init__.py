@@ -18,6 +18,17 @@ __description__ = (
 )
 
 # Core application components (re-export from core package)
+# Standalone API functions
+from .api import (
+    create_node,
+    delete_node,
+    get_node,
+    link_nodes,
+    list_nodes,
+    search_nodes,
+    unlink_nodes,
+    update_node,
+)
 from .core import (
     TODOWRITE_SCHEMA,
     CLIError,
@@ -76,9 +87,17 @@ __all__ = [
     "__description__",
     "__title__",
     "__version__",
+    "create_node",
+    "delete_node",
     "generate_node_id",
+    "get_node",
+    "link_nodes",
+    "list_nodes",
     "safe_get_nested",
+    "search_nodes",
     "truncate_string",
+    "unlink_nodes",
+    "update_node",
     "validate_node",
     "validate_schema",
 ]

@@ -8,8 +8,7 @@ and usage patterns for developers using the library as a Python package.
 import unittest
 from pathlib import Path
 
-from todowrite import Node, ToDoWrite
-from todowrite.core.app import link_nodes, unlink_nodes
+from todowrite import Node, ToDoWrite, link_nodes, unlink_nodes
 
 
 class TestCoreAPI(unittest.TestCase):
@@ -20,7 +19,6 @@ class TestCoreAPI(unittest.TestCase):
         self.test_db = Path("test_api.db")
         self.db_url = f"sqlite:///{self.test_db}"
         self.app = ToDoWrite(self.db_url)
-        self.app.init_database()
 
     def tearDown(self) -> None:
         """Clean up test environment."""
@@ -315,16 +313,10 @@ class TestCoreAPI(unittest.TestCase):
             all_node_list.extend(nodes)
 
         # Filter nodes by owner
-        developer_nodes = [
-            node
-            for node in all_node_list
-            if node.metadata.owner == "developer"
-        ]
+        developer_nodes = [node for node in all_node_list if node.metadata.owner == "developer"]
         self.assertEqual(len(developer_nodes), 2)
 
-        designer_nodes = [
-            node for node in all_node_list if node.metadata.owner == "designer"
-        ]
+        designer_nodes = [node for node in all_node_list if node.metadata.owner == "designer"]
         self.assertEqual(len(designer_nodes), 1)
 
 
@@ -336,7 +328,6 @@ class TestNodeAPI(unittest.TestCase):
         self.test_db = Path("test_node_api.db")
         self.db_url = f"sqlite:///{self.test_db}"
         self.app = ToDoWrite(self.db_url)
-        self.app.init_database()
 
     def tearDown(self) -> None:
         """Clean up test environment."""
@@ -529,7 +520,6 @@ class TestLinkingAPI(unittest.TestCase):
         self.test_db = Path("test_linking.db")
         self.db_url = f"sqlite:///{self.test_db}"
         self.app = ToDoWrite(self.db_url)
-        self.app.init_database()
 
     def tearDown(self) -> None:
         """Clean up test environment."""
@@ -754,6 +744,268 @@ class TestLinkingAPI(unittest.TestCase):
         self.assertIsNotNone(concept_retrieved)
         self.assertIsNotNone(task1_retrieved)
         self.assertIsNotNone(task2_retrieved)
+
+
+class TestStandaloneAPIFunctions(unittest.TestCase):
+    """Test standalone API functions that CLI expects to import."""
+
+    def setUp(self) -> None:
+        """Set up test environment."""
+        self.test_db = Path("test_standalone_api.db")
+        self.db_url = f"sqlite:///{self.test_db}"
+
+    def tearDown(self) -> None:
+        """Clean up test environment."""
+        self.test_db.unlink(missing_ok=True)
+
+    def test_create_node_standalone_function(self) -> None:
+        """Test the standalone create_node function."""
+        # This test will fail initially because the function doesn't exist
+        # RED phase of TDD
+        node_data = {
+            "id": "GOAL-STANDALONE-001",
+            "layer": "Goal",
+            "title": "Standalone Test Goal",
+            "description": "A test goal for standalone API testing",
+            "links": {"parents": [], "children": []},
+            "metadata": {
+                "owner": "developer",
+                "labels": ["standalone-test", "important"],
+                "severity": "med",
+                "work_type": "architecture",
+            },
+        }
+
+        # This should import and work when the function exists
+        from todowrite import create_node
+
+        node = create_node(self.db_url, node_data)
+
+        self.assertIsNotNone(node)
+        self.assertEqual(node.id, "GOAL-STANDALONE-001")
+        self.assertEqual(node.title, "Standalone Test Goal")
+        self.assertEqual(node.layer, "Goal")
+        self.assertEqual(node.metadata.owner, "developer")
+
+    def test_get_node_standalone_function(self) -> None:
+        """Test the standalone get_node function."""
+        # First create a node using the app instance for setup
+        app = ToDoWrite(self.db_url)
+        app.create_node(
+            {
+                "id": "TSK-STANDALONE-001",
+                "layer": "Task",
+                "title": "Standalone Test Task",
+                "description": "A test task for standalone API testing",
+                "links": {"parents": [], "children": []},
+                "metadata": {"owner": "developer", "labels": [], "work_type": "implementation"},
+            }
+        )
+
+        # This should import and work when the function exists
+        from todowrite import get_node
+
+        node = get_node(self.db_url, "TSK-STANDALONE-001")
+
+        self.assertIsNotNone(node)
+        self.assertEqual(node.title, "Standalone Test Task")
+        self.assertEqual(node.layer, "Task")
+
+    def test_get_nonexistent_node_standalone_function(self) -> None:
+        """Test getting a non-existent node with standalone function."""
+        from todowrite import get_node
+
+        node = get_node(self.db_url, "NONEXISTENT")
+        self.assertIsNone(node)
+
+    def test_update_node_standalone_function(self) -> None:
+        """Test the standalone update_node function."""
+        # Create initial node using app instance
+        app = ToDoWrite(self.db_url)
+        app.create_node(
+            {
+                "id": "GOAL-STANDALONE-UPDATE-001",
+                "layer": "Goal",
+                "title": "Original Standalone Goal",
+                "description": "Original description",
+                "links": {"parents": [], "children": []},
+                "metadata": {"owner": "developer", "labels": []},
+            }
+        )
+
+        # This should import and work when the function exists
+        from todowrite import update_node
+
+        update_data = {
+            "id": "GOAL-STANDALONE-UPDATE-001",
+            "title": "Updated Standalone Goal",
+            "description": "Updated description",
+            "status": "in_progress",
+            "progress": 50,
+            "metadata": {
+                "owner": "updated-developer",
+                "labels": ["updated"],
+                "severity": "high",
+                "work_type": "implementation",
+            },
+        }
+
+        updated_node = update_node(self.db_url, "GOAL-STANDALONE-UPDATE-001", update_data)
+
+        self.assertIsNotNone(updated_node)
+        self.assertEqual(updated_node.title, "Updated Standalone Goal")
+        self.assertEqual(updated_node.status, "in_progress")
+        self.assertEqual(updated_node.progress, 50)
+        self.assertEqual(updated_node.metadata.owner, "updated-developer")
+
+    def test_delete_node_standalone_function(self) -> None:
+        """Test the standalone delete_node function."""
+        # Create a node using app instance
+        app = ToDoWrite(self.db_url)
+        app.create_node(
+            {
+                "id": "TSK-STANDALONE-DELETE-001",
+                "layer": "Task",
+                "title": "Standalone Task to Delete",
+                "description": "This will be deleted by standalone function",
+                "links": {"parents": [], "children": []},
+                "metadata": {"owner": "developer", "labels": []},
+            }
+        )
+
+        # Verify it exists
+        from todowrite import delete_node, get_node
+
+        node = get_node(self.db_url, "TSK-STANDALONE-DELETE-001")
+        self.assertIsNotNone(node)
+
+        # Delete it using standalone function
+        result = delete_node(self.db_url, "TSK-STANDALONE-DELETE-001")
+        self.assertTrue(result)
+
+        # Verify it's gone
+        deleted_node = get_node(self.db_url, "TSK-STANDALONE-DELETE-001")
+        self.assertIsNone(deleted_node)
+
+    def test_delete_nonexistent_node_standalone_function(self) -> None:
+        """Test deleting a non-existent node with standalone function."""
+        from todowrite import delete_node
+
+        # Should not raise an exception even if node doesn't exist
+        result = delete_node(self.db_url, "NONEXISTENT")
+        self.assertFalse(result)  # Should return False for non-existent node
+
+    def test_list_nodes_standalone_function(self) -> None:
+        """Test the standalone list_nodes function."""
+        # Create nodes using app instance
+        app = ToDoWrite(self.db_url)
+        app.create_node(
+            {
+                "id": "GOAL-STANDALONE-LIST-001",
+                "layer": "Goal",
+                "title": "Standalone Main Goal",
+                "description": "Main project goal",
+                "links": {"parents": [], "children": []},
+                "metadata": {"owner": "developer", "labels": []},
+            }
+        )
+        app.create_node(
+            {
+                "id": "TSK-STANDALONE-LIST-001",
+                "layer": "Task",
+                "title": "Standalone Main Task",
+                "description": "Main project task",
+                "links": {"parents": [], "children": []},
+                "metadata": {"owner": "developer", "labels": []},
+            }
+        )
+
+        # This should import and work when the function exists
+        from todowrite import list_nodes
+
+        # List all nodes
+        all_nodes = list_nodes(self.db_url)
+
+        self.assertEqual(len(all_nodes), 2)
+        node_ids = [node.id for node in all_nodes]
+        self.assertIn("GOAL-STANDALONE-LIST-001", node_ids)
+        self.assertIn("TSK-STANDALONE-LIST-001", node_ids)
+
+    def test_list_nodes_by_layer_standalone_function(self) -> None:
+        """Test the standalone list_nodes function with layer filter."""
+        # Create nodes using app instance
+        app = ToDoWrite(self.db_url)
+        app.create_node(
+            {
+                "id": "GOAL-STANDALONE-LAYER-001",
+                "layer": "Goal",
+                "title": "Goal 1",
+                "description": "First goal",
+                "links": {"parents": [], "children": []},
+                "metadata": {"owner": "developer", "labels": []},
+            }
+        )
+        app.create_node(
+            {
+                "id": "TSK-STANDALONE-LAYER-001",
+                "layer": "Task",
+                "title": "Task 1",
+                "description": "First task",
+                "links": {"parents": [], "children": []},
+                "metadata": {"owner": "developer", "labels": []},
+            }
+        )
+
+        # This should import and work when the function exists
+        from todowrite import list_nodes
+
+        # List goals only
+        goals = list_nodes(self.db_url, layer="Goal")
+        self.assertEqual(len(goals), 1)
+        self.assertEqual(goals[0].layer, "Goal")
+
+        # List tasks only
+        tasks = list_nodes(self.db_url, layer="Task")
+        self.assertEqual(len(tasks), 1)
+        self.assertEqual(tasks[0].layer, "Task")
+
+    def test_search_nodes_standalone_function(self) -> None:
+        """Test the standalone search_nodes function."""
+        # Create nodes using app instance
+        app = ToDoWrite(self.db_url)
+        app.create_node(
+            {
+                "id": "GOAL-STANDALONE-SEARCH-001",
+                "layer": "Goal",
+                "title": "Searchable Goal",
+                "description": "A goal with specific keywords",
+                "links": {"parents": [], "children": []},
+                "metadata": {"owner": "developer", "labels": ["searchable", "test"]},
+            }
+        )
+        app.create_node(
+            {
+                "id": "TSK-STANDALONE-SEARCH-001",
+                "layer": "Task",
+                "title": "Regular Task",
+                "description": "A regular task without keywords",
+                "links": {"parents": [], "children": []},
+                "metadata": {"owner": "designer", "labels": []},
+            }
+        )
+
+        # This should import and work when the function exists
+        from todowrite import search_nodes
+
+        # Search by owner
+        developer_nodes = search_nodes(self.db_url, {"owner": "developer"})
+        self.assertEqual(len(developer_nodes), 1)
+        self.assertEqual(developer_nodes[0].id, "GOAL-STANDALONE-SEARCH-001")
+
+        # Search by labels containing specific keywords
+        searchable_nodes = search_nodes(self.db_url, {"labels": ["searchable"]})
+        self.assertEqual(len(searchable_nodes), 1)
+        self.assertEqual(searchable_nodes[0].id, "GOAL-STANDALONE-SEARCH-001")
 
 
 if __name__ == "__main__":
