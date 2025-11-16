@@ -242,139 +242,105 @@ class YAMLStorage:
 
         return False
 
+    def _process_yaml_data(self, yaml_data: Any) -> tuple[list[dict[str, Any]], list[str]]:
+        """Process YAML data and return valid nodes with errors."""
+        valid_nodes: list[dict[str, Any]] = []
+        errors: list[str] = []
+
+        if isinstance(yaml_data, dict):
+            yaml_data_dict = cast("dict[str, Any]", yaml_data)
+            is_valid, node_errors = validate_node_data(yaml_data_dict)
+            if is_valid:
+                valid_nodes.append(yaml_data_dict)
+            else:
+                errors.extend(node_errors)
+        elif isinstance(yaml_data, list):
+            # Handle multi-node files
+            for item in cast("list[Any]", yaml_data):
+                if isinstance(item, dict):
+                    item_dict = cast("dict[str, Any]", item)
+                    is_valid, node_errors = validate_node_data(item_dict)
+                    if is_valid:
+                        valid_nodes.append(item_dict)
+                    else:
+                        errors.extend(node_errors)
+                else:
+                    errors.append("Invalid YAML structure: non-dict item in list")
+        else:
+            errors.append("Invalid YAML structure: not dict or list")
+
+        return valid_nodes, errors
+
+    def _load_nodes_from_directory(self, directory_path: Path) -> list[Node]:
+        """Load and validate all nodes from a directory."""
+        layer_nodes: list[Node] = []
+        invalid_nodes: list[tuple[Path, list[str]]] = []
+
+        for yaml_file in directory_path.glob("*.yaml"):
+            try:
+                with open(yaml_file, encoding="utf-8") as f:
+                    yaml_data = yaml.safe_load(f)
+
+                valid_data, errors = self._process_yaml_data(yaml_data)
+
+                if valid_data:
+                    for valid_item in valid_data:
+                        node = self._yaml_to_node(valid_item)
+                        layer_nodes.append(node)
+
+                if errors:
+                    invalid_nodes.append((yaml_file, errors))
+
+            except (yaml.YAMLError, OSError, PermissionError, ValueError) as e:
+                print(f"Error loading {yaml_file}: {e}")
+                invalid_nodes.append((yaml_file, [str(e)]))
+
+        # Report validation errors
+        for file_path, file_errors in invalid_nodes:
+            print(f"⚠️  Validation errors in {file_path}:")
+            for error in file_errors:
+                print(f"    - {error}")
+
+        return layer_nodes
+
+    def _load_regular_nodes(self) -> dict[str, list[Node]]:
+        """Load regular nodes (not commands) from YAML files."""
+        nodes: dict[str, list[Node]] = {}
+
+        if not self.plans_path.exists():
+            return nodes
+
+        for layer, dir_name in self.layer_dirs.items():
+            if layer == "Command":
+                continue  # Commands are handled separately
+
+            layer_path = self.plans_path / dir_name
+            if layer_path.exists():
+                layer_nodes = self._load_nodes_from_directory(layer_path)
+                if layer_nodes:
+                    nodes[layer] = layer_nodes
+
+        return nodes
+
+    def _load_command_nodes(self) -> list[Node]:
+        """Load command nodes from YAML files."""
+        if not self.commands_path.exists():
+            return []
+
+        return self._load_nodes_from_directory(self.commands_path)
+
     def load_all_nodes(self) -> dict[str, list[Node]]:
         """Load all nodes from YAML files."""
         nodes: dict[str, list[Node]] = {}
 
-        # Load from plans directory
-        if self.plans_path.exists():
-            for layer, dir_name in self.layer_dirs.items():
-                if layer == "Command":
-                    continue  # Commands are handled separately
+        # Load regular nodes
+        regular_nodes = self._load_regular_nodes()
+        nodes.update(regular_nodes)
 
-                layer_path = self.plans_path / dir_name
-                if layer_path.exists():
-                    layer_nodes: list[Node] = []
-                    invalid_nodes: list[tuple[Path, list[str]]] = []
-                    for yaml_file in layer_path.glob("*.yaml"):
-                        try:
-                            with open(yaml_file, encoding="utf-8") as f:
-                                yaml_data = yaml.safe_load(f)
-
-                            # Validate the node data
-                            if isinstance(yaml_data, dict):
-                                yaml_data_dict = cast(
-                                    "dict[str, Any]", yaml_data
-                                )
-                                is_valid, errors = validate_node_data(
-                                    yaml_data_dict
-                                )
-                                if is_valid:
-                                    node = self._yaml_to_node(yaml_data_dict)
-                                    layer_nodes.append(node)
-                                else:
-                                    invalid_nodes.append((yaml_file, errors))
-                            elif isinstance(yaml_data, list):
-                                # Handle multi-node files
-                                valid_yaml_nodes: list[dict[str, Any]] = []
-                                for item in cast("list[Any]", yaml_data):
-                                    if isinstance(item, dict):
-                                        item_dict = cast(
-                                            "dict[str, Any]", item
-                                        )
-                                        is_valid, errors = validate_node_data(
-                                            item_dict
-                                        )
-                                        if is_valid:
-                                            valid_yaml_nodes.append(item_dict)
-                                        else:
-                                            invalid_nodes.append(
-                                                (yaml_file, errors)
-                                            )
-                                for valid_item in valid_yaml_nodes:
-                                    node = self._yaml_to_node(valid_item)
-                                    layer_nodes.append(node)
-                            else:
-                                invalid_nodes.append(
-                                    (yaml_file, ["Invalid YAML structure"])
-                                )
-
-                        except (
-                            yaml.YAMLError,
-                            OSError,
-                            PermissionError,
-                            ValueError,
-                        ) as e:
-                            print(f"Error loading {yaml_file}: {e}")
-                            invalid_nodes.append((yaml_file, [str(e)]))
-
-                    # Report validation errors
-                    for file_path, errors in invalid_nodes:
-                        print(f"⚠️  Validation errors in {file_path}:")
-                        for error in errors:
-                            print(f"    - {error}")
-
-                    if layer_nodes:
-                        nodes[layer] = layer_nodes
-
-        # Load commands
-        if self.commands_path.exists():
-            command_nodes: list[Node] = []
-            invalid_command_nodes: list[tuple[Path, list[str]]] = []
-            for yaml_file in self.commands_path.glob("*.yaml"):
-                try:
-                    with open(yaml_file, encoding="utf-8") as f:
-                        yaml_data = yaml.safe_load(f)
-
-                    # Validate the node data
-                    if isinstance(yaml_data, dict):
-                        yaml_data_dict = cast("dict[str, Any]", yaml_data)
-                        is_valid, errors = validate_node_data(yaml_data_dict)
-                        if is_valid:
-                            node = self._yaml_to_node(yaml_data_dict)
-                            command_nodes.append(node)
-                        else:
-                            invalid_command_nodes.append((yaml_file, errors))
-                    elif isinstance(yaml_data, list):
-                        # Handle multi-node files
-                        valid_command_nodes: list[dict[str, Any]] = []
-                        for item in cast("list[Any]", yaml_data):
-                            if isinstance(item, dict):
-                                item_dict = cast("dict[str, Any]", item)
-                                is_valid, errors = validate_node_data(
-                                    item_dict
-                                )
-                                if is_valid:
-                                    valid_command_nodes.append(item_dict)
-                                else:
-                                    invalid_command_nodes.append(
-                                        (yaml_file, errors)
-                                    )
-                        for valid_item in valid_command_nodes:
-                            node = self._yaml_to_node(valid_item)
-                            command_nodes.append(node)
-                    else:
-                        invalid_command_nodes.append(
-                            (yaml_file, ["Invalid YAML structure"])
-                        )
-
-                except (
-                    yaml.YAMLError,
-                    OSError,
-                    PermissionError,
-                    ValueError,
-                ) as e:
-                    print(f"Error loading {yaml_file}: {e}")
-                    invalid_command_nodes.append((yaml_file, [str(e)]))
-
-            # Report validation errors
-            for file_path, errors in invalid_command_nodes:
-                print(f"⚠️  Validation errors in {file_path}:")
-                for error in errors:
-                    print(f"    - {error}")
-
-            if command_nodes:
-                nodes["Command"] = command_nodes
+        # Load command nodes
+        command_nodes = self._load_command_nodes()
+        if command_nodes:
+            nodes["Command"] = command_nodes
 
         return nodes
 

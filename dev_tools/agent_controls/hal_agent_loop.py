@@ -153,6 +153,158 @@ def _cache_result(hash_input: str, output: str) -> None:
         pass
 
 
+def _process_search_results(
+    lines: list[str],
+    max_files: int,
+    max_hits: int,
+    max_bytes: int,
+    json_filter: str | None,
+    abbreviate_paths: bool,
+    llm_snippet_chars: int,
+) -> tuple[str, int, int, int]:
+    """Process search results and format output."""
+    files_processed = 0
+    total_bytes = 0
+    hits_found = 0
+    result_lines = []
+
+    for line in lines:
+        # Check limits early
+        if _should_stop_processing(max_files, max_hits, max_bytes, files_processed, hits_found, total_bytes):
+            break
+
+        # Process individual line
+        processed_line = _process_line(line, json_filter, abbreviate_paths)
+        if processed_line is None:
+            continue
+
+        result_lines.append(processed_line)
+        total_bytes += len(line.encode("utf-8"))
+        hits_found += 1
+
+        if ":" in processed_line:
+            files_processed += 1
+
+    # Format output
+    output = "\n".join(result_lines)
+    if len(output) > llm_snippet_chars:
+        output = output[:llm_snippet_chars] + "\n...[truncated]"
+
+    return output, files_processed, hits_found, total_bytes
+
+
+def _try_ripgrep_search(
+    pattern: str | None,
+    context_lines: int,
+    per_file_max_lines: int,
+    max_file_size: int,
+    include_globs: list[str] | None,
+    exclude_globs: list[str] | None,
+    max_files: int,
+    max_hits: int,
+    max_bytes: int,
+    json_filter: str | None,
+    abbreviate_paths: bool,
+    llm_snippet_chars: int,
+    roots: list[str],
+) -> str | None:
+    """Try ripgrep search first."""
+    cmd = _build_ripgrep_cmd(
+        pattern,
+        context_lines,
+        per_file_max_lines,
+        max_file_size,
+        include_globs,
+        exclude_globs,
+    )
+
+    result = subprocess.run(cmd, check=False, capture_output=True, text=True, cwd=roots[0])
+
+    if result.returncode == 0:
+        lines = result.stdout.split("\n")
+        output, _, _, _ = _process_search_results(
+            lines, max_files, max_hits, max_bytes, json_filter, abbreviate_paths, llm_snippet_chars
+        )
+        return output
+    return None
+
+
+def _try_grep_search(
+    pattern: str | None,
+    context_lines: int,
+    max_files: int,
+    max_hits: int,
+    max_bytes: int,
+    llm_snippet_chars: int,
+    roots: list[str],
+) -> str | None:
+    """Try grep search as fallback."""
+    cmd = [
+        "grep",
+        "-r",
+        "-n",
+        "-A",
+        str(context_lines),
+        "-B",
+        str(context_lines),
+        pattern or ".",
+        "--include=*.py",
+    ]
+
+    result = subprocess.run(cmd, check=False, capture_output=True, text=True, cwd=roots[0])
+
+    if result.returncode == 0:
+        lines = result.stdout.split("\n")
+        files_processed = 0
+        total_bytes = 0
+        hits_found = 0
+        result_lines = []
+
+        for line in lines:
+            if not line.strip():
+                continue
+
+            # Apply limits
+            if max_files > 0 and files_processed >= max_files:
+                break
+            if max_hits > 0 and hits_found >= max_hits:
+                break
+            if total_bytes >= max_bytes:
+                break
+
+            result_lines.append(line)
+            total_bytes += len(line.encode("utf-8"))
+            hits_found += 1
+
+        output = "\n".join(result_lines)
+        if len(output) > llm_snippet_chars:
+            output = output[:llm_snippet_chars] + "\n...[truncated]"
+
+        return output
+    return None
+
+
+def _format_fallback_message(
+    goal: str,
+    pattern: str | None,
+    max_files: int,
+    max_hits: int,
+    max_bytes: int,
+    delta_mode: bool,
+) -> str:
+    """Format fallback message when search tools aren't available."""
+    info_parts = [
+        "Repository filtering not available. Please install ripgrep or grep.",
+        f"Goal: {goal}",
+        f"Pattern: {pattern}",
+        f"Max files: {max_files}",
+        f"Max hits: {max_hits}",
+        f"Max bytes: {max_bytes}",
+        f"Delta mode: {delta_mode}",
+    ]
+    return "\n".join(info_parts)
+
+
 def filter_repo_for_llm(
     goal: str,
     pattern: str | None = None,
@@ -183,138 +335,40 @@ def filter_repo_for_llm(
     if cached:
         return cached
 
-    # Initialize counters and limits
-    files_processed = 0
-    total_bytes = 0
-    hits_found = 0
-    result_lines = []
-
     # Calculate max file size
     if max_files > 0:
-        max_file_size = min(
-            max(1024 * 1024, max_bytes // max_files),
-            10 * 1024 * 1024,
-        )
+        max_file_size = min(max(1024 * 1024, max_bytes // max_files), 10 * 1024 * 1024)
     else:
         max_file_size = 1024 * 1024
 
     # Try ripgrep search first
     try:
-        # Build ripgrep command
-        cmd = _build_ripgrep_cmd(
-            pattern,
-            context_lines,
-            per_file_max_lines,
-            max_file_size,
-            include_globs,
-            exclude_globs,
+        output = _try_ripgrep_search(
+            pattern, context_lines, per_file_max_lines, max_file_size,
+            include_globs, exclude_globs, max_files, max_hits, max_bytes,
+            json_filter, abbreviate_paths, llm_snippet_chars, roots
         )
-
-        # Execute search
-        result = subprocess.run(cmd, check=False, capture_output=True, text=True, cwd=roots[0])
-
-        # Process results
-        if result.returncode == 0:
-            lines = result.stdout.split("\n")
-
-            for line in lines:
-                # Check limits early
-                if _should_stop_processing(
-                    max_files,
-                    max_hits,
-                    max_bytes,
-                    files_processed,
-                    hits_found,
-                    total_bytes,
-                ):
-                    break
-
-                # Process individual line
-                processed_line = _process_line(line, json_filter, abbreviate_paths)
-                if processed_line is None:
-                    continue
-
-                result_lines.append(processed_line)
-                total_bytes += len(line.encode("utf-8"))
-                hits_found += 1
-
-                if ":" in processed_line:
-                    files_processed += 1
-
-            # Format output and cache result
-            output = "\n".join(result_lines)
-            if len(output) > llm_snippet_chars:
-                output = output[:llm_snippet_chars] + "\n...[truncated]"
-
+        if output is not None:
             if delta_mode:
                 _cache_result(hash_input, output)
-
-            return output
-
-        return f"No matches found for pattern: {pattern}"
+            return output if output else f"No matches found for pattern: {pattern}"
 
     except FileNotFoundError:
-        # Try grep as fallback with full parameter support
-        try:
-            cmd = [
-                "grep",
-                "-r",
-                "-n",
-                "-A",
-                str(context_lines),
-                "-B",
-                str(context_lines),
-                pattern or ".",
-                "--include=*.py",
-            ]
+        pass
 
-            result = subprocess.run(
-                cmd,
-                check=False,
-                capture_output=True,
-                text=True,
-                cwd=roots[0],
-            )
+    # Try grep search as fallback
+    try:
+        output = _try_grep_search(
+            pattern, context_lines, max_files, max_hits, max_bytes, llm_snippet_chars, roots
+        )
+        if output is not None:
+            return output if output else f"No matches found for pattern: {pattern}"
 
-            if result.returncode == 0:
-                lines = result.stdout.split("\n")
+    except FileNotFoundError:
+        pass
 
-                for line in lines:
-                    if not line.strip():
-                        continue
-
-                    # Apply same limits and filtering as above
-                    if max_files > 0 and files_processed >= max_files:
-                        break
-                    if max_hits > 0 and hits_found >= max_hits:
-                        break
-                    if total_bytes >= max_bytes:
-                        break
-
-                    result_lines.append(line)
-                    total_bytes += len(line.encode("utf-8"))
-                    hits_found += 1
-
-                output = "\n".join(result_lines)
-
-                if len(output) > llm_snippet_chars:
-                    output = output[:llm_snippet_chars] + "\n...[truncated]"
-
-                return output
-            return f"No matches found for pattern: {pattern}"
-
-        except FileNotFoundError:
-            # Final fallback with parameter information
-            info_parts = [
-                "Repository filtering not available. Please install ripgrep or grep.",
-            ]
-            info_parts.append(f"Goal: {goal}")
-            info_parts.append(f"Pattern: {pattern}")
-            info_parts.append(f"Max files: {max_files}")
-            info_parts.append(f"Max hits: {max_hits}")
-            info_parts.append(f"Max bytes: {max_bytes}")
-            info_parts.append(f"Delta mode: {delta_mode}")
-            return "\n".join(info_parts)
+    # Final fallback with parameter information
+    return _format_fallback_message(goal, pattern, max_files, max_hits, max_bytes, delta_mode)
 
 
 # ---------- Providers -------------------------------------------------------

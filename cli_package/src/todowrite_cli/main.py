@@ -74,6 +74,304 @@ def capitalize_status(status: str) -> str:
     return status_mapping.get(status, status.title())
 
 
+# Helper functions for CLI validation and data processing
+def normalize_layer(layer: str) -> str | None:
+    """Normalize layer input to proper case (case-insensitive)."""
+    layer_mapping = {
+        "goal": "Goal",
+        "concept": "Concept",
+        "context": "Context",
+        "constraints": "Constraints",
+        "requirements": "Requirements",
+        "acceptancecriteria": "AcceptanceCriteria",
+        "acceptance_criteria": "AcceptanceCriteria",
+        "acceptance-criteria": "AcceptanceCriteria",
+        "interfacecontract": "InterfaceContract",
+        "interface_contract": "InterfaceContract",
+        "interface-contract": "InterfaceContract",
+        "phase": "Phase",
+        "step": "Step",
+        "task": "Task",
+        "subtask": "SubTask",
+        "sub_task": "SubTask",
+        "sub-task": "SubTask",
+        "command": "Command",
+    }
+    return layer_mapping.get(layer.lower())
+
+
+def validate_and_normalize_severity(severity: str) -> str | None:
+    """Validate and normalize severity input."""
+    severity_mapping = {
+        "low": "low",
+        "medium": "medium",
+        "med": "medium",
+        "high": "high",
+        "critical": "critical",
+    }
+    return severity_mapping.get(severity.lower())
+
+
+def validate_and_normalize_work_type(work_type: str) -> str | None:
+    """Validate and normalize work_type input."""
+    work_type_mapping = {
+        "architecture": "architecture",
+        "spec": "spec",
+        "interface": "interface",
+        "validation": "validation",
+        "implementation": "implementation",
+        "development": "implementation",
+        "docs": "docs",
+        "operations": "ops",
+        "ops": "ops",
+        "refactor": "refactor",
+        "chore": "chore",
+        "test": "test",
+    }
+    return work_type_mapping.get(work_type.lower())
+
+
+def get_layer_prefix(layer: str) -> str:
+    """Get the ID prefix for a layer type."""
+    layer_prefixes = {
+        "Goal": "GOAL",
+        "Concept": "CON",
+        "Context": "CTX",
+        "Constraints": "CST",
+        "Requirements": "R",
+        "AcceptanceCriteria": "AC",
+        "InterfaceContract": "IF",
+        "Phase": "PH",
+        "Step": "STP",
+        "Task": "TSK",
+        "SubTask": "SUB",
+        "Command": "CMD",
+    }
+    return layer_prefixes.get(layer, layer[:3].upper())
+
+
+def validate_parent_node(parent_id: str) -> bool:
+    """Validate that a parent node exists."""
+    try:
+        parent_node = get_node(parent_id)
+        return parent_node is not None
+    except (ValueError, KeyError, RuntimeError):
+        return False
+
+
+def build_command_data(
+    layer: str,
+    ac_ref: str | None,
+    run_shell: str | None,
+    artifacts: str | None,
+) -> dict[str, Any] | None:
+    """Build command-specific data for Command layer nodes."""
+    if layer != "Command":
+        return None
+
+    command_data = {}
+    if ac_ref:
+        command_data["ac_ref"] = ac_ref
+
+    command_data["run"] = {}
+    if run_shell:
+        command_data["run"]["shell"] = run_shell
+
+    if artifacts:
+        command_data["artifacts"] = [
+            artifact.strip() for artifact in artifacts.split(",")
+        ]
+
+    return command_data
+
+
+def filter_nodes_by_criteria(
+    nodes: dict[str, list],
+    layer: str | None,
+    owner: str | None,
+    status: str | None,
+) -> list[tuple[str, Any]]:
+    """Filter nodes by layer, owner, and status criteria."""
+    # Apply layer filter if specified
+    if layer:
+        normalized_layer = normalize_layer(layer) or layer.title()
+        nodes = {k: v for k, v in nodes.items() if k == normalized_layer}
+
+    # Apply additional filters
+    filtered_nodes = []
+    for layer_name, layer_nodes in nodes.items():
+        for node in layer_nodes:
+            # Owner filter
+            if owner and not _node_matches_owner(node, owner):
+                continue
+            # Status filter
+            if status and node.status.lower() != status.lower():
+                continue
+            filtered_nodes.append((layer_name, node))
+
+    return filtered_nodes
+
+
+def _node_matches_owner(node: Any, owner: str) -> bool:
+    """Check if node matches owner criteria."""
+    if not hasattr(node, "metadata") or not node.metadata:
+        return False
+    if not hasattr(node.metadata, "owner"):
+        return False
+    return node.metadata.owner.lower() == owner.lower()
+
+
+def extract_node_metadata(node: Any) -> dict[str, str]:
+    """Extract metadata values from a node with proper fallbacks."""
+    metadata = {
+        "owner": get_current_username(),
+        "severity": "low",
+        "work_type": "chore",
+    }
+
+    if hasattr(node, "metadata") and node.metadata:
+        if hasattr(node.metadata, "owner"):
+            metadata["owner"] = getattr(node.metadata, "owner", "") or get_current_username()
+        if hasattr(node.metadata, "severity"):
+            metadata["severity"] = getattr(node.metadata, "severity", "") or "low"
+        if hasattr(node.metadata, "work_type"):
+            metadata["work_type"] = getattr(node.metadata, "work_type", "") or "chore"
+
+    return metadata
+
+
+def format_node_for_display(
+    layer_name: str,
+    node: Any,
+    metadata: dict[str, str],
+) -> list[str]:
+    """Format node data for table display."""
+    title_display = node.title[:30] + "..." if len(node.title) > 30 else node.title
+    id_display = node.id[:12] + "…" if len(node.id) > 12 else node.id
+    owner_display = metadata["owner"][:20] + "…" if len(metadata["owner"]) > 20 else metadata["owner"]
+
+    return [
+        layer_name,
+        id_display,
+        title_display,
+        capitalize_status(node.status),
+        f"{node.progress}%" if node.progress is not None else "0%",
+        owner_display,
+        metadata["severity"].title(),
+        metadata["work_type"].title(),
+    ]
+
+
+def validate_and_normalize_status(status: str) -> str | None:
+    """Validate and normalize status input."""
+    status_mapping = {
+        "planned": "planned",
+        "inprogress": "in_progress",
+        "in_progress": "in_progress",
+        "completed": "completed",
+        "blocked": "blocked",
+        "cancelled": "cancelled",
+    }
+    return status_mapping.get(status.lower())
+
+
+def build_update_data(
+    title: str | None,
+    description: str | None,
+    owner: str | None,
+    severity: str | None,
+    work_type: str | None,
+    status: str | None,
+    progress: int | None,
+    labels: str | None,
+    ac_ref: str | None,
+    run_shell: str | None,
+    artifacts: str | None,
+) -> dict[str, Any]:
+    """Build update data dictionary from command line arguments."""
+    update_data: dict[str, Any] = {}
+
+    # Basic fields
+    if title is not None:
+        update_data["title"] = title
+    if description is not None:
+        update_data["description"] = description
+    if progress is not None:
+        update_data["progress"] = progress
+
+    # Metadata fields
+    metadata_updates = {}
+    if owner is not None:
+        metadata_updates["owner"] = owner
+    if labels is not None:
+        metadata_updates["labels"] = [label.strip() for label in labels.split(",")]
+
+    # Validated metadata fields
+    if severity is not None:
+        severity_normalized = validate_and_normalize_severity(severity)
+        if not severity_normalized:
+            valid_severities = ", ".join(sorted(["low", "medium", "med", "high", "critical"]))
+            raise ValueError(f"Invalid severity: '{severity}'. Valid options: {valid_severities}")
+        metadata_updates["severity"] = severity_normalized
+
+    if work_type is not None:
+        work_type_normalized = validate_and_normalize_work_type(work_type)
+        if not work_type_normalized:
+            valid_work_types = ", ".join(sorted([
+                "architecture", "spec", "interface", "validation",
+                "implementation", "development", "docs", "ops",
+                "refactor", "chore", "test"
+            ]))
+            raise ValueError(f"Invalid work_type: '{work_type}'. Valid options: {valid_work_types}")
+        metadata_updates["work_type"] = work_type_normalized
+
+    if metadata_updates:
+        update_data["metadata"] = metadata_updates
+
+    # Status field
+    if status is not None:
+        status_normalized = validate_and_normalize_status(status)
+        if not status_normalized:
+            valid_statuses = ", ".join(sorted(["planned", "inprogress", "in_progress", "completed", "blocked", "cancelled"]))
+            raise ValueError(f"Invalid status: '{status}'. Valid options: {valid_statuses}")
+        update_data["status"] = status_normalized
+
+    return update_data
+
+
+def update_command_data(update_data: dict[str, Any], ac_ref: str | None, run_shell: str | None, artifacts: str | None) -> None:
+    """Update command-specific data if provided."""
+    command_updates = {}
+    if ac_ref is not None:
+        command_updates["ac_ref"] = ac_ref
+    if run_shell is not None:
+        command_updates["run"] = {"shell": run_shell}
+    if artifacts is not None:
+        command_updates["artifacts"] = [artifact.strip() for artifact in artifacts.split(",")]
+
+    if command_updates:
+        update_data["command"] = command_updates
+
+
+def display_update_results(updated_node: Any, original_fields: dict[str, Any]) -> None:
+    """Display the results of a node update."""
+    console.print(
+        f"[green]✓[/green] Updated {getattr(updated_node, 'id', 'Unknown')}: "
+        f"{getattr(updated_node, 'title', 'Unknown')}"
+    )
+
+    if "status" in original_fields:
+        console.print(f"  Status: {getattr(updated_node, 'status', 'Unknown')}")
+    if "progress" in original_fields:
+        console.print(f"  Progress: {getattr(updated_node, 'progress', 0)}%")
+    if "metadata" in original_fields and "owner" in original_fields["metadata"]:
+        owner_val = getattr(updated_node, "owner", None)
+        if not owner_val and hasattr(updated_node, "metadata") and updated_node.metadata:
+            owner_val = getattr(updated_node.metadata, "owner", None)
+        owner_val = owner_val or "N/A"
+        console.print(f"  Owner: {owner_val}")
+
+
 def get_app(
     database_path: str | None = None,
     _yaml_base_path: str | None = None,
@@ -233,32 +531,14 @@ def create(
     parent_id: str | None,
 ) -> None:
     """Creates a new node."""
-    # Convert layer input to proper case (case-insensitive)
-    layer_mapping = {
-        "goal": "Goal",
-        "concept": "Concept",
-        "context": "Context",
-        "constraints": "Constraints",
-        "requirements": "Requirements",
-        "acceptancecriteria": "AcceptanceCriteria",
-        "acceptance_criteria": "AcceptanceCriteria",
-        "acceptance-criteria": "AcceptanceCriteria",
-        "interfacecontract": "InterfaceContract",
-        "interface_contract": "InterfaceContract",
-        "interface-contract": "InterfaceContract",
-        "phase": "Phase",
-        "step": "Step",
-        "task": "Task",
-        "subtask": "SubTask",
-        "sub_task": "SubTask",
-        "sub-task": "SubTask",
-        "command": "Command",
-    }
-
-    # Normalize layer input
-    layer_normalized = layer_mapping.get(layer.lower())
+    # Validate and normalize layer
+    layer_normalized = normalize_layer(layer)
     if not layer_normalized:
-        valid_options = ", ".join(sorted(layer_mapping.keys()))
+        valid_options = ", ".join(sorted([
+            "goal", "concept", "context", "constraints", "requirements",
+            "acceptancecriteria", "interfacecontract", "phase", "step",
+            "task", "subtask", "command"
+        ]))
         console.print(
             f"[red]✗[/red] Invalid layer: '{layer}'. "
             f"Valid options: {valid_options}"
@@ -267,24 +547,8 @@ def create(
 
     layer = layer_normalized
 
-    # Map layer types to schema prefixes
-    layer_prefixes = {
-        "Goal": "GOAL",
-        "Concept": "CON",
-        "Context": "CTX",
-        "Constraints": "CST",
-        "Requirements": "R",
-        "AcceptanceCriteria": "AC",
-        "InterfaceContract": "IF",
-        "Phase": "PH",
-        "Step": "STP",
-        "Task": "TSK",
-        "SubTask": "SUB",
-        "Command": "CMD",
-    }
-
     # Build node data
-    prefix = layer_prefixes.get(layer, layer[:3].upper())
+    prefix = get_layer_prefix(layer)
     node_data: dict[str, Any] = {
         "id": generate_node_id(prefix),
         "layer": layer,
@@ -296,93 +560,52 @@ def create(
 
     # Handle parent linking if parent_id is provided
     if parent_id:
-        # Validate that parent exists
-        try:
-            parent_node = get_node(parent_id)
-            if not parent_node:
-                console.print(
-                    f"[red]✗[/red] Parent node with ID '{parent_id}' not found"
-                )
-                sys.exit(1)
-
-            # Add parent to links
-            node_data["links"]["parents"] = [parent_id]
-            console.print(f"[green]✓[/green] Will link to parent: {parent_id}")
-
-        except (ValueError, KeyError, RuntimeError) as e:
-            console.print(f"[red]✗[/red] Error validating parent node: {e}")
+        if not validate_parent_node(parent_id):
+            console.print(
+                f"[red]✗[/red] Parent node with ID '{parent_id}' not found"
+            )
             sys.exit(1)
+
+        node_data["links"]["parents"] = [parent_id]
+        console.print(f"[green]✓[/green] Will link to parent: {parent_id}")
 
     # Add metadata
     metadata = cast("dict[str, Any]", node_data["metadata"])
-    # Set owner to provided owner or current user
     metadata["owner"] = owner or get_current_username()
+
     if labels:
         metadata["labels"] = [label.strip() for label in labels.split(",")]
-    if severity:
-        # Convert severity input to proper case (case-insensitive)
-        severity_mapping = {
-            "low": "low",
-            "medium": "medium",
-            "med": "medium",
-            "high": "high",
-            "critical": "critical",
-        }
 
-        severity_normalized = severity_mapping.get(severity.lower())
+    if severity:
+        severity_normalized = validate_and_normalize_severity(severity)
         if not severity_normalized:
-            valid_severities = ", ".join(sorted(severity_mapping.keys()))
-            error_msg = (
+            valid_severities = ", ".join(sorted(["low", "medium", "med", "high", "critical"]))
+            console.print(
                 f"[red]✗[/red] Invalid severity: '{severity}'. "
                 f"Valid options: {valid_severities}"
             )
-            console.print(error_msg)
             sys.exit(1)
-
         metadata["severity"] = severity_normalized
 
     if work_type:
-        # Convert work_type input to proper case (case-insensitive)
-        work_type_mapping = {
-            "architecture": "architecture",
-            "spec": "spec",
-            "interface": "interface",
-            "validation": "validation",
-            "implementation": "implementation",
-            "development": "implementation",
-            "docs": "docs",
-            "operations": "ops",
-            "ops": "ops",
-            "refactor": "refactor",
-            "chore": "chore",
-            "test": "test",
-        }
-
-        work_type_normalized = work_type_mapping.get(work_type.lower())
+        work_type_normalized = validate_and_normalize_work_type(work_type)
         if not work_type_normalized:
-            valid_work_types = ", ".join(sorted(work_type_mapping.keys()))
-            error_msg = (
+            valid_work_types = ", ".join(sorted([
+                "architecture", "spec", "interface", "validation",
+                "implementation", "development", "docs", "ops",
+                "refactor", "chore", "test"
+            ]))
+            console.print(
                 f"[red]✗[/red] Invalid work_type: '{work_type}'. "
                 f"Valid options: {valid_work_types}"
             )
-            console.print(error_msg)
             sys.exit(1)
-
         metadata["work_type"] = work_type_normalized
 
     # Add command-specific data
-    if layer == "Command":
-        node_data["command"] = {}
-        command = cast("dict[str, Any]", node_data["command"])
-        if ac_ref:
-            command["ac_ref"] = ac_ref
-        command["run"] = {}
-        if run_shell:
-            command["run"]["shell"] = run_shell
-        if artifacts:
-            command["artifacts"] = [
-                artifact.strip() for artifact in artifacts.split(",")
-            ]
+    command_data = build_command_data(layer, ac_ref, run_shell, artifacts)
+    if command_data:
+        node_data["command"] = command_data
 
     try:
         # Validate data before creating
@@ -653,42 +876,9 @@ def global_status(
     """Show status information for all nodes."""
     try:
         nodes = list_nodes()
+        filtered_nodes = filter_nodes_by_criteria(nodes, layer, owner, status)
 
-        if layer:
-            # Case-insensitive layer filtering
-            layer_mapping = {
-                "goal": "Goal",
-                "concept": "Concept",
-                "context": "Context",
-                "constraints": "Constraints",
-                "requirements": "Requirements",
-                "acceptancecriteria": "AcceptanceCriteria",
-                "interfacecontract": "InterfaceContract",
-                "phase": "Phase",
-                "step": "Step",
-                "task": "Task",
-                "subtask": "SubTask",
-                "command": "Command",
-            }
-            normalized_layer = layer_mapping.get(layer.lower(), layer.title())
-            nodes = {k: v for k, v in nodes.items() if k == normalized_layer}
-
-        all_nodes: list[tuple[str, Node]] = []
-        for layer_name, layer_nodes in nodes.items():
-            for node in layer_nodes:
-                # Apply additional filters
-                if owner and (
-                    not hasattr(node, "metadata")
-                    or not node.metadata
-                    or not hasattr(node.metadata, "owner")
-                    or node.metadata.owner.lower() != owner.lower()
-                ):
-                    continue
-                if status and node.status.lower() != status.lower():
-                    continue
-                all_nodes.append((layer_name, node))
-
-        if not all_nodes:
+        if not filtered_nodes:
             console.print("[yellow]No nodes found matching criteria[/yellow]")
             return
 
@@ -702,79 +892,39 @@ def global_status(
         table.add_column("Severity", style="white")
         table.add_column("Work Type", style="cyan")
 
-        for layer_name, node in all_nodes:
-            # Get owner from metadata with proper fallback
-            owner_val = get_current_username()
-            if hasattr(node, "metadata") and node.metadata:
-                owner_val = (
-                    getattr(node.metadata, "owner", "")
-                    or get_current_username()
-                )
-
-            # Get severity from metadata
-            severity_val = "low"  # Default severity
-            if hasattr(node, "metadata") and node.metadata:
-                severity_val = getattr(node.metadata, "severity", "") or "low"
-
-            # Get work_type from metadata
-            work_type_val = "chore"  # Default work type
-            if hasattr(node, "metadata") and node.metadata:
-                work_type_val = (
-                    getattr(node.metadata, "work_type", "") or "chore"
-                )
-
-            # Capitalize work_type for display
-            work_type_display = work_type_val.title()
-
-            # Capitalize severity for display
-            severity_display = severity_val.title()
-
-            # Truncate long titles for table display
-            title_display = (
-                node.title[:30] + "..." if len(node.title) > 30 else node.title
-            )
-            id_display = node.id[:12] + "…" if len(node.id) > 12 else node.id
-
-            table.add_row(
-                layer_name,
-                id_display,
-                title_display,
-                capitalize_status(node.status),
-                f"{node.progress}%" if node.progress is not None else "0%",
-                owner_val[:20] + "…" if len(owner_val) > 20 else owner_val,
-                severity_display,
-                work_type_display,
-            )
+        for layer_name, node in filtered_nodes:
+            metadata = extract_node_metadata(node)
+            display_row = format_node_for_display(layer_name, node, metadata)
+            table.add_row(*display_row)
 
         console.print(table)
-
-        # Summary statistics
-        total_nodes = len(all_nodes)
-        completed_nodes = len(
-            [n for _, n in all_nodes if n.status == "completed"]
-        )
-        in_progress_nodes = len(
-            [n for _, n in all_nodes if n.status == "in_progress"]
-        )
-
-        console.print("\n[bold]Summary:[/bold]")
-        console.print(f"Total nodes: {total_nodes}")
-        if total_nodes > 0:
-            percentage = completed_nodes / total_nodes * 100
-            console.print(f"Completed: {completed_nodes} ({percentage:.1f}%)")
-        else:
-            console.print("Completed: 0")
-        if total_nodes > 0:
-            percentage = in_progress_nodes / total_nodes * 100
-            console.print(
-                f"In Progress: {in_progress_nodes} ({percentage:.1f}%)"
-            )
-        else:
-            console.print("In Progress: 0")
+        _display_summary_statistics(filtered_nodes)
 
     except Exception as e:
         console.print(f"[red]✗[/red] Error showing global status: {e}")
         sys.exit(1)
+
+
+def _display_summary_statistics(filtered_nodes: list[tuple[str, Any]]) -> None:
+    """Display summary statistics for filtered nodes."""
+    total_nodes = len(filtered_nodes)
+    completed_nodes = len([n for _, n in filtered_nodes if n.status == "completed"])
+    in_progress_nodes = len([n for _, n in filtered_nodes if n.status == "in_progress"])
+
+    console.print("\n[bold]Summary:[/bold]")
+    console.print(f"Total nodes: {total_nodes}")
+
+    if total_nodes > 0:
+        percentage = completed_nodes / total_nodes * 100
+        console.print(f"Completed: {completed_nodes} ({percentage:.1f}%)")
+    else:
+        console.print("Completed: 0")
+
+    if total_nodes > 0:
+        percentage = in_progress_nodes / total_nodes * 100
+        console.print(f"In Progress: {in_progress_nodes} ({percentage:.1f}%)")
+    else:
+        console.print("In Progress: 0")
 
 
 @cli.command()
@@ -1005,109 +1155,30 @@ def update(
             console.print(f"[red]✗[/red] Node with ID '{node_id}' not found")
             sys.exit(1)
 
-        # Build update data
-        update_data: dict[str, Any] = {}
+        # Track what fields we're trying to update for result display
+        original_fields = {}
         if title is not None:
-            update_data["title"] = title
-        if description is not None:
-            update_data["description"] = description
-        if owner is not None:
-            update_data["metadata"] = update_data.get("metadata", {})
-            update_data["metadata"]["owner"] = owner
-        if severity is not None:
-            # Convert severity input to proper case (case-insensitive)
-            severity_mapping = {
-                "low": "low",
-                "medium": "medium",
-                "med": "medium",
-                "high": "high",
-                "critical": "critical",
-            }
-
-            severity_normalized = severity_mapping.get(severity.lower())
-            if not severity_normalized:
-                valid_severities = ", ".join(sorted(severity_mapping.keys()))
-                console.print(
-                    f"[red]✗[/red] Invalid severity: '{severity}'. "
-                    f"Valid options: {valid_severities}",
-                )
-                sys.exit(1)
-
-            update_data["metadata"] = update_data.get("metadata", {})
-            update_data["metadata"]["severity"] = severity_normalized
-
-        if work_type is not None:
-            # Convert work_type input to proper case (case-insensitive)
-            work_type_mapping = {
-                "architecture": "architecture",
-                "spec": "spec",
-                "interface": "interface",
-                "validation": "validation",
-                "implementation": "implementation",
-                "development": "implementation",
-                "docs": "docs",
-                "operations": "ops",
-                "ops": "ops",
-                "refactor": "refactor",
-                "chore": "chore",
-                "test": "test",
-            }
-
-            work_type_normalized = work_type_mapping.get(work_type.lower())
-            if not work_type_normalized:
-                valid_work_types = ", ".join(sorted(work_type_mapping.keys()))
-                console.print(
-                    f"[red]✗[/red] Invalid work_type: '{work_type}'. "
-                    f"Valid options: {valid_work_types}",
-                )
-                sys.exit(1)
-
-            update_data["metadata"] = update_data.get("metadata", {})
-            update_data["metadata"]["work_type"] = work_type_normalized
+            original_fields["title"] = title
         if status is not None:
-            # Convert status input to proper case (case-insensitive)
-            status_mapping = {
-                "planned": "planned",
-                "inprogress": "in_progress",
-                "in_progress": "in_progress",
-                "completed": "completed",
-                "blocked": "blocked",
-                "cancelled": "cancelled",
-            }
-
-            status_normalized = status_mapping.get(status.lower())
-            if not status_normalized:
-                valid_statuses = ", ".join(sorted(status_mapping.keys()))
-                console.print(
-                    f"[red]✗[/red] Invalid status: '{status}'. "
-                    f"Valid options: {valid_statuses}",
-                )
-                sys.exit(1)
-
-            update_data["status"] = status_normalized
+            original_fields["status"] = status
         if progress is not None:
-            update_data["progress"] = progress
-        if labels is not None:
-            update_data["metadata"] = update_data.get("metadata", {})
-            update_data["metadata"]["labels"] = [
-                label.strip() for label in labels.split(",")
-            ]
+            original_fields["progress"] = progress
+        if owner is not None:
+            original_fields["metadata"] = {"owner": owner}
 
-        # Command-specific updates
-        if node.layer == "Command" and (
-            ac_ref is not None
-            or run_shell is not None
-            or artifacts is not None
-        ):
-            update_data["command"] = update_data.get("command", {})
-            if ac_ref is not None:
-                update_data["command"]["ac_ref"] = ac_ref
-            if run_shell is not None:
-                update_data["command"]["run"] = {"shell": run_shell}
-            if artifacts is not None:
-                update_data["command"]["artifacts"] = [
-                    artifact.strip() for artifact in artifacts.split(",")
-                ]
+        # Build update data
+        try:
+            update_data = build_update_data(
+                title, description, owner, severity, work_type, status,
+                progress, labels, ac_ref, run_shell, artifacts
+            )
+        except ValueError as e:
+            console.print(f"[red]✗[/red] {e}")
+            sys.exit(1)
+
+        # Handle command-specific updates
+        if node.layer == "Command":
+            update_command_data(update_data, ac_ref, run_shell, artifacts)
 
         if not update_data:
             console.print("[yellow]⚠️[/yellow] No fields to update")
@@ -1115,30 +1186,7 @@ def update(
 
         updated_node = update_node(node_id, update_data)
         if updated_node:
-            console.print(
-                f"[green]✓[/green] Updated {node_id}: "
-                f"{getattr(updated_node, 'title', 'Unknown')}",
-            )
-
-            if status is not None:
-                console.print(
-                    f"  Status: {getattr(updated_node, 'status', 'Unknown')}"
-                )
-            if progress is not None:
-                console.print(
-                    f"  Progress: {getattr(updated_node, 'progress', 0)}%"
-                )
-        if owner is not None and updated_node:
-            # Get owner from metadata
-            owner_val = getattr(updated_node, "owner", None)
-            if (
-                not owner_val
-                and hasattr(updated_node, "metadata")
-                and getattr(updated_node, "metadata", None)
-            ):
-                owner_val = getattr(updated_node.metadata, "owner", None)
-            owner_val = owner_val or "N/A"
-            console.print(f"  Owner: {owner_val}")
+            display_update_results(updated_node, original_fields)
 
     except Exception as e:
         console.print(f"[red]✗[/red] Error updating node: {e}")

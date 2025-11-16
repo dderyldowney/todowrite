@@ -607,6 +607,80 @@ class _AIOptimizationManager:
         """Internal check for token-sage availability."""
         return self._ai_available
 
+    def _validate_optimization_input(self, text: str) -> dict[str, Any] | None:
+        """Validate input for token optimization."""
+        if not text:
+            return cast(
+                "OptimizationResult",
+                {
+                    "optimized": False,
+                    "error": "No text provided for optimization",
+                    "tokens_saved": 0,
+                },
+            )
+        return None
+
+    def _apply_whitespace_optimization(self, text: str) -> tuple[str, list[str]]:
+        """Apply whitespace optimization to text."""
+        original_len = len(text)
+        optimized_text = " ".join(text.split())
+        strategies = []
+
+        if len(optimized_text) < original_len:
+            savings = original_len - len(optimized_text)
+            strategies.append(f"Removed {savings} redundant whitespace characters")
+
+        return optimized_text, strategies
+
+    def _apply_phrase_optimization(self, text: str) -> tuple[str, list[str]]:
+        """Apply phrase replacement optimization to text."""
+        replacements = {
+            "in order to": "to",
+            "due to the fact that": "because",
+            "in the event that": "if",
+            "at this point in time": "now",
+            "for the purpose of": "for",
+        }
+
+        optimized_text = text
+        strategies = []
+
+        for phrase, replacement in replacements.items():
+            if phrase in optimized_text:
+                count = optimized_text.count(phrase)
+                optimized_text = optimized_text.replace(phrase, replacement)
+                strategies.append(
+                    f"Replaced {count} instances of '{phrase}' with '{replacement}'"
+                )
+
+        return optimized_text, strategies
+
+    def _apply_line_trimming_optimization(self, text: str) -> tuple[str, list[str]]:
+        """Apply line trimming optimization to text."""
+        lines = text.split("\n")
+        optimized_lines = []
+
+        for line in lines:
+            line = line.strip()
+            if line and not line.startswith("#") and len(line) > 5:
+                optimized_lines.append(line)
+
+        strategies = []
+        if len(optimized_lines) < len(lines):
+            strategies.append(f"Removed {len(lines) - len(optimized_lines)} empty/comment lines")
+
+        return "\n".join(optimized_lines), strategies
+
+    def _calculate_token_savings(self, original_counts: dict, optimized_counts: dict) -> dict[str, int]:
+        """Calculate token savings between original and optimized text."""
+        token_savings = {}
+        for provider, original_count in original_counts.items():
+            optimized_count = optimized_counts.get(provider, original_count)
+            savings = original_count - optimized_count
+            if savings > 0:
+                token_savings[provider] = savings
+        return token_savings
+
     def _optimize_token_usage_internal(
         self, goal: str, text: str, **kwargs: OptimizationParams
     ) -> OptimizationResult | None:
@@ -618,23 +692,13 @@ class _AIOptimizationManager:
         if not self._ai_available:
             return None
 
-        # Validate text input
-        if not text:
-            return None
-
-        text_to_optimize = text
-        if not text_to_optimize:
-            return cast(
-                "OptimizationResult",
-                {
-                    "optimized": False,
-                    "error": "No text provided for optimization",
-                    "tokens_saved": 0,
-                },
-            )
+        # Validate input
+        validation_error = self._validate_optimization_input(text)
+        if validation_error:
+            return validation_error
 
         # Get original token counts
-        original_counts = self._get_token_counts(text_to_optimize)
+        original_counts = self._get_token_counts(text)
         if not original_counts:
             return cast(
                 "OptimizationResult",
@@ -646,86 +710,47 @@ class _AIOptimizationManager:
             )
 
         # Apply optimization strategies
-        optimization_strategies = []
-        optimized_text = text_to_optimize
+        optimized_text = text
+        all_strategies = []
         optimizations_applied = []
 
-        # Strategy 1: Remove redundant whitespace
-        original_len = len(optimized_text)
-        optimized_text = " ".join(optimized_text.split())
-        if len(optimized_text) < original_len:
-            savings = original_len - len(optimized_text)
-            optimization_strategies.append(
-                f"Removed {savings} redundant whitespace characters"
-            )
+        # Strategy 1: Whitespace optimization
+        optimized_text, strategies = self._apply_whitespace_optimization(optimized_text)
+        all_strategies.extend(strategies)
+        if strategies:
             optimizations_applied.append("whitespace_optimization")
 
-        # Strategy 2: Shorten redundant phrases
-        replacements = {
-            "in order to": "to",
-            "due to the fact that": "because",
-            "in the event that": "if",
-            "at this point in time": "now",
-            "for the purpose of": "for",
-        }
+        # Strategy 2: Phrase optimization
+        optimized_text, strategies = self._apply_phrase_optimization(optimized_text)
+        all_strategies.extend(strategies)
+        if strategies:
+            optimizations_applied.append("phrase_optimization")
 
-        for phrase, replacement in replacements.items():
-            if phrase in optimized_text:
-                count = optimized_text.count(phrase)
-                optimized_text = optimized_text.replace(phrase, replacement)
-                optimization_strategies.append(
-                    f"Replaced {count} instances of '{phrase}' "
-                    f"with '{replacement}'"
-                )
-                optimizations_applied.append("phrase_optimization")
-
-        # Strategy 3: Trim unnecessary context
-        lines = optimized_text.split("\n")
-        optimized_lines = []
-        for line in lines:
-            line = line.strip()
-            if (
-                line and not line.startswith("#") and len(line) > 5
-            ):  # Keep meaningful lines
-                optimized_lines.append(line)
-
-        if len(optimized_lines) < len(lines):
-            optimization_strategies.append(
-                f"Removed {len(lines) - len(optimized_lines)} "
-                "empty/comment lines"
-            )
+        # Strategy 3: Line trimming optimization
+        optimized_text, strategies = self._apply_line_trimming_optimization(optimized_text)
+        all_strategies.extend(strategies)
+        if strategies:
             optimizations_applied.append("line_trimming")
 
-        optimized_text = "\n".join(optimized_lines)
-
-        # Calculate new token counts
+        # Calculate results
         optimized_counts = self._get_token_counts(optimized_text)
-
-        # Calculate savings
-        token_savings = {}
-        for provider, original_count in original_counts.items():
-            optimized_count = optimized_counts.get(provider, original_count)
-            savings = original_count - optimized_count
-            if savings > 0:
-                token_savings[provider] = savings
+        token_savings = self._calculate_token_savings(original_counts, optimized_counts)
 
         # Prepare result
+        success = len(token_savings) > 0
         result = {
             "optimized": True,
             "original_tokens": original_counts,
             "optimized_tokens": optimized_counts,
             "tokens_saved": token_savings,
             "optimizations_applied": optimizations_applied,
-            "optimization_strategies": optimization_strategies,
+            "optimization_strategies": all_strategies if success else ["Text is already well-optimized"],
             "method": "text_preprocessing",
-            "success": len(token_savings) > 0,
+            "success": success,
         }
 
-        if not result["success"]:
+        if not success:
             result["message"] = "No significant optimizations found"
-            result["optimization_strategies"] = [
-                "Text is already well-optimized"
-            ]
 
         return cast("OptimizationResult", result)
 

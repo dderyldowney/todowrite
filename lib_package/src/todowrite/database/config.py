@@ -140,6 +140,51 @@ def get_sqlite_candidates() -> list[str]:
     return candidates
 
 
+def _handle_explicit_database_url(db_url: str, preference: StoragePreference) -> tuple[StorageType, str] | None:
+    """Handle explicitly provided database URL."""
+    if db_url.startswith("postgresql:"):
+        if preference == StoragePreference.SQLITE_ONLY:
+            raise RuntimeError("SQLite requested but PostgreSQL URL provided")
+        return StorageType.POSTGRESQL, db_url
+    elif db_url.startswith("sqlite:"):
+        if preference == StoragePreference.POSTGRESQL_ONLY:
+            raise RuntimeError("PostgreSQL requested but SQLite URL provided")
+        return StorageType.SQLITE, db_url
+    return None
+
+
+def _try_postgresql_candidates() -> tuple[StorageType, str] | None:
+    """Try to find a working PostgreSQL connection."""
+    for url in get_postgresql_candidates():
+        if check_postgresql_connection(url):
+            return StorageType.POSTGRESQL, url
+    return None
+
+
+def _try_sqlite_candidates() -> tuple[StorageType, str] | None:
+    """Try to find a working SQLite connection."""
+    for url in get_sqlite_candidates():
+        if check_sqlite_connection(url):
+            return StorageType.SQLITE, url
+    return None
+
+
+def _auto_detect_storage() -> tuple[StorageType, str | None]:
+    """Auto-detect the best available storage backend."""
+    # Try PostgreSQL first
+    postgresql_result = _try_postgresql_candidates()
+    if postgresql_result:
+        return postgresql_result
+
+    # Try SQLite second
+    sqlite_result = _try_sqlite_candidates()
+    if sqlite_result:
+        return sqlite_result
+
+    # Fall back to YAML
+    return StorageType.YAML, None
+
+
 def determine_storage_backend() -> tuple[StorageType, str | None]:
     """
     Determine storage backend based on preference and availability.
@@ -153,48 +198,28 @@ def determine_storage_backend() -> tuple[StorageType, str | None]:
     if preference == StoragePreference.YAML_ONLY:
         return StorageType.YAML, None
 
-    # If explicit URL provided, use it (read dynamically)
+    # Handle explicit database URL
     db_url = get_database_url()
     if db_url:
-        if db_url.startswith("postgresql:"):
-            if preference == StoragePreference.SQLITE_ONLY:
-                raise RuntimeError(
-                    "SQLite requested but PostgreSQL URL provided"
-                )
-            return StorageType.POSTGRESQL, db_url
-        elif db_url.startswith("sqlite:"):
-            if preference == StoragePreference.POSTGRESQL_ONLY:
-                raise RuntimeError(
-                    "PostgreSQL requested but SQLite URL provided"
-                )
-            return StorageType.SQLITE, db_url
+        explicit_result = _handle_explicit_database_url(db_url, preference)
+        if explicit_result:
+            return explicit_result
 
-    # Auto-detection based on preference
+    # Handle specific preferences
     if preference == StoragePreference.POSTGRESQL_ONLY:
-        for url in get_postgresql_candidates():
-            if check_postgresql_connection(url):
-                return StorageType.POSTGRESQL, url
+        result = _try_postgresql_candidates()
+        if result:
+            return result
         raise RuntimeError("PostgreSQL requested but not available")
 
-    elif preference == StoragePreference.SQLITE_ONLY:
-        for url in get_sqlite_candidates():
-            if check_sqlite_connection(url):
-                return StorageType.SQLITE, url
+    if preference == StoragePreference.SQLITE_ONLY:
+        result = _try_sqlite_candidates()
+        if result:
+            return result
         raise RuntimeError("SQLite requested but not available")
 
-    else:  # StoragePreference.AUTO
-        # Try PostgreSQL first
-        for url in get_postgresql_candidates():
-            if check_postgresql_connection(url):
-                return StorageType.POSTGRESQL, url
-
-        # Try SQLite second
-        for url in get_sqlite_candidates():
-            if check_sqlite_connection(url):
-                return StorageType.SQLITE, url
-
-        # Fall back to YAML
-        return StorageType.YAML, None
+    # Auto-detection (StoragePreference.AUTO)
+    return _auto_detect_storage()
 
 
 def get_storage_info() -> dict[str, str]:

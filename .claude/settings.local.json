@@ -43,7 +43,8 @@
       "Bash(uv run ruff:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

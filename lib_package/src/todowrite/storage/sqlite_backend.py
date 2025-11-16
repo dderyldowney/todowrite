@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -18,7 +19,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Session, sessionmaker
 
-from ..core.types import Node, links
+from ..core.types import Command, Label, Link, Node, links
 from .backends import (
     NodeCreationError,
     NodeCreationResult,
@@ -481,17 +482,12 @@ class SQLiteBackend(StorageBackend):
     ) -> None:
         """Attach command details to a Command layer node."""
         command = Command(
-            node_id=node.id,
+            id=node.id,
             ac_ref=command_data.get("ac_ref"),
-            run=command_data.get("run"),
+            run_data=json.dumps(command_data.get("run", {})),
+            artifacts=json.dumps(command_data.get("artifacts", [])),
         )
         session.add(command)
-
-        # Handle artifacts if present
-        artifacts_data = command_data.get("artifacts", [])
-        for artifact_text in artifacts_data:
-            artifact = Artifact(artifact=artifact_text, command_id=node.id)
-            session.add(artifact)
 
     def _attach_relationships_to_node(
         self,

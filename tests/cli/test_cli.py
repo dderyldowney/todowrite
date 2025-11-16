@@ -16,6 +16,41 @@ from todowrite.database.models import Node as DBNode
 from todowrite_cli.main import cli
 
 
+def _safe_remove_files(file_paths: list[str]) -> None:
+    """Safely remove a list of files with error handling."""
+    for file_path in file_paths:
+        if Path(file_path).exists():
+            try:
+                Path(file_path).unlink()
+                print(f"🧹 Removed test file: {file_path}")
+            except OSError as e:
+                print(f"⚠️  Could not remove {file_path}: {e}")
+
+
+def _safe_remove_dirs(dir_paths: list[str]) -> None:
+    """Safely remove a list of directories with error handling."""
+    for dir_path in dir_paths:
+        if Path(dir_path).exists():
+            try:
+                shutil.rmtree(dir_path)
+                print(f"🧹 Removed cache directory: {dir_path}")
+            except OSError as e:
+                print(f"⚠️  Could not remove {dir_path}: {e}")
+
+
+def _remove_temp_files_by_patterns(patterns: list[str]) -> None:
+    """Remove temporary files matching the given patterns."""
+    for pattern in patterns:
+        temp_files: list[Path] = list(Path().glob(pattern))
+        for temp_file in temp_files:
+            try:
+                if temp_file.is_file():
+                    temp_file.unlink()
+                    print(f"🧹 Removed temporary file: {temp_file}")
+            except OSError as e:
+                print(f"⚠️  Could not remove {temp_file}: {e}")
+
+
 class TestCli(unittest.TestCase):
     app: ToDoWrite
 
@@ -32,68 +67,26 @@ class TestCli(unittest.TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
         """Clean up test files and directories."""
-        # Remove test database files if they exist
+        # Remove test database files
         test_files = [
-            "test_cli.db",
-            "test.db",
-            "test_validation.db",
-            ".todowrite.db",
-            "todowrite.db",
-            "todos.db",
-            "todowrite/todos.db",
+            "test_cli.db", "test.db", "test_validation.db",
+            ".todowrite.db", "todowrite.db", "todos.db", "todowrite/todos.db"
         ]
-
-        for file_path in test_files:
-            if Path(file_path).exists():
-                try:
-                    Path(file_path).unlink()
-                    print(f"🧹 Removed test file: {file_path}")
-                except OSError as e:
-                    print(f"⚠️  Could not remove {file_path}: {e}")
+        _safe_remove_files(test_files)
 
         # Remove cache directories
         cache_dirs = [
-            ".pytest_cache",
-            ".pyright_cache",
-            "__pycache__",
-            "tests/__pycache__",
+            ".pytest_cache", ".pyright_cache", "__pycache__", "tests/__pycache__"
         ]
+        _safe_remove_dirs(cache_dirs)
 
-        for cache_dir in cache_dirs:
-            if Path(cache_dir).exists():
-                try:
-                    shutil.rmtree(cache_dir)
-                    print(f"🧹 Removed cache directory: {cache_dir}")
-                except OSError as e:
-                    print(f"⚠️  Could not remove {cache_dir}: {e}")
+        # Remove additional directories
+        additional_dirs = ["results", "trace"]
+        _safe_remove_dirs(additional_dirs)
 
-        # Remove results directory if it exists
-        if Path("results").exists():
-            try:
-                shutil.rmtree("results")
-                print("🧹 Removed results directory")
-            except OSError as e:
-                print(f"⚠️  Could not remove results directory: {e}")
-
-        # Remove trace directory if it exists
-        if Path("trace").exists():
-            try:
-                shutil.rmtree("trace")
-                print("🧹 Removed trace directory")
-            except OSError as e:
-                print(f"⚠️  Could not remove trace directory: {e}")
-
-        # Remove any other temporary files that might be created
+        # Remove temporary files by pattern
         temp_patterns = ["*.tmp", "*.log", "temp_*"]
-        for pattern in temp_patterns:
-            temp_files: list[Path] = list(Path().glob(pattern))
-            for temp_file in temp_files:
-                try:
-                    if temp_file.is_file():
-                        temp_file.unlink()
-                        print(f"🧹 Removed temporary file: {temp_file}")
-                except OSError as e:
-                    print(f"⚠️  Could not remove {temp_file}: {e}")
+        _remove_temp_files_by_patterns(temp_patterns)
 
     def setUp(self) -> None:
         self.runner = CliRunner()

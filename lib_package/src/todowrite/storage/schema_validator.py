@@ -157,6 +157,104 @@ class SchemaValidator:
 
         return len(errors) == 0, errors
 
+    def _validate_yaml_file_content(self, file_path: Path, yaml_data: Any) -> tuple[bool, list[str]]:
+        """Validate content of a single YAML file."""
+        errors: list[str] = []
+
+        if not yaml_data:
+            return False, [f"Empty YAML file: {file_path}"]
+
+        # Validate each node in the file
+        if isinstance(yaml_data, list):
+            # File contains multiple nodes
+            for i, node in enumerate(cast("list[Any]", yaml_data)):
+                if isinstance(node, dict):
+                    valid, node_errors = self.validate_node_data(cast("dict[str, Any]", node))
+                    if not valid:
+                        for error in node_errors:
+                            errors.append(f"{file_path}[{i}]: {error}")
+        elif isinstance(yaml_data, dict):
+            # File contains single node
+            valid, node_errors = self.validate_node_data(cast("dict[str, Any]", yaml_data))
+            if not valid:
+                for error in node_errors:
+                    errors.append(f"{file_path}: {error}")
+
+        return len(errors) == 0, errors
+
+    def _process_yaml_file_safely(self, file_path: Path) -> tuple[bool, list[str]]:
+        """Safely process a YAML file and return validation results."""
+        try:
+            with open(file_path, encoding="utf-8") as f:
+                yaml_data = yaml.safe_load(f)
+            return self._validate_yaml_file_content(file_path, yaml_data)
+        except yaml.YAMLError as e:
+            return False, [f"YAML parsing error in {file_path}: {e}"]
+        except (OSError, ValueError, AttributeError, KeyError) as e:
+            return False, [f"Error processing {file_path}: {e}"]
+
+    def _validate_direct_yaml_files(self, yaml_base_path: Path) -> tuple[bool, list[str], dict[str, int]]:
+        """Validate YAML files directly in the base path."""
+        direct_files: list[Path] = []
+        direct_files.extend(yaml_base_path.glob("*.yaml"))
+        direct_files.extend(yaml_base_path.glob("*.yml"))
+
+        if not direct_files:
+            return True, [], {}
+
+        all_valid = True
+        all_errors: list[str] = []
+
+        for file_path in direct_files:
+            valid, errors = self._process_yaml_file_safely(file_path)
+            if not valid:
+                all_valid = False
+                all_errors.extend(errors)
+
+        return all_valid, all_errors, {"direct_files": len(direct_files)}
+
+    def _get_layer_files(self, yaml_base_path: Path, layer: str, dir_name: str) -> list[Path]:
+        """Get YAML files for a specific layer."""
+        files_to_check: list[Path] = []
+
+        # Regular layer files
+        layer_path = yaml_base_path / "plans" / dir_name
+        if layer_path.exists():
+            files_to_check.extend(layer_path.glob("*.yaml"))
+            files_to_check.extend(layer_path.glob("*.yml"))
+
+        # Command files are in a different location
+        elif layer == "Command":
+            command_path = yaml_base_path / "commands"
+            if command_path.exists():
+                files_to_check.extend(command_path.glob("*.yaml"))
+                files_to_check.extend(command_path.glob("*.yml"))
+
+        return files_to_check
+
+    def _validate_layer_files(self, yaml_base_path: Path) -> tuple[bool, list[str], dict[str, int]]:
+        """Validate YAML files in layer directories."""
+        layer_dirs = LAYER_DIRS
+        file_counts: dict[str, int] = {}
+        all_valid = True
+        all_errors: list[str] = []
+
+        for layer, dir_name in layer_dirs.items():
+            files_to_check = self._get_layer_files(yaml_base_path, layer, dir_name)
+            file_counts[layer] = len(files_to_check)
+
+            for file_path in files_to_check:
+                # Skip validation for files known to have format issues
+                if file_path.name == "TEST-STATUS-DEMO.yaml":
+                    continue
+
+                valid, errors = self._process_yaml_file_safely(file_path)
+                if not valid:
+                    all_valid = False
+                    all_errors.extend(errors)
+
+        return all_valid, all_errors, file_counts
+
     def validate_yaml_files(
         self, yaml_base_path: Path | None = None
     ) -> tuple[bool, list[str], dict[str, int]]:  # type: ignore [reportUnknownArgumentType]
@@ -178,148 +276,21 @@ class SchemaValidator:
 
         try:
             if not yaml_base_path.exists():
-                errors.append(
-                    f"YAML directory does not exist: {yaml_base_path}"
-                )
+                errors.append(f"YAML directory does not exist: {yaml_base_path}")
                 return False, errors, file_counts
 
-            # Define layer directories
-            layer_dirs = LAYER_DIRS
+            # Check for direct files first (for testing scenarios)
+            direct_valid, direct_errors, direct_counts = self._validate_direct_yaml_files(yaml_base_path)
+            if direct_counts:  # If direct files were found, only validate those
+                return direct_valid, direct_errors, direct_counts
 
-            # Also check for YAML files directly in the base path (for testing)
-            direct_files: list[Path] = []
-            if yaml_base_path.exists():
-                direct_files.extend(yaml_base_path.glob("*.yaml"))
-                direct_files.extend(yaml_base_path.glob("*.yml"))
+            # Validate layer files
+            layer_valid, layer_errors, layer_counts = self._validate_layer_files(yaml_base_path)
 
-            # If we found direct files, validate them and return
-            if direct_files:
-                for file_path in direct_files:
-                    try:
-                        with open(file_path, encoding="utf-8") as f:
-                            yaml_data = yaml.safe_load(f)
-
-                        if not yaml_data:
-                            errors.append(f"Empty YAML file: {file_path}")
-                            all_valid = False
-                            continue
-
-                        # Validate each node in the file
-                        if isinstance(yaml_data, list):
-                            # File contains multiple nodes
-                            for i, node in enumerate(
-                                cast("list[Any]", yaml_data)
-                            ):
-                                if isinstance(node, dict):
-                                    valid, node_errors = (
-                                        self.validate_node_data(
-                                            cast("dict[str, Any]", node)
-                                        )
-                                    )
-                                    if not valid:
-                                        for error in node_errors:
-                                            errors.append(
-                                                f"{file_path}[{i}]: {error}"
-                                            )
-                                        all_valid = False
-                        elif isinstance(yaml_data, dict):
-                            # File contains single node
-                            valid, node_errors = self.validate_node_data(
-                                cast("dict[str, Any]", yaml_data)
-                            )
-                            if not valid:
-                                for error in node_errors:
-                                    errors.append(f"{file_path}: {error}")
-                                all_valid = False
-
-                    except yaml.YAMLError as e:
-                        errors.append(
-                            f"YAML parsing error in {file_path}: {e}"
-                        )
-                        all_valid = False
-                    except (
-                        OSError,
-                        ValueError,
-                        AttributeError,
-                        KeyError,
-                    ) as e:
-                        errors.append(f"Error processing {file_path}: {e}")
-                        all_valid = False
-
-                return all_valid, errors, {"direct_files": len(direct_files)}
-
-            # Process each layer
-            for layer, dir_name in layer_dirs.items():
-                layer_path = yaml_base_path / "plans" / dir_name
-                command_path = (
-                    yaml_base_path / "commands" if layer == "Command" else None
-                )
-
-                files_to_check: list[Path] = []
-                if layer_path.exists():
-                    files_to_check.extend(layer_path.glob("*.yaml"))
-                    files_to_check.extend(layer_path.glob("*.yml"))
-                elif command_path and command_path.exists():
-                    files_to_check.extend(command_path.glob("*.yaml"))
-                    files_to_check.extend(command_path.glob("*.yml"))
-
-                file_counts[layer] = len(files_to_check)
-
-                for file_path in files_to_check:
-                    try:
-                        with open(file_path, encoding="utf-8") as f:
-                            yaml_data = yaml.safe_load(f)
-
-                        if not yaml_data:
-                            errors.append(f"Empty YAML file: {file_path}")
-                            all_valid = False
-                            continue
-
-                        # Skip validation for files known to have format issues
-                        if file_path.name == "TEST-STATUS-DEMO.yaml":
-                            continue
-
-                        # Validate each node in the file
-                        if isinstance(yaml_data, list):
-                            # File contains multiple nodes
-                            for i, node in enumerate(
-                                cast("list[Any]", yaml_data)
-                            ):
-                                if isinstance(node, dict):
-                                    valid, node_errors = (
-                                        self.validate_node_data(
-                                            cast("dict[str, Any]", node)
-                                        )
-                                    )
-                                    if not valid:
-                                        for error in node_errors:
-                                            errors.append(
-                                                f"{file_path}[{i}]: {error}"
-                                            )
-                                        all_valid = False
-                        elif isinstance(yaml_data, dict):
-                            # File contains single node
-                            valid, node_errors = self.validate_node_data(
-                                cast("dict[str, Any]", yaml_data)
-                            )
-                            if not valid:
-                                for error in node_errors:
-                                    errors.append(f"{file_path}: {error}")
-                                all_valid = False
-
-                    except yaml.YAMLError as e:
-                        errors.append(
-                            f"YAML parsing error in {file_path}: {e}"
-                        )
-                        all_valid = False
-                    except (
-                        OSError,
-                        ValueError,
-                        AttributeError,
-                        KeyError,
-                    ) as e:
-                        errors.append(f"Error processing {file_path}: {e}")
-                        all_valid = False
+            # Combine results
+            all_valid = layer_valid
+            errors.extend(layer_errors)
+            file_counts = layer_counts
 
         except (OSError, ValueError) as e:
             errors.append(f"YAML validation error: {e}")
@@ -444,91 +415,101 @@ def validate_database_schema(
     return is_valid, errors
 
 
+def _validate_yaml_file_nodes(path: Path) -> tuple[bool, list[str]]:
+    """Validate nodes within a YAML file."""
+    all_errors = []
+    all_valid = True
+
+    try:
+        with open(path, encoding="utf-8") as f:
+            yaml_data = yaml.safe_load(f)
+
+        if not yaml_data:
+            return False, [f"Empty YAML file: {path}"]
+
+        # Validate each node in the file
+        if isinstance(yaml_data, list):
+            # File contains multiple nodes
+            for i, node in enumerate(cast("list[Any]", yaml_data)):
+                if isinstance(node, dict):
+                    valid, node_errors = (
+                        _schema_validator.validate_node_data(
+                            cast("dict[str, Any]", node)
+                        )
+                    )
+                    if not valid:
+                        for error in node_errors:
+                            all_errors.append(f"{path}[{i}]: {error}")
+                        all_valid = False
+        elif isinstance(yaml_data, dict):
+            # File contains single node
+            _schema_validator.validate_node_data(
+                cast("dict[str, Any]", yaml_data)
+            )
+
+    except yaml.YAMLError as e:
+        return False, [f"YAML parsing error in {path}: {e}"]
+    except jsonschema.ValidationError:
+        # Let jsonschema.ValidationError bubble up for single-node files
+        raise
+    except (OSError, ValueError, AttributeError, KeyError) as e:
+        return False, [f"Error processing {path}: {e}"]
+
+    return all_valid, all_errors
+
+
+def _process_yaml_path(path: Path) -> tuple[bool, list[str], dict[str, int]]:
+    """Process a single YAML path (file or directory)."""
+    if path.is_file():
+        # Direct file validation
+        all_valid, all_errors = _validate_yaml_file_nodes(path)
+        return all_valid, all_errors, {}
+    else:
+        # Directory validation
+        return _schema_validator.validate_yaml_files(path)
+
+
+def _validate_yaml_paths_list(yaml_paths: list) -> tuple[bool, list[str], dict[str, int]]:
+    """Validate a list of YAML paths."""
+    all_valid = True
+    all_errors = []
+    all_file_counts: dict[str, int] = {}
+
+    for path in yaml_paths:
+        if isinstance(path, str):
+            path = Path(path)
+
+        valid, errors, file_counts = _process_yaml_path(path)
+
+        if not valid:
+            all_valid = False
+            all_errors.extend(errors)
+
+        # Merge file counts
+        for layer, count in file_counts.items():
+            all_file_counts[layer] = all_file_counts.get(layer, 0) + count
+
+    return all_valid, all_errors, all_file_counts
+
+
 def validate_yaml_files(
     yaml_paths: Path | list[Path] | list[str] | str | None = None,
 ) -> tuple[bool, list[str], dict[str, int]]:  # type: ignore [reportUnknownArgumentType]
     """Validate all YAML files against schema."""
     # Handle different input types for backward compatibility
     if isinstance(yaml_paths, list):
-        # If it's a list, validate each path
-        all_valid = True
-        all_errors = []
-        all_file_counts: dict[str, int] = {}
-
-        for path in yaml_paths:
-            if isinstance(path, str):
-                path = Path(path)
-
-            # Check if it's a file (direct validation) or directory (scan for
-            # files)
-            if path.is_file():
-                # Direct file validation
-                try:
-                    with open(path, encoding="utf-8") as f:
-                        yaml_data = yaml.safe_load(f)
-
-                    if not yaml_data:
-                        all_errors.append(f"Empty YAML file: {path}")
-                        all_valid = False
-                        continue
-
-                    # Validate each node in the file
-                    if isinstance(yaml_data, list):
-                        # File contains multiple nodes
-                        for i, node in enumerate(cast("list[Any]", yaml_data)):
-                            if isinstance(node, dict):
-                                valid, node_errors = (
-                                    _schema_validator.validate_node_data(
-                                        cast("dict[str, Any]", node)
-                                    )
-                                )
-                                if not valid:
-                                    for error in node_errors:
-                                        all_errors.append(
-                                            f"{path}[{i}]: {error}"
-                                        )
-                                    all_valid = False
-                    elif isinstance(yaml_data, dict):
-                        # File contains single node - let jsonschema.ValidationError bubble
-                        # up
-                        _schema_validator.validate_node_data(
-                            cast("dict[str, Any]", yaml_data)
-                        )
-
-                except yaml.YAMLError as e:
-                    all_errors.append(f"YAML parsing error in {path}: {e}")
-                    all_valid = False
-                except jsonschema.ValidationError:
-                    # Let jsonschema.ValidationError bubble up for single-node files
-                    raise
-                except (OSError, ValueError, AttributeError, KeyError) as e:
-                    all_errors.append(f"Error processing {path}: {e}")
-                    all_valid = False
-
-            else:
-                # Directory validation
-                valid, errors, file_counts = (
-                    _schema_validator.validate_yaml_files(path)
-                )
-                if not valid:
-                    all_valid = False
-                    all_errors.extend(errors)
-                # Merge file counts
-                for layer, count in file_counts.items():
-                    all_file_counts[layer] = (
-                        all_file_counts.get(layer, 0) + count
-                    )
+        # Validate list of paths
+        all_valid, all_errors, all_file_counts = _validate_yaml_paths_list(yaml_paths)
 
         if not all_valid:
-            raise ValueError(
-                f"YAML validation failed: {'; '.join(all_errors)}"
-            )
+            raise ValueError(f"YAML validation failed: {'; '.join(all_errors)}")
         return all_valid, all_errors, all_file_counts
     else:
         # Single path or None
         all_valid, errors, file_counts = _schema_validator.validate_yaml_files(
             Path(yaml_paths) if isinstance(yaml_paths, str) else yaml_paths
         )
+
         if not all_valid:
             raise ValueError(f"YAML validation failed: {'; '.join(errors)}")
         return all_valid, errors, file_counts

@@ -99,6 +99,78 @@ def update_readme_badges(current_version: str, new_version: str, dry_run: bool =
         print(f"⚠️ Error updating README.md: {e}")
 
 
+def _update_fallback_version_in_file(package_file: Path, new_version: str, dry_run: bool) -> bool:
+    """Update fallback version in a single package file."""
+    if not package_file.exists():
+        print(f"⚠️ Package version file not found: {package_file}")
+        return False
+
+    try:
+        content = package_file.read_text(encoding="utf-8")
+        updated_content = _find_and_replace_fallback_version(content, new_version)
+
+        if content != updated_content:
+            _handle_version_update(package_file, content, updated_content, dry_run)
+            return True
+        else:
+            print(f"No fallback version updates needed in {package_file}")
+            return False
+
+    except (OSError, UnicodeDecodeError) as e:
+        print(f"⚠️ Error updating {package_file}: {e}")
+        return False
+
+
+def _find_and_replace_fallback_version(content: str, new_version: str) -> str:
+    """Find and replace the fallback version in file content."""
+    lines = content.split("\n")
+    in_else_block = False
+
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+
+        # Detect else block
+        if stripped.startswith("else:"):
+            in_else_block = True
+            continue
+
+        # Update __version__ in else block
+        if in_else_block and "__version__ = " in line:
+            lines[i] = re.sub(
+                r'(__version__ = )"([^"]*)"',
+                f'\\1"{new_version}"',
+                line,
+            )
+            break  # Only update the first __version__ in else block
+
+        # Exit else block if we encounter another structure
+        if in_else_block and stripped.startswith(("def ", "class ", "if ")):
+            break
+
+    return "\n".join(lines)
+
+
+def _handle_version_update(package_file: Path, original: str, updated: str, dry_run: bool) -> None:
+    """Handle the version update (dry run or actual update)."""
+    if dry_run:
+        print(f"🔍 DRY RUN - {package_file.name} changes:")
+        _show_dry_run_changes(original, updated)
+    else:
+        package_file.write_text(updated, encoding="utf-8")
+        print(f"✅ Updated fallback version in {package_file.name}")
+
+
+def _show_dry_run_changes(original: str, updated: str) -> None:
+    """Show what changes would be made in dry run mode."""
+    lines_original = original.split("\n")
+    lines_new = updated.split("\n")
+
+    for i, (old, new) in enumerate(zip(lines_original, lines_new, strict=False)):
+        if old != new and "__version__" in old:
+            print(f"  Line {i + 1}: {old.strip()}")
+            print(f"  Line {i + 1}: {new.strip()}")
+
+
 def update_fallback_versions(new_version: str, dry_run: bool = False) -> None:
     """Update fallback versions in package version.py files."""
     package_files = [
@@ -107,68 +179,7 @@ def update_fallback_versions(new_version: str, dry_run: bool = False) -> None:
     ]
 
     for package_file in package_files:
-        if not package_file.exists():
-            print(f"⚠️ Package version file not found: {package_file}")
-            continue
-
-        try:
-            content = package_file.read_text(encoding="utf-8")
-            original_content = content
-
-            # Update fallback version in else block only
-            # Look for pattern in else block: __version__ = "unknown" or
-            # __version__ = "0.4.1"
-            # We need to be careful to only update the fallback,
-            # not the import from shared_version.py
-            lines = content.split("\n")
-            in_else_block = False
-
-            for i, line in enumerate(lines):
-                stripped = line.strip()
-
-                # Detect else block
-                if stripped.startswith("else:"):
-                    in_else_block = True
-                    continue
-
-                # If we're in an else block and find a __version__ assignment,
-                # update it
-                if in_else_block and "__version__ = " in line:
-                    # Replace the version string
-                    lines[i] = re.sub(
-                        r'(__version__ = )"([^"]*)"',
-                        f'\\1"{new_version}"',
-                        line,
-                    )
-                    break  # Only update the first __version__ in else block
-
-                # If we encounter another block structure,
-                # we're no longer in the else block
-                keywords = ("def ", "class ", "if ")
-                if in_else_block and stripped.startswith(keywords):
-                    break
-
-            content = "\n".join(lines)
-
-            # Check if any changes were made
-            if content != original_content:
-                if dry_run:
-                    print(f"🔍 DRY RUN - {package_file.name} changes:")
-                    # Show what would change
-                    lines_original = original_content.split("\n")
-                    lines_new = content.split("\n")
-                    for i, (old, new) in enumerate(zip(lines_original, lines_new, strict=False)):
-                        if old != new and "__version__" in old:
-                            print(f"  Line {i + 1}: {old.strip()}")
-                            print(f"  Line {i + 1}: {new.strip()}")
-                else:
-                    package_file.write_text(content, encoding="utf-8")
-                    print(f"✅ Updated fallback version in {package_file.name}")
-            else:
-                print(f"No fallback version updates needed in {package_file}")
-
-        except (OSError, UnicodeDecodeError) as e:
-            print(f"⚠️ Error updating {package_file}: {e}")
+        _update_fallback_version_in_file(package_file, new_version, dry_run)
 
 
 def verify_readme_versions(expected_version: str) -> bool:

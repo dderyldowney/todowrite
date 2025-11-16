@@ -12,6 +12,7 @@ from todowrite import (
     get_node,
     list_nodes,
     search_nodes,
+    update_node,
 )
 
 
