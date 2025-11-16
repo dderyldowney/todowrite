@@ -47,7 +47,13 @@
       "Bash(git push:*)",
       "Bash(python:*)",
       "Bash(timeout 30s uv run pytest:*)",
-      "Bash(uv run pytest:*)"
+      "Bash(uv run pytest:*)",
+      "Bash(git remote add:*)",
+      "Bash(uv sync:*)",
+      "Bash(git check-ignore:*)",
+      "Bash(uv pip install:*)",
+      "Bash(uv pip:*)",
+      "Bash(todowrite --help:*)"
     ],
     "deny": [],
     "ask": []
