@@ -36,6 +36,74 @@ if TYPE_CHECKING:
 
 # Removed circular import - function is implemented in this file
 
+# ---------- Data Classes for Repository Filtering ---------------------------
+
+
+@dataclass
+class SearchConfiguration:
+    """Configuration for repository search operations."""
+
+    goal: str
+    pattern: str | None = None
+    roots: list[str] = None
+    include_globs: list[str] | None = None
+    exclude_globs: list[str] | None = None
+    json_filter: str | None = None
+    max_files: int = 20000
+    max_hits: int = 5000
+    max_bytes: int = 256000
+    llm_snippet_chars: int = 3200
+    context_lines: int = 1
+    per_file_max_lines: int = 60
+    abbreviate_paths: bool = True
+    delta_mode: bool = False
+
+    def __post_init__(self) -> None:
+        if self.roots is None:
+            self.roots = ["."]
+
+
+@dataclass
+class SearchResult:
+    """Results from a repository search operation."""
+
+    content: str
+    files_processed: int
+    hits_found: int
+    total_bytes: int
+    was_truncated: bool = False
+    was_cached: bool = False
+    search_method: str = "unknown"
+
+
+@dataclass
+class ProcessingLimits:
+    """Processing limits for search operations."""
+
+    max_files: int
+    max_hits: int
+    max_bytes: int
+    max_file_size: int
+
+    @classmethod
+    def from_config(cls, config: SearchConfiguration) -> ProcessingLimits:
+        """Create limits from search configuration."""
+        if config.max_files > 0:
+            max_file_size = min(
+                max(1024 * 1024, config.max_bytes // config.max_files),
+                10 * 1024 * 1024,
+            )
+        else:
+            max_file_size = 1024 * 1024
+
+        return cls(
+            max_files=config.max_files,
+            max_hits=config.max_hits,
+            max_bytes=config.max_bytes,
+            max_file_size=max_file_size,
+        )
+
+
 # ---------- Repository Filtering -------------------------------------------
 
 
@@ -169,7 +237,9 @@ def _process_search_results(
 
     for line in lines:
         # Check limits early
-        if _should_stop_processing(max_files, max_hits, max_bytes, files_processed, hits_found, total_bytes):
+        if _should_stop_processing(
+            max_files, max_hits, max_bytes, files_processed, hits_found, total_bytes
+        ):
             break
 
         # Process individual line
@@ -304,6 +374,197 @@ def _format_fallback_message(
     return "\n".join(info_parts)
 
 
+# ---------- Refactored Search Architecture ----------------------------------
+
+
+class SearchStrategy:
+    """Base class for search strategies."""
+
+    def search(self, config: SearchConfiguration, limits: ProcessingLimits) -> SearchResult | None:
+        """Execute search with given configuration and limits."""
+        raise NotImplementedError
+
+
+class RipgrepSearchStrategy(SearchStrategy):
+    """Search strategy using ripgrep tool."""
+
+    def search(self, config: SearchConfiguration, limits: ProcessingLimits) -> SearchResult | None:
+        """Execute ripgrep search."""
+        try:
+            cmd = _build_ripgrep_cmd(
+                config.pattern,
+                config.context_lines,
+                config.per_file_max_lines,
+                limits.max_file_size,
+                config.include_globs,
+                config.exclude_globs,
+            )
+
+            result = subprocess.run(
+                cmd, check=False, capture_output=True, text=True, cwd=config.roots[0]
+            )
+
+            if result.returncode == 0:
+                lines = result.stdout.split("\n")
+                return self._process_results(lines, config, limits)
+
+            return None
+
+        except FileNotFoundError:
+            return None
+
+    def _process_results(
+        self, lines: list[str], config: SearchConfiguration, limits: ProcessingLimits
+    ) -> SearchResult:
+        """Process search results into formatted output."""
+        content, files_processed, hits_found, total_bytes = _process_search_results(
+            lines,
+            limits.max_files,
+            limits.max_hits,
+            limits.max_bytes,
+            config.json_filter,
+            config.abbreviate_paths,
+            config.llm_snippet_chars,
+        )
+
+        was_truncated = len(content) >= config.llm_snippet_chars
+
+        return SearchResult(
+            content=content,
+            files_processed=files_processed,
+            hits_found=hits_found,
+            total_bytes=total_bytes,
+            was_truncated=was_truncated,
+            search_method="ripgrep",
+        )
+
+
+class GrepSearchStrategy(SearchStrategy):
+    """Search strategy using grep tool as fallback."""
+
+    def search(self, config: SearchConfiguration, limits: ProcessingLimits) -> SearchResult | None:
+        """Execute grep search."""
+        try:
+            cmd = [
+                "grep",
+                "-r",
+                "-n",
+                "-A",
+                str(config.context_lines),
+                "-B",
+                str(config.context_lines),
+                config.pattern or ".",
+                "--include=*.py",
+            ]
+
+            result = subprocess.run(
+                cmd,
+                check=False,
+                capture_output=True,
+                text=True,
+                cwd=config.roots[0],
+            )
+
+            if result.returncode == 0:
+                lines = result.stdout.split("\n")
+                return self._process_results(lines, config, limits)
+
+            return None
+
+        except FileNotFoundError:
+            return None
+
+    def _process_results(
+        self, lines: list[str], config: SearchConfiguration, limits: ProcessingLimits
+    ) -> SearchResult:
+        """Process search results into formatted output."""
+        content, files_processed, hits_found, total_bytes = _process_search_results(
+            lines,
+            limits.max_files,
+            limits.max_hits,
+            limits.max_bytes,
+            config.json_filter,
+            config.abbreviate_paths,
+            config.llm_snippet_chars,
+        )
+
+        was_truncated = len(content) >= config.llm_snippet_chars
+
+        return SearchResult(
+            content=content,
+            files_processed=files_processed,
+            hits_found=hits_found,
+            total_bytes=total_bytes,
+            was_truncated=was_truncated,
+            search_method="grep",
+        )
+
+
+class RepositorySearcher:
+    """Main coordinator for repository search operations."""
+
+    def __init__(self) -> None:
+        self.strategies = [
+            RipgrepSearchStrategy(),
+            GrepSearchStrategy(),
+        ]
+
+    def search(self, config: SearchConfiguration) -> SearchResult:
+        """Execute repository search with given configuration."""
+        # Check cache first
+        hash_input = f"{config.goal}_{config.pattern}_{config.roots!s}"
+        cached = _get_cached_result(hash_input, config.delta_mode)
+        if cached:
+            return SearchResult(
+                content=cached,
+                files_processed=0,
+                hits_found=0,
+                total_bytes=0,
+                was_cached=True,
+                search_method="cache",
+            )
+
+        # Calculate processing limits
+        limits = ProcessingLimits.from_config(config)
+
+        # Try each search strategy in order
+        for strategy in self.strategies:
+            result = strategy.search(config, limits)
+            if result is not None:
+                # Cache result if in delta mode
+                if config.delta_mode and result.content:
+                    _cache_result(hash_input, result.content)
+                return result
+
+        # All strategies failed
+        return self._create_fallback_result(config)
+
+    def _create_fallback_result(self, config: SearchConfiguration) -> SearchResult:
+        """Create fallback result when no search strategy works."""
+        info_parts = [
+            "Repository filtering not available. Please install ripgrep or grep.",
+            f"Goal: {config.goal}",
+            f"Pattern: {config.pattern}",
+            f"Max files: {config.max_files}",
+            f"Max hits: {config.max_hits}",
+            f"Max bytes: {config.max_bytes}",
+            f"Delta mode: {config.delta_mode}",
+        ]
+
+        content = "\n".join(info_parts)
+
+        return SearchResult(
+            content=content,
+            files_processed=0,
+            hits_found=0,
+            total_bytes=0,
+            search_method="fallback",
+        )
+
+
+# ---------- Refactored Main Function ----------------------------------------
+
+
 def filter_repo_for_llm(
     goal: str,
     pattern: str | None = None,
@@ -325,257 +586,32 @@ def filter_repo_for_llm(
 
     This function searches through files and returns a compact snippet
     optimized for LLM context windows with comprehensive filtering options.
+
+    Refactored to use clean separation of concerns with search strategies.
     """
-    roots = roots or ["."]
-    hash_input = f"{goal}_{pattern}_{roots!s}"
+    # Create search configuration
+    config = SearchConfiguration(
+        goal=goal,
+        pattern=pattern,
+        roots=roots,
+        include_globs=include_globs,
+        exclude_globs=exclude_globs,
+        json_filter=json_filter,
+        max_files=max_files,
+        max_hits=max_hits,
+        max_bytes=max_bytes,
+        llm_snippet_chars=llm_snippet_chars,
+        context_lines=context_lines,
+        per_file_max_lines=per_file_max_lines,
+        abbreviate_paths=abbreviate_paths,
+        delta_mode=delta_mode,
+    )
 
-    # Check cache first
-    cached = _get_cached_result(hash_input, delta_mode)
-    if cached:
-        return cached
+    # Execute search using refactored architecture
+    searcher = RepositorySearcher()
+    result = searcher.search(config)
 
-    # Initialize counters and limits
-    files_processed = 0
-    total_bytes = 0
-    hits_found = 0
-    result_lines = []
-
-    # Calculate max file size
-    if max_files > 0:
-        max_file_size = min(
-            max(1024 * 1024, max_bytes // max_files),
-            10 * 1024 * 1024,
-        )
-    else:
-        max_file_size = 1024 * 1024
-
-    # Try ripgrep search first
-    try:
-        # Build ripgrep command
-        cmd = _build_ripgrep_cmd(
-            pattern,
-            context_lines,
-            per_file_max_lines,
-            max_file_size,
-            include_globs,
-            exclude_globs,
-        )
-
-        # Execute search
-        result = subprocess.run(cmd, check=False, capture_output=True, text=True, cwd=roots[0])
-
-        # Process results
-        if result.returncode == 0:
-            lines = result.stdout.split("\n")
-
-            for line in lines:
-                # Check limits early
-                if _should_stop_processing(
-                    max_files,
-                    max_hits,
-                    max_bytes,
-                    files_processed,
-                    hits_found,
-                    total_bytes,
-                ):
-                    break
-
-                # Process individual line
-                processed_line = _process_line(line, json_filter, abbreviate_paths)
-                if processed_line is None:
-                    continue
-
-                result_lines.append(processed_line)
-                total_bytes += len(line.encode("utf-8"))
-                hits_found += 1
-
-                if ":" in processed_line:
-                    files_processed += 1
-
-            # Format output and cache result
-            output = "\n".join(result_lines)
-            if len(output) > llm_snippet_chars:
-                output = output[:llm_snippet_chars] + "\n...[truncated]"
-
-            if delta_mode:
-                _cache_result(hash_input, output)
-
-            return output
-
-        return f"No matches found for pattern: {pattern}"
-
-    except FileNotFoundError:
-        # Try grep as fallback with full parameter support
-        try:
-            cmd = [
-                "grep",
-                "-r",
-                "-n",
-                "-A",
-                str(context_lines),
-                "-B",
-                str(context_lines),
-                pattern or ".",
-                "--include=*.py",
-            ]
-
-            result = subprocess.run(
-                cmd,
-                check=False,
-                capture_output=True,
-                text=True,
-                cwd=roots[0],
-            )
-
-            if result.returncode == 0:
-                lines = result.stdout.split("\n")
-
-                for line in lines:
-                    if not line.strip():
-                        continue
-
-                    # Apply same limits and filtering as above
-                    if _should_stop_processing(
-                        max_files,
-                        max_hits,
-                        max_bytes,
-                        files_processed,
-                        hits_found,
-                        total_bytes,
-                    ):
-                        break
-
-                    # Process individual line
-                    processed_line = _process_line(line, json_filter, abbreviate_paths)
-                    if processed_line is None:
-                        continue
-
-                    result_lines.append(processed_line)
-                    total_bytes += len(line.encode("utf-8"))
-                    hits_found += 1
-
-                output = "\n".join(result_lines)
-
-                if len(output) > llm_snippet_chars:
-                    output = output[:llm_snippet_chars] + "\n...[truncated]"
-
-                return output
-            return f"No matches found for pattern: {pattern}"
-
-        except FileNotFoundError:
-            # Final fallback with parameter information
-            info_parts = [
-                "Repository filtering not available. Please install ripgrep or grep.",
-            ]
-            info_parts.append(f"Goal: {goal}")
-            info_parts.append(f"Pattern: {pattern}")
-            info_parts.append(f"Max files: {max_files}")
-            info_parts.append(f"Max hits: {max_hits}")
-            info_parts.append(f"Max bytes: {max_bytes}")
-            info_parts.append(f"Delta mode: {delta_mode}")
-            return "\n".join(info_parts)
-        cmd = [
-            "rg",
-            "-n",
-            "--max-count",
-            str(per_file_max_lines),
-            "-A",
-            str(context_lines),
-            "-B",
-            str(context_lines),
-            pattern or ".",
-            "--type",
-            "py",
-        ]
-
-        # Add file size limit (use a reasonable limit like 1MB per file)
-        if max_files > 0:
-            max_file_size = min(
-                max(1024 * 1024, max_bytes // max_files),
-                10 * 1024 * 1024,
-            )  # Between 1MB and 10MB
-            cmd.extend(["--max-filesize", str(max_file_size)])
-
-        # Add glob patterns
-        if include_globs:
-            for glob in include_globs:
-                cmd.extend(["--glob", glob])
-        if exclude_globs:
-            for glob in exclude_globs:
-                cmd.extend(["--glob", f"!{glob}"])
-
-        result = subprocess.run(
-            cmd,
-            check=False,
-            capture_output=True,
-            text=True,
-            cwd=roots[0],
-        )
-
-        if result.returncode == 0:
-            lines = result.stdout.split("\n")
-
-            for line in lines:
-                if not line.strip():
-                    continue
-
-                # Check limits
-                if max_files > 0 and files_processed >= max_files:
-                    break
-                if max_hits > 0 and hits_found >= max_hits:
-                    break
-                if total_bytes >= max_bytes:
-                    break
-
-                # Apply JSON filtering if specified
-                if json_filter:
-                    try:
-                        # Simple JSON filtering - look for lines
-                        # containing JSON
-                        if "{" in line and "}" in line:
-                            json_data = json.loads(
-                                line[line.find("{") : line.rfind("}") + 1],
-                            )
-                            # Apply simple jq-like filter
-                            # (basic implementation)
-                            if json_filter and json_filter not in str(
-                                json_data,
-                            ):
-                                continue
-                    except (json.JSONDecodeError, ValueError):
-                        pass  # Not JSON or invalid JSON, continue
-
-                # Abbreviate paths if requested
-                if abbreviate_paths and ":" in line:
-                    parts = line.split(":", 1)
-                    if len(parts) == 2:
-                        path = parts[0]
-                        # Shorten path to show only last few directories
-                        path_parts = path.split("/")
-                        if len(path_parts) > 3:
-                            path = "/".join(["...", *path_parts[-2:]])
-                        formatted_line = f"{path}:{parts[1]}"
-
-                result_lines.append(formatted_line)
-                total_bytes += len(line.encode("utf-8"))
-                hits_found += 1
-
-                # Track files (simplified - just count unique file paths)
-                if ":" in line:
-                    files_processed += 1
-
-            output = "\n".join(result_lines)
-
-            # Truncate if too large
-            if len(output) > llm_snippet_chars:
-                output = output[:llm_snippet_chars] + "\n...[truncated]"
-
-            # Cache result for delta mode
-            if delta_mode:
-                _cache_result(hash_input, output)
-
-            return output
-        return f"No matches found for pattern: {pattern}"
+    return result.content
 
 
 # ---------- Providers -------------------------------------------------------

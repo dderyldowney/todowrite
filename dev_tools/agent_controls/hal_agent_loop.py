@@ -37,6 +37,74 @@ if TYPE_CHECKING:
 
 # Removed circular import - function will be implemented locally
 
+# ---------- Data Classes for Repository Filtering ---------------------------
+
+
+@dataclass
+class SearchConfiguration:
+    """Configuration for repository search operations."""
+
+    goal: str
+    pattern: str | None = None
+    roots: list[str] = None
+    include_globs: list[str] | None = None
+    exclude_globs: list[str] | None = None
+    json_filter: str | None = None
+    max_files: int = 20000
+    max_hits: int = 5000
+    max_bytes: int = 256000
+    llm_snippet_chars: int = 3200
+    context_lines: int = 1
+    per_file_max_lines: int = 60
+    abbreviate_paths: bool = True
+    delta_mode: bool = False
+
+    def __post_init__(self) -> None:
+        if self.roots is None:
+            self.roots = ["."]
+
+
+@dataclass
+class SearchResult:
+    """Results from a repository search operation."""
+
+    content: str
+    files_processed: int
+    hits_found: int
+    total_bytes: int
+    was_truncated: bool = False
+    was_cached: bool = False
+    search_method: str = "unknown"
+
+
+@dataclass
+class ProcessingLimits:
+    """Processing limits for search operations."""
+
+    max_files: int
+    max_hits: int
+    max_bytes: int
+    max_file_size: int
+
+    @classmethod
+    def from_config(cls, config: SearchConfiguration) -> ProcessingLimits:
+        """Create limits from search configuration."""
+        if config.max_files > 0:
+            max_file_size = min(
+                max(1024 * 1024, config.max_bytes // config.max_files),
+                10 * 1024 * 1024,
+            )
+        else:
+            max_file_size = 1024 * 1024
+
+        return cls(
+            max_files=config.max_files,
+            max_hits=config.max_hits,
+            max_bytes=config.max_bytes,
+            max_file_size=max_file_size,
+        )
+
+
 # ---------- Repository Filtering -------------------------------------------
 
 
@@ -170,7 +238,9 @@ def _process_search_results(
 
     for line in lines:
         # Check limits early
-        if _should_stop_processing(max_files, max_hits, max_bytes, files_processed, hits_found, total_bytes):
+        if _should_stop_processing(
+            max_files, max_hits, max_bytes, files_processed, hits_found, total_bytes
+        ):
             break
 
         # Process individual line
@@ -305,6 +375,143 @@ def _format_fallback_message(
     return "\n".join(info_parts)
 
 
+# ---------- Refactored Search Architecture ----------------------------------
+
+
+class SearchStrategy:
+    """Base class for search strategies."""
+
+    def search(self, config: SearchConfiguration, limits: ProcessingLimits) -> SearchResult | None:
+        """Execute search with given configuration and limits."""
+        raise NotImplementedError
+
+
+class RipgrepSearchStrategy(SearchStrategy):
+    """Search strategy using ripgrep tool."""
+
+    def search(self, config: SearchConfiguration, limits: ProcessingLimits) -> SearchResult | None:
+        """Execute ripgrep search."""
+        try:
+            output = _try_ripgrep_search(
+                config.pattern,
+                config.context_lines,
+                config.per_file_max_lines,
+                limits.max_file_size,
+                config.include_globs,
+                config.exclude_globs,
+                config.max_files,
+                config.max_hits,
+                config.max_bytes,
+                config.json_filter,
+                config.abbreviate_paths,
+                config.llm_snippet_chars,
+                config.roots,
+            )
+            if output is not None:
+                return SearchResult(
+                    content=output if output else f"No matches found for pattern: {config.pattern}",
+                    files_processed=0,  # Not tracked in this implementation
+                    hits_found=0,
+                    total_bytes=len(output.encode("utf-8")) if output else 0,
+                    was_truncated=len(output) >= config.llm_snippet_chars if output else False,
+                    search_method="ripgrep",
+                )
+            return None
+        except FileNotFoundError:
+            return None
+
+
+class GrepSearchStrategy(SearchStrategy):
+    """Search strategy using grep tool as fallback."""
+
+    def search(self, config: SearchConfiguration, _limits: ProcessingLimits) -> SearchResult | None:
+        """Execute grep search."""
+        try:
+            output = _try_grep_search(
+                config.pattern,
+                config.context_lines,
+                config.max_files,
+                config.max_hits,
+                config.max_bytes,
+                config.llm_snippet_chars,
+                config.roots,
+            )
+            if output is not None:
+                return SearchResult(
+                    content=output if output else f"No matches found for pattern: {config.pattern}",
+                    files_processed=0,  # Not tracked in this implementation
+                    hits_found=0,
+                    total_bytes=len(output.encode("utf-8")) if output else 0,
+                    was_truncated=len(output) >= config.llm_snippet_chars if output else False,
+                    search_method="grep",
+                )
+            return None
+        except FileNotFoundError:
+            return None
+
+
+class RepositorySearcher:
+    """Main coordinator for repository search operations."""
+
+    def __init__(self) -> None:
+        self.strategies = [
+            RipgrepSearchStrategy(),
+            GrepSearchStrategy(),
+        ]
+
+    def search(self, config: SearchConfiguration) -> SearchResult:
+        """Execute repository search with given configuration."""
+        # Check cache first
+        hash_input = f"{config.goal}_{config.pattern}_{config.roots!s}"
+        cached = _get_cached_result(hash_input, config.delta_mode)
+        if cached:
+            return SearchResult(
+                content=cached,
+                files_processed=0,
+                hits_found=0,
+                total_bytes=0,
+                was_cached=True,
+                search_method="cache",
+            )
+
+        # Calculate processing limits
+        limits = ProcessingLimits.from_config(config)
+
+        # Try each search strategy in order
+        for strategy in self.strategies:
+            result = strategy.search(config, limits)
+            if result is not None:
+                # Cache result if in delta mode
+                if config.delta_mode and result.content:
+                    _cache_result(hash_input, result.content)
+                return result
+
+        # All strategies failed
+        return self._create_fallback_result(config)
+
+    def _create_fallback_result(self, config: SearchConfiguration) -> SearchResult:
+        """Create fallback result when no search strategy works."""
+        content = _format_fallback_message(
+            config.goal,
+            config.pattern,
+            config.max_files,
+            config.max_hits,
+            config.max_bytes,
+            config.delta_mode,
+        )
+
+        return SearchResult(
+            content=content,
+            files_processed=0,
+            hits_found=0,
+            total_bytes=0,
+            search_method="fallback",
+        )
+
+
+# ---------- Refactored Main Function ----------------------------------------
+
+
 def filter_repo_for_llm(
     goal: str,
     pattern: str | None = None,
@@ -326,49 +533,32 @@ def filter_repo_for_llm(
 
     This function searches through files and returns a compact snippet
     optimized for LLM context windows with comprehensive filtering options.
+
+    Refactored to use clean separation of concerns with search strategies.
     """
-    roots = roots or ["."]
-    hash_input = f"{goal}_{pattern}_{roots!s}"
+    # Create search configuration
+    config = SearchConfiguration(
+        goal=goal,
+        pattern=pattern,
+        roots=roots,
+        include_globs=include_globs,
+        exclude_globs=exclude_globs,
+        json_filter=json_filter,
+        max_files=max_files,
+        max_hits=max_hits,
+        max_bytes=max_bytes,
+        llm_snippet_chars=llm_snippet_chars,
+        context_lines=context_lines,
+        per_file_max_lines=per_file_max_lines,
+        abbreviate_paths=abbreviate_paths,
+        delta_mode=delta_mode,
+    )
 
-    # Check cache first
-    cached = _get_cached_result(hash_input, delta_mode)
-    if cached:
-        return cached
+    # Execute search using refactored architecture
+    searcher = RepositorySearcher()
+    result = searcher.search(config)
 
-    # Calculate max file size
-    if max_files > 0:
-        max_file_size = min(max(1024 * 1024, max_bytes // max_files), 10 * 1024 * 1024)
-    else:
-        max_file_size = 1024 * 1024
-
-    # Try ripgrep search first
-    try:
-        output = _try_ripgrep_search(
-            pattern, context_lines, per_file_max_lines, max_file_size,
-            include_globs, exclude_globs, max_files, max_hits, max_bytes,
-            json_filter, abbreviate_paths, llm_snippet_chars, roots
-        )
-        if output is not None:
-            if delta_mode:
-                _cache_result(hash_input, output)
-            return output if output else f"No matches found for pattern: {pattern}"
-
-    except FileNotFoundError:
-        pass
-
-    # Try grep search as fallback
-    try:
-        output = _try_grep_search(
-            pattern, context_lines, max_files, max_hits, max_bytes, llm_snippet_chars, roots
-        )
-        if output is not None:
-            return output if output else f"No matches found for pattern: {pattern}"
-
-    except FileNotFoundError:
-        pass
-
-    # Final fallback with parameter information
-    return _format_fallback_message(goal, pattern, max_files, max_hits, max_bytes, delta_mode)
+    return result.content
 
 
 # ---------- Providers -------------------------------------------------------
