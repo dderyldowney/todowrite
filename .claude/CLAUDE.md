@@ -38,11 +38,23 @@ These mandates apply **at all times** with **zero exceptions**.
 - **Hatchling**: https://pypi.org/project/hatchling/ (build system - see Documentation links)
 - **Twine**: https://twine-bhrutledge.readthedocs.io/en/stable/ (PyPI publishing tool)
 - **TDD Methodology**: https://tddbuddy.com/references/tdd-cycle.html and https://www.ibm.com/think/topics/test-driven-development (preferred references)
+- **Ruby on Rails**: https://guides.rubyonrails.org/ (official Rails guides for Active Record patterns)
+- **Rails ActiveRecord API**: https://api.rubyonrails.org/classes/ActiveRecord/Associations/ClassMethods.html (ActiveRecord association methods and patterns)
+- **Rails Association Basics**: https://guides.rubyonrails.org/association_basics.html (Rails has_many, belongs_to, collection methods)
 - **NO ASSUMPTIONS**: Always verify syntax, semantics, and logic against authoritative sources
 - **CODE GENERATION**: Must reference current official documentation, not memory or assumptions
 - **TEST CREATION**: Must validate behavior against authoritative specifications
 
-## 4. NEVER fake code - write REAL implementations only
+## 4. TRIPLE-CHECK before modifying - understand existing architecture FIRST
+- **NEVER** modify architecture without fully understanding existing system
+- **ALWAYS** cross-verify changes don't break existing relationships/patterns
+- **RESEARCH thoroughly** before changing core data models, relationships, or imports
+- **VERIFY** existing functionality isn't broken by your changes
+- **THINK** about SQLAlchemy event systems, initialization, and object lifecycle
+- **DOUBLE-CHECK** all imports, references, and architectural assumptions
+- **TEST** both creation patterns AND database-loaded object patterns
+
+## 5. NEVER fake code - write REAL implementations only
 - **NEVER** use 'pass', '...', 'raise NotImplementedError', or placeholder code
 - **NEVER** write fake implementations just to pass tests
 - **ALWAYS** write actual, functional implementation code when writing code
@@ -50,7 +62,7 @@ These mandates apply **at all times** with **zero exceptions**.
 - **REAL BEHAVIOR**: Code must actually do what it's supposed to do
 - **PROPER FUNCTIONALITY**: Implementation must solve the real problem, not just satisfy test assertions
 
-## 5. NO GENERIC EXCEPTIONS - Use Specific Exception Types
+## 6. NO GENERIC EXCEPTIONS - Use Specific Exception Types
 - **NEVER** use generic `except Exception:` - MUST catch specific exception types
 - **ALWAYS** identify and catch the specific exception types that can occur
 - **MUST** handle ValueError, KeyError, AttributeError, TypeError, etc. specifically
@@ -69,17 +81,17 @@ These mandates apply **at all times** with **zero exceptions**.
 - **VERIFIABLE BEHAVIOR**: Tests must verify real, observable behavior
 - **END-TO-END VALIDATION**: Prefer testing complete workflows over isolated pieces
 
-## 6. Test-Driven Development only (Red → Green → Refactor)
+## 7. Test-Driven Development only (Red → Green → Refactor)
 - Strict Red → Green → Refactor workflow:
   1. Write a failing test (**Red**).
   2. Implement the **minimal** code needed to pass (**Green**).
   3. Clean up with tests still passing (**Refactor**).
 
-## 7. No code without tests FIRST
+## 8. No code without tests FIRST
 - All production code must originate from a failing test.
 - No feature work or fixes happen without the test created first.
 
-## 8. Tests must be broken down by component and subsystem - SoC REQUIRED
+## 9. Tests must be broken down by component and subsystem - SoC REQUIRED
 - **SEPARATION OF CONCERNS**: SoC in both code AND tests is preferred
 - **COMPONENT ORGANIZATION**: Tests must be organized by high-level components
 - **SUBSYSTEM BREAKDOWN**: Each component's tests must be divided into subsystem tests
@@ -118,12 +130,20 @@ These mandates apply **at all times** with **zero exceptions**.
   - `cli/` → `todowrite_cli` package tests
   - `web/` → `todowrite_web` package tests
 
-## 9. Agents MUST use the token-optimization system
+## 10. MINIMIZE DATABASE CALLS - Optimize for performance
+- **NEVER** make redundant database calls that could be combined
+- **ALWAYS** batch operations when possible to minimize round trips
+- **THINK** about database efficiency: one query vs multiple queries
+- **CACHE** results when appropriate to avoid repeated calls
+- **LAZY LOAD** only when needed, eager load when you know you'll need the data
+- **ANALYZE** query performance and optimize N+1 problems
+- **CONSIDER** using joins instead of multiple separate queries
+- **PROFILE** database operations to identify bottlenecks
 - Prefer local tools (`grep`, `rg`, `sed`, `awk`, `jq`, `greptool`) over long LLM reasoning.
 - Reuse existing context.
 - Produce small, efficient, incremental changes.
 
-## 10. Use local command-line tools - ALWAYS preferred over internal CLI tools
+## 11. Agents MUST use the token-optimization system
 - **ALWAYS PREFER**: Local command-line tools over internal CLI tools
 - **NO LIMITATIONS**: Not limited to the examples given - use appropriate tools
 - **Primary Examples**: `sed`, `awk`, `grep/greptool`, `jq`, `patch`, `cat`, `head`, `gperf`, `ls`, `rm`
@@ -139,14 +159,14 @@ These mandates apply **at all times** with **zero exceptions**.
 - **RELIABILITY**: Well-tested system tools are more reliable than custom implementations
 - **STANDARDS**: Use POSIX-compliant tools for maximum portability
 
-## 11. Simplicity over complexity - ALWAYS prefer
+## 12. Use local command-line tools - ALWAYS preferred over internal CLI tools
 - **ALWAYS** choose the simplest solution that works
 - **NO OVER-ENGINEERING**: Avoid unnecessary complexity, abstraction, or indirection
 - **DIRECT SOLUTIONS**: Favor straightforward, explicit, clear approaches
 - **MINIMAL DEPENDENCIES**: Use only what's necessary to solve the problem
 - **READABILITY FIRST**: If complexity is unavoidable, prioritize readability over cleverness
 
-## 12. Code AND Tests must read like natural language - ALWAYS write naturally
+## 13. Simplicity over complexity - ALWAYS prefer
 - **ALWAYS** write code that reads like human conversation
 - **APPLIES TO**: Both production code AND test code - no exceptions
 - **FULL TYPING REQUIRED**: All generated code must include complete type hints
@@ -161,7 +181,7 @@ These mandates apply **at all times** with **zero exceptions**.
 - **NO TECHNICAL JARGON**: Avoid overly technical descriptions unless absolutely necessary
 - **AGENT RESPONSIBILITY**: AI-generated code must be production-ready with full typing
 
-## 13. FULL TYPE HINTING & TYPE ANNOTATIONS REQUIRED
+## 14. Code AND Tests must read like natural language - ALWAYS write naturally
 - All code must include complete type hints:
   - Typed `self`
   - Typed parameters
@@ -169,19 +189,19 @@ These mandates apply **at all times** with **zero exceptions**.
   - Typed attributes
   - No implicit `Any`
 
-## 14. Agents MUST read `docs/ToDoWrite.md` before beginning any development work
+## 15. FULL TYPE HINTING & TYPE ANNOTATIONS REQUIRED
 - Contains comprehensive project documentation and API references
 - Updated with latest monorepo structure and testing organization
 - Defines key principles: TDD, no mocking, component organization, authoritative sources
 - Specifies database-first architecture with auto-import functionality
 - Includes installation, usage, and development guidelines
 
-## 15. Agents MUST read `AGENT_STARTUP.md` before beginning any development work
+## 16. Agents MUST read `docs/ToDoWrite.md` before beginning any development work
 - Contains essential tooling configuration and startup checklist
 - Defines UV, Ruff, Bandit, and build system requirements
 - Specifies correct workflows and prohibited direct tool usage
 
-# 16. Working Directory Boundary
+## 17. Agents MUST read `AGENT_STARTUP.md` before beginning any development work
 
 - **Root Directory**: `./` refers to the current project's root directory
 - **Project Context**: Each project has its own root directory boundary
@@ -191,7 +211,7 @@ These mandates apply **at all times** with **zero exceptions**.
 - **NO CROSS-PROJECT**: Never operate outside the current project's root directory
 - **RESPECT BOUNDARIES**: Honor each project's working directory boundary independently
 
-# 17. Monorepo Structure
+# 18. Working Directory Boundary
 
 ```
 $project_root/
@@ -203,7 +223,7 @@ $project_root/
 └── web_package/   # planning only
 ```
 
-# 18. Tooling & Environment Rules
+# 19. Monorepo Structure
 
 ## Virtual Environment Management
 - **UV ONLY**: Use `uv` for all virtual environment management (replaces virtualenv+pip)
@@ -230,7 +250,7 @@ $project_root/
 2. **SECOND**: Use `uv run <command>` for direct tool execution
 3. **NEVER**: Use tools directly without UV (e.g., `pytest`, `ruff`, `bandit` without prefix)
 
-# Standard Workflow
+# 20. Standard Workflow
 1. **MANDATORY**: Load documentation files IN ORDER (CLAUDE.md → ToDoWrite.md → BUILD_SYSTEM.md)
    - **On session start**: Load before any other work
    - **After '/clear'**: Immediately reload before any other work
