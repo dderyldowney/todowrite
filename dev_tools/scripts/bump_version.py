@@ -112,9 +112,8 @@ def _update_fallback_version_in_file(package_file: Path, new_version: str, dry_r
         if content != updated_content:
             _handle_version_update(package_file, content, updated_content, dry_run)
             return True
-        else:
-            print(f"No fallback version updates needed in {package_file}")
-            return False
+        print(f"No fallback version updates needed in {package_file}")
+        return False
 
     except (OSError, UnicodeDecodeError) as e:
         print(f"⚠️ Error updating {package_file}: {e}")
@@ -175,7 +174,11 @@ def update_fallback_versions(new_version: str, dry_run: bool = False) -> None:
     """Update fallback versions in package version.py files."""
     package_files = [
         Path(__file__).parent.parent.parent / "lib_package" / "src" / "todowrite" / "version.py",
-        Path(__file__).parent.parent.parent / "cli_package" / "src" / "todowrite_cli" / "version.py",
+        Path(__file__).parent.parent.parent
+        / "cli_package"
+        / "src"
+        / "todowrite_cli"
+        / "version.py",
     ]
 
     for package_file in package_files:

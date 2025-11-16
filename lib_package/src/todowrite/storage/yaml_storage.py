@@ -242,7 +242,9 @@ class YAMLStorage:
 
         return False
 
-    def _process_yaml_data(self, yaml_data: Any) -> tuple[list[dict[str, Any]], list[str]]:
+    def _process_yaml_data(
+        self, yaml_data: Any
+    ) -> tuple[list[dict[str, Any]], list[str]]:
         """Process YAML data and return valid nodes with errors."""
         valid_nodes: list[dict[str, Any]] = []
         errors: list[str] = []
@@ -265,7 +267,9 @@ class YAMLStorage:
                     else:
                         errors.extend(node_errors)
                 else:
-                    errors.append("Invalid YAML structure: non-dict item in list")
+                    errors.append(
+                        "Invalid YAML structure: non-dict item in list"
+                    )
         else:
             errors.append("Invalid YAML structure: not dict or list")
 

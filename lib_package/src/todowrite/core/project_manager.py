@@ -620,7 +620,9 @@ class _AIOptimizationManager:
             )
         return None
 
-    def _apply_whitespace_optimization(self, text: str) -> tuple[str, list[str]]:
+    def _apply_whitespace_optimization(
+        self, text: str
+    ) -> tuple[str, list[str]]:
         """Apply whitespace optimization to text."""
         original_len = len(text)
         optimized_text = " ".join(text.split())
@@ -628,7 +630,9 @@ class _AIOptimizationManager:
 
         if len(optimized_text) < original_len:
             savings = original_len - len(optimized_text)
-            strategies.append(f"Removed {savings} redundant whitespace characters")
+            strategies.append(
+                f"Removed {savings} redundant whitespace characters"
+            )
 
         return optimized_text, strategies
 
@@ -655,7 +659,9 @@ class _AIOptimizationManager:
 
         return optimized_text, strategies
 
-    def _apply_line_trimming_optimization(self, text: str) -> tuple[str, list[str]]:
+    def _apply_line_trimming_optimization(
+        self, text: str
+    ) -> tuple[str, list[str]]:
         """Apply line trimming optimization to text."""
         lines = text.split("\n")
         optimized_lines = []
@@ -667,11 +673,15 @@ class _AIOptimizationManager:
 
         strategies = []
         if len(optimized_lines) < len(lines):
-            strategies.append(f"Removed {len(lines) - len(optimized_lines)} empty/comment lines")
+            strategies.append(
+                f"Removed {len(lines) - len(optimized_lines)} empty/comment lines"
+            )
 
         return "\n".join(optimized_lines), strategies
 
-    def _calculate_token_savings(self, original_counts: dict, optimized_counts: dict) -> dict[str, int]:
+    def _calculate_token_savings(
+        self, original_counts: dict, optimized_counts: dict
+    ) -> dict[str, int]:
         """Calculate token savings between original and optimized text."""
         token_savings = {}
         for provider, original_count in original_counts.items():
@@ -715,26 +725,34 @@ class _AIOptimizationManager:
         optimizations_applied = []
 
         # Strategy 1: Whitespace optimization
-        optimized_text, strategies = self._apply_whitespace_optimization(optimized_text)
+        optimized_text, strategies = self._apply_whitespace_optimization(
+            optimized_text
+        )
         all_strategies.extend(strategies)
         if strategies:
             optimizations_applied.append("whitespace_optimization")
 
         # Strategy 2: Phrase optimization
-        optimized_text, strategies = self._apply_phrase_optimization(optimized_text)
+        optimized_text, strategies = self._apply_phrase_optimization(
+            optimized_text
+        )
         all_strategies.extend(strategies)
         if strategies:
             optimizations_applied.append("phrase_optimization")
 
         # Strategy 3: Line trimming optimization
-        optimized_text, strategies = self._apply_line_trimming_optimization(optimized_text)
+        optimized_text, strategies = self._apply_line_trimming_optimization(
+            optimized_text
+        )
         all_strategies.extend(strategies)
         if strategies:
             optimizations_applied.append("line_trimming")
 
         # Calculate results
         optimized_counts = self._get_token_counts(optimized_text)
-        token_savings = self._calculate_token_savings(original_counts, optimized_counts)
+        token_savings = self._calculate_token_savings(
+            original_counts, optimized_counts
+        )
 
         # Prepare result
         success = len(token_savings) > 0
@@ -744,7 +762,9 @@ class _AIOptimizationManager:
             "optimized_tokens": optimized_counts,
             "tokens_saved": token_savings,
             "optimizations_applied": optimizations_applied,
-            "optimization_strategies": all_strategies if success else ["Text is already well-optimized"],
+            "optimization_strategies": all_strategies
+            if success
+            else ["Text is already well-optimized"],
             "method": "text_preprocessing",
             "success": success,
         }

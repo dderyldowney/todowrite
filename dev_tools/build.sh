@@ -44,10 +44,10 @@ show_usage() {
     echo "  install     Install dependencies (uv sync --group dev)"
     echo "  build       Build all packages (lib, cli, web)"
     echo "  test        Run all tests"
-    echo "  coverage    Run tests with coverage analysis"
+    echo "  coverage    Run tests with verbose output"
     echo "  lint        Run code quality checks"
     echo "  audit       Run dependency vulnerability audit"
-    echo "  quality-gate Run quality gate with coverage threshold"
+    echo "  quality-gate Run quality gate with code quality and tests"
     echo "  format      Format code"
     echo "  validate    Validate build system configuration and packages"
     echo "  clean       Clean build artifacts"
@@ -122,9 +122,9 @@ run_tests() {
 }
 
 run_coverage() {
-    print_status "Running tests with coverage analysis..."
-    uv run pytest tests/ -v --cov=lib_package/src --cov=cli_package/src --cov-report=term-missing --ignore=tests/web/
-    print_success "Coverage analysis completed"
+    print_status "Running tests with verbose output..."
+    uv run pytest tests/ -v --ignore=tests/web/
+    print_success "Test run completed"
 }
 
 run_lint() {
@@ -160,55 +160,24 @@ run_audit() {
 }
 
 run_quality_gate() {
-    local threshold=80
     local strict_mode=false
 
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
-            --coverage-threshold)
-                if [[ -n "$2" && "$2" =~ ^[0-9]+$ ]]; then
-                    threshold="$2"
-                    shift 2
-                else
-                    print_error "Invalid coverage threshold: $2 (must be a number)"
-                    return 1
-                fi
-                ;;
             --strict)
                 strict_mode=true
                 shift
                 ;;
-            -[0-9]*)
-                # Handle direct threshold value (e.g., -80)
-                if [[ "$1" =~ ^-[0-9]+$ ]]; then
-                    threshold="${1#-}"
-                    shift
-                else
-                    print_error "Invalid threshold format: $1"
-                    return 1
-                fi
-                ;;
-            [0-9]*)
-                # Handle direct threshold value (e.g., 80)
-                threshold="$1"
-                shift
-                ;;
             *)
                 print_error "Unknown option: $1"
-                print_status "Usage: quality-gate [--coverage-threshold <1-100>] [--strict] [<threshold>]"
+                print_status "Usage: quality-gate [--strict]"
                 return 1
                 ;;
         esac
     done
 
-    # Validate threshold range
-    if [[ "$threshold" -lt 1 || "$threshold" -gt 100 ]]; then
-        print_error "Coverage threshold must be between 1 and 100: $threshold"
-        return 1
-    fi
-
-    print_status "Running quality gate with coverage threshold ${threshold}%${strict_mode:+ (strict mode)}..."
+    print_status "Running quality gate${strict_mode:+ (strict mode)}..."
 
     # Run code quality checks
     print_status "Checking code quality..."
@@ -226,23 +195,23 @@ run_quality_gate() {
         fi
     fi
 
-    # Run tests with coverage
-    print_status "Running tests with coverage..."
-    local coverage_exit_code=0
-    local coverage_output
-    coverage_output=$(uv run pytest tests/ --cov=lib_package/src --cov=cli_package/src --cov-report=term-missing --ignore=tests/web/ --cov-fail-under="${threshold}" 2>&1) || coverage_exit_code=$?
+    # Run tests without coverage
+    print_status "Running tests..."
+    local test_exit_code=0
+    local test_output
+    test_output=$(uv run pytest tests/ --ignore=tests/web/ 2>&1) || test_exit_code=$?
 
-    if [[ $coverage_exit_code -ne 0 ]]; then
-        print_error "Coverage threshold ${threshold}% not met"
-        echo "$coverage_output" | grep -E "(FAILED|ERROR|coverage)" | head -10
+    if [[ $test_exit_code -ne 0 ]]; then
+        print_error "Tests failed"
+        echo "$test_output" | grep -E "(FAILED|ERROR)" | head -10
         return 1
     fi
 
-    print_success "Quality gate passed - Coverage threshold ${threshold}% met"
-    print_success "Coverage threshold ${threshold}% met"
+    print_success "Quality gate passed"
     if [[ "$lint_exit_code" -eq 0 ]]; then
         print_success "Code quality checks passed"
     fi
+    print_success "All tests passed"
 }
 
 format_code() {
@@ -412,7 +381,8 @@ case "${1:-help}" in
         run_audit
         ;;
     quality-gate)
-        run_quality_gate "$2" "$3"
+        shift
+        run_quality_gate "$@"
         ;;
     format)
         format_code

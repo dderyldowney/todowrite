@@ -69,15 +69,18 @@ class TestCli(unittest.TestCase):
         """Clean up test files and directories."""
         # Remove test database files
         test_files = [
-            "test_cli.db", "test.db", "test_validation.db",
-            ".todowrite.db", "todowrite.db", "todos.db", "todowrite/todos.db"
+            "test_cli.db",
+            "test.db",
+            "test_validation.db",
+            ".todowrite.db",
+            "todowrite.db",
+            "todos.db",
+            "todowrite/todos.db",
         ]
         _safe_remove_files(test_files)
 
         # Remove cache directories
-        cache_dirs = [
-            ".pytest_cache", ".pyright_cache", "__pycache__", "tests/__pycache__"
-        ]
+        cache_dirs = [".pytest_cache", ".pyright_cache", "__pycache__", "tests/__pycache__"]
         _safe_remove_dirs(cache_dirs)
 
         # Remove additional directories

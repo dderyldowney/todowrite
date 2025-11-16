@@ -231,11 +231,17 @@ def extract_node_metadata(node: Any) -> dict[str, str]:
 
     if hasattr(node, "metadata") and node.metadata:
         if hasattr(node.metadata, "owner"):
-            metadata["owner"] = getattr(node.metadata, "owner", "") or get_current_username()
+            metadata["owner"] = (
+                getattr(node.metadata, "owner", "") or get_current_username()
+            )
         if hasattr(node.metadata, "severity"):
-            metadata["severity"] = getattr(node.metadata, "severity", "") or "low"
+            metadata["severity"] = (
+                getattr(node.metadata, "severity", "") or "low"
+            )
         if hasattr(node.metadata, "work_type"):
-            metadata["work_type"] = getattr(node.metadata, "work_type", "") or "chore"
+            metadata["work_type"] = (
+                getattr(node.metadata, "work_type", "") or "chore"
+            )
 
     return metadata
 
@@ -246,9 +252,15 @@ def format_node_for_display(
     metadata: dict[str, str],
 ) -> list[str]:
     """Format node data for table display."""
-    title_display = node.title[:30] + "..." if len(node.title) > 30 else node.title
+    title_display = (
+        node.title[:30] + "..." if len(node.title) > 30 else node.title
+    )
     id_display = node.id[:12] + "…" if len(node.id) > 12 else node.id
-    owner_display = metadata["owner"][:20] + "…" if len(metadata["owner"]) > 20 else metadata["owner"]
+    owner_display = (
+        metadata["owner"][:20] + "…"
+        if len(metadata["owner"]) > 20
+        else metadata["owner"]
+    )
 
     return [
         layer_name,
@@ -304,25 +316,45 @@ def build_update_data(
     if owner is not None:
         metadata_updates["owner"] = owner
     if labels is not None:
-        metadata_updates["labels"] = [label.strip() for label in labels.split(",")]
+        metadata_updates["labels"] = [
+            label.strip() for label in labels.split(",")
+        ]
 
     # Validated metadata fields
     if severity is not None:
         severity_normalized = validate_and_normalize_severity(severity)
         if not severity_normalized:
-            valid_severities = ", ".join(sorted(["low", "medium", "med", "high", "critical"]))
-            raise ValueError(f"Invalid severity: '{severity}'. Valid options: {valid_severities}")
+            valid_severities = ", ".join(
+                sorted(["low", "medium", "med", "high", "critical"])
+            )
+            raise ValueError(
+                f"Invalid severity: '{severity}'. Valid options: {valid_severities}"
+            )
         metadata_updates["severity"] = severity_normalized
 
     if work_type is not None:
         work_type_normalized = validate_and_normalize_work_type(work_type)
         if not work_type_normalized:
-            valid_work_types = ", ".join(sorted([
-                "architecture", "spec", "interface", "validation",
-                "implementation", "development", "docs", "ops",
-                "refactor", "chore", "test"
-            ]))
-            raise ValueError(f"Invalid work_type: '{work_type}'. Valid options: {valid_work_types}")
+            valid_work_types = ", ".join(
+                sorted(
+                    [
+                        "architecture",
+                        "spec",
+                        "interface",
+                        "validation",
+                        "implementation",
+                        "development",
+                        "docs",
+                        "ops",
+                        "refactor",
+                        "chore",
+                        "test",
+                    ]
+                )
+            )
+            raise ValueError(
+                f"Invalid work_type: '{work_type}'. Valid options: {valid_work_types}"
+            )
         metadata_updates["work_type"] = work_type_normalized
 
     if metadata_updates:
@@ -332,14 +364,32 @@ def build_update_data(
     if status is not None:
         status_normalized = validate_and_normalize_status(status)
         if not status_normalized:
-            valid_statuses = ", ".join(sorted(["planned", "inprogress", "in_progress", "completed", "blocked", "cancelled"]))
-            raise ValueError(f"Invalid status: '{status}'. Valid options: {valid_statuses}")
+            valid_statuses = ", ".join(
+                sorted(
+                    [
+                        "planned",
+                        "inprogress",
+                        "in_progress",
+                        "completed",
+                        "blocked",
+                        "cancelled",
+                    ]
+                )
+            )
+            raise ValueError(
+                f"Invalid status: '{status}'. Valid options: {valid_statuses}"
+            )
         update_data["status"] = status_normalized
 
     return update_data
 
 
-def update_command_data(update_data: dict[str, Any], ac_ref: str | None, run_shell: str | None, artifacts: str | None) -> None:
+def update_command_data(
+    update_data: dict[str, Any],
+    ac_ref: str | None,
+    run_shell: str | None,
+    artifacts: str | None,
+) -> None:
     """Update command-specific data if provided."""
     command_updates = {}
     if ac_ref is not None:
@@ -347,13 +397,17 @@ def update_command_data(update_data: dict[str, Any], ac_ref: str | None, run_she
     if run_shell is not None:
         command_updates["run"] = {"shell": run_shell}
     if artifacts is not None:
-        command_updates["artifacts"] = [artifact.strip() for artifact in artifacts.split(",")]
+        command_updates["artifacts"] = [
+            artifact.strip() for artifact in artifacts.split(",")
+        ]
 
     if command_updates:
         update_data["command"] = command_updates
 
 
-def display_update_results(updated_node: Any, original_fields: dict[str, Any]) -> None:
+def display_update_results(
+    updated_node: Any, original_fields: dict[str, Any]
+) -> None:
     """Display the results of a node update."""
     console.print(
         f"[green]✓[/green] Updated {getattr(updated_node, 'id', 'Unknown')}: "
@@ -361,12 +415,21 @@ def display_update_results(updated_node: Any, original_fields: dict[str, Any]) -
     )
 
     if "status" in original_fields:
-        console.print(f"  Status: {getattr(updated_node, 'status', 'Unknown')}")
+        console.print(
+            f"  Status: {getattr(updated_node, 'status', 'Unknown')}"
+        )
     if "progress" in original_fields:
         console.print(f"  Progress: {getattr(updated_node, 'progress', 0)}%")
-    if "metadata" in original_fields and "owner" in original_fields["metadata"]:
+    if (
+        "metadata" in original_fields
+        and "owner" in original_fields["metadata"]
+    ):
         owner_val = getattr(updated_node, "owner", None)
-        if not owner_val and hasattr(updated_node, "metadata") and updated_node.metadata:
+        if (
+            not owner_val
+            and hasattr(updated_node, "metadata")
+            and updated_node.metadata
+        ):
             owner_val = getattr(updated_node.metadata, "owner", None)
         owner_val = owner_val or "N/A"
         console.print(f"  Owner: {owner_val}")
@@ -534,11 +597,24 @@ def create(
     # Validate and normalize layer
     layer_normalized = normalize_layer(layer)
     if not layer_normalized:
-        valid_options = ", ".join(sorted([
-            "goal", "concept", "context", "constraints", "requirements",
-            "acceptancecriteria", "interfacecontract", "phase", "step",
-            "task", "subtask", "command"
-        ]))
+        valid_options = ", ".join(
+            sorted(
+                [
+                    "goal",
+                    "concept",
+                    "context",
+                    "constraints",
+                    "requirements",
+                    "acceptancecriteria",
+                    "interfacecontract",
+                    "phase",
+                    "step",
+                    "task",
+                    "subtask",
+                    "command",
+                ]
+            )
+        )
         console.print(
             f"[red]✗[/red] Invalid layer: '{layer}'. "
             f"Valid options: {valid_options}"
@@ -579,7 +655,9 @@ def create(
     if severity:
         severity_normalized = validate_and_normalize_severity(severity)
         if not severity_normalized:
-            valid_severities = ", ".join(sorted(["low", "medium", "med", "high", "critical"]))
+            valid_severities = ", ".join(
+                sorted(["low", "medium", "med", "high", "critical"])
+            )
             console.print(
                 f"[red]✗[/red] Invalid severity: '{severity}'. "
                 f"Valid options: {valid_severities}"
@@ -590,11 +668,23 @@ def create(
     if work_type:
         work_type_normalized = validate_and_normalize_work_type(work_type)
         if not work_type_normalized:
-            valid_work_types = ", ".join(sorted([
-                "architecture", "spec", "interface", "validation",
-                "implementation", "development", "docs", "ops",
-                "refactor", "chore", "test"
-            ]))
+            valid_work_types = ", ".join(
+                sorted(
+                    [
+                        "architecture",
+                        "spec",
+                        "interface",
+                        "validation",
+                        "implementation",
+                        "development",
+                        "docs",
+                        "ops",
+                        "refactor",
+                        "chore",
+                        "test",
+                    ]
+                )
+            )
             console.print(
                 f"[red]✗[/red] Invalid work_type: '{work_type}'. "
                 f"Valid options: {valid_work_types}"
@@ -908,8 +998,12 @@ def global_status(
 def _display_summary_statistics(filtered_nodes: list[tuple[str, Any]]) -> None:
     """Display summary statistics for filtered nodes."""
     total_nodes = len(filtered_nodes)
-    completed_nodes = len([n for _, n in filtered_nodes if n.status == "completed"])
-    in_progress_nodes = len([n for _, n in filtered_nodes if n.status == "in_progress"])
+    completed_nodes = len(
+        [n for _, n in filtered_nodes if n.status == "completed"]
+    )
+    in_progress_nodes = len(
+        [n for _, n in filtered_nodes if n.status == "in_progress"]
+    )
 
     console.print("\n[bold]Summary:[/bold]")
     console.print(f"Total nodes: {total_nodes}")
@@ -1169,8 +1263,17 @@ def update(
         # Build update data
         try:
             update_data = build_update_data(
-                title, description, owner, severity, work_type, status,
-                progress, labels, ac_ref, run_shell, artifacts
+                title,
+                description,
+                owner,
+                severity,
+                work_type,
+                status,
+                progress,
+                labels,
+                ac_ref,
+                run_shell,
+                artifacts,
             )
         except ValueError as e:
             console.print(f"[red]✗[/red] {e}")

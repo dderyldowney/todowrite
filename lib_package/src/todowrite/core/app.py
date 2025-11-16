@@ -130,6 +130,19 @@ class ToDoWrite:
                 )
                 logger.error(error_msg)
 
+    def init_database(self) -> None:
+        """Public method to initialize database schema (wrapper for compatibility)."""
+        self._initialize_database_schema()
+
+    def get_db_session(self):
+        """Get database session from storage backend (for compatibility with tests)."""
+        return self.storage._get_session()
+
+    @property
+    def engine(self):
+        """Get database engine from storage backend (for compatibility with schema validation)."""
+        return getattr(self.storage, 'engine', None)
+
     def _auto_import_yaml_files(self) -> None:
         """Auto-import YAML files if configured and using database backend."""
         # This would be implemented to use the storage backend for imports

@@ -140,7 +140,9 @@ def get_sqlite_candidates() -> list[str]:
     return candidates
 
 
-def _handle_explicit_database_url(db_url: str, preference: StoragePreference) -> tuple[StorageType, str] | None:
+def _handle_explicit_database_url(
+    db_url: str, preference: StoragePreference
+) -> tuple[StorageType, str] | None:
     """Handle explicitly provided database URL."""
     if db_url.startswith("postgresql:"):
         if preference == StoragePreference.SQLITE_ONLY:

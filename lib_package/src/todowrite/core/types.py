@@ -1479,6 +1479,47 @@ class Node(Base):
             else None,
         }
 
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "Node":
+        """Create a Node instance from a dictionary."""
+        # Extract required fields
+        node_id = data.get("id")
+        layer = data.get("layer")
+        title = data.get("title")
+
+        if not node_id or not layer or not title:
+            raise ValueError("Node data must contain 'id', 'layer', and 'title' fields")
+
+        # Extract optional fields
+        description = data.get("description", "")
+        status = data.get("status", "planned")
+        progress = data.get("progress", 0)
+        started_date = data.get("started_date")
+        completion_date = data.get("completion_date")
+
+        # Extract metadata fields
+        metadata = data.get("metadata", {})
+        owner = metadata.get("owner")
+        severity = metadata.get("severity")
+        work_type = metadata.get("work_type")
+        assignee = metadata.get("assignee")
+
+        # Create node with constructor parameters
+        return cls(
+            id=node_id,
+            layer=layer,
+            title=title,
+            description=description,
+            status=status,
+            progress=progress,
+            started_date=started_date,
+            completion_date=completion_date,
+            owner=owner,
+            severity=severity,
+            work_type=work_type,
+            assignee=assignee
+        )
+
     def is_completed(self) -> bool:
         """Check if node is completed."""
         return self.status == "completed"

@@ -76,9 +76,9 @@ class TestVisualRelationshipBuilding:
                         type_option = driver.find_element(
                             By.XPATH, f"//*[contains(text(), '{rel_type}')]"
                         )
-                        assert (
-                            type_option.is_displayed()
-                        ), f"Relationship type '{rel_type}' should be available"
+                        assert type_option.is_displayed(), (
+                            f"Relationship type '{rel_type}' should be available"
+                        )
                     except:
                         pytest.skip(f"Relationship type '{rel_type}' not implemented yet")
 
@@ -245,17 +245,17 @@ class TestVisualRelationshipBuilding:
                 assert warning.is_displayed(), "Should show circular dependency warning"
 
                 warning_text = warning.text
-                assert (
-                    "circular" in warning_text.lower()
-                ), "Warning should mention circular dependency"
+                assert "circular" in warning_text.lower(), (
+                    "Warning should mention circular dependency"
+                )
 
                 # Check that problematic relationship is highlighted
                 highlighted_relationship = driver.find_element(
                     By.CSS_SELECTOR, "[data-testid='highlighted-relationship']"
                 )
-                assert (
-                    highlighted_relationship.is_displayed()
-                ), "Problematic relationship should be highlighted"
+                assert highlighted_relationship.is_displayed(), (
+                    "Problematic relationship should be highlighted"
+                )
 
                 # Should provide explanation
                 explanation = driver.find_element(
@@ -398,9 +398,9 @@ class TestVisualRelationshipBuilding:
                 confirmation_dialog = driver.find_element(
                     By.CSS_SELECTOR, "[data-testid='bulk-confirmation-dialog']"
                 )
-                assert (
-                    confirmation_dialog.is_displayed()
-                ), "Should show confirmation for bulk operations"
+                assert confirmation_dialog.is_displayed(), (
+                    "Should show confirmation for bulk operations"
+                )
 
                 confirm_bulk = confirmation_dialog.find_element(
                     By.CSS_SELECTOR, "[data-testid='confirm-bulk-button']"
@@ -461,14 +461,14 @@ class TestVisualRelationshipBuilding:
                     validation_error = driver.find_element(
                         By.CSS_SELECTOR, "[data-testid='validation-error']"
                     )
-                    assert (
-                        validation_error.is_displayed()
-                    ), f"Should show validation error for {rel_type}"
+                    assert validation_error.is_displayed(), (
+                        f"Should show validation error for {rel_type}"
+                    )
 
                     error_text = validation_error.text
-                    assert (
-                        "invalid" in error_text.lower() or "not allowed" in error_text.lower()
-                    ), f"Error should explain why {rel_type} is invalid"
+                    assert "invalid" in error_text.lower() or "not allowed" in error_text.lower(), (
+                        f"Error should explain why {rel_type} is invalid"
+                    )
 
                 except:
                     pytest.skip(f"Relationship validation for {rel_type} not implemented yet")
@@ -500,17 +500,17 @@ class TestVisualRelationshipBuilding:
                 filtered_relationships = driver.find_elements(
                     By.CSS_SELECTOR, "[data-testid='dependency-relationship']"
                 )
-                assert (
-                    len(filtered_relationships) > 0
-                ), "Should show filtered dependency relationships"
+                assert len(filtered_relationships) > 0, (
+                    "Should show filtered dependency relationships"
+                )
 
                 # Verify non-dependency relationships are hidden
                 other_relationships = driver.find_elements(
                     By.CSS_SELECTOR, "[data-testid='part-of-relationship']"
                 )
-                assert (
-                    len(other_relationships) == 0
-                ), "Non-dependency relationships should be hidden"
+                assert len(other_relationships) == 0, (
+                    "Non-dependency relationships should be hidden"
+                )
 
             except:
                 pytest.skip("Relationship filtering not implemented yet")
