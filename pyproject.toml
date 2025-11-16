@@ -47,6 +47,8 @@ dev = [
     "sqlfluff>=3.0.0",
     "alembic>=1.17.1",
     "jsonschema>=4.25.1",
+    "anthropic>=0.25.0",
+    "openai>=1.12.0",
 ]
 
 # Ruff configuration for development with strict enforcement

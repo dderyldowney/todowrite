@@ -156,22 +156,135 @@ These mandates apply **at all times** with **zero exceptions**.
 - Reuse existing context.
 - Produce small, efficient, incremental changes.
 
-## 12. Agents MUST use the token-optimization system
+## 12. Agents MUST use HAL Agent AND Token Optimization Systems (ZERO EXCEPTIONS)
 
-- **ALWAYS PREFER**: Local command-line tools over internal CLI tools
-- **NO LIMITATIONS**: Not limited to the examples given - use appropriate tools
-- **Primary Examples**: `sed`, `awk`, `grep/greptool`, `jq`, `patch`, `cat`, `head`, `gperf`, `ls`, `rm`
-- **TEXT PROCESSING**: Use `sed`, `awk`, `grep` for text manipulation and searching
-- **JSON PROCESSING**: Use `jq` for JSON parsing, filtering, and transformation
-- **FILE OPERATIONS**: Use `cat`, `head`, `tail`, `ls`, `rm` for file inspection and management
-- **PATCH MANAGEMENT**: Use `patch` for applying and managing code changes
-- **PERFORMANCE**: Use `gperf` for perfect hash functions when needed
-- **PIPELINES**: Combine tools with pipes (`|`) for powerful multi-step operations
-- **SHELL SCRIPTING**: Prefer shell commands over Python scripts for simple operations
-- **DIRECT EXECUTION**: Use subprocess/system calls to execute local tools directly
-- **EFFICIENCY**: Local tools are typically faster and more resource-efficient than internal implementations
-- **RELIABILITY**: Well-tested system tools are more reliable than custom implementations
-- **STANDARDS**: Use POSIX-compliant tools for maximum portability
+**MANDATORY REQUIREMENT**: ALL agents MUST use BOTH the HAL Agent System AND the Token Optimization System for EVERY task. NO EXCEPTIONS.
+
+### 12.1 HAL Agent System - MUST USE (Zero API Tokens for Local Processing)
+
+**Purpose**: Local preprocessing and filtering before AI interactions (0 API tokens)
+
+**Location**: `dev_tools/agent_controls/hal_token_savvy_agent.py`
+
+**Mandatory Usage Patterns**:
+
+```bash
+# Basic HAL Agent Usage (ALWAYS use this first)
+python dev_tools/agent_controls/hal_token_savvy_agent.py \
+  --provider anthropic \
+  --model claude-sonnet-4-5 \
+  --goal "find database model files" \
+  --roots lib_package/ \
+  --include "*.py" \
+  --chars 1000 \
+  --max-files 50
+
+# HAL Agent for Code Analysis
+python dev_tools/agent_controls/hal_token_savvy_agent.py \
+  --provider anthropic \
+  --model claude-sonnet-4-5 \
+  --goal "analyze authentication patterns" \
+  --pattern "class.*Auth" \
+  --roots lib_package/ cli_package/ \
+  --include "*.py" \
+  --chars 1500
+
+# HAL Agent for Error Investigation
+python dev_tools/agent_controls/hal_token_savvy_agent.py \
+  --provider anthropic \
+  --model claude-sonnet-4-5 \
+  --goal "find test failures" \
+  --pattern "def test.*" \
+  --roots tests/ \
+  --include "*.py" \
+  --chars 2000 \
+  --context 5
+```
+
+**HAL Agent Options**:
+- `--provider {openai,anthropic}`: AI provider (anthropic preferred)
+- `--model`: Model name (claude-sonnet-4-5 recommended)
+- `--goal`: Analysis goal (required)
+- `--pattern`: Regex pattern for focused search
+- `--roots`: Directories to search
+- `--include`: File glob patterns
+- `--chars`: Max snippet size (default 1000)
+- `--max-files`: Maximum files to process
+- `--context`: Context lines around matches
+
+### 12.2 Token Optimization System - MUST USE (90% Token Savings)
+
+**Purpose**: Optimized AI interactions with minimal token usage
+
+**Location**: `dev_tools/token_optimization/always_token_sage.py`
+
+**Mandatory Usage Patterns**:
+
+```bash
+# Token-Sage Analysis (ALWAYS use after HAL preprocessing)
+python dev_tools/token_optimization/always_token_sage.py "analyze database relationships"
+
+# Token-Sage for Feature Investigation
+python dev_tools/token_optimization/always_token_sage.py "implement user authentication flow"
+
+# Token-Sage for Debugging
+python dev_tools/token_optimization/always_token_sage.py "fix failing test in storage layer"
+
+# Advanced Token Optimization with Caching
+python dev_tools/token_optimization/token_optimized_agent.py "database models" "class.*Model"
+```
+
+### 12.3 Mandatory Workflow for ALL Agents
+
+**EVERY task MUST follow this exact sequence**:
+
+1. **HAL Preprocessing First** (0 API tokens):
+   ```bash
+   python dev_tools/agent_controls/hal_token_savvy_agent.py --provider anthropic --model claude-sonnet-4-5 --goal "YOUR TASK HERE"
+   ```
+
+2. **Token-Sage Analysis Second** (optimized tokens):
+   ```bash
+   python dev_tools/token_optimization/always_token_sage.py "YOUR ANALYSIS TASK"
+   ```
+
+3. **Direct Tool Usage Only When HAL/Token-Sage Cannot Handle**:
+   - Use `sed`, `awk`, `grep/greptool`, `jq` for text processing
+   - Use `cat`, `head`, `tail`, `ls` for file operations
+   - Use `patch` for code changes
+   - Use `find` and `xargs` for file searching
+
+**FORBIDDEN**: Direct AI model usage without HAL preprocessing and token optimization
+
+### 12.4 Token Savings Verification
+
+**Expected Results**:
+- **HAL Preprocessing**: 0 API tokens (local processing only)
+- **Token-Sage Analysis**: Up to 90% token reduction vs standard analysis
+- **Combined Workflow**: Maximum efficiency with minimal API usage
+
+**Verification Commands**:
+```bash
+# Test HAL Agent works
+python dev_tools/agent_controls/hal_token_savvy_agent.py --help
+
+# Test Token Optimization works
+python dev_tools/token_optimization/always_token_sage.py "test query"
+
+# Verify dependencies are installed
+python -c "import anthropic; import openai; print('✅ HAL dependencies ready')"
+```
+
+### 12.5 Enforcement and Compliance
+
+**ABSOLUTE REQUIREMENTS**:
+- **NO EXCEPTIONS**: This applies to ALL agents at ALL times
+- **NO BYPASSING**: HAL preprocessing is required before any AI interaction
+- **MANDATORY DEPENDENCIES**: `anthropic>=0.25.0` and `openai>=1.12.0` always installed
+- **ZERO ALTERNATIVES**: No other tools or workflows are permitted
+- **CONTINUOUS USAGE**: Must be used for every single task, no matter how small
+
+**VIOLATION CONSEQUENCES**: Any agent not using HAL Agent + Token Optimization System is in violation of CLAUDE.md mandates and must be corrected immediately.
 
 ## 13. Use local command-line tools - ALWAYS preferred over internal CLI tools
 
@@ -260,7 +373,91 @@ These mandates apply **at all times** with **zero exceptions**.
 - **Automatic fixing**: Use `./dev_tools/build.sh format` to fix import order
 - **Manual verification**: Ensure imports are readable and properly grouped
 
-## 17. FULL TYPE HINTING & TYPE ANNOTATIONS REQUIRED
+## 17. COMMIT MESSAGE STANDARDS
+
+**MANDATORY**: All commits MUST follow strict Conventional Commits format with no exceptions
+
+### Required Commit Format
+
+```
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### Valid Commit Types
+
+- **feat**: A new feature
+- **fix**: A bug fix
+- **docs**: Documentation only changes
+- **style**: Code style changes (formatting, etc.)
+- **refactor**: Code change that neither fixes bug nor adds feature
+- **perf**: Performance improvement
+- **test**: Adding missing tests or correcting existing tests
+- **build**: Changes affecting build system or dependencies
+- **ci**: Changes to CI configuration files and scripts
+- **chore**: Other changes that don't modify src or test files
+- **revert**: Reverts a previous commit
+
+### Valid Commit Scopes
+
+**Project-specific scopes:**
+- **lib** - Core todowrite library
+- **cli** - Command-line interface
+- **web** - Web interface
+- **tests** - Test suite and testing infrastructure
+- **docs** - Documentation
+- **build** - Build system and packaging
+- **config** - Configuration files and settings
+- **ci** - Continuous integration and deployment
+- **deps** - Dependencies and requirements
+
+**Layer-specific scopes (ToDoWrite hierarchy):**
+- **goal**, **concept**, **context**, **constraints**
+- **req**, **ac**, **iface**
+- **phase**, **step**, **task**, **subtask**, **cmd**
+- **schema**, **lint**, **trace**, **api**, **validation**, **tools**
+
+### Requirements (Updated for Industry Standards)
+
+- **Subject line MAXIMUM 100 characters** - Following Google/Angular practices
+- **Subject MUST start with capital letter**
+- **Scope is OPTIONAL** - Project-specific scopes encouraged but not required
+- **Description MUST be in present tense** - "add" not "added"
+- **Description MUST be in imperative mood** - "Fix bug" not "Fixes bug"
+- **Minimum subject length**: 5 characters (reduced from 10)
+
+### Examples of Correct Format
+
+```bash
+feat(lib): add hierarchical task relationships
+fix(cli): resolve authentication timeout
+test(web): add comprehensive user interface coverage
+docs(readme): update installation instructions
+refactor(api): simplify database connection logic
+build(schema): generate updated todowrite.schema.json
+chore(config): update import organization standards
+```
+
+### Examples of INCORRECT Format
+
+```bash
+❌ "Add new feature"                    # Missing type and scope
+❌ "feat: add feature"                 # Missing scope
+❌ "feat(lib): Add new feature"        # Subject starts with capital but too long
+❌ "feat(lib): this is a really long description that exceeds the 72 character limit"
+❌ "docs(cli): Fixed the documentation" # Past tense, not imperative
+```
+
+### Validation
+
+- **Before committing**: Hooks will validate format automatically
+- **Failed commits**: Fix the message to meet ALL requirements
+- **No exceptions**: Format is mandatory, not optional
+
+## 18. FULL TYPE HINTING & TYPE ANNOTATIONS REQUIRED
 
 **MANDATORY**: All code MUST include complete type hints following Python 3.12+ standards
 
@@ -382,6 +579,9 @@ All agents MUST complete this checklist before beginning any work:
 - [ ] **Build System**: Using `./dev_tools/build.sh` commands (not direct tools)
 - [ ] **Testing**: pytest configured with `--ignore=tests/web/`
 - [ ] **No Mocking**: STRICT no-mocking policy understood and followed
+- [ ] **HAL Agent System**: Ready and functional (`python dev_tools/agent_controls/hal_token_savvy_agent.py --help`)
+- [ ] **Token Optimization**: Active and verified (`python dev_tools/token_optimization/always_token_sage.py "test"`)
+- [ ] **HAL Dependencies**: `anthropic` and `openai` packages installed and importable
 
 ### Preferred Tool Invocation
 
@@ -477,12 +677,23 @@ source .venv/bin/activate
    - **On session start**: Load before any other work
    - **After '/clear'**: Immediately reload before any other work
    - **After '/quit'**: Load in new session before any other work
-2. Clarify request & verify understanding from loaded docs
-3. Search using CLI tools
-4. Red test
-5. Green minimal code with full typing
-6. Refactor
-7. Commit (never using --no-verify without permission)
+2. **MANDATORY**: Complete Startup Checklist including HAL Agent + Token Optimization verification
+3. **MANDATORY**: Use HAL Agent System for ALL tasks (Rule #12.1)
+   ```bash
+   python dev_tools/agent_controls/hal_token_savvy_agent.py --provider anthropic --model claude-sonnet-4-5 --goal "YOUR TASK"
+   ```
+4. **MANDATORY**: Use Token Optimization System for ALL AI analysis (Rule #12.2)
+   ```bash
+   python dev_tools/token_optimization/always_token_sage.py "YOUR ANALYSIS"
+   ```
+5. Clarify request & verify understanding from loaded docs
+6. Search using HAL Agent preprocessing + local CLI tools only
+7. Red test (using real implementations only)
+8. Green minimal code with full typing
+9. Refactor
+10. Commit (never using --no-verify without permission)
+
+**FORBIDDEN**: Any work without HAL Agent preprocessing and Token Optimization usage
 
 ## Emergency Documentation Verification
 

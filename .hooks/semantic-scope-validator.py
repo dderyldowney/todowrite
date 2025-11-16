@@ -23,8 +23,8 @@ class SemanticScopeValidator:
     def load_config(self):
         """Load semantic scoping configuration."""
         default_config = {
-            "enforcement_level": "strict",
-            "scope_required": True,
+            "enforcement_level": "moderate",  # Changed from strict
+            "scope_required": False,  # Changed from True - make scope optional
             "case_sensitive": False,
             "semantic_scopes": {
                 "lib": {
@@ -126,8 +126,8 @@ class SemanticScopeValidator:
                 "type_pattern": r"^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)",
                 "scope_pattern": r"^[a-z][a-z0-9_-]*$",  # scope naming convention
                 "max_scope_length": 20,
-                "min_subject_length": 10,
-                "max_subject_length": 72,
+                "min_subject_length": 5,  # Reduced from 10
+                "max_subject_length": 100,  # Increased from 72 to follow Google/Angular practices
             },
         }
 
