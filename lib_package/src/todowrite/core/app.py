@@ -26,9 +26,11 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import jsonschema
+from collections.abc import Iterator
+from sqlalchemy import Engine
 
 from ..storage import (
     NodeCreationError,
@@ -40,11 +42,6 @@ from ..storage import (
 )
 from ..storage.schema_validator import validate_database_schema
 from .types import Node
-
-if TYPE_CHECKING:
-    from collections.abc import Iterator
-
-    from sqlalchemy import Engine
 
 logger = logging.getLogger(__name__)
 

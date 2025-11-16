@@ -458,10 +458,10 @@ def get_app(
             db_url = database_path
 
         # Use library's simplified connection
-        app = ToDoWrite(db_url=db_url)
+        app = ToDoWrite(database_url=db_url)
     else:
         # Let library handle auto-detection (PostgreSQL → SQLite → YAML)
-        app = ToDoWrite()
+        app = ToDoWrite("sqlite:///todowrite.db")
 
     # Initialize database through library
     app.init_database()
@@ -515,8 +515,8 @@ def init(
     app = get_app(database_path, yaml_path)
 
     try:
+        console.print(f"Storage type: {app.storage.backend_name}")
         console.print("[green]✓[/green] Database initialized successfully!")
-        console.print(f"Storage type: {app.storage_type.value}")
         if hasattr(app, "db_url") and app.db_url:
             console.print(f"Database URL: {app.db_url}")
     except (OSError, ValueError, RuntimeError) as e:

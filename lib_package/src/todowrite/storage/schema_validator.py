@@ -424,13 +424,12 @@ def validate_database_schema(
             # Try to get database URL from environment
             import os
 
-            from ..core.app import ToDoWrite
+            from sqlalchemy import create_engine
 
             db_url = os.environ.get(
                 "TODOWRITE_DATABASE_URL", "sqlite:///todowrite.db"
             )
-            app = ToDoWrite(db_url)
-            engine = app.engine
+            engine = create_engine(db_url)
         except Exception as err:
             raise ValueError(
                 "No database engine provided and could not get default engine"
