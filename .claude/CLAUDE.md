@@ -213,7 +213,54 @@ These mandates apply **at all times** with **zero exceptions**.
 - **NO TECHNICAL JARGON**: Avoid overly technical descriptions unless absolutely necessary
 - **AGENT RESPONSIBILITY**: AI-generated code must be production-ready with full typing
 
-## 16. FULL TYPE HINTING & TYPE ANNOTATIONS REQUIRED
+## 16. IMPORT ORGANIZATION STANDARDS
+
+**MANDATORY**: All imports must follow strict alphabetical organization per PEP 8 standards
+
+### Required Import Structure
+
+1. **Standard Library Imports** (alphabetically sorted):
+   ```python
+   import json
+   import logging
+   from collections.abc import Iterator
+   from pathlib import Path
+   from typing import Any
+   ```
+
+2. **Third-Party Imports** (alphabetically sorted):
+   ```python
+   import jsonschema
+   import pytest
+   from sqlalchemy import Engine
+   ```
+
+3. **Local/Application Imports** (alphabetically sorted):
+   ```python
+   from ..storage import (
+       NodeCreationError,
+       NodeNotFoundError,
+       StorageBackend,
+   )
+   from .types import Node
+   ```
+
+### Import Rules
+
+- **ALWAYS SORT ALPHABETICALLY**: Each import group must be alphabetically sorted
+- **USE RUFF FORMAT**: Run `./dev_tools/build.sh format` to automatically sort imports
+- **NO IMPORT STAR**: `from module import *` is forbidden
+- **PLACE TYPE_CHECKING IMPORTS**: Runtime imports should NOT be in TYPE_CHECKING blocks
+- **SEPARATE GROUPS**: Use blank lines between import groups
+- **CONSISTENT STYLE**: Follow the exact pattern shown above
+
+### Import Validation
+
+- **Before committing**: Run `./dev_tools/build.sh lint` to verify import organization
+- **Automatic fixing**: Use `./dev_tools/build.sh format` to fix import order
+- **Manual verification**: Ensure imports are readable and properly grouped
+
+## 17. FULL TYPE HINTING & TYPE ANNOTATIONS REQUIRED
 
 **MANDATORY**: All code MUST include complete type hints following Python 3.12+ standards
 
