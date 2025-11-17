@@ -1,4 +1,4 @@
-todowrite.database package
+todowrite.databaselibrary module
 ==========================
 
 .. automodule:: todowrite.database
@@ -9,7 +9,7 @@ todowrite.database package
 Submodules
 ----------
 
-todowrite.database.config module
+todowrite.database.config
 --------------------------------
 
 .. automodule:: todowrite.database.config
@@ -17,7 +17,7 @@ todowrite.database.config module
    :show-inheritance:
    :undoc-members:
 
-todowrite.database.models module
+todowrite.database.models
 --------------------------------
 
 .. automodule:: todowrite.database.models
@@ -25,7 +25,7 @@ todowrite.database.models module
    :show-inheritance:
    :undoc-members:
 
-todowrite.database.node\_mapping module
+todowrite.database.node\_mapping
 ---------------------------------------
 
 .. automodule:: todowrite.database.node_mapping

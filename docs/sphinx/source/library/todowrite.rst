@@ -1,4 +1,4 @@
-todowrite package
+todowrite library
 =================
 
 .. automodule:: todowrite
@@ -6,8 +6,8 @@ todowrite package
    :show-inheritance:
    :undoc-members:
 
-Subpackages
------------
+Submodules
+----------
 
 .. toctree::
    :maxdepth: 4
@@ -20,7 +20,7 @@ Subpackages
 Submodules
 ----------
 
-todowrite.api module
+todowrite.api
 --------------------
 
 .. automodule:: todowrite.api
@@ -28,7 +28,7 @@ todowrite.api module
    :show-inheritance:
    :undoc-members:
 
-todowrite.build\_system module
+todowrite.build\_system
 ------------------------------
 
 .. automodule:: todowrite.build_system
@@ -36,7 +36,7 @@ todowrite.build\_system module
    :show-inheritance:
    :undoc-members:
 
-todowrite.version module
+todowrite.version
 ------------------------
 
 .. automodule:: todowrite.version

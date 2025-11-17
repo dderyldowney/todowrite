@@ -1,4 +1,4 @@
-todowrite.tools package
+todowrite.toolslibrary module
 =======================
 
 .. automodule:: todowrite.tools
@@ -9,7 +9,7 @@ todowrite.tools package
 Submodules
 ----------
 
-todowrite.tools.extract\_schema module
+todowrite.tools.extract\_schema
 --------------------------------------
 
 .. automodule:: todowrite.tools.extract_schema
@@ -17,7 +17,7 @@ todowrite.tools.extract\_schema module
    :show-inheritance:
    :undoc-members:
 
-todowrite.tools.tw\_lint\_soc module
+todowrite.tools.tw\_lint\_soc
 ------------------------------------
 
 .. automodule:: todowrite.tools.tw_lint_soc
@@ -25,7 +25,7 @@ todowrite.tools.tw\_lint\_soc module
    :show-inheritance:
    :undoc-members:
 
-todowrite.tools.tw\_stub\_command module
+todowrite.tools.tw\_stub\_command
 ----------------------------------------
 
 .. automodule:: todowrite.tools.tw_stub_command
@@ -33,7 +33,7 @@ todowrite.tools.tw\_stub\_command module
    :show-inheritance:
    :undoc-members:
 
-todowrite.tools.tw\_trace module
+todowrite.tools.tw\_trace
 --------------------------------
 
 .. automodule:: todowrite.tools.tw_trace
@@ -41,7 +41,7 @@ todowrite.tools.tw\_trace module
    :show-inheritance:
    :undoc-members:
 
-todowrite.tools.tw\_validate module
+todowrite.tools.tw\_validate
 -----------------------------------
 
 .. automodule:: todowrite.tools.tw_validate

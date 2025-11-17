@@ -1,4 +1,4 @@
-todowrite.core.schemas package
+todowrite.core.schemaslibrary module
 ==============================
 
 .. automodule:: todowrite.core.schemas

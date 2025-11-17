@@ -1,4 +1,4 @@
-todowrite.core package
+todowrite.core submodule
 ======================
 
 .. automodule:: todowrite.core
@@ -6,7 +6,7 @@ todowrite.core package
    :show-inheritance:
    :undoc-members:
 
-Subpackages
+Submodules
 -----------
 
 .. toctree::
@@ -25,7 +25,7 @@ todowrite.core.app module
    :show-inheritance:
    :undoc-members:
 
-todowrite.core.app\_node\_updater module
+todowrite.core.app\_node\_updater
 ----------------------------------------
 
 .. automodule:: todowrite.core.app_node_updater
@@ -33,7 +33,7 @@ todowrite.core.app\_node\_updater module
    :show-inheritance:
    :undoc-members:
 
-todowrite.core.constants module
+todowrite.core.constants
 -------------------------------
 
 .. automodule:: todowrite.core.constants
@@ -41,7 +41,7 @@ todowrite.core.constants module
    :show-inheritance:
    :undoc-members:
 
-todowrite.core.exceptions module
+todowrite.core.exceptions
 --------------------------------
 
 .. automodule:: todowrite.core.exceptions
@@ -49,7 +49,7 @@ todowrite.core.exceptions module
    :show-inheritance:
    :undoc-members:
 
-todowrite.core.project\_manager module
+todowrite.core.project\_manager
 --------------------------------------
 
 .. automodule:: todowrite.core.project_manager
@@ -57,7 +57,7 @@ todowrite.core.project\_manager module
    :show-inheritance:
    :undoc-members:
 
-todowrite.core.schema module
+todowrite.core.schema
 ----------------------------
 
 .. automodule:: todowrite.core.schema
@@ -65,7 +65,7 @@ todowrite.core.schema module
    :show-inheritance:
    :undoc-members:
 
-todowrite.core.types module
+todowrite.core.types
 ---------------------------
 
 .. automodule:: todowrite.core.types
@@ -73,7 +73,7 @@ todowrite.core.types module
    :show-inheritance:
    :undoc-members:
 
-todowrite.core.utils module
+todowrite.core.utils
 ---------------------------
 
 .. automodule:: todowrite.core.utils

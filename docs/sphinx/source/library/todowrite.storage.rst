@@ -1,4 +1,4 @@
-todowrite.storage package
+todowrite.storagelibrary module
 =========================
 
 .. automodule:: todowrite.storage
@@ -9,7 +9,7 @@ todowrite.storage package
 Submodules
 ----------
 
-todowrite.storage.backends module
+todowrite.storage.backends
 ---------------------------------
 
 .. automodule:: todowrite.storage.backends
@@ -17,7 +17,7 @@ todowrite.storage.backends module
    :show-inheritance:
    :undoc-members:
 
-todowrite.storage.factory module
+todowrite.storage.factory
 --------------------------------
 
 .. automodule:: todowrite.storage.factory
@@ -25,7 +25,7 @@ todowrite.storage.factory module
    :show-inheritance:
    :undoc-members:
 
-todowrite.storage.node\_utils module
+todowrite.storage.node\_utils
 ------------------------------------
 
 .. automodule:: todowrite.storage.node_utils
@@ -33,7 +33,7 @@ todowrite.storage.node\_utils module
    :show-inheritance:
    :undoc-members:
 
-todowrite.storage.postgresql\_backend module
+todowrite.storage.postgresql\_backend
 --------------------------------------------
 
 .. automodule:: todowrite.storage.postgresql_backend
@@ -41,7 +41,7 @@ todowrite.storage.postgresql\_backend module
    :show-inheritance:
    :undoc-members:
 
-todowrite.storage.schema\_validator module
+todowrite.storage.schema\_validator
 ------------------------------------------
 
 .. automodule:: todowrite.storage.schema_validator
@@ -49,7 +49,7 @@ todowrite.storage.schema\_validator module
    :show-inheritance:
    :undoc-members:
 
-todowrite.storage.sqlite\_backend module
+todowrite.storage.sqlite\_backend
 ----------------------------------------
 
 .. automodule:: todowrite.storage.sqlite_backend
@@ -57,7 +57,7 @@ todowrite.storage.sqlite\_backend module
    :show-inheritance:
    :undoc-members:
 
-todowrite.storage.sqlite\_unified module
+todowrite.storage.sqlite\_unified
 ----------------------------------------
 
 .. automodule:: todowrite.storage.sqlite_unified
@@ -65,7 +65,7 @@ todowrite.storage.sqlite\_unified module
    :show-inheritance:
    :undoc-members:
 
-todowrite.storage.yaml\_manager module
+todowrite.storage.yaml\_manager
 --------------------------------------
 
 .. automodule:: todowrite.storage.yaml_manager
@@ -73,7 +73,7 @@ todowrite.storage.yaml\_manager module
    :show-inheritance:
    :undoc-members:
 
-todowrite.storage.yaml\_storage module
+todowrite.storage.yaml\_storage
 --------------------------------------
 
 .. automodule:: todowrite.storage.yaml_storage

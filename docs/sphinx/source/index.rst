@@ -14,8 +14,8 @@ New to ToDoWrite? Start here to understand the basics and get up and running qui
    :maxdepth: 1
    :caption: User Guide
 
-   Quick Start <userdocs/README>
    Project Overview <userdocs/ToDoWrite>
+   Quick Start <userdocs/README>
 
 LIBRARY
 =======
