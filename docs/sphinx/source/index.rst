@@ -12,7 +12,7 @@ New to ToDoWrite? Start here to understand the basics and get up and running qui
 
 .. toctree::
    :maxdepth: 1
-   :caption: User Guide:
+   :caption: User Guide
 
    Quick Start <userdocs/README>
    Project Overview <userdocs/ToDoWrite>
@@ -24,7 +24,7 @@ Complete API documentation for the todowrite library.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Library API:
+   :caption: Library API
 
    todowrite <library/todowrite>
 
@@ -33,7 +33,7 @@ LIBRARY SUBMODULES
 
 .. toctree::
    :maxdepth: 2
-   :caption: Module Reference:
+   :caption: Module Reference
 
    core <library/todowrite.core>
    database <library/todowrite.database>
