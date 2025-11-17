@@ -17,13 +17,10 @@ from .version import __version__
 try:
     from todowrite import (
         YAMLManager,
-        create_node,
         delete_node,
         get_node,
         list_nodes,
-        search_nodes,
         update_node,
-        validate_node,
     )
     from todowrite.core import Node, ToDoWrite, generate_node_id
 except ImportError:
@@ -692,29 +689,28 @@ def create(
             sys.exit(1)
         metadata["work_type"] = work_type_normalized
 
-    # Add command-specific data
-    command_data = build_command_data(layer, ac_ref, run_shell, artifacts)
-    if command_data:
-        node_data["command"] = command_data
+    # Add command-specific data ONLY for Command layer
+    if layer == "Command":
+        command_data = build_command_data(layer, ac_ref, run_shell, artifacts)
+        if command_data:
+            node_data["command"] = command_data
 
     try:
-        # Validate data before creating
-        validate_node(node_data)
-        node = create_node(node_data)
+        # Get app instance and create node
+        app = get_app()
+        node = app.create_node(node_data)
 
         # If parent linking was specified, update the parent node's children
         if parent_id:
             try:
-                from todowrite import link_nodes
-
-                # Get the current app to access its database URL
-                app = get_app()
-                link_nodes(app.db_url, parent_id, node.id)
-                success_msg = (
-                    f"[green]✓[/green] Linked parent {parent_id} "
-                    f"→ child {node.id}"
-                )
-                console.print(success_msg)
+                # Use the app instance to link nodes
+                success = app.link_nodes(parent_id, node.id)
+                if success:
+                    success_msg = (
+                        f"[green]✓[/green] Linked parent {parent_id} "
+                        f"→ child {node.id}"
+                    )
+                    console.print(success_msg)
             except (
                 ValueError,
                 KeyError,
@@ -804,7 +800,16 @@ def list_command(
     """Lists all the nodes."""
 
     try:
-        nodes = list_nodes()
+        app = get_app()
+        all_nodes = app.list_nodes()
+
+        # Group nodes by layer
+        nodes = {}
+        for node in all_nodes:
+            layer_name = node.layer
+            if layer_name not in nodes:
+                nodes[layer_name] = []
+            nodes[layer_name].append(node)
 
         if layer:
             nodes = {k: v for k, v in nodes.items() if k == layer}
@@ -1299,7 +1304,10 @@ def update(
 def search(_: click.Context, query: str) -> None:
     """Search for nodes by query string."""
     try:
-        results = search_nodes(query)
+        app = get_app()
+        # Simple text search - look for query in title and description
+        criteria = {"text_search": query}
+        results = app.search_nodes(criteria)
 
         if not results:
             console.print(f"[yellow]No results found for '{query}'[/yellow]")
@@ -1313,24 +1321,23 @@ def search(_: click.Context, query: str) -> None:
         table.add_column("Progress", style="blue")
         table.add_column("Owner", style="red")
 
-        for layer_name, nodes in results.items():
-            for node in nodes:
-                # Get owner from metadata with proper fallback
-                owner_val = get_current_username()  # Default to current user
-                if hasattr(node, "metadata") and node.metadata:
-                    owner_val = (
-                        getattr(node.metadata, "owner", "")
-                        or get_current_username()
-                    )
-
-                table.add_row(
-                    layer_name,
-                    node.id,
-                    node.title,
-                    capitalize_status(node.status),
-                    f"{node.progress or 0}%",
-                    owner_val,
+        for node in results:
+            # Get owner from metadata with proper fallback
+            owner_val = get_current_username()  # Default to current user
+            if hasattr(node, "metadata") and node.metadata:
+                owner_val = (
+                    getattr(node.metadata, "owner", "")
+                    or get_current_username()
                 )
+
+            table.add_row(
+                node.layer,
+                node.id,
+                node.title,
+                capitalize_status(node.status),
+                f"{node.progress or 0}%",
+                owner_val,
+            )
 
         console.print(table)
     except Exception as e:
