@@ -7,7 +7,9 @@ then refactor (REFACTOR) while keeping tests passing.
 """
 
 import json
+import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -72,6 +74,63 @@ class RedGreenRefactorEnforcer:
         else:
             self.config = default_config
 
+    def are_changed_files_documentation_only(self) -> bool:
+        """Check if all changed files are documentation-related."""
+        try:
+            # Get staged files
+            result = subprocess.run(
+                ["git", "diff", "--cached", "--name-only"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            staged_files = result.stdout.strip().split('\n') if result.stdout.strip() else []
+
+            if not staged_files:
+                return False
+
+            # Documentation file patterns
+            doc_patterns = [
+                r'\.md$',  # Markdown files
+                r'\.rst$',  # reStructuredText files
+                r'docs/.*',  # Any files in docs directory
+                r'\.github/workflows/.*docs\.yml$',  # Documentation workflow
+                r'\.github/workflows/.*pages\.yml$',  # Pages workflow
+                r'README.*',  # README files
+                r'CHANGELOG.*',  # Changelog files
+                r'LICENSE.*',  # License files
+                r'\.github/ISSUE_TEMPLATE/.*',  # Issue templates
+                r'\.github/PULL_REQUEST_TEMPLATE\.md$',  # PR template
+            ]
+
+            # Build system patterns that should NOT be excluded from TDD
+            build_system_patterns_excluded = [
+                r'\.py$',  # Python files (build scripts should have tests)
+                r'setup\.py$',  # Setup scripts
+                r'pyproject\.toml$',  # Build configuration
+                r'Makefile$',  # Makefiles
+                r'\.sh$',  # Shell scripts
+            ]
+
+            for file_path in staged_files:
+                if not file_path.strip():
+                    continue
+
+                # Skip if it's a build system file that should have tests
+                if any(re.search(pattern, file_path) for pattern in build_system_patterns_excluded):
+                    return False
+
+                # Check if it's a documentation file
+                is_doc_file = any(re.search(pattern, file_path) for pattern in doc_patterns)
+                if not is_doc_file:
+                    return False
+
+            return True
+
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            # If we can't check files, don't exclude
+            return False
+
     def validate_commit_message_rgr_compliance(self, commit_message: str) -> tuple[bool, list[str]]:
         """Validate commit message for RGR compliance."""
         errors = []
@@ -83,15 +142,44 @@ class RedGreenRefactorEnforcer:
             return True, []  # Let other validators handle format
 
         commit_type = conventional_match.group("type")
+        scope = conventional_match.group("scope") if conventional_match.group("scope") else ""
         subject = conventional_match.group("subject")
 
-        # Check for RGR methodology violations
+        # Documentation exclusions - pure documentation work doesn't require TDD
+        documentation_patterns = [
+            commit_type == "docs",
+            scope == "docs",
+            "readme" in commit_lower,
+            "documentation" in commit_lower,
+            "sphinx" in commit_lower,
+            "github pages" in commit_lower,
+            "workflow" in commit_lower and "docs" in commit_lower,
+        ]
+
+        # Build system exclusions for documentation-related infrastructure
+        build_doc_patterns = [
+            scope == "build" and any(word in commit_lower for word in ["docs", "sphinx", "github pages"]),
+            commit_type == "chore" and any(word in commit_lower for word in ["docs", "documentation", "readme"]),
+        ]
+
+        # Check if this is documentation work that should be excluded from TDD requirements
+        is_documentation_work = any(pattern for pattern in documentation_patterns)
+        is_build_doc_work = any(pattern for pattern in build_doc_patterns)
+
+        # Also check if all changed files are documentation-only
+        are_files_doc_only = self.are_changed_files_documentation_only()
+
+        if is_documentation_work or is_build_doc_work or are_files_doc_only:
+            return True, []  # Skip TDD enforcement for documentation work
+
+        # Check for RGR methodology violations for non-documentation work
         if commit_type in ["feat", "fix"] and "test" not in commit_lower and "refactor" not in commit_lower:
             errors.append(
                 "Feature/fix commits should include tests according to Red-Green-Refactor methodology:\n"
                 "1. RED: Write failing test first\n"
                 "2. GREEN: Write minimal code to pass\n"
-                "3. REFACTOR: Clean up while tests remain green"
+                "3. REFACTOR: Clean up while tests remain green\n\n"
+                "Note: Documentation work (docs: scope) is exempt from TDD requirements."
             )
 
         # Check refactor compliance
