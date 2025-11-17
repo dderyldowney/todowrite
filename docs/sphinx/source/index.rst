@@ -40,10 +40,21 @@ LIBRARY SUBMODULES
    storage <library/todowrite.storage>
    tools <library/todowrite.tools>
 
-CLI
-===
+EXCEPTIONS
+===========
 
-Command-line interface documentation for the todowrite-cli package.
+Comprehensive exception hierarchy and error handling documentation.
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Exception Reference
+
+   exceptions <library/todowrite.core.exceptions>
+
+CLI PACKAGE
+===========
+
+ToDoWrite CLI Package documentation - command-line interface for the ToDoWrite system.
 
 .. toctree::
    :maxdepth: 2
