@@ -33,6 +33,8 @@ jobs:
           # Install both library and CLI for API docs
           cd lib_package && uv pip install -e . && cd ..
           cd cli_package && uv pip install -e . && cd ..
+          # Install documentation dependencies
+          uv pip install sphinx sphinx-rtd-theme sphinx-autodoc-typehints myst-parser
 
       - name: Build documentation
         run: |
