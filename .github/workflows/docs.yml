@@ -34,14 +34,14 @@ jobs:
           # Install both library and CLI for API docs
           cd lib_package && uv pip install -e . && cd ..
           cd cli_package && uv pip install -e . && cd ..
-          # Install documentation dependencies
+          # Install documentation dependencies to workspace environment
           uv pip install sphinx sphinx-rtd-theme sphinx-autodoc-typehints myst-parser
 
       - name: Build documentation
         run: |
           cd docs/sphinx
           export PYTHONPATH=$PWD/../../lib_package/src:$PWD/../../cli_package/src:$PYTHONPATH
-          make html
+          uv run make html
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
