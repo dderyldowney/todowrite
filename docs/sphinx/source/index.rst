@@ -33,7 +33,7 @@ LIBRARY SUBMODULES
 
 .. toctree::
    :maxdepth: 2
-   :caption: Module Reference
+   :caption: Submodule Reference
 
    core <library/todowrite.core>
    database <library/todowrite.database>

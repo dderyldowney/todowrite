@@ -1,5 +1,5 @@
-todowrite library
-=================
+todowrite module
+================
 
 .. automodule:: todowrite
    :members:
