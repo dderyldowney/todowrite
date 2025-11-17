@@ -645,7 +645,17 @@ class OpenAIProvider(LLMProvider):
         if not api_key:
             msg = "OPENAI_API_KEY is not set"
             raise RuntimeError(msg)
-        client = OpenAI(api_key=api_key)
+
+        base_url = os.environ.get("OPENAI_BASE_URL")
+        timeout = os.environ.get("OPENAI_TIMEOUT")
+
+        client_kwargs = {"api_key": api_key}
+        if base_url:
+            client_kwargs["base_url"] = base_url
+        if timeout:
+            client_kwargs["timeout"] = float(timeout)
+
+        client = OpenAI(**client_kwargs)
         resp = client.chat.completions.create(
             model=model,
             messages=[
@@ -654,6 +664,19 @@ class OpenAIProvider(LLMProvider):
             ],
             max_tokens=max_tokens,
         )
+
+        if not resp:
+            msg = "OpenAI API returned None response"
+            raise RuntimeError(msg)
+
+        if not hasattr(resp, "choices"):
+            msg = f"OpenAI response has no choices attribute: {resp}"
+            raise RuntimeError(msg)
+
+        if not resp.choices:
+            msg = f"OpenAI API returned no choices. Response: {resp}"
+            raise RuntimeError(msg)
+
         return resp.choices[0].message.content or ""
 
 

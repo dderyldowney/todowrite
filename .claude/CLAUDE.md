@@ -171,8 +171,8 @@ These mandates apply **at all times** with **zero exceptions**.
 ```bash
 # Basic HAL Agent Usage (ALWAYS use this first)
 python dev_tools/agent_controls/hal_token_savvy_agent.py \
-  --provider anthropic \
-  --model claude-sonnet-4-5 \
+  --provider openai \
+  --model $OPENAI_MODEL \
   --goal "find database model files" \
   --roots lib_package/ \
   --include "*.py" \
@@ -181,8 +181,8 @@ python dev_tools/agent_controls/hal_token_savvy_agent.py \
 
 # HAL Agent for Code Analysis
 python dev_tools/agent_controls/hal_token_savvy_agent.py \
-  --provider anthropic \
-  --model claude-sonnet-4-5 \
+  --provider openai \
+  --model $OPENAI_MODEL \
   --goal "analyze authentication patterns" \
   --pattern "class.*Auth" \
   --roots lib_package/ cli_package/ \
@@ -191,8 +191,8 @@ python dev_tools/agent_controls/hal_token_savvy_agent.py \
 
 # HAL Agent for Error Investigation
 python dev_tools/agent_controls/hal_token_savvy_agent.py \
-  --provider anthropic \
-  --model claude-sonnet-4-5 \
+  --provider openai \
+  --model $OPENAI_MODEL \
   --goal "find test failures" \
   --pattern "def test.*" \
   --roots tests/ \
@@ -202,8 +202,8 @@ python dev_tools/agent_controls/hal_token_savvy_agent.py \
 ```
 
 **HAL Agent Options**:
-- `--provider {openai,anthropic}`: AI provider (anthropic preferred)
-- `--model`: Model name (claude-sonnet-4-5 recommended)
+- `--provider {openai,anthropic}`: AI provider (OpenAI always preferred)
+- `--model`: Model name (uses $OPENAI_MODEL environment variable)
 - `--goal`: Analysis goal (required)
 - `--pattern`: Regex pattern for focused search
 - `--roots`: Directories to search
@@ -211,6 +211,12 @@ python dev_tools/agent_controls/hal_token_savvy_agent.py \
 - `--chars`: Max snippet size (default 1000)
 - `--max-files`: Maximum files to process
 - `--context`: Context lines around matches
+
+**OpenAI Environment Variables**:
+- `OPENAI_API_KEY`: Your OpenAI API key (required)
+- `OPENAI_BASE_URL`: Custom API endpoint (required for non-OpenAI endpoints)
+- `OPENAI_MODEL`: Model to use (e.g., gpt-4o-mini, glm-4.6)
+- `OPENAI_TIMEOUT`: Request timeout in seconds (optional, uses OpenAI default if not set; typically 600 seconds)
 
 ### 12.2 Token Optimization System - MUST USE (90% Token Savings)
 
@@ -240,7 +246,7 @@ python dev_tools/token_optimization/token_optimized_agent.py "database models" "
 
 1. **HAL Preprocessing First** (0 API tokens):
    ```bash
-   python dev_tools/agent_controls/hal_token_savvy_agent.py --provider anthropic --model claude-sonnet-4-5 --goal "YOUR TASK HERE"
+   python dev_tools/agent_controls/hal_token_savvy_agent.py --provider openai --model gpt-4o --goal "YOUR TASK HERE"
    ```
 
 2. **Token-Sage Analysis Second** (optimized tokens):
@@ -272,7 +278,13 @@ python dev_tools/agent_controls/hal_token_savvy_agent.py --help
 python dev_tools/token_optimization/always_token_sage.py "test query"
 
 # Verify dependencies are installed
-python -c "import anthropic; import openai; print('✅ HAL dependencies ready')"
+python -c "import openai; print('✅ HAL dependencies ready')"
+
+# Verify OpenAI API configuration is set (OpenAI always preferred over Anthropic)
+python -c "import os; print('✅ OpenAI API key ready' if os.getenv('OPENAI_API_KEY') else '❌ OPENAI_API_KEY not set')"
+python -c "import os; print('✅ OpenAI base URL set' if os.getenv('OPENAI_BASE_URL') else '❌ OPENAI_BASE_URL not set')"
+python -c "import os; print('✅ OpenAI model set' if os.getenv('OPENAI_MODEL') else '❌ OPENAI_MODEL not set')"
+python -c "import os; print('✅ OpenAI timeout set' if os.getenv('OPENAI_TIMEOUT') else 'ℹ️ OPENAI_TIMEOUT not set (using default)')"
 ```
 
 ### 12.5 Enforcement and Compliance
@@ -280,7 +292,7 @@ python -c "import anthropic; import openai; print('✅ HAL dependencies ready')"
 **ABSOLUTE REQUIREMENTS**:
 - **NO EXCEPTIONS**: This applies to ALL agents at ALL times
 - **NO BYPASSING**: HAL preprocessing is required before any AI interaction
-- **MANDATORY DEPENDENCIES**: `anthropic>=0.25.0` and `openai>=1.12.0` always installed
+- **MANDATORY DEPENDENCIES**: `openai>=1.12.0` always installed (OpenAI always preferred over Anthropic)
 - **ZERO ALTERNATIVES**: No other tools or workflows are permitted
 - **CONTINUOUS USAGE**: Must be used for every single task, no matter how small
 
@@ -591,7 +603,8 @@ All agents MUST complete this checklist before beginning any work:
 - [ ] **No Mocking**: STRICT no-mocking policy understood and followed
 - [ ] **HAL Agent System**: Ready and functional (`python dev_tools/agent_controls/hal_token_savvy_agent.py --help`)
 - [ ] **Token Optimization**: Active and verified (`python dev_tools/token_optimization/always_token_sage.py "test"`)
-- [ ] **HAL Dependencies**: `anthropic` and `openai` packages installed and importable
+- [ ] **HAL Dependencies**: `openai` package installed and importable
+- [ ] **OpenAI Configuration**: `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `OPENAI_MODEL`, and optionally `OPENAI_TIMEOUT` environment variables set
 
 ### Preferred Tool Invocation
 
@@ -690,7 +703,7 @@ source .venv/bin/activate
 2. **MANDATORY**: Complete Startup Checklist including HAL Agent + Token Optimization verification
 3. **MANDATORY**: Use HAL Agent System for ALL tasks (Rule #12.1)
    ```bash
-   python dev_tools/agent_controls/hal_token_savvy_agent.py --provider anthropic --model claude-sonnet-4-5 --goal "YOUR TASK"
+   python dev_tools/agent_controls/hal_token_savvy_agent.py --provider openai --model gpt-4o --goal "YOUR TASK"
    ```
 4. **MANDATORY**: Use Token Optimization System for ALL AI analysis (Rule #12.2)
    ```bash
