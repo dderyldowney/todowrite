@@ -1,0 +1,65 @@
+name: Deploy Documentation
+
+# Deploy from develop branch until standards are complete
+# After standards complete, change branches: [main]
+on:
+  push:
+    branches: [develop]
+    paths: ['lib_package/src/todowrite/**', 'cli_package/src/todowrite_cli/**', 'docs/**']
+
+jobs:
+  deploy-docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Setup UV
+        uses: astral-sh/setup-uv@v3
+
+      - name: Install dependencies
+        run: |
+          uv sync --group dev
+          # Install both library and CLI for API docs
+          cd lib_package && uv pip install -e . && cd ..
+          cd cli_package && uv pip install -e . && cd ..
+
+      - name: Build documentation
+        run: |
+          cd docs/sphinx
+          export PYTHONPATH=$PWD/../../lib_package/src:$PWD/../../cli_package/src:$PYTHONPATH
+          make html
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs/sphinx/build/html
+
+  # Deployment job
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: deploy-docs
+    if: github.ref == 'refs/heads/develop'
+
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/sphinx/build/html
