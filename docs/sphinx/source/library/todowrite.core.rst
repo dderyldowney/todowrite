@@ -14,8 +14,8 @@ Subpackages
 
    todowrite.core.schemas
 
-Subpackages
-----------
+Modules
+--------
 
 todowrite.core.app module
 -------------------------
