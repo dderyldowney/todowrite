@@ -12,20 +12,20 @@ ToDoWrite is a production-ready hierarchical task management system that allows 
    Quick Start <userdocs/README>
    Project Overview <userdocs/ToDoWrite>
 
-ToDoWrite Library API Reference
-===============================
+API Reference
+==============
 
-Complete API documentation for the todowrite library and its modules.
+Complete API documentation for the todowrite package and its modules.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Core Library:
+   :caption: Core Module:
 
    library/todowrite
 
 .. toctree::
    :maxdepth: 2
-   :caption: Library Modules:
+   :caption: Submodules:
 
    library/todowrite.core
    library/todowrite.database
