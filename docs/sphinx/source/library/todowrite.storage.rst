@@ -1,4 +1,4 @@
-todowrite.storagelibrary module
+todowrite.storage module
 =========================
 
 .. automodule:: todowrite.storage
@@ -6,7 +6,7 @@ todowrite.storagelibrary module
    :show-inheritance:
    :undoc-members:
 
-Submodules
+Subpackages
 ----------
 
 todowrite.storage.backends

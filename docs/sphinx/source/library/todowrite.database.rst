@@ -1,4 +1,4 @@
-todowrite.databaselibrary module
+todowrite.database module
 ==========================
 
 .. automodule:: todowrite.database
@@ -6,7 +6,7 @@ todowrite.databaselibrary module
    :show-inheritance:
    :undoc-members:
 
-Submodules
+Subpackages
 ----------
 
 todowrite.database.config

@@ -28,12 +28,12 @@ Complete API documentation for the todowrite library.
 
    todowrite <library/todowrite>
 
-LIBRARY SUBMODULES
-==================
+LIBRARY SUBPACKAGES
+===================
 
 .. toctree::
    :maxdepth: 2
-   :caption: Submodule Reference
+   :caption: Subpackage Reference
 
    core <library/todowrite.core>
    database <library/todowrite.database>
@@ -61,6 +61,17 @@ ToDoWrite CLI Package documentation - command-line interface for the ToDoWrite s
    :caption: CLI COMMANDS
 
    commands <cli/commands>
+
+DEVELOPMENT
+============
+
+Development resources and references for contributors.
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Development Resources
+
+   Terminology Guide <development/TERMINOLOGY.md>
 
 # Web Documentation (Planned)
 # ------------------------------

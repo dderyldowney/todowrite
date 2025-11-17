@@ -1,12 +1,12 @@
-todowrite.core submodule
+todowrite.core subpackage
 ======================
 
 .. automodule:: todowrite.core
    :members:
    :show-inheritance:
-   :undoc-members:
+   :exclude-members: ToDoWriteError, NodeError, NodeNotFoundError, InvalidNodeError, StorageError, DatabaseError, YAMLError, SchemaError, ConfigurationError, CLIError, TokenOptimizationError
 
-Submodules
+Subpackages
 -----------
 
 .. toctree::
@@ -14,7 +14,7 @@ Submodules
 
    todowrite.core.schemas
 
-Submodules
+Subpackages
 ----------
 
 todowrite.core.app module

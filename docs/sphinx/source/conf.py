@@ -4,8 +4,9 @@ import sys
 from pathlib import Path
 
 # Add library source to Python path for autodoc
-lib_source_path = Path(__file__).parents[4] / "lib_package" / "src"
-cli_source_path = Path(__file__).parents[4] / "cli_package" / "src"
+project_root = Path(__file__).parents[3]  # Go up from source/ to project root
+lib_source_path = project_root / "lib_package" / "src"
+cli_source_path = project_root / "cli_package" / "src"
 sys.path.insert(0, str(lib_source_path))
 sys.path.insert(1, str(cli_source_path))
 

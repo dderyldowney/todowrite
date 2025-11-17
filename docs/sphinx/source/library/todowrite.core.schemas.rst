@@ -1,5 +1,5 @@
-todowrite.core.schemaslibrary module
-==============================
+todowrite.core.schemas module
+=============================
 
 .. automodule:: todowrite.core.schemas
    :members:

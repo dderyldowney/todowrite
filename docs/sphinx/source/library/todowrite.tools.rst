@@ -1,4 +1,4 @@
-todowrite.toolslibrary module
+todowrite.tools module
 =======================
 
 .. automodule:: todowrite.tools
@@ -6,7 +6,7 @@ todowrite.toolslibrary module
    :show-inheritance:
    :undoc-members:
 
-Submodules
+Subpackages
 ----------
 
 todowrite.tools.extract\_schema
