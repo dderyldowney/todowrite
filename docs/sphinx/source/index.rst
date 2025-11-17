@@ -9,8 +9,8 @@ ToDoWrite is a production-ready hierarchical task management system that allows 
    :maxdepth: 1
    :caption: Getting Started:
 
-   Quick Start <../README.md>
-   Installation Guide <../INSTALLATION_GUIDE.md>
+   Quick Start <userdocs/README>
+   Project Overview <userdocs/ToDoWrite>
 
 Library Documentation
 =====================
@@ -30,8 +30,8 @@ Core library components for task management with comprehensive API reference.
    :maxdepth: 2
    :caption: Library Guides:
 
-   Integration Guide <../lib/guides/INTEGRATION_GUIDE.md>
-   ToDoWrite HOWTO <../lib/guides/ToDoWrite-HOWTO.md>
+   Integration Guide <../../docs/lib/guides/INTEGRATION_GUIDE.md>
+   ToDoWrite HOWTO <../../docs/lib/guides/ToDoWrite-HOWTO.md>
 
 CLI Documentation
 ==================
@@ -48,7 +48,8 @@ Command-line interface documentation for the todowrite-cli package.
    :maxdepth: 2
    :caption: CLI Guides:
 
-   ZSH Integration <../cli/ZSH_INTEGRATION.md>
+   ZSH Integration <../../docs/cli/ZSH_INTEGRATION.md>
+   CLI Installation <../../docs/cli/installation/INSTALLATION_GUIDE.md>
 
 Development Documentation
 ==========================
@@ -59,25 +60,25 @@ Development workflows, setup guides, and project architecture.
    :maxdepth: 2
    :caption: Development Guides:
 
-   Monorepo Structure <../development/MONOREPO_STRUCTURE.md>
-   Project Knowledge Base <../development/PROJECT_KNOWLEDGE_BASE.md>
-   Universal Database Architecture <../shared/development/UNIVERSAL_DATABASE_ARCHITECTURE.md>
-   Build System <../BUILD_SYSTEM.md>
-   TDD Compliance Demo <../development/TDD_COMPLIANCE_DEMO.md>
-   Python 3.12 Reference <../development/PYTHON_3_12_REFERENCE.md>
-   Python 3.12 Mastery <../development/PYTHON_3_12_MASTERY.md>
-   Deployment Tools <../development/DEPLOYMENT_TOOLS.md>
+   Build System <../../docs/BUILD_SYSTEM.md>
+   Monorepo Structure <../../docs/development/MONOREPO_STRUCTURE.md>
+   Project Knowledge Base <../../docs/development/PROJECT_KNOWLEDGE_BASE.md>
+   Universal Database Architecture <../../docs/UNIVERSAL_DATABASE_ARCHITECTURE.md>
+   TDD Compliance Demo <../../docs/development/TDD_COMPLIANCE_DEMO.md>
+   Python 3.12 Reference <../../docs/development/PYTHON_3_12_REFERENCE.md>
+   Python 3.12 Mastery <../../docs/development/PYTHON_3_12_MASTERY.md>
+   Deployment Tools <../../docs/development/DEPLOYMENT_TOOLS.md>
 
 .. toctree::
    :maxdepth: 2
    :caption: Development Workflows:
 
-    Schema Usage <../shared/development/SCHEMA_USAGE.md>
-   Schema Change Workflow <../shared/development/SCHEMA_CHANGE_WORKFLOW.md>
-   Schema Migration Guide <../shared/development/SCHEMA_MIGRATION_GUIDE.md>
-   CI/CD HOWTO <../shared/development/CI_CD_HOWTO.md>
-   Claude Auto Guide <../shared/development/CLAUDE_AUTO_GUIDE.md>
-   Project Utilities <../shared/development/PROJECT_UTILITIES.md>
+   Schema Usage <../../docs/SCHEMA_USAGE.md>
+   Schema Change Workflow <../../docs/SCHEMA_CHANGE_WORKFLOW.md>
+   Schema Migration Guide <../../docs/SCHEMA_MIGRATION_GUIDE.md>
+   CI/CD HOWTO <../../docs/CI_CD_HOWTO.md>
+   Claude Auto Guide <../../docs/CLAUDE_AUTO_GUIDE.md>
+   Project Utilities <../../docs/PROJECT_UTILITIES.md>
 
 Contributing & Release
 =======================
@@ -88,16 +89,16 @@ Guidelines for contributing to the project and release processes.
    :maxdepth: 2
    :caption: Contributing:
 
-  Contributing Guidelines <../shared/contributing/CONTRIBUTING.md>
+   Contributing Guidelines <../../docs/shared/contributing/README.md>
 
 .. toctree::
    :maxdepth: 2
    :caption: Release Process:
 
-   Version Management <../shared/release/VERSION_MANAGEMENT.md>
-   Release Workflow <../shared/release/RELEASE_WORKFLOW.md>
-   PyPI HOWTO <../shared/release/PyPI_HOWTO.md>
-   Release Quick Reference <../shared/release/RELEASE_QUICK_REFERENCE.md>
+   Version Management <../../docs/VERSION_MANAGEMENT.md>
+   Release Workflow <../../docs/RELEASE_WORKFLOW.md>
+   PyPI HOWTO <../../docs/PyPI_HOWTO.md>
+   Release Quick Reference <../../docs/RELEASE_QUICK_REFERENCE.md>
 
 Reference Documentation
 ========================
@@ -108,9 +109,9 @@ Comprehensive reference materials and archives.
    :maxdepth: 1
    :caption: Reference:
 
-  Project Overview <../ToDoWrite.md>
-   Changelog <../CHANGELOG.md>
-   Documentation Structure State <../DOCUMENTATION_STRUCTURE_STATE.md>
+   Project Overview <../../docs/ToDoWrite.md>
+   Changelog <../../docs/CHANGELOG.md>
+   Documentation Structure State <../../docs/DOCUMENTATION_STRUCTURE_STATE.md>
 
 # Web Documentation (Planned)
 # ------------------------------
