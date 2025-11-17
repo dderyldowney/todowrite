@@ -6,6 +6,7 @@ on:
   push:
     branches: [develop]
     paths: ['lib_package/src/todowrite/**', 'cli_package/src/todowrite_cli/**', 'docs/**']
+  workflow_dispatch:
 
 jobs:
   deploy-docs:
