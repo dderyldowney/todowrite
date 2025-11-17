@@ -5,86 +5,37 @@ Welcome to the ToDoWrite hierarchical task management system documentation.
 
 ToDoWrite is a production-ready hierarchical task management system that allows you to create and manage relationships between goals, concepts, tasks, and commands with database persistence and comprehensive API support.
 
+Getting Started
+===============
+
+New to ToDoWrite? Start here to understand the basics and get up and running quickly.
+
 .. toctree::
    :maxdepth: 1
-   :caption: Getting Started:
+   :caption: User Guide:
 
    Quick Start <userdocs/README>
    Project Overview <userdocs/ToDoWrite>
 
 API Reference
-==============
+=============
 
-Complete API documentation for the todowrite package and its modules.
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Core Module:
-
-   library/todowrite
+Complete API documentation for the todowrite library and its modules.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Submodules:
+   :caption: Library API:
 
-   library/todowrite.core
-   library/todowrite.database
-   library/todowrite.storage
-   library/todowrite.tools
-
-CLI Documentation
-==================
-
-Command-line interface documentation for the todowrite-cli package.
+   Core Library <library/todowrite>
 
 .. toctree::
    :maxdepth: 2
-   :caption: CLI Commands:
+   :caption: Module Reference:
 
-   cli/commands
-
-Development Documentation
-==========================
-
-Development workflows and setup guides.
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Development:
-
-   Build System <../BUILD_SYSTEM.md>
-
-Contributing & Release
-=======================
-
-Guidelines for contributing to the project and release processes.
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Contributing:
-
-   Contributing Guidelines <../shared/contributing/README.md>
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Release Process:
-
-   Version Management <../VERSION_MANAGEMENT.md>
-   Release Workflow <../RELEASE_WORKFLOW.md>
-   PyPI HOWTO <../PyPI_HOWTO.md>
-   Release Quick Reference <../RELEASE_QUICK_REFERENCE.md>
-
-Reference Documentation
-========================
-
-Comprehensive reference materials.
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Reference:
-
-   Changelog <../CHANGELOG.md>
-   Documentation Structure State <../DOCUMENTATION_STRUCTURE_STATE.md>
+   Core Module <library/todowrite.core>
+   Database Module <library/todowrite.database>
+   Storage Module <library/todowrite.storage>
+   Tools Module <library/todowrite.tools>
 
 # Web Documentation (Planned)
 # ------------------------------
