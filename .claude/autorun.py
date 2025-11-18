@@ -42,19 +42,22 @@ def activate_permanent_enforcement():
         with open(env_file) as f:
             for line in f:
                 line = line.strip()
-                if line and not line.startswith('#') and '=' in line:
+                if line and not line.startswith("#") and "=" in line:
                     # Handle both "export KEY=VALUE" and "KEY=VALUE" formats
-                    if line.startswith('export '):
-                        line = line[7:]  # Remove 'export '
-                    key, value = line.split('=', 1)
+                    line = line.removeprefix("export ")  # Remove 'export '
+                    key, value = line.split("=", 1)
                     os.environ[key] = value.strip()
 
     # Print activation message (only if not already active)
     if not os.environ.get("CLAUDE_PERMANENT_ENFORCEMENT_ACTIVE"):
         print("🔒 Permanent code quality enforcement activated")
         print("🚨 This enforcement persists across all sessions including /clear commands")
-        print("📋 Required workflows: Semantic Scoping, Red-Green-Refactor, Token Optimization, Zero Mocking, Test Cleanup")
-        print("🎯 Mandatory tools: Ruff (S-mode), Bandit, Detect-secrets, SQLFluff, Test Cleanup, Pre-commit hooks")
+        print(
+            "📋 Required workflows: Semantic Scoping, Red-Green-Refactor, Token Optimization, Zero Mocking, Test Cleanup"
+        )
+        print(
+            "🎯 Mandatory tools: Ruff (S-mode), Bandit, Detect-secrets, SQLFluff, Test Cleanup, Pre-commit hooks"
+        )
         print("⚠️  ABSOLUTE ZERO MOCKING POLICY ENFORCED")
         print("🧪 Test artifact cleanup automatically enforced")
         print("🔒 Security mode (ruff S rules + bandit) strictly enforced")
@@ -92,7 +95,7 @@ def check_enforcement_status():
         "CLAUDE_ENFORCE_SECURE_TEMPFILES",
         "CLAUDE_ENFORCE_ALEMBIC",
         "CLAUDE_ENFORCE_PYTHON_VERSION",
-        "CLAUDE_REQUIRE_PY312"
+        "CLAUDE_REQUIRE_PY312",
     ]
 
     active_vars = [var for var in critical_vars if os.environ.get(var)]
@@ -120,7 +123,7 @@ def load_superpowers_skills():
     required_skills = [
         "test-driven-development",
         "dispatching-parallel-agents",
-        "subagent-driven-development"
+        "subagent-driven-development",
     ]
 
     missing_skills = []
@@ -146,6 +149,7 @@ def load_superpowers_skills():
 
     try:
         import superpowers_fail_safes
+
         print("✅ Superpowers fail-safes loaded")
 
         # Initialize fail-safes instance
@@ -170,7 +174,7 @@ def initialize_mcp_system():
     mcp_configs = [
         "mcp_config_2025.json",
         "mcp_superpowers_config_2025.json",
-        "mcp_episodic_memory_config_2025.json"
+        "mcp_episodic_memory_config_2025.json",
     ]
 
     missing_configs = []
@@ -186,11 +190,7 @@ def initialize_mcp_system():
     print("✅ MCP 2025 configurations loaded")
 
     # Check for MCP tools
-    mcp_tools = [
-        "mcp_security_optimizer.py",
-        "mcp_monitoring_dashboard.py",
-        "setup_mcp_2025.sh"
-    ]
+    mcp_tools = ["mcp_security_optimizer.py", "mcp_monitoring_dashboard.py", "setup_mcp_2025.sh"]
 
     for tool in mcp_tools:
         tool_path = claude_dir / tool

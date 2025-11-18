@@ -1,29 +1,27 @@
 #!/usr/bin/env python3
-"""
-Enhanced HAL Agent - Industry-Standard Local Preprocessing
+"""Enhanced HAL Agent - Industry-Standard Local Preprocessing
 
 Advanced HAL (Human-Aware Language) preprocessing system for zero-token
 local operations before AI interaction. Implements 2025 industry standards
 for semantic code analysis, intelligent filtering, and context optimization.
 """
 
+import argparse
 import ast
-import os
+import hashlib
+import json
 import re
 import sys
-import json
 import time
-import argparse
-from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple, Set
-from dataclasses import dataclass
 from collections import defaultdict
-import hashlib
+from dataclasses import dataclass
+from pathlib import Path
 
 
 @dataclass
 class FileInfo:
     """Structured information about analyzed files"""
+
     path: str
     size: int
     language: str
@@ -38,6 +36,7 @@ class FileInfo:
 @dataclass
 class AnalysisResult:
     """Results from HAL preprocessing analysis"""
+
     files: list[FileInfo]
     total_files_analyzed: int
     selected_files: list[str]
@@ -53,52 +52,92 @@ class SemanticAnalyzer:
     def __init__(self):
         self.importance_indicators = {
             # Core structural elements
-            'class', 'def', 'interface', 'protocol', 'abstract', 'override',
-
+            "class",
+            "def",
+            "interface",
+            "protocol",
+            "abstract",
+            "override",
             # Python-specific important keywords
-            'async', 'await', 'yield', 'generator', 'coroutine', 'contextlib',
-            'property', 'staticmethod', 'classmethod', '__init__', '__call__',
-            '__enter__', '__exit__', '__str__', '__repr__', '__iter__',
-
+            "async",
+            "await",
+            "yield",
+            "generator",
+            "coroutine",
+            "contextlib",
+            "property",
+            "staticmethod",
+            "classmethod",
+            "__init__",
+            "__call__",
+            "__enter__",
+            "__exit__",
+            "__str__",
+            "__repr__",
+            "__iter__",
             # Control flow
-            'if', 'elif', 'else', 'try', 'except', 'finally', 'with', 'for', 'while',
-
+            "if",
+            "elif",
+            "else",
+            "try",
+            "except",
+            "finally",
+            "with",
+            "for",
+            "while",
             # Data definitions
-            'dataclass', 'namedtuple', 'TypedDict', 'Protocol', 'Union', 'Optional',
-            'List', 'Dict', 'Set', 'Tuple', 'Callable', 'Iterator', 'Generator',
-
+            "dataclass",
+            "namedtuple",
+            "TypedDict",
+            "Protocol",
+            "Union",
+            "Optional",
+            "List",
+            "Dict",
+            "Set",
+            "Tuple",
+            "Callable",
+            "Iterator",
+            "Generator",
             # Testing and validation
-            'test', 'spec', 'describe', 'it', 'should', 'expect', 'assert',
-            'pytest', 'unittest', 'fixture',
+            "test",
+            "spec",
+            "describe",
+            "it",
+            "should",
+            "expect",
+            "assert",
+            "pytest",
+            "unittest",
+            "fixture",
         }
 
         self.file_importance_patterns = {
             # Core files
-            r'.*__init__\.py$': 0.9,
-            r'.*main\.py$': 0.9,
-            r'.*app\.py$': 0.8,
-            r'.*config\.py$': 0.8,
-            r'.*settings\.py$': 0.8,
-
+            r".*__init__\.py$": 0.9,
+            r".*main\.py$": 0.9,
+            r".*app\.py$": 0.8,
+            r".*config\.py$": 0.8,
+            r".*settings\.py$": 0.8,
             # Core modules
-            r'.*/core/.*\.py$': 0.8,
-            r'.*/api/.*\.py$': 0.8,
-            r'.*/models/.*\.py$': 0.7,
-            r'.*/services/.*\.py$': 0.7,
-            r'.*/utils/.*\.py$': 0.6,
-
+            r".*/core/.*\.py$": 0.8,
+            r".*/api/.*\.py$": 0.8,
+            r".*/models/.*\.py$": 0.7,
+            r".*/services/.*\.py$": 0.7,
+            r".*/utils/.*\.py$": 0.6,
             # CLI and entry points
-            r'.*/cli/.*\.py$': 0.7,
-            r'.*/bin/.*': 0.7,
-
+            r".*/cli/.*\.py$": 0.7,
+            r".*/bin/.*": 0.7,
             # Lower priority
-            r'.*/test_.*\.py$': 0.4,
-            r'.*/.*_test\.py$': 0.4,
-            r'.*/tests/.*\.py$': 0.3,
-            r'.*/conftest\.py$': 0.3,
+            r".*/test_.*\.py$": 0.4,
+            r".*/.*_test\.py$": 0.4,
+            r".*/tests/.*\.py$": 0.3,
+            r".*/conftest\.py$": 0.3,
         }
 
-    def analyze_file_relevance(self, file_path: str, content: str, goal: str, pattern: str | None = None) -> float:
+    def analyze_file_relevance(
+        self, file_path: str, content: str, goal: str, pattern: str | None = None
+    ) -> float:
         """Analyze file relevance to the given goal and pattern"""
         if not content.strip():
             return 0.0
@@ -154,15 +193,11 @@ class SemanticAnalyzer:
         path = Path(file_path)
         parts = path.parts
 
-        if 'src' in parts:
+        if "src" in parts or "lib" in parts:
             return 0.6
-        elif 'lib' in parts:
-            return 0.6
-        elif 'test' in parts:
+        if "test" in parts:
             return 0.3
-        elif 'docs' in parts:
-            return 0.2
-        elif 'examples' in parts:
+        if "docs" in parts or "examples" in parts:
             return 0.2
 
         return 0.4  # Default
@@ -171,18 +206,83 @@ class SemanticAnalyzer:
         """Extract meaningful keywords from text"""
         # Remove common stop words and extract meaningful terms
         stop_words = {
-            'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
-            'of', 'with', 'by', 'is', 'are', 'was', 'were', 'be', 'been', 'have',
-            'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should',
-            'may', 'might', 'can', 'this', 'that', 'these', 'those', 'i', 'you',
-            'he', 'she', 'it', 'we', 'they', 'what', 'which', 'who', 'when',
-            'where', 'why', 'how', 'all', 'each', 'every', 'both', 'few', 'more',
-            'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own',
-            'same', 'so', 'than', 'too', 'very', 'just', 'now',
+            "the",
+            "a",
+            "an",
+            "and",
+            "or",
+            "but",
+            "in",
+            "on",
+            "at",
+            "to",
+            "for",
+            "of",
+            "with",
+            "by",
+            "is",
+            "are",
+            "was",
+            "were",
+            "be",
+            "been",
+            "have",
+            "has",
+            "had",
+            "do",
+            "does",
+            "did",
+            "will",
+            "would",
+            "could",
+            "should",
+            "may",
+            "might",
+            "can",
+            "this",
+            "that",
+            "these",
+            "those",
+            "i",
+            "you",
+            "he",
+            "she",
+            "it",
+            "we",
+            "they",
+            "what",
+            "which",
+            "who",
+            "when",
+            "where",
+            "why",
+            "how",
+            "all",
+            "each",
+            "every",
+            "both",
+            "few",
+            "more",
+            "most",
+            "other",
+            "some",
+            "such",
+            "no",
+            "nor",
+            "not",
+            "only",
+            "own",
+            "same",
+            "so",
+            "than",
+            "too",
+            "very",
+            "just",
+            "now",
         }
 
         # Extract words (technical terms, identifiers, etc.)
-        words = re.findall(r'\b[a-zA-Z_][a-zA-Z0-9_]*\b', text.lower())
+        words = re.findall(r"\b[a-zA-Z_][a-zA-Z0-9_]*\b", text.lower())
         return {word for word in words if len(word) > 2 and word not in stop_words}
 
     def _calculate_structural_importance(self, content: str) -> float:
@@ -191,32 +291,32 @@ class SemanticAnalyzer:
             tree = ast.parse(content)
 
             importance_metrics = {
-                'classes': 0,
-                'functions': 0,
-                'imports': 0,
-                'decorators': 0,
-                'complexity': 0,
+                "classes": 0,
+                "functions": 0,
+                "imports": 0,
+                "decorators": 0,
+                "complexity": 0,
             }
 
             for node in ast.walk(tree):
                 if isinstance(node, ast.ClassDef):
-                    importance_metrics['classes'] += 1
+                    importance_metrics["classes"] += 1
                 elif isinstance(node, ast.FunctionDef):
-                    importance_metrics['functions'] += 1
+                    importance_metrics["functions"] += 1
                     if node.decorators:
-                        importance_metrics['decorators'] += len(node.decorators)
+                        importance_metrics["decorators"] += len(node.decorators)
                 elif isinstance(node, ast.Import) or isinstance(node, ast.ImportFrom):
-                    importance_metrics['imports'] += 1
+                    importance_metrics["imports"] += 1
                 elif isinstance(node, (ast.If, ast.For, ast.While, ast.Try)):
-                    importance_metrics['complexity'] += 1
+                    importance_metrics["complexity"] += 1
 
             # Calculate weighted score
             score = (
-                importance_metrics['classes'] * 0.3 +
-                importance_metrics['functions'] * 0.2 +
-                importance_metrics['imports'] * 0.1 +
-                importance_metrics['decorators'] * 0.2 +
-                importance_metrics['complexity'] * 0.2
+                importance_metrics["classes"] * 0.3
+                + importance_metrics["functions"] * 0.2
+                + importance_metrics["imports"] * 0.1
+                + importance_metrics["decorators"] * 0.2
+                + importance_metrics["complexity"] * 0.2
             )
 
             return min(1.0, score / 10)  # Normalize to 0-1
@@ -226,7 +326,7 @@ class SemanticAnalyzer:
 
     def _calculate_code_density(self, content: str) -> float:
         """Calculate code density (ratio of meaningful code to total content)"""
-        lines = content.split('\n')
+        lines = content.split("\n")
 
         if not lines:
             return 0.0
@@ -239,7 +339,7 @@ class SemanticAnalyzer:
             stripped = line.strip()
             if not stripped:
                 empty_lines += 1
-            elif stripped.startswith('#'):
+            elif stripped.startswith("#"):
                 comment_lines += 1
             elif not (stripped.startswith('"""') or stripped.startswith("'''")):
                 code_lines += 1
@@ -267,8 +367,8 @@ class SemanticAnalyzer:
         except:
             # Fallback to regex-based extraction
             import_patterns = [
-                r'from\s+([^\s]+)\s+import',
-                r'import\s+([^\s]+)',
+                r"from\s+([^\s]+)\s+import",
+                r"import\s+([^\s]+)",
             ]
             for pattern in import_patterns:
                 matches = re.findall(pattern, content)
@@ -281,24 +381,20 @@ class SemanticAnalyzer:
         exports = set()
 
         # __all__ assignments
-        for match in re.finditer(r'__all__\s*=\s*\[(.*?)\]', content, re.DOTALL):
+        for match in re.finditer(r"__all__\s*=\s*\[(.*?)\]", content, re.DOTALL):
             exports.update(
-                name.strip().strip('"\'')
-                for name in match.group(1).split(',')
-                if name.strip()
+                name.strip().strip("\"'") for name in match.group(1).split(",") if name.strip()
             )
 
         # Class and function definitions
         try:
             tree = ast.parse(content)
             for node in ast.walk(tree):
-                if isinstance(node, ast.ClassDef):
-                    exports.add(node.name)
-                elif isinstance(node, ast.FunctionDef):
+                if isinstance(node, ast.ClassDef) or isinstance(node, ast.FunctionDef):
                     exports.add(node.name)
         except:
             # Fallback to regex
-            for match in re.finditer(r'^(def|class)\s+(\w+)', content, re.MULTILINE):
+            for match in re.finditer(r"^(def|class)\s+(\w+)", content, re.MULTILINE):
                 exports.add(match.group(2))
 
         return exports
@@ -317,7 +413,7 @@ class ContentProcessor:
         goal: str,
         pattern: str | None = None,
         max_chars: int | None = None,
-        max_files: int | None = None
+        max_files: int | None = None,
     ) -> AnalysisResult:
         """Process files and return optimized content"""
         start_time = time.time()
@@ -352,11 +448,11 @@ class ContentProcessor:
 
                 # Track relevance distribution
                 if file_info.relevance_score > 0.7:
-                    relevance_dist['high'] += 1
+                    relevance_dist["high"] += 1
                 elif file_info.relevance_score > 0.4:
-                    relevance_dist['medium'] += 1
+                    relevance_dist["medium"] += 1
                 else:
-                    relevance_dist['low'] += 1
+                    relevance_dist["low"] += 1
 
         # Generate recommendations
         recommendations = self._generate_recommendations(file_infos, selected_files, goal, pattern)
@@ -371,17 +467,19 @@ class ContentProcessor:
             analysis_time_ms=processing_time,
             token_estimate=token_estimate,
             relevance_distribution=dict(relevance_dist),
-            recommendations=recommendations
+            recommendations=recommendations,
         )
 
-    def _analyze_file(self, file_path: str, analyzer: SemanticAnalyzer, goal: str, pattern: str | None) -> FileInfo | None:
+    def _analyze_file(
+        self, file_path: str, analyzer: SemanticAnalyzer, goal: str, pattern: str | None
+    ) -> FileInfo | None:
         """Analyze individual file"""
         try:
             path = Path(file_path)
             if not path.exists() or not path.is_file():
                 return None
 
-            content = path.read_text(encoding='utf-8')
+            content = path.read_text(encoding="utf-8")
             if not content.strip():
                 return None
 
@@ -401,7 +499,7 @@ class ContentProcessor:
                 dependencies=dependencies,
                 exports=exports,
                 last_modified=path.stat().st_mtime,
-                content_hash=content_hash
+                content_hash=content_hash,
             )
 
         except Exception:
@@ -411,48 +509,44 @@ class ContentProcessor:
         """Detect programming language from file path"""
         suffix = Path(file_path).suffix.lower()
         language_map = {
-            '.py': 'python',
-            '.js': 'javascript',
-            '.ts': 'typescript',
-            '.jsx': 'react',
-            '.tsx': 'react-typescript',
-            '.java': 'java',
-            '.cpp': 'cpp',
-            '.c': 'c',
-            '.h': 'c-header',
-            '.hpp': 'cpp-header',
-            '.go': 'go',
-            '.rs': 'rust',
-            '.rb': 'ruby',
-            '.php': 'php',
-            '.swift': 'swift',
-            '.kt': 'kotlin',
-            '.scala': 'scala',
-            '.sh': 'shell',
-            '.bash': 'bash',
-            '.zsh': 'zsh',
-            '.sql': 'sql',
-            '.html': 'html',
-            '.css': 'css',
-            '.scss': 'scss',
-            '.less': 'less',
-            '.json': 'json',
-            '.yaml': 'yaml',
-            '.yml': 'yaml',
-            '.xml': 'xml',
-            '.md': 'markdown',
-            '.txt': 'text',
-            '.toml': 'toml',
-            '.ini': 'ini',
+            ".py": "python",
+            ".js": "javascript",
+            ".ts": "typescript",
+            ".jsx": "react",
+            ".tsx": "react-typescript",
+            ".java": "java",
+            ".cpp": "cpp",
+            ".c": "c",
+            ".h": "c-header",
+            ".hpp": "cpp-header",
+            ".go": "go",
+            ".rs": "rust",
+            ".rb": "ruby",
+            ".php": "php",
+            ".swift": "swift",
+            ".kt": "kotlin",
+            ".scala": "scala",
+            ".sh": "shell",
+            ".bash": "bash",
+            ".zsh": "zsh",
+            ".sql": "sql",
+            ".html": "html",
+            ".css": "css",
+            ".scss": "scss",
+            ".less": "less",
+            ".json": "json",
+            ".yaml": "yaml",
+            ".yml": "yaml",
+            ".xml": "xml",
+            ".md": "markdown",
+            ".txt": "text",
+            ".toml": "toml",
+            ".ini": "ini",
         }
-        return language_map.get(suffix, 'unknown')
+        return language_map.get(suffix, "unknown")
 
     def _generate_recommendations(
-        self,
-        all_files: list[FileInfo],
-        selected_files: list[str],
-        goal: str,
-        pattern: str | None
+        self, all_files: list[FileInfo], selected_files: list[str], goal: str, pattern: str | None
     ) -> list[str]:
         """Generate optimization recommendations"""
         recommendations = []
@@ -465,14 +559,17 @@ class ContentProcessor:
         if selected_count == 0:
             recommendations.append("⚠️  No files selected - consider broadening search criteria")
         elif selected_count < total_count * 0.1:
-            recommendations.append(f"🔍 High selectivity: Only {selected_count}/{total_count} files selected")
+            recommendations.append(
+                f"🔍 High selectivity: Only {selected_count}/{total_count} files selected"
+            )
         elif selected_count > total_count * 0.8:
-            recommendations.append(f"📊 Low selectivity: {selected_count}/{total_count} files selected - consider refining goal")
+            recommendations.append(
+                f"📊 Low selectivity: {selected_count}/{total_count} files selected - consider refining goal"
+            )
 
         # Check for high-relevance missed files
         high_relevance_missed = [
-            f for f in all_files
-            if f.path not in selected_paths and f.relevance_score > 0.7
+            f for f in all_files if f.path not in selected_paths and f.relevance_score > 0.7
         ]
 
         if high_relevance_missed:
@@ -491,13 +588,19 @@ class ContentProcessor:
                 lang_counts[lang] += 1
 
         if len(lang_counts) > 3:
-            recommendations.append(f"🌐 Multiple languages detected: {', '.join(lang_counts.keys())}")
+            recommendations.append(
+                f"🌐 Multiple languages detected: {', '.join(lang_counts.keys())}"
+            )
 
         # Pattern matching effectiveness
         if pattern:
-            pattern_matches = sum(1 for f in selected_files if pattern.lower() in Path(f).name.lower())
+            pattern_matches = sum(
+                1 for f in selected_files if pattern.lower() in Path(f).name.lower()
+            )
             if pattern_matches == 0:
-                recommendations.append("🔍 Pattern didn't match any selected files - consider refining pattern")
+                recommendations.append(
+                    "🔍 Pattern didn't match any selected files - consider refining pattern"
+                )
             else:
                 recommendations.append(f"✅ Pattern matched {pattern_matches} selected files")
 
@@ -509,7 +612,9 @@ class ContentProcessor:
                     complexities.append(item.complexity)
             avg_complexity = sum(complexities) / len(complexities) if complexities else 0
             if avg_complexity > 0.7:
-                recommendations.append(f"🧠 High complexity content detected (avg: {avg_complexity:.2f})")
+                recommendations.append(
+                    f"🧠 High complexity content detected (avg: {avg_complexity:.2f})"
+                )
 
         return recommendations
 
@@ -517,41 +622,41 @@ class ContentProcessor:
         """Detect programming language from file path"""
         suffix = Path(file_path).suffix.lower()
         language_map = {
-            '.py': 'python',
-            '.js': 'javascript',
-            '.ts': 'typescript',
-            '.jsx': 'react',
-            '.tsx': 'react-typescript',
-            '.java': 'java',
-            '.cpp': 'cpp',
-            '.c': 'c',
-            '.h': 'c-header',
-            '.hpp': 'cpp-header',
-            '.go': 'go',
-            '.rs': 'rust',
-            '.rb': 'ruby',
-            '.php': 'php',
-            '.swift': 'swift',
-            '.kt': 'kotlin',
-            '.scala': 'scala',
-            '.sh': 'shell',
-            '.bash': 'bash',
-            '.zsh': 'zsh',
-            '.sql': 'sql',
-            '.html': 'html',
-            '.css': 'css',
-            '.scss': 'scss',
-            '.less': 'less',
-            '.json': 'json',
-            '.yaml': 'yaml',
-            '.yml': 'yaml',
-            '.xml': 'xml',
-            '.md': 'markdown',
-            '.txt': 'text',
-            '.toml': 'toml',
-            '.ini': 'ini',
+            ".py": "python",
+            ".js": "javascript",
+            ".ts": "typescript",
+            ".jsx": "react",
+            ".tsx": "react-typescript",
+            ".java": "java",
+            ".cpp": "cpp",
+            ".c": "c",
+            ".h": "c-header",
+            ".hpp": "cpp-header",
+            ".go": "go",
+            ".rs": "rust",
+            ".rb": "ruby",
+            ".php": "php",
+            ".swift": "swift",
+            ".kt": "kotlin",
+            ".scala": "scala",
+            ".sh": "shell",
+            ".bash": "bash",
+            ".zsh": "zsh",
+            ".sql": "sql",
+            ".html": "html",
+            ".css": "css",
+            ".scss": "scss",
+            ".less": "less",
+            ".json": "json",
+            ".yaml": "yaml",
+            ".yml": "yaml",
+            ".xml": "xml",
+            ".md": "markdown",
+            ".txt": "text",
+            ".toml": "toml",
+            ".ini": "ini",
         }
-        return language_map.get(suffix, 'unknown')
+        return language_map.get(suffix, "unknown")
 
     def _estimate_tokens(self, char_count: int) -> int:
         """Estimate token count from character count"""
@@ -568,15 +673,14 @@ def filter_repository(
     chars: int | None = None,
     max_files: int | None = None,
     context_lines: int = 0,
-    verbose: bool = False
+    verbose: bool = False,
 ) -> AnalysisResult:
     """Main function for repository filtering and analysis"""
-
     processor = ContentProcessor()
 
     # Find files
-    roots = roots or ['.']
-    include = include or ['*.py']
+    roots = roots or ["."]
+    include = include or ["*.py"]
     exclude = exclude or []
 
     files = []
@@ -597,9 +701,13 @@ def filter_repository(
         if verbose:
             print("No files found matching criteria")
         return AnalysisResult(
-            files=[], total_files_analyzed=0, selected_files=[],
-            analysis_time_ms=0, token_estimate=0,
-            relevance_distribution={}, recommendations=["No files found"]
+            files=[],
+            total_files_analyzed=0,
+            selected_files=[],
+            analysis_time_ms=0,
+            token_estimate=0,
+            relevance_distribution={},
+            recommendations=["No files found"],
         )
 
     if verbose:
@@ -635,73 +743,41 @@ Examples:
 
   # Quick analysis with token limits
   python enhanced_hal_agent.py --goal "API endpoints" --chars 1500 --max-files 10
-        """
+        """,
+    )
+
+    parser.add_argument("--goal", required=True, help="Analysis goal (required)")
+
+    parser.add_argument("--pattern", help="Regex pattern for focused analysis")
+
+    parser.add_argument(
+        "--roots", nargs="*", default=["."], help="Root directories to search (default: .)"
     )
 
     parser.add_argument(
-        "--goal",
-        required=True,
-        help="Analysis goal (required)"
-    )
-
-    parser.add_argument(
-        "--pattern",
-        help="Regex pattern for focused analysis"
-    )
-
-    parser.add_argument(
-        "--roots",
-        nargs="*",
-        default=["."],
-        help="Root directories to search (default: .)"
-    )
-
-    parser.add_argument(
-        "--include",
-        nargs="*",
-        default=["*.py"],
-        help="File patterns to include (default: *.py)"
+        "--include", nargs="*", default=["*.py"], help="File patterns to include (default: *.py)"
     )
 
     parser.add_argument(
         "--exclude",
         nargs="*",
         default=[".git", "__pycache__", ".pytest_cache", "node_modules", ".venv"],
-        help="File/directory patterns to exclude"
+        help="File/directory patterns to exclude",
     )
 
     parser.add_argument(
-        "--chars",
-        type=int,
-        default=2000,
-        help="Maximum characters for output (default: 2000)"
+        "--chars", type=int, default=2000, help="Maximum characters for output (default: 2000)"
     )
 
     parser.add_argument(
-        "--max-files",
-        type=int,
-        default=50,
-        help="Maximum number of files to process (default: 50)"
+        "--max-files", type=int, default=50, help="Maximum number of files to process (default: 50)"
     )
 
-    parser.add_argument(
-        "--context",
-        type=int,
-        default=0,
-        help="Context lines around matches"
-    )
+    parser.add_argument("--context", type=int, default=0, help="Context lines around matches")
 
-    parser.add_argument(
-        "--verbose", "-v",
-        action="store_true",
-        help="Verbose output"
-    )
+    parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
 
-    parser.add_argument(
-        "--json",
-        action="store_true",
-        help="Output results as JSON"
-    )
+    parser.add_argument("--json", action="store_true", help="Output results as JSON")
 
     args = parser.parse_args()
 
@@ -715,30 +791,30 @@ Examples:
         chars=args.chars,
         max_files=args.max_files,
         context_lines=args.context,
-        verbose=args.verbose
+        verbose=args.verbose,
     )
 
     # Output results
     if args.json:
         output_data = {
-            'selected_files': result.selected_files,
-            'total_analyzed': result.total_files_analyzed,
-            'token_estimate': result.token_estimate,
-            'processing_time_ms': result.analysis_time_ms,
-            'relevance_distribution': result.relevance_distribution,
-            'recommendations': result.recommendations,
-            'file_details': [
+            "selected_files": result.selected_files,
+            "total_analyzed": result.total_files_analyzed,
+            "token_estimate": result.token_estimate,
+            "processing_time_ms": result.analysis_time_ms,
+            "relevance_distribution": result.relevance_distribution,
+            "recommendations": result.recommendations,
+            "file_details": [
                 {
-                    'path': f.path,
-                    'relevance_score': f.relevance_score,
-                    'complexity': f.complexity,
-                    'language': f.language,
-                    'size': f.size,
-                    'dependencies': list(f.dependencies),
-                    'exports': list(f.exports)
+                    "path": f.path,
+                    "relevance_score": f.relevance_score,
+                    "complexity": f.complexity,
+                    "language": f.language,
+                    "size": f.size,
+                    "dependencies": list(f.dependencies),
+                    "exports": list(f.exports),
                 }
                 for f in result.files
-            ]
+            ],
         }
         print(json.dumps(output_data, indent=2))
     else:
@@ -750,17 +826,17 @@ Examples:
         print(f"Processing time: {result.analysis_time_ms:.1f}ms")
 
         if result.relevance_distribution:
-            print(f"\nRelevance Distribution:")
+            print("\nRelevance Distribution:")
             for level, count in result.relevance_distribution.items():
                 print(f"  {level.capitalize()}: {count}")
 
         if result.selected_files:
-            print(f"\nSelected Files:")
+            print("\nSelected Files:")
             for file_path in result.selected_files:
                 print(f"  {file_path}")
 
         if result.recommendations:
-            print(f"\nRecommendations:")
+            print("\nRecommendations:")
             for rec in result.recommendations:
                 print(f"  {rec}")
 

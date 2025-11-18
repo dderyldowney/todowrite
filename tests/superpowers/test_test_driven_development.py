@@ -8,16 +8,13 @@ Author: Claude Code Assistant
 Version: 2025.1.0
 """
 
-import pytest
-import tempfile
-import shutil
 import subprocess
-import time
+import tempfile
 from pathlib import Path
-from typing import Any, Dict
+
+import pytest
 
 from .conftest import TestSuperpowersBase
-from ..fixtures.todowrite_fixtures import sample_task_data, sample_project_structure
 
 
 class TestTestDrivenDevelopment(TestSuperpowersBase):
@@ -26,7 +23,9 @@ class TestTestDrivenDevelopment(TestSuperpowersBase):
     def test_tdd_skill_missing_file_should_fail(self) -> None:
         """RED TEST: Test that TDD skill fails when implementation file doesn't exist"""
         # This test should fail initially because the TDD skill isn't implemented yet
-        skill_path = Path.home() / ".claude/plugins/cache/superpowers/skills/test-driven-development"
+        skill_path = (
+            Path.home() / ".claude/plugins/cache/superpowers/skills/test-driven-development"
+        )
 
         # The skill file should not exist yet (RED phase)
         assert not skill_path.exists(), "TDD skill should not exist yet (RED phase)"
@@ -34,8 +33,8 @@ class TestTestDrivenDevelopment(TestSuperpowersBase):
         # When we try to import/use it, it should fail
         with pytest.raises((ImportError, FileNotFoundError)):
             import sys
+
             sys.path.insert(0, str(skill_path.parent))
-            import test_driven_development  # This should fail
 
     def test_tdd_workflow_red_phase_should_fail(self) -> None:
         """RED TEST: Test that TDD workflow fails without implementation"""
@@ -50,20 +49,27 @@ class TestTestDrivenDevelopment(TestSuperpowersBase):
                     "Users can register with email and password",
                     "Users can login with email and password",
                     "Passwords are securely hashed",
-                    "Session management is implemented"
-                ]
+                    "Session management is implemented",
+                ],
             }
 
             # Try to run TDD workflow - should fail without implementation
             with pytest.raises((FileNotFoundError, ImportError, subprocess.CalledProcessError)):
                 # This should fail because the TDD skill doesn't exist yet
-                result = subprocess.run([
-                    "python3", "-c",
-                    "from superpowers_fail_safes import with_fail_safes;"
-                    "@with_fail_safes('tdd_workflow');"
-                    "def run_tdd(): pass;"
-                    "run_tdd()"
-                ], capture_output=True, text=True, timeout=30)
+                result = subprocess.run(
+                    [
+                        "python3",
+                        "-c",
+                        "from superpowers_fail_safes import with_fail_safes;"
+                        "@with_fail_safes('tdd_workflow');"
+                        "def run_tdd(): pass;"
+                        "run_tdd()",
+                    ],
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                )
 
                 if result.returncode != 0:
                     raise FileNotFoundError("TDD skill implementation not found")
@@ -93,13 +99,21 @@ def test_user_registration():
             test_file.write_text(test_content)
 
             # Running the test should fail because User class doesn't exist
-            result = subprocess.run([
-                "python3", "-m", "pytest", str(test_file), "-v"
-            ], capture_output=True, text=True, cwd=temp_path)
+            result = subprocess.run(
+                ["python3", "-m", "pytest", str(test_file), "-v"],
+                check=False,
+                capture_output=True,
+                text=True,
+                cwd=temp_path,
+            )
 
             # Should fail because User is not defined (RED phase)
             assert result.returncode != 0, "Test should fail initially (RED phase)"
-            assert "NameError" in result.stderr or "ImportError" in result.stderr or "FAILED" in result.stdout
+            assert (
+                "NameError" in result.stderr
+                or "ImportError" in result.stderr
+                or "FAILED" in result.stdout
+            )
 
     def test_tdd_minimal_implementation_should_fail(self) -> None:
         """RED TEST: Test that minimal implementation creation fails without TDD skill"""
@@ -111,14 +125,14 @@ def test_user_registration():
             src_dir.mkdir(parents=True)
 
             # Try to create minimal implementation without TDD guidance
-            implementation_content = '''
+            implementation_content = """
 # Minimal User model implementation
 class User:
     def __init__(self, email: str, password: str):
         self.email = email
         self.password = password
         self.id = None  # Will be set by database
-'''
+"""
 
             impl_file = src_dir / "user.py"
             impl_file.write_text(implementation_content)
@@ -145,9 +159,13 @@ def test_user_creation():
 
             # Running this should fail because TDD workflow isn't properly implemented
             # and we're missing proper test structure and dependencies
-            result = subprocess.run([
-                "python3", "-m", "pytest", str(test_file), "-v"
-            ], capture_output=True, text=True, cwd=temp_path)
+            result = subprocess.run(
+                ["python3", "-m", "pytest", str(test_file), "-v"],
+                check=False,
+                capture_output=True,
+                text=True,
+                cwd=temp_path,
+            )
 
             # Should fail due to missing TDD infrastructure (RED phase)
             assert result.returncode != 0, "Should fail without proper TDD infrastructure"
@@ -158,7 +176,7 @@ def test_user_creation():
             temp_path = Path(temp_dir)
 
             # Create a scenario where we have working code but want to refactor
-            working_code = '''
+            working_code = """
 class UserAuth:
     def authenticate(self, email, password):
         # Basic authentication logic
@@ -171,7 +189,7 @@ class UserAuth:
         if email and password:
             return {"success": True, "user_id": 123}
         return {"success": False, "error": "Invalid data"}
-'''
+"""
 
             code_file = temp_path / "auth.py"
             code_file.write_text(working_code)
@@ -179,23 +197,30 @@ class UserAuth:
             # Try to use TDD skill for refactoring - should fail
             with pytest.raises((FileNotFoundError, ImportError)):
                 # This should fail because TDD refactoring skill doesn't exist
-                subprocess.run([
-                    "python3", "-c",
-                    "import sys;"
-                    "sys.path.append('~/claude/plugins/cache/superpowers/skills/test-driven-development');"
-                    "import test_driven_development;"
-                    "test_driven_development.refactor_with_tdd('auth.py')"
-                ], check=True, capture_output=True, text=True, timeout=30)
+                subprocess.run(
+                    [
+                        "python3",
+                        "-c",
+                        "import sys;"
+                        "sys.path.append('~/claude/plugins/cache/superpowers/skills/test-driven-development');"
+                        "import test_driven_development;"
+                        "test_driven_development.refactor_with_tdd('auth.py')",
+                    ],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                )
 
     def test_tdd_fail_safe_integration_should_fail(self) -> None:
         """RED TEST: Test that TDD skill integration with fail-safes fails initially"""
-        from .claude.superpowers_fail_safes import get_fail_safes, ResourceLimits
+        from .claude.superpowers_fail_safes import ResourceLimits
 
         # Initialize fail-safes with strict limits for testing
         strict_limits = ResourceLimits(
             max_memory_mb=64,  # Very low limit for testing
             max_execution_time_seconds=10,  # Short timeout
-            max_concurrent_subagents=1  # Only one subagent at a time
+            max_concurrent_subagents=1,  # Only one subagent at a time
         )
 
         fail_safes = SuperpowersFailSafes(strict_limits)
@@ -234,16 +259,20 @@ class UserAuth:
         except FileNotFoundError:
             discovered_skills = []
 
-        assert "test-driven-development" not in discovered_skills, "TDD skill should not be discoverable yet"
+        assert "test-driven-development" not in discovered_skills, (
+            "TDD skill should not be discoverable yet"
+        )
 
-    @pytest.mark.parametrize("feature_type", ["authentication", "data_validation", "api_endpoints", "database_models"])
+    @pytest.mark.parametrize(
+        "feature_type", ["authentication", "data_validation", "api_endpoints", "database_models"]
+    )
     def test_tdd_feature_support_should_fail(self, feature_type: str) -> None:
         """RED TEST: Test that TDD feature support fails for various feature types"""
         feature_requests = {
             "authentication": "User login and registration system",
             "data_validation": "Input validation and sanitization",
             "api_endpoints": "RESTful API with proper error handling",
-            "database_models": "SQLAlchemy models with relationships"
+            "database_models": "SQLAlchemy models with relationships",
         }
 
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -254,11 +283,18 @@ class UserAuth:
 
             # This should fail because TDD skill doesn't exist
             with pytest.raises((FileNotFoundError, ImportError)):
-                subprocess.run([
-                    "python3", "-c",
-                    f"from tdd_workflow import create_tdd_plan;"
-                    f"create_tdd_plan('{feature_description}', '{temp_path}')"
-                ], check=True, capture_output=True, text=True, timeout=30)
+                subprocess.run(
+                    [
+                        "python3",
+                        "-c",
+                        f"from tdd_workflow import create_tdd_plan;"
+                        f"create_tdd_plan('{feature_description}', '{temp_path}')",
+                    ],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                )
 
     def test_tdd_quality_metrics_should_fail(self) -> None:
         """RED TEST: Test that TDD quality metrics collection fails initially"""
@@ -277,11 +313,18 @@ def test_feature_{i}():
 
             # Try to analyze test quality - should fail without TDD skill
             with pytest.raises((FileNotFoundError, ImportError)):
-                subprocess.run([
-                    "python3", "-c",
-                    "from tdd_analyzer import analyze_test_quality;"
-                    f"analyze_test_quality({[str(f) for f in test_files]})"
-                ], check=True, capture_output=True, text=True, timeout=30)
+                subprocess.run(
+                    [
+                        "python3",
+                        "-c",
+                        "from tdd_analyzer import analyze_test_quality;"
+                        f"analyze_test_quality({[str(f) for f in test_files]})",
+                    ],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                )
 
 
 # Test configuration for pytest
@@ -290,12 +333,8 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "tdd_red: Tests for RED phase of TDD (should fail initially)"
     )
-    config.addinivalue_line(
-        "markers", "tdd_green: Tests for GREEN phase of TDD (implementation)"
-    )
-    config.addinivalue_line(
-        "markers", "tdd_refactor: Tests for REFACTOR phase of TDD"
-    )
+    config.addinivalue_line("markers", "tdd_green: Tests for GREEN phase of TDD (implementation)")
+    config.addinivalue_line("markers", "tdd_refactor: Tests for REFACTOR phase of TDD")
 
 
 if __name__ == "__main__":
@@ -304,9 +343,9 @@ if __name__ == "__main__":
     print("=" * 50)
 
     # Run pytest with our tests
-    exit_code = subprocess.run([
-        "python3", "-m", "pytest", __file__, "-v", "--tb=short"
-    ]).returncode
+    exit_code = subprocess.run(
+        ["python3", "-m", "pytest", __file__, "-v", "--tb=short"], check=False
+    ).returncode
 
     if exit_code != 0:
         print("\n✅ RED Phase: Tests are failing as expected")
