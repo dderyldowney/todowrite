@@ -56,8 +56,8 @@ dev = [
 line-length = 100
 target-version = "py312"
 
-# Override docstring line length to match project settings
-[tool.ruff.lint.docstring]
+# Docstring configuration with Google convention
+[tool.pydocstyle]
 convention = "google"
 ignore-decorators = false  # Check decorators in docstrings
 extend-exclude = [

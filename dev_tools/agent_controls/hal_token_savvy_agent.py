@@ -695,9 +695,9 @@ class AnthropicProvider(LLMProvider):
             msg = "Anthropic package not installed"
             raise ImportError(msg)
 
-        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        api_key = os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN")
         if not api_key:
-            msg = "ANTHROPIC_API_KEY is not set"
+            msg = "ANTHROPIC_API_KEY or ANTHROPIC_AUTH_TOKEN is not set"
             raise RuntimeError(msg)
         client = anthropic.Anthropic(api_key=api_key)
         msg = client.messages.create(
@@ -765,7 +765,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         choices=["openai", "anthropic"],
         required=True,
     )
-    pa.add_argument("--model", required=True)
+    pa.add_argument(
+        "--model",
+        required=False,
+        default=os.environ.get("ANTHROPIC_DEFAULT_SONNET_MODEL", "claude-3-5-sonnet-20241022"),
+        help="Model name (defaults to ANTHROPIC_DEFAULT_SONNET_MODEL env var)",
+    )
     pa.add_argument("--goal", required=True)
     pa.add_argument("--pattern")
     pa.add_argument("--jq", dest="jq_filter")
