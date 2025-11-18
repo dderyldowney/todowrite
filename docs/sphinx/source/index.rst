@@ -16,6 +16,8 @@ New to ToDoWrite? Start here to understand the basics and get up and running qui
 
    Project Overview <userdocs/ToDoWrite>
    Quick Start <userdocs/README>
+   Installation Guide <devdocs/INSTALLATION_GUIDE>
+   ActiveRecord API <userdocs/ACTIVE_RECORD_API>
 
 LIBRARY
 =======
@@ -71,7 +73,33 @@ Development resources and references for contributors.
    :maxdepth: 1
    :caption: Development Resources
 
-   Terminology Guide <development/TERMINOLOGY.md>
+   Build System <devdocs/BUILD_SYSTEM>
+   Terminology Guide <development/TERMINOLOGY>
+
+STANDARDS
+=========
+
+Project standards and guidelines.
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Standards
+
+   ToDoWrite Standards <devdocs/TODOWRITE_STANDARDS_NEEDED>
+   CLI Standards <devdocs/TODOWRITE_CLI_STANDARDS_NEEDED>
+
+REFERENCE
+=========
+
+Additional reference materials.
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Reference
+
+   Changelog <devdocs/CHANGELOG>
+   Documentation Structure State <devdocs/DOCUMENTATION_STRUCTURE_STATE>
+
 
 # Web Documentation (Planned)
 # ------------------------------

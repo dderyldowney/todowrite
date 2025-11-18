@@ -109,6 +109,8 @@ todowrite export-yaml
 ```
 
 ### Python API Usage
+
+#### Traditional API (Dictionary-based)
 ```python
 from todowrite import ToDoWrite, link_nodes
 
@@ -141,6 +143,92 @@ link_nodes("sqlite:///project.db", goal.id, task.id)
 # Get all nodes
 all_nodes = app.get_all_nodes()
 print(f"Total nodes: {sum(len(nodes) for nodes in all_nodes.values())}")
+```
+
+#### ActiveRecord-Style API (Recommended)
+```python
+from todowrite import ToDoWrite, Node
+
+# Initialize application
+app = ToDoWrite("sqlite:///project.db")
+app.init_database()
+
+# Configure Node class for ActiveRecord methods
+Node.configure_session(app.get_session())
+
+# Create nodes using Rails-style patterns
+goal = Node.create_goal(
+    "Build TodoWrite App",
+    "dev-team",
+    description="Create the application",
+    labels=["app"],
+    severity="high"
+)
+
+# Create task under goal (automatically linked)
+task = goal.tasks().create(
+    title="Set up database",
+    description="Initialize database schema",
+    owner="dev-team",
+    labels=["database"],
+    severity="medium"
+)
+
+# Or create separately and link
+task = Node.create_task(
+    "Set up database",
+    "GOAL-001",  # Parent goal ID
+    description="Initialize database schema",
+    owner="dev-team",
+    labels=["database"],
+    severity="medium"
+)
+
+# Workflow management
+task.start().save()  # Start work
+task.update_progress(50)  # Update progress
+task.complete().save()  # Mark complete
+
+# Query nodes
+all_goals = Node.where(layer="Goal")
+backend_tasks = Node.where(owner="dev-team")
+in_progress = Node.where(status="in_progress")
+
+# Collection operations
+goal_tasks = goal.tasks()  # Get tasks collection
+task_count = goal_tasks.size()
+has_tasks = goal_tasks.exists()
+
+print(f"Goal '{goal.title}' has {task_count} tasks")
+print(f"Total goals: {len(all_goals)}")
+print(f"In-progress tasks: {len(in_progress)}")
+```
+
+#### Method Chaining Examples
+```python
+# Create and complete in one chain
+quick_task = Node.new(
+    layer="Task",
+    title="Quick fix",
+    owner="dev"
+).save().complete().save()
+
+# Complex query chains
+critical_backend_tasks = Node.where(
+    layer="Task"
+).where(
+    owner="backend-team"
+).where(
+    severity="high"
+)
+
+# Business workflow chains
+completed_critical_task = Node.new(
+    layer="Task",
+    title="Critical bug fix",
+    owner="backend-team",
+    severity="critical"
+).save().start().save().update_progress(100).save().complete().save()
 ```
 
 ## Node Structure
