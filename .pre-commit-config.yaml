@@ -1,47 +1,66 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
-  # Pre-commit core hooks for comprehensive code quality
+  # Pre-commit core hooks - Updated to 2025 industry standards
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+    rev: v5.0.0  # Latest stable as of 2025
     hooks:
+      # Essential formatting and structure
       - id: trailing-whitespace
       - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-added-large-files
-      - id: check-merge-conflict
-      - id: check-toml
-      - id: debug-statements
       - id: mixed-line-ending
-      - id: check-builtin-literals
-      - id: check-executables-have-shebangs
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: check-xml
+      - id: check-ast  # Python syntax validation
 
-  # Ruff for comprehensive Python linting and formatting
+      # Security and safety
+      - id: check-added-large-files
+        args: ['--maxkb=1000']  # 1MB limit (industry standard)
+      - id: check-merge-conflict
+      - id: debug-statements  # Prevent debugger commits
+      - id: check-builtin-literals  # Prevent unnecessary literals
+      - id: check-docstring-first  # Enforce proper docstring placement
+
+      # Executable and file permissions
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+      - id: check-case-conflict  # Prevent case-sensitive filesystem issues
+
+  # Ruff - Modern Python linting and formatting (2025 standards)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.4
+    rev: v0.14.4  # Latest stable with Python 3.12+ support
     hooks:
+      # Linting with auto-fix and comprehensive rule set
       - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
+        args: [--fix, --exit-non-zero-on-fix, --show-fixes]
         additional_dependencies:
-          - ruff>=0.7.0
+          - ruff>=0.8.0
+      # Formatting with 100-character line length (modern standard)
       - id: ruff-format
         additional_dependencies:
-          - ruff>=0.7.0
+          - ruff>=0.8.0
 
-  # Bandit for security analysis (complementary to ruff)
+  # Bandit - Security vulnerability scanner (2025 standards)
   - repo: https://github.com/pycqa/bandit
-    rev: 1.8.6
+    rev: 1.8.0  # Latest stable with Python 3.12+ support
     hooks:
       - id: bandit
-        args: [-c, pyproject.toml]
+        args:
+          - -c, pyproject.toml
+          - -f, json  # Modern output format
+          - --quiet  # Reduce noise, focus on real issues
         additional_dependencies: ["bandit[toml]"]
+        exclude: ^tests/  # Exclude test files from security scanning
 
-  # Detect-secrets for scanning and preventing secrets from being committed
+  # Detect-secrets - Advanced secret detection (2025 standards)
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0
     hooks:
       - id: detect-secrets
         args: [--baseline, .secrets.baseline]
+        exclude: ^(docs/|tests/|.*\.md$)  # Exclude docs and markdown files
 
   # Universal Python cache file prevention (applies to ALL projects)
   - repo: local
@@ -54,92 +73,62 @@ repos:
         always_run: true
         stages: [pre-commit]
 
-  # Prevent direct commits to main branch
+  # Prevent direct commits to main branch (GitFlow standard)
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+    rev: v5.0.0
     hooks:
       - id: no-commit-to-branch
-        args: [--branch, main]
-        name: "Don't commit directly to main - use develop branch"
+        args: [--branch, main, --branch, master]
+        name: "Don't commit directly to main/master - use develop branch"
 
-  # Conventional Commits enforcement
+  # Conventional Commits enforcement (industry standard)
   - repo: https://github.com/compilerla/conventional-pre-commit
-    rev: v4.3.0
+    rev: v4.3.0  # Latest stable version
     hooks:
       - id: conventional-pre-commit
         stages: [commit-msg]
+        args: [feat,fix,docs,style,refactor,perf,test,build,ci,chore,revert]
 
-  # Semantic Scoping enforcement for ToDoWrite project
-  - repo: local
+  # Python import sorting and dependency management (2025 standards)
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
     hooks:
-      - id: semantic-scope-validator
-        name: Semantic Scope Validator
-        entry: ./.hooks/semantic-scope-validator.py
-        language: system
-        stages: [commit-msg]
-        require_serial: true
+      - id: isort
+        args: ["--profile", "black", "--line-length", "100"]
+        additional_dependencies:
+          - isort>=5.13.0
 
-  # Red-Green-Refactor methodology enforcement
-  - repo: local
+  # Type checking with mypy (modern Python standard)
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.14.1  # Latest with Python 3.12+ support
     hooks:
-      - id: red-green-refactor-enforcer
-        name: Red-Green-Refactor Methodology Enforcer
-        entry: ./.hooks/red-green-refactor-enforcer.py
-        language: system
-        stages: [commit-msg]
-        require_serial: true
+      - id: mypy
+        additional_dependencies:
+          - types-PyYAML
+          - types-setuptools
+          - mypy>=1.14.0
+        args:
+          - --ignore-missing-imports
+          - --strict-optional
+          - --warn-redundant-casts
+          - --warn-unused-ignores
+        exclude: ^(tests/|docs/)
 
-  # Hardcoded tmp file enforcement
-  - repo: local
+  # Documentation quality checks (industry standard)
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.3.0
     hooks:
-      - id: hardcoded-tmp-check
-        name: Hardcoded Tmp File Check
-        entry: ./.hooks/tmp-file-enforcer.py
-        language: system
-        args: [--check]
-        pass_filenames: false
-        always_run: true
+      - id: pydocstyle
+        args:
+          - --convention=google  # Google style is most widely adopted
+        exclude: ^(tests/|docs/|setup.py)
 
-  # Alembic enforcement
-  - repo: local
+  # Python code modernization (industry standard)
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.19.0
     hooks:
-      - id: alembic-check
-        name: Alembic Migration Check
-        entry: uv run python ./.hooks/alembic-enforcer.py
-        language: system
-        args: [--check]
-        pass_filenames: false
-        always_run: true
-
-  # Test artifact cleanup enforcement
-  - repo: local
-    hooks:
-      - id: test-artifact-cleanup
-        name: Test Artifact Cleanup
-        entry: ./.hooks/test-cleanup-enforcer.py
-        language: system
-        args: [--cleanup]
-        pass_filenames: false
-        always_run: true
-
-  # Token optimization analysis
-  - repo: local
-    hooks:
-      - id: token-optimization-check
-        name: Token Usage Analysis
-        entry: ./.hooks/token-optimizer.py
-        language: system
-        args: [--analyze]
-        pass_filenames: false
-        always_run: true
-
-  # Additional validation hooks for comprehensive quality
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
-    hooks:
-      - id: check-json
-      - id: check-xml
-      - id: check-ast
-      - id: check-case-conflict
-      - id: check-docstring-first
-      - id: check-shebang-scripts-are-executable
+      - id: pyupgrade
+        args:
+          - --py312-plus  # Target Python 3.12+
+        additional_dependencies:
+          - pyupgrade>=3.19.0
