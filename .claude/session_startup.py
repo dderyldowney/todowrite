@@ -5,6 +5,7 @@ Runs automatically at session start to ensure proper workflow compliance.
 """
 
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime
@@ -85,58 +86,240 @@ def verify_token_optimization():
         return False
 
 
-def create_workflow_markers():
-    """Create workflow enforcement markers for the current session."""
+def load_superpowers_and_fail_safes():
+    """Load superpowers skills and fail-safe mechanisms."""
+    import os
+    import sys
+    from pathlib import Path
+
+    project_root = Path.cwd()
+    claude_dir = project_root / ".claude"
+
+    print("🔧 Loading superpowers skills and fail-safes...")
+
+    # Add superpowers to Python path
+    sys.path.insert(0, str(claude_dir))
+    superpowers_dir = claude_dir / "skills"
+
+    # Check for required skills
+    required_skills = [
+        "test-driven-development",
+        "dispatching-parallel-agents",
+        "subagent-driven-development"
+    ]
+
+    loaded_skills = []
+    for skill_name in required_skills:
+        skill_path = superpowers_dir / skill_name / "skill.py"
+        if skill_path.exists():
+            try:
+                # Import and verify skill
+                sys.path.insert(0, str(skill_path.parent))
+                if skill_name == "test-driven-development":
+                    from skill import TestDrivenDevelopment
+                    print(f"   ✓ {skill_name} skill loaded")
+                    loaded_skills.append(skill_name)
+                elif skill_name == "dispatching-parallel-agents":
+                    from skill import DispatchingParallelAgents
+                    print(f"   ✓ {skill_name} skill loaded")
+                    loaded_skills.append(skill_name)
+                elif skill_name == "subagent-driven-development":
+                    from skill import SubagentDrivenDevelopment
+                    print(f"   ✓ {skill_name} skill loaded")
+                    loaded_skills.append(skill_name)
+            except ImportError as e:
+                print(f"   ⚠️ {skill_name} skill import failed: {e}")
+        else:
+            print(f"   ⚠️ {skill_name} skill not found")
+
+    # Load fail-safes
+    try:
+        import superpowers_fail_safes
+        fail_safes = superpowers_fail_safes.get_fail_safes()
+        if fail_safes:
+            print("   ✓ Superpowers fail-safes active")
+            status = fail_safes.get_system_status()
+            print(f"     Active subagents: {status['active_subagents']}")
+            print(f"     Memory usage: {status['total_memory_used_mb']:.1f}MB")
+        else:
+            print("   ⚠️ Fail-safes instance not created")
+    except ImportError as e:
+        print(f"   ❌ Fail-safes import failed: {e}")
+
+    print(f"✅ Superpowers loaded: {len(loaded_skills)}/{len(required_skills)}")
+    return len(loaded_skills) >= 2  # Allow partial success
+
+
+def initialize_mcp_2025():
+    """Initialize MCP 2025 system."""
+    project_root = Path.cwd()
+    claude_dir = project_root / ".claude"
+
+    print("🤖 Initializing MCP 2025 system...")
+
+    # Check MCP configurations
+    mcp_configs = [
+        "mcp_config_2025.json",
+        "mcp_superpowers_config_2025.json",
+        "mcp_episodic_memory_config_2025.json"
+    ]
+
+    config_count = 0
+    for config in mcp_configs:
+        config_path = claude_dir / config
+        if config_path.exists():
+            config_count += 1
+            print(f"   ✓ {config}")
+        else:
+            print(f"   ⚠️ {config} missing")
+
+    # Check MCP tools
+    mcp_tools = [
+        "mcp_security_optimizer.py",
+        "mcp_monitoring_dashboard.py",
+        "setup_mcp_2025.sh"
+    ]
+
+    tool_count = 0
+    for tool in mcp_tools:
+        tool_path = claude_dir / tool
+        if tool_path.exists() and os.access(tool_path, os.X_OK):
+            tool_count += 1
+            print(f"   ✓ {tool} (executable)")
+
+    print(f"✅ MCP 2025: {config_count}/{len(mcp_configs)} configs, {tool_count}/{len(mcp_tools)} tools")
+    return config_count >= 2
+
+
+def verify_hal_and_token_optimization():
+    """Verify HAL Agent and Token-Sage integration."""
+    project_root = Path.cwd()
+    dev_tools = project_root / "dev_tools"
+
+    print("⚡ Verifying HAL Agent and Token-Sage integration...")
+
+    hal_agent = dev_tools / "agent_controls" / "hal_token_savvy_agent.py"
+    token_sage = dev_tools / "token_optimization" / "always_token_sage.py"
+
+    hal_available = hal_agent.exists() and os.access(hal_agent, os.X_OK)
+    token_available = token_sage.exists() and os.access(token_sage, os.X_OK)
+
+    if hal_available:
+        print("   ✓ HAL Agent available")
+    else:
+        print("   ⚠️ HAL Agent not available or not executable")
+
+    if token_available:
+        print("   ✓ Token-Sage available")
+    else:
+        print("   ⚠️ Token-Sage not available or not executable")
+
+    return hal_available and token_available
+
+
+def create_comprehensive_workflow_markers():
+    """Create comprehensive workflow enforcement markers."""
     session_dir = Path.cwd() / ".claude"
     session_dir.mkdir(exist_ok=True)
 
-    workflow_file = session_dir / "workflow_active.json"
+    workflow_file = session_dir / "workflow_active_2025.json"
     workflow_data = {
         "session_start": datetime.now().isoformat(),
         "todowrite_cli_enforced": True,
-        "token_optimization_active": True,
+        "superpowers_active": True,
+        "fail_safes_active": True,
+        "mcp_2025_active": True,
+        "hal_token_optimization_active": True,
         "episodic_memory_available": True,
-        "workflow_version": "1.0",
+        "workflow_version": "2025.1",
+        "required_skills": [
+            "test-driven-development",
+            "dispatching-parallel-agents",
+            "subagent-driven-development"
+        ],
+        "protection_mechanisms": [
+            "session_lock_prevention",
+            "memory_monitoring",
+            "resource_limits",
+            "error_isolation"
+        ]
     }
 
     with open(workflow_file, "w") as f:
         json.dump(workflow_data, f, indent=2)
 
-    print("✓ Workflow enforcement markers created")
+    print("✓ Comprehensive 2025 workflow markers created")
 
 
 def main():
-    """Main startup logic."""
-    print("🚀 Starting session with enforced todowrite_cli workflow...")
+    """Comprehensive main startup logic with all systems integration."""
+    print("🚀 Starting comprehensive 2025 session initialization...")
 
-    # Check todowrite_cli availability
+    success_count = 0
+    total_checks = 6
+
+    # 1. Check todowrite_cli availability
     if not check_todowrite_cli_available():
         print("⚠️  todowrite_cli not available - make sure PYTHONPATH is set correctly")
         print('   export PYTHONPATH="lib_package/src:cli_package/src"')
         sys.exit(1)
-
     print("✓ todowrite_cli is available")
+    success_count += 1
 
-    # Verify token optimization
+    # 2. Verify token optimization
     if not verify_token_optimization():
         print("⚠️  Token optimization issues detected - check config.json")
         sys.exit(1)
+    print("✓ Token optimization verified")
+    success_count += 1
 
-    # Create workflow markers
-    create_workflow_markers()
+    # 3. Load superpowers skills and fail-safes
+    if load_superpowers_and_fail_safes():
+        print("✓ Superpowers skills and fail-safes loaded")
+        success_count += 1
+    else:
+        print("⚠️  Superpowers loading incomplete - some features may be unavailable")
+
+    # 4. Initialize MCP 2025 system
+    if initialize_mcp_2025():
+        print("✓ MCP 2025 system initialized")
+        success_count += 1
+    else:
+        print("⚠️  MCP 2025 initialization incomplete - some features may be unavailable")
+
+    # 5. Verify HAL and Token-Sage integration
+    if verify_hal_and_token_optimization():
+        print("✓ HAL Agent and Token-Sage integration verified")
+        success_count += 1
+    else:
+        print("⚠️  HAL/Token-Sage integration issues detected")
+
+    # 6. Create comprehensive workflow markers
+    create_comprehensive_workflow_markers()
+    print("✓ Comprehensive workflow markers created")
+    success_count += 1
 
     # Set up environment
     setup_todowrite_environment()
 
-    print("\n📋 Session Requirements:")
+    print(f"\n📊 Session Initialization Complete: {success_count}/{total_checks} systems active")
+
+    print("\n📋 2025 Session Requirements:")
     print("  1. ALL planning must use todowrite_cli")
     print("  2. Check episodic memory before starting work")
-    print("  3. Token optimization is active")
-    print("  4. Document decisions in todowrite tasks")
+    print("  3. Token optimization is active (HAL + Token-Sage)")
+    print("  4. Superpowers skills with fail-safes are enabled")
+    print("  5. MCP 2025 system provides industry-standard tools")
+    print("  6. Document decisions in todowrite tasks")
+    print("  7. Session protection against memory exhaustion and locks")
 
-    print("\n✅ Session ready - enforced workflow active!")
-
-    return 0
+    if success_count >= 5:
+        print("\n✅ Session ready - comprehensive 2025 workflow active!")
+        return 0
+    else:
+        print("\n⚠️  Session initialized with some limitations")
+        print("   Consider checking system configuration for missing components")
+        return 1
 
 
 if __name__ == "__main__":

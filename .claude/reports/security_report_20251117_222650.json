@@ -1,0 +1,1774 @@
+{
+  "timestamp": "2025-11-17T22:26:50.146904",
+  "summary": {
+    "total_checks": 220,
+    "passed": 18,
+    "failed": 202,
+    "critical_issues": 0,
+    "high_issues": 113,
+    "medium_issues": 89,
+    "low_issues": 0
+  },
+  "detailed_results": [
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.authentication_required",
+      "recommendation": "Add security.authentication_required to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.133984"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.data_encryption",
+      "recommendation": "Add security.data_encryption to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.133995"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.access_control",
+      "recommendation": "Add security.access_control to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.133998"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.audit_logging",
+      "recommendation": "Add security.audit_logging to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.134001"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption at rest is not enabled",
+      "recommendation": "Enable data encryption at rest for security compliance",
+      "timestamp": "2025-11-17T22:26:50.134429"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption in transit is not enabled",
+      "recommendation": "Enable TLS/SSL for data in transit",
+      "timestamp": "2025-11-17T22:26:50.134433"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": false,
+      "severity": "medium",
+      "message": "Access control is not properly configured",
+      "recommendation": "Implement proper access control mechanisms",
+      "timestamp": "2025-11-17T22:26:50.134436"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": false,
+      "severity": "medium",
+      "message": "Audit logging is not enabled",
+      "recommendation": "Enable audit logging for security monitoring and compliance",
+      "timestamp": "2025-11-17T22:26:50.134439"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": false,
+      "severity": "medium",
+      "message": "ISO_27001 compliance is not configured",
+      "recommendation": "Configure ISO_27001 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.134443"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": false,
+      "severity": "medium",
+      "message": "SOC2_TYPE2 compliance is not configured",
+      "recommendation": "Configure SOC2_TYPE2 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.134446"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": false,
+      "severity": "medium",
+      "message": "GDPR compliance is not configured",
+      "recommendation": "Configure GDPR compliance settings",
+      "timestamp": "2025-11-17T22:26:50.134448"
+    },
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.authentication_required",
+      "recommendation": "Add security.authentication_required to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.134974"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.data_encryption",
+      "recommendation": "Add security.data_encryption to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.134985"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.access_control",
+      "recommendation": "Add security.access_control to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.134988"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.audit_logging",
+      "recommendation": "Add security.audit_logging to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.134990"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption at rest is not enabled",
+      "recommendation": "Enable data encryption at rest for security compliance",
+      "timestamp": "2025-11-17T22:26:50.135016"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption in transit is not enabled",
+      "recommendation": "Enable TLS/SSL for data in transit",
+      "timestamp": "2025-11-17T22:26:50.135018"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": false,
+      "severity": "medium",
+      "message": "Access control is not properly configured",
+      "recommendation": "Implement proper access control mechanisms",
+      "timestamp": "2025-11-17T22:26:50.135021"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": false,
+      "severity": "medium",
+      "message": "Audit logging is not enabled",
+      "recommendation": "Enable audit logging for security monitoring and compliance",
+      "timestamp": "2025-11-17T22:26:50.135024"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": false,
+      "severity": "medium",
+      "message": "ISO_27001 compliance is not configured",
+      "recommendation": "Configure ISO_27001 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.135028"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": false,
+      "severity": "medium",
+      "message": "SOC2_TYPE2 compliance is not configured",
+      "recommendation": "Configure SOC2_TYPE2 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.135030"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": false,
+      "severity": "medium",
+      "message": "GDPR compliance is not configured",
+      "recommendation": "Configure GDPR compliance settings",
+      "timestamp": "2025-11-17T22:26:50.135032"
+    },
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.authentication_required",
+      "recommendation": "Add security.authentication_required to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.135453"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.data_encryption",
+      "recommendation": "Add security.data_encryption to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.135457"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.access_control",
+      "recommendation": "Add security.access_control to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.135459"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.audit_logging",
+      "recommendation": "Add security.audit_logging to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.135467"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption at rest is not enabled",
+      "recommendation": "Enable data encryption at rest for security compliance",
+      "timestamp": "2025-11-17T22:26:50.135654"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption in transit is not enabled",
+      "recommendation": "Enable TLS/SSL for data in transit",
+      "timestamp": "2025-11-17T22:26:50.135657"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": false,
+      "severity": "medium",
+      "message": "Access control is not properly configured",
+      "recommendation": "Implement proper access control mechanisms",
+      "timestamp": "2025-11-17T22:26:50.135659"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": false,
+      "severity": "medium",
+      "message": "Audit logging is not enabled",
+      "recommendation": "Enable audit logging for security monitoring and compliance",
+      "timestamp": "2025-11-17T22:26:50.135662"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": false,
+      "severity": "medium",
+      "message": "ISO_27001 compliance is not configured",
+      "recommendation": "Configure ISO_27001 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.135666"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": false,
+      "severity": "medium",
+      "message": "SOC2_TYPE2 compliance is not configured",
+      "recommendation": "Configure SOC2_TYPE2 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.135668"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": false,
+      "severity": "medium",
+      "message": "GDPR compliance is not configured",
+      "recommendation": "Configure GDPR compliance settings",
+      "timestamp": "2025-11-17T22:26:50.135670"
+    },
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.authentication_required",
+      "recommendation": "Add security.authentication_required to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.136074"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.data_encryption",
+      "recommendation": "Add security.data_encryption to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.136078"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.access_control",
+      "recommendation": "Add security.access_control to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.136080"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.audit_logging",
+      "recommendation": "Add security.audit_logging to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.136082"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption at rest is not enabled",
+      "recommendation": "Enable data encryption at rest for security compliance",
+      "timestamp": "2025-11-17T22:26:50.136169"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption in transit is not enabled",
+      "recommendation": "Enable TLS/SSL for data in transit",
+      "timestamp": "2025-11-17T22:26:50.136171"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": false,
+      "severity": "medium",
+      "message": "Access control is not properly configured",
+      "recommendation": "Implement proper access control mechanisms",
+      "timestamp": "2025-11-17T22:26:50.136173"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": false,
+      "severity": "medium",
+      "message": "Audit logging is not enabled",
+      "recommendation": "Enable audit logging for security monitoring and compliance",
+      "timestamp": "2025-11-17T22:26:50.136175"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": false,
+      "severity": "medium",
+      "message": "ISO_27001 compliance is not configured",
+      "recommendation": "Configure ISO_27001 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.136178"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": false,
+      "severity": "medium",
+      "message": "SOC2_TYPE2 compliance is not configured",
+      "recommendation": "Configure SOC2_TYPE2 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.136180"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": false,
+      "severity": "medium",
+      "message": "GDPR compliance is not configured",
+      "recommendation": "Configure GDPR compliance settings",
+      "timestamp": "2025-11-17T22:26:50.136182"
+    },
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.authentication_required",
+      "recommendation": "Add security.authentication_required to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.136567"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.data_encryption",
+      "recommendation": "Add security.data_encryption to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.136571"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.access_control",
+      "recommendation": "Add security.access_control to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.136573"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.audit_logging",
+      "recommendation": "Add security.audit_logging to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.136576"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption at rest is not enabled",
+      "recommendation": "Enable data encryption at rest for security compliance",
+      "timestamp": "2025-11-17T22:26:50.136752"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption in transit is not enabled",
+      "recommendation": "Enable TLS/SSL for data in transit",
+      "timestamp": "2025-11-17T22:26:50.136754"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": false,
+      "severity": "medium",
+      "message": "Access control is not properly configured",
+      "recommendation": "Implement proper access control mechanisms",
+      "timestamp": "2025-11-17T22:26:50.136757"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": false,
+      "severity": "medium",
+      "message": "Audit logging is not enabled",
+      "recommendation": "Enable audit logging for security monitoring and compliance",
+      "timestamp": "2025-11-17T22:26:50.136759"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": false,
+      "severity": "medium",
+      "message": "ISO_27001 compliance is not configured",
+      "recommendation": "Configure ISO_27001 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.136769"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": false,
+      "severity": "medium",
+      "message": "SOC2_TYPE2 compliance is not configured",
+      "recommendation": "Configure SOC2_TYPE2 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.136771"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": false,
+      "severity": "medium",
+      "message": "GDPR compliance is not configured",
+      "recommendation": "Configure GDPR compliance settings",
+      "timestamp": "2025-11-17T22:26:50.136773"
+    },
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.authentication_required",
+      "recommendation": "Add security.authentication_required to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.137168"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.data_encryption",
+      "recommendation": "Add security.data_encryption to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.137175"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.access_control",
+      "recommendation": "Add security.access_control to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.137178"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.audit_logging",
+      "recommendation": "Add security.audit_logging to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.137180"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption at rest is not enabled",
+      "recommendation": "Enable data encryption at rest for security compliance",
+      "timestamp": "2025-11-17T22:26:50.137201"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption in transit is not enabled",
+      "recommendation": "Enable TLS/SSL for data in transit",
+      "timestamp": "2025-11-17T22:26:50.137203"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": false,
+      "severity": "medium",
+      "message": "Access control is not properly configured",
+      "recommendation": "Implement proper access control mechanisms",
+      "timestamp": "2025-11-17T22:26:50.137205"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": false,
+      "severity": "medium",
+      "message": "Audit logging is not enabled",
+      "recommendation": "Enable audit logging for security monitoring and compliance",
+      "timestamp": "2025-11-17T22:26:50.137207"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": false,
+      "severity": "medium",
+      "message": "ISO_27001 compliance is not configured",
+      "recommendation": "Configure ISO_27001 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.137211"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": false,
+      "severity": "medium",
+      "message": "SOC2_TYPE2 compliance is not configured",
+      "recommendation": "Configure SOC2_TYPE2 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.137213"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": false,
+      "severity": "medium",
+      "message": "GDPR compliance is not configured",
+      "recommendation": "Configure GDPR compliance settings",
+      "timestamp": "2025-11-17T22:26:50.137215"
+    },
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.authentication_required",
+      "recommendation": "Add security.authentication_required to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.137626"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.data_encryption",
+      "recommendation": "Add security.data_encryption to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.137630"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.access_control",
+      "recommendation": "Add security.access_control to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.137632"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.audit_logging",
+      "recommendation": "Add security.audit_logging to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.137634"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption at rest is not enabled",
+      "recommendation": "Enable data encryption at rest for security compliance",
+      "timestamp": "2025-11-17T22:26:50.138016"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption in transit is not enabled",
+      "recommendation": "Enable TLS/SSL for data in transit",
+      "timestamp": "2025-11-17T22:26:50.138019"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": false,
+      "severity": "medium",
+      "message": "Access control is not properly configured",
+      "recommendation": "Implement proper access control mechanisms",
+      "timestamp": "2025-11-17T22:26:50.138021"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": false,
+      "severity": "medium",
+      "message": "Audit logging is not enabled",
+      "recommendation": "Enable audit logging for security monitoring and compliance",
+      "timestamp": "2025-11-17T22:26:50.138023"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": false,
+      "severity": "medium",
+      "message": "ISO_27001 compliance is not configured",
+      "recommendation": "Configure ISO_27001 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.138026"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": false,
+      "severity": "medium",
+      "message": "SOC2_TYPE2 compliance is not configured",
+      "recommendation": "Configure SOC2_TYPE2 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.138032"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": false,
+      "severity": "medium",
+      "message": "GDPR compliance is not configured",
+      "recommendation": "Configure GDPR compliance settings",
+      "timestamp": "2025-11-17T22:26:50.138035"
+    },
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.authentication_required",
+      "recommendation": "Add security.authentication_required to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.138432"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.data_encryption",
+      "recommendation": "Add security.data_encryption to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.138436"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.access_control",
+      "recommendation": "Add security.access_control to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.138439"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.audit_logging",
+      "recommendation": "Add security.audit_logging to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.138441"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption at rest is not enabled",
+      "recommendation": "Enable data encryption at rest for security compliance",
+      "timestamp": "2025-11-17T22:26:50.138482"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption in transit is not enabled",
+      "recommendation": "Enable TLS/SSL for data in transit",
+      "timestamp": "2025-11-17T22:26:50.138484"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": false,
+      "severity": "medium",
+      "message": "Access control is not properly configured",
+      "recommendation": "Implement proper access control mechanisms",
+      "timestamp": "2025-11-17T22:26:50.138487"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": false,
+      "severity": "medium",
+      "message": "Audit logging is not enabled",
+      "recommendation": "Enable audit logging for security monitoring and compliance",
+      "timestamp": "2025-11-17T22:26:50.138489"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": false,
+      "severity": "medium",
+      "message": "ISO_27001 compliance is not configured",
+      "recommendation": "Configure ISO_27001 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.138492"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": false,
+      "severity": "medium",
+      "message": "SOC2_TYPE2 compliance is not configured",
+      "recommendation": "Configure SOC2_TYPE2 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.138494"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": false,
+      "severity": "medium",
+      "message": "GDPR compliance is not configured",
+      "recommendation": "Configure GDPR compliance settings",
+      "timestamp": "2025-11-17T22:26:50.138496"
+    },
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.authentication_required",
+      "recommendation": "Add security.authentication_required to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.138855"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.data_encryption",
+      "recommendation": "Add security.data_encryption to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.138858"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.access_control",
+      "recommendation": "Add security.access_control to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.138861"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.audit_logging",
+      "recommendation": "Add security.audit_logging to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.138863"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption at rest is not enabled",
+      "recommendation": "Enable data encryption at rest for security compliance",
+      "timestamp": "2025-11-17T22:26:50.138890"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption in transit is not enabled",
+      "recommendation": "Enable TLS/SSL for data in transit",
+      "timestamp": "2025-11-17T22:26:50.138892"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": false,
+      "severity": "medium",
+      "message": "Access control is not properly configured",
+      "recommendation": "Implement proper access control mechanisms",
+      "timestamp": "2025-11-17T22:26:50.138894"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": false,
+      "severity": "medium",
+      "message": "Audit logging is not enabled",
+      "recommendation": "Enable audit logging for security monitoring and compliance",
+      "timestamp": "2025-11-17T22:26:50.138896"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": false,
+      "severity": "medium",
+      "message": "ISO_27001 compliance is not configured",
+      "recommendation": "Configure ISO_27001 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.138899"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": false,
+      "severity": "medium",
+      "message": "SOC2_TYPE2 compliance is not configured",
+      "recommendation": "Configure SOC2_TYPE2 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.138901"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": false,
+      "severity": "medium",
+      "message": "GDPR compliance is not configured",
+      "recommendation": "Configure GDPR compliance settings",
+      "timestamp": "2025-11-17T22:26:50.138903"
+    },
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.authentication_required",
+      "recommendation": "Add security.authentication_required to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.139267"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.data_encryption",
+      "recommendation": "Add security.data_encryption to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.139271"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.access_control",
+      "recommendation": "Add security.access_control to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.139273"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.audit_logging",
+      "recommendation": "Add security.audit_logging to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.139275"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption at rest is not enabled",
+      "recommendation": "Enable data encryption at rest for security compliance",
+      "timestamp": "2025-11-17T22:26:50.139388"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption in transit is not enabled",
+      "recommendation": "Enable TLS/SSL for data in transit",
+      "timestamp": "2025-11-17T22:26:50.139391"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": false,
+      "severity": "medium",
+      "message": "Access control is not properly configured",
+      "recommendation": "Implement proper access control mechanisms",
+      "timestamp": "2025-11-17T22:26:50.139393"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": false,
+      "severity": "medium",
+      "message": "Audit logging is not enabled",
+      "recommendation": "Enable audit logging for security monitoring and compliance",
+      "timestamp": "2025-11-17T22:26:50.139395"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": false,
+      "severity": "medium",
+      "message": "ISO_27001 compliance is not configured",
+      "recommendation": "Configure ISO_27001 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.139398"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": false,
+      "severity": "medium",
+      "message": "SOC2_TYPE2 compliance is not configured",
+      "recommendation": "Configure SOC2_TYPE2 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.139400"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": false,
+      "severity": "medium",
+      "message": "GDPR compliance is not configured",
+      "recommendation": "Configure GDPR compliance settings",
+      "timestamp": "2025-11-17T22:26:50.139406"
+    },
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.authentication_required",
+      "recommendation": "Add security.authentication_required to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.139848"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.data_encryption",
+      "recommendation": "Add security.data_encryption to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.139852"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.access_control",
+      "recommendation": "Add security.access_control to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.139855"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.audit_logging",
+      "recommendation": "Add security.audit_logging to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.139857"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption at rest is not enabled",
+      "recommendation": "Enable data encryption at rest for security compliance",
+      "timestamp": "2025-11-17T22:26:50.139942"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption in transit is not enabled",
+      "recommendation": "Enable TLS/SSL for data in transit",
+      "timestamp": "2025-11-17T22:26:50.139944"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": false,
+      "severity": "medium",
+      "message": "Access control is not properly configured",
+      "recommendation": "Implement proper access control mechanisms",
+      "timestamp": "2025-11-17T22:26:50.139947"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": false,
+      "severity": "medium",
+      "message": "Audit logging is not enabled",
+      "recommendation": "Enable audit logging for security monitoring and compliance",
+      "timestamp": "2025-11-17T22:26:50.139949"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": false,
+      "severity": "medium",
+      "message": "ISO_27001 compliance is not configured",
+      "recommendation": "Configure ISO_27001 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.139952"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": false,
+      "severity": "medium",
+      "message": "SOC2_TYPE2 compliance is not configured",
+      "recommendation": "Configure SOC2_TYPE2 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.139954"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": false,
+      "severity": "medium",
+      "message": "GDPR compliance is not configured",
+      "recommendation": "Configure GDPR compliance settings",
+      "timestamp": "2025-11-17T22:26:50.139962"
+    },
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.authentication_required",
+      "recommendation": "Add security.authentication_required to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.140370"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.data_encryption",
+      "recommendation": "Add security.data_encryption to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.140374"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.access_control",
+      "recommendation": "Add security.access_control to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.140376"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.audit_logging",
+      "recommendation": "Add security.audit_logging to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.140379"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption at rest is not enabled",
+      "recommendation": "Enable data encryption at rest for security compliance",
+      "timestamp": "2025-11-17T22:26:50.140763"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption in transit is not enabled",
+      "recommendation": "Enable TLS/SSL for data in transit",
+      "timestamp": "2025-11-17T22:26:50.140766"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": false,
+      "severity": "medium",
+      "message": "Access control is not properly configured",
+      "recommendation": "Implement proper access control mechanisms",
+      "timestamp": "2025-11-17T22:26:50.140768"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": false,
+      "severity": "medium",
+      "message": "Audit logging is not enabled",
+      "recommendation": "Enable audit logging for security monitoring and compliance",
+      "timestamp": "2025-11-17T22:26:50.140770"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": false,
+      "severity": "medium",
+      "message": "ISO_27001 compliance is not configured",
+      "recommendation": "Configure ISO_27001 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.140773"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": false,
+      "severity": "medium",
+      "message": "SOC2_TYPE2 compliance is not configured",
+      "recommendation": "Configure SOC2_TYPE2 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.140775"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": false,
+      "severity": "medium",
+      "message": "GDPR compliance is not configured",
+      "recommendation": "Configure GDPR compliance settings",
+      "timestamp": "2025-11-17T22:26:50.140777"
+    },
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.authentication_required",
+      "recommendation": "Add security.authentication_required to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.141186"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.data_encryption",
+      "recommendation": "Add security.data_encryption to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.141190"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.access_control",
+      "recommendation": "Add security.access_control to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.141192"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.audit_logging",
+      "recommendation": "Add security.audit_logging to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.141195"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption at rest is not enabled",
+      "recommendation": "Enable data encryption at rest for security compliance",
+      "timestamp": "2025-11-17T22:26:50.141721"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption in transit is not enabled",
+      "recommendation": "Enable TLS/SSL for data in transit",
+      "timestamp": "2025-11-17T22:26:50.141724"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": false,
+      "severity": "medium",
+      "message": "Access control is not properly configured",
+      "recommendation": "Implement proper access control mechanisms",
+      "timestamp": "2025-11-17T22:26:50.141727"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": false,
+      "severity": "medium",
+      "message": "Audit logging is not enabled",
+      "recommendation": "Enable audit logging for security monitoring and compliance",
+      "timestamp": "2025-11-17T22:26:50.141729"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": false,
+      "severity": "medium",
+      "message": "ISO_27001 compliance is not configured",
+      "recommendation": "Configure ISO_27001 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.141732"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": false,
+      "severity": "medium",
+      "message": "SOC2_TYPE2 compliance is not configured",
+      "recommendation": "Configure SOC2_TYPE2 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.141734"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": false,
+      "severity": "medium",
+      "message": "GDPR compliance is not configured",
+      "recommendation": "Configure GDPR compliance settings",
+      "timestamp": "2025-11-17T22:26:50.141736"
+    },
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": true,
+      "severity": "info",
+      "message": "Security field present: security.authentication_required",
+      "recommendation": null,
+      "timestamp": "2025-11-17T22:26:50.142168"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": true,
+      "severity": "info",
+      "message": "Security field present: security.data_encryption",
+      "recommendation": null,
+      "timestamp": "2025-11-17T22:26:50.142174"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": true,
+      "severity": "info",
+      "message": "Security field present: security.access_control",
+      "recommendation": null,
+      "timestamp": "2025-11-17T22:26:50.142176"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": true,
+      "severity": "info",
+      "message": "Security field present: security.audit_logging",
+      "recommendation": null,
+      "timestamp": "2025-11-17T22:26:50.142179"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": true,
+      "severity": "info",
+      "message": "Data encryption at rest is enabled",
+      "recommendation": null,
+      "timestamp": "2025-11-17T22:26:50.142350"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": true,
+      "severity": "info",
+      "message": "Data encryption in transit is enabled",
+      "recommendation": null,
+      "timestamp": "2025-11-17T22:26:50.142353"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": true,
+      "severity": "info",
+      "message": "Access control is configured: read_only_for_agents",
+      "recommendation": null,
+      "timestamp": "2025-11-17T22:26:50.142355"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": true,
+      "severity": "info",
+      "message": "Audit logging is enabled",
+      "recommendation": null,
+      "timestamp": "2025-11-17T22:26:50.142357"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": true,
+      "severity": "info",
+      "message": "ISO_27001 compliance is configured",
+      "recommendation": null,
+      "timestamp": "2025-11-17T22:26:50.142361"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": true,
+      "severity": "info",
+      "message": "SOC2_TYPE2 compliance is configured",
+      "recommendation": null,
+      "timestamp": "2025-11-17T22:26:50.142363"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": true,
+      "severity": "info",
+      "message": "GDPR compliance is configured",
+      "recommendation": null,
+      "timestamp": "2025-11-17T22:26:50.142365"
+    },
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.authentication_required",
+      "recommendation": "Add security.authentication_required to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.142928"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.data_encryption",
+      "recommendation": "Add security.data_encryption to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.142936"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.access_control",
+      "recommendation": "Add security.access_control to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.142939"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.audit_logging",
+      "recommendation": "Add security.audit_logging to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.142941"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption at rest is not enabled",
+      "recommendation": "Enable data encryption at rest for security compliance",
+      "timestamp": "2025-11-17T22:26:50.143497"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption in transit is not enabled",
+      "recommendation": "Enable TLS/SSL for data in transit",
+      "timestamp": "2025-11-17T22:26:50.143499"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": false,
+      "severity": "medium",
+      "message": "Access control is not properly configured",
+      "recommendation": "Implement proper access control mechanisms",
+      "timestamp": "2025-11-17T22:26:50.143502"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": false,
+      "severity": "medium",
+      "message": "Audit logging is not enabled",
+      "recommendation": "Enable audit logging for security monitoring and compliance",
+      "timestamp": "2025-11-17T22:26:50.143504"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": false,
+      "severity": "medium",
+      "message": "ISO_27001 compliance is not configured",
+      "recommendation": "Configure ISO_27001 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.143507"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": false,
+      "severity": "medium",
+      "message": "SOC2_TYPE2 compliance is not configured",
+      "recommendation": "Configure SOC2_TYPE2 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.143509"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": false,
+      "severity": "medium",
+      "message": "GDPR compliance is not configured",
+      "recommendation": "Configure GDPR compliance settings",
+      "timestamp": "2025-11-17T22:26:50.143511"
+    },
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.authentication_required",
+      "recommendation": "Add security.authentication_required to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.143935"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.data_encryption",
+      "recommendation": "Add security.data_encryption to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.143939"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.access_control",
+      "recommendation": "Add security.access_control to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.143941"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.audit_logging",
+      "recommendation": "Add security.audit_logging to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.143943"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption at rest is not enabled",
+      "recommendation": "Enable data encryption at rest for security compliance",
+      "timestamp": "2025-11-17T22:26:50.144321"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption in transit is not enabled",
+      "recommendation": "Enable TLS/SSL for data in transit",
+      "timestamp": "2025-11-17T22:26:50.144323"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": false,
+      "severity": "medium",
+      "message": "Access control is not properly configured",
+      "recommendation": "Implement proper access control mechanisms",
+      "timestamp": "2025-11-17T22:26:50.144326"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": false,
+      "severity": "medium",
+      "message": "Audit logging is not enabled",
+      "recommendation": "Enable audit logging for security monitoring and compliance",
+      "timestamp": "2025-11-17T22:26:50.144328"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": false,
+      "severity": "medium",
+      "message": "ISO_27001 compliance is not configured",
+      "recommendation": "Configure ISO_27001 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.144331"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": false,
+      "severity": "medium",
+      "message": "SOC2_TYPE2 compliance is not configured",
+      "recommendation": "Configure SOC2_TYPE2 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.144334"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": false,
+      "severity": "medium",
+      "message": "GDPR compliance is not configured",
+      "recommendation": "Configure GDPR compliance settings",
+      "timestamp": "2025-11-17T22:26:50.144336"
+    },
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.authentication_required",
+      "recommendation": "Add security.authentication_required to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.144721"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.data_encryption",
+      "recommendation": "Add security.data_encryption to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.144725"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.access_control",
+      "recommendation": "Add security.access_control to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.144727"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.audit_logging",
+      "recommendation": "Add security.audit_logging to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.144729"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption at rest is not enabled",
+      "recommendation": "Enable data encryption at rest for security compliance",
+      "timestamp": "2025-11-17T22:26:50.144973"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption in transit is not enabled",
+      "recommendation": "Enable TLS/SSL for data in transit",
+      "timestamp": "2025-11-17T22:26:50.144975"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": false,
+      "severity": "medium",
+      "message": "Access control is not properly configured",
+      "recommendation": "Implement proper access control mechanisms",
+      "timestamp": "2025-11-17T22:26:50.144978"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": false,
+      "severity": "medium",
+      "message": "Audit logging is not enabled",
+      "recommendation": "Enable audit logging for security monitoring and compliance",
+      "timestamp": "2025-11-17T22:26:50.144979"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": false,
+      "severity": "medium",
+      "message": "ISO_27001 compliance is not configured",
+      "recommendation": "Configure ISO_27001 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.144983"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": false,
+      "severity": "medium",
+      "message": "SOC2_TYPE2 compliance is not configured",
+      "recommendation": "Configure SOC2_TYPE2 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.144989"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": false,
+      "severity": "medium",
+      "message": "GDPR compliance is not configured",
+      "recommendation": "Configure GDPR compliance settings",
+      "timestamp": "2025-11-17T22:26:50.144991"
+    },
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.authentication_required",
+      "recommendation": "Add security.authentication_required to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.145362"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.data_encryption",
+      "recommendation": "Add security.data_encryption to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.145365"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.access_control",
+      "recommendation": "Add security.access_control to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.145368"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.audit_logging",
+      "recommendation": "Add security.audit_logging to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.145370"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption at rest is not enabled",
+      "recommendation": "Enable data encryption at rest for security compliance",
+      "timestamp": "2025-11-17T22:26:50.145468"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption in transit is not enabled",
+      "recommendation": "Enable TLS/SSL for data in transit",
+      "timestamp": "2025-11-17T22:26:50.145470"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": false,
+      "severity": "medium",
+      "message": "Access control is not properly configured",
+      "recommendation": "Implement proper access control mechanisms",
+      "timestamp": "2025-11-17T22:26:50.145473"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": false,
+      "severity": "medium",
+      "message": "Audit logging is not enabled",
+      "recommendation": "Enable audit logging for security monitoring and compliance",
+      "timestamp": "2025-11-17T22:26:50.145475"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": false,
+      "severity": "medium",
+      "message": "ISO_27001 compliance is not configured",
+      "recommendation": "Configure ISO_27001 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.145478"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": false,
+      "severity": "medium",
+      "message": "SOC2_TYPE2 compliance is not configured",
+      "recommendation": "Configure SOC2_TYPE2 compliance settings",
+      "timestamp": "2025-11-17T22:26:50.145480"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": false,
+      "severity": "medium",
+      "message": "GDPR compliance is not configured",
+      "recommendation": "Configure GDPR compliance settings",
+      "timestamp": "2025-11-17T22:26:50.145485"
+    },
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.authentication_required",
+      "recommendation": "Add security.authentication_required to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.145906"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.data_encryption",
+      "recommendation": "Add security.data_encryption to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.145910"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.access_control",
+      "recommendation": "Add security.access_control to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.145912"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.audit_logging",
+      "recommendation": "Add security.audit_logging to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.145915"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption at rest is not enabled",
+      "recommendation": "Enable data encryption at rest for security compliance",
+      "timestamp": "2025-11-17T22:26:50.146063"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption in transit is not enabled",
+      "recommendation": "Enable TLS/SSL for data in transit",
+      "timestamp": "2025-11-17T22:26:50.146066"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": false,
+      "severity": "medium",
+      "message": "Access control is not properly configured",
+      "recommendation": "Implement proper access control mechanisms",
+      "timestamp": "2025-11-17T22:26:50.146068"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": false,
+      "severity": "medium",
+      "message": "Audit logging is not enabled",
+      "recommendation": "Enable audit logging for security monitoring and compliance",
+      "timestamp": "2025-11-17T22:26:50.146070"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": true,
+      "severity": "info",
+      "message": "ISO_27001 compliance is configured",
+      "recommendation": null,
+      "timestamp": "2025-11-17T22:26:50.146074"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": true,
+      "severity": "info",
+      "message": "SOC2_TYPE2 compliance is configured",
+      "recommendation": null,
+      "timestamp": "2025-11-17T22:26:50.146080"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": true,
+      "severity": "info",
+      "message": "GDPR compliance is configured",
+      "recommendation": null,
+      "timestamp": "2025-11-17T22:26:50.146082"
+    },
+    {
+      "check_name": "Required Security Field: security.authentication_required",
+      "passed": true,
+      "severity": "info",
+      "message": "Security field present: security.authentication_required",
+      "recommendation": null,
+      "timestamp": "2025-11-17T22:26:50.146488"
+    },
+    {
+      "check_name": "Required Security Field: security.data_encryption",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.data_encryption",
+      "recommendation": "Add security.data_encryption to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.146496"
+    },
+    {
+      "check_name": "Required Security Field: security.access_control",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.access_control",
+      "recommendation": "Add security.access_control to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.146499"
+    },
+    {
+      "check_name": "Required Security Field: security.audit_logging",
+      "passed": false,
+      "severity": "high",
+      "message": "Missing required security field: security.audit_logging",
+      "recommendation": "Add security.audit_logging to configuration with appropriate value",
+      "timestamp": "2025-11-17T22:26:50.146505"
+    },
+    {
+      "check_name": "Encryption at Rest",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption at rest is not enabled",
+      "recommendation": "Enable data encryption at rest for security compliance",
+      "timestamp": "2025-11-17T22:26:50.146755"
+    },
+    {
+      "check_name": "Encryption in Transit",
+      "passed": false,
+      "severity": "high",
+      "message": "Data encryption in transit is not enabled",
+      "recommendation": "Enable TLS/SSL for data in transit",
+      "timestamp": "2025-11-17T22:26:50.146757"
+    },
+    {
+      "check_name": "Access Control",
+      "passed": false,
+      "severity": "medium",
+      "message": "Access control is not properly configured",
+      "recommendation": "Implement proper access control mechanisms",
+      "timestamp": "2025-11-17T22:26:50.146760"
+    },
+    {
+      "check_name": "Audit Logging",
+      "passed": false,
+      "severity": "medium",
+      "message": "Audit logging is not enabled",
+      "recommendation": "Enable audit logging for security monitoring and compliance",
+      "timestamp": "2025-11-17T22:26:50.146762"
+    },
+    {
+      "check_name": "Compliance: ISO_27001",
+      "passed": true,
+      "severity": "info",
+      "message": "ISO_27001 compliance is configured",
+      "recommendation": null,
+      "timestamp": "2025-11-17T22:26:50.146765"
+    },
+    {
+      "check_name": "Compliance: SOC2_TYPE2",
+      "passed": true,
+      "severity": "info",
+      "message": "SOC2_TYPE2 compliance is configured",
+      "recommendation": null,
+      "timestamp": "2025-11-17T22:26:50.146768"
+    },
+    {
+      "check_name": "Compliance: GDPR",
+      "passed": true,
+      "severity": "info",
+      "message": "GDPR compliance is configured",
+      "recommendation": null,
+      "timestamp": "2025-11-17T22:26:50.146770"
+    }
+  ]
+}

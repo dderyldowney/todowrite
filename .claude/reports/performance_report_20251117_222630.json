@@ -1,0 +1,347 @@
+{
+  "timestamp": "2025-11-17T22:26:30.300215",
+  "summary": {
+    "total_metrics": 42,
+    "good_metrics": 3,
+    "warning_metrics": 1,
+    "critical_metrics": 38
+  },
+  "detailed_metrics": [
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 0,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.284033"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 0,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.284039"
+    },
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 0,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.284902"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 0,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.284906"
+    },
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 0,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.285597"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 0,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.285601"
+    },
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 0,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.286174"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 0,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.286177"
+    },
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 0,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.287210"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 0,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.287213"
+    },
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 0,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.288017"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 0,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.288020"
+    },
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 0,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.288946"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 0,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.288949"
+    },
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 0,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.289651"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 0,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.289654"
+    },
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 0,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.290301"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 0,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.290304"
+    },
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 0,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.290931"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 0,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.290935"
+    },
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 0,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.291495"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 0,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.291498"
+    },
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 0,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.292642"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 0,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.292645"
+    },
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 0,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.294031"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 0,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.294034"
+    },
+    {
+      "metric_name": "Cache Size",
+      "value": 200,
+      "unit": "MB",
+      "threshold": 100,
+      "status": "good",
+      "timestamp": "2025-11-17T22:26:30.294655"
+    },
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 0,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.294658"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 0,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.294660"
+    },
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 0,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.296041"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 0,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.296044"
+    },
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 0,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.297217"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 0,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.297220"
+    },
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 0,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.297894"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 0,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.297897"
+    },
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 0,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.298520"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 0,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.298523"
+    },
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 0,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.299108"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 0,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "critical",
+      "timestamp": "2025-11-17T22:26:30.299111"
+    },
+    {
+      "metric_name": "Timeout Configuration",
+      "value": 25000,
+      "unit": "ms",
+      "threshold": 30000,
+      "status": "warning",
+      "timestamp": "2025-11-17T22:26:30.299794"
+    },
+    {
+      "metric_name": "Parallel Execution",
+      "value": 3,
+      "unit": "tasks",
+      "threshold": 3,
+      "status": "good",
+      "timestamp": "2025-11-17T22:26:30.299802"
+    },
+    {
+      "metric_name": "Memory Limit",
+      "value": 512,
+      "unit": "MB",
+      "threshold": 512,
+      "status": "good",
+      "timestamp": "2025-11-17T22:26:30.299804"
+    }
+  ]
+}

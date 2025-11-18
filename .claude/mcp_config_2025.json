@@ -1,0 +1,179 @@
+{
+  "mcp_version": "2025.1",
+  "project_name": "todowrite",
+  "project_version": "0.4.1",
+  "configuration": {
+    "security": {
+      "max_response_time_ms": 30000,
+      "enable_request_validation": true,
+      "sanitize_outputs": true,
+      "rate_limiting": {
+        "enabled": true,
+        "requests_per_minute": 100,
+        "burst_allowance": 20
+      }
+    },
+    "performance": {
+      "cache_enabled": true,
+      "cache_ttl_minutes": 60,
+      "max_concurrent_requests": 5,
+      "compression_enabled": true,
+      "chunk_size": 8192,
+      "timeout_buffer_ms": 5000
+    },
+    "monitoring": {
+      "metrics_enabled": true,
+      "log_level": "info",
+      "detailed_tracing": false,
+      "performance_profiling": true,
+      "error_tracking": true
+    },
+    "reliability": {
+      "retry_attempts": 3,
+      "retry_delay_ms": 1000,
+      "circuit_breaker_enabled": true,
+      "health_check_interval_minutes": 5,
+      "graceful_degradation": true
+    }
+  },
+  "plugins": {
+    "superpowers": {
+      "enabled": true,
+      "version": "2.1.0",
+      "skills_directory": "skills",
+      "auto_discovery": true,
+      "cache_strategies": {
+        "lru_size": 100,
+        "ttl_minutes": 30
+      },
+      "skill_execution": {
+        "parallel_execution": true,
+        "timeout_ms": 25000,
+        "error_handling": "graceful",
+        "validation_enabled": true
+      }
+    },
+    "episodic_memory": {
+      "enabled": true,
+      "version": "1.3.0",
+      "storage": {
+        "backend": "sqlite",
+        "connection_string": "${EPISODIC_MEMORY_DB_PATH}",
+        "max_conversation_age_days": 365,
+        "compression": true,
+        "encryption_enabled": true
+      },
+      "search": {
+        "vector_embeddings": true,
+        "semantic_search": true,
+        "hybrid_search": true,
+        "ranking_algorithm": "bm25_hybrid",
+        "max_results": 100,
+        "pagination": {
+          "enabled": true,
+          "page_size": 25,
+          "max_pages": 10
+        }
+      },
+      "analytics": {
+        "conversation_analytics": true,
+        "performance_metrics": true,
+        "usage_patterns": true,
+        "retention_policy_days": 90
+      }
+    }
+  },
+  "workflows": {
+    "token_optimization": {
+      "hal_agent": {
+        "enabled": true,
+        "script_path": "dev_tools/agent_controls/hal_token_savvy_agent.py",
+        "timeout_ms": 10000,
+        "auto_preprocessing": true
+      },
+      "token_sage": {
+        "enabled": true,
+        "script_path": "dev_tools/token_optimization/unified_token_manager.py",
+        "optimization_strategies": [
+          "semantic_filtering",
+          "content_compression",
+          "intelligent_caching"
+        ]
+      }
+    },
+    "documentation": {
+      "auto_generation": true,
+      "templates": {
+        "api_docs": "openapi",
+        "readme": "markdown",
+        "technical_specifications": "structured"
+      },
+      "validation": {
+        "links_validation": true,
+        "code_examples": true,
+        "api_endpoint_testing": false
+      }
+    }
+  },
+  "integrations": {
+    "claude_code": {
+      "enabled": true,
+      "auto_sync": false,
+      "skill_discovery": true,
+      "agent_registry": true
+    },
+    "external_apis": {
+      "github": {
+        "enabled": true,
+        "api_version": "v4",
+        "rate_limits": {
+          "requests_per_hour": 5000
+        }
+      },
+      "openai": {
+        "enabled": true,
+        "api_version": "v2",
+        "model_preferences": [
+          "gpt-4o",
+          "gpt-4o-mini"
+        ]
+      }
+    }
+  },
+  "compliance": {
+    "industry_standards": {
+      "iso_27001": false,
+      "soc2_type2": false,
+      "gdpr": true,
+      "hipaa": false,
+      "pci_dss": false
+    },
+    "data_privacy": {
+      "encryption_at_rest": true,
+      "encryption_in_transit": true,
+      "anonymization_enabled": true,
+      "data_minimization": true,
+      "retention_policies": true
+    },
+    "audit_logging": {
+      "enabled": true,
+      "log_retention_days": 90,
+      "log_format": "json",
+      "correlation_ids": true
+    }
+  },
+  "development": {
+    "debug_mode": false,
+    "feature_flags": {
+      "experimental_mcp_features": false,
+      "enhanced_error_messages": true,
+      "beta_plugins": false
+    },
+    "testing": {
+      "mock_mode": false,
+      "integration_tests": true,
+      "performance_benchmarks": true,
+      "load_testing": false
+    }
+  }
+}
