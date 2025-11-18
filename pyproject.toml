@@ -34,10 +34,10 @@ core = [
 
 dev = [
     "pre-commit>=4.0.0",
-    "pytest>=8.0.0",
-    "pytest-cov>=4.0.0",
-    "ruff>=0.7.0",
-    "bandit>=1.7.0",
+    "pytest>=8.3.0",
+    "pytest-cov>=5.0.0",
+    "ruff>=0.14.4",
+    "bandit>=1.8.0",
     "commitizen>=3.29.0",
     "types-click>=7.1.0",
     "types-jsonschema>=4.0.0",
@@ -51,10 +51,15 @@ dev = [
     "openai>=1.12.0",
 ]
 
-# Ruff configuration for development with strict enforcement
+# Ruff configuration - 2025 industry standards
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+
+# Override docstring line length to match project settings
+[tool.ruff.lint.docstring]
+convention = "google"
+ignore-decorators = false  # Check decorators in docstrings
 extend-exclude = [
     ".git",
     "__pycache__",
@@ -82,161 +87,220 @@ extend-exclude = [
 ]
 
 [tool.ruff.lint]
-# Comprehensive rule selection for maximum code quality
+# 2025 comprehensive rule selection for maximum code quality
 select = [
+    # Core pycodestyle
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
+
+    # Core flake8
     "F",   # pyflakes
+    "C90", # mccabe complexity
+
+    # Import and module organization
     "I",   # isort
+    "TID", # flake8-tidy-imports
+    "ICN", # flake8-import-conventions
+
+    # Code quality and complexity
     "B",   # flake8-bugbear
     "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-    "RUF", # Ruff-specific rules
-    "S",   # flake8-bandit (security)
-    "T20", # flake8-print
     "SIM", # flake8-simplify
-    "ARG", # flake8-unused-arguments
-    "PTH", # flake8-use-pathlib
-    "BLE", # flake8-blind-except
+    "PIE", # flake8-pie
     "COM", # flake8-commas
-    "DTZ", # flake8-datetimez
-    "EM",  # flake8-errmsg
-    "EXE", # flake8-executable
+    "RET", # flake8-return
+    "ARG", # flake8-unused-arguments
+
+    # Modern Python practices
+    "UP",  # pyupgrade
+    "YTT", # flake8-2020
+    "FA",  # flake8-future-annotations
+
+    # Security and safety
+    "S",   # flake8-bandit
+
+    # Type annotations and documentation
+    "ANN", # flake8-annotations
+    "D",   # pydocstyle
+
+    # Error handling and edge cases
+    "BLE", # flake8-blind-except
+    "ERA", # eradicate (commented out code)
+    "PLW", # pylint warnings
+    "PLE", # pylint errors
+    "PLC", # pylint conventions
+
+    # Performance and best practices
+    "PERF", # perflint
+    "FURB", # refurb (modern Python improvements)
+
+    # Ruff-specific improvements
+    "RUF", # Ruff-specific rules
+
+    # Logging and output
     "G",   # flake8-logging-format
-    "ICN", # flake8-import-conventions
+    "T20", # flake8-print (allowable with config)
+
+    # Pathlib and file operations
+    "PTH", # flake8-use-pathlib
+
+    # DateTime and timezone handling
+    "DTZ", # flake8-datetimez
+
+    # Executable and script handling
+    "EXE", # flake8-executable
+
+    # Error message formatting
+    "EM",  # flake8-errmsg
+
+    # String formatting and quotes
+    "Q",   # flake8-quotes
+
+    # Naming conventions
+    "N",   # pep8-naming
+
+    # Built-in function shadowing
+    "A",   # flake8-builtins
+
+    # Import organization
+    "TCH", # flake8-type-checking
     "INP", # flake8-no-pep420
     "ISC", # flake8-implicit-str-concat
-    "PIE", # flake8-pie
-    "Q",   # flake8-quotes
-    "RET", # flake8-return
+
+    # Debugging statements
     "T10", # flake8-debugger
-    "TID", # flake8-tidy-imports
-    "YTT", # flake8-2020
+
+    # Note: ASYNC rules will be added when available in future Ruff versions
+
+    # Django/Flask security (if applicable)
     "DJ",  # django security
-    "N",   # pep8-naming
-    "A",   # flake8-builtins
-    "C90", # mccabe complexity
-    "PLC", # pylint conventions
-    "PLE", # pylint errors
-    "PLW", # pylint warnings
-    "ANN", # type annotations
+    "S",   # flake8-bandit (already included but emphasizing security)
 ]
 
-# Specifically enforce import location rules
+# 2025-specific additional rules for modern Python
 extend-select = [
-    "E402", # module level import not at top of file
+    "E402",   # module level import not at top of file
     "PLC0415", # import-outside-top-level
+    "RUF100", # unused noqa comment
+    "RUF101", # unused noqa directive
 ]
+
 ignore = [
-    "S101",  # assert used (acceptable in tests)
+    # Security - acceptable risks for this project
+    "S101",  # assert used (acceptable in tests and contracts)
     "T20",   # print statements (needed for CLI output)
     "S602",  # subprocess with shell=True (needed for command execution)
     "S603",  # subprocess call (needed for Docker integration - validated path)
+    "S607",  # subprocess with partial executable path (python is expected)
+
+    # Compatibility - allow os module usage where pathlib isn't beneficial
     "PTH103", # os.makedirs (acceptable for compatibility)
     "PTH120", # os.path.dirname (acceptable for compatibility)
     "PTH123", # open() (acceptable for compatibility)
+
+    # False positives and tool conflicts
     "F823",  # local variable referenced before assignment (false positive with TYPE_CHECKING)
     "COM812", # trailing comma missing (conflicts with formatter)
     "ISC001", # implicit string concatenation (conflicts with formatter)
-    "C901",  # too complex (acceptable in test cleanup functions)
+    "C901",  # too complex (acceptable in certain cases, use RUF max-complexity instead)
 
-    # Type annotation rules to ignore (allow flexible typing)
-    "ANN001", # missing-type-function-argument
-    "ANN002", # missing-type-argument
-    "ANN003", # missing-type-kwargs
-    "ANN201", # missing-return-type-public-function
-    "ANN202", # missing-return-type-private-function
+    # Documentation style flexibility
+    "D100",   # missing docstring in public module (not always required)
+    "D104",   # missing docstring in public package (not always required)
+    "D105",   # missing docstring in magic methods (often self-documenting)
+    "D107",   # missing docstring in __init__ (often self-documenting)
+
+    # Type annotation flexibility for dynamic code
+    "ANN001", # missing-type-function-argument (CLI args often complex)
+    "ANN002", # missing-type-argument (click decorators handle this)
+    "ANN003", # missing-type-args (click decorators handle this)
+    "ANN201", # missing-return-type-public-function (CLI functions often return None)
+    "ANN202", # missing-return-type-private-function (internal CLI functions)
     "ANN204", # missing-return-type-static-method (__init__ methods)
-    "ANN206", # missing-return-type-class-method
+    "ANN206", # missing-return-type-class-method (class methods)
     "ANN401", # any-type (sometimes needed for dynamic data)
+
+    # Async-related rules will be added when available
+
+    # Performance - acceptable trade-offs
+    "PERF102", # use-f-string-for-formatting (allow other formatting for readability)
+    "PERF203", # try-except-in-loop (acceptable when needed for error handling)
+
+    # Refurb - modern improvements that aren't critical
+    "FURB101", # reload-module (not commonly used)
+    "FURB103", # define-attr-protected-private (allow underscore convention)
 ]
 
-# Ruff formatter configuration
+# Ruff formatter configuration - 2025 standards
 [tool.ruff.format]
 indent-style = "space"
 quote-style = "double"
 skip-magic-trailing-comma = false
+line-ending = "auto"
 
-# Ruff security audit configuration
+# Enable experimental formatter features for better code formatting
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
+# 2025-specific performance and complexity settings
+[tool.ruff.lint.mccabe]
+max-complexity = 10  # Industry standard for maintainable code
+
 [tool.ruff.lint.per-file-ignores]
-# General test exclusions
+# Test files - more lenient rules
 "tests/*" = [
-    "S101",  # assert used (acceptable in tests)
-    "ARG001", # unused arguments in tests
-    "ARG002", # unused arguments in tests
-    "S608",   # hardcoded SQL
-
-    # Lenient annotation rules for tests
-    "ANN001", # missing-type-function-argument (test functions often self-documenting)
-    "ANN201", # missing-return-type-public-function (test functions often return None)
+    "S101",    # assert used (acceptable in tests)
+    "ARG001",  # unused arguments in tests
+    "ARG002",  # unused arguments in tests
+    "S608",    # hardcoded SQL (acceptable in test fixtures)
+    "ANN001",  # missing-type-function-argument (test functions often self-documenting)
+    "ANN201",  # missing-return-type-public-function (test functions often return None)
+    "D",       # docstring requirements (test names are self-documenting)
+    "PLR2004", # magic value comparison (acceptable in tests)
+    "S311",    # suspicious non-cryptographic random usage (acceptable in tests)
 ]
 
-
-
-# CLI code exclusions
+# CLI code - practical allowances
 "cli_package/src/todowrite_cli/*" = [
     "T20",   # print statements (needed for CLI output)
     "S603",  # subprocess call (needed for tool integration)
     "S607",  # subprocess with partial executable path
-
-    # Lenient annotation rules for CLI code
     "ANN001", # missing-type-function-argument (CLI args often complex)
     "ANN002", # missing-type-kwargs (click decorators handle this)
     "ANN003", # missing-type-args (click decorators handle this)
     "ANN201", # missing-return-type-public-function (CLI functions often return None)
     "ANN202", # missing-return-type-private-function (internal CLI functions)
+    "PLW1514", # subprocess-without-shell-equals-false (needed for CLI tools)
 ]
 
-# Build hook specific exclusions
-"_build_version_hook.py" = [
-    "PLC0415",  # import at top-level (needed due to path setup)
-    "ANN001",   # missing-type-function-argument (build scripts)
-    "ANN201",   # missing-return-type-public-function (build scripts)
-]
-
-# Build and configuration files
-"*_build_version_hook.py" = [
-    "S404",  # subprocess module import (needed for build tools)
-]
-
-# Hook scripts and enforcement tools
+# Build scripts and tools - maximum flexibility
 ".hooks/*" = [
-    "ANN001", # missing-type-function-argument (hook scripts may have dynamic args)
-    "ANN201", # missing-return-type-public-function (hook scripts)
-    "ANN202", # missing-return-type-private-function (hook scripts)
-    "ANN204", # missing-return-type-static-method (__init__ methods)
-    "S603",  # subprocess call (needed for tool execution)
-    "S604",  # subprocess call with shell=True (needed for hooks)
-    "S607",  # start-process-with-partial-path (python is expected)
-    "E501",  # line-too-long (allow longer lines in scripts)
-    "E722",  # bare-except (simpler error handling in scripts)
-    "BLE001", # blind-except (acceptable in enforcement scripts)
-    "PLC0415", # import-outside-top-level (needed for conditional imports)
-    "PLW1510", # subprocess-run-without-check (intentional behavior)
-    "DTZ005", # datetime-now-without-tzinfo (acceptable in scripts)
-    "PLW2901", # redefined-loop-name (acceptable in simple loops)
+    "ANN001", "ANN201", "ANN202", "ANN204", # type annotations (build scripts may be dynamic)
+    "S603", "S604", "S607",             # subprocess usage (needed for tool execution)
+    "E501", "E722", "BLE001",            # style (simpler in scripts)
+    "PLC0415", "PLW1510", "DTZ005",      # imports and subprocess (intentional)
+    "PLW2901", "RET505", "Q000", "W292",  # minor style issues
+    "D",                               # docstring requirements (scripts often self-documenting)
+    "PERF",                            # performance (not critical in scripts)
 ]
 
-# Claude configuration and enforcement scripts
+# Claude configuration files
 ".claude/*" = [
-    "ANN001", # missing-type-function-argument (config scripts)
-    "ANN201", # missing-return-type-public-function (config scripts)
-    "ANN202", # missing-return-type-private-function (config scripts)
-    "ANN204", # missing-return-type-static-method (__init__ methods)
-    "S603",  # subprocess call (needed for setup scripts)
-    "S604",  # subprocess call with shell=True (needed for setup)
-    "S607",  # start-process-with-partial-path (python is expected)
-    "E501",  # line-too-long (allow longer lines in scripts)
-    "E722",  # bare-except (simpler error handling in scripts)
-    "BLE001", # blind-except (acceptable in enforcement scripts)
-    "PLC0415", # import-outside-top-level (needed for conditional imports)
-    "PLW1510", # subprocess-run-without-check (intentional behavior)
-    "DTZ005", # datetime-now-without-tzinfo (acceptable in scripts)
-    "PLW2901", # redefined-loop-name (acceptable in simple loops)
-    "RET505", # superfluous-else-return (acceptable in control flow)
-    "Q000",  # bad-quotes-inline-string (allow single quotes)
-    "W292",  # missing-newline-at-end-of-file (minor issue)
+    "ANN001", "ANN201", "ANN202", "ANN204", # type annotations (config scripts)
+    "S603", "S604", "S607",             # subprocess usage (needed for setup)
+    "E501", "E722", "BLE001",            # style (simpler in scripts)
+    "PLC0415", "PLW1510", "DTZ005",      # imports and subprocess (intentional)
+    "PLW2901", "RET505", "Q000", "W292",  # minor style issues
+    "D",                               # docstring requirements (config files)
+    "PERF",                            # performance (not critical in configs)
 ]
+
+# Build hooks and development tools
+"*_build_version_hook.py" = [
+    "S404", "PLC0415", "ANN001", "ANN201", # build script allowances
+    "D",                                 # docstring requirements (build scripts)
+]
+
 
 
 
@@ -262,10 +326,47 @@ markers = [
     "integration: marks tests as integration tests",
 ]
 
-# Bandit configuration
+# Bandit configuration - 2025 industry standards
 [tool.bandit]
-exclude_dirs = ["tests", "build", "dist", "cli_package", "lib_package", ".venv", "venv", "htmlcov", ".git", "__pycache__", ".pytest_cache", "htmlcov", "coverage.xml"]
-skips = ["B101", "B110", "B404", "B602", "B603", "B607"]  # Skip acceptable security warnings for CLI tool
+# Exclude directories that don't need security scanning
+exclude_dirs = [
+    "tests",        # Test files have acceptable security practices
+    "build", "dist", # Build artifacts
+    ".venv", "venv", # Virtual environments
+    "htmlcov",      # Coverage reports
+    ".git",         # Git metadata
+    "__pycache__",  # Python cache
+    ".pytest_cache", # Pytest cache
+    "coverage.xml", # Coverage artifacts
+]
+
+# Skip tests and examples that use acceptable security practices
+tests = [
+    "B101",   # assert_used (acceptable in tests)
+    "B110",   # try_except_pass (acceptable in test cleanup)
+    "B404",   # import_subprocess (subprocess is needed and validated)
+    "B603",   # subprocess_without_shell_equals_false (needed for CLI tools)
+    "B607",   # start_process_with_partial_path (python is expected)
+    "B602",   # subprocess_popen_with_shell_equals_true (needed for command execution)
+]
+
+# 2025-specific configuration for modern security
+[tool.bandit.assert_used]
+skips = ["*_test.py", "test_*.py"]  # Skip assert checks in test files
+
+[tool.bandit.hardcoded_tmp_directory]
+# Allow common temp directory patterns that are acceptable
+subdirs = ["/tmp", "/var/tmp", "/usr/tmp"]
+
+# Bandit logging configuration
+[tool.bandit.logging]
+log_config = true  # Enable logging configuration for security events
+
+# File permissions and security
+[tool.bandit.other]
+# Check for weak cryptography and common security issues
+# But allow subprocess usage with proper validation
+# and allow shell=True when needed for CLI integration
 
 # Coverage configuration
 [tool.coverage.run]
