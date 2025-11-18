@@ -17,10 +17,11 @@ These mandates apply **at all times** with **zero exceptions**.
 - **FIRST**: Read `.claude/CLAUDE.md` (this file)
 - **SECOND**: Read `docs/ToDoWrite.md` to understand project structure
 - **THIRD**: Read `BUILD_SYSTEM.md` to understand build requirements
+- **FOURTH**: Run `.claude/auto_init_todowrite_models.py` - MANDATORY ToDoWrite Models initialization
 - **NO EXCEPTIONS**: This applies to ALL agents at ALL times
 - **NO BYPASSING**: Documentation loading is a prerequisite for ALL other work
-- **AFTER '/clear'**: Immediately re-load all three files IN ORDER before any other work
-- **AFTER '/quit'**: Re-load all three files IN ORDER in new session before any other work
+- **AFTER '/clear'**: Immediately re-load all three files IN ORDER, then run ToDoWrite Models initialization
+- **AFTER '/quit'**: Re-load all three files IN ORDER in new session, then run ToDoWrite Models initialization
 
 ## 3. Authoritative sources have final say - MUST be consulted
 
@@ -780,32 +781,105 @@ todowrite list --status in_progress
 todowrite list --status completed
 ```
 
-## 19. Standard Workflow
+## 19. RAILS ACTIVERECORD API ENFORCEMENT - EXCLUSIVE USE ONLY
+
+**MANDATORY REQUIREMENT**: ALL agents MUST use ONLY the Rails ActiveRecord API. The old Node-based API is completely removed and unsupported.
+
+### 19.1 Exclusive Rails ActiveRecord API Usage
+
+**ABSOLUTELY FORBIDDEN**:
+- Any use of old Node-based API functions (`create_node`, `get_node`, `update_node`, `delete_node`, etc.)
+- References to old Node class or Node-based patterns
+- String-based IDs with random suffixes (e.g., `GOAL-abc123`)
+- Old database schema or table structures
+- Any documentation or examples showing the old API
+
+**MANDATORY USAGE**:
+- **ONLY** Rails ActiveRecord models: `Goal`, `Concept`, `Context`, `Constraints`, `Requirements`, `AcceptanceCriteria`, `InterfaceContract`, `Phase`, `Step`, `Task`, `SubTask`, `Command`, `Label`
+- **ONLY** integer primary keys (1, 2, 3, 4, 5...)
+- **ONLY** SQLAlchemy sessions and queries
+- **ONLY** Rails-style associations and join tables
+- **ONLY** the new database schema with individual tables per layer
+
+### 19.2 Automatic Initialization Requirement
+
+**EVERY SESSION MUST**:
+1. Run `.claude/auto_init_rails_activerecord.py` automatically
+2. Verify all 28 required tables exist
+3. Confirm Rails ActiveRecord API functionality
+4. Create session tracking records
+5. Use ONLY Rails ActiveRecord patterns
+
+### 19.3 Database Schema Compliance
+
+**ENFORCED SCHEMA**:
+- Individual tables for each layer (`goals`, `tasks`, `concepts`, etc.)
+- Integer primary keys with auto-increment
+- Rails timestamp fields (`created_at`, `updated_at`)
+- Proper foreign key relationships
+- Rails-style join tables for many-to-many associations
+
+### 19.4 API Usage Examples
+
+**CORRECT (Rails ActiveRecord)**:
+```python
+from todowrite import Goal, Task, Label, create_engine, sessionmaker
+
+engine = create_engine("sqlite:///project.db")
+Session = sessionmaker(bind=engine)
+session = Session()
+
+goal = Goal(title="Build App", owner="team")
+session.add(goal)
+session.commit()
+
+tasks = session.query(Task).filter(Task.owner == "team").all()
+```
+
+**FORBIDDEN (Old Node API)**:
+```python
+# THIS IS FORBIDDEN - DO NOT USE
+from todowrite import create_node, get_node, Node  # REMOVED
+node = create_node(...)  # REMOVED
+Node.where(...)  # REMOVED
+```
+
+### 19.5 Enforcement and Compliance
+
+**ZERO TOLERANCE POLICY**:
+- **NO EXCEPTIONS**: This applies to ALL agents at ALL times
+- **NO ALTERNATIVES**: No other API or patterns are permitted
+- **IMMEDIATE VIOLATION**: Any use of old API is a violation of CLAUDE.md mandates
+- **AUTOMATIC CORRECTION**: Sessions must run initialization script immediately
+- **CONTINUOUS MONITORING**: All work must use Rails ActiveRecord patterns
+
+## 20. Standard Workflow
 
 1. **MANDATORY**: Load documentation files IN ORDER (CLAUDE.md → ToDoWrite.md → BUILD_SYSTEM.md)
    - **On session start**: Load before any other work
    - **After '/clear'**: Immediately reload before any other work
    - **After '/quit'**: Load in new session before any other work
-2. **MANDATORY**: Complete Startup Checklist including HAL Agent + Token Optimization verification
-3. **MANDATORY**: Initialize ToDoWrite session and create tasks for ALL planned work (Rule #18)
-4. **MANDATORY**: Use HAL Agent System for ALL tasks (Rule #12.1)
+2. **MANDATORY**: Run Rails ActiveRecord initialization (Rule #19.2)
+3. **MANDATORY**: Complete Startup Checklist including HAL Agent + Token Optimization verification
+4. **MANDATORY**: Initialize ToDoWrite session and create tasks for ALL planned work (Rule #18)
+5. **MANDATORY**: Use HAL Agent System for ALL tasks (Rule #12.1)
    ```bash
    python dev_tools/agent_controls/hal_token_savvy_agent.py --provider anthropic --goal "YOUR TASK"
    ```
-5. **MANDATORY**: Use Token Optimization System for ALL AI analysis (Rule #12.2)
+6. **MANDATORY**: Use Token Optimization System for ALL AI analysis (Rule #12.2)
    ```bash
    python dev_tools/token_optimization/always_token_sage.py "YOUR ANALYSIS"
    ```
-6. Clarify request & verify understanding from loaded docs
-7. Create ToDoWrite tasks for ALL planned work items
-8. Search using HAL Agent preprocessing + local CLI tools only
-9. Red test (using real implementations only)
-10. Green minimal code with full typing
-11. Refactor
-12. Update ToDoWrite task status to completed
-13. Commit (never using --no-verify without permission)
+7. Clarify request & verify understanding from loaded docs
+8. Create ToDoWrite tasks for ALL planned work items
+9. Search using HAL Agent preprocessing + local CLI tools only
+10. Red test (using real implementations only)
+11. Green minimal code with full typing
+12. Refactor
+13. Update ToDoWrite task status to completed
+14. Commit (never using --no-verify without permission)
 
-**FORBIDDEN**: Any work without ToDoWrite tracking, HAL Agent preprocessing, and Token Optimization usage
+**FORBIDDEN**: Any work without Rails ActiveRecord initialization, ToDoWrite tracking, HAL Agent preprocessing, and Token Optimization usage
 
 ## Emergency Documentation Verification
 

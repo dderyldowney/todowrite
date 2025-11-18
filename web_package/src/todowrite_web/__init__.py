@@ -37,6 +37,8 @@ from .api.backend import (
     WebSocketMessageType,
     WorkType,
     build_hierarchy,
+    build_node_hierarchy,
+    calculate_node_depth,
     calculate_node_progress,
     # Progress utilities
     calculate_progress,
@@ -58,8 +60,6 @@ from .api.backend import (
     get_layer_prefix,
     get_leaf_nodes,
     get_next_status,
-    get_node_depth,
-    get_node_hierarchy,
     # Hierarchy utilities
     get_root_nodes,
     # Status utilities
@@ -104,8 +104,8 @@ __all__ = [
     "get_all_ancestors",
     "get_all_descendants",
     "get_leaf_nodes",
-    "get_node_depth",
-    "get_node_hierarchy",
+    "calculate_node_depth",
+    "build_node_hierarchy",
     "get_root_nodes",
     # Import utilities
     "import_nodes_from_json",

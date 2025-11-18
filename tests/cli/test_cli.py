@@ -3,16 +3,18 @@ from __future__ import annotations
 import os
 import re
 import shutil
+import sys
 import unittest
 from pathlib import Path
 
 from click.testing import CliRunner
 from sqlalchemy import delete
-from todowrite import ToDoWrite
-from todowrite.database.models import Artifact, node_labels
-from todowrite.database.models import Command as DBCommand
-from todowrite.database.models import Link as DBLink
-from todowrite.database.models import Node as DBNode
+
+# Add lib_package to path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "lib_package" / "src"))
+
+import todowrite as ToDoWrite
 from todowrite_cli.main import cli
 
 
@@ -58,7 +60,7 @@ class TestCli(unittest.TestCase):
     def setUpClass(cls) -> None:
         """Initialize the application with SQLite for testing."""
         # Use SQLite for testing to avoid PostgreSQL dependency
-        db_url = "sqlite:///test_cli.db"
+        db_url = "sqlite:///tests/todowrite_testing.db"
         cls.app = ToDoWrite(
             db_url,
             auto_import=False,
@@ -75,7 +77,7 @@ class TestCli(unittest.TestCase):
             ".todowrite.db",
             "todowrite.db",
             "todos.db",
-            "todowrite/todos.db",
+            "ToDoWrite/todos.db",
         ]
         _safe_remove_files(test_files)
 
@@ -94,7 +96,7 @@ class TestCli(unittest.TestCase):
     def setUp(self) -> None:
         self.runner = CliRunner()
         # The CLI will use the environment variable for the database URL
-        os.environ["TODOWRITE_DATABASE_URL"] = "sqlite:///test_cli.db"
+        os.environ["TODOWRITE_DATABASE_URL"] = "sqlite:///tests/todowrite_testing.db"
         self.app.init_database()
 
     def tearDown(self) -> None:

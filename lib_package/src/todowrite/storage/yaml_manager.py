@@ -25,7 +25,6 @@ from ..core.constants import (
 )
 
 if TYPE_CHECKING:
-    from ..app import ToDoWrite
     from ..types import Node
 
 
@@ -33,14 +32,12 @@ class YAMLManager:
     """Manages YAML import/export operations for ToDoWrite."""
 
     def __init__(
-        self: YAMLManager, todowrite_app: ToDoWrite | None = None
+        self: YAMLManager, ToDoWrite_app: ToDoWrite | None = None
     ) -> None:
         """Initialize YAML Manager."""
-        if todowrite_app is None:
+        if ToDoWrite_app is None:
             # Lazy import to avoid circular dependency
             import os
-
-            from ..core import ToDoWrite
 
             # Use environment variable or default to SQLite
             db_url = os.environ.get(
@@ -48,7 +45,7 @@ class YAMLManager:
             )
             self.app = ToDoWrite(db_url)
         else:
-            self.app = todowrite_app
+            self.app = ToDoWrite_app
         self.yaml_base_path = Path(DEFAULT_BASE_PATH)
         self.plans_path = Path(DEFAULT_PLANS_PATH)
         self.commands_path = Path(DEFAULT_COMMANDS_PATH)
@@ -205,7 +202,7 @@ class YAMLManager:
                 try:
                     if force and node_id and node_id in existing_ids:
                         # Update existing node
-                        updated_node = self.app.update_node(
+                        updated_node = self.app.create_node(
                             node_id, yaml_data_dict
                         )
                         if updated_node:

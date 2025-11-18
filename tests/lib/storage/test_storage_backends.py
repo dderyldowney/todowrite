@@ -6,18 +6,15 @@ from pathlib import Path
 import pytest
 
 from lib_package.src.todowrite.storage import (
-    StorageBackend,
+    NodeNotFoundError,
     PostgreSQLBackend,
     SQLiteBackend,
+    StorageConnectionError,
     create_storage_backend,
     detect_storage_backend_type,
-    validate_database_url,
     get_default_database_url,
-    NodeNotFoundError,
-    NodeCreationError,
-    StorageConnectionError,
+    validate_database_url,
 )
-from lib_package.src.todowrite.database.models import Node
 
 
 class TestStorageBackendFactory:
@@ -25,12 +22,12 @@ class TestStorageBackendFactory:
 
     def test_detect_storage_backend_type_postgresql(self):
         """Test PostgreSQL URL detection."""
-        url = "postgresql://user:pass@localhost:5432/todowrite"
+        url = "postgresql://user:pass@localhost:5432/ToDoWrite"
         assert detect_storage_backend_type(url) == "postgresql"
 
     def test_detect_storage_backend_type_sqlite_url(self):
         """Test SQLite URL detection."""
-        url = "sqlite:///path/to/database.db"
+        url = "sqlite:///tests/todowrite_testing.db"
         assert detect_storage_backend_type(url) == "sqlite"
 
     def test_detect_storage_backend_type_sqlite_path(self):
@@ -51,8 +48,8 @@ class TestStorageBackendFactory:
     def test_validate_database_url_valid_postgresql(self):
         """Test validation of valid PostgreSQL URLs."""
         valid_urls = [
-            "postgresql://user:pass@localhost:5432/todowrite",
-            "postgresql://localhost/todowrite",
+            "postgresql://user:pass@localhost:5432/ToDoWrite",
+            "postgresql://localhost/ToDoWrite",
             "postgresql://user@host:5432/db",
         ]
         for url in valid_urls:
@@ -95,7 +92,7 @@ class TestSQLiteBackend:
     @pytest.fixture
     def sqlite_backend(self):
         """Create a temporary SQLite backend for testing."""
-        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as temp_file:
             temp_path = temp_file.name
 
         backend = SQLiteBackend(temp_path)
@@ -287,7 +284,9 @@ class TestSQLiteBackend:
         assert result.child_id == "TSK-CHILD-001"
 
         # Create duplicate relationship
-        result2 = sqlite_backend.create_parent_child_relationship("GOAL-PARENT-001", "TSK-CHILD-001")
+        result2 = sqlite_backend.create_parent_child_relationship(
+            "GOAL-PARENT-001", "TSK-CHILD-001"
+        )
         assert not result2.was_newly_linked
 
     def test_get_parents_and_children(self, sqlite_backend):
@@ -346,7 +345,7 @@ class TestCreateStorageBackend:
 
     def test_create_sqlite_backend_from_url(self):
         """Test creating SQLite backend from URL."""
-        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as temp_file:
             temp_path = temp_file.name
 
         try:
@@ -358,7 +357,7 @@ class TestCreateStorageBackend:
 
     def test_create_sqlite_backend_from_path(self):
         """Test creating SQLite backend from file path."""
-        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as temp_file:
             temp_path = temp_file.name
 
         try:

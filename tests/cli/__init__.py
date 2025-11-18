@@ -1,1 +1,1 @@
-"""Tests for the todowrite CLI functionality."""
+"""Tests for the ToDoWrite CLI functionality."""

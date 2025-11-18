@@ -1,7 +1,7 @@
-ActiveRecord API Guide
-======================
+API Guide
+=========
 
-ToDoWrite provides Rails-inspired ActiveRecord patterns for intuitive database operations. This guide covers the recommended ActiveRecord-style API for modern Python development.
+ToDoWrite provides intuitive database operations with proper associations and relationships. **This is the ONLY supported API** - the old Node-based API has been completely removed.
 
 .. contents::
    :local:
@@ -10,348 +10,603 @@ ToDoWrite provides Rails-inspired ActiveRecord patterns for intuitive database o
 Getting Started
 ---------------
 
-### Session Configuration
+### Database Session Configuration
 
-**Required** for all ActiveRecord methods:
-
-.. code-block:: python
-
-   from todowrite import ToDoWrite, Node
-
-   # Initialize application
-   app = ToDoWrite("sqlite:///project.db")
-   app.init_database()
-
-   # Configure Node class with database session
-   Node.configure_session(app.get_session())
-
-   print("✅ ActiveRecord API ready!")
-
-Factory Methods
----------------
-
-### Creating New Records
+**Required** for all ActiveRecord operations:
 
 .. code-block:: python
 
-   # Create new instance (not saved)
-   goal = Node.new(
-       layer="Goal",
+   from todowrite import Goal, Task, Label, create_engine, sessionmaker
+
+   # Development database (for all development work)
+   engine = create_engine("sqlite:////$HOME/dbs/todowrite_development.db")
+   Session = sessionmaker(bind=engine)
+   session = Session()
+
+   print("✅ Rails ActiveRecord API ready!")
+
+**Database Naming Conventions:**
+
+- **Production**: ``$HOME/dbs/todowrite_production.db`` (Production deployments)
+- **Development**: ``$HOME/dbs/todowrite_development.db`` (All development work)
+- **Testing**: ``tests/todowrite_testing.db`` (Test suite only)
+- **Sessions**: ``$HOME/dbs/todowrite_sessions.db`` (Session tracking)
+
+### Supported Models
+
+ToDoWrite provides models for each of the 12 hierarchical layers:
+
+.. code-block:: python
+
+   from todowrite import (
+       Goal, Concept, Context, Constraints, Requirements,
+       AcceptanceCriteria, InterfaceContract, Phase, Step,
+       Task, SubTask, Command, Label,
+       create_engine, sessionmaker
+   )
+
+   # All models follow standard patterns
+   # Integer primary keys (1, 2, 3, 4, 5...)
+   # Timestamp fields (created_at, updated_at)
+   # Proper associations and foreign keys
+
+Creating Records
+----------------
+
+### Basic Record Creation
+
+.. code-block:: python
+
+   # Create a goal
+   goal = Goal(
        title="Launch Product",
        description="Successfully launch v1.0",
        owner="product-team",
        severity="high"
    )
+   session.add(goal)
+   session.commit()
 
-   # Save to database
-   goal = goal.save()
+   print(f"Created goal with ID: {goal.id}")  # Integer: 1, 2, 3...
 
-   # Create and save in one step
-   goal = Node.new(
-       layer="Goal",
-       title="Launch Product",
-       owner="product-team"
-   ).save()
+   # Create a task
+   task = Task(
+       title="Build authentication system",
+       description="Implement user login and registration",
+       owner="backend-team",
+       severity="medium"
+   )
+   session.add(task)
+   session.commit()
 
-### Layer-Specific Factory Methods
+   print(f"Created task with ID: {task.id}")  # Integer: 1, 2, 3...
 
-.. code-block:: python
-
-   # Create specific layer types
-   goal = Node.create_goal("Launch Product", "product-team",
-                          description="Successfully launch v1.0")
-   phase = Node.create_phase("Development", "GOAL-001",
-                           description="Build the product")
-   task = Node.create_task("Implement API", "PH-001", owner="backend-team")
-   command = Node.create_command("Run Tests", "TSK-001", command="pytest")
-
-Finder Methods
---------------
-
-### Basic Finders
+### Create with Labels
 
 .. code-block:: python
 
-   # Find by ID (like Rails .find())
-   goal = Node.find("GOAL-001")  # Returns Node or None
+   # Create labels
+   backend_label = Label(name="backend")
+   auth_label = Label(name="authentication")
+   session.add_all([backend_label, auth_label])
+   session.commit()
+
+   # Create task with labels
+   auth_task = Task(
+       title="Implement OAuth2",
+       description="Add OAuth2 authentication",
+       owner="backend-team",
+       severity="high"
+   )
+   session.add(auth_task)
+   session.commit()
+
+   # Associate labels (Rails-style)
+   auth_task.labels.append(backend_label)
+   auth_task.labels.append(auth_label)
+   session.commit()
+
+Querying Records
+----------------
+
+### Basic Queries
+
+.. code-block:: python
+
+   # Get all goals (like Rails .all())
+   all_goals = session.query(Goal).all()
+
+   # Find by primary key (like Rails .find())
+   goal = session.query(Goal).filter(Goal.id == 1).first()
 
    # Find by attributes (like Rails .find_by())
-   task = Node.find_by(title="Implement API")  # Returns Node or None
-   tasks = Node.find_by(owner="backend-team")  # Returns list[Node]
+   task = session.query(Task).filter(Task.title == "Build authentication").first()
+   backend_tasks = session.query(Task).filter(Task.owner == "backend-team").all()
 
-   # Get all records (like Rails .all())
-   all_goals = Node.all()
-   all_tasks = Node.where(layer="Task")
-
-### Query Methods
+### Filtered Queries
 
 .. code-block:: python
 
    # Where clauses (like Rails .where())
-   high_priority = Node.where(severity="high")
-   in_progress = Node.where(status="in_progress")
-   backend_tasks = Node.where(owner="backend-team", layer="Task")
+   high_priority = session.query(Goal).filter(Goal.severity == "high").all()
+   in_progress = session.query(Task).filter(Task.status == "in_progress").all()
 
-   # Chain queries (like Rails)
-   backend_high_priority = Node.where(owner="backend-team").where(severity="high")
+   # Multiple conditions
+   backend_high_priority = session.query(Task).filter(
+       Task.owner == "backend-team",
+       Task.severity == "high"
+   ).all()
 
-Instance Methods
+   # Complex queries
+   critical_in_progress = session.query(Task).filter(
+       Task.severity == "critical",
+       Task.status == "in_progress"
+   ).all()
+
+### Ordering and Limiting
+
+.. code-block:: python
+
+   # Order by creation date
+   recent_goals = session.query(Goal).order_by(Goal.created_at.desc()).all()
+
+   # Limit results
+   top_5_tasks = session.query(Task).order_by(Task.severity).limit(5).all()
+
+Updating Records
 ----------------
 
-### Persistence Operations
+### Simple Updates
 
 .. code-block:: python
 
-   # Find existing node
-   task = Node.find("TSK-001")
+   # Find existing record
+   task = session.query(Task).filter(Task.id == 1).first()
 
-   # Update and save
-   task.update(title="Updated Task Title", progress=75)
-   task.save()  # Explicit save after update()
+   # Update attributes
+   task.title = "Updated Task Title"
+   task.progress = 75
+   task.status = "in_progress"
 
-   # Reload from database
-   task.reload()
+   # Save changes
+   session.commit()
 
-   # Delete record
-   task.destroy()
-
-### Business Logic Methods
+### Batch Updates
 
 .. code-block:: python
 
-   # Workflow state management
-   task = Node.find("TSK-001")
+   # Update multiple records
+   session.query(Task).filter(Task.owner == "backend-team").update(
+       {"status": "in_progress"},
+       synchronize_session=False
+   )
+   session.commit()
 
-   # Start work
-   task.start().save()  # Sets status to "in_progress"
+Deleting Records
+----------------
 
-   # Mark complete
-   task.complete().save()  # Sets status to "completed", progress to 100
+### Single Record Deletion
 
-   # Block work
-   task.block().save()  # Sets status to "blocked"
+.. code-block:: python
 
-   # Cancel work
-   task.cancel().save()  # Sets status to "cancelled"
+   # Find and delete
+   task = session.query(Task).filter(Task.id == 1).first()
+   if task:
+       session.delete(task)
+       session.commit()
 
-   # Update progress manually
-   task.update_progress(50)  # Sets progress field
+### Batch Deletion
 
-Collection Methods (Rails has_many style)
-----------------------------------------
+.. code-block:: python
+
+   # Delete multiple records
+   session.query(Task).filter(Task.status == "completed").delete(
+       synchronize_session=False
+   )
+   session.commit()
+
+Associations and Relationships
+-------------------------------
+
+### Many-to-Many Relationships
+
+.. code-block:: python
+
+   # Create labels
+   database_label = Label(name="database")
+   api_label = Label(name="api")
+   session.add_all([database_label, api_label])
+   session.commit()
+
+   # Create task
+   api_task = Task(
+       title="Build REST API",
+       description="Create RESTful endpoints",
+       owner="backend-team"
+   )
+   session.add(api_task)
+   session.commit()
+
+   # Associate labels (Rails-style)
+   api_task.labels.append(database_label)
+   api_task.labels.append(api_label)
+   session.commit()
+
+   # Access associated labels
+   print(f"Task labels: {[label.name for label in api_task.labels]}")
+
+   # Access tasks with specific label
+   api_tasks = session.query(Task).join(Task.labels).filter(Label.name == "api").all()
+   print(f"API tasks: {[task.title for task in api_tasks]}")
 
 ### Hierarchical Relationships
 
 .. code-block:: python
 
-   # Get a goal
-   goal = Node.find("GOAL-001")
+   # Create goal
+   project_goal = Goal(
+       title="Launch Project",
+       description="Complete the project launch",
+       owner="project-manager"
+   )
+   session.add(project_goal)
+   session.commit()
 
-   # Access related collections (like Rails has_many)
-   phases = goal.phases()          # Get Phase collection
-   requirements = goal.requirements()  # Get Requirement collection
-   tasks = goal.tasks()           # Get Task collection
-   commands = goal.commands()     # Get Command collection
+   # Create phase
+   dev_phase = Phase(
+       title="Development",
+       description="Build the application",
+       owner="tech-lead"
+   )
+   session.add(dev_phase)
+   session.commit()
 
-### Collection Operations
+   # Associate phase with goal
+   project_goal.phases.append(dev_phase)
+   session.commit()
+
+   # Create task under phase
+   backend_task = Task(
+       title="Build backend",
+       description="Implement server-side logic",
+       owner="backend-team"
+   )
+   session.add(backend_task)
+   session.commit()
+
+   # Associate task with phase
+   dev_phase.tasks.append(backend_task)
+   session.commit()
+
+Business Logic Methods
+-----------------------
+
+### Status Management
 
 .. code-block:: python
 
-   # Collection methods (like Rails collections)
-   phases = goal.phases()
+   # Find task
+   task = session.query(Task).filter(Task.id == 1).first()
 
-   # Get all items
-   all_phases = phases.all()
+   # Start work
+   task.status = "in_progress"
+   task.started_date = datetime.now().isoformat()
+   session.commit()
 
-   # Get count
-   count = phases.size()
+   # Update progress
+   task.progress = 50
+   session.commit()
 
-   # Check existence
-   has_phases = phases.exists()
-   is_empty = phases.empty()
+   # Complete work
+   task.status = "completed"
+   task.progress = 100
+   task.completion_date = datetime.now().isoformat()
+   session.commit()
 
-   # Build new (not saved)
-   new_phase = phases.build(
-       title="Development Phase",
-       description="Build the product"
-   )
+   # Block work
+   task.status = "blocked"
+   session.commit()
 
-   # Create and save
-   created_phase = phases.create(
-       title="Development Phase",
-       description="Build the product"
-   )
+### Progress Tracking
 
-   # Query within collection
-   planned_phases = phases.where(status="planned")
+.. code-block:: python
+
+   # Get progress statistics
+   total_tasks = session.query(Task).count()
+   completed_tasks = session.query(Task).filter(Task.status == "completed").count()
+   in_progress_tasks = session.query(Task).filter(Task.status == "in_progress").count()
+
+   completion_rate = (completed_tasks / total_tasks) * 100 if total_tasks > 0 else 0
+
+   print(f"Total tasks: {total_tasks}")
+   print(f"Completed: {completed_tasks} ({completion_rate:.1f}%)")
+   print(f"In Progress: {in_progress_tasks}")
 
 Advanced Patterns
 -----------------
-
-### Method Chaining
-
-.. code-block:: python
-
-   # Chain multiple operations
-   completed_task = Node.new(
-       layer="Task",
-       title="Quick Task",
-       owner="dev"
-   ).save().complete().save()
-
-   # Chain queries
-   backend_tasks = Node.where(layer="Task").where(owner="backend-team")
-   high_priority_backend = backend_tasks.where(severity="high")
 
 ### Complex Queries
 
 .. code-block:: python
 
-   # Find with relationships
-   goal_with_tasks = Node.find_with_children("GOAL-001", include_tasks=True)
+   # Tasks with specific labels
+   labeled_tasks = session.query(Task).join(Task.labels).filter(
+       Label.name.in_(["backend", "api"])
+   ).distinct().all()
 
-   # Complex filtering
-   critical_tasks = Node.where(
-       layer="Task",
-       severity="critical",
-       status="in_progress"
-   )
+   # Goals with progress
+   goals_with_progress = session.query(Goal).filter(
+       Goal.progress > 0
+   ).all()
 
-   # Business logic queries
-   blocked_high_priority = Node.where(
-       status="blocked",
-       severity__in=["high", "critical"]
-   )
+   # High priority uncompleted tasks
+   urgent_tasks = session.query(Task).filter(
+       Task.severity.in_(["high", "critical"]),
+       Task.status != "completed"
+   ).order_by(Task.severity.desc()).all()
+
+### Aggregation and Analytics
+
+.. code-block:: python
+
+   from sqlalchemy import func, and_
+
+   # Task count by owner
+   task_counts = session.query(
+       Task.owner,
+       func.count(Task.id).label('task_count')
+   ).group_by(Task.owner).all()
+
+   # Progress by severity
+   progress_by_severity = session.query(
+       Task.severity,
+       func.avg(Task.progress).label('avg_progress')
+   ).group_by(Task.severity).all()
+
+   # Goals with most tasks
+   goals_with_task_counts = session.query(
+       Goal,
+       func.count(Task.id).label('task_count')
+   ).join(Goal.tasks).group_by(Goal.id).order_by(
+       func.count(Task.id).desc()
+   ).all()
+
+### Transaction Management
+
+.. code-block:: python
+
+   from sqlalchemy.orm import sessionmaker
+
+   # Create session with transaction support
+   Session = sessionmaker(bind=engine)
+   session = Session()
+
+   try:
+       # Create multiple related records
+       goal = Goal(title="Complex Project", owner="team")
+       session.add(goal)
+       session.flush()  # Get the ID without committing
+
+       phase = Phase(title="Planning", owner="team")
+       session.add(phase)
+       session.flush()
+
+       # Associate
+       goal.phases.append(phase)
+       session.commit()
+
+   except Exception as e:
+       # Rollback on error
+       session.rollback()
+       print(f"Transaction failed: {e}")
+   finally:
+       session.close()
 
 Error Handling
 --------------
 
-### ActiveRecord-Style Errors
+### Handling Missing Records
 
 .. code-block:: python
 
    # Find operations return None (like Rails)
-   node = Node.find("NONEXISTENT")
-   if node is None:
-       print("Node not found")
+   task = session.query(Task).filter(Task.id == 99999).first()
+   if task is None:
+       print("Task not found")
 
-   # Session configuration errors
-   try:
-       Node.find("GOAL-001")  # Without configure_session()
-   except RuntimeError as e:
-       print(f"Session error: {e}")
+   # Safe operations
+   def get_task_safely(task_id):
+       task = session.query(Task).filter(Task.id == task_id).first()
+       if task:
+           return task
+       else:
+           print(f"Task {task_id} not found")
+           return None
 
-   # Validation errors (if implemented)
+### Database Errors
+
+.. code-block:: python
+
+   from sqlalchemy.exc import IntegrityError, OperationalError
+
    try:
-       node = Node.new(layer="InvalidLayer").save()
-   except Exception as e:
-       print(f"Validation error: {e}")
+       # Try to create duplicate label (should fail)
+       duplicate_label = Label(name="existing_label")
+       session.add(duplicate_label)
+       session.commit()
+   except IntegrityError as e:
+       session.rollback()
+       print(f"Integrity error (duplicate): {e}")
+   except OperationalError as e:
+       session.rollback()
+       print(f"Database operation error: {e}")
 
 Complete Example
 ----------------
 
-Here's a complete workflow using the ActiveRecord API:
+Here's a complete workflow using the Rails ActiveRecord API:
 
 .. code-block:: python
 
-   from todowrite import ToDoWrite, Node
+   from todowrite import (
+       Goal, Phase, Task, Label, create_engine, sessionmaker
+   )
+   from datetime import datetime
 
-   # Initialize application
-   app = ToDoWrite("sqlite:///project.db")
-   app.init_database()
-   Node.configure_session(app.get_session())
+   # Initialize database session
+   engine = create_engine("sqlite:///development_todowrite.db")
+   Session = sessionmaker(bind=engine)
+   session = Session()
 
    # Create a project goal
-   goal = Node.create_goal(
-       "Launch New Feature",
-       "product-team",
-       description="Successfully launch the new user dashboard",
+   project_goal = Goal(
+       title="Launch User Dashboard",
+       description="Successfully launch the new user dashboard with analytics",
+       owner="product-team",
        severity="high"
    )
+   session.add(project_goal)
+   session.commit()
 
-   # Create phases
-   design_phase = goal.phases().create(
+   # Create labels
+   ui_label = Label(name="ui")
+   backend_label = Label(name="backend")
+   analytics_label = Label(name="analytics")
+   session.add_all([ui_label, backend_label, analytics_label])
+   session.commit()
+
+   # Create development phases
+   design_phase = Phase(
        title="Design Phase",
-       description="Create wireframes and mockups",
-       owner="design-team"
+       description="Create wireframes, mockups, and user flows",
+       owner="design-team",
+       severity="medium"
    )
+   session.add(design_phase)
+   session.commit()
 
-   dev_phase = goal.phases().create(
+   dev_phase = Phase(
        title="Development Phase",
-       description="Implement the feature",
-       owner="backend-team"
+       description="Implement frontend and backend components",
+       owner="tech-lead",
+       severity="high"
    )
+   session.add(dev_phase)
+   session.commit()
+
+   # Associate phases with goal
+   project_goal.phases.extend([design_phase, dev_phase])
+   session.commit()
 
    # Create tasks for development phase
-   api_task = dev_phase.tasks().create(
-       title="Build API endpoints",
+   ui_task = Task(
+       title="Build responsive UI components",
+       description="Create React components for dashboard layout",
+       owner="frontend-team",
+       severity="high"
+   )
+   session.add(ui_task)
+   ui_task.labels.extend([ui_label])
+   session.commit()
+
+   api_task = Task(
+       title="Implement REST API endpoints",
+       description="Create backend API for dashboard data",
        owner="backend-team",
        severity="high"
    )
+   session.add(api_task)
+   api_task.labels.extend([backend_label])
+   session.commit()
 
-   ui_task = dev_phase.tasks().create(
-       title="Create user interface",
-       owner="frontend-team",
+   analytics_task = Task(
+       title="Integrate analytics tracking",
+       description="Add user behavior analytics to dashboard",
+       owner="data-team",
        severity="medium"
    )
+   session.add(analytics_task)
+   analytics_task.labels.extend([analytics_label])
+   session.commit()
 
-   # Start working on tasks
-   api_task.start().save()
-   ui_task.start().save()
+   # Associate tasks with development phase
+   dev_phase.tasks.extend([ui_task, api_task, analytics_task])
+   session.commit()
 
-   # Update progress
-   api_task.update_progress(75)
+   # Start work on tasks
+   ui_task.status = "in_progress"
+   ui_task.started_date = datetime.now().isoformat()
+   ui_task.progress = 25
+   session.commit()
 
-   # Complete a task
-   ui_task.complete().save()
+   api_task.status = "in_progress"
+   api_task.started_date = datetime.now().isoformat()
+   api_task.progress = 60
+   session.commit()
 
-   # Check progress
-   all_tasks = dev_phase.tasks().all()
-   completed = dev_phase.tasks().where(status="completed")
-   in_progress = dev_phase.tasks().where(status="in_progress")
+   # Complete analytics task
+   analytics_task.status = "completed"
+   analytics_task.progress = 100
+   analytics_task.completion_date = datetime.now().isoformat()
+   session.commit()
 
-   print(f"Goal: {goal.title}")
-   print(f"Development Phase: {dev_phase.title}")
-   print(f"Total tasks: {len(all_tasks)}")
-   print(f"Completed: {len(completed)}")
-   print(f"In Progress: {len(in_progress)}")
+   # Query progress
+   all_tasks = dev_phase.tasks
+   completed_tasks = [t for t in all_tasks if t.status == "completed"]
+   in_progress_tasks = [t for t in all_tasks if t.status == "in_progress"]
 
-Migration from Traditional API
-------------------------------
+   # Display results
+   print(f"🎯 Goal: {project_goal.title}")
+   print(f"📊 Development Phase: {dev_phase.title}")
+   print(f"📝 Total tasks: {len(all_tasks)}")
+   print(f"✅ Completed: {len(completed_tasks)}")
+   print(f"🔄 In Progress: {len(in_progress_tasks)}")
+   print(f"📈 Overall Progress: {sum(t.progress for t in all_tasks) / len(all_tasks):.1f}%")
 
-If you're currently using the traditional dictionary-based API, here's how to migrate:
+   # Tasks by label
+   print("\n🏷️  Tasks by Label:")
+   for label in [ui_label, backend_label, analytics_label]:
+       label_tasks = session.query(Task).join(Task.labels).filter(Label.id == label.id).all()
+       print(f"   {label.name}: {len(label_tasks)} tasks")
 
-**Traditional:**
+API Migration from Old System
+----------------------------
+
+**⚠️  IMPORTANT**: The old Node-based API has been **COMPLETELY REMOVED**. You must migrate to the Rails ActiveRecord API.
+
+**Old API (REMOVED):**
 
 .. code-block:: python
 
-   # Old way
-   app = ToDoWrite("sqlite:///project.db")
-   app.init_database()
+   # ❌ THIS NO LONGER EXISTS
+   from todowrite import Node, create_node
+   node = create_node(database, node_data)
+   Node.where(status="in_progress")
 
-   node_data = {
-       "id": "GOAL-001",
-       "layer": "Goal",
-       "title": "My Goal",
-       "metadata": {"owner": "dev"}
-   }
-   goal = app.create_node(node_data)
-
-**ActiveRecord:**
+**New Rails ActiveRecord API:**
 
 .. code-block:: python
 
-   # New way
-   app = ToDoWrite("sqlite:///project.db")
-   app.init_database()
-   Node.configure_session(app.get_session())
+   # ✅ USE THIS INSTEAD
+   from todowrite import Task, create_engine, sessionmaker
 
-   goal = Node.create_goal("My Goal", "dev")
+   engine = create_engine("sqlite:///development_todowrite.db")
+   Session = sessionmaker(bind=engine)
+   session = Session()
 
-The ActiveRecord API provides:
+   task = Task(title="My Task", owner="team")
+   session.add(task)
+   session.commit()
 
-* **Better type safety** - No more dictionary construction
-* **Method chaining** - More expressive code
-* **Business logic methods** - Built-in workflow management
-* **Collection operations** - Rails-style relationship handling
-* **Cleaner syntax** - More readable and maintainable code
+   in_progress_tasks = session.query(Task).filter(Task.status == "in_progress").all()
+
+The Rails ActiveRecord API provides:
+
+* **🔒 Type Safety** - No more dictionary construction
+* **🔗 True Relationships** - Proper foreign keys and associations
+* **⚡ Better Performance** - Optimized database queries
+* **📊 Rich Analytics** - Powerful aggregation and reporting
+* **🛡️ Data Integrity** - Enforced constraints and validation
+* **🎯 Rails Patterns** - Familiar ActiveRecord conventions
+
+For complete schema documentation, see :doc:`Rails_ActiveRecord_Data_Schema`.

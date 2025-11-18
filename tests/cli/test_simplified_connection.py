@@ -139,7 +139,7 @@ class TestSimplifiedCLIConnection:
     def test_get_app_uses_storage_preference_parameter(self) -> None:
         """Test that get_app() respects storage preference parameter."""
         # Mock environment to test preference handling
-        with patch("todowrite.database.config.StoragePreference") as mock_pref:
+        with patch("ToDoWrite.database.config.StoragePreference") as mock_pref:
             mock_pref.AUTO = "auto"
             mock_pref.SQLITE_ONLY = "sqlite_only"
 

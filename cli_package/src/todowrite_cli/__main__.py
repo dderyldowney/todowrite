@@ -1,4 +1,4 @@
-"""Main entry point for todowrite-cli package."""
+"""Main entry point for ToDoWrite-cli package."""
 
 from .main import main
 

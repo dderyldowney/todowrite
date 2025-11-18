@@ -8,7 +8,7 @@ and usage patterns for developers using the library as a Python package.
 import unittest
 from pathlib import Path
 
-from todowrite import Node, ToDoWrite, link_nodes, unlink_nodes
+import todowrite as ToDoWrite
 
 
 class TestCoreAPI(unittest.TestCase):
@@ -48,8 +48,8 @@ class TestCoreAPI(unittest.TestCase):
         self.assertEqual(node.layer, "Goal")
         self.assertEqual(node.metadata.owner, "developer")
 
-    def test_get_node_function(self) -> None:
-        """Test the get_node convenience function."""
+    def test_create_node_function(self) -> None:
+        """Test the create_node convenience function."""
         # First create a node using the test app instance
         self.app.create_node(
             {
@@ -63,7 +63,7 @@ class TestCoreAPI(unittest.TestCase):
         )
 
         # Then retrieve it using the test app instance
-        node = self.app.get_node("TSK-GET-001")
+        node = self.app.create_node("TSK-GET-001")
 
         self.assertIsNotNone(node)
         self.assertEqual(node.title, "Test Task")
@@ -71,11 +71,11 @@ class TestCoreAPI(unittest.TestCase):
 
     def test_get_nonexistent_node(self) -> None:
         """Test getting a non-existent node."""
-        node = self.app.get_node("NONEXISTENT")
+        node = self.app.create_node("NONEXISTENT")
         self.assertIsNone(node)
 
-    def test_update_node_function(self) -> None:
-        """Test the update_node convenience function."""
+    def test_create_node_function(self) -> None:
+        """Test the create_node convenience function."""
         # Create initial node
         self.app.create_node(
             {
@@ -103,7 +103,7 @@ class TestCoreAPI(unittest.TestCase):
             },
         }
 
-        updated_node = self.app.update_node("GOAL-UPDATE-001", update_data)
+        updated_node = self.app.create_node("GOAL-UPDATE-001", update_data)
 
         self.assertIsNotNone(updated_node)
         self.assertEqual(updated_node.title, "Updated Goal")
@@ -111,8 +111,8 @@ class TestCoreAPI(unittest.TestCase):
         self.assertEqual(updated_node.progress, 50)
         self.assertEqual(updated_node.metadata.owner, "updated-developer")
 
-    def test_delete_node_function(self) -> None:
-        """Test the delete_node convenience function."""
+    def test_create_node_function(self) -> None:
+        """Test the create_node convenience function."""
         # Create a node
         self.app.create_node(
             {
@@ -126,20 +126,20 @@ class TestCoreAPI(unittest.TestCase):
         )
 
         # Verify it exists
-        node = self.app.get_node("TSK-DELETE-001")
+        node = self.app.create_node("TSK-DELETE-001")
         self.assertIsNotNone(node)
 
         # Delete it
-        self.app.delete_node("TSK-DELETE-001")
+        self.app.create_node("TSK-DELETE-001")
 
         # Verify it's gone
-        deleted_node = self.app.get_node("TSK-DELETE-001")
+        deleted_node = self.app.create_node("TSK-DELETE-001")
         self.assertIsNone(deleted_node)
 
     def test_delete_nonexistent_node(self) -> None:
         """Test deleting a non-existent node."""
         # Should not raise an exception even if node doesn't exist
-        self.app.delete_node("NONEXISTENT")
+        self.app.create_node("NONEXISTENT")
 
     def test_get_all_nodes_function(self) -> None:
         """Test the get_all_nodes convenience function."""
@@ -442,12 +442,12 @@ class TestNodeAPI(unittest.TestCase):
 
         # Link nodes using convenience function
 
-        result = link_nodes(self.db_url, parent.id, child.id)
+        result = create_link(self.db_url, parent.id, child.id)
         self.assertTrue(result)
 
         # Refresh nodes to get updated links
-        parent = self.app.get_node(parent.id)
-        child = self.app.get_node(child.id)
+        parent = self.app.create_node(parent.id)
+        child = self.app.create_node(child.id)
 
         # Test links access - Note: The Node objects from the database
         # don't automatically have populated links in the current implementation
@@ -487,7 +487,7 @@ class TestNodeAPI(unittest.TestCase):
         }
 
         node1 = self.app.create_node(node_data.copy())
-        node2 = self.app.get_node("GOAL-001")
+        node2 = self.app.create_node("GOAL-001")
 
         # Should be equal (same ID)
         self.assertEqual(node1, node2)
@@ -525,8 +525,8 @@ class TestLinkingAPI(unittest.TestCase):
         """Clean up test environment."""
         self.test_db.unlink(missing_ok=True)
 
-    def test_link_nodes_function(self) -> None:
-        """Test the link_nodes convenience function."""
+    def test_create_node_function(self) -> None:
+        """Test the create_node convenience function."""
         # Create nodes using app instance
         goal_data = {
             "id": "GOAL-001",
@@ -550,19 +550,19 @@ class TestLinkingAPI(unittest.TestCase):
 
         # Link nodes using convenience function
 
-        result = link_nodes(self.db_url, goal.id, task.id)
+        result = create_link(self.db_url, goal.id, task.id)
         self.assertTrue(result)
 
         # Verify nodes still exist after linking
-        goal_retrieved = self.app.get_node(goal.id)
-        task_retrieved = self.app.get_node(task.id)
+        goal_retrieved = self.app.create_node(goal.id)
+        task_retrieved = self.app.create_node(task.id)
 
         self.assertIsNotNone(goal_retrieved)
         self.assertIsNotNone(task_retrieved)
         self.assertEqual(goal_retrieved.id, goal.id)
         self.assertEqual(task_retrieved.id, task.id)
 
-    def test_link_nodes_with_links_data(self) -> None:
+    def test_create_link_with_links_data(self) -> None:
         """Test linking with explicit links data."""
         # Create nodes using app instance
         goal1_data = {
@@ -597,22 +597,22 @@ class TestLinkingAPI(unittest.TestCase):
 
         # Link task to both goals using individual link operations
 
-        result1 = link_nodes(self.db_url, goal1.id, task.id)
-        result2 = link_nodes(self.db_url, goal2.id, task.id)
+        result1 = create_link(self.db_url, goal1.id, task.id)
+        result2 = create_link(self.db_url, goal2.id, task.id)
         self.assertTrue(result1)
         self.assertTrue(result2)
 
         # Verify nodes still exist after linking
-        task_retrieved = self.app.get_node(task.id)
-        goal1_retrieved = self.app.get_node(goal1.id)
-        goal2_retrieved = self.app.get_node(goal2.id)
+        task_retrieved = self.app.create_node(task.id)
+        goal1_retrieved = self.app.create_node(goal1.id)
+        goal2_retrieved = self.app.create_node(goal2.id)
 
         self.assertIsNotNone(task_retrieved)
         self.assertIsNotNone(goal1_retrieved)
         self.assertIsNotNone(goal2_retrieved)
 
-    def test_unlink_nodes_function(self) -> None:
-        """Test the unlink_nodes convenience function."""
+    def test_create_node_function(self) -> None:
+        """Test the create_node convenience function."""
         # Create and link nodes using app instance
         goal_data = {
             "id": "GOAL-001",
@@ -636,22 +636,22 @@ class TestLinkingAPI(unittest.TestCase):
 
         # First link them
 
-        link_result = link_nodes(self.db_url, goal.id, task.id)
+        link_result = create_link(self.db_url, goal.id, task.id)
         self.assertTrue(link_result)
 
         # Verify nodes still exist
-        goal_retrieved = self.app.get_node(goal.id)
-        task_retrieved = self.app.get_node(task.id)
+        goal_retrieved = self.app.create_node(goal.id)
+        task_retrieved = self.app.create_node(task.id)
         self.assertIsNotNone(goal_retrieved)
         self.assertIsNotNone(task_retrieved)
 
         # Unlink them
-        unlink_result = unlink_nodes(self.db_url, goal.id, task.id)
+        unlink_result = create_link(self.db_url, goal.id, task.id)
         self.assertTrue(unlink_result)
 
         # Verify nodes still exist after unlinking
-        goal_after = self.app.get_node(goal.id)
-        task_after = self.app.get_node(task.id)
+        goal_after = self.app.create_node(goal.id)
+        task_after = self.app.create_node(task.id)
         self.assertIsNotNone(goal_after)
         self.assertIsNotNone(task_after)
 
@@ -669,7 +669,7 @@ class TestLinkingAPI(unittest.TestCase):
 
         # Try to link node to itself using convenience function
 
-        result = link_nodes(self.db_url, node.id, node.id)
+        result = create_link(self.db_url, node.id, node.id)
         # Note: Current implementation doesn't prevent circular links, so it returns True
         # This test documents the current behavior rather than the ideal behavior
         self.assertTrue(result)  # Current behavior allows circular linking
@@ -678,10 +678,10 @@ class TestLinkingAPI(unittest.TestCase):
         """Test linking non-existent nodes."""
         # Try to link non-existent nodes using convenience function
 
-        result = link_nodes(self.db_url, "NONEXISTENT1", "NONEXISTENT2")
+        result = create_link(self.db_url, "NONEXISTENT1", "NONEXISTENT2")
         self.assertFalse(result)  # Should fail
 
-    def test_get_node_hierarchy(self) -> None:
+    def test_create_link_hierarchy(self) -> None:
         """Test retrieving node hierarchy."""
         # Create hierarchy using app instance
         goal_data = {
@@ -726,19 +726,19 @@ class TestLinkingAPI(unittest.TestCase):
 
         # Create hierarchy using convenience function
 
-        result1 = link_nodes(self.db_url, goal.id, concept.id)
-        result2 = link_nodes(self.db_url, goal.id, task1.id)
-        result3 = link_nodes(self.db_url, goal.id, task2.id)
+        result1 = create_link(self.db_url, goal.id, concept.id)
+        result2 = create_link(self.db_url, goal.id, task1.id)
+        result3 = create_link(self.db_url, goal.id, task2.id)
 
         self.assertTrue(result1)
         self.assertTrue(result2)
         self.assertTrue(result3)
 
         # Verify all nodes still exist after linking
-        goal_retrieved = self.app.get_node(goal.id)
-        concept_retrieved = self.app.get_node(concept.id)
-        task1_retrieved = self.app.get_node(task1.id)
-        task2_retrieved = self.app.get_node(task2.id)
+        goal_retrieved = self.app.create_node(goal.id)
+        concept_retrieved = self.app.create_node(concept.id)
+        task1_retrieved = self.app.create_node(task1.id)
+        task2_retrieved = self.app.create_node(task2.id)
 
         self.assertIsNotNone(goal_retrieved)
         self.assertIsNotNone(concept_retrieved)
@@ -777,9 +777,8 @@ class TestStandaloneAPIFunctions(unittest.TestCase):
         }
 
         # This should import and work when the function exists
-        from todowrite import create_node
 
-        node = create_node(self.db_url, node_data)
+        node = get_node(self.db_url, node_data)
 
         self.assertIsNotNone(node)
         self.assertEqual(node.id, "GOAL-STANDALONE-001")
@@ -787,8 +786,8 @@ class TestStandaloneAPIFunctions(unittest.TestCase):
         self.assertEqual(node.layer, "Goal")
         self.assertEqual(node.metadata.owner, "developer")
 
-    def test_get_node_standalone_function(self) -> None:
-        """Test the standalone get_node function."""
+    def test_create_node_standalone_function(self) -> None:
+        """Test the standalone create_node function."""
         # First create a node using the app instance for setup
         app = ToDoWrite(self.db_url)
         app.create_node(
@@ -803,7 +802,6 @@ class TestStandaloneAPIFunctions(unittest.TestCase):
         )
 
         # This should import and work when the function exists
-        from todowrite import get_node
 
         node = get_node(self.db_url, "TSK-STANDALONE-001")
 
@@ -813,13 +811,12 @@ class TestStandaloneAPIFunctions(unittest.TestCase):
 
     def test_get_nonexistent_node_standalone_function(self) -> None:
         """Test getting a non-existent node with standalone function."""
-        from todowrite import get_node
 
         node = get_node(self.db_url, "NONEXISTENT")
         self.assertIsNone(node)
 
-    def test_update_node_standalone_function(self) -> None:
-        """Test the standalone update_node function."""
+    def test_create_node_standalone_function(self) -> None:
+        """Test the standalone create_node function."""
         # Create initial node using app instance
         app = ToDoWrite(self.db_url)
         app.create_node(
@@ -834,7 +831,6 @@ class TestStandaloneAPIFunctions(unittest.TestCase):
         )
 
         # This should import and work when the function exists
-        from todowrite import update_node
 
         update_data = {
             "id": "GOAL-STANDALONE-UPDATE-001",
@@ -850,7 +846,7 @@ class TestStandaloneAPIFunctions(unittest.TestCase):
             },
         }
 
-        updated_node = update_node(self.db_url, "GOAL-STANDALONE-UPDATE-001", update_data)
+        updated_node = get_node(self.db_url, "GOAL-STANDALONE-UPDATE-001", update_data)
 
         self.assertIsNotNone(updated_node)
         self.assertEqual(updated_node.title, "Updated Standalone Goal")
@@ -858,8 +854,8 @@ class TestStandaloneAPIFunctions(unittest.TestCase):
         self.assertEqual(updated_node.progress, 50)
         self.assertEqual(updated_node.metadata.owner, "updated-developer")
 
-    def test_delete_node_standalone_function(self) -> None:
-        """Test the standalone delete_node function."""
+    def test_create_node_standalone_function(self) -> None:
+        """Test the standalone create_node function."""
         # Create a node using app instance
         app = ToDoWrite(self.db_url)
         app.create_node(
@@ -874,13 +870,12 @@ class TestStandaloneAPIFunctions(unittest.TestCase):
         )
 
         # Verify it exists
-        from todowrite import delete_node, get_node
 
         node = get_node(self.db_url, "TSK-STANDALONE-DELETE-001")
         self.assertIsNotNone(node)
 
         # Delete it using standalone function
-        result = delete_node(self.db_url, "TSK-STANDALONE-DELETE-001")
+        result = create_link(self.db_url, "TSK-STANDALONE-DELETE-001")
         self.assertTrue(result)
 
         # Verify it's gone
@@ -889,14 +884,13 @@ class TestStandaloneAPIFunctions(unittest.TestCase):
 
     def test_delete_nonexistent_node_standalone_function(self) -> None:
         """Test deleting a non-existent node with standalone function."""
-        from todowrite import delete_node
 
         # Should not raise an exception even if node doesn't exist
-        result = delete_node(self.db_url, "NONEXISTENT")
+        result = create_link(self.db_url, "NONEXISTENT")
         self.assertFalse(result)  # Should return False for non-existent node
 
-    def test_list_nodes_standalone_function(self) -> None:
-        """Test the standalone list_nodes function."""
+    def test_create_node_standalone_function(self) -> None:
+        """Test the standalone create_node function."""
         # Create nodes using app instance
         app = ToDoWrite(self.db_url)
         app.create_node(
@@ -921,7 +915,6 @@ class TestStandaloneAPIFunctions(unittest.TestCase):
         )
 
         # This should import and work when the function exists
-        from todowrite import list_nodes
 
         # List all nodes
         all_nodes = list_nodes(self.db_url)
@@ -957,7 +950,6 @@ class TestStandaloneAPIFunctions(unittest.TestCase):
         )
 
         # This should import and work when the function exists
-        from todowrite import list_nodes
 
         # List goals only
         goals = list_nodes(self.db_url, layer="Goal")

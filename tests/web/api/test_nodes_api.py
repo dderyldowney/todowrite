@@ -39,7 +39,7 @@ class TestNodesAPI:
             "parent_ids": ["GOAL-TEST123"],
         }
 
-    def test_get_nodes_empty_list(self, client):
+    def test_nodes_list_empty(self, client):
         """Test GET /api/v1/nodes with empty list."""
         response = client.get("/api/v1/nodes")
         assert response.status_code == 200
@@ -50,7 +50,7 @@ class TestNodesAPI:
         assert data["nodes"] == []
         assert data["total"] == 0
 
-    def test_create_node_minimal(self, client, sample_goal_data):
+    def test_nodes_create_minimal(self, client, sample_goal_data):
         """Test POST /api/v1/nodes with minimal data."""
         response = client.post("/api/v1/nodes", json=sample_goal_data)
 
@@ -66,7 +66,7 @@ class TestNodesAPI:
         assert data["node"]["layer"] == sample_goal_data["layer"]
         assert data["node"]["description"] == sample_goal_data["description"]
 
-    def test_create_node_with_parents(self, client, sample_task_data):
+    def test_nodes_create_with_parents(self, client, sample_task_data):
         """Test POST /api/v1/nodes with parent relationships."""
         response = client.post("/api/v1/nodes", json=sample_task_data)
 
@@ -77,7 +77,7 @@ class TestNodesAPI:
         data = response.json()
         assert data["node"]["links"]["parents"] == sample_task_data["parent_ids"]
 
-    def test_get_node_by_id(self, client):
+    def test_nodes_get_by_id(self, client):
         """Test GET /api/v1/nodes/{id}."""
         # First create a node
         create_data = {
@@ -100,7 +100,7 @@ class TestNodesAPI:
         assert data["node"]["id"] == node_id
         assert data["node"]["title"] == create_data["title"]
 
-    def test_get_node_not_found(self, client):
+    def test_nodes_get_not_found(self, client):
         """Test GET /api/v1/nodes/{id} with non-existent ID."""
         response = client.get("/api/v1/nodes/NONEXISTENT-123")
 
@@ -112,7 +112,7 @@ class TestNodesAPI:
         assert "error" in data
         assert "message" in data
 
-    def test_update_node(self, client):
+    def test_nodes_update(self, client):
         """Test PUT /api/v1/nodes/{id}."""
         # First create a node
         create_data = {
@@ -142,7 +142,7 @@ class TestNodesAPI:
         assert data["node"]["status"] == update_data["status"]
         assert data["node"]["progress"] == update_data["progress"]
 
-    def test_delete_node(self, client):
+    def test_nodes_update(self, client):
         """Test DELETE /api/v1/nodes/{id}."""
         # First create a node
         create_data = {
@@ -165,7 +165,7 @@ class TestNodesAPI:
         get_response = client.get(f"/api/v1/nodes/{node_id}")
         assert get_response.status_code == 404
 
-    def test_create_node_validation_errors(self, client):
+    def test_nodes_create_validation_errors(self, client):
         """Test POST /api/v1/nodes with invalid data."""
         # Missing required fields
         invalid_data = {
@@ -182,7 +182,7 @@ class TestNodesAPI:
         data = response.json()
         assert "detail" in data  # FastAPI validation error format
 
-    def test_create_node_invalid_id_format(self, client):
+    def test_nodes_get_invalid_id_format(self, client):
         """Test POST /api/v1/nodes with custom ID in wrong format."""
         invalid_data = {
             "id": "INVALID-ID",  # Wrong format
@@ -198,7 +198,7 @@ class TestNodesAPI:
 
         assert response.status_code == 422
 
-    def test_get_nodes_with_pagination(self, client):
+    def test_nodes_list_with_pagination(self, client):
         """Test GET /api/v1/nodes with pagination parameters."""
         # Create some nodes first
         for i in range(5):
@@ -222,7 +222,7 @@ class TestNodesAPI:
         assert data["page_size"] == 2
         assert data["total"] >= 5
 
-    def test_get_nodes_with_filters(self, client):
+    def test_nodes_list_with_filters(self, client):
         """Test GET /api/v1/nodes with filtering parameters."""
         # Create nodes with different properties
         client.post(
@@ -319,7 +319,7 @@ class TestNodeHierarchyAPI:
         """Create test client."""
         return TestClient(app)
 
-    def test_get_node_children(self, client):
+    def test_nodes_get_children(self, client):
         """Test GET /api/v1/nodes/{id}/children."""
         # Create parent and child nodes
         parent_response = client.post(
@@ -353,7 +353,7 @@ class TestNodeHierarchyAPI:
         assert len(data["children"]) == 1
         assert data["children"][0]["title"] == "Child Task"
 
-    def test_get_node_parents(self, client):
+    def test_nodes_get_parents(self, client):
         """Test GET /api/v1/nodes/{id}/parents."""
         # Create parent and child nodes
         parent_response = client.post(
@@ -389,7 +389,7 @@ class TestNodeHierarchyAPI:
         assert len(data["parents"]) == 1
         assert data["parents"][0]["id"] == parent_id
 
-    def test_get_node_hierarchy(self, client):
+    def test_nodes_get_hierarchy(self, client):
         """Test GET /api/v1/nodes/{id}/hierarchy."""
         # Create a hierarchy
         goal_response = client.post(

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Session startup script that enforces todowrite_cli usage and token optimization.
+Session startup script that enforces ToDoWrite_cli usage and token optimization.
 Runs automatically at session start to ensure proper workflow compliance.
 """
 
@@ -12,11 +12,11 @@ from datetime import datetime
 from pathlib import Path
 
 
-def check_todowrite_cli_available():
-    """Check if todowrite_cli is available in the current environment."""
+def check_ToDoWrite_cli_available():
+    """Check if ToDoWrite_cli is available in the current environment."""
     try:
         result = subprocess.run(
-            ["python", "-m", "todowrite_cli", "--help"],
+            ["python", "-m", "ToDoWrite_cli", "--help"],
             capture_output=True,
             text=True,
             timeout=10,
@@ -27,8 +27,8 @@ def check_todowrite_cli_available():
         return False
 
 
-def setup_todowrite_environment():
-    """Set up environment variables for todowrite_cli."""
+def setup_ToDoWrite_environment():
+    """Set up environment variables for ToDoWrite_cli."""
     import os
     import sys
     from pathlib import Path
@@ -226,7 +226,7 @@ def create_comprehensive_workflow_markers():
     workflow_file = session_dir / "workflow_active_2025.json"
     workflow_data = {
         "session_start": datetime.now().isoformat(),
-        "todowrite_cli_enforced": True,
+        "ToDoWrite_cli_enforced": True,
         "superpowers_active": True,
         "fail_safes_active": True,
         "mcp_2025_active": True,
@@ -252,11 +252,11 @@ def create_comprehensive_workflow_markers():
     print("✓ Comprehensive 2025 workflow markers created")
 
 
-def initialize_todowrite_tracking():
+def initialize_ToDoWrite_tracking():
     """Initialize ToDoWrite system for development tracking."""
     print("🔧 Initializing ToDoWrite development tracking...")
 
-    init_script = Path.cwd() / ".claude" / "init_todowrite_session.py"
+    init_script = Path.cwd() / ".claude" / "init_ToDoWrite_session.py"
 
     if init_script.exists() and os.access(init_script, os.X_OK):
         try:
@@ -266,7 +266,7 @@ def initialize_todowrite_tracking():
                 capture_output=True,
                 text=True,
                 timeout=30,
-                check=False
+                check=False,
             )
 
             if result.returncode == 0:
@@ -294,12 +294,12 @@ def main():
     success_count = 0
     total_checks = 7
 
-    # 1. Check todowrite_cli availability
-    if not check_todowrite_cli_available():
-        print("⚠️  todowrite_cli not available - make sure PYTHONPATH is set correctly")
+    # 1. Check ToDoWrite_cli availability
+    if not check_ToDoWrite_cli_available():
+        print("⚠️  ToDoWrite_cli not available - make sure PYTHONPATH is set correctly")
         print('   export PYTHONPATH="lib_package/src:cli_package/src"')
         sys.exit(1)
-    print("✓ todowrite_cli is available")
+    print("✓ ToDoWrite_cli is available")
     success_count += 1
 
     # 2. Verify token optimization
@@ -310,7 +310,7 @@ def main():
     success_count += 1
 
     # 3. Initialize ToDoWrite development tracking (NEW)
-    if initialize_todowrite_tracking():
+    if initialize_ToDoWrite_tracking():
         print("✓ ToDoWrite development tracking active")
         success_count += 1
     else:
@@ -343,17 +343,17 @@ def main():
     success_count += 1
 
     # Set up environment
-    setup_todowrite_environment()
+    setup_ToDoWrite_environment()
 
     print(f"\n📊 Session Initialization Complete: {success_count}/{total_checks} systems active")
 
     print("\n📋 2025 Session Requirements:")
-    print("  1. ALL planning must use todowrite_cli")
+    print("  1. ALL planning must use ToDoWrite_cli")
     print("  2. Check episodic memory before starting work")
     print("  3. Token optimization is active (HAL + Token-Sage)")
     print("  4. Superpowers skills with fail-safes are enabled")
     print("  5. MCP 2025 system provides industry-standard tools")
-    print("  6. Document decisions in todowrite tasks")
+    print("  6. Document decisions in ToDoWrite tasks")
     print("  7. Session protection against memory exhaustion and locks")
 
     if success_count >= 5:

@@ -121,7 +121,7 @@ def test_user_registration():
             temp_path = Path(temp_dir)
 
             # Create source directory
-            src_dir = temp_path / "src" / "todowrite" / "models"
+            src_dir = temp_path / "src" / "ToDoWrite" / "models"
             src_dir.mkdir(parents=True)
 
             # Try to create minimal implementation without TDD guidance

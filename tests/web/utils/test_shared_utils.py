@@ -6,15 +6,9 @@ from datetime import UTC, datetime, timedelta
 from io import StringIO
 
 import pytest
-from todowrite_web.backend.models import (
-    Node,
-    NodeLayer,
-    NodeLinks,
-    NodeMetadata,
-    NodeStatus,
-)
-from todowrite_web.backend.utils import (
+from todowrite_web.api.backend.utils import (
     build_hierarchy,
+    calculate_node_depth,
     calculate_node_progress,
     # Progress utilities
     calculate_progress,
@@ -37,7 +31,6 @@ from todowrite_web.backend.utils import (
     get_layer_prefix,
     get_leaf_nodes,
     get_next_status,
-    get_node_depth,
     get_root_nodes,
     # Status utilities
     get_status_color,
@@ -52,6 +45,13 @@ from todowrite_web.backend.utils import (
     search_nodes,
     # Validation utilities
     validate_node_structure,
+)
+from todowrite_web.backend.models import (
+    Node,
+    NodeLayer,
+    NodeLinks,
+    NodeMetadata,
+    NodeStatus,
 )
 
 
@@ -255,7 +255,7 @@ class TestHierarchyUtilities:
         assert child1 in hierarchy["GOAL-PARENT"]
         assert child2 in hierarchy["GOAL-PARENT"]
 
-    def test_get_node_depth(self):
+    def test_calculate_node_depth(self):
         """Test calculating node depth."""
         root = create_test_node("GOAL-ROOT")
         child = create_test_node("TSK-CHILD")
@@ -273,9 +273,9 @@ class TestHierarchyUtilities:
             "SUB-GRANDCHILD": grandchild,
         }
 
-        assert get_node_depth(root, all_nodes) == 0
-        assert get_node_depth(child, all_nodes) == 1
-        assert get_node_depth(grandchild, all_nodes) == 2
+        assert calculate_node_depth(root, all_nodes) == 0
+        assert calculate_node_depth(child, all_nodes) == 1
+        assert calculate_node_depth(grandchild, all_nodes) == 2
 
     def test_get_all_descendants(self):
         """Test getting all descendants of a node."""

@@ -12,16 +12,16 @@ The 12-layer hierarchy:
 """
 
 import sys
+import uuid
 from pathlib import Path
+from typing import Any
 
 # Add project root to sys.path
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from typing import Any
-
 import pytest
-from todowrite import ToDoWrite, create_node
+from sqlalchemy import create_engine
 
 
 def add_goal(
@@ -183,7 +183,6 @@ def get_layer_prefix(layer: str) -> str:
 
 def load_todos() -> dict[str, list[Any]]:
     """Load all todos from the database."""
-    from todowrite.core.app import ToDoWrite
 
     app = ToDoWrite(auto_import=False)
     app.init_database()
@@ -199,7 +198,6 @@ def create_node_without_parent(
     ac_ref: str | None = None,
 ) -> tuple[dict[str, Any] | None, str | None]:
     """Create a node without requiring a parent - for flexible entry points."""
-    import uuid
 
     from todowrite.core.utils import generate_node_id
 
@@ -242,16 +240,15 @@ def create_node_without_parent(
         return None, str(e)
 
 
-class TestToDoWriteFlexibleHierarchy:
+class TesttodowriteFlexibleHierarchy:
     """Test flexible entry points and mandatory hierarchy completion."""
 
     @pytest.fixture(autouse=True)
     def setup_clean_database(self):
         """Initialize clean database for each test."""
         # Clear existing database and reinitialize
-        from sqlalchemy import create_engine
 
-        # todowrite.manager doesn't exist - use core.app instead
+        # ToDoWrite.manager doesn't exist - use core.app instead
         # Simple database setup using current architecture
         from todowrite.database.models import Base
 

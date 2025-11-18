@@ -7,13 +7,59 @@ that ensure proper table recreation for each test.
 
 import uuid
 
-from todowrite import (
-    create_node,
-    get_node,
-    list_nodes,
-    search_nodes,
-    update_node,
-)
+from todowrite import Goal, create_engine, sessionmaker
+from todowrite.core.types import Base
+
+
+class ToDoWriteApp:
+    """Simple ToDoWrite manager for tests."""
+
+    def __init__(self, database_url: str) -> None:
+        self.database_url = database_url
+        self.engine = create_engine(database_url)
+        self.Session = sessionmaker(bind=self.engine)
+
+    def init_database(self) -> None:
+        Base.metadata.create_all(self.engine)
+
+    def create_node(self, node_data: dict) -> Goal:
+        session = self.Session()
+        try:
+            node = Goal(**node_data)
+            session.add(node)
+            session.commit()
+            session.refresh(node)
+            return node
+        finally:
+            session.close()
+
+    def get_node(self, node_id: int) -> Goal:
+        session = self.Session()
+        try:
+            return session.query(Goal).filter_by(id=node_id).first()
+        finally:
+            session.close()
+
+    def update_node(self, node_id: int, update_data: dict) -> Goal:
+        session = self.Session()
+        try:
+            node = session.query(Goal).filter_by(id=node_id).first()
+            if node:
+                for key, value in update_data.items():
+                    if hasattr(node, key):
+                        setattr(node, key, value)
+                session.commit()
+                session.refresh(node)
+            return node
+        finally:
+            session.close()
+
+    def get_all_nodes(self) -> list[Goal]:
+        session = self.Session()
+        try:
+            return session.query(Goal).all()
+        finally:
+            session.close()
 
 
 class TestTodosManagerWithDatabaseIsolation:
@@ -38,7 +84,7 @@ class TestTodosManagerWithDatabaseIsolation:
         }
 
         # Create node using real database operation
-        created_node = create_node(test_node_data)
+        created_node = app.create_node
 
         # Verify node creation
         assert created_node.id == test_node_data["id"]
@@ -46,7 +92,7 @@ class TestTodosManagerWithDatabaseIsolation:
         assert created_node.layer == test_node_data["layer"]
 
         # Retrieve node from real database
-        retrieved_node = get_node(created_node.id)
+        retrieved_node = app.get_node(created_node.id)
 
         # Verify retrieval
         assert retrieved_node is not None
@@ -72,21 +118,21 @@ class TestTodosManagerWithDatabaseIsolation:
         }
 
         # Create node
-        created_node = create_node(test_node_data)
+        created_node = app.create_node
         assert created_node.status == "planned"
 
         # Update status
-        updated_node = update_node(created_node.id, {"status": "in_progress"})
+        updated_node = app.update_node(created_node.id, {"status": "in_progress"})
         assert updated_node is not None
         assert updated_node.status == "in_progress"
 
         # Verify update persisted
-        retrieved_node = get_node(created_node.id)
+        retrieved_node = app.get_node(created_node.id)
         assert retrieved_node is not None
         assert retrieved_node.status == "in_progress"
 
         # Update to completed
-        completed_node = update_node(created_node.id, {"status": "completed"})
+        completed_node = app.update_node(created_node.id, {"status": "completed"})
         assert completed_node is not None
         assert completed_node.status == "completed"
 
@@ -142,14 +188,14 @@ class TestTodosManagerWithDatabaseIsolation:
 
         created_nodes = []
         for node_data in nodes_to_create:
-            created_node = create_node(node_data)
+            created_node = app.create_node
             created_nodes.append(created_node)
 
         # Verify all nodes were created
         assert len(created_nodes) == 3
 
         # Test listing nodes
-        nodes_list = list_nodes()
+        nodes_list = app.get_all_nodes()
         assert isinstance(nodes_list, dict)
 
         # Count total nodes across all layers
@@ -193,10 +239,10 @@ class TestTodosManagerWithDatabaseIsolation:
             "links": {"parents": [], "children": []},
         }
 
-        created_node = create_node(test_node_data)
+        created_node = app.create_node
 
         # Should only find our newly created node
-        nodes_list = list_nodes()
+        nodes_list = app.get_all_nodes()
         total_nodes = 0
         found_node_ids = []
         for layer_nodes in nodes_list.values():
@@ -227,7 +273,7 @@ class TestTodosManagerWithDatabaseIsolation:
                 },
                 "links": {"parents": [], "children": []},
             }
-            created_node = create_node(node_data)
+            created_node = app.create_node
             created_nodes.append(created_node)
 
         # Test searching for each term

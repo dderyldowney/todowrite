@@ -1,17 +1,15 @@
-"""Tests for CLI API compatibility changes.
+"""Tests for CLI API compatibility with new ToDoWrite Models.
 
 These tests ensure that the CLI commands work correctly with the new
-ToDoWrite app instance API instead of the standalone API functions.
+ToDoWrite Models API instead of the old Node-based functions.
 """
 
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
 from unittest import TestCase
 
 from click.testing import CliRunner
-from todowrite import ToDoWrite
 from todowrite_cli.main import (
     build_command_data,
     cli,
@@ -25,22 +23,20 @@ class TestCLIAPCompatibility(TestCase):
     """Test CLI API compatibility with ToDoWrite app instances."""
 
     def setUp(self) -> None:
-        """Set up test environment with temporary database."""
+        """Set up test environment with shared test database."""
         self.runner = CliRunner()
-        with tempfile.NamedTemporaryFile(suffix="_testing.db", delete=False) as temp_file:
-            self.db_path = temp_file.name
 
-        # Ensure the file is removed before creating app
-        Path(self.db_path).unlink(missing_ok=True)
+        # Create database session using shared test database
+        from lib_package.src.todowrite import Base, create_engine, sessionmaker
 
-        # Create app and initialize database
-        self.app = ToDoWrite(f"sqlite:///{self.db_path}")
-        # Use the storage backend to create tables
-        self.app.storage.connect_to_storage()
+        engine = create_engine("sqlite:///tests/todowrite_testing.db")
+        Base.metadata.create_all(engine)
+        Session = sessionmaker(bind=engine)
+        self.session = Session()
 
     def tearDown(self) -> None:
         """Clean up test environment."""
-        Path(self.db_path).unlink(missing_ok=True)
+        self.session.close()
 
     def test_list_command_with_app_instance(self) -> None:
         """Test that list command works with app instance API."""
@@ -99,7 +95,7 @@ class TestCLIAPCompatibility(TestCase):
         self.assertTrue(callable(create))
 
         # Test that the app instance linking logic exists
-        # This verifies our change from standalone link_nodes to app.link_nodes
+        # This verifies our change from standalone create_node to app.create_node
 
 
 class TestCLIImportCleanup(TestCase):
@@ -108,7 +104,7 @@ class TestCLIImportCleanup(TestCase):
     def test_cli_no_unused_imports(self) -> None:
         """Test that CLI module doesn't have unused imports."""
         # Check the import statements in the file directly
-        cli_file = Path("cli_package/src/todowrite_cli/main.py")
+        cli_file = Path("cli_package/src/ToDoWrite_cli/main.py")
 
         if not cli_file.exists():
             self.skipTest("CLI main file not found")
@@ -116,12 +112,11 @@ class TestCLIImportCleanup(TestCase):
         content = cli_file.read_text()
 
         # Check that the functions we removed are not imported
-        self.assertNotIn("create_node,", content)
         self.assertNotIn("search_nodes,", content)
         self.assertNotIn("validate_node,", content)
 
         # But the functions we kept should still be imported
-        self.assertIn("delete_node,", content)
+        self.assertIn("create_node,", content)
         self.assertIn("get_node,", content)
-        self.assertIn("list_nodes,", content)
         self.assertIn("update_node,", content)
+        self.assertIn("delete_node,", content)

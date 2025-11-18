@@ -13,7 +13,7 @@ import unittest
 from pathlib import Path
 
 from click.testing import CliRunner
-from todowrite_cli.main import cli as todowrite_cli
+from todowrite_cli.main import cli as ToDoWrite_cli
 
 
 class TestUserCliWorkflows(unittest.TestCase):
@@ -35,14 +35,14 @@ class TestUserCliWorkflows(unittest.TestCase):
         Test: User initializes ToDoWrite project for the first time
         Steps:
         1. User navigates to project directory
-        2. User runs todowrite init to set up database
+        2. User runs ToDoWrite init to set up database
         3. User verifies successful initialization
         """
         # Step 1: Change to temporary directory (simulate user navigating to project)
         os.chdir(self.temp_dir)
 
         # Step 2: Run initialization command
-        result = self.runner.invoke(todowrite_cli, ["init"])
+        result = self.runner.invoke(ToDoWrite_cli, ["init"])
 
         # Step 3: Verify successful initialization
         self.assertEqual(result.exit_code, 0, "Init command should succeed")
@@ -67,11 +67,11 @@ class TestUserCliWorkflows(unittest.TestCase):
         """
         # Setup: Initialize project first
         os.chdir(self.temp_dir)
-        self.runner.invoke(todowrite_cli, ["init"])
+        self.runner.invoke(ToDoWrite_cli, ["init"])
 
         # Step 2: Create main goal
         result = self.runner.invoke(
-            todowrite_cli,
+            ToDoWrite_cli,
             [
                 "create",
                 "--layer",
@@ -89,7 +89,7 @@ class TestUserCliWorkflows(unittest.TestCase):
 
         # Step 3: Create supporting concept
         result = self.runner.invoke(
-            todowrite_cli,
+            ToDoWrite_cli,
             [
                 "create",
                 "--layer",
@@ -108,7 +108,7 @@ class TestUserCliWorkflows(unittest.TestCase):
 
         # Step 4: Create a task related to the goal
         result = self.runner.invoke(
-            todowrite_cli,
+            ToDoWrite_cli,
             [
                 "create",
                 "--layer",
@@ -132,10 +132,10 @@ class TestUserCliWorkflows(unittest.TestCase):
         """
         # Setup: Create project and task
         os.chdir(self.temp_dir)
-        self.runner.invoke(todowrite_cli, ["init"])
+        self.runner.invoke(ToDoWrite_cli, ["init"])
 
         result = self.runner.invoke(
-            todowrite_cli,
+            ToDoWrite_cli,
             [
                 "create",
                 "--layer",
@@ -156,7 +156,7 @@ class TestUserCliWorkflows(unittest.TestCase):
         # Clean task_id by removing any trailing parenthesis
         task_id = task_id.rstrip(")")
         result = self.runner.invoke(
-            todowrite_cli,
+            ToDoWrite_cli,
             ["update", task_id, "--status", "in_progress"],
         )
         self.assertEqual(
@@ -167,7 +167,7 @@ class TestUserCliWorkflows(unittest.TestCase):
 
         # Step 3: Update progress
         result = self.runner.invoke(
-            todowrite_cli,
+            ToDoWrite_cli,
             [
                 "update",
                 task_id,
@@ -180,7 +180,7 @@ class TestUserCliWorkflows(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
 
         # Step 4: Check status
-        result = self.runner.invoke(todowrite_cli, ["get", task_id])
+        result = self.runner.invoke(ToDoWrite_cli, ["get", task_id])
         self.assertEqual(result.exit_code, 0)
         self.assertIn("In Progress", result.output)
 
@@ -195,7 +195,7 @@ class TestUserCliWorkflows(unittest.TestCase):
         """
         # Setup: Initialize and create multiple nodes
         os.chdir(self.temp_dir)
-        self.runner.invoke(todowrite_cli, ["init"])
+        self.runner.invoke(ToDoWrite_cli, ["init"])
 
         # Create different types of nodes
         nodes_to_create = [
@@ -212,7 +212,7 @@ class TestUserCliWorkflows(unittest.TestCase):
             if node_type not in ["Goal", "Concept", "Task", "Command"]:
                 continue
             result = self.runner.invoke(
-                todowrite_cli,
+                ToDoWrite_cli,
                 [
                     "create",
                     "--layer",
@@ -228,7 +228,7 @@ class TestUserCliWorkflows(unittest.TestCase):
             created_ids.append(node_id)
 
         # Step 2: List all nodes
-        result = self.runner.invoke(todowrite_cli, ["list"])
+        result = self.runner.invoke(ToDoWrite_cli, ["list"])
         self.assertEqual(result.exit_code, 0)
         self.assertGreater(
             len(result.output.split("\n")),
@@ -238,7 +238,7 @@ class TestUserCliWorkflows(unittest.TestCase):
 
         # Step 3: List by specific layer (should work with --layer option if available)
         # Test listing available commands
-        result = self.runner.invoke(todowrite_cli, ["--help"])
+        result = self.runner.invoke(ToDoWrite_cli, ["--help"])
         self.assertEqual(result.exit_code, 0)
         self.assertIn(
             "list",
@@ -256,11 +256,11 @@ class TestUserCliWorkflows(unittest.TestCase):
         """
         # Setup: Initialize and create nodes
         os.chdir(self.temp_dir)
-        self.runner.invoke(todowrite_cli, ["init"])
+        self.runner.invoke(ToDoWrite_cli, ["init"])
 
         # Create test nodes
         result = self.runner.invoke(
-            todowrite_cli,
+            ToDoWrite_cli,
             [
                 "create",
                 "--layer",
@@ -274,7 +274,7 @@ class TestUserCliWorkflows(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
 
         # Step 2: Export to YAML
-        result = self.runner.invoke(todowrite_cli, ["export-yaml"])
+        result = self.runner.invoke(ToDoWrite_cli, ["export-yaml"])
         self.assertEqual(result.exit_code, 0)
         self.assertIn(
             "Export completed",
@@ -301,7 +301,7 @@ class TestUserCliWorkflows(unittest.TestCase):
         """
         # Step 1: Check database status
         os.chdir(self.temp_dir)
-        result = self.runner.invoke(todowrite_cli, ["db-status"])
+        result = self.runner.invoke(ToDoWrite_cli, ["db-status"])
         self.assertEqual(result.exit_code, 0)
         self.assertIn(
             "Database Status",
@@ -325,7 +325,7 @@ class TestUserCliWorkflows(unittest.TestCase):
         3. User gets help for specific commands
         """
         # Step 1: Main help
-        result = self.runner.invoke(todowrite_cli, ["--help"])
+        result = self.runner.invoke(ToDoWrite_cli, ["--help"])
         self.assertEqual(result.exit_code, 0)
         self.assertIn("Usage:", result.output, "Should show usage")
         self.assertIn(
@@ -335,7 +335,7 @@ class TestUserCliWorkflows(unittest.TestCase):
         )
 
         # Step 2: Subcommand help
-        result = self.runner.invoke(todowrite_cli, ["create", "--help"])
+        result = self.runner.invoke(ToDoWrite_cli, ["create", "--help"])
         self.assertEqual(result.exit_code, 0)
         self.assertIn(
             "Creates a new node",
@@ -344,7 +344,7 @@ class TestUserCliWorkflows(unittest.TestCase):
         )
 
         # Step 3: Help for other commands
-        result = self.runner.invoke(todowrite_cli, ["list", "--help"])
+        result = self.runner.invoke(ToDoWrite_cli, ["list", "--help"])
         self.assertEqual(result.exit_code, 0)
         self.assertIn(
             "Lists all the nodes",
@@ -364,11 +364,11 @@ class TestUserCliWorkflows(unittest.TestCase):
         """
         # Setup: Initialize project
         os.chdir(self.temp_dir)
-        self.runner.invoke(todowrite_cli, ["init"])
+        self.runner.invoke(ToDoWrite_cli, ["init"])
 
         # Step 1: Create project vision and goals
         result = self.runner.invoke(
-            todowrite_cli,
+            ToDoWrite_cli,
             [
                 "create",
                 "--layer",
@@ -385,7 +385,7 @@ class TestUserCliWorkflows(unittest.TestCase):
         # goal_id extraction not needed for this test
 
         result = self.runner.invoke(
-            todowrite_cli,
+            ToDoWrite_cli,
             [
                 "create",
                 "--layer",
@@ -400,7 +400,7 @@ class TestUserCliWorkflows(unittest.TestCase):
 
         # Step 2: Define requirements - use Task as proxy for unsupported types
         result = self.runner.invoke(
-            todowrite_cli,
+            ToDoWrite_cli,
             [
                 "create",
                 "--layer",
@@ -415,7 +415,7 @@ class TestUserCliWorkflows(unittest.TestCase):
 
         # Step 3: Create acceptance criteria - use Task as proxy for unsupported types
         result = self.runner.invoke(
-            todowrite_cli,
+            ToDoWrite_cli,
             [
                 "create",
                 "--layer",
@@ -430,7 +430,7 @@ class TestUserCliWorkflows(unittest.TestCase):
 
         # Step 4: Break down into tasks
         result = self.runner.invoke(
-            todowrite_cli,
+            ToDoWrite_cli,
             [
                 "create",
                 "--layer",
@@ -444,7 +444,7 @@ class TestUserCliWorkflows(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
 
         result = self.runner.invoke(
-            todowrite_cli,
+            ToDoWrite_cli,
             [
                 "create",
                 "--layer",
@@ -459,7 +459,7 @@ class TestUserCliWorkflows(unittest.TestCase):
 
         # Step 5: Start working on first task
         task_result = self.runner.invoke(
-            todowrite_cli,
+            ToDoWrite_cli,
             [
                 "create",
                 "--layer",
@@ -477,7 +477,7 @@ class TestUserCliWorkflows(unittest.TestCase):
         # Clean task_id by removing any trailing parenthesis
         task_id = task_id.rstrip(")")
         result = self.runner.invoke(
-            todowrite_cli,
+            ToDoWrite_cli,
             ["update", task_id, "--status", "in_progress"],
         )
         self.assertEqual(
@@ -488,7 +488,7 @@ class TestUserCliWorkflows(unittest.TestCase):
 
         # Update progress to 50%
         result = self.runner.invoke(
-            todowrite_cli,
+            ToDoWrite_cli,
             [
                 "update",
                 task_id,
@@ -501,7 +501,7 @@ class TestUserCliWorkflows(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
 
         # Step 6: Review project structure
-        result = self.runner.invoke(todowrite_cli, ["list"])
+        result = self.runner.invoke(ToDoWrite_cli, ["list"])
         self.assertEqual(result.exit_code, 0)
         self.assertGreater(
             len(result.output.split("\n")),

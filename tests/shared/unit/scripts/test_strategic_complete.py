@@ -6,7 +6,7 @@ script that uses the new complete_goal function instead of manual completion log
 
 Agricultural Context:
 - Strategic goal management must be reliable for safety-critical tractor coordination
-- Audit trails (date_completed, validation logs) are essential for ISO compliance
+- Audit tToDoWrite (date_completed, validation logs) are essential for ISO compliance
 - Robust error handling prevents operational disruptions in agricultural systems
 """
 
@@ -25,7 +25,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-# Make sure project_root is correct - should be the main todowrite directory
+# Make sure project_root is correct - should be the main ToDoWrite directory
 if project_root.name == "tests":
     project_root = project_root.parent
 sys.path.insert(0, str(project_root))
@@ -167,7 +167,7 @@ class TestStrategicCompleteDirectLogic(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        # todowrite.manager doesn't exist - use todowrite.core.app
+        # ToDoWrite.manager doesn't exist - use ToDoWrite.core.app
         from sqlalchemy import create_engine
         from todowrite.database.models import Base
 
@@ -184,7 +184,7 @@ class TestStrategicCompleteDirectLogic(unittest.TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
         """Clean up the test database for ToDoWrite."""
-        # todowrite.manager doesn't exist - use todowrite.core.app
+        # ToDoWrite.manager doesn't exist - use ToDoWrite.core.app
         from sqlalchemy import create_engine
         from todowrite.database.models import Base
 

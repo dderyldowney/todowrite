@@ -49,8 +49,8 @@ if __name__ == "__main__":
     schema_file = (
         project_root
         / "ToDoWrite"
-        / "todowrite"
+        / "ToDoWrite"
         / "schemas"
-        / "todowrite.schema.json"
+        / "ToDoWrite.schema.json"
     )
     extract_and_write_schema(markdown_file, schema_file)

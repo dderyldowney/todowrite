@@ -143,10 +143,10 @@ class SQLiteBackend(StorageBackend):
             session.close()
 
     def create_new_node(self, node: Node) -> NodeCreationResult:
-        """Create a new node using Active Record patterns."""
+        """Create a new node using Models patterns."""
         try:
             with self._get_session() as session:
-                # Configure Node with session for Active Record operations
+                # Configure Node with session for Models operations
                 Node.configure_session(session)
 
                 # Check if node already exists
@@ -157,7 +157,7 @@ class SQLiteBackend(StorageBackend):
                         was_newly_created=False,
                     )
 
-                # Use Active Record pattern - Node saves itself
+                # Use Models pattern - Node saves itself
                 node.save()
 
                 return NodeCreationResult(
@@ -194,7 +194,7 @@ class SQLiteBackend(StorageBackend):
     def update_existing_node(
         self, node_id: str, update_data: dict[str, Any]
     ) -> Node:
-        """Update an existing node using Active Record patterns."""
+        """Update an existing node using Models patterns."""
         try:
             with self._get_session() as session:
                 Node.configure_session(session)
@@ -234,7 +234,7 @@ class SQLiteBackend(StorageBackend):
                         session, node, parents_data, children_data
                     )
 
-                # Use Active Record pattern - Node saves itself
+                # Use Models pattern - Node saves itself
                 node.save()
                 return node
 
@@ -246,7 +246,7 @@ class SQLiteBackend(StorageBackend):
             ) from e
 
     def remove_node_by_id(self, node_id: str) -> bool:
-        """Remove a node using Active Record patterns."""
+        """Remove a node using Models patterns."""
         try:
             with self._get_session() as session:
                 Node.configure_session(session)
@@ -255,7 +255,7 @@ class SQLiteBackend(StorageBackend):
                 if not node:
                     return False  # Node didn't exist, nothing to remove
 
-                # Use Active Record pattern - Node destroys itself and
+                # Use Models pattern - Node destroys itself and
                 # cleans up relationships
                 node.destroy()
                 return True
@@ -319,7 +319,7 @@ class SQLiteBackend(StorageBackend):
     def create_parent_child_relationship(
         self, parent_id: str, child_id: str
     ) -> RelationshipCreationResult:
-        """Create a parent-child relationship using Active Record patterns."""
+        """Create a parent-child relationship using Models patterns."""
         try:
             with self._get_session() as session:
                 Node.configure_session(session)
@@ -333,7 +333,7 @@ class SQLiteBackend(StorageBackend):
                 if not child_node:
                     raise NodeNotFoundError(child_id, self.backend_name)
 
-                # Check if relationship already exists using Active Record
+                # Check if relationship already exists using Models
                 if child_node in parent_node.children:
                     return RelationshipCreationResult(
                         parent_id=parent_id,
@@ -341,7 +341,7 @@ class SQLiteBackend(StorageBackend):
                         was_newly_linked=False,
                     )
 
-                # Use Active Record pattern - parent adds child
+                # Use Models pattern - parent adds child
                 parent_node.add_child(child_node)
 
                 return RelationshipCreationResult(

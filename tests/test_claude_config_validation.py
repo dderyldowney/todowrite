@@ -37,10 +37,10 @@ class TestClaudeConfigValidation:
                 break
 
         assert rule_8_found, "Rule #8 must exist"
-        assert "component and subsystem" in rule_8_content, \
+        assert "component and subsystem" in rule_8_content, (
             "Rule #8 must be about component and subsystem organization"
-        assert "SoC REQUIRED" in rule_8_content, \
-            "Rule #8 must require Separation of Concerns"
+        )
+        assert "SoC REQUIRED" in rule_8_content, "Rule #8 must require Separation of Concerns"
 
         # Check for key test organization principles
         test_organization_principles = [
@@ -49,38 +49,28 @@ class TestClaudeConfigValidation:
             "COMPONENT-FIRST",
             "SUBSYSTEM-SPECIFIC",
             "MAINTAINABILITY",
-            "SCALABILITY"
+            "SCALABILITY",
         ]
 
         for principle in test_organization_principles:
-            assert principle in rule_8_content, \
-                f"Rule #8 must include {principle}"
+            assert principle in rule_8_content, f"Rule #8 must include {principle}"
 
         # Check for directory structure examples
-        directory_examples = [
-            "lib/",
-            "cli/",
-            "web/",
-            "features/",
-            "unittests/",
-            "shared/"
-        ]
+        directory_examples = ["lib/", "cli/", "web/", "features/", "unittests/", "shared/"]
 
         for example in directory_examples:
-            assert example in rule_8_content, \
-                f"Rule #8 must include {example} directory example"
+            assert example in rule_8_content, f"Rule #8 must include {example} directory example"
 
         # Check for monorepo package mapping
         package_mappings = [
             "MONOREPO PACKAGE MAPPING",
-            "todowrite",
-            "todowrite_cli",
-            "todowrite_web"
+            "ToDoWrite",
+            "ToDoWrite_cli",
+            "ToDoWrite_web",
         ]
 
         for mapping in package_mappings:
-            assert mapping in rule_8_content, \
-                f"Rule #8 must include {mapping} package reference"
+            assert mapping in rule_8_content, f"Rule #8 must include {mapping} package reference"
 
     def test_claude_md_contains_documentation_loading_rule(self) -> None:
         """Test that CLAUDE.md contains mandatory documentation loading requirements."""
@@ -236,22 +226,16 @@ class TestClaudeConfigValidation:
                 break
 
         assert rule_4_found, "Rule #4 must exist"
-        assert "NEVER fake code" in rule_4_content, \
-            "Rule #4 must be about never faking code"
-        assert "REAL implementations only" in rule_4_content, \
+        assert "NEVER fake code" in rule_4_content, "Rule #4 must be about never faking code"
+        assert "REAL implementations only" in rule_4_content, (
             "Rule #4 must require real implementations only"
+        )
 
         # Check for key anti-faking principles
-        anti_faking_principles = [
-            "use 'pass'",
-            "fake implementations",
-            "write actual",
-            "NO TRICKS"
-        ]
+        anti_faking_principles = ["use 'pass'", "fake implementations", "write actual", "NO TRICKS"]
 
         for principle in anti_faking_principles:
-            assert principle in rule_4_content, \
-                f"Rule #4 must include {principle}"
+            assert principle in rule_4_content, f"Rule #4 must include {principle}"
 
     def test_always_test_actual_implementation_rule(self) -> None:
         """Test that Rule #5 requires testing actual implementation."""
@@ -275,22 +259,21 @@ class TestClaudeConfigValidation:
                 break
 
         assert rule_5_found, "Rule #5 must exist"
-        assert "test actual implementation" in rule_5_content, \
+        assert "test actual implementation" in rule_5_content, (
             "Rule #5 must be about testing actual implementation"
-        assert "REAL testing only" in rule_5_content, \
-            "Rule #5 must require real testing only"
+        )
+        assert "REAL testing only" in rule_5_content, "Rule #5 must require real testing only"
 
         # Check for key real testing principles
         real_testing_principles = [
             "test the actual implementation",
             "REAL INTERACTIONS",
             "NO MOCKING",
-            "VERIFIABLE BEHAVIOR"
+            "VERIFIABLE BEHAVIOR",
         ]
 
         for principle in real_testing_principles:
-            assert principle in rule_5_content, \
-                f"Rule #5 must include {principle}"
+            assert principle in rule_5_content, f"Rule #5 must include {principle}"
 
     def test_simplicity_over_complexity_rule(self) -> None:
         """Test that Rule #11 emphasizes simplicity over complexity."""
@@ -314,22 +297,23 @@ class TestClaudeConfigValidation:
                 break
 
         assert rule_11_found, "Rule #11 must exist"
-        assert "Simplicity over complexity" in rule_11_content, \
+        assert "Simplicity over complexity" in rule_11_content, (
             "Rule #11 must be about simplicity over complexity"
-        assert "ALWAYS prefer" in rule_11_content, \
+        )
+        assert "ALWAYS prefer" in rule_11_content, (
             "Rule #11 must emphasize ALWAYS preferring simplicity"
+        )
 
         # Check for key simplicity principles
         simplicity_principles = [
             "choose the simplest",
             "OVER-ENGINEERING",
             "DIRECT SOLUTIONS",
-            "READABILITY FIRST"
+            "READABILITY FIRST",
         ]
 
         for principle in simplicity_principles:
-            assert principle in rule_11_content, \
-                f"Rule #11 must include {principle}"
+            assert principle in rule_11_content, f"Rule #11 must include {principle}"
 
     def test_natural_language_code_rule(self) -> None:
         """Test that Rule #12 emphasizes natural language code."""
@@ -353,10 +337,12 @@ class TestClaudeConfigValidation:
                 break
 
         assert rule_12_found, "Rule #12 must exist"
-        assert "read like natural language" in rule_12_content, \
+        assert "read like natural language" in rule_12_content, (
             "Rule #12 must be about natural language code"
-        assert "ALWAYS write naturally" in rule_12_content, \
+        )
+        assert "ALWAYS write naturally" in rule_12_content, (
             "Rule #12 must emphasize ALWAYS writing naturally"
+        )
 
         # Check for key natural language principles
         natural_language_principles = [
@@ -370,12 +356,11 @@ class TestClaudeConfigValidation:
             "SELF-DOCUMENTING",
             "READABLE TESTS",
             "NO TECHNICAL JARGON",
-            "AGENT RESPONSIBILITY"
+            "AGENT RESPONSIBILITY",
         ]
 
         for principle in natural_language_principles:
-            assert principle in rule_12_content, \
-                f"Rule #12 must include {principle}"
+            assert principle in rule_12_content, f"Rule #12 must include {principle}"
 
     def test_local_command_line_tools_rule(self) -> None:
         """Test that Rule #10 enforces local command-line tools preference."""
@@ -399,10 +384,12 @@ class TestClaudeConfigValidation:
                 break
 
         assert rule_10_found, "Rule #10 must exist"
-        assert "local command-line tools" in rule_10_content, \
+        assert "local command-line tools" in rule_10_content, (
             "Rule #10 must be about local command-line tools"
-        assert "ALWAYS preferred" in rule_10_content, \
+        )
+        assert "ALWAYS preferred" in rule_10_content, (
             "Rule #10 must emphasize ALWAYS preferring local tools"
+        )
 
         # Check for key local tool principles
         local_tool_principles = [
@@ -414,12 +401,11 @@ class TestClaudeConfigValidation:
             "jq",
             "PIPELINES",
             "EFFICIENCY",
-            "RELIABILITY"
+            "RELIABILITY",
         ]
 
         for principle in local_tool_principles:
-            assert principle in rule_10_content, \
-                f"Rule #10 must include {principle}"
+            assert principle in rule_10_content, f"Rule #10 must include {principle}"
 
     def test_working_directory_boundary_rule(self) -> None:
         """Test that Rule #16 clarifies working directory boundary for each project."""
@@ -438,7 +424,7 @@ class TestClaudeConfigValidation:
                 in_boundary_section = True
                 boundary_content = line
                 continue
-            elif in_boundary_section:
+            if in_boundary_section:
                 if line.startswith("# ") and "Working Directory Boundary" not in line:
                     break
                 boundary_content += "\n" + line
@@ -450,14 +436,15 @@ class TestClaudeConfigValidation:
             "current project's root directory",
             "Each project has its own root directory boundary",
             "afs_fastapi",
-            "todowrite",
+            "ToDoWrite",
             "NO CROSS-PROJECT",
-            "RESPECT BOUNDARIES"
+            "RESPECT BOUNDARIES",
         ]
 
         for principle in boundary_principles:
-            assert principle in boundary_content, \
+            assert principle in boundary_content, (
                 f"Working Directory Boundary must include {principle}"
+            )
 
     def test_tooling_and_environment_rules(self) -> None:
         """Test that Rule #18 properly emphasizes UV-first tooling with execution hierarchy."""
@@ -476,7 +463,7 @@ class TestClaudeConfigValidation:
                 in_tooling_section = True
                 tooling_content = line
                 continue
-            elif in_tooling_section:
+            if in_tooling_section:
                 if line.startswith("# Standard Workflow"):
                     break
                 tooling_content += "\n" + line
@@ -491,12 +478,11 @@ class TestClaudeConfigValidation:
             "Code Quality and Security",
             "Ruff PRIMARY",
             "Bandit SECONDARY",
-            "Command Execution Hierarchy"
+            "Command Execution Hierarchy",
         ]
 
         for principle in tooling_principles:
-            assert principle in tooling_content, \
-                f"Tooling rules must include {principle}"
+            assert principle in tooling_content, f"Tooling rules must include {principle}"
 
     def test_rule_numbering_consistency(self) -> None:
         """Test that rule numbering is consistent without gaps."""

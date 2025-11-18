@@ -28,20 +28,20 @@ class SemanticScopeValidator:
             "case_sensitive": False,
             "semantic_scopes": {
                 "lib": {
-                    "description": "Core todowrite library",
-                    "patterns": ["lib_package/", "src/todowrite/", "todowrite/"],
+                    "description": "Core ToDoWrite library",
+                    "patterns": ["lib_package/", "src/ToDoWrite/", "ToDoWrite/"],
                     "file_types": [".py"],
                     "enforce": True,
                 },
                 "cli": {
                     "description": "Command-line interface",
-                    "patterns": ["cli_package/", "src/todowrite_cli/", "todowrite_cli/"],
+                    "patterns": ["cli_package/", "src/ToDoWrite_cli/", "ToDoWrite_cli/"],
                     "file_types": [".py", ".md"],
                     "enforce": True,
                 },
                 "web": {
                     "description": "Web interface",
-                    "patterns": ["web_package/", "src/todowrite_web/", "todowrite_web/"],
+                    "patterns": ["web_package/", "src/ToDoWrite_web/", "ToDoWrite_web/"],
                     "file_types": [".py", ".js", ".html", ".css", ".md"],
                     "enforce": True,
                 },
@@ -113,11 +113,11 @@ class SemanticScopeValidator:
             "scope_mapping": {
                 # Automatic scope detection based on file patterns
                 "lib_package/": "lib",
-                "src/todowrite/": "lib",
+                "src/ToDoWrite/": "lib",
                 "cli_package/": "cli",
-                "src/todowrite_cli/": "cli",
+                "src/ToDoWrite_cli/": "cli",
                 "web_package/": "web",
-                "src/todowrite_web/": "web",
+                "src/ToDoWrite_web/": "web",
                 "tests/": "tests",
                 "docs/": "docs",
                 ".github/": "ci",

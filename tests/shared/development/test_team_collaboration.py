@@ -1,7 +1,7 @@
 """
 RED PHASE: Tests for Team Collaboration in Development
 These tests MUST FAIL before implementation exists.
-NO MOCKING ALLOWED - Tests will use real todowrite system.
+NO MOCKING ALLOWED - Tests will use real ToDoWrite system.
 """
 
 from __future__ import annotations
@@ -51,7 +51,7 @@ class TestTeamCollaborationInDevelopment:
                 [
                     "python",
                     "-m",
-                    "todowrite_cli",
+                    "ToDoWrite_cli",
                     "create",
                     "--layer",
                     "task",
@@ -68,12 +68,12 @@ class TestTeamCollaborationInDevelopment:
                 check=False,
             )
 
-            assert (
-                task_result.returncode == 0
-            ), f"Failed to create task {task['title']}: {task_result.stderr}"
-            assert (
-                "TSK-" in task_result.stdout
-            ), f"Task {task['title']} should be created with TSK- ID"
+            assert task_result.returncode == 0, (
+                f"Failed to create task {task['title']}: {task_result.stderr}"
+            )
+            assert "TSK-" in task_result.stdout, (
+                f"Task {task['title']} should be created with TSK- ID"
+            )
 
             # Extract task ID
             task_id: str = ""
@@ -91,7 +91,7 @@ class TestTeamCollaborationInDevelopment:
                     [
                         "python",
                         "-m",
-                        "todowrite_cli",
+                        "ToDoWrite_cli",
                         "update",
                         task_id,
                         "--status",
@@ -103,13 +103,13 @@ class TestTeamCollaborationInDevelopment:
                     check=False,
                 )
 
-                assert (
-                    status_result.returncode == 0
-                ), f"Failed to update task status: {status_result.stderr}"
+                assert status_result.returncode == 0, (
+                    f"Failed to update task status: {status_result.stderr}"
+                )
 
         # Verify we can see all team members' work
         list_result = subprocess.run(
-            ["python", "-m", "todowrite_cli", "list"],
+            ["python", "-m", "ToDoWrite_cli", "list"],
             capture_output=True,
             text=True,
             cwd=".",
@@ -118,9 +118,9 @@ class TestTeamCollaborationInDevelopment:
 
         assert list_result.returncode == 0, "Failed to list tasks"
         for task in team_tasks:
-            assert (
-                task["assignee"] in list_result.stdout
-            ), f"Should see {task['assignee']}'s work in list"
+            assert task["assignee"] in list_result.stdout, (
+                f"Should see {task['assignee']}'s work in list"
+            )
             assert task["title"] in list_result.stdout, f"Should see task '{task['title']}' in list"
 
     def test_code_review_coordination(self) -> None:
@@ -130,7 +130,7 @@ class TestTeamCollaborationInDevelopment:
             [
                 "python",
                 "-m",
-                "todowrite_cli",
+                "ToDoWrite_cli",
                 "create",
                 "--layer",
                 "task",
@@ -148,9 +148,9 @@ class TestTeamCollaborationInDevelopment:
         )
 
         assert review_task_result.returncode == 0, "Failed to create code review task"
-        assert (
-            "TSK-" in review_task_result.stdout
-        ), "Code review task should be created with TSK- ID"
+        assert "TSK-" in review_task_result.stdout, (
+            "Code review task should be created with TSK- ID"
+        )
 
         # Extract review task ID
         review_task_id: str = ""
@@ -172,7 +172,7 @@ class TestTeamCollaborationInDevelopment:
                 [
                     "python",
                     "-m",
-                    "todowrite_cli",
+                    "ToDoWrite_cli",
                     "create",
                     "--layer",
                     "subtask",
@@ -190,9 +190,9 @@ class TestTeamCollaborationInDevelopment:
             )
 
             assert subtask_result.returncode == 0, f"Failed to create subtask {subtask['title']}"
-            assert (
-                "SUB-" in subtask_result.stdout
-            ), f"Subtask {subtask['title']} should be created with SUB- ID"
+            assert "SUB-" in subtask_result.stdout, (
+                f"Subtask {subtask['title']} should be created with SUB- ID"
+            )
 
     def test_technical_debt_management(self) -> None:
         """RED: Test that team can manage technical debt and refactoring."""
@@ -230,7 +230,7 @@ class TestTeamCollaborationInDevelopment:
                 [
                     "python",
                     "-m",
-                    "todowrite_cli",
+                    "ToDoWrite_cli",
                     "create",
                     "--layer",
                     "task",
@@ -247,12 +247,12 @@ class TestTeamCollaborationInDevelopment:
                 check=False,
             )
 
-            assert (
-                task_result.returncode == 0
-            ), f"Failed to create technical debt task {task['title']}"
-            assert (
-                "TSK-" in task_result.stdout
-            ), f"Technical debt task {task['title']} should be created with TSK- ID"
+            assert task_result.returncode == 0, (
+                f"Failed to create technical debt task {task['title']}"
+            )
+            assert "TSK-" in task_result.stdout, (
+                f"Technical debt task {task['title']} should be created with TSK- ID"
+            )
 
     def test_knowledge_sharing_coordination(self) -> None:
         """RED: Test that team can coordinate knowledge sharing."""
@@ -286,7 +286,7 @@ class TestTeamCollaborationInDevelopment:
                 [
                     "python",
                     "-m",
-                    "todowrite_cli",
+                    "ToDoWrite_cli",
                     "create",
                     "--layer",
                     "task",
@@ -304,9 +304,9 @@ class TestTeamCollaborationInDevelopment:
             )
 
             assert task_result.returncode == 0, f"Failed to create knowledge task {task['title']}"
-            assert (
-                "TSK-" in task_result.stdout
-            ), f"Knowledge task {task['title']} should be created with TSK- ID"
+            assert "TSK-" in task_result.stdout, (
+                f"Knowledge task {task['title']} should be created with TSK- ID"
+            )
 
     def test_release_coordination(self) -> None:
         """RED: Test that team can coordinate releases."""
@@ -315,7 +315,7 @@ class TestTeamCollaborationInDevelopment:
             [
                 "python",
                 "-m",
-                "todowrite_cli",
+                "ToDoWrite_cli",
                 "create",
                 "--layer",
                 "phase",
@@ -373,7 +373,7 @@ class TestTeamCollaborationInDevelopment:
                 [
                     "python",
                     "-m",
-                    "todowrite_cli",
+                    "ToDoWrite_cli",
                     "create",
                     "--layer",
                     "task",
@@ -389,9 +389,9 @@ class TestTeamCollaborationInDevelopment:
             )
 
             assert task_result.returncode == 0, f"Failed to create release task {task['title']}"
-            assert (
-                "TSK-" in task_result.stdout
-            ), f"Release task {task['title']} should be created with TSK- ID"
+            assert "TSK-" in task_result.stdout, (
+                f"Release task {task['title']} should be created with TSK- ID"
+            )
 
     def test_incident_response_management(self) -> None:
         """RED: Test that team can handle incident response."""
@@ -400,7 +400,7 @@ class TestTeamCollaborationInDevelopment:
             [
                 "python",
                 "-m",
-                "todowrite_cli",
+                "ToDoWrite_cli",
                 "create",
                 "--layer",
                 "task",
@@ -451,7 +451,7 @@ class TestTeamCollaborationInDevelopment:
                 [
                     "python",
                     "-m",
-                    "todowrite_cli",
+                    "ToDoWrite_cli",
                     "create",
                     "--layer",
                     "subtask",
@@ -468,12 +468,12 @@ class TestTeamCollaborationInDevelopment:
                 check=False,
             )
 
-            assert (
-                subtask_result.returncode == 0
-            ), f"Failed to create incident subtask {subtask['title']}"
-            assert (
-                "SUB-" in subtask_result.stdout
-            ), f"Incident subtask {subtask['title']} should be created with SUB- ID"
+            assert subtask_result.returncode == 0, (
+                f"Failed to create incident subtask {subtask['title']}"
+            )
+            assert "SUB-" in subtask_result.stdout, (
+                f"Incident subtask {subtask['title']} should be created with SUB- ID"
+            )
 
     def test_team_workload_visibility(self) -> None:
         """RED: Test that team can see workload distribution."""
@@ -489,7 +489,7 @@ class TestTeamCollaborationInDevelopment:
                     [
                         "python",
                         "-m",
-                        "todowrite_cli",
+                        "ToDoWrite_cli",
                         "create",
                         "--layer",
                         "task",
@@ -507,14 +507,14 @@ class TestTeamCollaborationInDevelopment:
                 )
 
                 assert task_result.returncode == 0, f"Failed to create task for {member}"
-                assert (
-                    "TSK-" in task_result.stdout
-                ), f"Task for {member} should be created with TSK- ID"
+                assert "TSK-" in task_result.stdout, (
+                    f"Task for {member} should be created with TSK- ID"
+                )
 
         # Search for tasks by owner to verify workload visibility
         for member in team_members:
             search_result = subprocess.run(
-                ["python", "-m", "todowrite_cli", "search", member],
+                ["python", "-m", "ToDoWrite_cli", "search", member],
                 capture_output=True,
                 text=True,
                 cwd=".",

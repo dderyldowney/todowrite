@@ -1,7 +1,6 @@
 """Tests to improve coverage for CLI main module"""
 
 import pytest
-import todowrite_cli.main
 from todowrite_cli.main import (
     capitalize_status,
     cli,
@@ -70,7 +69,7 @@ class TestCLIMainCoverage:
     def test_cli_function_structure(self):
         """Test that CLI function has expected structure"""
         try:
-            cli_func = getattr(todowrite_cli.main, "cli", None)
+            cli_func = getattr(ToDoWrite_cli.main, "cli", None)
 
             if cli_func is not None:
                 # Should be callable
@@ -84,7 +83,7 @@ class TestCLIMainCoverage:
     def test_main_function_structure(self):
         """Test that main function has expected structure"""
         try:
-            main_func = getattr(todowrite_cli.main, "main", None)
+            main_func = getattr(ToDoWrite_cli.main, "main", None)
 
             if main_func is not None:
                 # Should be callable

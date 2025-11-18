@@ -232,19 +232,19 @@ def get_default_database_url() -> str:
 
 # Configuration constants for different deployment environments
 DEVELOPMENT_CONFIG = {
-    "default_url": "sqlite:///todowrite_dev.db",
+    "default_url": "sqlite:///ToDoWrite_dev.db",
     "pool_size": 5,
     "max_overflow": 10,
 }
 
 PRODUCTION_CONFIG = {
-    "default_url": "postgresql://user:password@localhost:5432/todowrite",  # pragma: allowlist secret
+    "default_url": "postgresql://user:password@localhost:5432/ToDoWrite",  # pragma: allowlist secret
     "pool_size": 20,
     "max_overflow": 40,
 }
 
 TESTING_CONFIG = {
-    "default_url": "sqlite:///tmp/todowrite_test.db",
+    "default_url": "sqlite:///tmp/ToDoWrite_test.db",
     "pool_size": 1,
     "max_overflow": 1,
 }

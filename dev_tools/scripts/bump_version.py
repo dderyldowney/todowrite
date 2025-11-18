@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Version bump utility for ToDoWrite project.
+"""Version bump utility for ToDoWrite project.
 
 This script provides a simple workflow to bump the version number
 while maintaining the VERSION file as the single source of truth.
@@ -57,21 +56,21 @@ def update_readme_badges(current_version: str, new_version: str, dry_run: bool =
         # Update version badge
         readme_content = re.sub(
             r"\[!\[Version [^\]]*\]\([^\)]*\)\]\([^\)]*\)",
-            f"[![Version {new_version}](https://img.shields.io/badge/version-{new_version}-green.svg)](https://github.com/dderyldowney/todowrite)",
+            f"[![Version {new_version}](https://img.shields.io/badge/version-{new_version}-green.svg)](https://github.com/dderyldowney/ToDoWrite)",
             readme_content,
         )
 
-        # Update PyPI todowrite badge
+        # Update PyPI ToDoWrite badge
         readme_content = re.sub(
-            r"\[!\[PyPI\]\([^\)]*todowrite-[^\)]*\)\]\([^\)]*\)",
-            f"[![PyPI](https://img.shields.io/badge/todowrite-{new_version}-blue.svg)](https://pypi.org/project/todowrite/)",
+            r"\[!\[PyPI\]\([^\)]*ToDoWrite-[^\)]*\)\]\([^\)]*\)",
+            f"[![PyPI](https://img.shields.io/badge/ToDoWrite-{new_version}-blue.svg)](https://pypi.org/project/ToDoWrite/)",
             readme_content,
         )
 
-        # Update PyPI todowrite-cli badge
+        # Update PyPI ToDoWrite-cli badge
         readme_content = re.sub(
-            r"\[!\[PyPI CLI\]\([^\)]*todowrite--cli-[^\)]*\)\]\([^\)]*\)",
-            f"[![PyPI CLI](https://img.shields.io/badge/todowrite--cli-{new_version}-blue.svg)](https://pypi.org/project/todowrite-cli/)",
+            r"\[!\[PyPI CLI\]\([^\)]*ToDoWrite--cli-[^\)]*\)\]\([^\)]*\)",
+            f"[![PyPI CLI](https://img.shields.io/badge/ToDoWrite--cli-{new_version}-blue.svg)](https://pypi.org/project/ToDoWrite-cli/)",
             readme_content,
         )
 
@@ -173,11 +172,11 @@ def _show_dry_run_changes(original: str, updated: str) -> None:
 def update_fallback_versions(new_version: str, dry_run: bool = False) -> None:
     """Update fallback versions in package version.py files."""
     package_files = [
-        Path(__file__).parent.parent.parent / "lib_package" / "src" / "todowrite" / "version.py",
+        Path(__file__).parent.parent.parent / "lib_package" / "src" / "ToDoWrite" / "version.py",
         Path(__file__).parent.parent.parent
         / "cli_package"
         / "src"
-        / "todowrite_cli"
+        / "ToDoWrite_cli"
         / "version.py",
     ]
 
@@ -199,8 +198,8 @@ def verify_readme_versions(expected_version: str) -> bool:
         # Check for version in badges
         version_patterns = [
             rf"version-{re.escape(expected_version)}",
-            rf"todowrite-{re.escape(expected_version)}-blue\.svg",
-            rf"todowrite--cli-{re.escape(expected_version)}-blue\.svg",
+            rf"ToDoWrite-{re.escape(expected_version)}-blue\.svg",
+            rf"ToDoWrite--cli-{re.escape(expected_version)}-blue\.svg",
         ]
 
         missing_patterns = []

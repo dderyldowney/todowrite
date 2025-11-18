@@ -44,7 +44,7 @@ def get_database_url() -> str:
         TODOWRITE_STORAGE_PREFERENCE: Storage preference (auto, postgresql_only, sqlite_only, yaml_only)
 
     Examples:
-        PostgreSQL: postgresql://user:password@localhost:5432/todowrite_db
+        PostgreSQL: postgresql://user:password@localhost:5432/ToDoWrite_db
         SQLite: sqlite:///todowrite.db
         YAML: leave empty for YAML fallback
     """
@@ -114,7 +114,7 @@ def get_postgresql_candidates() -> list[str]:
 
     # Standard localhost (simple, no Docker detection)
     candidates.append(
-        "postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"
+        "postgresql://ToDoWrite:ToDoWrite_dev_password@localhost:5432/ToDoWrite"
     )
 
     return candidates
@@ -280,7 +280,7 @@ def get_setup_guidance() -> str:
 
    To use PostgreSQL (recommended):
    1. Run: cd tests && docker-compose up -d postgres
-   2. Optional: export TODOWRITE_DATABASE_URL=postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite
+   2. Optional: export TODOWRITE_DATABASE_URL=postgresql://ToDoWrite:ToDoWrite_dev_password@localhost:5432/ToDoWrite
    3. Restart application (will auto-detect PostgreSQL)
         """.strip()
 
@@ -292,7 +292,7 @@ def get_setup_guidance() -> str:
    To use database storage:
    1. For PostgreSQL: cd tests && docker-compose up -d postgres
    2. For SQLite: Ensure write permissions in current directory
-   3. Check: python -m todowrite db-status
+   3. Check: python -m ToDoWrite db-status
         """.strip()
 
     else:
@@ -312,7 +312,7 @@ def get_postgresql_url(
     password: str,
     host: str = "localhost",
     port: int = 5432,
-    database: str = "todowrite",
+    database: str = "ToDoWrite",
 ) -> str:
     """Generate PostgreSQL connection URL."""
     return f"postgresql://{user}:{password}@{host}:{port}/{database}"

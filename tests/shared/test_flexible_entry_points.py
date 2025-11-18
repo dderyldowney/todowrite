@@ -11,6 +11,7 @@ Interface Contract → Phase → Step → Task → SubTask → Command
 """
 
 import sys
+import tempfile
 import uuid
 from pathlib import Path
 from typing import Any
@@ -19,58 +20,75 @@ from typing import Any
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from todowrite import create_node
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from todowrite.core.types import (
+    Command,
+    Goal,
+    Phase,
+    SubTask,
+    Task,
+)
 
 
 def create_standalone_node(layer: str, title: str, description: str) -> dict[str, Any]:
     """Create a node without requiring a parent - demonstrates flexible entry.
 
-    Uses real database operations with proper UUID generation for uniqueness.
+    Uses real database operations with the new ToDoWrite models.
     """
-    layer_prefix_map = {
-        "Goal": "GOAL",
-        "Concept": "CON",
-        "Context": "CTX",
-        "Constraints": "CST",
-        "Requirements": "R",
-        "Acceptance Criteria": "AC",
-        "Interface Contract": "IF",
-        "Phase": "PH",
-        "Step": "STP",
-        "Task": "TSK",
-        "SubTask": "SUB",
-        "Command": "CMD",
+    # Create temporary database for testing
+    temp_db = tempfile.mktemp(suffix=".db")
+    engine = create_engine(f"sqlite:///{temp_db}")
+    Session = sessionmaker(bind=engine)
+
+    # Create all tables
+    from todowrite.core.types import Base
+
+    Base.metadata.create_all(engine)
+
+    # Map layer names to model classes
+    layer_model_map = {
+        "Goal": Goal,
+        "Task": Task,
+        "Command": Command,
+        "Phase": Phase,
+        "SubTask": SubTask,
     }
 
-    prefix = layer_prefix_map.get(layer, layer[:3].upper())
-    node_id = f"{prefix}-{uuid.uuid4().hex[:8].upper()}"
+    with Session() as session:
+        # Get the appropriate model class
+        model_class = layer_model_map.get(layer)
+        if not model_class:
+            raise ValueError(f"Unsupported layer: {layer}")
 
-    # Build node data matching todowrite.database.models.Node structure
-    node_data = {
-        "id": node_id,
-        "title": title,
-        "description": description,
-        "layer": layer,
-        "status": "planned",
-        "metadata": {
-            "created_at": "2024-01-01T00:00:00Z",
-            "updated_at": "2024-01-01T00:00:00Z",
-            "version": 1,
-        },
-        "links": {"parents": [], "children": []},
-    }
+        # Create node with basic fields
+        if layer == "Command":
+            # Command nodes have special fields
+            node = model_class(
+                title=title,
+                description=description,
+                owner="test-user",
+                severity="medium",
+                ac_ref=f"AC-{uuid.uuid4().hex[:8].upper()}",
+                run={"shell": "echo 'flexible entry test'"},
+            )
+        else:
+            # Regular nodes
+            node = model_class(
+                title=title, description=description, owner="test-user", severity="medium"
+            )
 
-    # Add command structure for Command layer
-    if layer == "Command":
-        node_data["command"] = {
-            "ac_ref": f"AC-{uuid.uuid4().hex[:8].upper()}",
-            "run": {"shell": "echo 'flexible entry test'"},
-            "artifacts": [],
-        }
+        session.add(node)
+        session.commit()
 
-    # Create node using real database operation
-    node = create_node(node_data)
-    return {"id": node.id, "title": node.title, "status": node.status}
+        result = {"id": node.id, "title": node.title, "status": node.status}
+
+    # Clean up temporary database
+    import os
+
+    os.unlink(temp_db)
+
+    return result
 
 
 class TestFlexibleEntryPoints:

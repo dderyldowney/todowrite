@@ -43,7 +43,7 @@ class ProjectManager:
     """Centralized project management and utility methods."""
 
     def __init__(self) -> None:
-        self.cache_dir = Path.home() / ".todowrite_cache"
+        self.cache_dir = Path.home() / ".ToDoWrite_cache"
         self.cache_dir.mkdir(exist_ok=True)
         self.logger = logging.getLogger(__name__)
 
@@ -54,8 +54,8 @@ class ProjectManager:
         Check that the deprecated schema doesn't have unintended changes.
         Returns True if check passes, False if there are issues.
         """
-        primary_path = Path("todowrite/schemas/todowrite.schema.json")
-        deprecated_path = Path("configs/schemas/todowrite.schema.json")
+        primary_path = Path("ToDoWrite/schemas/ToDoWrite.schema.json")
+        deprecated_path = Path("configs/schemas/ToDoWrite.schema.json")
 
         def get_schema_content(path: Path) -> dict[Any, Any]:
             """Load schema content from file."""
@@ -121,8 +121,8 @@ class ProjectManager:
         Check if schema changes are in the correct location.
         Returns True if check passes, False if there are issues.
         """
-        primary_schema = Path("todowrite/schemas/todowrite.schema.json")
-        deprecated_schema = Path("configs/schemas/todowrite.schema.json")
+        primary_schema = Path("ToDoWrite/schemas/ToDoWrite.schema.json")
+        deprecated_schema = Path("configs/schemas/ToDoWrite.schema.json")
 
         # Check if primary schema exists
         if not primary_schema.exists():
@@ -198,8 +198,8 @@ class ProjectManager:
             print(f"❌ Project path does not exist: {project_path}")
             return False
 
-        todowrite_dir = project_path / ".todowrite"
-        todowrite_dir.mkdir(exist_ok=True)
+        ToDoWrite_dir = project_path / ".ToDoWrite"
+        ToDoWrite_dir.mkdir(exist_ok=True)
 
         print(f"🚀 Setting up ToDoWrite integration in {project_path}")
 
@@ -215,7 +215,7 @@ class ProjectManager:
             return False
 
         print("✅ ToDoWrite integration setup complete!")
-        print(f"📁 Configuration created in: {todowrite_dir}")
+        print(f"📁 Configuration created in: {ToDoWrite_dir}")
         print(f"📄 Database type: {db_type}")
 
         return True
@@ -232,13 +232,13 @@ class ProjectManager:
         -- permissions and extensions
 
         -- Create additional users if needed
-        -- CREATE USER todowrite_readonly WITH PASSWORD 'readonly_password';
+        -- CREATE USER ToDoWrite_readonly WITH PASSWORD 'readonly_password';
 
         -- Grant permissions
-        GRANT CONNECT ON DATABASE todowrite TO todowrite;
-        GRANT USAGE ON SCHEMA public TO todowrite;
-        GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO todowrite;
-        GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO todowrite;
+        GRANT CONNECT ON DATABASE ToDoWrite TO ToDoWrite;
+        GRANT USAGE ON SCHEMA public TO ToDoWrite;
+        GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ToDoWrite;
+        GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO ToDoWrite;
 
         -- Enable extensions if needed
         -- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -249,8 +249,8 @@ class ProjectManager:
         -- This file can be extended with additional setup as needed
 
         -- Set default database settings for ToDoWrite
-        ALTER DATABASE todowrite SET timezone TO 'UTC';
-        ALTER DATABASE todowrite SET log_statement TO 'all';
+        ALTER DATABASE ToDoWrite SET timezone TO 'UTC';
+        ALTER DATABASE ToDoWrite SET log_statement TO 'all';
         """
         ).strip()
 
@@ -272,7 +272,7 @@ class ProjectManager:
                 project_path / "configs" / "schemas",
                 project_path / "docs",
                 project_path / "scripts",
-                project_path / ".todowrite",
+                project_path / ".ToDoWrite",
             ]
 
             for directory in directories:
@@ -314,10 +314,10 @@ class ProjectManager:
 
         # Look for key files
         key_files = [
-            "todowrite/schemas/todowrite.schema.json",
+            "ToDoWrite/schemas/ToDoWrite.schema.json",
             "pyproject.toml",
             "requirements.txt",
-            ".env.todowrite",
+            ".env.ToDoWrite",
         ]
 
         for file_path in key_files:
@@ -329,11 +329,11 @@ class ProjectManager:
                     f"Optional file missing: {file_path}"
                 )
 
-        # Check if todowrite package is accessible
-        if importlib.util.find_spec("todowrite") is not None:
-            result["found_files"].append("todowrite package accessible")
+        # Check if ToDoWrite package is accessible
+        if importlib.util.find_spec("ToDoWrite") is not None:
+            result["found_files"].append("ToDoWrite package accessible")
         else:
-            result["issues"].append("todowrite package not importable")
+            result["issues"].append("ToDoWrite package not importable")
             result["valid"] = False
 
         return result
@@ -347,7 +347,7 @@ class ProjectManager:
             / "tests"
             / "docker-compose.yml"
         )
-        target_path = project_path / "docker-compose.todowrite.yml"
+        target_path = project_path / "docker-compose.ToDoWrite.yml"
 
         if template_path.exists():
             shutil.copy2(template_path, target_path)
@@ -359,7 +359,7 @@ class ProjectManager:
 
     def _setup_sqlite(self, project_path: Path) -> bool:
         """Set up SQLite configuration."""
-        env_path = project_path / ".env.todowrite"
+        env_path = project_path / ".env.ToDoWrite"
         env_content = dedent(
             """
             # ToDoWrite SQLite Configuration
@@ -384,8 +384,8 @@ class ProjectManager:
             # Database Configuration
 TODOWRITE_DATABASE_URL={
                 (
-                    "postgresql://todowrite:todowrite_dev_password@"
-                    "localhost:5432/todowrite"
+                    "postgresql://ToDoWrite:ToDoWrite_dev_password@"
+                    "localhost:5432/ToDoWrite"
                 )
                 if db_type == "postgres"
                 else "sqlite:///todowrite.db"
@@ -398,14 +398,14 @@ TODOWRITE_DATABASE_URL={
             TODOWRITE_STORAGE_PREFERENCE=both
 
             # Schema validation
-            TODOWRITE_VALIDATE_SCHEMA=true
+            ToDoWrite_VALIDATE_SCHEMA=true
 
             # Database migration
-            TODOWRITE_AUTO_MIGRATE=true
+            ToDoWrite_AUTO_MIGRATE=true
             """
         ).strip()
 
-        config_path = project_path / ".todowrite" / "config.yaml"
+        config_path = project_path / ".ToDoWrite" / "config.yaml"
         with open(config_path, "w") as f:
             f.write(config_content)
 
@@ -422,15 +422,15 @@ TODOWRITE_DATABASE_URL={
           postgres:
             image: postgres:15
             environment:
-              POSTGRES_DB: todowrite
-              POSTGRES_USER: todowrite
-              POSTGRES_PASSWORD: todowrite_dev_password
+              POSTGRES_DB: ToDoWrite
+              POSTGRES_USER: ToDoWrite
+              POSTGRES_PASSWORD: ToDoWrite_dev_password
             ports:
               - "5432:5432"
             volumes:
               - postgres_data:/var/lib/postgresql/data
             healthcheck:
-              test: ["CMD-SHELL", "pg_isready -U todowrite"]
+              test: ["CMD-SHELL", "pg_isready -U ToDoWrite"]
               interval: 10s
               timeout: 5s
               retries: 5
@@ -464,10 +464,10 @@ TODOWRITE_DATABASE_URL={
 
         ```bash
         # Initialize ToDoWrite
-        python -m todowrite init
+        python -m ToDoWrite init
 
         # Create your first goal
-        python -m todowrite create --id GOAL-PROJECT-VISION --layer Goal \
+        python -m ToDoWrite create --id GOAL-PROJECT-VISION --layer Goal \
             --title "Project Vision"
         ```
         """
@@ -515,7 +515,7 @@ TODOWRITE_DATABASE_URL={
         venv.bak/
 
         # ToDoWrite
-        .todowrite/
+        .ToDoWrite/
         *.db
         *.sqlite
         *.sqlite3
@@ -551,7 +551,7 @@ class _AIOptimizationManager:
     without AI access."""
 
     def __init__(self) -> None:
-        self.cache_dir = Path.home() / ".todowrite_cache"
+        self.cache_dir = Path.home() / ".ToDoWrite_cache"
         self.cache_dir.mkdir(exist_ok=True)
         self._ai_available = self._check_ai_availability()
         self.logger = logging.getLogger(__name__)

@@ -173,10 +173,10 @@ todowrite create --layer goal --title "Build TodoWrite App" --description "Creat
 # Create a task
 todowrite create --layer task --title "Set up database" --description "Initialize database schema" --owner "dev-team"
 
-# View all nodes
+# View all items
 todowrite list
 
-# Search nodes
+# Search items
 todowrite search "database"
 
 # Export to YAML
@@ -185,40 +185,6 @@ todowrite export-yaml
 
 ### Python API Usage
 
-#### Traditional API (Dictionary-based)
-```python
-from todowrite import ToDoWrite, link_nodes
-
-# Initialize
-app = ToDoWrite("sqlite:///project.db")
-app.init_database()
-
-# Create nodes
-goal = app.create_node({
-    "id": "GOAL-001",
-    "layer": "Goal",
-    "title": "Build TodoWrite App",
-    "description": "Create the application",
-    "links": {"parents": [], "children": []},
-    "metadata": {"owner": "dev-team", "labels": ["app"], "severity": "high"}
-})
-
-task = app.create_node({
-    "id": "TSK-001",
-    "layer": "Task",
-    "title": "Set up database",
-    "description": "Initialize database schema",
-    "links": {"parents": [], "children": []},
-    "metadata": {"owner": "dev-team", "labels": ["database"], "severity": "medium"}
-})
-
-# Link nodes
-link_nodes("sqlite:///project.db", goal.id, task.id)
-
-# Get all nodes
-all_nodes = app.get_all_nodes()
-print(f"Total nodes: {sum(len(nodes) for nodes in all_nodes.values())}")
-```
 
 #### Rails ActiveRecord-Style API (Recommended) - Updated Design
 
@@ -380,45 +346,50 @@ command_node = {
 
 ## Database Operations
 
-### CRUD Operations
+### CRUD Operations (Rails ActiveRecord Pattern)
 ```python
-from todowrite import create_node, get_node, update_node, delete_node
+from todowrite import Goal, Task, create_engine, sessionmaker
 
-# Create
-node = create_node("sqlite:///project.db", node_data)
+# Initialize database session
+engine = create_engine("sqlite:///project.db")
+Session = sessionmaker(bind=engine)
+session = Session()
+
+# Create (Rails-style)
+goal = Goal(title="Build TodoWrite App", owner="dev-team", severity="high")
+session.add(goal)
+session.commit()
 
 # Read
-node = get_node("sqlite:///project.db", "GOAL-001")
+goal = session.query(Goal).filter(Goal.id == 1).first()
 
 # Update
-updated = update_node("sqlite:///project.db", "GOAL-001", {"title": "Updated"})
+goal.title = "Updated Title"
+session.commit()
 
 # Delete
-delete_node("sqlite:///project.db", "GOAL-001")
+session.delete(goal)
+session.commit()
 ```
 
-### Search Operations
+### Search Operations (Rails ActiveRecord Pattern)
 ```python
-from todowrite import search_nodes, list_nodes
+from todowrite import Goal, Task, create_engine, sessionmaker
 
-# Search by criteria
-results = search_nodes("sqlite:///project.db", {"owner": "dev"})
+# Initialize database session
+engine = create_engine("sqlite:///project.db")
+Session = sessionmaker(bind=engine)
+session = Session()
 
-# List all nodes
-all_nodes = list_nodes("sqlite:///project.db")
+# Search by criteria (Rails-style)
+results = session.query(Goal).filter(Goal.owner == "dev").all()
+tasks = session.query(Task).filter(Task.status == "in_progress").all()
+
+# List all items
+all_goals = session.query(Goal).all()
+all_tasks = session.query(Task).all()
 ```
 
-### Import/Export
-```python
-from todowrite import export_nodes, import_nodes
-
-# Export to JSON
-exported = export_nodes("sqlite:///project.db", "backup.json")
-
-# Import from JSON
-results = import_nodes("sqlite:///project.db", "backup.json")
-print(f"Imported {results['imported']} nodes")
-```
 
 ## Validation
 
@@ -480,23 +451,26 @@ data = yaml_manager.read_yaml()
 
 ## Error Handling
 
-### Graceful Degradation
+### Graceful Degradation (Rails ActiveRecord Pattern)
 ```python
-# Non-existent nodes return None (don't raise exceptions)
-node = get_node("sqlite:///project.db", "NONEXISTENT")  # Returns None
+# Non-existent records return None (don't raise exceptions)
+goal = session.query(Goal).filter(Goal.id == 99999).first()  # Returns None
 
-# Operations on non-existent nodes are safe
-result = update_node("sqlite:///project.db", "NONEXISTENT", {"title": "test"})  # Returns None
+# Query operations are safe
+results = session.query(Goal).filter(Goal.title == "Nonexistent").all()  # Returns []
 
-# Delete is idempotent
-delete_node("sqlite:///project.db", "NONEXISTENT")  # No exception raised
+# Operations check for existence before execution
+goal = session.query(Goal).filter(Goal.id == 1).first()
+if goal:
+    session.delete(goal)  # Only executes if goal exists
+    session.commit()
 ```
 
 ### Exception Types
-- `InvalidNodeError`: Invalid node data
-- `NodeNotFoundError`: Node not found (rare, usually returns None)
-- `DatabaseError`: Database operation failed
-- `SchemaError`: Schema validation failed
+- `SQLAlchemyError`: Database operation failed (SQLAlchemy exceptions)
+- `IntegrityError`: Database constraint violation
+- `OperationalError`: Database connection or operation error
+- `ValueError`: Invalid data values
 
 ## Testing
 

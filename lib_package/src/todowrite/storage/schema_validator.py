@@ -20,14 +20,13 @@ import yaml
 from sqlalchemy import Engine, inspect
 
 from ..core.constants import LAYER_DIRS
-from ..core.schema import TODOWRITE_SCHEMA
 
 
 class SchemaValidator:
     """Centralized schema validation across all storage backends."""
 
     def __init__(self) -> None:
-        self.schema = TODOWRITE_SCHEMA
+        self.schema = ToDoWrite_SCHEMA
         self.validation_cache: dict[str, bool] = {}
 
     def validate_node_data(
@@ -554,7 +553,7 @@ def get_schema_compliance_report(
     # If no engine provided for database types, try to get the default one
     if storage_type in ["postgresql", "sqlite"] and engine is None:
         try:
-            from ..core.app import ToDoWrite
+            from ..core.app import todowrite
 
             app = ToDoWrite()
             engine = app.engine

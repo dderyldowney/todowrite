@@ -5,7 +5,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-# Navigate from: cli_package/src/todowrite_cli/version.py -> project root
+# Navigate from: cli_package/src/ToDoWrite_cli/version.py -> project root
 current_file = Path(__file__)
 project_root = current_file.parent.parent.parent.parent
 

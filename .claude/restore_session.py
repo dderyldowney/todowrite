@@ -35,11 +35,11 @@ def verify_environment():
     return True
 
 
-def initialize_todowrite_tracking():
+def initialize_ToDoWrite_tracking():
     """Initialize ToDoWrite system for development tracking during restoration."""
     print("🔧 Initializing ToDoWrite development tracking...")
 
-    init_script = Path.cwd() / ".claude" / "init_todowrite_session.py"
+    init_script = Path.cwd() / ".claude" / "init_ToDoWrite_session.py"
 
     if init_script.exists() and os.access(init_script, os.X_OK):
         try:
@@ -49,7 +49,7 @@ def initialize_todowrite_tracking():
                 capture_output=True,
                 text=True,
                 timeout=30,
-                check=False
+                check=False,
             )
 
             if result.returncode == 0:
@@ -199,13 +199,13 @@ def verify_mcp_systems():
     return config_count >= 2
 
 
-def verify_todowrite_cli():
-    """Verify todowrite_cli availability and configuration."""
-    print("📋 Verifying todowrite_cli...")
+def verify_ToDoWrite_cli():
+    """Verify ToDoWrite_cli availability and configuration."""
+    print("📋 Verifying ToDoWrite_cli...")
 
     try:
         result = subprocess.run(
-            ["python", "-m", "todowrite_cli", "--version"],
+            ["python", "-m", "ToDoWrite_cli", "--version"],
             capture_output=True,
             text=True,
             timeout=10,
@@ -213,14 +213,14 @@ def verify_todowrite_cli():
         )
 
         if result.returncode == 0:
-            print(f"   ✓ todowrite_cli operational: {result.stdout.strip()}")
+            print(f"   ✓ ToDoWrite_cli operational: {result.stdout.strip()}")
             return True
         else:
-            print("   ⚠️ todowrite_cli not responding correctly")
+            print("   ⚠️ ToDoWrite_cli not responding correctly")
             return False
 
     except (subprocess.TimeoutExpired, FileNotFoundError):
-        print("   ⚠️ todowrite_cli not available")
+        print("   ⚠️ ToDoWrite_cli not available")
         return False
 
 
@@ -236,7 +236,7 @@ def create_restoration_marker():
             "fail_safes",
             "hal_token_optimization",
             "mcp_2025_systems",
-            "todowrite_cli",
+            "ToDoWrite_cli",
         ],
         "session_protection": True,
         "memory_guards_active": True,
@@ -266,7 +266,7 @@ def main():
         success_count += 1
 
     # 3. Initialize ToDoWrite development tracking (NEW)
-    if initialize_todowrite_tracking():
+    if initialize_ToDoWrite_tracking():
         print("✓ ToDoWrite development tracking restored")
         success_count += 1
     else:
@@ -284,8 +284,8 @@ def main():
     if verify_mcp_systems():
         success_count += 1
 
-    # 7. Verify todowrite_cli
-    if verify_todowrite_cli():
+    # 7. Verify ToDoWrite_cli
+    if verify_ToDoWrite_cli():
         success_count += 1
 
     # Create restoration marker
@@ -298,7 +298,7 @@ def main():
     print("  ✅ Memory and session protection enabled")
     print("  ✅ HAL Agent and Token Optimization available")
     print("  ✅ MCP 2025 industry-standard tools ready")
-    print("  ✅ todowrite_cli workflow enforcement active")
+    print("  ✅ ToDoWrite_cli workflow enforcement active")
     print("  ✅ Complete documentation loaded")
     print("  ✅ ToDoWrite development tracking active")
 

@@ -13,7 +13,8 @@ from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
-from todowrite_cli.main import cli
+
+from cli_package.src.todowrite_cli.main import cli
 
 
 class TestCLICommands(unittest.TestCase):
@@ -1004,7 +1005,7 @@ class TestCLICommands(unittest.TestCase):
         db_path = os.path.join(self.temp_dir, "test_todowrite.db")
 
         # Create config directory and file to ensure all commands use same database
-        config_dir = os.path.join(self.temp_dir, ".todowrite")
+        config_dir = os.path.join(self.temp_dir, ".ToDoWrite")
         os.makedirs(config_dir, exist_ok=True)
         config_file = os.path.join(config_dir, "config.yaml")
 

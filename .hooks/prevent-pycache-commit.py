@@ -4,7 +4,7 @@ Universal Git Hook: Prevent Python Cache Files from Being Committed
 
 This hook ensures that NO Python cache files (__pycache__, .pyc, etc.)
 are EVER committed to ANY git repository - this is a universal principle
-that applies to ALL projects using Python, not just TodoWrite.
+that applies to ALL projects using Python, not just ToDoWrite.
 
 This hook checks:
 1. __pycache__ directories (anywhere in the project)
@@ -15,13 +15,11 @@ This hook checks:
 Universal Rule: PYTHON CACHE FILES SHOULD NEVER BE COMMITTED TO GIT
 """
 
-import os
 import sys
 from pathlib import Path
-from typing import List
 
 
-def find_python_cache_files(root_dir: str) -> List[str]:
+def find_python_cache_files(root_dir: str) -> list[str]:
     """
     Find all Python cache files in the repository.
 
@@ -33,29 +31,29 @@ def find_python_cache_files(root_dir: str) -> List[str]:
     """
     cache_files = []
     cache_patterns = [
-        "__pycache__",           # Cache directories
-        "*.pyc",                  # Compiled Python files
-        "*.pyo",                  # Optimized Python files
-        "*.pyd",                  # Python dynamic files
-        "*$py.class",             # Java class files (from Jython)
-        ".Python",                # Build directory
+        "__pycache__",  # Cache directories
+        "*.pyc",  # Compiled Python files
+        "*.pyo",  # Optimized Python files
+        "*.pyd",  # Python dynamic files
+        "*$py.class",  # Java class files (from Jython)
+        ".Python",  # Build directory
     ]
     # Note: dist/ and sdist/ excluded by directory exclusions above
 
     # Directories to exclude from cache file search
     exclude_dirs = {
         ".git",
-        ".venv",                  # Virtual environments
-        "venv",                   # Virtual environments
-        "env",                    # Virtual environments
-        "__pycache__",           # Handled separately
-        "node_modules",           # Node.js modules
-        ".pytest_cache",          # Pytest cache
-        ".coverage",              # Coverage reports
-        "htmlcov",                # HTML coverage reports
-        "dist",                   # Distribution directories (rebuilt each release)
-        "sdist",                  # Source distributions (rebuilt each release)
-        "build",                  # Build directories (rebuilt each build)
+        ".venv",  # Virtual environments
+        "venv",  # Virtual environments
+        "env",  # Virtual environments
+        "__pycache__",  # Handled separately
+        "node_modules",  # Node.js modules
+        ".pytest_cache",  # Pytest cache
+        ".coverage",  # Coverage reports
+        "htmlcov",  # HTML coverage reports
+        "dist",  # Distribution directories (rebuilt each release)
+        "sdist",  # Source distributions (rebuilt each release)
+        "build",  # Build directories (rebuilt each build)
         # Note: Some projects use build/ for legitimate build scripts,
         # but for most projects, build/ should be gitignored
     }
@@ -73,7 +71,12 @@ def find_python_cache_files(root_dir: str) -> List[str]:
                     should_exclude = False
                     for exclude in exclude_dirs:
                         # Check if the path contains the excluded directory as a path component
-                        if f"/{exclude}/" in path_str or path_str.startswith(f"{exclude}/") or path_str.endswith(f"/{exclude}") or path_str == exclude:
+                        if (
+                            f"/{exclude}/" in path_str
+                            or path_str.startswith(f"{exclude}/")
+                            or path_str.endswith(f"/{exclude}")
+                            or path_str == exclude
+                        ):
                             should_exclude = True
                             break
                     if not should_exclude:
@@ -86,20 +89,28 @@ def find_python_cache_files(root_dir: str) -> List[str]:
                 should_exclude = False
                 for exclude in exclude_dirs:
                     # Check if the path contains the excluded directory as a path component
-                    if f"/{exclude}/" in path_str or path_str.startswith(f"{exclude}/") or path_str.endswith(f"/{exclude}") or path_str == exclude:
+                    if (
+                        f"/{exclude}/" in path_str
+                        or path_str.startswith(f"{exclude}/")
+                        or path_str.endswith(f"/{exclude}")
+                        or path_str == exclude
+                    ):
                         should_exclude = True
                         break
-                if (path.is_file() and
-                    not should_exclude and
+                if (
+                    path.is_file()
+                    and not should_exclude
+                    and
                     # Exclude build/dist directories that are legitimate
-                    "dist/" not in path_str and
-                    "build/" not in path_str):
+                    "dist/" not in path_str
+                    and "build/" not in path_str
+                ):
                     cache_files.append(path_str)
 
     return cache_files
 
 
-def find_pycache_directories(root_dir: str) -> List[str]:
+def find_pycache_directories(root_dir: str) -> list[str]:
     """
     Find all __pycache__ directories in the repository.
 
@@ -112,17 +123,17 @@ def find_pycache_directories(root_dir: str) -> List[str]:
     # Directories to exclude from cache file search
     exclude_dirs = {
         ".git",
-        ".venv",                  # Virtual environments
-        "venv",                   # Virtual environments
-        "env",                    # Virtual environments
-        "__pycache__",           # Handled separately
-        "node_modules",           # Node.js modules
-        ".pytest_cache",          # Pytest cache
-        ".coverage",              # Coverage reports
-        "htmlcov",                # HTML coverage reports
-        "dist",                   # Distribution directories (rebuilt each release)
-        "sdist",                  # Source distributions (rebuilt each release)
-        "build",                  # Build directories (rebuilt each build)
+        ".venv",  # Virtual environments
+        "venv",  # Virtual environments
+        "env",  # Virtual environments
+        "__pycache__",  # Handled separately
+        "node_modules",  # Node.js modules
+        ".pytest_cache",  # Pytest cache
+        ".coverage",  # Coverage reports
+        "htmlcov",  # HTML coverage reports
+        "dist",  # Distribution directories (rebuilt each release)
+        "sdist",  # Source distributions (rebuilt each release)
+        "build",  # Build directories (rebuilt each build)
         # Note: Some projects use build/ for legitimate build scripts,
         # but for most projects, build/ should be gitignored
     }
@@ -137,7 +148,12 @@ def find_pycache_directories(root_dir: str) -> List[str]:
             should_exclude = False
             for exclude in exclude_dirs:
                 # Check if the path contains the excluded directory as a path component
-                if f"/{exclude}/" in path_str or path_str.startswith(f"{exclude}/") or path_str.endswith(f"/{exclude}") or path_str == exclude:
+                if (
+                    f"/{exclude}/" in path_str
+                    or path_str.startswith(f"{exclude}/")
+                    or path_str.endswith(f"/{exclude}")
+                    or path_str == exclude
+                ):
                     should_exclude = True
                     break
             if not should_exclude:
@@ -146,7 +162,7 @@ def find_pycache_directories(root_dir: str) -> List[str]:
     return pycache_dirs
 
 
-def check_for_pycache_violations(root_dir: str) -> tuple[int, List[str]]:
+def check_for_pycache_violations(root_dir: str) -> tuple[int, list[str]]:
     """
     Check for Python cache file violations.
 

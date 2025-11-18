@@ -82,13 +82,13 @@ class CommandStubGenerator:
         if "makefile" in title or "targets" in title:
             return "make tw-all && echo 'Makefile targets verified'"
         elif "validation" in title or "schema" in title:
-            return "python todowrite/tools/tw_validate.py --strict"
+            return "python ToDoWrite/tools/tw_validate.py --strict"
         elif "lint" in title or "soc" in title:
-            return "python todowrite/tools/tw_lint_soc.py"
+            return "python ToDoWrite/tools/tw_lint_soc.py"
         elif "trace" in title or "links" in title:
-            return "python todowrite/tools/tw_trace.py"
+            return "python ToDoWrite/tools/tw_trace.py"
         elif "cli" in title or "command" in title:
-            return "python -m todowrite --help && echo 'CLI commands verified'"
+            return "python -m ToDoWrite --help && echo 'CLI commands verified'"
         elif "documentation" in title or "docs" in title:
             return "find docs -name '*.md' -exec echo 'Documentation file: {}' \\; && echo 'Documentation verified'"
         elif "test" in title:
@@ -109,7 +109,7 @@ class CommandStubGenerator:
             artifacts.extend(
                 [
                     f"results/{cmd_id}/make_output.log",
-                    "configs/schemas/todowrite.schema.json",
+                    "configs/schemas/ToDoWrite.schema.json",
                 ]
             )
         elif "validation" in title:
@@ -177,7 +177,7 @@ class CommandStubGenerator:
                 "run": {
                     "shell": shell_command,
                     "workdir": ".",
-                    "env": {"TODOWRITE_MODE": "validation", "AC_REF": ac_id},
+                    "env": {"ToDoWrite_MODE": "validation", "AC_REF": ac_id},
                 },
                 "artifacts": artifacts,
             },

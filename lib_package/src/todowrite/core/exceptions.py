@@ -10,13 +10,13 @@ from __future__ import annotations
 from typing import Any
 
 
-class ToDoWriteError(Exception):
+class todowriteError(Exception):
     """Base exception class for all ToDoWrite errors."""
 
     pass
 
 
-class NodeError(ToDoWriteError):
+class NodeError(todowriteError):
     """Base exception for node-related errors."""
 
     pass
@@ -40,7 +40,7 @@ class InvalidNodeError(NodeError):
         super().__init__(message)
 
 
-class StorageError(ToDoWriteError):
+class StorageError(todowriteError):
     """Base exception for storage-related errors."""
 
     pass
@@ -67,7 +67,7 @@ class YAMLError(StorageError):
         super().__init__(msg)
 
 
-class SchemaError(ToDoWriteError):
+class SchemaError(todowriteError):
     """Raised for schema validation errors."""
 
     def __init__(
@@ -80,19 +80,19 @@ class SchemaError(ToDoWriteError):
         super().__init__(msg)
 
 
-class ConfigurationError(ToDoWriteError):
+class ConfigurationError(todowriteError):
     """Raised for configuration-related errors."""
 
     pass
 
 
-class CLIError(ToDoWriteError):
+class CLIError(todowriteError):
     """Raised for CLI-related errors."""
 
     pass
 
 
-class TokenOptimizationError(ToDoWriteError):
+class TokenOptimizationError(todowriteError):
     """Raised for token optimization errors."""
 
     pass

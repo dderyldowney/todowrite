@@ -103,7 +103,7 @@ def register_agent():
         "agent_type": "development",
         "capabilities": ["code-generation", "test-fixing", "documentation"],
         "workflow_enforcement": {
-            "requires_todowrite_cli": True,
+            "requires_ToDoWrite_cli": True,
             "planning_required": True,
             "token_optimization": True,
         },
@@ -113,19 +113,19 @@ def register_agent():
         json.dump(registry, f, indent=2)
 
 
-def enforce_todowrite_cli_workflow():
-    """Enforce todowrite_cli usage for all planning and implementation."""
+def enforce_ToDoWrite_cli_workflow():
+    """Enforce ToDoWrite_cli usage for all planning and implementation."""
     session_root = get_session_root()
     session_dir = session_root / ".claude"
     workflow_file = session_dir / "workflow_enforcement.json"
 
     workflow_config = {
-        "todowrite_cli_required": True,
+        "ToDoWrite_cli_required": True,
         "planning_steps": [
-            "Use todowrite_cli to create tasks for all work",
+            "Use ToDoWrite_cli to create tasks for all work",
             "Check episodic memory for past context",
-            "Plan implementation using todowrite_cli",
-            "Execute work with todowrite_cli tracking",
+            "Plan implementation using ToDoWrite_cli",
+            "Execute work with ToDoWrite_cli tracking",
         ],
         "enforcement_time": datetime.now().isoformat(),
         "token_optimization_active": True,
@@ -134,7 +134,7 @@ def enforce_todowrite_cli_workflow():
     with open(workflow_file, "w") as f:
         json.dump(workflow_config, f, indent=2)
 
-    print("✓ todowrite_cli workflow enforcement activated")
+    print("✓ ToDoWrite_cli workflow enforcement activated")
     return True
 
 
@@ -153,13 +153,13 @@ def enforce_comprehensive_code_quality():
                 "active": True,
                 "enforced_via": "pre_commit_hooks",
                 "configuration": ".hooks/semantic-scope-validator.py",
-                "description": "Project-specific commit message scoping (lib, cli, web, tests, docs, build, config, ci, deps)"
+                "description": "Project-specific commit message scoping (lib, cli, web, tests, docs, build, config, ci, deps)",
             },
             "red_green_refactor": {
                 "active": True,
                 "enforced_via": "pre_commit_hooks",
                 "configuration": ".hooks/red-green-refactor-enforcer.py",
-                "description": "TDD methodology enforcement (RED test, GREEN code, REFACTOR clean)"
+                "description": "TDD methodology enforcement (RED test, GREEN code, REFACTOR clean)",
             },
             "ruff": {
                 "active": True,
@@ -172,26 +172,26 @@ def enforce_comprehensive_code_quality():
                     "Import sorting and organization",
                     "Security vulnerability detection",
                     "E402: module import enforcement",
-                    "PLC0415: import location enforcement"
-                ]
+                    "PLC0415: import location enforcement",
+                ],
             },
             "bandit": {
                 "active": True,
                 "enforced_via": "pre_commit_hooks",
                 "configuration": "pyproject.toml",
-                "description": "Security-focused static analysis for common vulnerabilities"
+                "description": "Security-focused static analysis for common vulnerabilities",
             },
             "detect_secrets": {
                 "active": True,
                 "enforced_via": "pre_commit_hooks",
                 "configuration": ".secrets.baseline",
-                "description": "Secret scanning to prevent API keys, passwords, tokens from being committed"
+                "description": "Secret scanning to prevent API keys, passwords, tokens from being committed",
             },
             "sqlfluff": {
                 "active": True,
                 "enforced_via": "pre_commit_hooks",
                 "configuration": ".sqlfluff-config",
-                "description": "SQL linting and formatting for database consistency"
+                "description": "SQL linting and formatting for database consistency",
             },
             "token_optimization": {
                 "active": True,
@@ -203,14 +203,14 @@ def enforce_comprehensive_code_quality():
                     "Verbose docstring simplification",
                     "Unused import detection",
                     "Simple function inlining opportunities",
-                    "Code structure optimization"
-                ]
+                    "Code structure optimization",
+                ],
             },
             "conventional_commits": {
                 "active": True,
                 "enforced_via": "pre_commit_hooks",
                 "configuration": "commitizen + custom validators",
-                "description": "Standardized commit message format (type(scope): description)"
+                "description": "Standardized commit message format (type(scope): description)",
             },
             "pre_commit_hooks": {
                 "active": True,
@@ -231,9 +231,9 @@ def enforce_comprehensive_code_quality():
                     "check-ast",
                     "check-case-conflict",
                     "check-docstring-first",
-                    "check-shebang-scripts-are-executable"
-                ]
-            }
+                    "check-shebang-scripts-are-executable",
+                ],
+            },
         },
         "quality_gates": {
             "zero_tolerance_violations": [
@@ -241,13 +241,13 @@ def enforce_comprehensive_code_quality():
                 "commit_message_format_errors",
                 "security_vulnerabilities",
                 "secret_detection",
-                "syntax_errors"
+                "syntax_errors",
             ],
             "warning_thresholds": {
                 "token_inefficiency": 0.15,  # 15% threshold for token optimization
                 "code_complexity": 10,
-                "file_size_mb": 1.0
-            }
+                "file_size_mb": 1.0,
+            },
         },
         "agent_requirements": {
             "mandatory_workflows": [
@@ -255,14 +255,14 @@ def enforce_comprehensive_code_quality():
                 "semantic_scoping_awareness",
                 "red_green_refactor_methodology",
                 "token_optimization_consideration",
-                "todowrite_cli_usage"
+                "ToDoWrite_cli_usage",
             ],
             "forbidden_practices": [
                 "mocking_frameworks",
                 "committing_without_tests",
                 "ignoring_quality_gates",
-                "bypassing_pre_commit_hooks"
-            ]
+                "bypassing_pre_commit_hooks",
+            ],
         },
         "verification_commands": {
             "pre_commit_install": "pre-commit install",
@@ -271,8 +271,8 @@ def enforce_comprehensive_code_quality():
             "secret_scan": "detect-secrets scan --baseline .secrets.baseline",
             "sql_linting": "sqlfluff lint",
             "security_audit": "bandit -r .",
-            "code_quality": "ruff check . && ruff format ."
-        }
+            "code_quality": "ruff check . && ruff format .",
+        },
     }
 
     with open(quality_config_file, "w") as f:
@@ -299,8 +299,10 @@ def activate_permanent_enforcement():
     if autorun_script.exists():
         try:
             import subprocess
-            result = subprocess.run(["python", str(autorun_script)],
-                                  capture_output=True, text=True, cwd=project_root)
+
+            result = subprocess.run(
+                ["python", str(autorun_script)], capture_output=True, text=True, cwd=project_root
+            )
             if result.stdout:
                 print(result.stdout.strip())
         except Exception as e:
@@ -315,12 +317,12 @@ def main():
     if check_session_freshness():
         update_heartbeat()
         print("Session active - heartbeat updated")
-        enforce_todowrite_cli_workflow()
+        enforce_ToDoWrite_cli_workflow()
         enforce_comprehensive_code_quality()
         return 0
     create_session_markers()
     register_agent()
-    enforce_todowrite_cli_workflow()
+    enforce_ToDoWrite_cli_workflow()
     enforce_comprehensive_code_quality()
     print("New session initialized with comprehensive code quality enforcement")
     return 0

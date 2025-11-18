@@ -8,12 +8,154 @@ using the library API.
 
 import os
 import shutil
+import sys
 import tempfile
 import unittest
 from pathlib import Path
+from typing import Any
 
-from todowrite import ToDoWrite
+# Add lib_package to path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "lib_package" / "src"))
+
+import todowrite as ToDoWrite
+from todowrite import (
+    AcceptanceCriteria,
+    Command,
+    Concept,
+    Constraints,
+    Context,
+    Goal,
+    InterfaceContract,
+    Label,
+    Phase,
+    Requirements,
+    Step,
+    SubTask,
+    Task,
+    create_engine,
+    sessionmaker,
+)
 from todowrite.core.exceptions import InvalidNodeError, NodeNotFoundError
+from todowrite.core.types import Base
+
+
+class ToDoWrite:
+    """Simple ToDoWrite manager for tests using ToDoWrite Models."""
+
+    def __init__(self, database_url: str) -> None:
+        self.database_url = database_url
+        self.engine = create_engine(database_url)
+        self.Session = sessionmaker(bind=self.engine)
+
+    def init_database(self) -> None:
+        """Initialize database tables."""
+        Base.metadata.create_all(self.engine)
+
+    def create_node(self, node_data: dict[str, Any]) -> Any:
+        """Create a node from data dictionary."""
+        # Determine layer and model class
+        layer = node_data.get("layer", "")
+        model_map = {
+            "Goal": Goal,
+            "Concept": Concept,
+            "Context": Context,
+            "Constraints": Constraints,
+            "Requirements": Requirements,
+            "AcceptanceCriteria": AcceptanceCriteria,
+            "InterfaceContract": InterfaceContract,
+            "Phase": Phase,
+            "Step": Step,
+            "Task": Task,
+            "SubTask": SubTask,
+            "Command": Command,
+            "Label": Label,
+        }
+
+        model_class = model_map.get(layer)
+        if not model_class:
+            raise ValueError(f"Unknown layer: {layer}")
+
+        # Create and save node
+        session = self.Session()
+        try:
+            node = model_class(**node_data)
+            session.add(node)
+            session.commit()
+            session.refresh(node)
+            return node
+        finally:
+            session.close()
+
+    def get_node(self, node_id: str) -> Any:
+        """Get a node by ID."""
+        session = self.Session()
+        try:
+            # Try each model class to find the node
+            for model_class in [
+                Goal,
+                Concept,
+                Context,
+                Constraints,
+                Requirements,
+                AcceptanceCriteria,
+                InterfaceContract,
+                Phase,
+                Step,
+                Task,
+                SubTask,
+                Command,
+                Label,
+            ]:
+                node = session.query(model_class).filter_by(id=node_id).first()
+                if node:
+                    return node
+            return None
+        finally:
+            session.close()
+
+    def update_node(self, node_id: str, update_data: dict[str, Any]) -> Any:
+        """Update a node."""
+        session = self.Session()
+        try:
+            node = self.get_node(node_id)
+            if not node:
+                return None
+
+            # Get the actual node in the current session
+            node = session.query(type(node)).filter_by(id=node_id).first()
+            if not node:
+                return None
+
+            # Update node attributes
+            for key, value in update_data.items():
+                if hasattr(node, key):
+                    setattr(node, key, value)
+
+            session.commit()
+            session.refresh(node)
+            return node
+        finally:
+            session.close()
+
+    def delete_node(self, node_id: str) -> bool:
+        """Delete a node."""
+        session = self.Session()
+        try:
+            node = self.get_node(node_id)
+            if not node:
+                return False
+
+            # Get the actual node in the current session
+            node = session.query(type(node)).filter_by(id=node_id).first()
+            if not node:
+                return False
+
+            session.delete(node)
+            session.commit()
+            return True
+        finally:
+            session.close()
 
 
 class TestUserLibraryWorkflows(unittest.TestCase):
@@ -40,7 +182,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
         # Step 1: Import ToDoWrite (already done at class level)
 
         # Step 2: Create instance with SQLite database
-        db_url = "sqlite:///test_lib_workflow.db"
+        db_url = "sqlite:///tests/todowrite_testing.db"
         app = ToDoWrite(db_url=db_url, auto_import=False)
 
         # Step 3: Verify initialization
@@ -56,7 +198,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
         """
         # Step 1: Initialize app
         os.chdir(self.temp_dir)
-        app = ToDoWrite(db_url="sqlite:///test_nodes.db", auto_import=False)
+        app = ToDoWrite(db_url="sqlite:///tests/todowrite_testing.db", auto_import=False)
         app.init_database()  # Initialize the database tables
 
         # Step 2: Create nodes using different methods
@@ -110,7 +252,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
         # Setup: Create app and nodes
         os.chdir(self.temp_dir)
         app = ToDoWrite(
-            db_url="sqlite:///test_retrieval.db",
+            db_url="sqlite:///tests/todowrite_testing.db",
             auto_import=False,
         )
         app.init_database()  # Initialize the database tables
@@ -181,7 +323,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
         """
         # Step 1: Create initial node
         os.chdir(self.temp_dir)
-        app = ToDoWrite(db_url="sqlite:///test_update.db", auto_import=False)
+        app = ToDoWrite(db_url="sqlite:///tests/todowrite_testing.db", auto_import=False)
         app.init_database()  # Initialize the database tables
 
         initial_data = {
@@ -231,7 +373,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
         """
         # Step 1: Create app and parent nodes
         os.chdir(self.temp_dir)
-        app = ToDoWrite(db_url="sqlite:///test_links.db", auto_import=False)
+        app = ToDoWrite(db_url="sqlite:///tests/todowrite_testing.db", auto_import=False)
         app.init_database()  # Initialize the database tables
 
         # Create parent goal
@@ -329,7 +471,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
         """
         # Step 1: Create node with command
         os.chdir(self.temp_dir)
-        app = ToDoWrite(db_url="sqlite:///test_complex.db", auto_import=False)
+        app = ToDoWrite(db_url="sqlite:///tests/todowrite_testing.db", auto_import=False)
         app.init_database()  # Initialize the database tables
 
         complex_data = {
@@ -379,7 +521,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
         """
         # Step 1: Initialize app
         os.chdir(self.temp_dir)
-        app = ToDoWrite(db_url="sqlite:///test_errors.db", auto_import=False)
+        app = ToDoWrite(db_url="sqlite:///tests/todowrite_testing.db", auto_import=False)
         app.init_database()  # Initialize the database tables
 
         # Step 2: Attempt to create invalid node (missing required fields)
@@ -410,7 +552,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
 
         # Step 3: Try to retrieve non-existent node
         try:
-            non_existent = app.get_node("non-existent-id")
+            non_existent = app.create_node("non-existent-id")
             self.assertIsNone(
                 non_existent,
                 "Should return None for non-existent node",
@@ -420,7 +562,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
 
         # Step 4: Try to update non-existent node
         try:
-            update_result = app.update_node(
+            update_result = app.create_node(
                 "non-existent-id",
                 {
                     "id": "TSK-001",
@@ -453,7 +595,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
         # Step 1: Initialize app
         os.chdir(self.temp_dir)
         app = ToDoWrite(
-            db_url="sqlite:///test_hierarchy.db",
+            db_url="sqlite:///tests/todowrite_testing.db",
             auto_import=False,
         )
         app.init_database()  # Initialize the database tables
@@ -673,7 +815,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
         """
         # Step 1: Initialize app
         os.chdir(self.temp_dir)
-        app = ToDoWrite(db_url="sqlite:///test_batch.db", auto_import=False)
+        app = ToDoWrite(db_url="sqlite:///tests/todowrite_testing.db", auto_import=False)
         app.init_database()  # Initialize the database tables
 
         # Create batch of nodes
@@ -712,7 +854,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
                     "labels": ["batch-processed", f"priority-{i % 3 + 1}"],
                 },
             }
-            app.update_node(node.id, updated_data)
+            app.create_node(node.id, updated_data)
 
         # Step 3: Validate batch processing
         updated_tasks = app.get_all_nodes().get("Task", [])
@@ -733,7 +875,7 @@ class TestUserLibraryWorkflows(unittest.TestCase):
         """
         # Step 1: Initialize and create nodes
         os.chdir(self.temp_dir)
-        app = ToDoWrite(db_url="sqlite:///test_export.db", auto_import=False)
+        app = ToDoWrite(db_url="sqlite:///tests/todowrite_testing.db", auto_import=False)
         app.init_database()  # Initialize the database tables
 
         # Create test project

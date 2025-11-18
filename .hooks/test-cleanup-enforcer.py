@@ -7,9 +7,7 @@ no test-generated files remain after sessions or commits.
 """
 
 import json
-import os
 import sys
-import time
 from pathlib import Path
 
 
@@ -28,7 +26,7 @@ class TestCleanupEnforcer:
             "cleanup_permanent": True,
             "survives_session_reset": True,
             "forbidden_artifacts": [
-                "tests_todowrite.db",
+                "tests/todowrite_testing.db",
                 "todowrite_*_testing.db",
                 "todowrite_*_development.db",
                 "commit-msgs.txt",
@@ -42,14 +40,14 @@ class TestCleanupEnforcer:
                 "pytest_results_*.txt",
                 "test_output_*.txt",
                 "test_report_*.txt",
-                "test_coverage_*.txt"
+                "test_coverage_*.txt",
             ],
             "forbidden_directories": [
                 "test_artifacts",
                 "pytest_cache",
                 "test_results",
                 "test_reports",
-                "test_outputs"
+                "test_outputs",
             ],
             "allowed_patterns": [
                 ".git/",
@@ -59,24 +57,24 @@ class TestCleanupEnforcer:
                 "venv/",
                 "htmlcov/",
                 ".coverage",
-                "coverage.xml"
+                "coverage.xml",
             ],
             "cleanup_commands": [
-                "find . -name 'tests_todowrite.db' -delete 2>/dev/null || true",
+                "find . -name 'tests/todowrite_testing.db' -delete 2>/dev/null || true",
                 "find . -name 'todowrite_*_testing.db' -delete 2>/dev/null || true",
                 "find . -name 'todowrite_*_development.db' -delete 2>/dev/null || true",
                 "find . -name 'commit-msgs.txt' -delete 2>/dev/null || true",
                 "find . -name '*.db' -not -path './.git/*' -not -path './.venv/*' -not -path './venv/*' -delete 2>/dev/null || true",
                 "find . -name 'commit-msgs*.txt' -not -path './.git/*' -delete 2>/dev/null || true",
                 "find . -name 'test_artifacts*' -delete 2>/dev/null || true",
-                "find . -name 'test_results*' -delete 2>/dev/null || true"
+                "find . -name 'test_results*' -delete 2>/dev/null || true",
             ],
             "verification_patterns": [
                 "tests_todowrite.db",
                 "commit-msgs.txt",
                 "test_artifacts",
-                "test_results"
-            ]
+                "test_results",
+            ],
         }
 
         if self.config_file.exists():
@@ -95,12 +93,7 @@ class TestCleanupEnforcer:
 
     def scan_for_forbidden_artifacts(self) -> dict:
         """Scan for forbidden test artifacts."""
-        findings = {
-            "files": [],
-            "directories": [],
-            "total_count": 0,
-            "critical_violations": []
-        }
+        findings = {"files": [], "directories": [], "total_count": 0, "critical_violations": []}
 
         # Scan for forbidden files
         for pattern in self.config["forbidden_artifacts"]:
@@ -108,16 +101,21 @@ class TestCleanupEnforcer:
                 matches = list(self.project_root.rglob(pattern))
                 for match in matches:
                     if self._should_check_file(match):
-                        findings["files"].append({
-                            "path": str(match),
-                            "size": match.stat().st_size if match.exists() else 0,
-                            "modified": match.stat().st_mtime if match.exists() else 0,
-                            "pattern": pattern
-                        })
+                        findings["files"].append(
+                            {
+                                "path": str(match),
+                                "size": match.stat().st_size if match.exists() else 0,
+                                "modified": match.stat().st_mtime if match.exists() else 0,
+                                "pattern": pattern,
+                            }
+                        )
                         findings["total_count"] += 1
 
                         # Check for critical violations
-                        if any(critical in match.name.lower() for critical in ["tests_todowrite.db", "commit-msgs.txt"]):
+                        if any(
+                            critical in match.name.lower()
+                            for critical in ["tests_todowrite.db", "commit-msgs.txt"]
+                        ):
                             findings["critical_violations"].append(str(match))
             except Exception:
                 continue
@@ -128,10 +126,7 @@ class TestCleanupEnforcer:
                 matches = list(self.project_root.rglob(pattern))
                 for match in matches:
                     if match.is_dir() and self._should_check_file(match):
-                        findings["directories"].append({
-                            "path": str(match),
-                            "pattern": pattern
-                        })
+                        findings["directories"].append({"path": str(match), "pattern": pattern})
                         findings["total_count"] += 1
             except Exception:
                 continue
@@ -167,7 +162,7 @@ class TestCleanupEnforcer:
             "critical_violations": len(findings["critical_violations"]),
             "cleanup_performed": False,
             "cleanup_success": False,
-            "errors": []
+            "errors": [],
         }
 
         if findings["total_count"] == 0:
@@ -183,12 +178,9 @@ class TestCleanupEnforcer:
             for command in self.config["cleanup_commands"]:
                 try:
                     import subprocess
+
                     result = subprocess.run(
-                        command,
-                        shell=True,
-                        cwd=self.project_root,
-                        capture_output=True,
-                        text=True
+                        command, shell=True, cwd=self.project_root, capture_output=True, text=True
                     )
                     if result.returncode != 0:
                         results["errors"].append(f"Command failed: {command}")
@@ -210,7 +202,9 @@ class TestCleanupEnforcer:
             errors.append(f"Found {findings['total_count']} forbidden test artifacts")
 
         if findings["critical_violations"]:
-            errors.append(f"CRITICAL: Found {len(findings['critical_violations'])} critical violations:")
+            errors.append(
+                f"CRITICAL: Found {len(findings['critical_violations'])} critical violations:"
+            )
             for violation in findings["critical_violations"]:
                 errors.append(f"  - {violation}")
 

@@ -1,7 +1,7 @@
 """
 RED PHASE: Tests for Development Project Lifecycle Management
 These tests MUST FAIL before implementation exists.
-NO MOCKING ALLOWED - Tests will use real todowrite system.
+NO MOCKING ALLOWED - Tests will use real ToDoWrite system.
 """
 
 from __future__ import annotations
@@ -17,12 +17,12 @@ class TestDevelopmentProjectLifecycleManagement:
         # This test will create a real development project and verify 12-layer structure
         project_name: str = "TestSoftwareProject"
 
-        # Create project using todowrite CLI
+        # Create project using ToDoWrite CLI
         result = subprocess.run(
             [
                 "python",
                 "-m",
-                "todowrite_cli",
+                "ToDoWrite_cli",
                 "create",
                 "--layer",
                 "goal",
@@ -47,7 +47,7 @@ class TestDevelopmentProjectLifecycleManagement:
             [
                 "python",
                 "-m",
-                "todowrite_cli",
+                "ToDoWrite_cli",
                 "create",
                 "--layer",
                 "concept",
@@ -72,7 +72,7 @@ class TestDevelopmentProjectLifecycleManagement:
             [
                 "python",
                 "-m",
-                "todowrite_cli",
+                "ToDoWrite_cli",
                 "create",
                 "--layer",
                 "requirements",
@@ -95,7 +95,7 @@ class TestDevelopmentProjectLifecycleManagement:
             [
                 "python",
                 "-m",
-                "todowrite_cli",
+                "ToDoWrite_cli",
                 "create",
                 "--layer",
                 "acceptancecriteria",
@@ -110,9 +110,9 @@ class TestDevelopmentProjectLifecycleManagement:
             check=False,
         )
 
-        assert (
-            ac_result.returncode == 0
-        ), f"Failed to create acceptance criteria: {ac_result.stderr}"
+        assert ac_result.returncode == 0, (
+            f"Failed to create acceptance criteria: {ac_result.stderr}"
+        )
         assert "AC-" in ac_result.stdout, "Acceptance criteria should be created with AC- ID"
 
     def test_interface_contract_definition(self) -> None:
@@ -122,7 +122,7 @@ class TestDevelopmentProjectLifecycleManagement:
             [
                 "python",
                 "-m",
-                "todowrite_cli",
+                "ToDoWrite_cli",
                 "create",
                 "--layer",
                 "interfacecontract",
@@ -164,7 +164,7 @@ class TestDevelopmentProjectLifecycleManagement:
                 [
                     "python",
                     "-m",
-                    "todowrite_cli",
+                    "ToDoWrite_cli",
                     "create",
                     "--layer",
                     "phase",
@@ -179,12 +179,12 @@ class TestDevelopmentProjectLifecycleManagement:
                 check=False,
             )
 
-            assert (
-                phase_result.returncode == 0
-            ), f"Failed to create phase {phase_title}: {phase_result.stderr}"
-            assert (
-                "PH-" in phase_result.stdout
-            ), f"Phase should be created with PH- ID: {phase_title}"
+            assert phase_result.returncode == 0, (
+                f"Failed to create phase {phase_title}: {phase_result.stderr}"
+            )
+            assert "PH-" in phase_result.stdout, (
+                f"Phase should be created with PH- ID: {phase_title}"
+            )
 
     def test_implementation_step_breakdown(self) -> None:
         """RED: Test that developers can break phases into implementation steps."""
@@ -213,7 +213,7 @@ class TestDevelopmentProjectLifecycleManagement:
                 [
                     "python",
                     "-m",
-                    "todowrite_cli",
+                    "ToDoWrite_cli",
                     "create",
                     "--layer",
                     "step",
@@ -228,12 +228,12 @@ class TestDevelopmentProjectLifecycleManagement:
                 check=False,
             )
 
-            assert (
-                step_result.returncode == 0
-            ), f"Failed to create step {step_title}: {step_result.stderr}"
-            assert (
-                "STP-" in step_result.stdout
-            ), f"Step should be created with STP- ID: {step_title}"
+            assert step_result.returncode == 0, (
+                f"Failed to create step {step_title}: {step_result.stderr}"
+            )
+            assert "STP-" in step_result.stdout, (
+                f"Step should be created with STP- ID: {step_title}"
+            )
 
     def test_command_execution_and_artifact_tracking(self) -> None:
         """RED: Test that team can execute commands and track artifacts."""
@@ -242,7 +242,7 @@ class TestDevelopmentProjectLifecycleManagement:
             [
                 "python",
                 "-m",
-                "todowrite_cli",
+                "ToDoWrite_cli",
                 "create",
                 "--layer",
                 "command",
@@ -270,7 +270,7 @@ class TestDevelopmentProjectLifecycleManagement:
             [
                 "python",
                 "-m",
-                "todowrite_cli",
+                "ToDoWrite_cli",
                 "create",
                 "--layer",
                 "goal",
@@ -301,7 +301,7 @@ class TestDevelopmentProjectLifecycleManagement:
             [
                 "python",
                 "-m",
-                "todowrite_cli",
+                "ToDoWrite_cli",
                 "create",
                 "--layer",
                 "task",

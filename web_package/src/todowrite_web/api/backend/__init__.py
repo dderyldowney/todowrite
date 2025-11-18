@@ -31,6 +31,8 @@ from .models import (
 )
 from .utils import (
     build_hierarchy,
+    build_node_hierarchy,
+    calculate_node_depth,
     calculate_node_progress,
     calculate_progress,
     can_transition_to,
@@ -48,8 +50,6 @@ from .utils import (
     get_layer_prefix,
     get_leaf_nodes,
     get_next_status,
-    get_node_depth,
-    get_node_hierarchy,
     get_root_nodes,
     get_status_color,
     import_nodes_from_json,

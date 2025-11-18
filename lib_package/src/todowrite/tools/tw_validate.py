@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ToDoWrite Schema Validator (tw_validate.py)
-Validates all YAML files in configs/plans/* against todowrite.schema.json
+Validates all YAML files in configs/plans/* against ToDoWrite.schema.json
 """
 
 from __future__ import annotations
@@ -16,25 +16,25 @@ import yaml
 from jsonschema import Draft202012Validator, ValidationError, validate
 
 
-class ToDoWriteValidator:
+class todowriteValidator:
     """Schema validator for ToDoWrite YAML files"""
 
     def __init__(
-        self: ToDoWriteValidator, schema_path: str | None = None
+        self: todowriteValidator, schema_path: str | None = None
     ) -> None:
         if schema_path is None:
             # Try to load from package first, fall back to old location
             try:
-                from todowrite.core.schemas import TODOWRITE_SCHEMA
+                from todowrite.core.schemas import todowrite_SCHEMA
 
-                self.schema = cast("dict[str, Any]", TODOWRITE_SCHEMA)
+                self.schema = cast("dict[str, Any]", ToDoWrite_SCHEMA)
                 self.schema_path = (
-                    "todowrite.schema"  # Virtual path for display
+                    "ToDoWrite.schema"  # Virtual path for display
                 )
                 self.validator = Draft202012Validator(self.schema)
                 return
             except ImportError:
-                schema_path = "configs/schemas/todowrite.schema.json"
+                schema_path = "configs/schemas/ToDoWrite.schema.json"
 
         self.schema_path = schema_path
         self.schema = self._load_schema()
@@ -71,7 +71,7 @@ class ToDoWriteValidator:
         return sorted(yaml_files)
 
     def _load_yaml_file(
-        self: ToDoWriteValidator, file_path: Path
+        self: todowriteValidator, file_path: Path
     ) -> tuple[dict[str, Any], bool]:
         """Load and parse YAML file, return (data, success)"""
         try:
@@ -86,7 +86,7 @@ class ToDoWriteValidator:
             return {}, False
 
     def validate_file(
-        self: ToDoWriteValidator, file_path: Path, strict: bool = False
+        self: todowriteValidator, file_path: Path, strict: bool = False
     ) -> bool:
         """Validate single YAML file against schema"""
         data, load_success = self._load_yaml_file(file_path)
@@ -112,7 +112,7 @@ class ToDoWriteValidator:
             return False
 
     def validate_all(
-        self: ToDoWriteValidator, strict: bool = False
+        self: todowriteValidator, strict: bool = False
     ) -> tuple[int, int]:
         """Validate all YAML files, return (valid_count, total_count)"""
         yaml_files = self._find_yaml_files()
@@ -172,14 +172,14 @@ def main() -> None:
     )
     parser.add_argument(
         "--schema",
-        default="configs/schemas/todowrite.schema.json",
+        default="configs/schemas/ToDoWrite.schema.json",
         help="Path to JSON schema file",
     )
 
     args = parser.parse_args()
 
     # Initialize validator
-    validator = ToDoWriteValidator(args.schema)
+    validator = todowriteValidator(args.schema)
 
     # Run validation
     valid_count, total_count = validator.validate_all(args.strict)

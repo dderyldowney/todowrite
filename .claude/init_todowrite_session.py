@@ -20,12 +20,13 @@ sys.path.insert(0, str(project_root / "lib_package" / "src"))
 sys.path.insert(0, str(project_root / "cli_package" / "src"))
 
 try:
+    import todowrite as ToDoWrite
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
-    from todowrite.core.types import Base, Node
+    from todowrite.core.types import Base, Goal, Label, Task
 
 except ImportError as e:
-    print(f"❌ Failed to import ToDoWrite modules: {e}")
+    print(f"❌ Failed to import todowrite modules: {e}")
     sys.exit(1)
 
 # Global session variables
@@ -39,13 +40,18 @@ def get_database_path() -> Path:
     global _db_path
 
     if _db_path is None:
-        # Use development database in project root
-        _db_path = project_root / "development_todowrite.db"
+        # Use correct development database in ~/dbs/
+        _db_path = Path.home() / "dbs" / "todowrite_development.db"
 
     return _db_path
 
 
-def initialize_todowrite_session() -> bool:
+def get_session_database_path() -> Path:
+    """Get the path to the ToDoWrite session tracking database."""
+    return Path.home() / "dbs" / "todowrite_sessions.db"
+
+
+def initialize_ToDoWrite_session() -> bool:
     """
     Initialize ToDoWrite session for development tracking.
 
@@ -60,36 +66,67 @@ def initialize_todowrite_session() -> bool:
     try:
         print("🔧 Initializing ToDoWrite session for development tracking...")
 
-        # Setup database with proper directory handling
+        # Setup development database with proper directory handling
         db_path = get_database_path()
-
-        # Ensure database directory exists before creating engine
         db_path.parent.mkdir(parents=True, exist_ok=True)
 
+        # Initialize ToDoWrite Models database
         engine = create_engine(f"sqlite:///{db_path}")
         Base.metadata.create_all(engine)
 
-        # Create session
+        # Create session for development database
         Session = sessionmaker(bind=engine)
         _db_session = Session()
 
-        # Configure Node class with session
-        Node.configure_session(_db_session)
+        # Initialize session tracking database
+        session_db_path = get_session_database_path()
+        session_db_path.parent.mkdir(parents=True, exist_ok=True)
 
-        # Verify database connection by checking if our production goal exists
-        prod_goals = Node.find_by(title="Deploy ToDoWrite as Standard Development Tracking System")
+        from datetime import datetime
 
-        if prod_goals:
-            print("✅ ToDoWrite session initialized successfully!")
-            print(f"   Database: {db_path}")
-            print(f"   Production goal found: {len(prod_goals)}")
+        from sqlalchemy import Column, Integer, String, Text
+        from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-            # Show current task status
-            in_progress = Node.where(status="in_progress")
-            if in_progress:
-                print(f"   Active tasks: {len(in_progress)}")
-        else:
-            print("⚠️  New session - no existing data found")
+        class SessionBase(DeclarativeBase):
+            pass
+
+        class DevelopmentSession(SessionBase):
+            __tablename__ = "development_sessions"
+
+            id: Mapped[int] = mapped_column(Integer, primary_key=True)
+            session_id: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+            start_time: Mapped[str] = mapped_column(String, nullable=False)
+            activities_completed: Mapped[int] = mapped_column(Integer, default=0)
+            notes: Mapped[str | None] = mapped_column(Text)
+            created_at: Mapped[str] = mapped_column(
+                String, default=lambda: datetime.now().isoformat(), nullable=False
+            )
+
+        session_engine = create_engine(f"sqlite:///{session_db_path}")
+        SessionBase.metadata.create_all(session_engine)
+        session_session = sessionmaker(bind=session_engine)()
+
+        # Create session record
+        session_record = DevelopmentSession(
+            session_id=datetime.now().strftime("%Y%m%d_%H%M%S"),
+            start_time=datetime.now().isoformat(),
+            activities_completed=0,
+            notes="ToDoWrite Models Session Initialized",
+        )
+        session_session.add(session_record)
+        session_session.commit()
+        session_session.close()
+        session_engine.dispose()
+
+        # Verify ToDoWrite functionality
+        test_goal = Goal(title="Test Goal", owner="session-init")
+        _db_session.add(test_goal)
+        _db_session.commit()
+
+        print("✅ ToDoWrite session initialized successfully!")
+        print(f"   Development Database: {db_path}")
+        print(f"   Session Database: {session_db_path}")
+        print("   API: Working correctly")
 
         _session_initialized = True
         return True
@@ -105,10 +142,10 @@ def initialize_todowrite_session() -> bool:
         return False
 
 
-def get_todowrite_session():
+def get_ToDoWrite_session():
     """Get the current ToDoWrite database session."""
     if not _session_initialized:
-        initialize_todowrite_session()
+        initialize_ToDoWrite_session()
     return _db_session
 
 
@@ -122,7 +159,7 @@ def create_session_marker() -> None:
     }
 
     claude_dir = project_root / ".claude"
-    marker_file = claude_dir / "todowrite_session_active.json"
+    marker_file = claude_dir / "ToDoWrite_session_active.json"
 
     try:
         import json
@@ -191,7 +228,7 @@ def main():
     print("🚀 ToDoWrite Session Initialization")
     print("=" * 50)
 
-    success = initialize_todowrite_session()
+    success = initialize_ToDoWrite_session()
 
     if success:
         create_session_marker()
@@ -209,7 +246,7 @@ def main():
 
         print("\n✅ ToDoWrite system ready for development tracking!")
         print("   All development work should now be tracked using ToDoWrite.")
-        print("   Use the Node ActiveRecord API for task management.")
+        print("   Use the ToDoWrite API for task management.")
 
         return 0
     else:

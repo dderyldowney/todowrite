@@ -10,8 +10,6 @@ import unittest
 from pathlib import Path
 
 import yaml
-
-from todowrite.core import ToDoWrite
 from todowrite.storage.yaml_manager import YAMLManager
 from todowrite.storage.yaml_storage import YAMLStorage
 
@@ -356,9 +354,7 @@ class TestYAMLManager(unittest.TestCase):
         manager.commands_path = self.yaml_base_path / "commands"
 
         # Create test YAML file
-        goal_file = (
-            self.yaml_base_path / "plans" / "goals" / "GOAL-IMPORT-001.yaml"
-        )
+        goal_file = self.yaml_base_path / "plans" / "goals" / "GOAL-IMPORT-001.yaml"
         goal_file.parent.mkdir(parents=True)
 
         goal_data = {
@@ -386,7 +382,7 @@ class TestYAMLManager(unittest.TestCase):
         self.assertEqual(len(results["errors"]), 0)
 
         # Verify import
-        imported_node = app.get_node("GOAL-IMPORT-001")
+        imported_node = app.create_node("GOAL-IMPORT-001")
         self.assertIsNotNone(imported_node)
         self.assertEqual(imported_node.title, "Imported Goal")
         self.assertEqual(imported_node.metadata.owner, "import-user")
@@ -450,9 +446,7 @@ class TestYAMLManager(unittest.TestCase):
         app.create_node(node_data)
 
         # Create YAML file
-        goal_file = (
-            self.yaml_base_path / "plans" / "goals" / "GOAL-SYNC-002.yaml"
-        )
+        goal_file = self.yaml_base_path / "plans" / "goals" / "GOAL-SYNC-002.yaml"
         goal_file.parent.mkdir(parents=True)
 
         yaml_data = {

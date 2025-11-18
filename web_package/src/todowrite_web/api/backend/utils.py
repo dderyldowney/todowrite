@@ -145,7 +145,7 @@ def build_hierarchy(nodes: list[Node]) -> dict[str, list[Node]]:
     return hierarchy
 
 
-def get_node_depth(node: Node, all_nodes: dict[str, Node]) -> int:
+def calculate_node_depth(node: Node, all_nodes: dict[str, Node]) -> int:
     """Calculate the depth of a node in the hierarchy."""
     if not node.links.parents:
         return 0
@@ -153,13 +153,13 @@ def get_node_depth(node: Node, all_nodes: dict[str, Node]) -> int:
     max_depth = 0
     for parent_id in node.links.parents:
         if parent_id in all_nodes:
-            depth = get_node_depth(all_nodes[parent_id], all_nodes)
+            depth = calculate_node_depth(all_nodes[parent_id], all_nodes)
             max_depth = max(max_depth, depth)
 
     return max_depth + 1
 
 
-def get_node_hierarchy(
+def build_node_hierarchy(
     node: Node, all_nodes: dict[str, Node], max_depth: int | None = None
 ) -> dict[str, Any]:
     """Get the complete hierarchy for a node up to optional max depth."""
@@ -170,7 +170,7 @@ def get_node_hierarchy(
 
         for child_id in node.links.children:
             if child_id in all_nodes:
-                child_hierarchy = get_node_hierarchy(
+                child_hierarchy = build_node_hierarchy(
                     all_nodes[child_id], all_nodes, current_depth
                 )
                 result["children"].append(child_hierarchy)

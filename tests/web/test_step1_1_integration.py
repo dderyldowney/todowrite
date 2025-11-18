@@ -14,7 +14,7 @@ class TestWebPackageIntegration:
 
     def test_backend_python_package_installable(self):
         """RED: Test that backend package can be installed."""
-        backend_path = pathlib.Path("web_package/src/todowrite_web")
+        backend_path = pathlib.Path("web_package/src/ToDoWrite_web")
         assert backend_path.exists(), "Backend directory should exist"
 
         # Test that the package structure is installable
@@ -30,9 +30,9 @@ class TestWebPackageIntegration:
         )
 
         # This should fail initially (RED phase)
-        assert (
-            setup_result.returncode == 0
-        ), f"Backend package should be importable: {setup_result.stderr}"
+        assert setup_result.returncode == 0, (
+            f"Backend package should be importable: {setup_result.stderr}"
+        )
 
     def test_frontend_npm_installable(self):
         """RED: Test that frontend package can be installed with npm."""
@@ -116,7 +116,7 @@ class TestWebPackageIntegration:
 
     def test_python_path_integration(self):
         """RED: Test that PYTHONPATH works with web_package structure."""
-        backend_src_path = pathlib.Path("web_package/src/todowrite_web")
+        backend_src_path = pathlib.Path("web_package/src/ToDoWrite_web")
         if backend_src_path.exists():
             # Test that we can add backend to PYTHONPATH
             test_result = subprocess.run(

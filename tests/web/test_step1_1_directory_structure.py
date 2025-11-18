@@ -22,29 +22,29 @@ class TestWebPackageDirectoryStructure:
 
     def test_backend_directory_structure(self):
         """RED: Test that backend directory structure exists."""
-        backend_path = pathlib.Path("web_package/src/todowrite_web")
-        assert backend_path.exists(), "web_package/src/todowrite_web directory should exist"
-        assert backend_path.is_dir(), "web_package/src/todowrite_web should be a directory"
+        backend_path = pathlib.Path("web_package/src/ToDoWrite_web")
+        assert backend_path.exists(), "web_package/src/ToDoWrite_web directory should exist"
+        assert backend_path.is_dir(), "web_package/src/ToDoWrite_web should be a directory"
 
     def test_backend_src_structure(self):
-        """RED: Test that backend/src/todowrite_web structure exists."""
-        backend_src_path = pathlib.Path("web_package/src/todowrite_web")
-        assert backend_src_path.exists(), "web_package/src/todowrite_web should exist"
-        assert backend_src_path.is_dir(), "web_package/src/todowrite_web should be a directory"
+        """RED: Test that backend/src/ToDoWrite_web structure exists."""
+        backend_src_path = pathlib.Path("web_package/src/ToDoWrite_web")
+        assert backend_src_path.exists(), "web_package/src/ToDoWrite_web should exist"
+        assert backend_src_path.is_dir(), "web_package/src/ToDoWrite_web should be a directory"
 
     def test_backend_init_file_exists(self):
         """RED: Test that backend __init__.py exists."""
-        init_path = pathlib.Path("web_package/src/todowrite_web/__init__.py")
-        assert init_path.exists(), "web_package/src/todowrite_web/__init__.py should exist"
-        assert init_path.is_file(), "web_package/src/todowrite_web/__init__.py should be a file"
+        init_path = pathlib.Path("web_package/src/ToDoWrite_web/__init__.py")
+        assert init_path.exists(), "web_package/src/ToDoWrite_web/__init__.py should exist"
+        assert init_path.is_file(), "web_package/src/ToDoWrite_web/__init__.py should be a file"
 
     def test_backend_main_py_exists(self):
         """RED: Test that backend main.py exists."""
-        main_path = pathlib.Path("web_package/src/todowrite_web/api/backend/main.py")
-        assert main_path.exists(), "web_package/src/todowrite_web/api/backend/main.py should exist"
-        assert (
-            main_path.is_file()
-        ), "web_package/src/todowrite_web/api/backend/main.py should be a file"
+        main_path = pathlib.Path("web_package/src/ToDoWrite_web/api/backend/main.py")
+        assert main_path.exists(), "web_package/src/ToDoWrite_web/api/backend/main.py should exist"
+        assert main_path.is_file(), (
+            "web_package/src/ToDoWrite_web/api/backend/main.py should be a file"
+        )
 
     def test_frontend_directory_structure(self):
         """RED: Test that frontend directory structure exists."""
@@ -94,12 +94,12 @@ class TestWebPackageDirectoryStructure:
         assert pyproject_path.exists(), "pyproject.toml should exist"
 
         content = pyproject_path.read_text()
-        assert (
-            "[tool.poetry]" in content or "[build-system]" in content
-        ), "pyproject.toml should have build system"
-        assert (
-            'name = "todowrite_web"' in content
-        ), "pyproject.toml should have correct package name"
+        assert "[tool.poetry]" in content or "[build-system]" in content, (
+            "pyproject.toml should have build system"
+        )
+        assert 'name = "ToDoWrite_web"' in content, (
+            "pyproject.toml should have correct package name"
+        )
 
     def test_frontend_package_json_content(self):
         """RED: Test that frontend package.json has required content."""

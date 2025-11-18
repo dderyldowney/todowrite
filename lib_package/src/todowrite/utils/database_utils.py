@@ -76,7 +76,7 @@ def get_project_database_name(
     if project_name is None:
         project_name = get_project_name()
 
-    return f"todowrite_{project_name}_{environment}.db"
+    return f"ToDoWrite_{project_name}_{environment}.db"
 
 
 def get_database_path(

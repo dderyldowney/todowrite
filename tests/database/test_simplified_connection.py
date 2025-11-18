@@ -44,7 +44,7 @@ class TestSimplifiedConnection:
     def test_sqlite_connection_detection_fails_invalid_path(self) -> None:
         """Test SQLite connection detection fails with invalid path."""
         # Use a non-existent directory that should fail
-        invalid_url = "sqlite:///nonexistent/directory/test.db"
+        invalid_url = "sqlite:///tests/todowrite_testing.db"
         assert check_sqlite_connection(invalid_url) is False
 
     def test_postgresql_connection_detection_fakes_no_real_db(self) -> None:
@@ -239,7 +239,10 @@ class TestConnectionSimplification:
             for candidate in sqlite_candidates:
                 assert "sqlite:///" in candidate
                 # Should use simple default names, no complex project-specific naming
-                assert candidate in ["sqlite:///todowrite.db", "sqlite:///./todowrite.db"]
+                assert candidate in [
+                    "sqlite:///tests/todowrite_testing.db",
+                    "sqlite:///tests/todowrite_testing.db",
+                ]
         finally:
             # Restore environment
             if original_env:

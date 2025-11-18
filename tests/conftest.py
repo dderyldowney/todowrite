@@ -21,13 +21,23 @@ from sqlalchemy.orm import Session, sessionmaker
 project_root = Path(__file__).resolve().parent
 sys.path.insert(0, str(project_root))
 
-# Import todowrite modules first
-from todowrite.database.models import Base  # noqa: E402
-from todowrite.utils.database_utils import get_database_path, get_project_database_name
+# Add lib_package to path for proper imports
+lib_package_path = project_root.parent / "lib_package" / "src"
+sys.path.insert(0, str(lib_package_path))
 
-# Set test environment variables after importing todowrite modules
-test_db_path = get_database_path("testing")
-os.environ["TODOWRITE_DATABASE_URL"] = f"sqlite:///{test_db_path}"
+# Import todowrite modules first
+from todowrite import create_engine, sessionmaker  # noqa: E402
+from todowrite.core.types import Base  # noqa: E402
+
+
+# Define get_database_path function since it's referenced but missing
+def get_database_path(db_name: str) -> str:
+    """Get database path for testing."""
+    return str(Path(__file__).parent / f"{db_name}.db")
+
+
+# Set test environment variables to use shared test database
+os.environ["TODOWRITE_DATABASE_URL"] = "sqlite:///tests/todowrite_testing.db"
 os.environ["TODOWRITE_STORAGE_PREFERENCE"] = "sqlite_only"
 
 
@@ -102,14 +112,13 @@ def test_database_url() -> str:
 @pytest.fixture(autouse=True)
 def setup_test_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     """Automatically set up test environment for all tests."""
-    # Set test environment variables with project-specific naming in project_root/tmp
-    test_db_path = get_database_path("testing")
-    monkeypatch.setenv("TODOWRITE_DATABASE_URL", f"sqlite:///{test_db_path}")
+    # Set test environment variables to use shared test database
+    monkeypatch.setenv("TODOWRITE_DATABASE_URL", "sqlite:///tests/todowrite_testing.db")
     monkeypatch.setenv("TODOWRITE_STORAGE_PREFERENCE", "sqlite_only")
 
     # Ensure no production todowrite.db exists in test directories
-    # This enforces the convention: dev=todowrite_todowrite_development.db,
-    # test=todowrite_todowrite_testing.db, prod=todowrite_todowrite_production.db
+    # This enforces the convention: dev=todowrite_development.db,
+    # test=tests/todowrite_testing.db (shared), prod=todowrite_production.db
     prod_db_file = Path("todowrite.db")
     if prod_db_file.exists():
         # Warn and remove production database from test environment

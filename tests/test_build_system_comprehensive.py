@@ -83,7 +83,7 @@ class TestWorkspaceValidator:
 members = ["lib_package", "cli_package", "web_package"]
 
 [tool.uv.sources]
-todowrite = { workspace = true }
+ToDoWrite = { workspace = true }
 """)
 
             # Test with real files

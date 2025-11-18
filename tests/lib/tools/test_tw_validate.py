@@ -6,12 +6,11 @@ import tempfile
 from pathlib import Path
 
 import pytest
+from todowrite.tools.tw_validate import todowriteValidator
 
-from todowrite.tools.tw_validate import ToDoWriteValidator
 
-
-class TestToDoWriteValidator:
-    """Test cases for ToDoWriteValidator class"""
+class TesttodowriteValidator:
+    """Test cases for todowriteValidator class"""
 
     def test_init_with_schema_path(self):
         """Test initialization with custom schema path"""
@@ -27,14 +26,14 @@ class TestToDoWriteValidator:
             }
             schema_file.write_text(json.dumps(schema))
 
-            validator = ToDoWriteValidator(str(schema_file))
+            validator = todowriteValidator(str(schema_file))
             assert validator.schema_path == str(schema_file)
             assert validator.schema == schema
 
     def test_init_missing_schema_file(self):
         """Test initialization with missing schema file"""
         with pytest.raises(SystemExit) as excinfo:
-            ToDoWriteValidator("nonexistent_schema.json")
+            todowriteValidator("nonexistent_schema.json")
         assert excinfo.value.code == 1
 
     def test_load_schema_invalid_json(self):
@@ -45,7 +44,7 @@ class TestToDoWriteValidator:
             schema_file.write_text("{ invalid json")
 
             with pytest.raises(SystemExit) as excinfo:
-                ToDoWriteValidator(str(schema_file))
+                todowriteValidator(str(schema_file))
             assert excinfo.value.code == 1
 
     def test_find_yaml_files_no_plans_directory(self):
@@ -55,7 +54,7 @@ class TestToDoWriteValidator:
             original_cwd = Path.cwd()
             try:
                 os.chdir(temp_dir)
-                validator = ToDoWriteValidator()
+                validator = todowriteValidator()
                 yaml_files = validator._find_yaml_files()
                 assert yaml_files == []
             finally:
@@ -86,7 +85,7 @@ class TestToDoWriteValidator:
             original_cwd = Path.cwd()
             try:
                 os.chdir(temp_dir)
-                validator = ToDoWriteValidator()
+                validator = todowriteValidator()
                 yaml_files = validator._find_yaml_files()
                 assert len(yaml_files) == 3
                 # Files should be returned in sorted order
@@ -102,7 +101,7 @@ class TestToDoWriteValidator:
             yaml_file = temp_path / "test.yaml"
             yaml_file.write_text("name: test\nvalue: 42")
 
-            validator = ToDoWriteValidator()
+            validator = todowriteValidator()
             data, success = validator._load_yaml_file(yaml_file)
 
             assert success
@@ -115,7 +114,7 @@ class TestToDoWriteValidator:
             yaml_file = temp_path / "invalid.yaml"
             yaml_file.write_text("invalid: yaml: content: [")  # Invalid YAML
 
-            validator = ToDoWriteValidator()
+            validator = todowriteValidator()
             data, success = validator._load_yaml_file(yaml_file)
 
             assert not success
@@ -140,7 +139,7 @@ class TestToDoWriteValidator:
             # Create valid YAML
             yaml_file.write_text("name: test")
 
-            validator = ToDoWriteValidator(str(schema_file))
+            validator = todowriteValidator(str(schema_file))
             result = validator.validate_file(yaml_file, strict=True)
             assert result
 
@@ -163,7 +162,7 @@ class TestToDoWriteValidator:
             # Create invalid YAML (missing required field)
             yaml_file.write_text("other: value")
 
-            validator = ToDoWriteValidator(str(schema_file))
+            validator = todowriteValidator(str(schema_file))
             result = validator.validate_file(yaml_file, strict=True)
             assert not result
 
@@ -174,7 +173,7 @@ class TestToDoWriteValidator:
             original_cwd = Path.cwd()
             try:
                 os.chdir(temp_dir)
-                validator = ToDoWriteValidator()
+                validator = todowriteValidator()
                 valid_count, total_count = validator.validate_all()
                 assert valid_count == 0
                 assert total_count == 0
@@ -212,7 +211,7 @@ class TestToDoWriteValidator:
             original_cwd = Path.cwd()
             try:
                 os.chdir(temp_dir)
-                validator = ToDoWriteValidator(str(schema_file))
+                validator = todowriteValidator(str(schema_file))
                 valid_count, total_count = validator.validate_all(strict=True)
                 assert total_count == 2
                 assert valid_count == 1  # Only one file is valid
@@ -221,13 +220,13 @@ class TestToDoWriteValidator:
 
     def test_generate_summary_success(self):
         """Test summary generation for successful validation"""
-        validator = ToDoWriteValidator()
+        validator = todowriteValidator()
         # This just verifies the method runs without error
         validator.generate_summary(5, 5)
 
     def test_generate_summary_failure(self):
         """Test summary generation for failed validation"""
-        validator = ToDoWriteValidator()
+        validator = todowriteValidator()
         # This just verifies the method runs without error
         validator.generate_summary(3, 5)
 
@@ -283,7 +282,7 @@ project:
 """
             yaml_file.write_text(complex_yaml)
 
-            validator = ToDoWriteValidator(str(schema_file))
+            validator = todowriteValidator(str(schema_file))
             result = validator.validate_file(yaml_file, strict=True)
             assert result
 
@@ -305,10 +304,8 @@ project:
             schema_file.write_text(json.dumps(schema))
 
             # Create YAML with additional properties
-            yaml_file.write_text(
-                "name: test\nextra: property\nanother_extra: value"
-            )
+            yaml_file.write_text("name: test\nextra: property\nanother_extra: value")
 
-            validator = ToDoWriteValidator(str(schema_file))
+            validator = todowriteValidator(str(schema_file))
             result = validator.validate_file(yaml_file, strict=True)
             assert result

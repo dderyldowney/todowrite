@@ -3,7 +3,6 @@
 from pathlib import Path
 
 import pytest
-
 from todowrite.tools.tw_lint_soc import main as lint_main
 from todowrite.tools.tw_stub_command import main as stub_main
 from todowrite.tools.tw_trace import main as trace_main
@@ -19,7 +18,7 @@ class TestTwLintSoc:
 
     def test_module_exists(self):
         """Test that the module file exists and has expected content"""
-        tools_path = Path("lib_package/src/todowrite/tools/tw_lint_soc.py")
+        tools_path = Path("lib_package/src/ToDoWrite/tools/tw_lint_soc.py")
         assert tools_path.exists()
         content = tools_path.read_text()
         # Check that it has some basic expected content
@@ -38,7 +37,7 @@ class TestTwStubCommand:
 
     def test_module_exists(self):
         """Test that the module file exists and has expected content"""
-        tools_path = Path("lib_package/src/todowrite/tools/tw_stub_command.py")
+        tools_path = Path("lib_package/src/ToDoWrite/tools/tw_stub_command.py")
         assert tools_path.exists()
         content = tools_path.read_text()
         # Check that it has some basic expected content
@@ -57,7 +56,7 @@ class TestTwTrace:
 
     def test_module_exists(self):
         """Test that the module file exists and has expected content"""
-        tools_path = Path("lib_package/src/todowrite/tools/tw_trace.py")
+        tools_path = Path("lib_package/src/ToDoWrite/tools/tw_trace.py")
         assert tools_path.exists()
         content = tools_path.read_text()
         # Check that it has some basic expected content
@@ -69,7 +68,7 @@ class TestToolsIntegration:
 
     def test_all_tools_modules_exist(self):
         """Test that all expected tools modules exist"""
-        tools_dir = Path("lib_package/src/todowrite/tools")
+        tools_dir = Path("lib_package/src/ToDoWrite/tools")
         expected_modules = [
             "extract_schema.py",
             "tw_lint_soc.py",
@@ -80,19 +79,15 @@ class TestToolsIntegration:
 
         for module_name in expected_modules:
             module_path = tools_dir / module_name
-            assert (
-                module_path.exists()
-            ), f"Expected module {module_name} not found"
+            assert module_path.exists(), f"Expected module {module_name} not found"
 
     def test_tools_modules_are_python_files(self):
         """Test that tools modules are valid Python files"""
-        tools_dir = Path("lib_package/src/todowrite/tools")
+        tools_dir = Path("lib_package/src/ToDoWrite/tools")
         for tool_file in tools_dir.glob("*.py"):
             if tool_file.name != "__init__.py":
                 content = tool_file.read_text()
                 # Basic Python file checks
-                assert (
-                    "import" in content
-                    or "from" in content
-                    or "def" in content
-                ), f"Tool file {tool_file.name} doesn't appear to be a valid Python module"
+                assert "import" in content or "from" in content or "def" in content, (
+                    f"Tool file {tool_file.name} doesn't appear to be a valid Python module"
+                )

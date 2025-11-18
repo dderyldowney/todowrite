@@ -1,7 +1,7 @@
 """
 RED PHASE: Tests for Developer Workflow Automation
 These tests MUST FAIL before implementation exists.
-NO MOCKING ALLOWED - Tests will use real todowrite system.
+NO MOCKING ALLOWED - Tests will use real ToDoWrite system.
 """
 
 from __future__ import annotations
@@ -38,12 +38,12 @@ exit 0
         subprocess.run(["chmod", "+x", script_path], check=False)
 
         try:
-            # Create todowrite command for automated build
+            # Create ToDoWrite command for automated build
             cmd_result = subprocess.run(
                 [
                     "python",
                     "-m",
-                    "todowrite_cli",
+                    "ToDoWrite_cli",
                     "create",
                     "--layer",
                     "command",
@@ -60,9 +60,9 @@ exit 0
                 check=False,
             )
 
-            assert (
-                cmd_result.returncode == 0
-            ), f"Failed to create build command: {cmd_result.stderr}"
+            assert cmd_result.returncode == 0, (
+                f"Failed to create build command: {cmd_result.stderr}"
+            )
             assert "CMD-" in cmd_result.stdout, "Command should be created with CMD- ID"
 
             # Extract command ID and execute it
@@ -74,7 +74,7 @@ exit 0
 
             # Execute the command to verify it works
             exec_result = subprocess.run(
-                ["python", "-m", "todowrite_cli", "execute", cmd_id],
+                ["python", "-m", "ToDoWrite_cli", "execute", cmd_id],
                 capture_output=True,
                 text=True,
                 cwd=".",
@@ -113,7 +113,7 @@ exit 0
                 [
                     "python",
                     "-m",
-                    "todowrite_cli",
+                    "ToDoWrite_cli",
                     "create",
                     "--layer",
                     "command",
@@ -169,7 +169,7 @@ exit 0
                     [
                         "python",
                         "-m",
-                        "todowrite_cli",
+                        "ToDoWrite_cli",
                         "create",
                         "--layer",
                         "command",
@@ -186,9 +186,9 @@ exit 0
                     check=False,
                 )
 
-                assert (
-                    cmd_result.returncode == 0
-                ), f"Failed to create {env['title']}: {cmd_result.stderr}"
+                assert cmd_result.returncode == 0, (
+                    f"Failed to create {env['title']}: {cmd_result.stderr}"
+                )
                 assert "CMD-" in cmd_result.stdout, f"{env['title']} should be created with CMD- ID"
 
             finally:
@@ -227,7 +227,7 @@ exit 0
                     [
                         "python",
                         "-m",
-                        "todowrite_cli",
+                        "ToDoWrite_cli",
                         "create",
                         "--layer",
                         "command",
@@ -244,9 +244,9 @@ exit 0
                     check=False,
                 )
 
-                assert (
-                    cmd_result.returncode == 0
-                ), f"Failed to create {cmd['title']}: {cmd_result.stderr}"
+                assert cmd_result.returncode == 0, (
+                    f"Failed to create {cmd['title']}: {cmd_result.stderr}"
+                )
                 assert "CMD-" in cmd_result.stdout, f"{cmd['title']} should be created with CMD- ID"
 
             finally:
@@ -259,7 +259,7 @@ exit 0
             [
                 "python",
                 "-m",
-                "todowrite_cli",
+                "ToDoWrite_cli",
                 "create",
                 "--layer",
                 "concept",
@@ -280,9 +280,9 @@ Reusable build command template for Python projects:
             check=False,
         )
 
-        assert (
-            template_result.returncode == 0
-        ), f"Failed to create command template: {template_result.stderr}"
+        assert template_result.returncode == 0, (
+            f"Failed to create command template: {template_result.stderr}"
+        )
         assert "CON-" in template_result.stdout, "Template should be created with CON- ID"
 
     def test_command_execution_monitoring(self) -> None:
@@ -310,7 +310,7 @@ exit 0
                 [
                     "python",
                     "-m",
-                    "todowrite_cli",
+                    "ToDoWrite_cli",
                     "create",
                     "--layer",
                     "command",
@@ -327,9 +327,9 @@ exit 0
                 check=False,
             )
 
-            assert (
-                cmd_result.returncode == 0
-            ), f"Failed to create monitoring command: {cmd_result.stderr}"
+            assert cmd_result.returncode == 0, (
+                f"Failed to create monitoring command: {cmd_result.stderr}"
+            )
             assert "CMD-" in cmd_result.stdout, "Monitoring command should be created with CMD- ID"
 
         finally:
@@ -360,7 +360,7 @@ exit 0
                 [
                     "python",
                     "-m",
-                    "todowrite_cli",
+                    "ToDoWrite_cli",
                     "create",
                     "--layer",
                     "command",
@@ -379,9 +379,9 @@ exit 0
                 check=False,
             )
 
-            assert (
-                cmd_result.returncode == 0
-            ), f"Failed to create artifact command: {cmd_result.stderr}"
+            assert cmd_result.returncode == 0, (
+                f"Failed to create artifact command: {cmd_result.stderr}"
+            )
             assert "CMD-" in cmd_result.stdout, "Artifact command should be created with CMD- ID"
 
         finally:

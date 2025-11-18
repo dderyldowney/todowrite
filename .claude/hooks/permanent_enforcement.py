@@ -29,22 +29,20 @@ def setup_permanent_enforcement():
         "enforcement_permanent": True,
         "survives_session_reset": True,
         "last_updated": "2025-01-11T00:00:00Z",
-
         # Global agent behavior overrides
         "agent_behavior_overrides": {
             "require_semantic_scoping": True,
             "require_red_green_refactor": True,
             "require_token_optimization": True,
-            "require_todowrite_cli": True,
+            "require_ToDoWrite_cli": True,
             "require_episodic_memory_search": True,
             "forbidden_practices": [
                 "mocking_frameworks",
                 "committing_without_tests",
                 "ignoring_quality_gates",
-                "bypassing_pre_commit_hooks"
-            ]
+                "bypassing_pre_commit_hooks",
+            ],
         },
-
         # Quality gates that cannot be bypassed
         "quality_gates": {
             "zero_tolerance_violations": [
@@ -52,7 +50,7 @@ def setup_permanent_enforcement():
                 "commit_message_format_errors",
                 "security_vulnerabilities",
                 "secret_detection",
-                "syntax_errors"
+                "syntax_errors",
             ],
             "critical_checks": [
                 "pre_commit_hooks_pass",
@@ -60,29 +58,27 @@ def setup_permanent_enforcement():
                 "bandit_security_check",
                 "detect_secrets_scan",
                 "semantic_scope_validation",
-                "red_green_refactor_compliance"
-            ]
+                "red_green_refactor_compliance",
+            ],
         },
-
         # Required workflow steps (cannot be skipped)
         "mandatory_workflows": {
             "before_any_work": [
                 "check_episodic_memory_for_context",
                 "verify_semantic_scoping_understanding",
-                "ensure_todowrite_cli_available"
+                "ensure_ToDoWrite_cli_available",
             ],
             "for_any_code_change": [
                 "write_failing_test_first",
                 "implement_minimal_code",
-                "refactor_while_tests_green"
+                "refactor_while_tests_green",
             ],
             "before_any_commit": [
                 "run_all_quality_checks",
                 "validate_commit_message_format",
-                "ensure_semantic_scope_correct"
-            ]
+                "ensure_semantic_scope_correct",
+            ],
         },
-
         # Tool requirements (cannot be disabled)
         "required_tools": {
             "always_active": [
@@ -92,7 +88,7 @@ def setup_permanent_enforcement():
                 "ruff_linter_formatter",
                 "bandit_security_scanner",
                 "detect_secrets_scanner",
-                "sqlfluff_linter"
+                "sqlfluff_linter",
             ],
             "pre_commit_enforced": [
                 "conventional_commits",
@@ -102,37 +98,35 @@ def setup_permanent_enforcement():
                 "check_yaml",
                 "debug_statements",
                 "trailing_whitespace",
-                "check_added_large_files"
-            ]
+                "check_added_large_files",
+            ],
         },
-
         # Persistent environment variables for agent awareness
         "environment_overrides": {
             "CLAUDE_ENFORCE_SEMANTIC_SCOPING": "1",
             "CLAUDE_ENFORCE_RED_GREEN_REFACTOR": "1",
             "CLAUDE_ENFORCE_TOKEN_OPTIMIZATION": "1",
-            "CLAUDE_ENFORCE_TODOWRITE_CLI": "1",
+            "CLAUDE_ENFORCE_ToDoWrite_CLI": "1",
             "CLAUDE_ENFORCE_ZERO_MOCKING": "1",
             "CLAUDE_REQUIRE_EPISODIC_MEMORY": "1",
             "CLAUDE_MANDATORY_QUALITY_GATES": "1",
-            "CLAUDE_PRE_COMMIT_ENFORCEMENT": "1"
+            "CLAUDE_PRE_COMMIT_ENFORCEMENT": "1",
         },
-
         # Verification commands for agents to run
         "verification_commands": {
             "check_enforcement_active": [
                 "test -f .claude/permanent_code_quality_enforcement.json",
                 "test -f .pre-commit-config.yaml",
-                "test -f pyproject.toml"
+                "test -f pyproject.toml",
             ],
             "validate_tools_available": [
                 "which ruff",
                 "which bandit",
                 "python .hooks/token-optimizer.py --help",
                 "python .hooks/semantic-scope-validator.py --help",
-                "python .hooks/red-green-refactor-enforcer.py --help"
-            ]
-        }
+                "python .hooks/red-green-refactor-enforcer.py --help",
+            ],
+        },
     }
 
     # Write permanent configuration
@@ -160,8 +154,8 @@ export CLAUDE_TOKEN_REDUCTION_TARGET=0.15
 export CLAUDE_ENFORCE_ZERO_MOCKING=1
 export CLAUDE_REAL_IMPLEMENTATIONS_ONLY=1
 
-# todowrite_cli Workflow
-export CLAUDE_ENFORCE_TODOWRITE_CLI=1
+# ToDoWrite_cli Workflow
+export CLAUDE_ENFORCE_ToDoWrite_CLI=1
 export CLAUDE_MANDATORY_PLANNING=1
 
 # Episodic Memory
@@ -201,7 +195,7 @@ The following practices are FORBIDDEN and will result in immediate session termi
 ### Before ANY Work (No Exceptions):
 1. Check episodic memory for past context: `/.episodic-memory:search-conversations`
 2. Verify semantic scoping understanding
-3. Ensure todowrite_cli is available and working
+3. Ensure ToDoWrite_cli is available and working
 4. Read this file to understand current requirements
 
 ### For ANY Code Change:
@@ -299,7 +293,7 @@ fi
 export CLAUDE_ENFORCE_SEMANTIC_SCOPING=1
 export CLAUDE_ENFORCE_RED_GREEN_REFACTOR=1
 export CLAUDE_ENFORCE_TOKEN_OPTIMIZATION=1
-export CLAUDE_ENFORCE_TODOWRITE_CLI=1
+export CLAUDE_ENFORCE_ToDoWrite_CLI=1
 export CLAUDE_ENFORCE_ZERO_MOCKING=1
 export CLAUDE_REQUIRE_EPISODIC_MEMORY=1
 export CLAUDE_MANDATORY_QUALITY_GATES=1
@@ -344,7 +338,7 @@ def verify_permanent_enforcement():
         claude_dir / "environment_overrides.env",
         claude_dir / "PERMANENT_AGENT_INSTRUCTIONS.md",
         claude_dir / "setup_permanent_enforcement.sh",
-        claude_dir / "permanent_enforcement_active"
+        claude_dir / "permanent_enforcement_active",
     ]
 
     missing_files = []
@@ -363,11 +357,11 @@ def verify_permanent_enforcement():
         "CLAUDE_ENFORCE_SEMANTIC_SCOPING",
         "CLAUDE_ENFORCE_RED_GREEN_REFACTOR",
         "CLAUDE_ENFORCE_TOKEN_OPTIMIZATION",
-        "CLAUDE_ENFORCE_TODOWRITE_CLI",
+        "CLAUDE_ENFORCE_ToDoWrite_CLI",
         "CLAUDE_ENFORCE_ZERO_MOCKING",
         "CLAUDE_REQUIRE_EPISODIC_MEMORY",
         "CLAUDE_MANDATORY_QUALITY_GATES",
-        "CLAUDE_PRE_COMMIT_ENFORCEMENT"
+        "CLAUDE_PRE_COMMIT_ENFORCEMENT",
     ]
 
     missing_env = []
@@ -396,7 +390,7 @@ def main():
         print("Usage: python permanent_enforcement.py [--verify | --help]")
         print("  --verify: Verify permanent enforcement is active")
         print("  --help:    Show this help message")
-        print("")
+        print()
         print("This system creates persistent enforcement that survives:")
         print("  - Session resets (/clear)")
         print("  - Claude restarts")
@@ -408,6 +402,7 @@ def main():
     if success:
         # Run the setup script to activate environment variables
         import subprocess
+
         script_path = Path.cwd() / ".claude" / "setup_permanent_enforcement.sh"
         try:
             result = subprocess.run(["bash", str(script_path)], capture_output=True, text=True)

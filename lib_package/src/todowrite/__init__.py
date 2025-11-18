@@ -1,7 +1,7 @@
 """ToDoWrite: Hierarchical Task Management System.
 
 A sophisticated hierarchical task management system designed for complex
-project planning and execution. Built with a 12-layer declarative framework,
+project planning and execution. Built with ToDoWrite Models patterns,
 it provides both a standalone CLI and a Python module for programmatic use.
 """
 
@@ -13,93 +13,56 @@ from .version import get_version
 __version__ = get_version()
 __title__ = "ToDoWrite"
 __description__ = (
-    "Hierarchical task management system with 12-layer "
-    "declarative planning framework"
+    "Hierarchical task management system with ToDoWrite Models patterns"
 )
 
-# Core application components (re-export from core package)
-# Standalone API functions
-from .api import (
-    create_node,
-    delete_node,
-    get_node,
-    link_nodes,
-    list_nodes,
-    search_nodes,
-    unlink_nodes,
-    update_node,
-)
-from .core import (
-    TODOWRITE_SCHEMA,
-    CLIError,
+# ToDoWrite Models - THE ONLY SUPPORTED API
+# Database session management
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from .core.types import (
+    AcceptanceCriteria,
+    # SQLAlchemy base and utilities
+    Base,
     Command,
-    ConfigurationError,
-    DatabaseError,
-    InvalidNodeError,
-    LayerType,
-    Link,
-    Metadata,
-    Node,
-    NodeError,
-    NodeNotFoundError,
-    NodeUpdater,
-    ProjectManager,
-    SchemaError,
-    StatusType,
-    StorageError,
-    ToDoWrite,
-    ToDoWriteError,
-    TokenOptimizationError,
-    YAMLError,
-    generate_node_id,
-    safe_get_nested,
-    truncate_string,
+    Concept,
+    Constraints,
+    Context,
+    # ToDoWrite Models (12 layers)
+    Goal,
+    InterfaceContract,
+    Label,  # Shared model for many-to-many relationships
+    Phase,
+    Requirements,
+    Step,
+    SubTask,
+    Task,
 )
-
-# YAML / storage helpers
-from .storage import YAMLManager
-from .storage import validate_database_schema as validate_schema
-from .storage import validate_node_data as validate_node
 
 __all__ = [
-    "TODOWRITE_SCHEMA",
-    "CLIError",
+    # ToDoWrite Models (12 layers) - PRIMARY API
+    "Goal",
+    "Concept",
+    "Context",
+    "Constraints",
+    "Requirements",
+    "AcceptanceCriteria",
+    "InterfaceContract",
+    "Phase",
+    "Step",
+    "Task",
+    "SubTask",
     "Command",
-    "ConfigurationError",
-    "DatabaseError",
-    "InvalidNodeError",
-    "LayerType",
-    "Link",
-    "Metadata",
-    "Node",
-    "NodeError",
-    "NodeNotFoundError",
-    "NodeUpdater",
-    "ProjectManager",
-    "SchemaError",
-    "StatusType",
-    "StorageError",
-    "ToDoWrite",
-    "ToDoWriteError",
-    "TokenOptimizationError",
-    "YAMLError",
-    "YAMLManager",
+    "Label",
+    # Database utilities
+    "Base",
+    "create_engine",
+    "sessionmaker",
+    # Metadata
     "__description__",
     "__title__",
     "__version__",
-    "create_node",
-    "delete_node",
-    "generate_node_id",
-    "get_node",
-    "link_nodes",
-    "list_nodes",
-    "safe_get_nested",
-    "search_nodes",
-    "truncate_string",
-    "unlink_nodes",
-    "update_node",
-    "validate_node",
-    "validate_schema",
 ]
 
 
@@ -116,6 +79,6 @@ def init_project(_project_path: str = ".", _db_type: str = "postgres") -> bool:
 
     """
     # Placeholder implementation. Project initialization helpers live in
-    # ``ProjectManager`` and will be wired into this convenience helper when
+    # ToDoWrite Models and will be wired into this convenience helper when
     # those APIs are stabilized.
     return True

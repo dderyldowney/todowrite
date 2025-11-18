@@ -1,1 +1,1 @@
-"""Tests for the todowrite database functionality."""
+"""Tests for the ToDoWrite database functionality."""

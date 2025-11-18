@@ -45,13 +45,13 @@ html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
 
 # Custom domain configuration for GitHub Pages
-html_baseurl = "https://todowrite.davidderyldowney.com"
+html_baseurl = "https://ToDoWrite.davidderyldowney.com"
 
 # GitHub integration
 html_context = {
     "display_github": True,
     "github_user": "dderyldowney",
-    "github_repo": "todowrite",
+    "github_repo": "ToDoWrite",
     "github_version": "develop/docs/sphinx/source/",
 }
 

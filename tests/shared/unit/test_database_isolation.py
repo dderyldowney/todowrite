@@ -1,167 +1,206 @@
 """
-Real database isolation tests using pytest fixtures.
+Real database isolation tests that work directly with database operations.
 
-These tests demonstrate complete table recreation between tests
-using real database operations - no mocking allowed.
+These tests demonstrate true table recreation by directly using the database
+session and SQLAlchemy operations instead of the app layer functions.
 """
 
+import sys
 import uuid
+from pathlib import Path
 
-from todowrite import (
-    create_node,
-    get_node,
-    list_nodes,
-    search_nodes,
-    update_node,
-)
+# Add lib_package to path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "lib_package" / "src"))
+
+from todowrite import Command, Goal, Task
 
 
-class TestDatabaseIsolation:
-    """Test database isolation with real table recreation."""
+class TestRealDatabaseIsolation:
+    """Test real database isolation with direct database operations."""
 
-    def test_create_and_retrieve_node(self, sample_node_data: dict, test_database_url: str) -> None:
-        """Test creating and retrieving a node with real database operations."""
-        # Create node using real database operation
-        created_node = create_node(test_database_url, sample_node_data)
+    def test_direct_database_operations(self, test_db_session) -> None:
+        """Test direct database operations with proper table isolation."""
+        # Use the test database session directly
+        session = test_db_session
 
-        # Verify node was actually created in real database
-        assert created_node.id == sample_node_data["id"]
-        assert created_node.title == sample_node_data["title"]
-        assert created_node.layer == sample_node_data["layer"]
-        assert created_node.status == sample_node_data["status"]
+        # Create unique test data
+        unique_id = uuid.uuid4().hex[:8].upper()
+        test_node = Goal(
+            title=f"Test Goal {unique_id}",
+            description=f"Test goal {unique_id}",
+            status="planned",
+            owner=None,
+            severity=None,
+            work_type=None,
+            assignee=None,
+        )
 
-        # Retrieve node from real database
-        retrieved_node = get_node(test_database_url, created_node.id)
+        # Add to database
+        session.add(test_node)
+        session.commit()
 
-        # Verify retrieval from real database
+        # Query directly from database
+        retrieved_node = session.query(Goal).filter_by(id=test_node.id).first()
+
+        # Verify node was actually created and retrieved
         assert retrieved_node is not None
-        assert retrieved_node.id == created_node.id
-        assert retrieved_node.title == sample_node_data["title"]
+        assert retrieved_node.id == test_node.id
+        assert retrieved_node.title == test_node.title
 
-    def test_multiple_nodes_in_same_test(self, test_db_session, test_database_url: str) -> None:
-        """Test creating multiple nodes within the same test."""
-        # Create multiple unique nodes
-        node_data_1 = {
-            "id": f"GOAL-{uuid.uuid4().hex[:8].upper()}",
-            "title": "First Test Goal",
-            "description": "First test goal description",
-            "layer": "Goal",
-            "status": "planned",
-            "metadata": {
-                "created_at": "2024-01-01T00:00:00Z",
-                "updated_at": "2024-01-01T00:00:00Z",
-                "version": 1,
-            },
-            "links": {"parents": [], "children": []},
-        }
+        # Check total nodes in database
+        all_nodes = session.query(Goal).all()
+        assert len(all_nodes) == 1
+        assert all_nodes[0].id == test_node.id
 
-        node_data_2 = {
-            "id": f"TSK-{uuid.uuid4().hex[:8].upper()}",
-            "title": "First Test Task",
-            "description": "First test task description",
-            "layer": "Task",
-            "status": "planned",
-            "metadata": {
-                "created_at": "2024-01-01T00:00:00Z",
-                "updated_at": "2024-01-01T00:00:00Z",
-                "version": 1,
-            },
-            "links": {"parents": [], "children": []},
-        }
-
-        # Create both nodes in real database
-        created_node_1 = create_node(test_database_url, node_data_1)
-        created_node_2 = create_node(test_database_url, node_data_2)
-
-        # Verify both nodes exist
-        retrieved_1 = get_node(test_database_url, created_node_1.id)
-        retrieved_2 = get_node(test_database_url, created_node_2.id)
-
-        assert retrieved_1 is not None
-        assert retrieved_2 is not None
-        assert retrieved_1.id != retrieved_2.id
-
-        # Test list_nodes shows both
-        nodes_list = list_nodes(test_database_url)
-        assert len(nodes_list) >= 2
-
-    def test_node_status_update_real_database(
-        self, sample_node_data: dict, test_database_url: str
-    ) -> None:
-        """Test updating node status using real database operations."""
-        # Create node in real database
-        created_node = create_node(test_database_url, sample_node_data)
-        assert created_node.status == "planned"
-
-        # Update status using real database operation
-        updated_node = update_node(test_database_url, created_node.id, {"status": "in_progress"})
-
-        # Verify update persisted to real database
-        assert updated_node is not None
-        assert updated_node.status == "in_progress"
-
-        # Retrieve again to confirm persistence
-        retrieved_node = get_node(test_database_url, created_node.id)
-        assert retrieved_node is not None
-        assert retrieved_node.status == "in_progress"
-
-    def test_search_functionality_real_database(
-        self, test_db_session, test_database_url: str
-    ) -> None:
-        """Test search functionality using real database operations."""
-        # Create searchable nodes
-        searchable_titles = ["Autonomous System", "User Management", "Data Processing"]
-        created_nodes = []
-
-        for title in searchable_titles:
-            node_data = {
-                "id": f"GOAL-{uuid.uuid4().hex[:8].upper()}",
-                "title": title,
-                "description": f"Description for {title}",
-                "layer": "Goal",
-                "status": "planned",
-                "metadata": {
-                    "created_at": "2024-01-01T00:00:00Z",
-                    "updated_at": "2024-01-01T00:00:00Z",
-                    "version": 1,
-                },
-                "links": {"parents": [], "children": []},
-            }
-            created_node = create_node(test_database_url, node_data)
-            created_nodes.append(created_node)
-
-        # Test search functionality on real database
-        search_results = search_nodes(test_database_url, {"title": "User"})
-        assert isinstance(search_results, list)
-
-        # Should find the "User Management" node
-        found_user_node = False
-        for node in search_results:
-            if "User" in node.title:
-                found_user_node = True
-                break
-
-        assert found_user_node, "Search should find node with 'User' in title"
-
-    def test_table_isolation_between_tests(self, sample_node_data: dict) -> None:
+    def test_table_isolation_verification(self, test_db_session) -> None:
         """Test that tables are properly isolated between tests.
 
-        This test should always start with a clean database regardless of
-        what previous tests have done.
+        This test should always start with a completely clean database.
         """
-        # At the start of this test, database should be clean
-        # (tables were dropped and recreated)
+        session = test_db_session
+
+        # At the start, database should be completely empty
+        all_nodes = session.query(Goal).all()
+        assert len(all_nodes) == 0, f"Database should be empty, but found {len(all_nodes)} nodes"
+
+        # Create a test node
+        unique_id = uuid.uuid4().hex[:8].upper()
+        test_node = Goal(
+            title=f"Isolation Test {unique_id}",
+            description=f"Testing isolation {unique_id}",
+            status="planned",
+            owner=None,
+            severity=None,
+            work_type=None,
+            assignee=None,
+        )
+
+        session.add(test_node)
+        session.commit()
+
+        # Should only find our one node
+        all_nodes = session.query(Goal).all()
+        assert len(all_nodes) == 1
+        assert all_nodes[0].id == test_node.id
+
+    def test_multiple_nodes_single_test(self, test_db_session) -> None:
+        """Test creating multiple nodes within the same test."""
+        session = test_db_session
+
+        # Create multiple nodes
+        nodes_to_create = []
+        for i in range(3):
+            unique_id = uuid.uuid4().hex[:8].upper()
+            node = Goal(
+                title=f"Test Goal {i + 1} - {unique_id}",
+                description=f"Test goal {i + 1}",
+                status="planned",
+                owner=None,
+                severity=None,
+                work_type=None,
+                assignee=None,
+            )
+            nodes_to_create.append(node)
+            session.add(node)
+
+        session.commit()
+
+        # Verify all nodes were created
+        all_nodes = session.query(Goal).all()
+        assert len(all_nodes) == 3
+
+        # Verify each created node exists
+        created_ids = {node.id for node in nodes_to_create}
+        retrieved_ids = {node.id for node in all_nodes}
+        assert created_ids == retrieved_ids
+
+    def test_different_layers_same_test(self, test_db_session) -> None:
+        """Test creating nodes from different layers in the same test."""
+        session = test_db_session
+
+        # Create nodes from different layers using appropriate models
+        models_and_data = [
+            (Goal, "Goal"),
+            (Task, "Task"),
+            (Command, "Command"),
+        ]
+
+        created_nodes = []
+        for model_class, layer_name in models_and_data:
+            unique_id = uuid.uuid4().hex[:8].upper()
+            node = model_class(
+                title=f"{layer_name} Node {unique_id}",
+                description=f"Test {layer_name.lower()} node",
+                status="planned",
+                owner=None,
+                severity=None,
+                work_type=None,
+                assignee=None,
+            )
+            created_nodes.append(node)
+            session.add(node)
+
+        session.commit()
+
+        # Verify all nodes were created across all tables
+        all_goals = session.query(Goal).all()
+        all_tasks = session.query(Task).all()
+        all_commands = session.query(Command).all()
+
+        total_nodes = len(all_goals) + len(all_tasks) + len(all_commands)
+        assert total_nodes == 3
+
+        # Verify each model type is represented
+        assert len(all_goals) == 1
+        assert len(all_tasks) == 1
+        assert len(all_commands) == 1
+
+    def test_database_transaction_rollback(self, test_db_session) -> None:
+        """Test database transaction rollback behavior."""
+        session = test_db_session
+
+        # Start with empty database
+        all_nodes = session.query(Goal).all()
+        assert len(all_nodes) == 0
 
         # Create a node
-        created_node = create_node(sample_node_data)
+        unique_id = uuid.uuid4().hex[:8].upper()
+        test_node = Goal(
+            title=f"Transaction Test {unique_id}",
+            description="Testing transaction behavior",
+            status="planned",
+            owner=None,
+            severity=None,
+            work_type=None,
+            assignee=None,
+        )
 
-        # Should only find our newly created node
-        nodes_list = list_nodes()
-        all_nodes = []
-        for layer_nodes in nodes_list.values():
-            all_nodes.extend(layer_nodes)
-        node_ids = [node.id for node in all_nodes]
+        session.add(test_node)
+        session.commit()
 
-        # Should only contain our node
-        assert len(node_ids) == 1
-        assert created_node.id in node_ids
+        # Verify node was committed
+        all_nodes = session.query(Goal).all()
+        assert len(all_nodes) == 1
+
+        # Start a new transaction and roll it back
+        try:
+            rollback_node = Goal(
+                title="This will be rolled back",
+                description="Rollback test",
+                status="planned",
+                owner=None,
+                severity=None,
+                work_type=None,
+                assignee=None,
+            )
+            session.add(rollback_node)
+            session.flush()  # Flush but don't commit
+            raise Exception("Force rollback")
+        except Exception:
+            session.rollback()
+
+        # Verify rollback worked - only the first node should exist
+        all_nodes = session.query(Goal).all()
+        assert len(all_nodes) == 1
+        assert all_nodes[0].id == test_node.id
