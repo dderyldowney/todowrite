@@ -67,7 +67,13 @@ show_usage() {
 install_deps() {
     print_status "Installing dependencies with unified build system..."
     uv sync --group dev
-    print_success "Dependencies installed successfully"
+
+    print_status "Installing local packages in development mode..."
+    # Install lib and CLI packages in editable mode for development
+    uv pip install -e ./lib_package/
+    uv pip install -e ./cli_package/
+
+    print_success "Dependencies installed successfully with local packages in development mode"
 }
 
 build_packages() {

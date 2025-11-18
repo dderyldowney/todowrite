@@ -32,6 +32,8 @@ dev = [
     { name = "pytest-cov", specifier = ">=5.0.0" },
     { name = "ruff", specifier = ">=0.14.4" },
     { name = "sqlfluff", specifier = ">=3.0.0" },
+    { name = "todowrite", editable = "lib_package" },
+    { name = "todowrite-cli", editable = "cli_package" },
     { name = "types-click", specifier = ">=7.1.0" },
     { name = "types-jsonschema", specifier = ">=4.0.0" },
     { name = "types-pyyaml", specifier = ">=6.0.12" },
