@@ -761,7 +761,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     pa.add_argument(
         "--provider",
         choices=["openai", "anthropic"],
-        required=True,
+        default="anthropic",
+        help="AI provider (default: anthropic)",
     )
     pa.add_argument(
         "--model",

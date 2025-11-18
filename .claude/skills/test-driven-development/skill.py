@@ -16,30 +16,31 @@ Author: Claude Code Assistant
 Version: 2025.1.0
 """
 
-import os
+import json
+import logging
+import subprocess
 import sys
 import time
-import json
-import subprocess
-import tempfile
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
 from dataclasses import dataclass, field
 from datetime import datetime
-import logging
+from pathlib import Path
+from typing import Any
 
 # Import fail-safe mechanisms
 try:
     sys.path.insert(0, str(Path(__file__).parent.parent))
-    from superpowers_fail_safes import with_fail_safes, get_fail_safes
+    from superpowers_fail_safes import get_fail_safes, with_fail_safes
 except ImportError:
     # Fallback for standalone execution
     def with_fail_safes(subagent_name: str):
         def decorator(func):
             return func
+
         return decorator
+
     def get_fail_safes():
         return None
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -49,18 +50,20 @@ logger = logging.getLogger(__name__)
 @dataclass
 class TDDTask:
     """TDD task definition"""
+
     id: str
     description: str
-    requirements: List[str]
+    requirements: list[str]
     feature_type: str
-    test_dir: Optional[Path] = None
-    source_dir: Optional[Path] = None
+    test_dir: Path | None = None
+    source_dir: Path | None = None
     priority: str = "normal"
 
 
 @dataclass
 class TDDResult:
     """Result of TDD execution"""
+
     task_id: str
     phase: str  # "red", "green", "refactor"
     success: bool
@@ -69,15 +72,15 @@ class TDDResult:
     failing_tests: int = 0
     coverage_percent: float = 0.0
     execution_time_seconds: float = 0.0
-    artifacts: List[str] = field(default_factory=list)
-    errors: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
+    artifacts: list[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
 
 
 class TestDrivenDevelopment:
     """Main TDD skill implementation with fail-safes"""
 
-    def __init__(self, project_root: Optional[Path] = None) -> None:
+    def __init__(self, project_root: Path | None = None) -> None:
         """
         Initialize TDD skill.
 
@@ -95,7 +98,7 @@ class TestDrivenDevelopment:
         logger.info(f"TDD skill initialized for project: {self.project_root}")
 
     @with_fail_safes("tdd_analyze_requirements")
-    def analyze_requirements(self, task: TDDTask) -> List[str]:
+    def analyze_requirements(self, task: TDDTask) -> list[str]:
         """
         Analyze requirements and create test cases.
 
@@ -110,36 +113,44 @@ class TestDrivenDevelopment:
         for req in task.requirements:
             # Generate test cases based on requirement
             if "register" in req.lower() or "create" in req.lower():
-                test_cases.extend([
-                    f"test_{task.feature_type}_creation_success",
-                    f"test_{task.feature_type}_creation_validation",
-                    f"test_{task.feature_type}_creation_error_handling"
-                ])
+                test_cases.extend(
+                    [
+                        f"test_{task.feature_type}_creation_success",
+                        f"test_{task.feature_type}_creation_validation",
+                        f"test_{task.feature_type}_creation_error_handling",
+                    ]
+                )
             elif "login" in req.lower() or "authenticate" in req.lower():
-                test_cases.extend([
-                    f"test_{task.feature_type}_authentication_success",
-                    f"test_{task.feature_type}_authentication_failure",
-                    f"test_{task.feature_type}_authentication_invalid_credentials"
-                ])
+                test_cases.extend(
+                    [
+                        f"test_{task.feature_type}_authentication_success",
+                        f"test_{task.feature_type}_authentication_failure",
+                        f"test_{task.feature_type}_authentication_invalid_credentials",
+                    ]
+                )
             elif "validate" in req.lower() or "sanitiz" in req.lower():
-                test_cases.extend([
-                    f"test_{task.feature_type}_validation_valid_input",
-                    f"test_{task.feature_type}_validation_invalid_input",
-                    f"test_{task.feature_type}_validation_edge_cases"
-                ])
+                test_cases.extend(
+                    [
+                        f"test_{task.feature_type}_validation_valid_input",
+                        f"test_{task.feature_type}_validation_invalid_input",
+                        f"test_{task.feature_type}_validation_edge_cases",
+                    ]
+                )
             else:
                 # Generic test cases
-                test_cases.extend([
-                    f"test_{task.feature_type}_{req.replace(' ', '_').lower()}_happy_path",
-                    f"test_{task.feature_type}_{req.replace(' ', '_').lower()}_edge_cases",
-                    f"test_{task.feature_type}_{req.replace(' ', '_').lower()}_error_conditions"
-                ])
+                test_cases.extend(
+                    [
+                        f"test_{task.feature_type}_{req.replace(' ', '_').lower()}_happy_path",
+                        f"test_{task.feature_type}_{req.replace(' ', '_').lower()}_edge_cases",
+                        f"test_{task.feature_type}_{req.replace(' ', '_').lower()}_error_conditions",
+                    ]
+                )
 
         logger.info(f"Generated {len(test_cases)} test cases for {task.id}")
         return test_cases
 
     @with_fail_safes("tdd_create_failing_tests")
-    def create_failing_tests(self, task: TDDTask, test_cases: List[str]) -> List[Path]:
+    def create_failing_tests(self, task: TDDTask, test_cases: list[str]) -> list[Path]:
         """
         Create failing tests for the TDD RED phase.
 
@@ -164,7 +175,7 @@ class TestDrivenDevelopment:
             test_content = self._generate_failing_test_content(task, group_tests)
 
             # Write test file
-            with open(test_file_path, 'w') as f:
+            with open(test_file_path, "w") as f:
                 f.write(test_content)
 
             created_tests.append(test_file_path)
@@ -172,7 +183,7 @@ class TestDrivenDevelopment:
 
         return created_tests
 
-    def _group_test_cases(self, test_cases: List[str]) -> Dict[str, List[str]]:
+    def _group_test_cases(self, test_cases: list[str]) -> dict[str, list[str]]:
         """Group test cases by functionality."""
         groups = {}
         for test_case in test_cases:
@@ -192,7 +203,7 @@ class TestDrivenDevelopment:
 
         return groups
 
-    def _generate_failing_test_content(self, task: TDDTask, test_cases: List[str]) -> str:
+    def _generate_failing_test_content(self, task: TDDTask, test_cases: list[str]) -> str:
         """Generate content for failing test file."""
         content = f'''"""
 Auto-generated failing tests for {task.feature_type}
@@ -238,7 +249,7 @@ def {test_name}():
         return content
 
     @with_fail_safes("tdd_run_red_phase")
-    def run_red_phase(self, task: TDDTask, test_files: List[Path]) -> TDDResult:
+    def run_red_phase(self, task: TDDTask, test_files: list[Path]) -> TDDResult:
         """
         Run RED phase: execute tests to verify they fail.
 
@@ -255,17 +266,17 @@ def {test_name}():
         try:
             # Run pytest on the test files
             cmd = [
-                "python3", "-m", "pytest",
+                "python3",
+                "-m",
+                "pytest",
                 *[str(f) for f in test_files],
-                "-v", "--tb=short", "--no-header"
+                "-v",
+                "--tb=short",
+                "--no-header",
             ]
 
             process = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                cwd=self.project_root,
-                timeout=60
+                cmd, capture_output=True, text=True, cwd=self.project_root, timeout=60
             )
 
             result.execution_time_seconds = time.time() - start_time
@@ -279,12 +290,14 @@ def {test_name}():
             # RED phase succeeds if tests are failing (as expected)
             if result.failing_tests > 0:
                 result.success = True
-                logger.info(f"RED phase successful: {result.failing_tests} failing tests as expected")
+                logger.info(
+                    f"RED phase successful: {result.failing_tests} failing tests as expected"
+                )
             else:
                 result.warnings.append("No failing tests found - tests may be incomplete")
 
             if process.stderr:
-                result.errors.extend(process.stderr.split('\n'))
+                result.errors.extend(process.stderr.split("\n"))
 
         except subprocess.TimeoutExpired:
             result.errors.append("RED phase execution timed out")
@@ -313,7 +326,7 @@ def {test_name}():
         # Generate minimal implementation based on task requirements
         impl_content = self._generate_minimal_implementation(task)
 
-        with open(impl_file, 'w') as f:
+        with open(impl_file, "w") as f:
             f.write(impl_content)
 
         logger.info(f"Created minimal implementation: {impl_file}")
@@ -372,9 +385,15 @@ class FeatureImplementation:
 '''
 
         # Add create method if needed
-        has_create = any("register" in req.lower() or "create" in req.lower() for req in task.requirements)
-        has_auth = any("login" in req.lower() or "authenticate" in req.lower() for req in task.requirements)
-        has_validate = any("validate" in req.lower() or "sanitiz" in req.lower() for req in task.requirements)
+        has_create = any(
+            "register" in req.lower() or "create" in req.lower() for req in task.requirements
+        )
+        has_auth = any(
+            "login" in req.lower() or "authenticate" in req.lower() for req in task.requirements
+        )
+        has_validate = any(
+            "validate" in req.lower() or "sanitiz" in req.lower() for req in task.requirements
+        )
 
         if has_create:
             content += '''
@@ -512,7 +531,7 @@ def create_feature_implementation(config: Optional[Dict[str, Any]] = None) -> Fe
         return content
 
     @with_fail_safes("tdd_run_green_phase")
-    def run_green_phase(self, task: TDDTask, impl_file: Path, test_files: List[Path]) -> TDDResult:
+    def run_green_phase(self, task: TDDTask, impl_file: Path, test_files: list[Path]) -> TDDResult:
         """
         Run GREEN phase: execute tests to verify minimal implementation passes.
 
@@ -533,17 +552,17 @@ def create_feature_implementation(config: Optional[Dict[str, Any]] = None) -> Fe
 
             # Run pytest
             cmd = [
-                "python3", "-m", "pytest",
+                "python3",
+                "-m",
+                "pytest",
                 *[str(f) for f in test_files],
-                "-v", "--tb=short", "--no-header"
+                "-v",
+                "--tb=short",
+                "--no-header",
             ]
 
             process = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                cwd=self.project_root,
-                timeout=120
+                cmd, capture_output=True, text=True, cwd=self.project_root, timeout=120
             )
 
             result.execution_time_seconds = time.time() - start_time
@@ -563,7 +582,7 @@ def create_feature_implementation(config: Optional[Dict[str, Any]] = None) -> Fe
                 result.warnings.append(f"Low pass rate: {success_rate:.1%}")
 
             if process.stderr:
-                result.errors.extend(process.stderr.split('\n'))
+                result.errors.extend(process.stderr.split("\n"))
 
         except subprocess.TimeoutExpired:
             result.errors.append("GREEN phase execution timed out")
@@ -572,7 +591,7 @@ def create_feature_implementation(config: Optional[Dict[str, Any]] = None) -> Fe
 
         return result
 
-    def _update_tests_for_implementation(self, task: TDDTask, test_files: List[Path]) -> None:
+    def _update_tests_for_implementation(self, task: TDDTask, test_files: list[Path]) -> None:
         """Update test files to use implementation instead of skip."""
         for test_file in test_files:
             content = test_file.read_text()
@@ -580,14 +599,14 @@ def create_feature_implementation(config: Optional[Dict[str, Any]] = None) -> Fe
             # Replace skip statements with actual test implementations
             updated_content = content.replace(
                 'pytest.skip("RED phase - implementation not yet created")',
-                self._generate_test_implementation(task)
+                self._generate_test_implementation(task),
             )
 
             test_file.write_text(updated_content)
 
     def _generate_test_implementation(self, task: TDDTask) -> str:
         """Generate test implementation code for GREEN phase."""
-        return f'''
+        return f"""
         # GREEN phase: Implementation exists, now we can test
         from {task.feature_type}.{task.feature_type} import create_feature_implementation
 
@@ -597,11 +616,12 @@ def create_feature_implementation(config: Optional[Dict[str, Any]] = None) -> Fe
 
         assert result.success is True
         assert result.data is not None
-'''
+"""
 
     def _count_tests_in_output(self, output: str) -> int:
         """Count number of tests in pytest output."""
         import re
+
         matches = re.findall(r"(\d+) passed|(\d+) failed", output)
         total = sum(int(match[0] or match[1]) for match in matches)
         return total
@@ -609,10 +629,11 @@ def create_feature_implementation(config: Optional[Dict[str, Any]] = None) -> Fe
     def _count_failing_tests(self, output: str) -> int:
         """Count failing tests in pytest output."""
         import re
+
         matches = re.findall(r"(\d+) failed", output)
         return sum(int(match) for match in matches)
 
-    def execute_tdd_workflow(self, task: TDDTask) -> List[TDDResult]:
+    def execute_tdd_workflow(self, task: TDDTask) -> list[TDDResult]:
         """
         Execute complete TDD workflow: RED → GREEN → REFACTOR
 
@@ -644,7 +665,9 @@ def create_feature_implementation(config: Optional[Dict[str, Any]] = None) -> Fe
         return results
 
 
-def create_tdd_task(task_id: str, description: str, requirements: List[str], feature_type: str) -> TDDTask:
+def create_tdd_task(
+    task_id: str, description: str, requirements: list[str], feature_type: str
+) -> TDDTask:
     """
     Factory function to create TDD task.
 
@@ -658,14 +681,13 @@ def create_tdd_task(task_id: str, description: str, requirements: List[str], fea
         TDDTask instance
     """
     return TDDTask(
-        id=task_id,
-        description=description,
-        requirements=requirements,
-        feature_type=feature_type
+        id=task_id, description=description, requirements=requirements, feature_type=feature_type
     )
 
 
-def execute_tdd_workflow(task_description: str, requirements: List[str], feature_type: str) -> Dict[str, Any]:
+def execute_tdd_workflow(
+    task_description: str, requirements: list[str], feature_type: str
+) -> dict[str, Any]:
     """
     Execute complete TDD workflow for a given task.
 
@@ -681,18 +703,14 @@ def execute_tdd_workflow(task_description: str, requirements: List[str], feature
         task_id=f"tdd_{int(time.time())}",
         description=task_description,
         requirements=requirements,
-        feature_type=feature_type
+        feature_type=feature_type,
     )
 
     tdd = TestDrivenDevelopment()
     results = tdd.execute_tdd_workflow(task)
 
     return {
-        "task": {
-            "id": task.id,
-            "description": task.description,
-            "feature_type": task.feature_type
-        },
+        "task": {"id": task.id, "description": task.description, "feature_type": task.feature_type},
         "results": [
             {
                 "phase": result.phase,
@@ -704,7 +722,7 @@ def execute_tdd_workflow(task_description: str, requirements: List[str], feature
                 "execution_time_seconds": result.execution_time_seconds,
                 "artifacts": result.artifacts,
                 "errors": result.errors,
-                "warnings": result.warnings
+                "warnings": result.warnings,
             }
             for result in results
         ],
@@ -712,8 +730,8 @@ def execute_tdd_workflow(task_description: str, requirements: List[str], feature
             "total_phases": len(results),
             "successful_phases": sum(1 for r in results if r.success),
             "total_tests": sum(r.test_count for r in results),
-            "final_coverage": results[-1].coverage_percent if results else 0.0
-        }
+            "final_coverage": results[-1].coverage_percent if results else 0.0,
+        },
     }
 
 
@@ -721,11 +739,13 @@ if __name__ == "__main__":
     # Example usage
     if len(sys.argv) > 1:
         task_description = sys.argv[1]
-        requirements = sys.argv[2].split(',') if len(sys.argv) > 2 else []
+        requirements = sys.argv[2].split(",") if len(sys.argv) > 2 else []
         feature_type = sys.argv[3] if len(sys.argv) > 3 else "feature"
 
         result = execute_tdd_workflow(task_description, requirements, feature_type)
         print(json.dumps(result, indent=2))
     else:
         print("Usage: python skill.py <description> <requirements> <feature_type>")
-        print("Example: python skill.py 'Add user authentication' 'register,login,validate' authentication")
+        print(
+            "Example: python skill.py 'Add user authentication' 'register,login,validate' authentication"
+        )

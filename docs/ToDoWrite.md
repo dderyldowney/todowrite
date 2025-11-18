@@ -43,22 +43,97 @@ ToDoWrite is a hierarchical task management system that allows you to:
 - **Simplicity First**: Code and tests that read like natural language
 - **Progressive Disclosure**: From high-level goals to detailed commands
 
-## Node Types (Layers)
+## Rails ActiveRecord Tables (2025 Design Update)
 
-ToDoWrite supports these node types, organized hierarchically:
+**NEW DESIGN (2025): Rails ActiveRecord with Individual Tables Per Layer**
 
-1. **Goal** (`GOAL-*`) - High-level project objectives
-2. **Concept** (`CON-*`) - Design concepts and architectural patterns
-3. **Context** (`CTX-*`) - Environmental and project context
-4. **Constraints** (`CST-*`) - Project constraints and limitations
-5. **Requirements** (`R-*`) - Functional requirements
-6. **AcceptanceCriteria** (`AC-*`) - Acceptance conditions and criteria
-7. **InterfaceContract** (`IF-*`) - Interface specifications and contracts
-8. **Phase** (`PH-*`) - Project phases and milestones
-9. **Step** (`STP-*`) - Implementation steps
-10. **Task** (`TSK-*`) - Specific tasks with progress tracking
-11. **SubTask** (`SUB-*`) - Sub-tasks that break down larger tasks
-12. **Command** (`CMD-*`) - Executable commands with run instructions
+The ToDoWrite system has been completely redesigned to follow Rails ActiveRecord conventions with **individual database tables** for each layer:
+
+### ActiveRecord Tables (12 Layers)
+
+| Layer | Table Name | Model Class | Description |
+|------|------------|-------------|-------------|
+| Goal | `goals` | `Goal` | High-level project objectives |
+| Concept | `concepts` | `Concept` | Design concepts and architectural patterns |
+| Context | `contexts` | `Context` | Environmental and project context |
+| Constraints | `constraints` | `Constraints` | Project constraints and limitations |
+| Requirements | `requirements` | `Requirements` | Functional requirements |
+| AcceptanceCriteria | `acceptance_criteria` | `AcceptanceCriteria` | Acceptance conditions and criteria |
+| InterfaceContract | `interface_contracts` | `InterfaceContract` | Interface specifications and contracts |
+| Phase | `phases` | `Phase` | Project phases and milestones |
+| Step | `steps` | `Step` | Implementation steps |
+| Task | `tasks` | `Task` | Specific tasks with progress tracking |
+| SubTask | `sub_tasks` | `SubTask` | Sub-tasks that break down larger tasks |
+| Command | `commands` | `Command` | Executable commands with run instructions |
+
+### Rails ActiveRecord Design Benefits
+
+**✅ Clean Database Design:**
+- Each layer has its own table with clear separation of concerns
+- Plural table names following Rails conventions (`goals`, not `goal`)
+- Individual entries trackable by unique integer IDs
+
+**✅ Rails Primary Key Conventions:**
+- `id INTEGER PRIMARY KEY AUTOINCREMENT` for every table
+- IDs are **UNIQUE, NOT NULL, and NEVER REUSED** (referential integrity)
+- Auto-incrementing sequence: 1, 2, 3, 4, 5...
+
+**✅ Rails Timestamp Conventions:**
+- `created_at` - Set once on creation, readonly afterward
+- `updated_at` - Automatically updated on every save
+- ISO format timestamps with timezone awareness
+
+**✅ Rails Relationship Conventions:**
+- Many-to-many relationships through join tables
+- Lexical naming: `goals_labels`, `concepts_labels`, etc.
+- Bidirectional navigation: `goal.labels` and `label.goals` both work
+- Foreign keys follow `model_name_id` pattern
+
+**✅ Rails Query Patterns:**
+- Type-safe SQLAlchemy queries with full Python support
+- ActiveRecord-style query methods
+- Efficient relationship loading and caching
+
+### Database Schema Example
+
+```sql
+-- Goals table (individual goals table)
+CREATE TABLE goals (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title VARCHAR NOT NULL,
+    description TEXT,
+    status VARCHAR DEFAULT 'planned',
+    progress INTEGER,
+    owner VARCHAR,
+    severity VARCHAR,
+    work_type VARCHAR,
+    assignee VARCHAR,
+    extra_data TEXT,  -- JSON for complex data
+    created_at VARCHAR NOT NULL,
+    updated_at VARCHAR NOT NULL
+);
+
+-- Labels table (shared across all layers)
+CREATE TABLE labels (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR NOT NULL UNIQUE,
+    created_at VARCHAR NOT NULL,
+    updated_at VARCHAR NOT NULL
+);
+
+-- Join table (lexical order, no primary key)
+CREATE TABLE goals_labels (
+    goal_id INTEGER NOT NULL REFERENCES goals(id),
+    label_id INTEGER NOT NULL REFERENCES labels(id)
+);
+```
+
+### Migration Notes
+
+- **Legacy Support**: Old `Node` table remains for backward compatibility during migration
+- **Data Integrity**: All foreign keys maintain referential integrity
+- **Performance**: Individual tables enable better indexing and query optimization
+- **Scalability**: Clean separation allows independent evolution of each layer
 
 ## Installation
 
@@ -145,64 +220,88 @@ all_nodes = app.get_all_nodes()
 print(f"Total nodes: {sum(len(nodes) for nodes in all_nodes.values())}")
 ```
 
-#### ActiveRecord-Style API (Recommended)
+#### Rails ActiveRecord-Style API (Recommended) - Updated Design
+
+**NEW DESIGN (2025): Individual Tables per Layer**
+
+The ToDoWrite system has been redesigned to follow Rails ActiveRecord conventions with separate tables for each layer:
+
+- **Pluralized tables**: `goals`, `concepts`, `contexts`, `constraints`, `requirements`, `acceptance_criteria`, `interface_contracts`, `phases`, `steps`, `tasks`, `sub_tasks`
+- **Integer primary keys**: Auto-incrementing IDs that are never reused
+- **Rails timestamps**: `created_at` (readonly) and `updated_at` (writable)
+- **Individual models**: Each layer has its own ActiveRecord model class
+
 ```python
-from todowrite import ToDoWrite, Node
+from todowrite.core.types import Goal, Task, Label
 
-# Initialize application
-app = ToDoWrite("sqlite:///project.db")
-app.init_database()
+# Initialize database session (same as Rails database.yml)
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
-# Configure Node class for ActiveRecord methods
-Node.configure_session(app.get_session())
+engine = create_engine("sqlite:///project.db")
+Session = sessionmaker(bind=engine)
+session = Session()
 
-# Create nodes using Rails-style patterns
-goal = Node.create_goal(
-    "Build TodoWrite App",
-    "dev-team",
+# Create records using Rails ActiveRecord patterns
+goal = Goal(
+    title="Build TodoWrite App",
     description="Create the application",
-    labels=["app"],
+    owner="dev-team",
     severity="high"
 )
+session.add(goal)
+session.commit()
 
-# Create task under goal (automatically linked)
-task = goal.tasks().create(
+print(f"Goal created with ID: {goal.id}")  # Outputs: Goal created with ID: 1
+
+# Create task with relationship
+task = Task(
     title="Set up database",
     description="Initialize database schema",
     owner="dev-team",
-    labels=["database"],
     severity="medium"
 )
+session.add(task)
+session.commit()
 
-# Or create separately and link
-task = Node.create_task(
-    "Set up database",
-    "GOAL-001",  # Parent goal ID
-    description="Initialize database schema",
-    owner="dev-team",
-    labels=["database"],
-    severity="medium"
-)
+print(f"Task created with ID: {task.id}")  # Outputs: Task created with ID: 1
 
-# Workflow management
-task.start().save()  # Start work
-task.update_progress(50)  # Update progress
-task.complete().save()  # Mark complete
+# Add labels (many-to-many through join tables)
+strategic_label = Label(name="strategic")
+database_label = Label(name="database")
+session.add_all([strategic_label, database_label])
+session.commit()
 
-# Query nodes
-all_goals = Node.where(layer="Goal")
-backend_tasks = Node.where(owner="dev-team")
-in_progress = Node.where(status="in_progress")
+goal.labels.append(strategic_label)
+task.labels.extend([strategic_label, database_label])
+session.commit()
+
+# Rails-style queries
+all_goals = session.query(Goal).all()
+backend_tasks = session.query(Task).filter(Task.owner == "dev-team").all()
+in_progress = session.query(Task).filter(Task.status == "in_progress").all()
+
+# Bidirectional relationships work
+print(f"Goal {goal.id} labels: {[l.name for l in goal.labels]}")
+print(f"Label '{strategic_label.name}' goals: {[g.title for g in strategic_label.goals]}")
 
 # Collection operations
-goal_tasks = goal.tasks()  # Get tasks collection
-task_count = goal_tasks.size()
-has_tasks = goal_tasks.exists()
+task_count = len(goal.labels) if goal.labels else 0
+print(f"Goal '{goal.title}' has {task_count} labels")
 
-print(f"Goal '{goal.title}' has {task_count} tasks")
 print(f"Total goals: {len(all_goals)}")
+print(f"Backend tasks: {len(backend_tasks)}")
 print(f"In-progress tasks: {len(in_progress)}")
 ```
+
+**Key Rails ActiveRecord Benefits:**
+
+1. **Clean Database Design**: Each layer has its own table with auto-incrementing integer IDs
+2. **Referential Integrity**: IDs are never reused, even after deletion
+3. **Rails Conventions**: Plural table names, timestamp fields, proper foreign keys
+4. **Bidirectional Relationships**: `goal.labels` and `label.goals` both work
+5. **Type Safety**: Full Python type hints for all models
+6. **SQLAlchemy Integration**: Leverages powerful ORM features while maintaining Rails patterns
 
 #### Method Chaining Examples
 ```python

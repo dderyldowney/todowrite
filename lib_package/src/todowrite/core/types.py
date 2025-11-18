@@ -29,9 +29,11 @@ Example:
 from __future__ import annotations
 
 import json
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, Literal, TypedDict
 
 from sqlalchemy import (
+    BigInteger,
     Column,
     ForeignKey,
     Integer,
@@ -66,8 +68,92 @@ class Base(DeclarativeBase):
 node_labels = Table(
     "labels_nodes",  # Node + Label (alphabetical)
     Base.metadata,
-    Column("node_id", String, ForeignKey("nodes.id"), primary_key=True),
-    Column("label_id", String, ForeignKey("labels.label"), primary_key=True),
+    Column("node_id", BigInteger, ForeignKey("nodes.id"), primary_key=True),
+    Column("label_id", BigInteger, ForeignKey("labels.id"), primary_key=True),
+)
+
+# Rails-style join tables (lexical order, no primary keys)
+goals_labels = Table(
+    "goals_labels",  # Goal < Label (alphabetical)
+    Base.metadata,
+    Column("goal_id", Integer, ForeignKey("goals.id")),
+    Column("label_id", Integer, ForeignKey("labels.id")),
+)
+
+concepts_labels = Table(
+    "concepts_labels",  # Concept < Label (alphabetical)
+    Base.metadata,
+    Column("concept_id", Integer, ForeignKey("concepts.id")),
+    Column("label_id", Integer, ForeignKey("labels.id")),
+)
+
+contexts_labels = Table(
+    "contexts_labels",  # Context < Label (alphabetical)
+    Base.metadata,
+    Column("context_id", Integer, ForeignKey("contexts.id")),
+    Column("label_id", Integer, ForeignKey("labels.id")),
+)
+
+constraints_labels = Table(
+    "constraints_labels",  # Constraints < Label (alphabetical)
+    Base.metadata,
+    Column("constraint_id", Integer, ForeignKey("constraints.id")),
+    Column("label_id", Integer, ForeignKey("labels.id")),
+)
+
+requirements_labels = Table(
+    "requirements_labels",  # Requirements < Label (alphabetical)
+    Base.metadata,
+    Column("requirement_id", Integer, ForeignKey("requirements.id")),
+    Column("label_id", Integer, ForeignKey("labels.id")),
+)
+
+acceptance_criteria_labels = Table(
+    "acceptance_criteria_labels",  # AcceptanceCriteria < Label (alphabetical)
+    Base.metadata,
+    Column(
+        "acceptance_criterion_id",
+        Integer,
+        ForeignKey("acceptance_criteria.id"),
+    ),
+    Column("label_id", Integer, ForeignKey("labels.id")),
+)
+
+interface_contracts_labels = Table(
+    "interface_contracts_labels",  # InterfaceContract < Label (alphabetical)
+    Base.metadata,
+    Column(
+        "interface_contract_id", Integer, ForeignKey("interface_contracts.id")
+    ),
+    Column("label_id", Integer, ForeignKey("labels.id")),
+)
+
+phases_labels = Table(
+    "phases_labels",  # Phase < Label (alphabetical)
+    Base.metadata,
+    Column("phase_id", Integer, ForeignKey("phases.id")),
+    Column("label_id", Integer, ForeignKey("labels.id")),
+)
+
+steps_labels = Table(
+    "steps_labels",  # Step < Label (alphabetical)
+    Base.metadata,
+    Column("step_id", Integer, ForeignKey("steps.id")),
+    Column("label_id", Integer, ForeignKey("labels.id")),
+)
+
+tasks_labels = Table(
+    "tasks_labels",  # Task < Label (alphabetical)
+    Base.metadata,
+    Column("task_id", Integer, ForeignKey("tasks.id")),
+    Column("label_id", Integer, ForeignKey("labels.id")),
+)
+
+sub_tasks_labels = Table(
+    "sub_tasks_labels",  # SubTask < Label (alphabetical)
+    Base.metadata,
+    Column("sub_task_id", Integer, ForeignKey("sub_tasks.id")),
+    Column("label_id", Integer, ForeignKey("labels.id")),
 )
 
 # Goal + Constraints = constraints_goals (alphabetical)
@@ -233,15 +319,565 @@ class NodeQueryFields(TypedDict, total=False):
     assignee: str
 
 
+class Goal(Base):
+    """Rails ActiveRecord Goal model following Rails conventions."""
+
+    __tablename__ = "goals"
+
+    # Rails primary key (Integer for SQLite autoincrement compatibility)
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+
+    # Model fields
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String, default="planned")
+    progress: Mapped[int | None] = mapped_column(Integer)
+    started_date: Mapped[str | None] = mapped_column(String)
+    completion_date: Mapped[str | None] = mapped_column(String)
+
+    # Metadata fields (flattened for now, could be separate table)
+    owner: Mapped[str | None] = mapped_column(String)
+    severity: Mapped[str | None] = mapped_column(String)
+    work_type: Mapped[str | None] = mapped_column(String)
+    assignee: Mapped[str | None] = mapped_column(String)
+
+    # JSON fields for complex data
+    extra_data: Mapped[str | None] = mapped_column(Text)  # JSON string
+
+    # Rails timestamps: created_at readonly, updated_at updates on save
+    # created_at: Set once on creation, never changes (readonly)
+    created_at: Mapped[str] = mapped_column(
+        String, default=lambda: datetime.now().isoformat(), nullable=False
+    )
+
+    # updated_at: Updates on every save (writable)
+    updated_at: Mapped[str] = mapped_column(
+        String,
+        default=lambda: datetime.now().isoformat(),
+        nullable=False,
+        onupdate=lambda: datetime.now().isoformat(),
+    )
+
+    # Rails-style relationships (bidirectional with back_populates)
+    labels: Mapped[list[Label]] = relationship(
+        "Label", secondary=goals_labels, back_populates="goals"
+    )
+
+
+class Concept(Base):
+    """Rails ActiveRecord Concept model following Rails conventions."""
+
+    __tablename__ = "concepts"
+
+    # Rails primary key (Integer for SQLite autoincrement compatibility)
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+
+    # Model fields
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String, default="planned")
+    progress: Mapped[int | None] = mapped_column(Integer)
+    started_date: Mapped[str | None] = mapped_column(String)
+    completion_date: Mapped[str | None] = mapped_column(String)
+
+    # Metadata fields (flattened for now, could be separate table)
+    owner: Mapped[str | None] = mapped_column(String)
+    severity: Mapped[str | None] = mapped_column(String)
+    work_type: Mapped[str | None] = mapped_column(String)
+    assignee: Mapped[str | None] = mapped_column(String)
+
+    # JSON fields for complex data
+    extra_data: Mapped[str | None] = mapped_column(Text)  # JSON string
+
+    # Rails timestamp conventions - created_at readonly, updated_at writable
+    created_at: Mapped[str] = mapped_column(
+        String, default=lambda: datetime.now().isoformat(), nullable=False
+    )
+    updated_at: Mapped[str] = mapped_column(
+        String,
+        default=lambda: datetime.now().isoformat(),
+        nullable=False,
+        onupdate=lambda: datetime.now().isoformat(),
+    )
+
+    # Rails-style relationships
+    labels: Mapped[list[Label]] = relationship(
+        "Label", secondary=concepts_labels, back_populates="concepts"
+    )
+
+
+class Context(Base):
+    """Rails ActiveRecord Context model following Rails conventions."""
+
+    __tablename__ = "contexts"
+
+    # Rails primary key convention
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+
+    # Model fields
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String, default="planned")
+    progress: Mapped[int | None] = mapped_column(Integer)
+    started_date: Mapped[str | None] = mapped_column(String)
+    completion_date: Mapped[str | None] = mapped_column(String)
+
+    # Metadata fields
+    owner: Mapped[str | None] = mapped_column(String)
+    severity: Mapped[str | None] = mapped_column(String)
+    work_type: Mapped[str | None] = mapped_column(String)
+    assignee: Mapped[str | None] = mapped_column(String)
+
+    # JSON fields for complex data
+    extra_data: Mapped[str | None] = mapped_column(Text)
+
+    # Rails timestamp conventions
+    created_at: Mapped[str] = mapped_column(
+        String, default=lambda: datetime.now().isoformat(), nullable=False
+    )
+    updated_at: Mapped[str] = mapped_column(
+        String,
+        default=lambda: datetime.now().isoformat(),
+        nullable=False,
+        onupdate=lambda: datetime.now().isoformat(),
+    )
+
+    # Rails-style relationships
+    labels: Mapped[list[Label]] = relationship(
+        "Label", secondary=contexts_labels, back_populates="contexts"
+    )
+
+
+class Constraints(Base):
+    """Rails ActiveRecord Constraints model following Rails conventions."""
+
+    __tablename__ = "constraints"
+
+    # Rails primary key convention
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+
+    # Model fields
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String, default="planned")
+    progress: Mapped[int | None] = mapped_column(Integer)
+    started_date: Mapped[str | None] = mapped_column(String)
+    completion_date: Mapped[str | None] = mapped_column(String)
+
+    # Metadata fields
+    owner: Mapped[str | None] = mapped_column(String)
+    severity: Mapped[str | None] = mapped_column(String)
+    work_type: Mapped[str | None] = mapped_column(String)
+    assignee: Mapped[str | None] = mapped_column(String)
+
+    # JSON fields for complex data
+    extra_data: Mapped[str | None] = mapped_column(Text)
+
+    # Rails timestamp conventions
+    created_at: Mapped[str] = mapped_column(
+        String, default=lambda: datetime.now().isoformat(), nullable=False
+    )
+    updated_at: Mapped[str] = mapped_column(
+        String,
+        default=lambda: datetime.now().isoformat(),
+        nullable=False,
+        onupdate=lambda: datetime.now().isoformat(),
+    )
+
+    # Rails-style relationships
+    labels: Mapped[list[Label]] = relationship(
+        "Label", secondary=constraints_labels, back_populates="constraints"
+    )
+
+
+class Requirements(Base):
+    """Rails ActiveRecord Requirements model following Rails conventions."""
+
+    __tablename__ = "requirements"
+
+    # Rails primary key convention
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+
+    # Model fields
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String, default="planned")
+    progress: Mapped[int | None] = mapped_column(Integer)
+    started_date: Mapped[str | None] = mapped_column(String)
+    completion_date: Mapped[str | None] = mapped_column(String)
+
+    # Metadata fields
+    owner: Mapped[str | None] = mapped_column(String)
+    severity: Mapped[str | None] = mapped_column(String)
+    work_type: Mapped[str | None] = mapped_column(String)
+    assignee: Mapped[str | None] = mapped_column(String)
+
+    # JSON fields for complex data
+    extra_data: Mapped[str | None] = mapped_column(Text)
+
+    # Rails timestamp conventions
+    created_at: Mapped[str] = mapped_column(
+        String, default=lambda: datetime.now().isoformat(), nullable=False
+    )
+    updated_at: Mapped[str] = mapped_column(
+        String,
+        default=lambda: datetime.now().isoformat(),
+        nullable=False,
+        onupdate=lambda: datetime.now().isoformat(),
+    )
+
+    # Rails-style relationships
+    labels: Mapped[list[Label]] = relationship(
+        "Label", secondary=requirements_labels, back_populates="requirements"
+    )
+
+
+class AcceptanceCriteria(Base):
+    """Rails ActiveRecord AcceptanceCriteria model per Rails conventions."""
+
+    __tablename__ = "acceptance_criteria"
+
+    # Rails primary key convention
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+
+    # Model fields
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String, default="planned")
+    progress: Mapped[int | None] = mapped_column(Integer)
+    started_date: Mapped[str | None] = mapped_column(String)
+    completion_date: Mapped[str | None] = mapped_column(String)
+
+    # Metadata fields
+    owner: Mapped[str | None] = mapped_column(String)
+    severity: Mapped[str | None] = mapped_column(String)
+    work_type: Mapped[str | None] = mapped_column(String)
+    assignee: Mapped[str | None] = mapped_column(String)
+
+    # JSON fields for complex data
+    extra_data: Mapped[str | None] = mapped_column(Text)
+
+    # Rails timestamp conventions
+    created_at: Mapped[str] = mapped_column(
+        String, default=lambda: datetime.now().isoformat(), nullable=False
+    )
+    updated_at: Mapped[str] = mapped_column(
+        String,
+        default=lambda: datetime.now().isoformat(),
+        nullable=False,
+        onupdate=lambda: datetime.now().isoformat(),
+    )
+
+    # Rails-style relationships
+    labels: Mapped[list[Label]] = relationship(
+        "Label",
+        secondary=acceptance_criteria_labels,
+        back_populates="acceptance_criteria",
+    )
+
+
+class InterfaceContract(Base):
+    """Rails ActiveRecord InterfaceContract model per Rails conventions."""
+
+    __tablename__ = "interface_contracts"
+
+    # Rails primary key convention
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+
+    # Model fields
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String, default="planned")
+    progress: Mapped[int | None] = mapped_column(Integer)
+    started_date: Mapped[str | None] = mapped_column(String)
+    completion_date: Mapped[str | None] = mapped_column(String)
+
+    # Metadata fields
+    owner: Mapped[str | None] = mapped_column(String)
+    severity: Mapped[str | None] = mapped_column(String)
+    work_type: Mapped[str | None] = mapped_column(String)
+    assignee: Mapped[str | None] = mapped_column(String)
+
+    # JSON fields for complex data
+    extra_data: Mapped[str | None] = mapped_column(Text)
+
+    # Rails timestamp conventions
+    created_at: Mapped[str] = mapped_column(
+        String, default=lambda: datetime.now().isoformat(), nullable=False
+    )
+    updated_at: Mapped[str] = mapped_column(
+        String,
+        default=lambda: datetime.now().isoformat(),
+        nullable=False,
+        onupdate=lambda: datetime.now().isoformat(),
+    )
+
+    # Rails-style relationships
+    labels: Mapped[list[Label]] = relationship(
+        "Label",
+        secondary=interface_contracts_labels,
+        back_populates="interface_contracts",
+    )
+
+
+class Phase(Base):
+    """Rails ActiveRecord Phase model following Rails conventions."""
+
+    __tablename__ = "phases"
+
+    # Rails primary key convention
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+
+    # Model fields
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String, default="planned")
+    progress: Mapped[int | None] = mapped_column(Integer)
+    started_date: Mapped[str | None] = mapped_column(String)
+    completion_date: Mapped[str | None] = mapped_column(String)
+
+    # Metadata fields
+    owner: Mapped[str | None] = mapped_column(String)
+    severity: Mapped[str | None] = mapped_column(String)
+    work_type: Mapped[str | None] = mapped_column(String)
+    assignee: Mapped[str | None] = mapped_column(String)
+
+    # JSON fields for complex data
+    extra_data: Mapped[str | None] = mapped_column(Text)
+
+    # Rails timestamp conventions
+    created_at: Mapped[str] = mapped_column(
+        String, default=lambda: datetime.now().isoformat(), nullable=False
+    )
+    updated_at: Mapped[str] = mapped_column(
+        String,
+        default=lambda: datetime.now().isoformat(),
+        nullable=False,
+        onupdate=lambda: datetime.now().isoformat(),
+    )
+
+    # Rails-style relationships
+    labels: Mapped[list[Label]] = relationship(
+        "Label", secondary=phases_labels, back_populates="phases"
+    )
+
+
+class Step(Base):
+    """Rails ActiveRecord Step model following Rails conventions."""
+
+    __tablename__ = "steps"
+
+    # Rails primary key convention
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+
+    # Model fields
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String, default="planned")
+    progress: Mapped[int | None] = mapped_column(Integer)
+    started_date: Mapped[str | None] = mapped_column(String)
+    completion_date: Mapped[str | None] = mapped_column(String)
+
+    # Metadata fields
+    owner: Mapped[str | None] = mapped_column(String)
+    severity: Mapped[str | None] = mapped_column(String)
+    work_type: Mapped[str | None] = mapped_column(String)
+    assignee: Mapped[str | None] = mapped_column(String)
+
+    # JSON fields for complex data
+    extra_data: Mapped[str | None] = mapped_column(Text)
+
+    # Rails timestamp conventions
+    created_at: Mapped[str] = mapped_column(
+        String, default=lambda: datetime.now().isoformat(), nullable=False
+    )
+    updated_at: Mapped[str] = mapped_column(
+        String,
+        default=lambda: datetime.now().isoformat(),
+        nullable=False,
+        onupdate=lambda: datetime.now().isoformat(),
+    )
+
+    # Rails-style relationships
+    labels: Mapped[list[Label]] = relationship(
+        "Label", secondary=steps_labels, back_populates="steps"
+    )
+
+
+class Task(Base):
+    """Rails ActiveRecord Task model following Rails conventions."""
+
+    __tablename__ = "tasks"
+
+    # Rails primary key convention
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+
+    # Model fields
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String, default="planned")
+    progress: Mapped[int | None] = mapped_column(Integer)
+    started_date: Mapped[str | None] = mapped_column(String)
+    completion_date: Mapped[str | None] = mapped_column(String)
+
+    # Metadata fields
+    owner: Mapped[str | None] = mapped_column(String)
+    severity: Mapped[str | None] = mapped_column(String)
+    work_type: Mapped[str | None] = mapped_column(String)
+    assignee: Mapped[str | None] = mapped_column(String)
+
+    # JSON fields for complex data
+    extra_data: Mapped[str | None] = mapped_column(Text)
+
+    # Rails timestamp conventions
+    created_at: Mapped[str] = mapped_column(
+        String, default=lambda: datetime.now().isoformat(), nullable=False
+    )
+    updated_at: Mapped[str] = mapped_column(
+        String,
+        default=lambda: datetime.now().isoformat(),
+        nullable=False,
+        onupdate=lambda: datetime.now().isoformat(),
+    )
+
+    # Rails-style relationships
+    labels: Mapped[list[Label]] = relationship(
+        "Label", secondary=tasks_labels, back_populates="tasks"
+    )
+
+
+class SubTask(Base):
+    """Rails ActiveRecord SubTask model following Rails conventions."""
+
+    __tablename__ = "sub_tasks"
+
+    # Rails primary key convention
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+
+    # Model fields
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String, default="planned")
+    progress: Mapped[int | None] = mapped_column(Integer)
+    started_date: Mapped[str | None] = mapped_column(String)
+    completion_date: Mapped[str | None] = mapped_column(String)
+
+    # Metadata fields
+    owner: Mapped[str | None] = mapped_column(String)
+    severity: Mapped[str | None] = mapped_column(String)
+    work_type: Mapped[str | None] = mapped_column(String)
+    assignee: Mapped[str | None] = mapped_column(String)
+
+    # JSON fields for complex data
+    extra_data: Mapped[str | None] = mapped_column(Text)
+
+    # Rails timestamp conventions
+    created_at: Mapped[str] = mapped_column(
+        String, default=lambda: datetime.now().isoformat(), nullable=False
+    )
+    updated_at: Mapped[str] = mapped_column(
+        String,
+        default=lambda: datetime.now().isoformat(),
+        nullable=False,
+        onupdate=lambda: datetime.now().isoformat(),
+    )
+
+    # Rails-style relationships
+    labels: Mapped[list[Label]] = relationship(
+        "Label", secondary=sub_tasks_labels, back_populates="sub_tasks"
+    )
+
+
 class Label(Base):
-    """Represents a label that can be attached to a node."""
+    """Represents a label that can be attached to goals and other models."""
 
     __tablename__ = "labels"
 
-    label: Mapped[str] = mapped_column(String, primary_key=True)
+    # Rails primary key (Integer for SQLite autoincrement compatibility)
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
 
+    # Model field (unique label name)
+    name: Mapped[str] = mapped_column(
+        String, nullable=False, unique=True
+    )  # Rails uses 'name', not 'label'
+
+    # Rails timestamp conventions - created_at readonly, updated_at writable
+    created_at: Mapped[str] = mapped_column(
+        String, default=lambda: datetime.now().isoformat(), nullable=False
+    )
+    updated_at: Mapped[str] = mapped_column(
+        String,
+        default=lambda: datetime.now().isoformat(),
+        nullable=False,
+        onupdate=lambda: datetime.now().isoformat(),
+    )
+
+    # Rails-style relationships (bidirectional with back_populates)
+    goals: Mapped[list[Goal]] = relationship(
+        "Goal", secondary=goals_labels, back_populates="labels"
+    )
+    concepts: Mapped[list[Concept]] = relationship(
+        "Concept", secondary=concepts_labels, back_populates="labels"
+    )
+    contexts: Mapped[list[Context]] = relationship(
+        "Context", secondary=contexts_labels, back_populates="labels"
+    )
+    constraints: Mapped[list[Constraints]] = relationship(
+        "Constraints", secondary=constraints_labels, back_populates="labels"
+    )
+    requirements: Mapped[list[Requirements]] = relationship(
+        "Requirements", secondary=requirements_labels, back_populates="labels"
+    )
+    acceptance_criteria: Mapped[list[AcceptanceCriteria]] = relationship(
+        "AcceptanceCriteria",
+        secondary=acceptance_criteria_labels,
+        back_populates="labels",
+    )
+    interface_contracts: Mapped[list[InterfaceContract]] = relationship(
+        "InterfaceContract",
+        secondary=interface_contracts_labels,
+        back_populates="labels",
+    )
+    phases: Mapped[list[Phase]] = relationship(
+        "Phase", secondary=phases_labels, back_populates="labels"
+    )
+    steps: Mapped[list[Step]] = relationship(
+        "Step", secondary=steps_labels, back_populates="labels"
+    )
+    tasks: Mapped[list[Task]] = relationship(
+        "Task", secondary=tasks_labels, back_populates="labels"
+    )
+    sub_tasks: Mapped[list[SubTask]] = relationship(
+        "SubTask", secondary=sub_tasks_labels, back_populates="labels"
+    )
+
+    # Legacy relationship (for backward compatibility during migration)
     nodes: Mapped[list[Node]] = relationship(
-        secondary=node_labels, back_populates="labels"
+        "Node", secondary=node_labels, back_populates="labels"
     )
 
 
@@ -250,8 +886,11 @@ class Command(Base):
 
     __tablename__ = "commands"
 
-    id: Mapped[str] = mapped_column(
-        String, ForeignKey("nodes.id"), primary_key=True
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+    node_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("nodes.id"), nullable=False
     )
     ac_ref: Mapped[str] = mapped_column(String)
     run_data: Mapped[str | None] = mapped_column(Text)  # JSON string
@@ -558,7 +1197,7 @@ class ActiveCollection:
         return self.size() == 0
 
     def exists(self, **kwargs: str | int | bool | None) -> bool:
-        """Check if node with given criteria exists using optimized EXISTS query."""
+        """Check if node exists using optimized EXISTS query."""
         if not self.session:
             raise RuntimeError("No database session configured")
 
@@ -610,8 +1249,8 @@ class ActiveCollection:
         """
         Build new associated node (Rails-style).
 
-        Creates new node but doesn't save it. The association is set up in memory
-        but will only be persisted to the database when the node is saved.
+        Creates new node but doesn't save it. Association is set up in memory
+        and persists to database when the node is saved.
         """
 
         node = self.parent_node.__class__.new(
@@ -619,7 +1258,7 @@ class ActiveCollection:
         )
 
         # Set up in-memory association only (not database)
-        # The actual database association will be created when node.save() is called
+        # Database association created when node.save() is called
         if hasattr(node, "_pending_parent"):
             node._pending_parent = self.parent_node
         else:
@@ -641,10 +1280,9 @@ class ActiveCollection:
         parent_child_key = (parent_layer, self.target_layer)
 
         if parent_child_key in self.parent_to_child_mappings:
-            # Use the mapped columns for this specific parent-child relationship
-            _table, parent_col, child_col = self.parent_to_child_mappings[
-                parent_child_key
-            ]
+            # Use mapped columns for this parent-child relationship
+            mapping = self.parent_to_child_mappings[parent_child_key]
+            _table, parent_col, child_col = mapping
             insert_values = {parent_col: parent.id, child_col: child.id}
         else:
             # Fallback to the target layer mappings
@@ -774,7 +1412,9 @@ class Node(Base):
     __tablename__ = "nodes"
 
     # Core fields
-    id: Mapped[str] = mapped_column(String, primary_key=True)
+    id: Mapped[int] = mapped_column(
+        BigInteger, primary_key=True, autoincrement=True
+    )
     layer: Mapped[str] = mapped_column(String, nullable=False)
     title: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str | None] = mapped_column(Text)

@@ -171,8 +171,8 @@ These mandates apply **at all times** with **zero exceptions**.
 ```bash
 # Basic HAL Agent Usage (ALWAYS use this first)
 python dev_tools/agent_controls/hal_token_savvy_agent.py \
-  --provider openai \
-  --model $OPENAI_MODEL \
+  --provider anthropic \
+  --model $ANTHROPIC_MODEL \
   --goal "find database model files" \
   --roots lib_package/ \
   --include "*.py" \
@@ -181,8 +181,8 @@ python dev_tools/agent_controls/hal_token_savvy_agent.py \
 
 # HAL Agent for Code Analysis
 python dev_tools/agent_controls/hal_token_savvy_agent.py \
-  --provider openai \
-  --model $OPENAI_MODEL \
+  --provider anthropic \
+  --model $ANTHROPIC_MODEL \
   --goal "analyze authentication patterns" \
   --pattern "class.*Auth" \
   --roots lib_package/ cli_package/ \
@@ -191,8 +191,8 @@ python dev_tools/agent_controls/hal_token_savvy_agent.py \
 
 # HAL Agent for Error Investigation
 python dev_tools/agent_controls/hal_token_savvy_agent.py \
-  --provider openai \
-  --model $OPENAI_MODEL \
+  --provider anthropic \
+  --model $ANTHROPIC_MODEL \
   --goal "find test failures" \
   --pattern "def test.*" \
   --roots tests/ \
@@ -202,8 +202,8 @@ python dev_tools/agent_controls/hal_token_savvy_agent.py \
 ```
 
 **HAL Agent Options**:
-- `--provider {openai,anthropic}`: AI provider (OpenAI always preferred)
-- `--model`: Model name (uses $OPENAI_MODEL environment variable)
+- `--provider {openai,anthropic}`: AI provider (Anthropic is default)
+- `--model`: Model name (uses $ANTHROPIC_MODEL environment variable)
 - `--goal`: Analysis goal (required)
 - `--pattern`: Regex pattern for focused search
 - `--roots`: Directories to search
@@ -212,11 +212,10 @@ python dev_tools/agent_controls/hal_token_savvy_agent.py \
 - `--max-files`: Maximum files to process
 - `--context`: Context lines around matches
 
-**OpenAI Environment Variables**:
-- `OPENAI_API_KEY`: Your OpenAI API key (required)
-- `OPENAI_BASE_URL`: Custom API endpoint (required for non-OpenAI endpoints)
-- `OPENAI_MODEL`: Model to use (e.g., gpt-4o-mini, glm-4.6)
-- `OPENAI_TIMEOUT`: Request timeout in seconds (optional, uses OpenAI default if not set; typically 600 seconds)
+**Anthropic Environment Variables**:
+- `ANTHROPIC_API_KEY`: Your Anthropic API key (required)
+- `ANTHROPIC_MODEL`: Model to use (e.g., claude-3-5-sonnet-20241022)
+- `ANTHROPIC_DEFAULT_SONNET_MODEL`: Default model (claude-3-5-sonnet-20241022)
 
 ### 12.2 Token Optimization System - MUST USE (90% Token Savings)
 
@@ -246,7 +245,7 @@ python dev_tools/token_optimization/token_optimized_agent.py "database models" "
 
 1. **HAL Preprocessing First** (0 API tokens):
    ```bash
-   python dev_tools/agent_controls/hal_token_savvy_agent.py --provider openai --model gpt-4o --goal "YOUR TASK HERE"
+   python dev_tools/agent_controls/hal_token_savvy_agent.py --provider anthropic --goal "YOUR TASK HERE"
    ```
 
 2. **Token-Sage Analysis Second** (optimized tokens):
@@ -280,11 +279,10 @@ python dev_tools/token_optimization/always_token_sage.py "test query"
 # Verify dependencies are installed
 python -c "import openai; print('✅ HAL dependencies ready')"
 
-# Verify OpenAI API configuration is set (OpenAI always preferred over Anthropic)
-python -c "import os; print('✅ OpenAI API key ready' if os.getenv('OPENAI_API_KEY') else '❌ OPENAI_API_KEY not set')"
-python -c "import os; print('✅ OpenAI base URL set' if os.getenv('OPENAI_BASE_URL') else '❌ OPENAI_BASE_URL not set')"
-python -c "import os; print('✅ OpenAI model set' if os.getenv('OPENAI_MODEL') else '❌ OPENAI_MODEL not set')"
-python -c "import os; print('✅ OpenAI timeout set' if os.getenv('OPENAI_TIMEOUT') else 'ℹ️ OPENAI_TIMEOUT not set (using default)')"
+# Verify Anthropic API configuration is set
+python -c "import os; print('✅ Anthropic API key ready' if os.getenv('ANTHROPIC_API_KEY') else '❌ ANTHROPIC_API_KEY not set')"
+python -c "import os; print('✅ Anthropic model set' if os.getenv('ANTHROPIC_MODEL') else 'ℹ️ ANTHROPIC_MODEL not set (using default)')"
+python -c "import os; print('✅ Anthropic default Sonnet model set' if os.getenv('ANTHROPIC_DEFAULT_SONNET_MODEL') else 'ℹ️ ANTHROPIC_DEFAULT_SONNET_MODEL not set (using default)')"
 ```
 
 ### 12.5 Enforcement and Compliance
@@ -292,7 +290,7 @@ python -c "import os; print('✅ OpenAI timeout set' if os.getenv('OPENAI_TIMEOU
 **ABSOLUTE REQUIREMENTS**:
 - **NO EXCEPTIONS**: This applies to ALL agents at ALL times
 - **NO BYPASSING**: HAL preprocessing is required before any AI interaction
-- **MANDATORY DEPENDENCIES**: `openai>=1.12.0` always installed (OpenAI always preferred over Anthropic)
+- **MANDATORY DEPENDENCIES**: `anthropic` package installed (Anthropic is default provider)
 - **ZERO ALTERNATIVES**: No other tools or workflows are permitted
 - **CONTINUOUS USAGE**: Must be used for every single task, no matter how small
 
@@ -603,8 +601,8 @@ All agents MUST complete this checklist before beginning any work:
 - [ ] **No Mocking**: STRICT no-mocking policy understood and followed
 - [ ] **HAL Agent System**: Ready and functional (`python dev_tools/agent_controls/hal_token_savvy_agent.py --help`)
 - [ ] **Token Optimization**: Active and verified (`python dev_tools/token_optimization/always_token_sage.py "test"`)
-- [ ] **HAL Dependencies**: `openai` package installed and importable
-- [ ] **OpenAI Configuration**: `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `OPENAI_MODEL`, and optionally `OPENAI_TIMEOUT` environment variables set
+- [ ] **HAL Dependencies**: `anthropic` package installed and importable
+- [ ] **Anthropic Configuration**: `ANTHROPIC_API_KEY` and optionally `ANTHROPIC_MODEL` environment variables set
 
 ### Preferred Tool Invocation
 
@@ -694,29 +692,120 @@ source .venv/bin/activate
 - `web_package` is intentionally excluded from automated tests and formatting; build scripts handle exclusions automatically.
 - These items are operational details to be followed by agents; the authoritative policies (TDD, no-mocking, type hints, etc.) remain in the main CLAUDE mandates above.
 
-## 18. Standard Workflow
+## 18. Agents MUST use ToDoWrite for ALL task tracking - ZERO EXCEPTIONS
+
+**MANDATORY REQUIREMENT**: ALL agents MUST use the ToDoWrite system for tracking ALL development work, tasks, and progress. NO EXCEPTIONS.
+
+### 18.1 Mandatory ToDoWrite Usage Requirements
+
+**ABSOLUTE REQUIREMENTS**:
+- **ALL development work MUST be tracked in ToDoWrite**: Every task, feature, bug fix, and development activity must be recorded using the ToDoWrite system
+- **NO EXCEPTIONS**: This applies to ALL agents at ALL times with zero bypassing allowed
+- **REAL-TIME TRACKING**: Tasks must be created and updated in real-time as work progresses
+- **COMPREHENSIVE COVERAGE**: All work items must be tracked - from small fixes to major features
+- **PROJECT STRUCTURE**: Use ToDoWrite's hierarchical structure (Goal → Concept → Context → Constraints → Requirements → AcceptanceCriteria → Phase → Step → Task → SubTask → Command)
+
+### 18.2 Mandatory ToDoWrite Workflow
+
+**FOR ALL AGENT WORK**:
+
+1. **BEFORE STARTING ANY WORK**: Create ToDoWrite tasks for all planned work items
+   ```bash
+   # Example: Create tasks for development work
+   todowrite create --layer goal --title "Implement Feature X" --owner "agent"
+   todowrite create --layer task --title "Write failing tests" --owner "agent"
+   todowrite create --layer task --title "Implement minimal code" --owner "agent"
+   todowrite create --layer task --title "Refactor and clean up" --owner "agent"
+   ```
+
+2. **DURING DEVELOPMENT**: Update task status in real-time
+   ```bash
+   # Update progress as work continues
+   todowrite update-task --id "TASK-001" --status "in_progress" --progress 50
+   ```
+
+3. **AFTER COMPLETION**: Mark tasks as completed
+   ```bash
+   # Mark work as completed
+   todowrite update-task --id "TASK-001" --status "completed" --progress 100
+   ```
+
+### 18.3 ToDoWrite Integration Requirements
+
+**MANDATORY INTEGRATION**:
+- **HIERARCHICAL TRACKING**: All work must follow ToDoWrite's 12-layer hierarchy
+- **PROPER LINKING**: Tasks must be properly linked to parent/child items
+- **COMPLETE METADATA**: All required fields (owner, severity, work_type, etc.) must be filled
+- **STATUS TRACKING**: Real-time status updates throughout development lifecycle
+- **PROGRESS MONITORING**: Accurate progress percentage tracking
+
+### 18.4 Enforcement and Compliance
+
+**ZERO TOLERANCE POLICY**:
+- **NO WORK WITHOUT TRACKING**: Any development work not tracked in ToDoWrite is a violation
+- **REAL-TIME COMPLIANCE**: Tasks must be updated as work happens, not retroactively
+- **COMPREHENSIVE AUDITING**: All work must be traceable through ToDoWrite records
+- **AUTOMATIC VERIFICATION**: Session initialization verifies ToDoWrite tracking compliance
+
+### 18.5 Authorized Sources for ToDoWrite Implementation
+
+**MANDATORY CONSULTATION**:
+- **ToDoWrite Documentation**: `docs/ToDoWrite.md` for API usage and patterns
+- **ToDoWrite API**: `lib_package/src/todowrite/` for implementation details
+- **Rails ActiveRecord Guides**: <https://guides.rubyonrails.org/> for database patterns
+- **SQLAlchemy Documentation**: <https://docs.sqlalchemy.org/> for database operations
+
+### 18.6 TodoWrite Tool vs External Todo Systems
+
+**FORBIDDEN**: External todo systems (GitHub Issues, Jira, Trello, etc.)
+**REQUIRED**: Use ONLY the built-in ToDoWrite system for all task tracking
+**RATIONALE**: We eat our own dog food - the system we build must be the system we use
+
+### 18.7 Verification Commands
+
+**Before starting work**:
+```bash
+# Verify ToDoWrite is initialized
+todowrite init
+todowrite list
+
+# Verify current session tracking
+ls -la .claude/todowrite_session_active.json
+```
+
+**After completing work**:
+```bash
+# Verify all tasks are updated
+todowrite list --status in_progress
+todowrite list --status completed
+```
+
+## 19. Standard Workflow
 
 1. **MANDATORY**: Load documentation files IN ORDER (CLAUDE.md → ToDoWrite.md → BUILD_SYSTEM.md)
    - **On session start**: Load before any other work
    - **After '/clear'**: Immediately reload before any other work
    - **After '/quit'**: Load in new session before any other work
 2. **MANDATORY**: Complete Startup Checklist including HAL Agent + Token Optimization verification
-3. **MANDATORY**: Use HAL Agent System for ALL tasks (Rule #12.1)
+3. **MANDATORY**: Initialize ToDoWrite session and create tasks for ALL planned work (Rule #18)
+4. **MANDATORY**: Use HAL Agent System for ALL tasks (Rule #12.1)
    ```bash
-   python dev_tools/agent_controls/hal_token_savvy_agent.py --provider openai --model gpt-4o --goal "YOUR TASK"
+   python dev_tools/agent_controls/hal_token_savvy_agent.py --provider anthropic --goal "YOUR TASK"
    ```
-4. **MANDATORY**: Use Token Optimization System for ALL AI analysis (Rule #12.2)
+5. **MANDATORY**: Use Token Optimization System for ALL AI analysis (Rule #12.2)
    ```bash
    python dev_tools/token_optimization/always_token_sage.py "YOUR ANALYSIS"
    ```
-5. Clarify request & verify understanding from loaded docs
-6. Search using HAL Agent preprocessing + local CLI tools only
-7. Red test (using real implementations only)
-8. Green minimal code with full typing
-9. Refactor
-10. Commit (never using --no-verify without permission)
+6. Clarify request & verify understanding from loaded docs
+7. Create ToDoWrite tasks for ALL planned work items
+8. Search using HAL Agent preprocessing + local CLI tools only
+9. Red test (using real implementations only)
+10. Green minimal code with full typing
+11. Refactor
+12. Update ToDoWrite task status to completed
+13. Commit (never using --no-verify without permission)
 
-**FORBIDDEN**: Any work without HAL Agent preprocessing and Token Optimization usage
+**FORBIDDEN**: Any work without ToDoWrite tracking, HAL Agent preprocessing, and Token Optimization usage
 
 ## Emergency Documentation Verification
 

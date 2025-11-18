@@ -16,43 +16,45 @@ Author: Claude Code Assistant
 Version: 2025.1.0
 """
 
-import os
-import sys
-import time
-import json
-import threading
-import subprocess
-import tempfile
-import traceback
 import gc
-import signal
-import psutil
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Callable, Union
+import json
+import logging
+import os
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from concurrent.futures import ThreadPoolExecutor, as_completed, Future
-from queue import Queue, Empty
-import logging
-import weakref
+from pathlib import Path
+from queue import Empty, Queue
+from typing import Any
+
+import psutil
 
 # Import fail-safe mechanisms
 try:
-    from .claude.superpowers_fail_safes import with_fail_safes, get_fail_safes, ResourceLimits
+    from .claude.superpowers_fail_safes import ResourceLimits, get_fail_safes, with_fail_safes
 except ImportError:
     # Fallback for standalone execution
     def with_fail_safes(subagent_name: str):
         def decorator(func):
             return func
+
         return decorator
+
     def get_fail_safes():
         return None
+
     @dataclass
     class ResourceLimits:
         max_memory_mb: int = 512
         max_cpu_percent: float = 80.0
         max_execution_time_seconds: int = 300
         max_concurrent_subagents: int = 3
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -62,11 +64,12 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SubagentTask:
     """Subagent task definition"""
+
     id: str
     agent_type: str  # "analyzer", "planner", "implementer", "tester", "refactor"
     input_data: Any
-    parameters: Dict[str, Any] = field(default_factory=dict)
-    dependencies: List[str] = field(default_factory=list)
+    parameters: dict[str, Any] = field(default_factory=dict)
+    dependencies: list[str] = field(default_factory=list)
     memory_limit_mb: float = 256.0
     cpu_limit_percent: float = 50.0
     timeout_seconds: int = 120
@@ -79,16 +82,17 @@ class SubagentTask:
 @dataclass
 class SubagentState:
     """Subagent execution state"""
+
     agent_id: str
     status: str  # "pending", "running", "completed", "failed", "timeout"
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
-    result: Optional[Any] = None
-    error: Optional[str] = None
+    start_time: datetime | None = None
+    end_time: datetime | None = None
+    result: Any | None = None
+    error: str | None = None
     memory_usage_mb: float = 0.0
     cpu_usage_percent: float = 0.0
-    process_id: Optional[int] = None
-    thread_id: Optional[int] = None
+    process_id: int | None = None
+    thread_id: int | None = None
     cleanup_required: bool = True
 
 
@@ -107,7 +111,7 @@ class MemoryGuard:
         self.check_interval = check_interval
         self.process = psutil.Process()
         self.monitoring = False
-        self.monitor_thread: Optional[threading.Thread] = None
+        self.monitor_thread: threading.Thread | None = None
         self.violations = 0
         self.max_violations = 3
 
@@ -118,9 +122,7 @@ class MemoryGuard:
         self.violations = 0
 
         self.monitor_thread = threading.Thread(
-            target=self._monitor_memory,
-            daemon=True,
-            name=f"MemoryGuard_{agent_id}"
+            target=self._monitor_memory, daemon=True, name=f"MemoryGuard_{agent_id}"
         )
         self.monitor_thread.start()
         logger.info(f"Memory monitoring started for {agent_id} (limit: {self.limit_mb}MB)")
@@ -130,7 +132,7 @@ class MemoryGuard:
         self.monitoring = False
         if self.monitor_thread and self.monitor_thread.is_alive():
             self.monitor_thread.join(timeout=2)
-        logger.info(f"Memory monitoring stopped")
+        logger.info("Memory monitoring stopped")
 
     def _monitor_memory(self) -> None:
         """Monitor memory usage and enforce limits."""
@@ -140,10 +142,14 @@ class MemoryGuard:
 
                 if memory_mb > self.limit_mb:
                     self.violations += 1
-                    logger.warning(f"Memory violation #{self.violations}: {memory_mb:.1f}MB > {self.limit_mb}MB")
+                    logger.warning(
+                        f"Memory violation #{self.violations}: {memory_mb:.1f}MB > {self.limit_mb}MB"
+                    )
 
                     if self.violations >= self.max_violations:
-                        logger.error(f"Memory limit exceeded ({memory_mb:.1f}MB), terminating {self.agent_id}")
+                        logger.error(
+                            f"Memory limit exceeded ({memory_mb:.1f}MB), terminating {self.agent_id}"
+                        )
                         self._enforce_memory_limit()
                         break
                 else:
@@ -167,7 +173,7 @@ class MemoryGuard:
         memory_mb = self.process.memory_info().rss / 1024 / 1024
         if memory_mb > self.limit_mb:
             # Terminate the current process (extreme measure)
-            logger.critical(f"Memory enforcement triggered: terminating process")
+            logger.critical("Memory enforcement triggered: terminating process")
             os._exit(1)
 
     def get_current_usage(self) -> float:
@@ -194,7 +200,7 @@ class SessionLockPrevention:
         self.session_start = datetime.now()
         self.last_heartbeat = datetime.now()
         self.lock_prevention_active = True
-        self.heartbeat_thread: Optional[threading.Thread] = None
+        self.heartbeat_thread: threading.Thread | None = None
 
     def start_prevention(self) -> None:
         """Start session lock prevention."""
@@ -203,9 +209,7 @@ class SessionLockPrevention:
         self.last_heartbeat = datetime.now()
 
         self.heartbeat_thread = threading.Thread(
-            target=self._monitor_session,
-            daemon=True,
-            name="SessionLockPrevention"
+            target=self._monitor_session, daemon=True, name="SessionLockPrevention"
         )
         self.heartbeat_thread.start()
         logger.info("Session lock prevention started")
@@ -281,7 +285,7 @@ class SessionLockPrevention:
 class SubagentDrivenDevelopment:
     """Main subagent-driven development implementation"""
 
-    def __init__(self, project_root: Optional[Path] = None) -> None:
+    def __init__(self, project_root: Path | None = None) -> None:
         """
         Initialize subagent-driven development system.
 
@@ -299,22 +303,19 @@ class SubagentDrivenDevelopment:
             self.limits = ResourceLimits()
 
         # Subagent management
-        self.subagents: Dict[str, SubagentState] = {}
-        self.cascade_dependencies: Dict[str, List[str]] = {}
-        self.communication_channels: Dict[str, Queue] = {}
+        self.subagents: dict[str, SubagentState] = {}
+        self.cascade_dependencies: dict[str, list[str]] = {}
+        self.communication_channels: dict[str, Queue] = {}
 
         # Protection mechanisms
         self.session_lock_prevention = SessionLockPrevention(
             timeout_minutes=self.limits.max_execution_time_seconds // 60
         )
-        self.memory_guards: Dict[str, MemoryGuard] = {}
+        self.memory_guards: dict[str, MemoryGuard] = {}
 
         # Resource monitoring
         self.monitoring_active = True
-        self.resource_monitor_thread = threading.Thread(
-            target=self._monitor_resources,
-            daemon=True
-        )
+        self.resource_monitor_thread = threading.Thread(target=self._monitor_resources, daemon=True)
 
         # Dynamic scaling
         self.current_worker_count = 1
@@ -323,7 +324,7 @@ class SubagentDrivenDevelopment:
         logger.info(f"Subagent-driven development initialized for {self.project_root}")
 
     @with_fail_safes("subagent_development")
-    def execute_cascade_development(self, tasks: List[SubagentTask]) -> Dict[str, Any]:
+    def execute_cascade_development(self, tasks: list[SubagentTask]) -> dict[str, Any]:
         """
         Execute development tasks in cascade with fail-safes.
 
@@ -382,7 +383,7 @@ class SubagentDrivenDevelopment:
                 "results": results,
                 "total_tasks": len(tasks),
                 "completed_tasks": len(completed_tasks),
-                "execution_summary": self._generate_execution_summary(results)
+                "execution_summary": self._generate_execution_summary(results),
             }
 
         except Exception as e:
@@ -391,14 +392,14 @@ class SubagentDrivenDevelopment:
                 "success": False,
                 "error": str(e),
                 "results": results,
-                "partial_completion": len(results) / len(tasks) if tasks else 0
+                "partial_completion": len(results) / len(tasks) if tasks else 0,
             }
 
         finally:
             # Cleanup
             self._cleanup()
 
-    def _initialize_cascade_dependencies(self, tasks: List[SubagentTask]) -> None:
+    def _initialize_cascade_dependencies(self, tasks: list[SubagentTask]) -> None:
         """Initialize cascade dependencies between tasks."""
         for task in tasks:
             self.cascade_dependencies[task.id] = task.dependencies
@@ -409,14 +410,14 @@ class SubagentDrivenDevelopment:
 
         logger.info("Initialized cascade dependencies and communication channels")
 
-    def _get_ready_tasks(self, remaining_tasks: List[SubagentTask], completed_tasks: List[str]) -> List[SubagentTask]:
+    def _get_ready_tasks(
+        self, remaining_tasks: list[SubagentTask], completed_tasks: list[str]
+    ) -> list[SubagentTask]:
         """Get tasks that are ready for execution."""
         ready_tasks = []
 
         for task in remaining_tasks:
-            dependencies_met = all(
-                dep in completed_tasks for dep in task.dependencies
-            )
+            dependencies_met = all(dep in completed_tasks for dep in task.dependencies)
             if dependencies_met:
                 ready_tasks.append(task)
 
@@ -424,7 +425,7 @@ class SubagentDrivenDevelopment:
         ready_tasks.sort(key=lambda t: (t.cascading_level, -t.priority))
         return ready_tasks
 
-    def _check_deadlock(self, remaining_tasks: List[SubagentTask]) -> bool:
+    def _check_deadlock(self, remaining_tasks: list[SubagentTask]) -> bool:
         """Check for deadlock in task dependencies."""
         # Simple deadlock detection
         task_ids = {task.id for task in remaining_tasks}
@@ -442,9 +443,7 @@ class SubagentDrivenDevelopment:
             rec_stack.add(node)
 
             for neighbor in dependency_graph.get(node, []):
-                if neighbor not in visited and has_cycle(neighbor):
-                    return True
-                elif neighbor in rec_stack:
+                if (neighbor not in visited and has_cycle(neighbor)) or neighbor in rec_stack:
                     return True
 
             rec_stack.remove(node)
@@ -460,16 +459,13 @@ class SubagentDrivenDevelopment:
             logger.info(f"Scaling workers: {self.current_worker_count} -> {optimal_workers}")
             self.current_worker_count = optimal_workers
 
-    def _execute_task_batch(self, tasks: List[SubagentTask]) -> List[Dict[str, Any]]:
+    def _execute_task_batch(self, tasks: list[SubagentTask]) -> list[dict[str, Any]]:
         """Execute a batch of tasks in parallel."""
         batch_results = []
 
         with ThreadPoolExecutor(max_workers=self.current_worker_count) as executor:
             # Submit all tasks
-            futures = {
-                executor.submit(self._execute_single_task, task): task
-                for task in tasks
-            }
+            futures = {executor.submit(self._execute_single_task, task): task for task in tasks}
 
             # Collect results as they complete
             for future in as_completed(futures, timeout=self.limits.max_execution_time_seconds):
@@ -490,13 +486,13 @@ class SubagentDrivenDevelopment:
                         "success": False,
                         "error": str(e),
                         "execution_time": 0,
-                        "memory_peak_mb": 0
+                        "memory_peak_mb": 0,
                     }
                     batch_results.append(error_result)
 
         return batch_results
 
-    def _execute_single_task(self, task: SubagentTask) -> Dict[str, Any]:
+    def _execute_single_task(self, task: SubagentTask) -> dict[str, Any]:
         """Execute a single subagent task with fail-safes."""
         agent_id = f"{task.agent_type}_{task.id}"
         start_time = time.time()
@@ -507,7 +503,7 @@ class SubagentDrivenDevelopment:
             status="running",
             start_time=datetime.now(),
             process_id=os.getpid(),
-            thread_id=threading.get_ident()
+            thread_id=threading.get_ident(),
         )
 
         # Initialize memory guard
@@ -522,7 +518,7 @@ class SubagentDrivenDevelopment:
             "result": None,
             "error": None,
             "execution_time": 0,
-            "memory_peak_mb": 0
+            "memory_peak_mb": 0,
         }
 
         try:
@@ -573,7 +569,7 @@ class SubagentDrivenDevelopment:
 
         return result
 
-    def _execute_analyzer_task(self, task: SubagentTask) -> Dict[str, Any]:
+    def _execute_analyzer_task(self, task: SubagentTask) -> dict[str, Any]:
         """Execute analyzer subagent task."""
         target = task.parameters.get("target", str(self.project_root))
         analysis_type = task.parameters.get("analysis_type", "code_analysis")
@@ -582,7 +578,8 @@ class SubagentDrivenDevelopment:
         input_data = self._get_input_from_channels(task)
 
         cmd = [
-            "python3", "-c",
+            "python3",
+            "-c",
             f"""
 import json
 import ast
@@ -622,7 +619,7 @@ result = analyze_code(target)
 result["input_data"] = input_data
 result["analysis_type"] = "{analysis_type}"
 print(json.dumps(result))
-            """
+            """,
         ]
 
         process = subprocess.run(
@@ -630,7 +627,7 @@ print(json.dumps(result))
             capture_output=True,
             text=True,
             timeout=task.timeout_seconds,
-            cwd=str(self.temp_dir)
+            cwd=str(self.temp_dir),
         )
 
         if process.returncode != 0:
@@ -638,18 +635,13 @@ print(json.dumps(result))
 
         return json.loads(process.stdout)
 
-    def _execute_planner_task(self, task: SubagentTask) -> Dict[str, Any]:
+    def _execute_planner_task(self, task: SubagentTask) -> dict[str, Any]:
         """Execute planner subagent task."""
         # Get input from communication channels
         input_data = self._get_input_from_channels(task)
 
         # Generate implementation plan based on analysis results
-        plan = {
-            "steps": [],
-            "estimated_duration": 0,
-            "resources_required": [],
-            "dependencies": []
-        }
+        plan = {"steps": [], "estimated_duration": 0, "resources_required": [], "dependencies": []}
 
         if input_data and isinstance(input_data, dict):
             if "files" in input_data:
@@ -664,7 +656,7 @@ print(json.dumps(result))
 
         return plan
 
-    def _execute_implementer_task(self, task: SubagentTask) -> Dict[str, Any]:
+    def _execute_implementer_task(self, task: SubagentTask) -> dict[str, Any]:
         """Execute implementer subagent task."""
         # Get plan from communication channels
         plan = self._get_input_from_channels(task)
@@ -673,7 +665,7 @@ print(json.dumps(result))
             "implemented_features": [],
             "files_created": [],
             "lines_of_code": 0,
-            "implementation_details": {}
+            "implementation_details": {},
         }
 
         if plan and isinstance(plan, dict) and "steps" in plan:
@@ -687,7 +679,7 @@ print(json.dumps(result))
 
         return implementation
 
-    def _execute_tester_task(self, task: SubagentTask) -> Dict[str, Any]:
+    def _execute_tester_task(self, task: SubagentTask) -> dict[str, Any]:
         """Execute tester subagent task."""
         # Get implementation details from communication channels
         implementation = self._get_input_from_channels(task)
@@ -697,7 +689,7 @@ print(json.dumps(result))
             "tests_passed": 0,
             "tests_failed": 0,
             "coverage_percent": 0.0,
-            "test_files": []
+            "test_files": [],
         }
 
         if implementation and isinstance(implementation, dict):
@@ -712,7 +704,7 @@ print(json.dumps(result))
 
         return test_results
 
-    def _execute_refactor_task(self, task: SubagentTask) -> Dict[str, Any]:
+    def _execute_refactor_task(self, task: SubagentTask) -> dict[str, Any]:
         """Execute refactor subagent task."""
         # Get test results from communication channels
         test_results = self._get_input_from_channels(task)
@@ -722,7 +714,7 @@ print(json.dumps(result))
             "quality_improvements": [],
             "performance_optimizations": [],
             "code_metrics_before": {},
-            "code_metrics_after": {}
+            "code_metrics_after": {},
         }
 
         if test_results and isinstance(test_results, dict):
@@ -737,7 +729,7 @@ print(json.dumps(result))
 
         return refactor_report
 
-    def _execute_generic_task(self, task: SubagentTask) -> Dict[str, Any]:
+    def _execute_generic_task(self, task: SubagentTask) -> dict[str, Any]:
         """Execute generic subagent task."""
         input_data = self._get_input_from_channels(task)
 
@@ -747,7 +739,7 @@ print(json.dumps(result))
             "input_data": input_data,
             "parameters": task.parameters,
             "execution_time": time.time(),
-            "status": "completed"
+            "status": "completed",
         }
 
     def _get_input_from_channels(self, task: SubagentTask) -> Any:
@@ -786,12 +778,12 @@ print(json.dumps(result))
 
     def _check_and_enforce_limits(self) -> None:
         """Check resource limits and enforce if necessary."""
-        total_memory = sum(
-            guard.get_current_usage() for guard in self.memory_guards.values()
-        )
+        total_memory = sum(guard.get_current_usage() for guard in self.memory_guards.values())
 
         if total_memory > self.limits.max_memory_mb:
-            logger.warning(f"Total memory usage ({total_memory:.1f}MB) exceeds limit ({self.limits.max_memory_mb}MB)")
+            logger.warning(
+                f"Total memory usage ({total_memory:.1f}MB) exceeds limit ({self.limits.max_memory_mb}MB)"
+            )
             self._emergency_memory_cleanup()
 
     def _emergency_memory_cleanup(self) -> None:
@@ -803,9 +795,8 @@ print(json.dumps(result))
 
         # Terminate low-priority subagents
         low_priority_agents = [
-            agent_id for agent_id, state in self.subagents.items()
-            if state.status == "running"
-        ][:len(self.subagents) // 2]
+            agent_id for agent_id, state in self.subagents.items() if state.status == "running"
+        ][: len(self.subagents) // 2]
 
         for agent_id in low_priority_agents:
             if agent_id in self.subagents:
@@ -826,8 +817,7 @@ print(json.dumps(result))
 
                 # Check active subagents
                 active_count = sum(
-                    1 for state in self.subagents.values()
-                    if state.status == "running"
+                    1 for state in self.subagents.values() if state.status == "running"
                 )
 
                 if active_count > self.limits.max_concurrent_subagents:
@@ -839,7 +829,7 @@ print(json.dumps(result))
                 logger.error(f"Resource monitoring error: {e}")
                 time.sleep(5)
 
-    def _generate_execution_summary(self, results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _generate_execution_summary(self, results: list[dict[str, Any]]) -> dict[str, Any]:
         """Generate execution summary."""
         successful_results = [r for r in results if r["success"]]
         failed_results = [r for r in results if not r["success"]]
@@ -852,10 +842,10 @@ print(json.dumps(result))
             "total_execution_time": sum(r["execution_time"] for r in results),
             "peak_memory_usage": max(r["memory_peak_mb"] for r in results),
             "agent_type_distribution": self._analyze_agent_distribution(results),
-            "errors": [r["error"] for r in failed_results if r["error"]]
+            "errors": [r["error"] for r in failed_results if r["error"]],
         }
 
-    def _analyze_agent_distribution(self, results: List[Dict[str, Any]]) -> Dict[str, int]:
+    def _analyze_agent_distribution(self, results: list[dict[str, Any]]) -> dict[str, int]:
         """Analyze distribution of agent types."""
         distribution = {}
         for result in results:
@@ -878,6 +868,7 @@ print(json.dumps(result))
         # Cleanup temp directory
         try:
             import shutil
+
             if self.temp_dir.exists():
                 shutil.rmtree(self.temp_dir)
         except Exception as e:
@@ -904,15 +895,12 @@ def create_subagent_task(task_id: str, agent_type: str, input_data: Any, **kwarg
     Returns:
         SubagentTask instance
     """
-    return SubagentTask(
-        id=task_id,
-        agent_type=agent_type,
-        input_data=input_data,
-        **kwargs
-    )
+    return SubagentTask(id=task_id, agent_type=agent_type, input_data=input_data, **kwargs)
 
 
-def execute_subagent_driven_development(tasks: List[Dict[str, Any]], project_root: Optional[Path] = None) -> Dict[str, Any]:
+def execute_subagent_driven_development(
+    tasks: list[dict[str, Any]], project_root: Path | None = None
+) -> dict[str, Any]:
     """
     Execute subagent-driven development workflow.
 
@@ -934,7 +922,7 @@ def execute_subagent_driven_development(tasks: List[Dict[str, Any]], project_roo
             parameters=task_dict.get("parameters", {}),
             memory_limit_mb=task_dict.get("memory_limit_mb", 256),
             timeout_seconds=task_dict.get("timeout_seconds", 120),
-            priority=task_dict.get("priority", 0)
+            priority=task_dict.get("priority", 0),
         )
         subagent_tasks.append(task)
 
@@ -955,19 +943,24 @@ if __name__ == "__main__":
     else:
         print("Usage: python skill.py <tasks_json_file>")
         print("Example tasks JSON file:")
-        print(json.dumps({
-            "tasks": [
+        print(
+            json.dumps(
                 {
-                    "id": "analyze_1",
-                    "agent_type": "analyzer",
-                    "input_data": {"project": "my_project"},
-                    "parameters": {"target": "src/", "analysis_type": "code_analysis"}
+                    "tasks": [
+                        {
+                            "id": "analyze_1",
+                            "agent_type": "analyzer",
+                            "input_data": {"project": "my_project"},
+                            "parameters": {"target": "src/", "analysis_type": "code_analysis"},
+                        },
+                        {
+                            "id": "plan_1",
+                            "agent_type": "planner",
+                            "input_data": None,
+                            "dependencies": ["analyze_1"],
+                        },
+                    ]
                 },
-                {
-                    "id": "plan_1",
-                    "agent_type": "planner",
-                    "input_data": None,
-                    "dependencies": ["analyze_1"]
-                }
-            ]
-        }, indent=2))
+                indent=2,
+            )
+        )

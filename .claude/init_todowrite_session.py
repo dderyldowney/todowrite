@@ -10,11 +10,9 @@ Author: Claude Code Assistant
 Version: 2025.1.0
 """
 
-import os
 import sys
-from pathlib import Path
 from datetime import datetime
-from typing import Optional
+from pathlib import Path
 
 # Add project paths for imports
 project_root = Path.cwd()
@@ -62,9 +60,13 @@ def initialize_todowrite_session() -> bool:
     try:
         print("🔧 Initializing ToDoWrite session for development tracking...")
 
-        # Setup database
+        # Setup database with proper directory handling
         db_path = get_database_path()
-        engine = create_engine(f'sqlite:///{db_path}')
+
+        # Ensure database directory exists before creating engine
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+
+        engine = create_engine(f"sqlite:///{db_path}")
         Base.metadata.create_all(engine)
 
         # Create session
@@ -75,15 +77,15 @@ def initialize_todowrite_session() -> bool:
         Node.configure_session(_db_session)
 
         # Verify database connection by checking if our production goal exists
-        prod_goals = Node.find_by(title='Deploy ToDoWrite as Standard Development Tracking System')
+        prod_goals = Node.find_by(title="Deploy ToDoWrite as Standard Development Tracking System")
 
         if prod_goals:
-            print(f"✅ ToDoWrite session initialized successfully!")
+            print("✅ ToDoWrite session initialized successfully!")
             print(f"   Database: {db_path}")
             print(f"   Production goal found: {len(prod_goals)}")
 
             # Show current task status
-            in_progress = Node.where(status='in_progress')
+            in_progress = Node.where(status="in_progress")
             if in_progress:
                 print(f"   Active tasks: {len(in_progress)}")
         else:
@@ -92,6 +94,12 @@ def initialize_todowrite_session() -> bool:
         _session_initialized = True
         return True
 
+    except (FileNotFoundError, PermissionError) as e:
+        print(f"❌ Cannot initialize ToDoWrite session - file system error: {e}")
+        return False
+    except ImportError as e:
+        print(f"❌ Cannot initialize ToDoWrite session - missing dependencies: {e}")
+        return False
     except Exception as e:
         print(f"❌ Failed to initialize ToDoWrite session: {e}")
         return False
@@ -110,18 +118,31 @@ def create_session_marker() -> None:
         "session_init_time": datetime.now().isoformat(),
         "database_path": str(get_database_path()),
         "session_type": "todowrite_development_tracking",
-        "version": "2025.1.0"
+        "version": "2025.1.0",
     }
 
-    marker_file = project_root / ".claude" / "todowrite_session_active.json"
+    claude_dir = project_root / ".claude"
+    marker_file = claude_dir / "todowrite_session_active.json"
 
     try:
         import json
+
+        # Ensure .claude directory exists before creating the marker
+        claude_dir.mkdir(exist_ok=True)
+
         with open(marker_file, "w") as f:
             json.dump(marker_data, f, indent=2)
         print(f"✅ Session marker created: {marker_file}")
-    except Exception as e:
-        print(f"⚠️  Failed to create session marker: {e}")
+
+    except FileNotFoundError as e:
+        print(f"❌ Cannot create session marker - directory not found: {e}")
+        raise
+    except PermissionError as e:
+        print(f"❌ Cannot create session marker - permission denied: {e}")
+        raise
+    except OSError as e:
+        print(f"❌ Cannot create session marker - OS error: {e}")
+        raise
 
 
 def verify_session_health() -> dict:
@@ -139,11 +160,11 @@ def verify_session_health() -> dict:
         total_nodes = len(Node.all())
 
         # Test queries
-        goals_count = len(Node.where(layer='Goal'))
-        tasks_count = len(Node.where(layer='SubTask'))
+        goals_count = len(Node.where(layer="Goal"))
+        tasks_count = len(Node.where(layer="SubTask"))
 
         # Check for our production goal
-        prod_goals = Node.find_by(title='Deploy ToDoWrite as Standard Development Tracking System')
+        prod_goals = Node.find_by(title="Deploy ToDoWrite as Standard Development Tracking System")
 
         health_status = {
             "status": "healthy",
@@ -152,7 +173,7 @@ def verify_session_health() -> dict:
             "goals": goals_count,
             "tasks": tasks_count,
             "production_goal_found": len(prod_goals) > 0,
-            "session_active": _session_initialized
+            "session_active": _session_initialized,
         }
 
         return health_status
@@ -161,7 +182,7 @@ def verify_session_health() -> dict:
         return {
             "status": "error",
             "message": str(e),
-            "database_path": str(get_database_path()) if _db_path else "unknown"
+            "database_path": str(get_database_path()) if _db_path else "unknown",
         }
 
 
@@ -176,24 +197,24 @@ def main():
         create_session_marker()
 
         health = verify_session_health()
-        print(f"\n📊 Session Health Status:")
+        print("\n📊 Session Health Status:")
         print(f"   Status: {health['status']}")
         print(f"   Database: {health['database_path']}")
         print(f"   Total nodes: {health.get('total_nodes', 0)}")
         print(f"   Goals: {health.get('goals', 0)}")
         print(f"   Tasks: {health.get('tasks', 0)}")
 
-        if health.get('production_goal_found'):
-            print(f"   ✅ Production goal active")
+        if health.get("production_goal_found"):
+            print("   ✅ Production goal active")
 
-        print(f"\n✅ ToDoWrite system ready for development tracking!")
-        print(f"   All development work should now be tracked using ToDoWrite.")
-        print(f"   Use the Node ActiveRecord API for task management.")
+        print("\n✅ ToDoWrite system ready for development tracking!")
+        print("   All development work should now be tracked using ToDoWrite.")
+        print("   Use the Node ActiveRecord API for task management.")
 
         return 0
     else:
-        print(f"\n❌ Failed to initialize ToDoWrite system")
-        print(f"   Development tracking will not be available")
+        print("\n❌ Failed to initialize ToDoWrite system")
+        print("   Development tracking will not be available")
         return 1
 
 

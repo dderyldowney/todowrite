@@ -16,40 +16,43 @@ Author: Claude Code Assistant
 Version: 2025.1.0
 """
 
-import os
-import sys
-import time
 import json
-import threading
+import logging
 import subprocess
+import sys
 import tempfile
-import traceback
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Callable, Union
+import threading
+import time
+from concurrent.futures import Future, ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor, as_completed, Future
-from queue import Queue, Empty
-import logging
+from pathlib import Path
+from queue import Empty, Queue
+from typing import Any
+
 import psutil
 
 # Import fail-safe mechanisms
 try:
-    from .claude.superpowers_fail_safes import with_fail_safes, get_fail_safes, ResourceLimits
+    from .claude.superpowers_fail_safes import ResourceLimits, get_fail_safes, with_fail_safes
 except ImportError:
     # Fallback for standalone execution
     def with_fail_safes(subagent_name: str):
         def decorator(func):
             return func
+
         return decorator
+
     def get_fail_safes():
         return None
+
     @dataclass
     class ResourceLimits:
         max_memory_mb: int = 512
         max_cpu_percent: float = 80.0
         max_execution_time_seconds: int = 300
         max_concurrent_subagents: int = 3
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -59,11 +62,12 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ParallelTask:
     """Parallel task definition"""
+
     id: str
     task_type: str
     target: str
-    parameters: Dict[str, Any] = field(default_factory=dict)
-    dependencies: List[str] = field(default_factory=list)
+    parameters: dict[str, Any] = field(default_factory=dict)
+    dependencies: list[str] = field(default_factory=list)
     priority: int = 0
     estimated_cpu_percent: float = 50.0
     estimated_memory_mb: float = 100.0
@@ -76,23 +80,25 @@ class ParallelTask:
 @dataclass
 class ParallelTaskResult:
     """Result of parallel task execution"""
+
     task_id: str
     success: bool
-    result: Optional[Any] = None
-    error: Optional[str] = None
+    result: Any | None = None
+    error: str | None = None
     execution_time_seconds: float = 0.0
     memory_peak_mb: float = 0.0
     cpu_avg_percent: float = 0.0
     start_time: datetime = field(default_factory=datetime.now)
-    end_time: Optional[datetime] = None
+    end_time: datetime | None = None
     retry_count: int = 0
-    worker_id: Optional[str] = None
-    artifacts: List[str] = field(default_factory=list)
+    worker_id: str | None = None
+    artifacts: list[str] = field(default_factory=list)
 
 
 @dataclass
 class WorkerStats:
     """Worker thread statistics"""
+
     worker_id: str
     tasks_completed: int = 0
     tasks_failed: int = 0
@@ -115,8 +121,8 @@ class ParallelTaskExecutor:
         self.worker_id = worker_id
         self.temp_dir = temp_dir
         self.process = psutil.Process()
-        self.current_task: Optional[ParallelTask] = None
-        self.start_time: Optional[datetime] = None
+        self.current_task: ParallelTask | None = None
+        self.start_time: datetime | None = None
 
     def execute_task(self, task: ParallelTask) -> ParallelTaskResult:
         """
@@ -132,9 +138,7 @@ class ParallelTaskExecutor:
         self.start_time = datetime.now()
 
         result = ParallelTaskResult(
-            task_id=task.id,
-            worker_id=self.worker_id,
-            retry_count=task.retry_count
+            task_id=task.id, worker_id=self.worker_id, retry_count=task.retry_count
         )
 
         try:
@@ -178,12 +182,13 @@ class ParallelTaskExecutor:
 
         return result
 
-    def _execute_code_analysis(self, task: ParallelTask, task_dir: Path) -> Dict[str, Any]:
+    def _execute_code_analysis(self, task: ParallelTask, task_dir: Path) -> dict[str, Any]:
         """Execute code analysis task."""
         target_path = Path(task.parameters.get("target", "."))
 
         cmd = [
-            "python3", "-c",
+            "python3",
+            "-c",
             f"""
 import ast
 import os
@@ -216,15 +221,11 @@ def analyze_code(path):
 
 result = analyze_code('{target_path}')
 print(json.dumps(result))
-            """
+            """,
         ]
 
         process = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            cwd=str(task_dir),
-            timeout=task.timeout_seconds
+            cmd, capture_output=True, text=True, cwd=str(task_dir), timeout=task.timeout_seconds
         )
 
         if process.returncode != 0:
@@ -232,25 +233,23 @@ print(json.dumps(result))
 
         return json.loads(process.stdout)
 
-    def _execute_tests(self, task: ParallelTask, task_dir: Path) -> Dict[str, Any]:
+    def _execute_tests(self, task: ParallelTask, task_dir: Path) -> dict[str, Any]:
         """Execute test task."""
         test_path = task.parameters.get("target", "tests/")
 
         cmd = [
-            "python3", "-m", "pytest",
+            "python3",
+            "-m",
+            "pytest",
             test_path,
             "--tb=short",
             "--no-header",
             "--json-report",
-            "--json-report-file=test_results.json"
+            "--json-report-file=test_results.json",
         ]
 
         process = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            cwd=str(task_dir),
-            timeout=task.timeout_seconds
+            cmd, capture_output=True, text=True, cwd=str(task_dir), timeout=task.timeout_seconds
         )
 
         # Parse test results
@@ -260,21 +259,21 @@ print(json.dumps(result))
                 return json.load(f)
         else:
             # Fallback parsing
-            output_lines = process.stdout.split('\n')
-            passed = len([line for line in output_lines if 'passed' in line])
-            failed = len([line for line in output_lines if 'failed' in line])
+            output_lines = process.stdout.split("\n")
+            passed = len([line for line in output_lines if "passed" in line])
+            failed = len([line for line in output_lines if "failed" in line])
 
             return {
                 "summary": {
                     "total": passed + failed,
                     "passed": passed,
                     "failed": failed,
-                    "duration": process.execution_time if hasattr(process, 'execution_time') else 0
+                    "duration": process.execution_time if hasattr(process, "execution_time") else 0,
                 },
-                "tests": []
+                "tests": [],
             }
 
-    def _execute_documentation(self, task: ParallelTask, task_dir: Path) -> Dict[str, Any]:
+    def _execute_documentation(self, task: ParallelTask, task_dir: Path) -> dict[str, Any]:
         """Execute documentation task."""
         target_path = task.parameters.get("target", "docs/")
 
@@ -299,15 +298,16 @@ This documentation was generated automatically by the parallel agent system.
         return {
             "generated_files": [str(doc_file)],
             "word_count": len(doc_content.split()),
-            "target_path": target_path
+            "target_path": target_path,
         }
 
-    def _execute_security_scan(self, task: ParallelTask, task_dir: Path) -> Dict[str, Any]:
+    def _execute_security_scan(self, task: ParallelTask, task_dir: Path) -> dict[str, Any]:
         """Execute security scan task."""
         target_path = task.parameters.get("target", ".")
 
         cmd = [
-            "python3", "-c",
+            "python3",
+            "-c",
             f"""
 import re
 import os
@@ -346,15 +346,11 @@ def security_scan(path):
 
 result = security_scan('{target_path}')
 print(json.dumps(result))
-            """
+            """,
         ]
 
         process = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            cwd=str(task_dir),
-            timeout=task.timeout_seconds
+            cmd, capture_output=True, text=True, cwd=str(task_dir), timeout=task.timeout_seconds
         )
 
         if process.returncode != 0:
@@ -362,16 +358,12 @@ print(json.dumps(result))
 
         return json.loads(process.stdout)
 
-    def _execute_file_processing(self, task: ParallelTask, task_dir: Path) -> Dict[str, Any]:
+    def _execute_file_processing(self, task: ParallelTask, task_dir: Path) -> dict[str, Any]:
         """Execute file processing task."""
         input_files = task.parameters.get("files", [])
         operation = task.parameters.get("operation", "copy")
 
-        results = {
-            "processed_files": [],
-            "operation": operation,
-            "count": 0
-        }
+        results = {"processed_files": [], "operation": operation, "count": 0}
 
         for file_path in input_files:
             source = Path(file_path)
@@ -381,17 +373,19 @@ print(json.dumps(result))
                     dest.write_text(source.read_text())
                     results["processed_files"].append(str(dest))
                 elif operation == "analyze":
-                    results["processed_files"].append({
-                        "path": str(source),
-                        "size": source.stat().st_size,
-                        "modified": source.stat().st_mtime
-                    })
+                    results["processed_files"].append(
+                        {
+                            "path": str(source),
+                            "size": source.stat().st_size,
+                            "modified": source.stat().st_mtime,
+                        }
+                    )
 
                 results["count"] += 1
 
         return results
 
-    def _execute_generic_task(self, task: ParallelTask, task_dir: Path) -> Dict[str, Any]:
+    def _execute_generic_task(self, task: ParallelTask, task_dir: Path) -> dict[str, Any]:
         """Execute generic task."""
         # Generic task execution
         return {
@@ -399,31 +393,32 @@ print(json.dumps(result))
             "task_type": task.task_type,
             "parameters": task.parameters,
             "execution_time": time.time(),
-            "worker_id": self.worker_id
+            "worker_id": self.worker_id,
         }
 
     def _cleanup_task_directory(self, task_dir: Path) -> None:
         """Clean up task directory."""
         try:
             import shutil
+
             if task_dir.exists():
                 shutil.rmtree(task_dir)
         except Exception as e:
             logger.warning(f"Failed to cleanup task directory {task_dir}: {e}")
 
-    def get_current_resource_usage(self) -> Dict[str, float]:
+    def get_current_resource_usage(self) -> dict[str, float]:
         """Get current resource usage."""
         return {
             "memory_mb": self.process.memory_info().rss / 1024 / 1024,
             "cpu_percent": self.process.cpu_percent(),
-            "status": "busy" if self.current_task else "idle"
+            "status": "busy" if self.current_task else "idle",
         }
 
 
 class DispatchingParallelAgents:
     """Main parallel agent dispatcher with fail-safes"""
 
-    def __init__(self, max_workers: int = 4, temp_dir: Optional[Path] = None) -> None:
+    def __init__(self, max_workers: int = 4, temp_dir: Path | None = None) -> None:
         """
         Initialize parallel agent dispatcher.
 
@@ -442,26 +437,23 @@ class DispatchingParallelAgents:
             self.limits = ResourceLimits()
 
         # Worker management
-        self.workers: Dict[str, WorkerStats] = {}
-        self.executor: Optional[ThreadPoolExecutor] = None
-        self.active_futures: Dict[str, Future] = {}
+        self.workers: dict[str, WorkerStats] = {}
+        self.executor: ThreadPoolExecutor | None = None
+        self.active_futures: dict[str, Future] = {}
 
         # Task management
         self.task_queue: Queue[ParallelTask] = Queue()
-        self.completed_tasks: List[ParallelTaskResult] = []
-        self.task_dependencies: Dict[str, List[str]] = {}
+        self.completed_tasks: list[ParallelTaskResult] = []
+        self.task_dependencies: dict[str, list[str]] = {}
 
         # Resource monitoring
         self.monitoring_active = True
-        self.monitor_thread = threading.Thread(
-            target=self._monitor_resources,
-            daemon=True
-        )
+        self.monitor_thread = threading.Thread(target=self._monitor_resources, daemon=True)
 
         logger.info(f"Parallel agent dispatcher initialized with {max_workers} workers")
 
     @with_fail_safes("parallel_dispatcher")
-    def dispatch_tasks(self, tasks: List[ParallelTask]) -> List[ParallelTaskResult]:
+    def dispatch_tasks(self, tasks: list[ParallelTask]) -> list[ParallelTaskResult]:
         """
         Dispatch multiple tasks for parallel execution.
 
@@ -507,22 +499,28 @@ class DispatchingParallelAgents:
         logger.info(f"Parallel execution completed: {len(results)} results")
         return results
 
-    def _validate_resource_limits(self, tasks: List[ParallelTask]) -> bool:
+    def _validate_resource_limits(self, tasks: list[ParallelTask]) -> bool:
         """Validate that tasks fit within resource limits."""
         total_memory = sum(task.estimated_memory_mb for task in tasks)
         max_concurrent_needed = len(tasks)
 
         if total_memory > self.limits.max_memory_mb:
-            logger.warning(f"Total memory requirement ({total_memory}MB) exceeds limit ({self.limits.max_memory_mb}MB)")
+            logger.warning(
+                f"Total memory requirement ({total_memory}MB) exceeds limit ({self.limits.max_memory_mb}MB)"
+            )
             return False
 
         if max_concurrent_needed > self.limits.max_concurrent_subagents:
-            logger.warning(f"Concurrent tasks ({max_concurrent_needed}) exceed limit ({self.limits.max_concurrent_subagents})")
+            logger.warning(
+                f"Concurrent tasks ({max_concurrent_needed}) exceed limit ({self.limits.max_concurrent_subagents})"
+            )
             return False
 
         return True
 
-    def _sort_tasks_by_priority_and_dependencies(self, tasks: List[ParallelTask]) -> List[ParallelTask]:
+    def _sort_tasks_by_priority_and_dependencies(
+        self, tasks: list[ParallelTask]
+    ) -> list[ParallelTask]:
         """Sort tasks by priority and resolve dependencies."""
         # Simple topological sort based on dependencies
         sorted_tasks = []
@@ -531,13 +529,16 @@ class DispatchingParallelAgents:
         while remaining_tasks:
             # Find tasks with no unmet dependencies
             ready_tasks = [
-                task for task in remaining_tasks
+                task
+                for task in remaining_tasks
                 if all(dep in [t.id for t in sorted_tasks] for dep in task.dependencies)
             ]
 
             if not ready_tasks:
                 # Circular dependency or missing dependency
-                logger.warning("Circular dependency detected, executing remaining tasks by priority")
+                logger.warning(
+                    "Circular dependency detected, executing remaining tasks by priority"
+                )
                 ready_tasks = remaining_tasks
 
             # Sort by priority (higher priority first)
@@ -559,8 +560,7 @@ class DispatchingParallelAgents:
 
         # Check resource availability
         current_usage = sum(
-            worker.peak_memory_mb for worker in self.workers.values()
-            if worker.status == "busy"
+            worker.peak_memory_mb for worker in self.workers.values() if worker.status == "busy"
         )
 
         if current_usage + task.estimated_memory_mb > self.limits.max_memory_mb:
@@ -580,16 +580,14 @@ class DispatchingParallelAgents:
 
         # Initialize worker stats
         for i in range(self.max_workers):
-            worker_id = f"worker_{i+1}"
+            worker_id = f"worker_{i + 1}"
             self.workers[worker_id] = WorkerStats(worker_id=worker_id)
 
     def _submit_task(self, task: ParallelTask) -> Future:
         """Submit task to worker thread."""
         # Find available worker
         available_worker = next(
-            (worker_id for worker_id, stats in self.workers.items()
-             if stats.status == "idle"),
-            None
+            (worker_id for worker_id, stats in self.workers.items() if stats.status == "idle"), None
         )
 
         if available_worker is None:
@@ -605,7 +603,9 @@ class DispatchingParallelAgents:
         future = self.executor.submit(task_executor.execute_task, task)
 
         # Add completion callback
-        future.add_done_callback(lambda f, worker_id=available_worker: self._task_completed(f, worker_id))
+        future.add_done_callback(
+            lambda f, worker_id=available_worker: self._task_completed(f, worker_id)
+        )
 
         return future
 
@@ -652,7 +652,7 @@ class DispatchingParallelAgents:
             except Empty:
                 break
 
-    def _collect_results(self, timeout: Optional[float] = None) -> List[ParallelTaskResult]:
+    def _collect_results(self, timeout: float | None = None) -> list[ParallelTaskResult]:
         """Collect results from all executed tasks."""
         if timeout is None:
             timeout = self.limits.max_execution_time_seconds
@@ -671,12 +671,12 @@ class DispatchingParallelAgents:
         while self.monitoring_active:
             try:
                 # Check total resource usage
-                total_memory = sum(
-                    worker.peak_memory_mb for worker in self.workers.values()
-                )
+                total_memory = sum(worker.peak_memory_mb for worker in self.workers.values())
 
                 if total_memory > self.limits.max_memory_mb:
-                    logger.warning(f"Memory usage ({total_memory}MB) exceeds limit ({self.limits.max_memory_mb}MB)")
+                    logger.warning(
+                        f"Memory usage ({total_memory}MB) exceeds limit ({self.limits.max_memory_mb}MB)"
+                    )
                     # Could implement task cancellation here
 
                 time.sleep(5)  # Check every 5 seconds
@@ -695,12 +695,13 @@ class DispatchingParallelAgents:
         # Clean up temp directory
         try:
             import shutil
+
             if self.temp_dir.exists():
                 shutil.rmtree(self.temp_dir)
         except Exception as e:
             logger.warning(f"Failed to cleanup temp directory: {e}")
 
-    def get_system_status(self) -> Dict[str, Any]:
+    def get_system_status(self) -> dict[str, Any]:
         """Get current system status."""
         return {
             "workers": {
@@ -708,7 +709,7 @@ class DispatchingParallelAgents:
                     "status": stats.status,
                     "tasks_completed": stats.tasks_completed,
                     "tasks_failed": stats.tasks_failed,
-                    "peak_memory_mb": stats.peak_memory_mb
+                    "peak_memory_mb": stats.peak_memory_mb,
                 }
                 for worker_id, stats in self.workers.items()
             },
@@ -718,8 +719,8 @@ class DispatchingParallelAgents:
             "resource_limits": {
                 "max_memory_mb": self.limits.max_memory_mb,
                 "max_workers": self.max_workers,
-                "max_concurrent_subagents": self.limits.max_concurrent_subagents
-            }
+                "max_concurrent_subagents": self.limits.max_concurrent_subagents,
+            },
         }
 
 
@@ -736,15 +737,12 @@ def create_parallel_task(task_id: str, task_type: str, target: str, **kwargs) ->
     Returns:
         ParallelTask instance
     """
-    return ParallelTask(
-        id=task_id,
-        task_type=task_type,
-        target=target,
-        **kwargs
-    )
+    return ParallelTask(id=task_id, task_type=task_type, target=target, **kwargs)
 
 
-def execute_parallel_tasks(tasks: List[Dict[str, Any]], max_workers: int = 4) -> List[Dict[str, Any]]:
+def execute_parallel_tasks(
+    tasks: list[dict[str, Any]], max_workers: int = 4
+) -> list[dict[str, Any]]:
     """
     Execute multiple tasks in parallel with fail-safes.
 
@@ -764,7 +762,7 @@ def execute_parallel_tasks(tasks: List[Dict[str, Any]], max_workers: int = 4) ->
             target=task_dict["target"],
             parameters=task_dict.get("parameters", {}),
             dependencies=task_dict.get("dependencies", []),
-            priority=task_dict.get("priority", 0)
+            priority=task_dict.get("priority", 0),
         )
         parallel_tasks.append(task)
 
@@ -781,7 +779,7 @@ def execute_parallel_tasks(tasks: List[Dict[str, Any]], max_workers: int = 4) ->
             "error": result.error,
             "execution_time_seconds": result.execution_time_seconds,
             "memory_peak_mb": result.memory_peak_mb,
-            "worker_id": result.worker_id
+            "worker_id": result.worker_id,
         }
         for result in results
     ]
@@ -799,10 +797,15 @@ if __name__ == "__main__":
     else:
         print("Usage: python skill.py <tasks_json_file>")
         print("Example tasks JSON file:")
-        print(json.dumps({
-            "tasks": [
-                {"id": "task1", "type": "code_analysis", "target": "src/"},
-                {"id": "task2", "type": "test_execution", "target": "tests/"}
-            ],
-            "max_workers": 2
-        }, indent=2))
+        print(
+            json.dumps(
+                {
+                    "tasks": [
+                        {"id": "task1", "type": "code_analysis", "target": "src/"},
+                        {"id": "task2", "type": "test_execution", "target": "tests/"},
+                    ],
+                    "max_workers": 2,
+                },
+                indent=2,
+            )
+        )
