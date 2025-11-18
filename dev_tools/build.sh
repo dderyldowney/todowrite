@@ -34,6 +34,41 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# Branch workflow validation
+check_branch_workflow() {
+    local current_branch=$(git branch --show-current 2>/dev/null || echo "unknown")
+
+    case "$current_branch" in
+        "main")
+            print_error "Build operations should not be run on main branch!"
+            print_error "Main branch is for production releases only."
+            print_error "Please work on feature branches off develop."
+            echo ""
+            print_warning "To create a feature branch:"
+            echo "  ./dev_tools/git-helpers.sh start-branch feature your-feature-name"
+            echo ""
+            return 1
+            ;;
+        "develop")
+            if [[ "$1" == "--strict" ]]; then
+                print_warning "Develop branch should be used for integration only."
+                print_warning "Consider creating a feature branch for development work:"
+                echo "  ./dev_tools/git-helpers.sh start-branch feature your-feature-name"
+                echo ""
+                echo "Continuing with build on develop (integration branch)..."
+            fi
+            ;;
+        "unknown")
+            print_warning "Not in a git repository or git commands unavailable."
+            print_warning "Proceeding with build without branch validation..."
+            ;;
+        *)
+            print_success "Working on feature branch: $current_branch ✓"
+            ;;
+    esac
+    return 0
+}
+
 # Function to show usage
 show_usage() {
     echo "ToDoWrite Monorepo Build Script"
@@ -288,6 +323,9 @@ clean_build() {
 
 dev_workflow() {
     print_status "Running full development workflow..."
+
+    # Check branch workflow before proceeding
+    check_branch_workflow --strict || return 1
 
     install_deps
     format_code

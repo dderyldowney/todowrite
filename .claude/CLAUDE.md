@@ -12,18 +12,32 @@ These mandates apply **at all times** with **zero exceptions**.
 - No mocks, stubs, fakes, or any test double.
 - Tests must use real implementations or real in-memory components shared with production.
 
-## 2. Agents MUST read and load documentation files IN ORDER on startup and across '/clear'
+## 2. BRANCH WORKFLOW - MANDATORY FOR ALL DEVELOPMENT
+
+**ABSOLUTE REQUIREMENT**: ALL development work MUST follow proper branch workflow
+
+- **FORBIDDEN**: Direct commits to `main` branch (production releases only)
+- **FORBIDDEN**: Direct commits to `develop` branch (integration only)
+- **MANDATORY**: All work on feature branches off `develop`
+- **MANDATORY**: Branch naming convention: `<type>/<description>` (feature/user-auth, fix/cli-sync, refactor/cleanup)
+- **MANDATORY**: Read `docs/BRANCH_WORKFLOW.md` for complete workflow rules
+- **MANDATORY**: Use `./dev_tools/git-helpers.sh start-branch` for branch creation
+- **ENFORCED**: Build scripts validate branch compliance and refuse work on main/develop
+- **ZERO EXCEPTIONS**: This applies to ALL agents at ALL times
+
+## 3. Agents MUST read and load documentation files IN ORDER on startup and across '/clear'
 
 - **FIRST**: Read `.claude/CLAUDE.md` (this file)
-- **SECOND**: Read `docs/ToDoWrite.md` to understand project structure
-- **THIRD**: Read `BUILD_SYSTEM.md` to understand build requirements
-- **FOURTH**: Run `.claude/auto_init_todowrite_models.py` - MANDATORY ToDoWrite Models initialization
+- **SECOND**: Read `docs/BRANCH_WORKFLOW.md` for branch workflow rules
+- **THIRD**: Read `docs/ToDoWrite.md` to understand project structure
+- **FOURTH**: Read `BUILD_SYSTEM.md` to understand build requirements
+- **FIFTH**: Run `.claude/auto_init_todowrite_models.py` - MANDATORY ToDoWrite Models initialization
 - **NO EXCEPTIONS**: This applies to ALL agents at ALL times
 - **NO BYPASSING**: Documentation loading is a prerequisite for ALL other work
-- **AFTER '/clear'**: Immediately re-load all three files IN ORDER, then run ToDoWrite Models initialization
-- **AFTER '/quit'**: Re-load all three files IN ORDER in new session, then run ToDoWrite Models initialization
+- **AFTER '/clear'**: Immediately re-load all files IN ORDER, then run ToDoWrite Models initialization
+- **AFTER '/quit'**: Re-load all files IN ORDER in new session, then run ToDoWrite Models initialization
 
-## 3. Authoritative sources have final say - MUST be consulted
+## 4. Authoritative sources have final say - MUST be consulted
 
 - **Python**: <https://python.org> (official), <https://docs.python.org/3/library/typing.html> (typing), and <https://docs.python.org/3/library/asyncio.html> (async programming)
 - **UV**: <https://docs.astral.sh/uv> (package management and environments)
@@ -49,7 +63,7 @@ These mandates apply **at all times** with **zero exceptions**.
 - **CODE GENERATION**: Must reference current official documentation, not memory or assumptions
 - **TEST CREATION**: Must validate behavior against authoritative specifications
 
-## 4. TRIPLE-CHECK before modifying - understand existing architecture FIRST
+## 5. TRIPLE-CHECK before modifying - understand existing architecture FIRST
 
 - **NEVER** modify architecture without fully understanding existing system
 - **ALWAYS** cross-verify changes don't break existing relationships/patterns
