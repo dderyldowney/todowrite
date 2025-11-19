@@ -524,5 +524,10 @@ def stats(ctx: click.Context) -> None:
         session.close()
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Main entry point for the CLI."""
     cli()
+
+
+if __name__ == "__main__":
+    main()

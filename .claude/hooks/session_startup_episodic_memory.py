@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-"""Session Startup Hook - Ensure Episodic Memory is Ready"""
+"""Session Startup Hook - Ensure Episodic Memory is Ready."""
 
 import subprocess
 from pathlib import Path
 
 
 def main():
-    """Ensure episodic memory is ready for the session"""
-
+    """Ensure episodic memory is ready for the session."""
     project_root = Path(__file__).parent.parent
 
     # Check if episodic memory plugin is installed
@@ -52,6 +51,7 @@ def main():
 
     # Create a marker file to indicate episodic memory was initialized
     marker = project_root / ".claude" / "episodic_memory_ready.json"
+    marker.parent.mkdir(exist_ok=True)  # Ensure directory exists
     marker.write_text('{"status": "initialized", "timestamp": "' + str(Path().cwd()) + '"}')
 
 
