@@ -25,7 +25,34 @@ These mandates apply **at all times** with **zero exceptions**.
 - **ENFORCED**: Build scripts validate branch compliance and refuse work on main/develop
 - **ZERO EXCEPTIONS**: This applies to ALL agents at ALL times
 
-## 3. Agents MUST read and load documentation files IN ORDER on startup and across '/clear'
+## 3. PATH SECURITY - USE RELATIVE PATHS ONLY
+
+**ABSOLUTE SECURITY REQUIREMENT**: NEVER expose user-specific absolute paths in code or documentation
+
+- **FORBIDDEN**: Hardcoded absolute paths like `/Users/username/` or `/home/username/`
+- **REQUIRED**: Use `$HOME/` for user home directory references
+- **REQUIRED**: Use relative paths for project-specific files (`./`, `../`, or project root)
+- **REQUIRED**: Use environment variables for system paths (`$HOME`, `$PWD`, etc.)
+- **ZERO EXCEPTIONS**: No absolute paths that expose user identity or directory structure
+- **SECURITY RISK**: Absolute paths expose user setup and system configuration to the world
+
+### Examples
+✅ **CORRECT**: `"$HOME/.claude/plugins/"`
+✅ **CORRECT**: `"$(pwd)/.claude/episodic_memory.db"`
+✅ **CORRECT**: `Path.home() / ".claude"`
+
+❌ **WRONG**: `"/Users/johndoe/.claude/plugins/"`
+❌ **WRONG**: `"/home/user/project/.claude/"`
+
+### Enforced Files
+This rule applies to ALL files in the repository:
+- Shell scripts (`.sh`)
+- Python files (`.py`)
+- Documentation (`.md`)
+- Configuration files (`.json`, `.yaml`, `.toml`)
+- Hooks and automation scripts
+
+## 4. Agents MUST read and load documentation files IN ORDER on startup and across '/clear'
 
 - **FIRST**: Read `.claude/CLAUDE.md` (this file)
 - **SECOND**: Read `docs/BRANCH_WORKFLOW.md` for branch workflow rules
@@ -911,3 +938,24 @@ Node.where(...)  # REMOVED
 - Identify the violated rule
 - Propose an alternative
 - Execute only once aligned
+
+## 21. Episodic Memory Initialization - MANDATORY
+
+**ABSOLUTE REQUIREMENT**: ALL agents MUST ensure episodic memory is initialized and available
+
+- **MANDATORY**: Run episodic memory indexing before starting development work
+- **MANDATORY**: Ensure `/search-conversations` slash command is available
+- **MANDATORY**: Verify embedding model is loaded and ready
+- **MANDATORY**: Use episodic memory for context before starting new tasks
+- **AUTOMATED**: Session startup hooks ensure episodic memory is ready
+- **ZERO EXCEPTIONS**: This applies to ALL agents at ALL times
+
+### Implementation:
+```bash
+# Manual episodic memory initialization
+./dev_tools/ensure_episodic_memory.sh
+
+# Or automatic via startup hook
+.claude/hooks/session_startup_episodic_memory.py
+```
+

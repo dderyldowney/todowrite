@@ -1,6 +1,6 @@
 {
   "rails_activerecord_init_time": "2025-11-18T10:40:11.433691",
-  "database_path": "/Users/dderyldowney/Documents/GitHub/dderyldowney/todowrite/development_todowrite.db",
+  "database_path": "./development_todowrite.db",
   "session_type": "rails_activerecord_only",
   "version": "2025.1.0",
   "api_enforced": "rails_activerecord_exclusive",

@@ -176,6 +176,22 @@ Thumbs.db
 .claude/optimization_monitoring.json
 .claude/session_optimization_tracking.json
 
+# Episodic memory databases and archives (local-only, never commit)
+.claude/episodic_memory.db
+.claude/episodic_memory.db-*
+.claude/episodic_memory.db.*
+.claude/episodic_memory_archive/
+.claude/episodic_memory_ready.json
+.claude/conversation-index/
+.claude/conversation-archive/
+
+# All episodic memory database files
+**/episodic_memory.db
+**/episodic_memory.db-*
+**/episodic_memory.db.*
+**/conversation-index/
+**/conversation-archive/
+
 # VSCode configuration directory
 .vscode/
 

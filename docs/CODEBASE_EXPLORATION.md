@@ -67,13 +67,13 @@ ToDoWrite/
 ### Entry Points
 
 1. **CLI Entry Point** (Primary)
-   - Path: `/Users/dderyldowney/Documents/GitHub/dderyldowney/ToDoWrite/todowrite/cli.py`
+   - Path: `$HOME/projects/ToDoWrite/todowrite/cli.py`
    - Command: `todowrite` (defined in pyproject.toml as `todowrite = "todowrite.cli:cli"`)
    - Framework: Click (8.0+)
    - Root Command: `cli()` - main Click group with storage preference option
 
 2. **Python Module Entry Point**
-   - Path: `/Users/dderyldowney/Documents/GitHub/dderyldowney/ToDoWrite/todowrite/__init__.py`
+   - Path: `$HOME/projects/ToDoWrite/todowrite/__init__.py`
    - Export: `ToDoWrite` class from `app.py`
    - Usage: `from todowrite import ToDoWrite`
 
@@ -86,7 +86,7 @@ ToDoWrite/
 
 ### Storage Architecture: Database-First with Fallback Chain
 
-Located: `/Users/dderyldowney/Documents/GitHub/dderyldowney/ToDoWrite/todowrite/db/config.py`
+Located: `$HOME/projects/ToDoWrite/todowrite/db/config.py`
 
 **Three-Tier Fallback Strategy:**
 ```
@@ -122,7 +122,7 @@ TODOWRITE_STORAGE_PREFERENCE # Storage preference (auto/postgresql_only/sqlite_o
 
 ### SQLAlchemy ORM Models
 
-Located: `/Users/dderyldowney/Documents/GitHub/dderyldowney/ToDoWrite/todowrite/db/models.py`
+Located: `$HOME/projects/ToDoWrite/todowrite/db/models.py`
 
 **Core Tables:**
 
@@ -164,7 +164,7 @@ Located: `/Users/dderyldowney/Documents/GitHub/dderyldowney/ToDoWrite/todowrite/
 
 ## 3. CLI IMPLEMENTATION
 
-Located: `/Users/dderyldowney/Documents/GitHub/dderyldowney/ToDoWrite/todowrite/cli.py`
+Located: `$HOME/projects/ToDoWrite/todowrite/cli.py`
 
 ### CLI Architecture
 
@@ -266,7 +266,7 @@ LAYER_TO_PREFIX = {
 
 ## 4. CORE APPLICATION LOGIC
 
-Located: `/Users/dderyldowney/Documents/GitHub/dderyldowney/ToDoWrite/todowrite/app.py`
+Located: `$HOME/projects/ToDoWrite/todowrite/app.py`
 
 ### ToDoWrite Application Class
 
@@ -386,7 +386,7 @@ def _auto_import_yaml_files(self) -> None
 
 ### YAML Storage Backend
 
-Located: `/Users/dderyldowney/Documents/GitHub/dderyldowney/ToDoWrite/todowrite/yaml_storage.py`
+Located: `$HOME/projects/ToDoWrite/todowrite/yaml_storage.py`
 
 **Purpose:** Standalone YAML-based storage when databases unavailable
 
@@ -455,7 +455,7 @@ links:
 
 ### YAML Manager (Import/Export)
 
-Located: `/Users/dderyldowney/Documents/GitHub/dderyldowney/ToDoWrite/todowrite/yaml_manager.py`
+Located: `$HOME/projects/ToDoWrite/todowrite/yaml_manager.py`
 
 **Class:** `YAMLManager`
 
@@ -513,7 +513,7 @@ Located: `/Users/dderyldowney/Documents/GitHub/dderyldowney/ToDoWrite/todowrite/
 
 ### Schema Validator Tool
 
-Located: `/Users/dderyldowney/Documents/GitHub/dderyldowney/ToDoWrite/todowrite/tools/tw_validate.py`
+Located: `$HOME/projects/ToDoWrite/todowrite/tools/tw_validate.py`
 
 **Class:** `ToDoWriteValidator`
 
@@ -535,7 +535,7 @@ make tw-validate
 
 ## 7. SEPARATION OF CONCERNS LINTING
 
-Located: `/Users/dderyldowney/Documents/GitHub/dderyldowney/ToDoWrite/todowrite/tools/tw_lint_soc.py`
+Located: `$HOME/projects/ToDoWrite/todowrite/tools/tw_lint_soc.py`
 
 **Class:** `SoCLinter`
 
@@ -571,7 +571,7 @@ make tw-lint
 
 ## 8. TRACEABILITY SYSTEM
 
-Located: `/Users/dderyldowney/Documents/GitHub/dderyldowney/ToDoWrite/todowrite/tools/tw_trace.py`
+Located: `$HOME/projects/ToDoWrite/todowrite/tools/tw_trace.py`
 
 **Class:** `TraceabilityBuilder`
 
@@ -608,7 +608,7 @@ make tw-trace
 
 ## 9. COMMAND STUB GENERATOR
 
-Located: `/Users/dderyldowney/Documents/GitHub/dderyldowney/ToDoWrite/todowrite/tools/tw_stub_command.py`
+Located: `$HOME/projects/ToDoWrite/todowrite/tools/tw_stub_command.py`
 
 **Class:** `CommandStubGenerator`
 
@@ -749,7 +749,7 @@ Services:
 
 ## 12. TEST STRUCTURE
 
-Located: `/Users/dderyldowney/Documents/GitHub/dderyldowney/ToDoWrite/tests/`
+Located: `$HOME/projects/ToDoWrite/tests/`
 
 ### test_app.py - Application Tests
 
@@ -802,7 +802,7 @@ python -m pytest -m "not slow" tests/
 
 ## 13. WORKFLOW AUTOMATION (Makefile)
 
-Located: `/Users/dderyldowney/Documents/GitHub/dderyldowney/ToDoWrite/Makefile`
+Located: `$HOME/projects/ToDoWrite/Makefile`
 
 ### Key Targets
 
