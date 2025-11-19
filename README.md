@@ -7,7 +7,7 @@
 [![Tests Passing](https://img.shields.io/badge/tests-157%20passing-brightgreen.svg)](https://github.com/dderyldowney/todowrite)
 [![Real Implementations](https://img.shields.io/badge/tests-real%20implementations-blue.svg)](https://github.com/dderyldowney/todowrite)
 
-**ToDoWrite** is a hierarchical task management system designed for project planning and execution. It provides both CLI capabilities and Python module integration for developers and project managers who need structured task management with database persistence and schema validation.
+**ToDoWrite** is a hierarchical task management system designed for project planning and execution. It provides both CLI capabilities and Python module integration for developers and project managers who need structured task management with SQLAlchemy-based models, database persistence, and schema validation.
 
 ## 🚀 Installation
 
@@ -90,14 +90,15 @@ ToDoWrite transforms complex project planning into a structured, hierarchical fr
 ### Key Features
 
 - **12-Layer Hierarchical Framework**: Goals → Concepts → Contexts → Constraints → Requirements → AcceptanceCriteria → InterfaceContracts → Phases → Steps → Tasks → SubTasks → Commands
+- **SQLAlchemy-based Models**: Modern ORM with database relationships and associations
 - **CLI and Python API**: Command-line interface and programmatic access
-- **Database Storage**: SQLite and PostgreSQL support with SQLAlchemy
+- **Database Storage**: SQLite and PostgreSQL support with auto-generated integer primary keys
 - **Schema Validation**: JSON Schema validation ensures data integrity
 - **Progress Tracking**: Track task completion with progress percentages
-- **Node Relationships**: Link related items with parent-child relationships
+- **Model Relationships**: Many-to-many associations through proper join tables
 - **Import/Export**: JSON and YAML import/export functionality
 - **Type Safety**: Comprehensive type hints with Python 3.12+ syntax
-- **Status Management**: Track nodes through planned, in_progress, completed states
+- **Status Management**: Track models through planned, in_progress, completed states
 - **Real Testing**: 157 tests using actual implementations (no mocks)
 
 ## 🚀 Quick Start
@@ -119,108 +120,111 @@ todowrite create --layer phase --title "Authentication Backend" --description "I
 todowrite create --layer task --title "Design Database Schema" --description "Design user database schema" --owner "dev-team"
 todowrite create --layer command --title "Run Database Migration" --description "Execute user table migration script"
 
-# View all nodes
+# View all items
 todowrite list
 
-# Search for nodes
+# Search for items
 todowrite search "authentication"
 
 # Export to YAML
 todowrite export-yaml
 
-# Get node details
-todowrite get GOAL-001
-
-# Link nodes (creating hierarchical relationships)
-todowrite update --id R-001 --add-parent GOAL-001
-todowrite update --id AC-001 --add-parent R-001
-todowrite update --id PH-001 --add-parent AC-001
-todowrite update --id TSK-001 --add-parent PH-001
-todowrite update --id CMD-001 --add-parent TSK-001
-
-# List nodes by layer
+# List items by layer
 todowrite list --layer goal
 todowrite list --layer task
 todowrite list --layer command
 
-# Update node status and progress
-todowrite update --id TSK-001 --status in_progress --progress 75
-todowrite update --id CMD-001 --status completed
+# View project statistics
+todowrite stats
+
+# Show relationships between items
+todowrite relationships --layer goal --id 1
 ```
 
 ### Python API Usage
 
 ```python
-from todowrite import ToDoWrite
+from todowrite import create_engine, sessionmaker
+from todowrite.core.models import Goal, Task, Requirement, AcceptanceCriteria, Command
 
-# Initialize project
-tdw = ToDoWrite("sqlite:///myproject.db")
-tdw.init_database()
+# Initialize database connection
+engine = create_engine("sqlite:///myproject.db")
+Session = sessionmaker(bind=engine)
+session = Session()
 
-# Create nodes
-goal_data = {
-    "id": "GOAL-001",
-    "layer": "Goal",
-    "title": "Implement User Authentication",
-    "description": "Create secure auth system",
-    "links": {"parents": [], "children": []},
-    "metadata": {"owner": "dev-team", "labels": ["security"], "severity": "high"}
-}
-goal = tdw.create_node(goal_data)
+# Create models using ToDoWrite Models API
+goal = Goal(
+    title="Implement User Authentication",
+    description="Create secure user authentication system",
+    owner="dev-team",
+    severity="high"
+)
+session.add(goal)
+session.commit()
 
-task_data = {
-    "id": "TSK-001",
-    "layer": "Task",
-    "title": "Design Database Schema",
-    "description": "Design user database schema",
-    "links": {"parents": [], "children": []},
-    "metadata": {"owner": "dev-team", "labels": ["database"], "severity": "medium"}
-}
-task = tdw.create_node(task_data)
+# Create additional models
+concept = Concept(
+    title="OAuth2 Authentication Strategy",
+    description="Use OAuth2 for user login flow",
+    owner="dev-team"
+)
+session.add(concept)
 
-# Create other layers
-requirement_data = {
-    "id": "R-001",
-    "layer": "Requirements",
-    "title": "User Registration Feature",
-    "description": "Allow users to register with email and password",
-    "links": {"parents": [goal.id], "children": []},
-    "metadata": {"owner": "product-team"}
-}
-requirement = tdw.create_node(requirement_data)
+requirement = Requirement(
+    title="User Registration Form",
+    description="Form for new user registration",
+    owner="ui-team",
+    severity="medium"
+)
+session.add(requirement)
 
-ac_data = {
-    "id": "AC-001",
-    "layer": "AcceptanceCriteria",
-    "title": "Email Validation",
-    "description": "System validates email format and uniqueness",
-    "links": {"parents": [requirement.id], "children": []},
-    "metadata": {"owner": "qa-team"}
-}
-ac = tdw.create_node(ac_data)
+acceptance_criteria = AcceptanceCriteria(
+    title="Valid Email Required",
+    description="Users must register with valid email",
+    owner="qa-team"
+)
+session.add(acceptance_criteria)
 
-command_data = {
-    "id": "CMD-001",
-    "layer": "Command",
-    "title": "Email Format Validation Test",
-    "description": "Test email validation logic",
-    "links": {"parents": [task.id], "children": []},
-    "metadata": {"owner": "dev-team"},
-    "run": "uv run pytest tests/test_email_validation.py",
-    "artifacts": ["test_report.html"]
-}
-command = tdw.create_node(command_data)
+task = Task(
+    title="Design Database Schema",
+    description="Design user database schema",
+    owner="dev-team",
+    severity="medium"
+)
+session.add(task)
 
-# Link nodes (hierarchical relationships)
-tdw.update_node(requirement.id, {"links": {"parents": [goal.id], "children": []}})
-tdw.update_node(ac.id, {"links": {"parents": [requirement.id], "children": []}})
-tdw.update_node(task.id, {"links": {"parents": [ac.id], "children": []}})
-tdw.update_node(command.id, {"links": {"parents": [task.id], "children": []}})
+command = Command(
+    title="Email Format Validation Test",
+    description="Test email validation logic",
+    owner="dev-team",
+    run_command="uv run pytest tests/test_email_validation.py",
+    artifacts=["test_report.html"]
+)
+session.add(command)
 
-# Get project overview
-all_nodes = tdw.get_all_nodes()
-total_nodes = sum(len(nodes) for nodes in all_nodes.values())
-print(f"Project has {total_nodes} total nodes")
+# Create relationships using many-to-many associations
+goal.concepts.append(concept)
+goal.requirements.append(requirement)
+requirement.acceptance_criteria.append(acceptance_criteria)
+acceptance_criteria.tasks.append(task)
+task.commands.append(command)
+
+session.commit()
+
+# Query project overview
+goals = session.query(Goal).all()
+tasks = session.query(Task).all()
+requirements = session.query(Requirement).all()
+
+print(f"Project has {len(goals)} goals, {len(requirements)} requirements, {len(tasks)} tasks")
+
+# Example: Get all tasks for a specific goal
+for goal in goals:
+    print(f"Goal: {goal.title}")
+    for requirement in goal.requirements:
+        print(f"  Requirement: {requirement.title}")
+        for task in requirement.tasks:
+            print(f"    Task: {task.title} (Status: {task.status})")
 ```
 
 ## 🏗️ **12-Layer Hierarchy**
@@ -331,12 +335,12 @@ We welcome contributions to ToDoWrite! Please see our [Contributing Guidelines](
 - **Pre-commit**: Automated ruff quality gates for all commits
 
 ### Recent Improvements
-- ✅ **Progress Field Fix**: Resolved storage/retrieval issue for node progress tracking
+- ✅ **Progress Field Fix**: Resolved storage/retrieval issue for model progress tracking
 - ✅ **Library Verification Complete**: Comprehensive verification of all library components
 - ✅ **Real Implementation Testing**: Verified all tests use actual implementations, no mocks
 - ✅ **Database Integrity Confirmed**: SQLite/PostgreSQL backends thoroughly tested
 - ✅ **Schema Validation Robust**: All 12 layer types and 5 status types validated
-- ✅ **Performance Verified**: Handles 100+ nodes efficiently
+- ✅ **Performance Verified**: Handles 100+ models efficiently
 - ✅ **Static Analysis Compliant**: MyPy and Ruff validation passing
 - ✅ **Installation Verified**: Package installs and imports correctly
 - ✅ **Centralized Version Management**: Single source of truth for both packages
