@@ -1,4 +1,4 @@
-"""Sphinx configuration file for ToDoWrite documentation."""
+"""Sphinx configuration for ToDoWrite Models documentation."""
 
 import sys
 from pathlib import Path
@@ -15,7 +15,7 @@ project = "ToDoWrite"
 copyright_year = "2025"
 copyright_author = "D Deryl Downey"
 author = "D Deryl Downey"
-release = "0.4.1"  # Will be updated automatically later
+release = "0.4.1"
 
 # -- General configuration --
 extensions = [
@@ -79,3 +79,22 @@ napoleon_include_private_with_doc = False
 # Type hints
 autodoc_typehints = "description"
 autodoc_typehints_description_target = "documented"
+
+# -- Project-specific settings --
+
+# Fix forward reference issues
+autodoc_typehints = "none"  # Disable type hints for now to avoid forward reference errors
+
+# Skip modules that don't exist
+autodoc_mock_imports = [
+    "todowrite.database.models",
+    "todowrite.database.node_mapping",
+    "todowrite.core.app_node_updater",
+    "todowrite.storage.backends",
+    "todowrite.storage.node_utils",
+    "todowrite.storage.postgresql_backend",
+]
+
+# Additional configuration for ToDoWrite Models patterns
+add_module_names = False
+show_authors = True

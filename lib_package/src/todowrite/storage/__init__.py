@@ -1,66 +1,84 @@
 """
-Storage module for ToDoWrite
+Storage utilities for ToDoWrite Models.
 
-This module contains storage-related functionality including:
-- Abstract storage backend interface
-- Database storage backends (PostgreSQL, SQLite)
-- YAML storage backend
-- Schema validation
-- Import/export management
+This module provides compatibility utilities for the ToDoWrite Models implementation.
 """
 
-from .backends import (
-    NodeCreationError,
-    NodeCreationResult,
-    NodeDeletionError,
-    NodeNotFoundError,
-    NodeUpdateError,
-    RelationshipCreationResult,
-    RelationshipError,
-    StorageBackend,
-    StorageConnectionError,
-    StorageError,
-    StorageQueryError,
+
+# Legacy storage exceptions for backward compatibility
+class StorageError(Exception):
+    """Base storage exception."""
+
+    pass
+
+
+class StorageConnectionError(StorageError):
+    """Database connection error."""
+
+    pass
+
+
+class StorageQueryError(StorageError):
+    """Database query error."""
+
+    pass
+
+
+# Re-export core schema validation functions
+from ..core.schema_validator import (
+    DatabaseSchemaInitializer,
+    SchemaValidationError,
+    ToDoWriteSchemaValidator,
+    get_schema_validator,
+    initialize_database,
+    validate_model_data,
 )
-from .factory import (
-    create_storage_backend,
-    create_storage_backend_for_environment,
-    detect_storage_backend_type,
-    get_default_database_url,
-    validate_database_url,
-)
-from .postgresql_backend import PostgreSQLBackend
-from .schema_validator import (
-    get_schema_compliance_report,
-    validate_database_schema,
-    validate_node_data,
-    validate_yaml_files,
-)
-from .sqlite_backend import SQLiteBackend
-from .yaml_manager import YAMLManager
+
+# Re-export YAML management if it exists
+try:
+    from .yaml_manager import YAMLManager
+
+    yaml_manager_available = True
+except ImportError:
+    YAMLManager = None
+    yaml_manager_available = False
+
+# Re-export factory functions if they exist
+try:
+    from .factory import (
+        create_storage_backend,
+        create_storage_backend_for_environment,
+        detect_storage_backend_type,
+        get_default_database_url,
+        validate_database_url,
+    )
+
+    factory_available = True
+except ImportError:
+    factory_available = False
+    create_storage_backend = None
+    create_storage_backend_for_environment = None
+    detect_storage_backend_type = None
+    get_default_database_url = None
+    validate_database_url = None
 
 __all__ = [
-    "NodeCreationError",
-    "NodeCreationResult",
-    "NodeDeletionError",
-    "NodeNotFoundError",
-    "NodeUpdateError",
-    "PostgreSQLBackend",
-    "RelationshipCreationResult",
-    "RelationshipError",
-    "SQLiteBackend",
-    "StorageBackend",
-    "StorageConnectionError",
+    # ToDoWrite Models schema validation
+    "ToDoWriteSchemaValidator",
+    "DatabaseSchemaInitializer",
+    "get_schema_validator",
+    "validate_model_data",
+    "initialize_database",
+    "SchemaValidationError",
+    # Legacy storage exceptions
     "StorageError",
+    "StorageConnectionError",
     "StorageQueryError",
+    # Conditional exports
     "YAMLManager",
     "create_storage_backend",
     "create_storage_backend_for_environment",
     "detect_storage_backend_type",
     "get_default_database_url",
-    "get_schema_compliance_report",
-    "validate_database_schema",
     "validate_database_url",
-    "validate_node_data",
-    "validate_yaml_files",
 ]

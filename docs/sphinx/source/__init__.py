@@ -1,1 +1,0 @@
-# Sphinx source package initialization

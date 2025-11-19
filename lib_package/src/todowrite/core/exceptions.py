@@ -17,7 +17,7 @@ class ToDoWriteError(Exception):
 
 
 class ModelError(ToDoWriteError):
-    """Base exception for Rails ActiveRecord model-related errors."""
+    """Base exception for ToDoWrite Models-related errors."""
 
     pass
 

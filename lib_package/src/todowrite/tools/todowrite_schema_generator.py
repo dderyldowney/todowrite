@@ -58,22 +58,24 @@ from todowrite.core.models import (
 )
 
 
-class RailsSchemaGenerator:
+class ToDoWriteSchemaGenerator:
     """Generates JSON schemas and database-agnostic SQL DDL from SQLAlchemy models."""
 
     def __init__(
-        self: "RailsSchemaGenerator", dialect: str = "postgresql"
+        self: "ToDoWriteSchemaGenerator", dialect: str = "postgresql"
     ) -> None:
         self.project_root = project_root
         self.timestamp = datetime.now().isoformat()
         self.dialect = dialect  # "postgresql" or "sqlite"
 
-    def generate_json_schema(self: "RailsSchemaGenerator") -> dict[str, Any]:
-        """Generate JSON schema for Rails ActiveRecord models."""
+    def generate_json_schema(
+        self: "ToDoWriteSchemaGenerator",
+    ) -> dict[str, Any]:
+        """Generate JSON schema for ToDoWrite Models."""
 
         schema = {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "title": "ToDoWrite Rails ActiveRecord Models",
+            "title": "ToDoWrite Models",
             "description": "JSON schema for ToDoWrite hierarchical task management system with integer primary keys",
             "type": "object",
             "generated_at": self.timestamp,
@@ -126,7 +128,7 @@ class RailsSchemaGenerator:
         return schema
 
     def _extract_model_schema(
-        self: "RailsSchemaGenerator", model_class: Any
+        self: "ToDoWriteSchemaGenerator", model_class: Any
     ) -> dict[str, Any]:
         """Extract schema information from a SQLAlchemy model."""
 
@@ -190,7 +192,7 @@ class RailsSchemaGenerator:
         }
 
     def _get_association_table_schemas(
-        self: "RailsSchemaGenerator",
+        self: "ToDoWriteSchemaGenerator",
     ) -> dict[str, Any]:
         """Get schemas for all association tables."""
 
@@ -237,7 +239,7 @@ class RailsSchemaGenerator:
         return schemas
 
     def _sqlalchemy_to_json_type(
-        self: "RailsSchemaGenerator", sqlalchemy_type: str
+        self: "ToDoWriteSchemaGenerator", sqlalchemy_type: str
     ) -> str:
         """Convert SQLAlchemy type to JSON schema type."""
 
@@ -259,13 +261,13 @@ class RailsSchemaGenerator:
 
         return "string"  # Default fallback
 
-    def generate_sql_schema(self: "RailsSchemaGenerator") -> str:
-        """Generate database-agnostic SQL DDL for Rails ActiveRecord models."""
+    def generate_sql_schema(self: "ToDoWriteSchemaGenerator") -> str:
+        """Generate database-agnostic SQL DDL for ToDoWrite Models."""
 
         db_config = self._get_database_config()
 
         sql_statements = [
-            "-- ToDoWrite Rails ActiveRecord Schema",
+            "-- ToDoWrite Models Schema",
             f"-- Database Dialect: {db_config['name']}",
             f"-- Generated on: {self.timestamp}",
             "-- Total tables: 33 (12 model tables + 21 association tables)",
@@ -387,7 +389,9 @@ class RailsSchemaGenerator:
 
         return "\n".join(sql_statements)
 
-    def _get_database_config(self: "RailsSchemaGenerator") -> dict[str, str]:
+    def _get_database_config(
+        self: "ToDoWriteSchemaGenerator",
+    ) -> dict[str, str]:
         """Get database-specific configuration."""
 
         configs = {
@@ -410,7 +414,7 @@ class RailsSchemaGenerator:
 
         return configs.get(self.dialect.lower(), configs["postgresql"])
 
-    def _get_column_type(self: "RailsSchemaGenerator", column: Any) -> str:
+    def _get_column_type(self: "ToDoWriteSchemaGenerator", column: Any) -> str:
         """Get database-appropriate column type."""
 
         base_type = str(column.type)
@@ -450,7 +454,9 @@ class RailsSchemaGenerator:
         return base_type
 
     def write_json_schema(
-        self: "RailsSchemaGenerator", schema: dict[str, Any], output_path: Path
+        self: "ToDoWriteSchemaGenerator",
+        schema: dict[str, Any],
+        output_path: Path,
     ) -> None:
         """Write JSON schema to file."""
 
@@ -460,7 +466,7 @@ class RailsSchemaGenerator:
         print(f"✅ JSON schema written to: {output_path}")
 
     def write_sql_schema(
-        self: "RailsSchemaGenerator", sql: str, output_path: Path
+        self: "ToDoWriteSchemaGenerator", sql: str, output_path: Path
     ) -> None:
         """Write SQL schema to file."""
 
@@ -469,7 +475,7 @@ class RailsSchemaGenerator:
             f.write(sql)
         print(f"✅ SQL schema written to: {output_path}")
 
-    def generate_all_schemas(self: "RailsSchemaGenerator") -> None:
+    def generate_all_schemas(self: "ToDoWriteSchemaGenerator") -> None:
         """Generate JSON schema and SQL schemas for all supported databases."""
 
         print(
@@ -514,7 +520,7 @@ class RailsSchemaGenerator:
             f"🗄️  Generated SQL for: {', '.join([db.upper() for db in supported_databases])}"
         )
         print("✅ Models and schemas are now synchronized")
-        print("✅ Ready for multi-database Rails ActiveRecord development")
+        print("✅ Ready for multi-database ToDoWrite Models development")
         print(
             "✅ Compatible with SQLite3, PostgreSQL, and any SQLAlchemy-supported database"
         )
@@ -523,7 +529,7 @@ class RailsSchemaGenerator:
 def main() -> int:
     """Main entry point."""
     try:
-        generator = RailsSchemaGenerator()
+        generator = ToDoWriteSchemaGenerator()
         generator.generate_all_schemas()
         return 0
     except Exception as e:

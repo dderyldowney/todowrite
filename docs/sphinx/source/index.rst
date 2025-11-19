@@ -1,114 +1,58 @@
 ToDoWrite Documentation
-=======================
+=====================
 
-Welcome to the ToDoWrite hierarchical task management system documentation.
+Welcome to the comprehensive documentation for ToDoWrite, a hierarchical task management system built with ToDoWrite Models.
 
-ToDoWrite is a production-ready hierarchical task management system that allows you to create and manage relationships between goals, concepts, tasks, and commands with database persistence and comprehensive API support.
-
-GETTING STARTED
-===============
-
-New to ToDoWrite? Start here to understand the basics and get up and running quickly.
-
-.. toctree::
-   :maxdepth: 1
-   :caption: User Guide
-
-   Project Overview <userdocs/ToDoWrite>
-   Quick Start <userdocs/README>
-   Installation Guide <devdocs/INSTALLATION_GUIDE>
-   SQLAlchemy API <userdocs/SQLALCHEMY_API>
-   Data Schema <userdocs/ToDoWrite_Models_Data_Schema>
-
-LIBRARY
-=======
-
-Complete API documentation for the todowrite library.
+**ToDoWrite** provides a sophisticated 12-layer hierarchical task management system for complex project planning and execution.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Library API
+   :caption: Contents:
 
-   todowrite <library/todowrite>
+   userdocs/overview
+   userdocs/quickstart
+   userdocs/todowrite_models_api
+   library/todowrite
+   library/models
+   library/core_modules
+   devdocs/contributing
+   devdocs/schema
 
-LIBRARY SUBPACKAGES
-===================
+Features
+--------
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Subpackage Reference
+* **12-Layer Hierarchy**: Goal → Concept → Context → Constraints → Requirements → AcceptanceCriteria → InterfaceContract → Phase → Step → Task → SubTask → Command
+* **Modern SQLAlchemy Patterns**: Modern SQLAlchemy ORM implementation with proper relationships
+* **Multiple Storage Backends**: SQLite, PostgreSQL, and YAML file support
+* **CLI Interface**: Full command-line interface for task management
+* **Schema Validation**: JSON schema validation and database integrity checks
+* **Rich Relationships**: Many-to-many associations through join tables
 
-   core <library/todowrite.core>
-   database <library/todowrite.database>
-   storage <library/todowrite.storage>
-   tools <library/todowrite.tools>
+Getting Started
+---------------
 
-EXCEPTIONS
-===========
+To start using ToDoWrite:
 
-Comprehensive exception hierarchy and error handling documentation.
+.. code-block:: python
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Exception Reference
+   from todowrite import Goal, Task, initialize_database
 
-   exceptions <library/todowrite.core.exceptions>
+   # Initialize database
+   initialize_database("sqlite:///myproject.db")
 
-CLI PACKAGE
-===========
+   # Create a goal
+   goal = Goal(
+       title="Launch Product",
+       description="Successfully launch the new product",
+       owner="product-team",
+       severity="high"
+   )
 
-ToDoWrite CLI Package documentation - command-line interface for the ToDoWrite system.
+   # Save to database
+   session.add(goal)
+   session.commit()
 
-.. toctree::
-   :maxdepth: 2
-   :caption: CLI COMMANDS
-
-   commands <cli/commands>
-
-DEVELOPMENT
-============
-
-Development resources and references for contributors.
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Development Resources
-
-   Build System <devdocs/BUILD_SYSTEM>
-   Terminology Guide <development/TERMINOLOGY>
-
-STANDARDS
-=========
-
-Project standards and guidelines.
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Standards
-
-   ToDoWrite Standards <devdocs/TODOWRITE_STANDARDS_NEEDED>
-   CLI Standards <devdocs/TODOWRITE_CLI_STANDARDS_NEEDED>
-
-REFERENCE
-=========
-
-Additional reference materials.
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Reference
-
-   Changelog <devdocs/CHANGELOG>
-   Documentation Structure State <devdocs/DOCUMENTATION_STRUCTURE_STATE>
-
-
-# Web Documentation (Planned)
-# ------------------------------
-#
-# Web application documentation will be added when the web package
-# moves from planning stage to implementation.
-
-Indices and tables
+Indices and Tables
 ==================
 
 * :ref:`genindex`

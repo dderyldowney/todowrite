@@ -267,30 +267,28 @@ Each layer uses a specific ID prefix for easy identification:
 
 ## 📚 Documentation
 
-### Core Documentation
-- **[ToDoWrite.md](ToDoWrite.md)**: Complete architectural overview and design principles
-- **[MONOREPO_STRUCTURE.md](docs/MONOREPO_STRUCTURE.md)**: Detailed monorepo architecture and package relationships
-- **[ENFORCEMENT_SYSTEM.md](docs/ENFORCEMENT_SYSTEM.md)**: Comprehensive quality enforcement system overview
-- **[DEVELOPMENT_WORKFLOW.md](docs/DEVELOPMENT_WORKFLOW.md)**: Claude Code powered development workflow
-- **[CONTRIBUTING.md](CONTRIBUTING.md)**: Development guidelines and contribution process
+### 🌐 Documentation Hub
+- **[Documentation Hub](docs/README.md)**: Complete documentation index and navigation
 
-### Technical Documentation
-- **[BUILD_SYSTEM.md](docs/BUILD_SYSTEM.md)**: Build system architecture and development workflows
-- **[VERSION_MANAGEMENT.md](docs/VERSION_MANAGEMENT.md)**: Centralized version management system
-- **[PyPI_HOWTO.md](docs/PyPI_HOWTO.md)**: Package publishing guide
-- **[API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md)**: Complete API reference
-- **[CHANGELOG.md](docs/CHANGELOG.md)**: Version history and release notes
+### 📖 Generated Documentation (Sphinx)
+- **🔗 Live Documentation**: [https://todowrite.davidderyldowney.com](https://todowrite.davidderyldowney.com)
+- **📚 Library API Reference**: Complete API documentation for all classes and methods
+- **🔧 Build locally**: `./dev_tools/build.sh docs`
 
-### Development Guides
-- **[INSTALLATION_GUIDE.md](docs/INSTALLATION_GUIDE.md)**: Detailed installation instructions
-- **[CI_CD_HOWTO.md](docs/CI_CD_HOWTO.md)**: CI/CD pipeline setup and configuration
-- **[SCHEMA_USAGE.md](docs/SCHEMA_USAGE.md)**: Database schema usage guide
-- **[PROJECT_UTILITIES.md](docs/PROJECT_UTILITIES.md)**: Development tools and utilities
+### 🔧 Shared Resources
+- **[Development Guide](docs/shared/development/README.md)**: Complete development workflow and standards
+- **[Build System](docs/shared/development/BUILD_SYSTEM.md)**: Build tools and automation
+- **[Contributing](docs/shared/contributing/README.md)**: Contribution guidelines and workflow
+- **[Release Process](docs/shared/release/README.md)**: Release management and deployment procedures
 
-### Package Documentation
-- **[Library Documentation](lib_package/README.md)**: Core todowrite library documentation
-- **[CLI Reference](cli_package/README.md)**: Complete CLI command reference and examples
-- **[Web Documentation](web_package/README.md)**: FastAPI web application documentation (in development)
+### 📚 Package Documentation
+- **[Library Documentation](docs/library/README.md)**: Core todowrite library documentation
+- **[CLI Reference](docs/cli/README.md)**: Complete CLI command reference and examples
+- **[Web Documentation](docs/web/README.md)**: Web application documentation (planning stage)
+
+### 🏗️ Project Architecture
+- **[ToDoWrite Models](docs/ToDoWrite.md)**: Complete architectural overview and SQLAlchemy-based models
+- **[Monorepo Structure](docs/MONOREPO_STRUCTURE.md)**: Detailed monorepo architecture and package relationships
 
 ### Quality Enforcement
 - **🔧 Semantic Scoping**: Automatic scope detection for conventional commits

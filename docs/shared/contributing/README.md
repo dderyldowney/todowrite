@@ -1,6 +1,6 @@
 # Contributing to ToDoWrite
 
-**Guidelines for contributing to the ToDoWrite project with ActiveRecord-inspired architecture.**
+**Guidelines for contributing to the ToDoWrite project with SQLAlchemy-based architecture.**
 
 ---
 
@@ -20,7 +20,7 @@ cd lib_package && uv pip install -e . && cd ..
 ## 🏗️ Development Approach
 
 ### Architecture Understanding
-ToDoWrite uses **Rails ActiveRecord-inspired architecture**:
+ToDoWrite uses **SQLAlchemy-based architecture**:
 
 - **Models** with relationships (`has_many`, `belongs_to`)
 - **Migrations** for schema management
@@ -35,7 +35,7 @@ ToDoWrite uses **Rails ActiveRecord-inspired architecture**:
 from todowrite.core.models import Node, has_many, belongs_to
 
 class NewModel(Node):
-    """Follow ActiveRecord patterns."""
+    """Follow SQLAlchemy patterns."""
 
     class Meta:
         table_name = "custom_table"
@@ -92,7 +92,7 @@ git checkout -b feature/new-active-record-features
 ### 5. Submit Pull Request
 ```bash
 git add .
-git commit -m "feat(models): add ActiveRecord-style model with associations"
+git commit -m "feat(models): add SQLAlchemy-based model with associations"
 git push origin feature/new-active-record-features
 ```
 
@@ -113,7 +113,7 @@ git push origin feature/new-active-record-features
 
 ### Documentation Standards
 - **Keep current** - Update docs when changing functionality
-- **Accurate** - Reflect current ActiveRecord architecture
+- **Accurate** - Reflect current SQLAlchemy architecture
 - **Complete** - Include examples and usage patterns
 
 ## 📚 Resources
@@ -134,5 +134,5 @@ git push origin feature/new-active-record-features
 ---
 
 **Last Updated**: 2025-11-17
-**Architecture**: ActiveRecord-inspired
+**Architecture**: SQLAlchemy-based
 **Testing**: TDD Required

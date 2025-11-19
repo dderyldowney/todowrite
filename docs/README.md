@@ -58,9 +58,10 @@ Historical and superseded documentation.
 ### 📖 Professional HTML Documentation
 Auto-generated API documentation with search, navigation, and cross-references.
 
-- **🔗 Live Site**: [https://todowrite.davilderyldowney.com](https://todowrite.davilderyldowney.com)
+- **🔗 Live Site**: [https://todowrite.davidderyldowney.com](https://todowrite.davidderyldowney.com)
 - **🔧 Build locally**: `./dev_tools/build.sh docs`
 - **📂 Generated in**: [`sphinx/build/html/`](sphinx/build/html/)
+- **📚 Direct API Reference**: [Library API Documentation](sphinx/build/html/library/todowrite.html)
 
 ### 🔍 What's Included in Generated Docs
 - **📚 Complete API Reference** - All classes, functions, and methods

@@ -656,15 +656,28 @@ def init(
             "storage_preference"
         ]
 
-    app = get_app(database_path, yaml_path)
-
+    # Initialize database using Rails ActiveRecord
     try:
-        console.print(f"Storage type: {app.storage.backend_name}")
+        # Use Rails ActiveRecord database initialization
+        from todowrite.core.schema_validator import (
+            DatabaseInitializationError,
+            initialize_database,
+        )
+
+        db_url = database_path or "sqlite:///todowrite.db"
+        initialize_database(db_url)
+
+        console.print("✅ Storage type: SQLAlchemy (Rails ActiveRecord)")
         console.print("[green]✓[/green] Database initialized successfully!")
-        if hasattr(app, "db_url") and app.db_url:
-            console.print(f"Database URL: {app.db_url}")
-    except (OSError, ValueError, RuntimeError) as e:
+        console.print(f"Database URL: {db_url}")
+    except DatabaseInitializationError as e:
+        console.print(f"[red]✗[/red] Database initialization failed: {e}")
+        sys.exit(1)
+    except (OSError, ValueError) as e:
         console.print(f"[red]✗[/red] Error initializing database: {e}")
+        sys.exit(1)
+    except ImportError as e:
+        console.print(f"[red]✗[/red] Failed to import database modules: {e}")
         sys.exit(1)
 
 

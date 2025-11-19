@@ -1,13 +1,13 @@
 # Release Process
 
-**Release management and deployment procedures for ToDoWrite with ActiveRecord-inspired architecture.**
+**Release management and deployment procedures for ToDoWrite with SQLAlchemy-based architecture.**
 
 ---
 
 ## 🚀 Release Workflow
 
 ### 1. Development Phase (develop branch)
-- ✅ ActiveRecord model implementation
+- ✅ SQLAlchemy model implementation
 - ✅ Association management (has_many, belongs_to)
 - ✅ Migration system
 - ✅ Query builder
@@ -46,7 +46,7 @@ git tag v0.5.0
 - ✅ Build system integration
 
 ### **Version 0.5.0** - Next Release
-- 🔄 ActiveRecord-inspired architecture
+- 🔄 SQLAlchemy-based architecture
 - 🔄 Model relationships and associations
 - 🔄 Migration system
 - 🔄 Updated API documentation
