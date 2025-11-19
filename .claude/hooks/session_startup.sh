@@ -4,8 +4,12 @@
 echo "🚀 Running session startup enforcement..."
 
 # 1. Set required environment variables
-export PYTHONPATH="$PWD/lib_package/src:$PWD/cli_package/src"
+export PYTHONPATH="lib_package/src:cli_package/src"
 export TODOWRITE_DATABASE_URL="sqlite:///$HOME/dbs/todowrite_development.db"
+
+# CRITICAL: Set project-specific episodic memory database path
+export EPISODIC_MEMORY_DB_PATH=".claude/episodic_memory.db"
+echo "📍 Project episodic memory database: $EPISODIC_MEMORY_DB_PATH"
 
 # 2. Activate virtual environment if not already active
 if [[ "$VIRTUAL_ENV" == "" ]]; then

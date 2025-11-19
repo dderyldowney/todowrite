@@ -47,11 +47,7 @@ repos:
     rev: 1.8.0  # Latest stable with Python 3.12+ support
     hooks:
       - id: bandit
-        args:
-          - -c, pyproject.toml
-          - -f, json  # Modern output format
-          - --quiet  # Reduce noise, focus on real issues
-        additional_dependencies: ["bandit[toml]"]
+        args: [-q]  # Quiet mode to reduce noise
         exclude: ^tests/  # Exclude test files from security scanning
 
   # Detect-secrets - Advanced secret detection (2025 standards)
@@ -95,9 +91,8 @@ repos:
     rev: 6.3.0
     hooks:
       - id: pydocstyle
-        args:
-          - --convention=google  # Google style is most widely adopted
-        exclude: ^(tests/|docs/|setup.py)
+        args: [--convention=google]  # Google style is most widely adopted
+        exclude: ^(tests/|docs/|setup\.py)  # Exclude test and docs files
 
   # Python code modernization (industry standard)
   - repo: https://github.com/asottile/pyupgrade

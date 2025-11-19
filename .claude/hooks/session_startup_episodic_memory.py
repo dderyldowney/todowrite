@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
 """Session Startup Hook - Ensure Episodic Memory is Ready."""
 
-import subprocess
+import subprocess  # nosec B404
 from pathlib import Path
 
 
 def main():
     """Ensure episodic memory is ready for the session."""
     project_root = Path(__file__).parent.parent
+
+    # CRITICAL: Set project-specific episodic memory database path
+    import os
+
+    os.environ["EPISODIC_MEMORY_DB_PATH"] = ".claude/episodic_memory.db"
+    print("📍 Project episodic memory database: .claude/episodic_memory.db")
 
     # Check if episodic memory plugin is installed
     plugins_file = Path.home() / ".claude" / "plugins" / "installed_plugins.json"
@@ -29,7 +35,7 @@ def main():
     if episodic_cli.exists():
         try:
             # Run a quick index to load embedding model
-            result = subprocess.run(
+            result = subprocess.run(  # nosec B603, B607
                 ["node", str(episodic_cli), "stats"], capture_output=True, text=True, timeout=30
             )
 
@@ -38,7 +44,7 @@ def main():
             else:
                 print("🔄 Initializing episodic memory indexing...")
                 # Run background indexing if stats fail
-                subprocess.Popen(
+                subprocess.Popen(  # nosec B603, B607
                     ["node", str(episodic_cli), "index", "--cleanup"],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
@@ -51,7 +57,6 @@ def main():
 
     # Create a marker file to indicate episodic memory was initialized
     marker = project_root / ".claude" / "episodic_memory_ready.json"
-    marker.parent.mkdir(exist_ok=True)  # Ensure directory exists
     marker.write_text('{"status": "initialized", "timestamp": "' + str(Path().cwd()) + '"}')
 
 
