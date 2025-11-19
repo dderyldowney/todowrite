@@ -31,9 +31,11 @@ class TestOptimizedTDDFeatures:
             assert isinstance(analysis["dependencies"], dict), "dependencies should be dict"
 
         except ImportError as e:
-            assert False, f"BuildManager should be importable: {e}"
+            msg = f"BuildManager should be importable: {e}"
+            raise AssertionError(msg)
         except Exception as e:
-            assert False, f"BuildManager.analyze_dependencies() should work: {e}"
+            msg = f"BuildManager.analyze_dependencies() should work: {e}"
+            raise AssertionError(msg)
 
     def test_audit_command_syntax_check(self):
         """GREEN: Test audit command exists and has proper syntax."""
@@ -153,7 +155,8 @@ class TestOptimizedTDDFeatures:
             assert callable(manager.analyze_dependencies), "analyze_dependencies should be callable"
 
         except ImportError as e:
-            assert False, f"BuildManager should be importable: {e}"
+            msg = f"BuildManager should be importable: {e}"
+            raise AssertionError(msg)
 
     def test_fast_quality_gate_timeout_protection(self):
         """GREEN: Test quality gate has timeout protection by checking for quick validation."""
@@ -210,7 +213,8 @@ class TestTDDIntegrationFast:
             assert BuildManager is not None, "BuildManager should be importable"
 
         except ImportError as e:
-            assert False, f"Core imports should work: {e}"
+            msg = f"Core imports should work: {e}"
+            raise AssertionError(msg)
 
     def test_subprocess_timeout_handling(self):
         """GREEN: Test our tests can handle timeouts gracefully."""
@@ -218,14 +222,15 @@ class TestTDDIntegrationFast:
         start_time = time.time()
 
         try:
-            result = subprocess.run(
+            subprocess.run(
                 ["sleep", "2"],  # Simple 2-second command
                 check=False,
                 capture_output=True,
                 text=True,
                 timeout=1,  # 1-second timeout to test timeout handling
             )
-            assert False, "Should have timed out"
+            msg = "Should have timed out"
+            raise AssertionError(msg)
         except subprocess.TimeoutExpired:
             elapsed = time.time() - start_time
             assert elapsed < 2.0, "Timeout should happen quickly"

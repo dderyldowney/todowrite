@@ -43,7 +43,7 @@ class TestWebPackageIntegration:
         assert package_json_path.exists(), "package.json should exist"
 
         # Test npm install (will fail if package.json is invalid)
-        npm_result = subprocess.run(
+        subprocess.run(
             ["npm", "install", "--dry-run"],
             capture_output=True,
             text=True,
@@ -60,7 +60,7 @@ class TestWebPackageIntegration:
         assert docker_compose_path.exists(), "docker-compose.yml should exist"
 
         # Test docker-compose config validation
-        config_result = subprocess.run(
+        subprocess.run(
             ["docker-compose", "config"],
             capture_output=True,
             text=True,
@@ -107,10 +107,10 @@ class TestWebPackageIntegration:
     def test_gitignore_inclusion(self):
         """RED: Test that web_package is properly included in .gitignore if needed."""
         gitignore_path = pathlib.Path(".gitignore")
-        web_package_path = pathlib.Path("web_package")
+        pathlib.Path("web_package")
 
         if gitignore_path.exists():
-            gitignore_content = gitignore_path.read_text()
+            gitignore_path.read_text()
             # This test will help us decide if we need to add web_package to .gitignore
             # In RED phase, we're just establishing the requirement
 
@@ -119,7 +119,7 @@ class TestWebPackageIntegration:
         backend_src_path = pathlib.Path("web_package/src/ToDoWrite_web")
         if backend_src_path.exists():
             # Test that we can add backend to PYTHONPATH
-            test_result = subprocess.run(
+            subprocess.run(
                 [
                     "python",
                     "-c",

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Simple Rails ActiveRecord Schema Generator
+"""Simple Rails ActiveRecord Schema Generator.
 
 Quickly generates schemas from SQLAlchemy models.
 """
@@ -104,7 +104,7 @@ def main():
 
             # Get relationships
             relationships = {}
-            for rel_name in model_class.__mapper__.relationships.keys():
+            for rel_name in model_class.__mapper__.relationships:
                 rel = model_class.__mapper__.relationships[rel_name]
                 target_model = rel.entity.class_.__name__
 

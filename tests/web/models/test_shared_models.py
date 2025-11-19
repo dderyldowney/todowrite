@@ -166,7 +166,7 @@ class TestNode:
     def test_complete_node(self):
         """Test creating a complete node with all fields."""
         started_date = datetime.utcnow()
-        command = Command(ac_ref="AC-TEST789", run=CommandRun(shell="run tests"))
+        Command(ac_ref="AC-TEST789", run=CommandRun(shell="run tests"))
 
         node = Node(
             id="TSK-COMPLETE456",

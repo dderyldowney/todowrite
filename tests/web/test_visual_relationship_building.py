@@ -62,7 +62,7 @@ class TestVisualRelationshipBuilding:
                 assert link_button.is_displayed(), "Link button should appear on hover"
 
                 # Check for relationship type options
-                relationship_types = driver.find_elements(
+                driver.find_elements(
                     By.CSS_SELECTOR, "[data-testid='relationship-type']"
                 )
                 expected_types: list[str] = [
@@ -174,7 +174,7 @@ class TestVisualRelationshipBuilding:
             )
 
             # Verify tree structure is displayed
-            tree = driver.find_element(By.CSS_SELECTOR, "[data-testid='dependency-tree']")
+            driver.find_element(By.CSS_SELECTOR, "[data-testid='dependency-tree']")
 
             # Check for parent-child relationships
             parent_items = driver.find_elements(By.CSS_SELECTOR, "[data-testid='parent-item']")
@@ -388,7 +388,7 @@ class TestVisualRelationshipBuilding:
                 assert bulk_menu.is_displayed(), "Bulk operations menu should appear"
 
                 # Test 'Make all depend on selected item'
-                parent_item = driver.find_element(By.CSS_SELECTOR, "[data-testid='parent-item']")
+                driver.find_element(By.CSS_SELECTOR, "[data-testid='parent-item']")
                 make_dependent_button = bulk_menu.find_element(
                     By.CSS_SELECTOR, "[data-testid='make-dependent-button']"
                 )

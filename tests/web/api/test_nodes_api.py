@@ -336,7 +336,7 @@ class TestNodeHierarchyAPI:
 
         parent_id = parent_response.json()["node"]["id"]
 
-        child_response = client.post(
+        client.post(
             "/api/v1/nodes",
             json={
                 "layer": "Task",
@@ -418,7 +418,7 @@ class TestNodeHierarchyAPI:
 
         phase_id = phase_response.json()["node"]["id"]
 
-        task_response = client.post(
+        client.post(
             "/api/v1/nodes",
             json={
                 "layer": "Task",

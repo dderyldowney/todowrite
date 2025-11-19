@@ -181,7 +181,7 @@ class TestSimpleModeUserJourney:
 
         try:
             # Look for project dashboard elements
-            dashboard = driver.find_element(By.CSS_SELECTOR, "[data-testid='project-dashboard']")
+            driver.find_element(By.CSS_SELECTOR, "[data-testid='project-dashboard']")
 
             # Verify progress indicators are visible
             progress_bar = driver.find_element(By.CSS_SELECTOR, "[data-testid='progress-bar']")
@@ -217,7 +217,7 @@ class TestSimpleModeUserJourney:
             )
 
             # Find the main input field
-            input_field = driver.find_element(By.CSS_SELECTOR, "[data-testid='action-item-input']")
+            driver.find_element(By.CSS_SELECTOR, "[data-testid='action-item-input']")
 
             # Check for dropdown suggestions
             try:
@@ -257,7 +257,7 @@ class TestSimpleModeUserJourney:
             time.sleep(1)
 
             # Verify progress bar updated
-            progress_bar = driver.find_element(By.CSS_SELECTOR, "[data-testid='progress-bar']")
+            driver.find_element(By.CSS_SELECTOR, "[data-testid='progress-bar']")
             # Progress should have increased (we'll check that the element changed)
 
             # Check for checkmark and strikethrough

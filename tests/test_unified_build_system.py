@@ -72,7 +72,8 @@ class TestUnifiedBuildSystem:
             assert build_manager is not None, "BuildManager should be available"
         except ImportError:
             # This is the RED state - the import should fail
-            assert False, "BuildManager API should exist but doesn't"
+            msg = "BuildManager API should exist but doesn't"
+            raise AssertionError(msg)
 
     def test_uv_workspace_configuration(self):
         """RED: Test that UV workspace is properly configured."""

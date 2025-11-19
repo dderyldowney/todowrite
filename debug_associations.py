@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Debug script to investigate why association table isn't being populated.
-"""
+"""Debug script to investigate why association table isn't being populated."""
 
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker

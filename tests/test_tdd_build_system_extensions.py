@@ -251,7 +251,8 @@ class TestTDDBuildManagerExtensions:
 
         except AttributeError:
             # This is the RED state - method doesn't exist
-            assert False, "BuildManager should have dependency_analysis method"
+            msg = "BuildManager should have dependency_analysis method"
+            raise AssertionError(msg)
 
     def test_build_manager_workspace_health_check(self):
         """RED: Test BuildManager workspace health functionality."""
@@ -269,4 +270,5 @@ class TestTDDBuildManagerExtensions:
 
         except AttributeError:
             # This is the RED state - method doesn't exist
-            assert False, "BuildManager should have health_check method"
+            msg = "BuildManager should have health_check method"
+            raise AssertionError(msg)

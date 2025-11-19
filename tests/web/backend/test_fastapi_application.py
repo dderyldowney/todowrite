@@ -36,7 +36,7 @@ class TestFastAPIBackendApplication:
         """RED: Test that FastAPI application main.py exists."""
         from pathlib import Path
 
-        main_app_path = Path("web_package/src/ToDoWrite_web/main.py")
+        Path("web_package/src/ToDoWrite_web/main.py")
         # In RED phase, this file doesn't exist yet, but we test for the expected structure
         assert True, "RED phase test - main.py should exist in future implementation"
 

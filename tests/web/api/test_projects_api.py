@@ -37,7 +37,7 @@ class TestProjectsAPI:
         goal_id = goal_response.json()["node"]["id"]
 
         # Create phases
-        phase1_response = client.post(
+        client.post(
             "/api/v1/nodes",
             json={
                 "layer": "Phase",
@@ -319,7 +319,7 @@ class TestProjectsAPI:
         data = response.json()
 
         # All returned projects should match the filter
-        for project in data["projects"]:
+        for _project in data["projects"]:
             # Note: This depends on how the API implements status filtering
             pass  # Implementation dependent
 
