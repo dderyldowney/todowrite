@@ -522,5 +522,7 @@ def stats(ctx: click.Context) -> None:
         session.close()
 
 
+
+
 if __name__ == "__main__":
     cli()
