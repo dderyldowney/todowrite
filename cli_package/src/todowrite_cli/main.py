@@ -1,13 +1,9 @@
 """Main CLI entry point for ToDoWrite."""
 
-import getpass
 import os
 import sys
-from pathlib import Path
-from typing import Any, cast
 
 import click
-import jsonschema
 from rich.console import Console
 from rich.table import Table
 
@@ -15,9 +11,11 @@ from .version import __version__
 
 # Import from the ToDoWrite library
 try:
-    import todowrite as ToDoWrite
-    from todowrite import (
+    from sqlalchemy import create_engine, select
+    from sqlalchemy.orm import sessionmaker
+    from todowrite.core.models import (
         AcceptanceCriteria,
+        Base,
         Command,
         Concept,
         Constraints,
@@ -30,151 +28,74 @@ try:
         Step,
         SubTask,
         Task,
-        create_engine,
-        sessionmaker,
     )
-except ImportError:
+    from todowrite.core.schema_validator import (
+        DatabaseInitializationError,
+        initialize_database,
+    )
+except ImportError as e:
     click.echo(
-        "Error: ToDoWrite library not found. Please install it first: "
-        "pip install ToDoWrite",
+        f"Error: ToDoWrite library not found: {e}. Please install it first: "
+        "pip install todowrite",
     )
     sys.exit(1)
 
 
-class ToDoWrite:
-    """Simple database manager for CLI using ToDoWrite Models."""
+# Model mapping for CLI
+MODEL_MAP = {
+    "goal": Goal,
+    "concept": Concept,
+    "context": Context,
+    "constraints": Constraints,
+    "requirement": Requirements,
+    "requirements": Requirements,
+    "acceptancecriteria": AcceptanceCriteria,
+    "acceptance_criteria": AcceptanceCriteria,
+    "ac": AcceptanceCriteria,
+    "interfacecontract": InterfaceContract,
+    "interface_contract": InterfaceContract,
+    "iface": InterfaceContract,
+    "phase": Phase,
+    "step": Step,
+    "task": Task,
+    "subtask": SubTask,
+    "sub_task": SubTask,
+    "command": Command,
+    "label": Label,
+}
 
-    def __init__(self, database_url: str) -> None:
-        self.database_url = database_url
-        self.engine = create_engine(database_url)
-        self.Session = sessionmaker(bind=self.engine)
+# Reverse mapping for display
+LAYER_NAMES = {
+    Goal: "Goal",
+    Concept: "Concept",
+    Context: "Context",
+    Constraints: "Constraints",
+    Requirements: "Requirements",
+    AcceptanceCriteria: "AcceptanceCriteria",
+    InterfaceContract: "InterfaceContract",
+    Phase: "Phase",
+    Step: "Step",
+    Task: "Task",
+    SubTask: "SubTask",
+    Command: "Command",
+    Label: "Label",
+}
 
-    def init_database(self) -> None:
-        """Initialize database tables."""
-        from todowrite.core.models import Base
 
-        Base.metadata.create_all(self.engine)
+def get_session(database_url: str = "sqlite:///todowrite.db"):
+    """Get SQLAlchemy session."""
+    engine = create_engine(database_url)
+    Session = sessionmaker(bind=engine)
+    return Session(), engine
 
-    def create_node(self, node_data: dict[str, Any]) -> Any:
-        """Create a node from data dictionary."""
-        # Determine layer and model class
-        layer = node_data.get("layer", "")
-        model_map = {
-            "Goal": Goal,
-            "Concept": Concept,
-            "Context": Context,
-            "Constraints": Constraints,
-            "Requirements": Requirements,
-            "AcceptanceCriteria": AcceptanceCriteria,
-            "InterfaceContract": InterfaceContract,
-            "Phase": Phase,
-            "Step": Step,
-            "Task": Task,
-            "SubTask": SubTask,
-            "Command": Command,
-            "Label": Label,
-        }
 
-        model_class = model_map.get(layer)
-        if not model_class:
-            raise ValueError(f"Unknown layer: {layer}")
-
-        # Create and save node
-        session = self.Session()
-        try:
-            node = model_class(**node_data)
-            session.add(node)
-            session.commit()
-            session.refresh(node)
-            return node
-        finally:
-            session.close()
-
-    def get_node(self, node_id: str) -> Any:
-        """Get a node by ID."""
-        session = self.Session()
-        try:
-            # Try each model class to find the node
-            for model_class in [
-                Goal,
-                Concept,
-                Context,
-                Constraints,
-                Requirements,
-                AcceptanceCriteria,
-                InterfaceContract,
-                Phase,
-                Step,
-                Task,
-                SubTask,
-                Command,
-                Label,
-            ]:
-                node = session.query(model_class).filter_by(id=node_id).first()
-                if node:
-                    return node
-            return None
-        finally:
-            session.close()
-
-    def update_node(self, node_id: str, update_data: dict[str, Any]) -> Any:
-        """Update a node."""
-        session = self.Session()
-        try:
-            node = self.get_node(node_id)
-            if not node:
-                return None
-
-            # Update node attributes
-            for key, value in update_data.items():
-                if hasattr(node, key):
-                    setattr(node, key, value)
-
-            session.commit()
-            session.refresh(node)
-            return node
-        finally:
-            session.close()
-
-    def delete_node(self, node_id: str) -> bool:
-        """Delete a node."""
-        session = self.Session()
-        try:
-            node = self.get_node(node_id)
-            if not node:
-                return False
-
-            session.delete(node)
-            session.commit()
-            return True
-        finally:
-            session.close()
-
-    def get_all_nodes(self) -> list[Any]:
-        """Get all nodes."""
-        session = self.Session()
-        try:
-            all_nodes = []
-            for model_class in [
-                Goal,
-                Concept,
-                Context,
-                Constraints,
-                Requirements,
-                AcceptanceCriteria,
-                InterfaceContract,
-                Phase,
-                Step,
-                Task,
-                SubTask,
-                Command,
-                Label,
-            ]:
-                nodes = session.query(model_class).all()
-                all_nodes.extend(nodes)
-            return all_nodes
-        finally:
-            session.close()
+def init_database(database_url: str = "sqlite:///todowrite.db") -> None:
+    """Initialize database with all tables."""
+    try:
+        initialize_database(database_url)
+    except DatabaseInitializationError as e:
+        click.echo(f"Error initializing database: {e}")
+        sys.exit(1)
 
 
 console = Console()
@@ -183,7 +104,6 @@ console = Console()
 def get_current_username() -> str:
     """Get the current username from environment or system."""
     try:
-        # Try environment variables first
         username = (
             os.environ.get("USER")
             or os.environ.get("USERNAME")
@@ -192,1329 +112,415 @@ def get_current_username() -> str:
         if username:
             return username
 
-        # Fallback to system calls
-        try:
-            return getpass.getuser()
-        except OSError:
-            # Final fallback - try a system call
-            import pwd
+        import getpass
 
-            return pwd.getpwuid(os.getuid()).pw_name
-    except Exception:
-        # Ultimate fallback
-        return "system"
-
-
-def capitalize_status(status: str) -> str:
-    """Capitalize status for display (e.g., 'in_progress' -> 'In Progress')."""
-    status_mapping = {
-        "planned": "Planned",
-        "in_progress": "In Progress",
-        "completed": "Completed",
-        "blocked": "Blocked",
-        "cancelled": "Cancelled",
-    }
-    return status_mapping.get(status, status.title())
-
-
-# Helper functions for CLI validation and data processing
-def normalize_layer(layer: str) -> str | None:
-    """Normalize layer input to proper case (case-insensitive)."""
-    layer_mapping = {
-        "goal": "Goal",
-        "concept": "Concept",
-        "context": "Context",
-        "constraints": "Constraints",
-        "requirements": "Requirements",
-        "acceptancecriteria": "AcceptanceCriteria",
-        "acceptance_criteria": "AcceptanceCriteria",
-        "acceptance-criteria": "AcceptanceCriteria",
-        "interfacecontract": "InterfaceContract",
-        "interface_contract": "InterfaceContract",
-        "interface-contract": "InterfaceContract",
-        "phase": "Phase",
-        "step": "Step",
-        "task": "Task",
-        "subtask": "SubTask",
-        "sub_task": "SubTask",
-        "sub-task": "SubTask",
-        "command": "Command",
-    }
-    return layer_mapping.get(layer.lower())
-
-
-def validate_and_normalize_severity(severity: str) -> str | None:
-    """Validate and normalize severity input."""
-    severity_mapping = {
-        "low": "low",
-        "medium": "medium",
-        "med": "medium",
-        "high": "high",
-        "critical": "critical",
-    }
-    return severity_mapping.get(severity.lower())
-
-
-def validate_and_normalize_work_type(work_type: str) -> str | None:
-    """Validate and normalize work_type input."""
-    work_type_mapping = {
-        "architecture": "architecture",
-        "spec": "spec",
-        "interface": "interface",
-        "validation": "validation",
-        "implementation": "implementation",
-        "development": "implementation",
-        "docs": "docs",
-        "operations": "ops",
-        "ops": "ops",
-        "refactor": "refactor",
-        "chore": "chore",
-        "test": "test",
-    }
-    return work_type_mapping.get(work_type.lower())
-
-
-def get_layer_prefix(layer: str) -> str:
-    """Get the ID prefix for a layer type."""
-    layer_prefixes = {
-        "Goal": "GOAL",
-        "Concept": "CON",
-        "Context": "CTX",
-        "Constraints": "CST",
-        "Requirements": "R",
-        "AcceptanceCriteria": "AC",
-        "InterfaceContract": "IF",
-        "Phase": "PH",
-        "Step": "STP",
-        "Task": "TSK",
-        "SubTask": "SUB",
-        "Command": "CMD",
-    }
-    return layer_prefixes.get(layer, layer[:3].upper())
-
-
-def validate_parent_node(parent_id: str) -> bool:
-    """Validate that a parent node exists."""
-    try:
-        app = get_app()
-        parent_node = app.get_node(parent_id)
-        return parent_node is not None
-    except (ValueError, KeyError, RuntimeError):
-        return False
-
-
-def build_command_data(
-    layer: str,
-    ac_ref: str | None,
-    run_shell: str | None,
-    artifacts: str | None,
-) -> dict[str, Any] | None:
-    """Build command-specific data for Command layer nodes."""
-    if layer != "Command":
-        return None
-
-    command_data = {}
-    if ac_ref:
-        command_data["ac_ref"] = ac_ref
-
-    command_data["run"] = {}
-    if run_shell:
-        command_data["run"]["shell"] = run_shell
-
-    if artifacts:
-        command_data["artifacts"] = [
-            artifact.strip() for artifact in artifacts.split(",")
-        ]
-
-    return command_data
-
-
-def filter_nodes_by_criteria(
-    nodes: dict[str, list],
-    layer: str | None,
-    owner: str | None,
-    status: str | None,
-) -> list[tuple[str, Any]]:
-    """Filter nodes by layer, owner, and status criteria."""
-    # Apply layer filter if specified
-    if layer:
-        normalized_layer = normalize_layer(layer) or layer.title()
-        nodes = {k: v for k, v in nodes.items() if k == normalized_layer}
-
-    # Apply additional filters
-    filtered_nodes = []
-    for layer_name, layer_nodes in nodes.items():
-        for node in layer_nodes:
-            # Owner filter
-            if owner and not _node_matches_owner(node, owner):
-                continue
-            # Status filter
-            if status and node.status.lower() != status.lower():
-                continue
-            filtered_nodes.append((layer_name, node))
-
-    return filtered_nodes
-
-
-def _node_matches_owner(node: Any, owner: str) -> bool:
-    """Check if node matches owner criteria."""
-    if not hasattr(node, "metadata") or not node.metadata:
-        return False
-    if not hasattr(node.metadata, "owner"):
-        return False
-    return node.metadata.owner.lower() == owner.lower()
-
-
-def extract_node_metadata(node: Any) -> dict[str, str]:
-    """Extract metadata values from a node with proper fallbacks."""
-    metadata = {
-        "owner": get_current_username(),
-        "severity": "low",
-        "work_type": "chore",
-    }
-
-    if hasattr(node, "metadata") and node.metadata:
-        if hasattr(node.metadata, "owner"):
-            metadata["owner"] = (
-                getattr(node.metadata, "owner", "") or get_current_username()
-            )
-        if hasattr(node.metadata, "severity"):
-            metadata["severity"] = (
-                getattr(node.metadata, "severity", "") or "low"
-            )
-        if hasattr(node.metadata, "work_type"):
-            metadata["work_type"] = (
-                getattr(node.metadata, "work_type", "") or "chore"
-            )
-
-    return metadata
-
-
-def format_node_for_display(
-    layer_name: str,
-    node: Any,
-    metadata: dict[str, str],
-) -> list[str]:
-    """Format node data for table display."""
-    title_display = (
-        node.title[:30] + "..." if len(node.title) > 30 else node.title
-    )
-    id_display = node.id[:12] + "…" if len(node.id) > 12 else node.id
-    owner_display = (
-        metadata["owner"][:20] + "…"
-        if len(metadata["owner"]) > 20
-        else metadata["owner"]
-    )
-
-    return [
-        layer_name,
-        id_display,
-        title_display,
-        capitalize_status(node.status),
-        f"{node.progress}%" if node.progress is not None else "0%",
-        owner_display,
-        metadata["severity"].title(),
-        metadata["work_type"].title(),
-    ]
-
-
-def validate_and_normalize_status(status: str) -> str | None:
-    """Validate and normalize status input."""
-    status_mapping = {
-        "planned": "planned",
-        "inprogress": "in_progress",
-        "in_progress": "in_progress",
-        "completed": "completed",
-        "blocked": "blocked",
-        "cancelled": "cancelled",
-    }
-    return status_mapping.get(status.lower())
-
-
-def build_update_data(
-    title: str | None,
-    description: str | None,
-    owner: str | None,
-    severity: str | None,
-    work_type: str | None,
-    status: str | None,
-    progress: int | None,
-    labels: str | None,
-) -> dict[str, Any]:
-    """Build update data dictionary from command line arguments."""
-    update_data: dict[str, Any] = {}
-
-    # Basic fields
-    if title is not None:
-        update_data["title"] = title
-    if description is not None:
-        update_data["description"] = description
-    if progress is not None:
-        update_data["progress"] = progress
-
-    # Metadata fields
-    metadata_updates = {}
-    if owner is not None:
-        metadata_updates["owner"] = owner
-    if labels is not None:
-        metadata_updates["labels"] = [
-            label.strip() for label in labels.split(",")
-        ]
-
-    # Validated metadata fields
-    if severity is not None:
-        severity_normalized = validate_and_normalize_severity(severity)
-        if not severity_normalized:
-            valid_severities = ", ".join(
-                sorted(["low", "medium", "med", "high", "critical"])
-            )
-            raise ValueError(
-                f"Invalid severity: '{severity}'. "
-                f"Valid options: {valid_severities}"
-            )
-        metadata_updates["severity"] = severity_normalized
-
-    if work_type is not None:
-        work_type_normalized = validate_and_normalize_work_type(work_type)
-        if not work_type_normalized:
-            valid_work_types = ", ".join(
-                sorted(
-                    [
-                        "architecture",
-                        "spec",
-                        "interface",
-                        "validation",
-                        "implementation",
-                        "development",
-                        "docs",
-                        "ops",
-                        "refactor",
-                        "chore",
-                        "test",
-                    ]
-                )
-            )
-            raise ValueError(
-                f"Invalid work_type: '{work_type}'. "
-                f"Valid options: {valid_work_types}"
-            )
-        metadata_updates["work_type"] = work_type_normalized
-
-    if metadata_updates:
-        update_data["metadata"] = metadata_updates
-
-    # Status field
-    if status is not None:
-        status_normalized = validate_and_normalize_status(status)
-        if not status_normalized:
-            valid_statuses = ", ".join(
-                sorted(
-                    [
-                        "planned",
-                        "inprogress",
-                        "in_progress",
-                        "completed",
-                        "blocked",
-                        "cancelled",
-                    ]
-                )
-            )
-            raise ValueError(
-                f"Invalid status: '{status}'. Valid options: {valid_statuses}"
-            )
-        update_data["status"] = status_normalized
-
-    return update_data
-
-
-def update_command_data(
-    update_data: dict[str, Any],
-    ac_ref: str | None,
-    run_shell: str | None,
-    artifacts: str | None,
-) -> None:
-    """Update command-specific data if provided."""
-    command_updates = {}
-    if ac_ref is not None:
-        command_updates["ac_ref"] = ac_ref
-    if run_shell is not None:
-        command_updates["run"] = {"shell": run_shell}
-    if artifacts is not None:
-        command_updates["artifacts"] = [
-            artifact.strip() for artifact in artifacts.split(",")
-        ]
-
-    if command_updates:
-        update_data["command"] = command_updates
-
-
-def display_update_results(
-    updated_node: Any, original_fields: dict[str, Any]
-) -> None:
-    """Display the results of a node update."""
-    console.print(
-        f"[green]✓[/green] Updated "
-        f"{getattr(updated_node, 'id', 'Unknown')}: "
-        f"{getattr(updated_node, 'title', 'Unknown')}"
-    )
-
-    if "status" in original_fields:
-        console.print(
-            f"  Status: {getattr(updated_node, 'status', 'Unknown')}"
-        )
-    if "progress" in original_fields:
-        console.print(f"  Progress: {getattr(updated_node, 'progress', 0)}%")
-    if (
-        "metadata" in original_fields
-        and "owner" in original_fields["metadata"]
-    ):
-        owner_val = getattr(updated_node, "owner", None)
-        if (
-            not owner_val
-            and hasattr(updated_node, "metadata")
-            and updated_node.metadata
-        ):
-            owner_val = getattr(updated_node.metadata, "owner", None)
-        owner_val = owner_val or "N/A"
-        console.print(f"  Owner: {owner_val}")
-
-
-def get_app(
-    database_path: str | None = None,
-    _yaml_base_path: str | None = None,
-) -> ToDoWrite:
-    """Get or create ToDoWrite application instance using simplified library
-
-    Args:
-        database_path: Path to database file or full database URL
-        _yaml_base_path: Base path for YAML files (currently unused)
-
-    Returns:
-        Configured ToDoWrite application instance
-    """
-    if database_path:
-        # Expand ~ to user home directory
-        database_path = os.path.expanduser(database_path)
-        # Convert file path to SQLite URL
-        if not database_path.startswith(("sqlite:///", "postgresql://")):
-            db_url = f"sqlite:///{database_path}"
-        else:
-            db_url = database_path
-
-        # Use library's simplified connection
-        app = ToDoWrite(database_url=db_url)
-    else:
-        # Let library handle auto-detection (PostgreSQL → SQLite → YAML)
-        app = ToDoWrite("sqlite:///todowrite.db")
-
-    # Initialize database through library
-    app.init_database()
-    return app
+        return getpass.getuser()
+    except (OSError, ImportError):
+        return "unknown"
 
 
 @click.group()
 @click.version_option(version=__version__)
 @click.option(
-    "--storage-preference",
-    type=click.Choice(["auto", "postgresql_only", "sqlite_only", "yaml_only"]),
-    default="auto",
-    help="Override default storage preference "
-    "(auto=auto-detect, postgresql_only, sqlite_only, yaml_only)",
+    "--database",
+    default="todowrite.db",
+    help="Database file path (default: todowrite.db)",
 )
 @click.pass_context
-def cli(ctx: click.Context, storage_preference: str) -> None:
-    """A CLI for the ToDoWrite application."""
+def cli(ctx: click.Context, database: str) -> None:
+    """ToDoWrite CLI - Hierarchical Task Management System."""
     ctx.ensure_object(dict)
-    ctx.obj["storage_preference"] = storage_preference
 
-    # Set storage preference for library globally
-    if storage_preference != "auto":
-        os.environ["TODOWRITE_STORAGE_PREFERENCE"] = storage_preference
+    # Convert to SQLite URL if needed
+    if not database.startswith(("sqlite:///", "postgresql://")):
+        database_path = os.path.expanduser(database)
+        database_url = f"sqlite:///{database_path}"
+    else:
+        database_url = database
+
+    ctx.obj["database_url"] = database_url
+    ctx.obj["database_path"] = database
 
 
 @cli.command()
-@click.option(
-    "--database-path",
-    "-d",
-    default=None,
-    help="Database file path (default: auto-detect via library)",
-)
-@click.option(
-    "--yaml-path",
-    "-y",
-    default=None,
-    help="YAML configuration path (default: auto-detect via library)",
-)
 @click.pass_context
-def init(
-    ctx: click.Context, database_path: str | None, yaml_path: str | None
-) -> None:
+def init(ctx: click.Context) -> None:
     """Initialize the database."""
-    # Pass storage preference from context to library via environment
-    if ctx.obj.get("storage_preference"):
-        os.environ["TODOWRITE_STORAGE_PREFERENCE"] = ctx.obj[
-            "storage_preference"
-        ]
+    database_url = ctx.obj["database_url"]
 
-    # Initialize database using Rails ActiveRecord
     try:
-        # Use Rails ActiveRecord database initialization
-        from todowrite.core.schema_validator import (
-            DatabaseInitializationError,
-            initialize_database,
-        )
-
-        db_url = database_path or "sqlite:///todowrite.db"
-        initialize_database(db_url)
-
-        console.print("✅ Storage type: SQLAlchemy (Rails ActiveRecord)")
-        console.print("[green]✓[/green] Database initialized successfully!")
-        console.print(f"Database URL: {db_url}")
-    except DatabaseInitializationError as e:
-        console.print(f"[red]✗[/red] Database initialization failed: {e}")
-        sys.exit(1)
-    except (OSError, ValueError) as e:
-        console.print(f"[red]✗[/red] Error initializing database: {e}")
-        sys.exit(1)
-    except ImportError as e:
-        console.print(f"[red]✗[/red] Failed to import database modules: {e}")
+        init_database(database_url)
+        console.print(f"✅ Database initialized: {database_url}")
+    except Exception as e:
+        console.print(f"❌ Error initializing database: {e}")
         sys.exit(1)
 
 
 @cli.command()
 @click.option(
     "--layer",
-    "-l",
-    help=(
-        "Layer type (case-insensitive: goal, concept, context, constraints, "
-        "requirements, acceptancecriteria, interfacecontract, phase, step, "
-        "task, subtask, command)"
-    ),
     required=True,
+    type=click.Choice(list(MODEL_MAP.keys())),
+    help="Layer type to create",
 )
+@click.option("--title", required=True, help="Title of the item")
+@click.option("--description", help="Description of the item")
+@click.option("--owner", help="Owner of the item")
+@click.option("--severity", help="Severity level")
+@click.option("--status", default="planned", help="Status of the item")
+@click.option("--run-command", help="Command to execute (for Command items)")
 @click.option(
-    "--title",
-    "-t",
-    required=True,
-    help="Title of the node",
-)
-@click.option(
-    "--description",
-    "-d",
-    help="Description of the node",
-)
-@click.option(
-    "--owner",
-    help="Owner of the node",
-)
-@click.option(
-    "--labels",
-    help="Comma-separated labels",
-)
-@click.option(
-    "--severity",
-    help="Severity level (case-insensitive: low, med, medium, high, critical)",
-)
-@click.option(
-    "--work-type",
-    help="Type of work",
-)
-@click.option(
-    "--ac-ref",
-    help="Acceptance criteria reference (for Commands)",
-)
-@click.option(
-    "--run-shell",
-    help="Shell command to run (for Commands)",
-)
-@click.option(
-    "--artifacts",
-    help="Comma-separated artifact paths (for Commands)",
-)
-@click.option(
-    "--parent-id",
-    help="Parent node ID to link this node as a child",
+    "--progress", type=int, default=0, help="Progress percentage (0-100)"
 )
 @click.pass_context
 def create(
-    _: click.Context,
+    ctx: click.Context,
     layer: str,
     title: str,
-    description: str,
-    owner: str | None,
-    labels: str | None,
-    severity: str | None,
-    work_type: str | None,
-    ac_ref: str | None,
-    run_shell: str | None,
-    artifacts: str | None,
-    parent_id: str | None,
-) -> None:
-    """Creates a new node."""
-    # Validate and normalize layer
-    layer_normalized = normalize_layer(layer)
-    if not layer_normalized:
-        valid_options = ", ".join(
-            sorted(
-                [
-                    "goal",
-                    "concept",
-                    "context",
-                    "constraints",
-                    "requirements",
-                    "acceptancecriteria",
-                    "interfacecontract",
-                    "phase",
-                    "step",
-                    "task",
-                    "subtask",
-                    "command",
-                ]
-            )
-        )
-        console.print(
-            f"[red]✗[/red] Invalid layer: '{layer}'. "
-            f"Valid options: {valid_options}"
-        )
-        sys.exit(1)
-
-    layer = layer_normalized
-
-    # Build node data
-    prefix = get_layer_prefix(layer)
-    node_data: dict[str, Any] = {
-        "id": generate_node_id(prefix),
-        "layer": layer,
-        "title": title,
-        "description": description or "",
-        "links": {"parents": [], "children": []},
-        "metadata": {},
-    }
-
-    # Handle parent linking if parent_id is provided
-    if parent_id:
-        if not validate_parent_node(parent_id):
-            console.print(
-                f"[red]✗[/red] Parent node with ID '{parent_id}' not found"
-            )
-            sys.exit(1)
-
-        node_data["links"]["parents"] = [parent_id]
-        console.print(f"[green]✓[/green] Will link to parent: {parent_id}")
-
-    # Add metadata
-    metadata = cast("dict[str, Any]", node_data["metadata"])
-    metadata["owner"] = owner or get_current_username()
-
-    if labels:
-        metadata["labels"] = [label.strip() for label in labels.split(",")]
-
-    if severity:
-        severity_normalized = validate_and_normalize_severity(severity)
-        if not severity_normalized:
-            valid_severities = ", ".join(
-                sorted(["low", "medium", "med", "high", "critical"])
-            )
-            console.print(
-                f"[red]✗[/red] Invalid severity: '{severity}'. "
-                f"Valid options: {valid_severities}"
-            )
-            sys.exit(1)
-        metadata["severity"] = severity_normalized
-
-    if work_type:
-        work_type_normalized = validate_and_normalize_work_type(work_type)
-        if not work_type_normalized:
-            valid_work_types = ", ".join(
-                sorted(
-                    [
-                        "architecture",
-                        "spec",
-                        "interface",
-                        "validation",
-                        "implementation",
-                        "development",
-                        "docs",
-                        "ops",
-                        "refactor",
-                        "chore",
-                        "test",
-                    ]
-                )
-            )
-            console.print(
-                f"[red]✗[/red] Invalid work_type: '{work_type}'. "
-                f"Valid options: {valid_work_types}"
-            )
-            sys.exit(1)
-        metadata["work_type"] = work_type_normalized
-
-    # Add command-specific data ONLY for Command layer
-    if layer == "Command":
-        command_data = build_command_data(layer, ac_ref, run_shell, artifacts)
-        if command_data:
-            node_data["command"] = command_data
-
-    try:
-        # Get app instance and create node
-        app = get_app()
-        node = app.create_node(node_data)
-
-        # If parent linking was specified, update the parent node's children
-        if parent_id:
-            try:
-                # Use the app instance to link nodes
-                # TODO: Implement parent-child linking with ToDoWrite Models relationships
-                success = True  # Placeholder for linking functionality
-                if success:
-                    success_msg = (
-                        f"[green]✓[/green] Linked parent {parent_id} "
-                        f"→ child {node.id}"
-                    )
-                    console.print(success_msg)
-            except (
-                ValueError,
-                KeyError,
-                RuntimeError,
-            ) as e:
-                warning_msg = (
-                    f"[yellow]⚠[/yellow] Warning: Could not link "
-                    f"parent → child: {e}"
-                )
-                console.print(warning_msg)
-
-        console.print(
-            f"[green]✓[/green] Created {layer}: {node.title} (ID: {node.id})"
-        )
-    except (
-        ValueError,
-        KeyError,
-        AttributeError,
-        jsonschema.ValidationError,
-        RuntimeError,
-    ) as e:
-        console.print(f"[red]✗[/red] Error creating node: {e}")
-        sys.exit(1)
-
-
-@cli.command()
-@click.argument("node_id")
-@click.pass_context
-def get(_: click.Context, node_id: str) -> None:
-    """Gets a node by its ID."""
-    try:
-        app = get_app()
-        node = cast("Any", app.get_node(node_id))
-        if node:
-            table = Table(title=f"Node: {node.id}")
-            table.add_column("Property", style="cyan")
-            table.add_column("Value", style="magenta")
-
-            table.add_row("ID", node.id)
-            table.add_row("Layer", node.layer)
-            table.add_row("Title", node.title)
-            table.add_row("Description", node.description)
-            table.add_row("Status", capitalize_status(node.status))
-            table.add_row(
-                "Progress",
-                f"{node.progress}%" if node.progress is not None else "0%",
-            )
-
-            if hasattr(node, "owner") and node.owner:
-                table.add_row("Owner", node.owner)
-            if hasattr(node, "severity") and node.severity:
-                table.add_row("Severity", node.severity)
-            if hasattr(node, "work_type") and node.work_type:
-                table.add_row("Work Type", node.work_type)
-
-            console.print(table)
-        else:
-            console.print(f"[red]✗[/red] Node with ID '{node_id}' not found")
-            sys.exit(1)
-    except (ValueError, KeyError, RuntimeError) as e:
-        console.print(f"[red]✗[/red] Error getting node: {e}")
-        sys.exit(1)
-
-
-@cli.command()
-@click.option(
-    "--layer",
-    "-l",
-    help="Filter by layer (Goal, Task, Concept, Command)",
-)
-@click.option(
-    "--owner",
-    "-o",
-    help="Filter by owner",
-)
-@click.option(
-    "--status",
-    "-s",
-    help="Filter by status",
-)
-@click.pass_context
-def list_command(
-    _: click.Context,
-    layer: str | None,
-    owner: str | None,
-    status: str | None,
-) -> None:
-    """Lists all the nodes."""
-
-    try:
-        app = get_app()
-        all_nodes = app.get_all_nodes()
-
-        # Group nodes by layer
-        nodes = {}
-        for node in all_nodes:
-            layer_name = node.layer
-            if layer_name not in nodes:
-                nodes[layer_name] = []
-            nodes[layer_name].append(node)
-
-        if layer:
-            nodes = {k: v for k, v in nodes.items() if k == layer}
-
-        all_nodes: list[tuple[str, Node]] = []
-        for layer_name, layer_nodes in nodes.items():
-            for node in layer_nodes:
-                all_nodes.append((layer_name, node))
-
-        if not all_nodes:
-            console.print("[yellow]No nodes found[/yellow]")
-            return
-
-        table = Table(title="All Nodes")
-        table.add_column("Layer", style="cyan")
-        table.add_column("ID", style="magenta")
-        table.add_column("Title", style="green")
-        table.add_column("Status", style="yellow")
-        table.add_column("Progress", style="blue")
-        table.add_column("Owner", style="red")
-
-        for layer_name, node in all_nodes:
-            # Apply filters
-            if owner and (
-                hasattr(node, "metadata") and node.metadata.owner != owner
-            ):
-                continue
-            if status and node.status != status:
-                continue
-
-            # Get owner from metadata with proper fallback
-            owner_val = get_current_username()  # Default to current user
-            if hasattr(node, "metadata") and node.metadata:
-                owner_val = (
-                    getattr(node.metadata, "owner", "")
-                    or get_current_username()
-                )
-
-            table.add_row(
-                layer_name,
-                node.id,
-                node.title,
-                capitalize_status(node.status),
-                f"{node.progress or 0}%",
-                owner_val,
-            )
-
-        console.print(table)
-    except Exception as e:
-        console.print(f"[red]✗[/red] Error listing nodes: {e}")
-        sys.exit(1)
-
-
-@cli.group()
-def status() -> None:
-    """Status management commands for tracking task progress."""
-
-
-@status.command()
-@click.argument("node_id")
-@click.pass_context
-def show(_: click.Context, node_id: str) -> None:
-    """Show detailed status information about a node."""
-    app = get_app()
-
-    try:
-        node = app.get_node(node_id)
-        if not node:
-            console.print(f"[red]✗[/red] Node with ID '{node_id}' not found")
-            sys.exit(1)
-
-        table = Table(title=f"Node Status: {node.title}")
-        table.add_column("Property", style="cyan")
-        table.add_column("Value", style="magenta")
-
-        table.add_row("ID", node.id)
-        table.add_row("Layer", node.layer)
-        table.add_row("Title", node.title)
-        table.add_row("Description", node.description)
-        table.add_row("Status", capitalize_status(node.status))
-        table.add_row(
-            "Progress",
-            f"{node.progress}%" if node.progress is not None else "0%",
-        )
-        table.add_row("Owner", node.metadata.owner or get_current_username())
-        table.add_row("Severity", (node.metadata.severity or "low").title())
-        table.add_row(
-            "Work Type", (node.metadata.work_type or "chore").title()
-        )
-
-        console.print(table)
-    except Exception as e:
-        console.print(f"[red]✗[/red] Error showing node status: {e}")
-        sys.exit(1)
-
-
-@status.command()
-@click.argument("node_id")
-@click.pass_context
-def complete(_: click.Context, node_id: str) -> None:
-    """Mark a node as completed."""
-    app = get_app()
-
-    try:
-        node = app.get_node(node_id)
-        if not node:
-            console.print(f"[red]✗[/red] Node with ID '{node_id}' not found")
-            sys.exit(1)
-
-        if node.status == "completed":
-            console.print(
-                f"[yellow]Node {node_id} is already completed[/yellow]"
-            )
-            return
-
-        update_data = {
-            "status": "completed",
-            "progress": 100,
-            "completion_date": "2024-01-01",  # Default date
-        }
-
-        updated_node = app.update_node(node_id, update_data)
-        if updated_node:
-            console.print(
-                f"[green]✓[/green] Completed {node_id}: {updated_node.title}"
-            )
-        else:
-            console.print(
-                f"[green]✓[/green] Completed {node_id}: Unknown title"
-            )
-    except Exception as e:
-        console.print(f"[red]✗[/red] Error completing node: {e}")
-        sys.exit(1)
-
-
-@status.command()
-@click.option(
-    "--layer",
-    "-l",
-    help="Filter by layer type",
-)
-@click.option(
-    "--owner",
-    "-o",
-    help="Filter by owner",
-)
-@click.option(
-    "--status",
-    "-s",
-    help="Filter by status",
-)
-@click.pass_context
-def global_status(
-    _: click.Context,
-    layer: str | None,
-    owner: str | None,
-    status: str | None,
-) -> None:
-    """Show status information for all nodes."""
-    try:
-        app = get_app()
-        nodes = app.get_all_nodes()
-        filtered_nodes = filter_nodes_by_criteria(nodes, layer, owner, status)
-
-        if not filtered_nodes:
-            console.print("[yellow]No nodes found matching criteria[/yellow]")
-            return
-
-        table = Table(title="Global Status Overview")
-        table.add_column("Layer", style="cyan")
-        table.add_column("ID", style="magenta")
-        table.add_column("Title", style="green")
-        table.add_column("Status", style="yellow")
-        table.add_column("Progress", style="blue")
-        table.add_column("Owner", style="red")
-        table.add_column("Severity", style="white")
-        table.add_column("Work Type", style="cyan")
-
-        for layer_name, node in filtered_nodes:
-            metadata = extract_node_metadata(node)
-            display_row = format_node_for_display(layer_name, node, metadata)
-            table.add_row(*display_row)
-
-        console.print(table)
-        _display_summary_statistics(filtered_nodes)
-
-    except Exception as e:
-        console.print(f"[red]✗[/red] Error showing global status: {e}")
-        sys.exit(1)
-
-
-def _display_summary_statistics(filtered_nodes: list[tuple[str, Any]]) -> None:
-    """Display summary statistics for filtered nodes."""
-    total_nodes = len(filtered_nodes)
-    completed_nodes = len(
-        [n for _, n in filtered_nodes if n.status == "completed"]
-    )
-    in_progress_nodes = len(
-        [n for _, n in filtered_nodes if n.status == "in_progress"]
-    )
-
-    console.print("\n[bold]Summary:[/bold]")
-    console.print(f"Total nodes: {total_nodes}")
-
-    if total_nodes > 0:
-        percentage = completed_nodes / total_nodes * 100
-        console.print(f"Completed: {completed_nodes} ({percentage:.1f}%)")
-    else:
-        console.print("Completed: 0")
-
-    if total_nodes > 0:
-        percentage = in_progress_nodes / total_nodes * 100
-        console.print(f"In Progress: {in_progress_nodes} ({percentage:.1f}%)")
-    else:
-        console.print("In Progress: 0")
-
-
-@cli.command()
-@click.option(
-    "--yaml-path",
-    "-y",
-    default="./configs",
-    help="Path to YAML files directory",
-)
-@click.pass_context
-def import_yaml(_: click.Context, yaml_path: str) -> None:
-    """Import YAML files from configs/ directory to database."""
-    app = get_app()
-
-    try:
-        # Create a custom YAMLManager that uses the specified path
-        yaml_manager = YAMLManager(app)
-
-        # Override the paths if custom path provided
-        if yaml_path != "./configs":
-            custom_path = Path(yaml_path)
-            yaml_manager.yaml_base_path = custom_path
-            yaml_manager.plans_path = custom_path / "plans"
-            yaml_manager.commands_path = custom_path / "commands"
-
-        results = yaml_manager.import_yaml_files()
-
-        console.print("[green]✓[/green] Import completed:")
-        console.print(f"  Files processed: {results['total_files']}")
-        console.print(f"  Nodes imported: {results['total_imported']}")
-        console.print(f"  Errors: {len(results['errors'])}")
-
-        if results["errors"]:
-            console.print("[red]Errors encountered:[/red]")
-            for error in results["errors"]:
-                console.print(f"  {error}")
-    except Exception as e:
-        console.print(f"[red]✗[/red] Error importing YAML: {e}")
-        sys.exit(1)
-
-
-@cli.command()
-@click.option(
-    "--output",
-    "-o",
-    default="./exported",
-    help="Output directory for YAML files",
-)
-@click.pass_context
-def export_yaml(_: click.Context, output: str) -> None:
-    """Export database content to YAML files."""
-    app = get_app()
-
-    try:
-        yaml_manager = YAMLManager(app)
-        results = yaml_manager.export_to_yaml(Path(output))
-
-        console.print("[green]✓[/green] Export completed:")
-        console.print(f"  Nodes exported: {results['total_nodes']}")
-        console.print(f"  Files created: {results['total_exported']}")
-        console.print(f"  Errors: {len(results['errors'])}")
-
-        if results["errors"]:
-            console.print("[red]Errors encountered:[/red]")
-            for error in results["errors"]:
-                console.print(f"  {error}")
-    except Exception as e:
-        console.print(f"[red]✗[/red] Error exporting YAML: {e}")
-        sys.exit(1)
-
-
-@cli.command()
-@click.pass_context
-def sync_status(_: click.Context) -> None:
-    """Check synchronization status between YAML files and database."""
-    app = get_app()
-
-    try:
-        yaml_manager = YAMLManager(app)
-        sync_status = yaml_manager.check_yaml_sync()
-
-        table = Table(title="YAML Database Sync Status")
-        table.add_column("Type", style="cyan")
-        table.add_column("Count", style="magenta")
-
-        table.add_row("Database only", str(len(sync_status["database_only"])))
-        table.add_row("YAML only", str(len(sync_status["yaml_only"])))
-        table.add_row("Both", str(len(sync_status["both"])))
-
-        console.print(table)
-
-        if sync_status["database_only"]:
-            console.print("[yellow]Database only nodes:[/yellow]")
-            for node_id in sync_status["database_only"][:10]:  # Show first 10
-                console.print(f"  {node_id}")
-            if len(sync_status["database_only"]) > 10:
-                console.print(
-                    f"  ... and {len(sync_status['database_only']) - 10} more"
-                )
-
-        if sync_status["yaml_only"]:
-            console.print("[yellow]YAML only nodes:[/yellow]")
-            for node_id in sync_status["yaml_only"][:10]:  # Show first 10
-                console.print(f"  {node_id}")
-            if len(sync_status["yaml_only"]) > 10:
-                console.print(
-                    f"  ... and {len(sync_status['yaml_only']) - 10} more"
-                )
-    except Exception as e:
-        console.print(f"[red]✗[/red] Error checking sync status: {e}")
-        sys.exit(1)
-
-
-@cli.command()
-@click.pass_context
-def db_status(ctx: click.Context) -> None:
-    """Show storage configuration and status using simplified library approach.
-
-    Displays current database URL, storage backend info, and system status.
-    """
-    try:
-        # Use library's simplified connection
-        app = get_app()
-
-        # Show storage info using library's approach
-        table = Table(title="Database Status")
-        table.add_column("Property", style="cyan")
-        table.add_column("Value", style="magenta")
-
-        # Show storage type
-        storage_type = app.storage_type.value
-        table.add_row("Storage Type", storage_type.title())
-
-        # Show database URL if available
-        if hasattr(app, "db_url") and app.db_url:
-            table.add_row("Database URL", app.db_url)
-        else:
-            table.add_row("Database URL", "N/A (YAML mode)")
-
-        # Show node counts using library
-        nodes = app.get_all_nodes()
-        total_nodes = sum(len(layer_nodes) for layer_nodes in nodes.values())
-        table.add_row("Total Nodes", str(total_nodes))
-
-        # Show storage preference
-        preference = ctx.obj.get("storage_preference", "auto")
-        table.add_row("Storage Preference", preference)
-
-        console.print(table)
-
-    except Exception as e:
-        console.print(f"[red]✗[/red] Error getting database status: {e}")
-        sys.exit(1)
-
-
-@cli.command()
-@click.argument("node_id")
-@click.pass_context
-def delete(_: click.Context, node_id: str) -> None:
-    """Delete a node by its ID."""
-    try:
-        app = get_app()
-        node = cast("Any", app.get_node(node_id))
-        if not node:
-            console.print(f"[red]✗[/red] Node with ID '{node_id}' not found")
-            sys.exit(1)
-
-        app.delete_node(node_id)
-        console.print(f"[green]✓[/green] Deleted {node_id}: {node.title}")
-    except Exception as e:
-        console.print(f"[red]✗[/red] Error deleting node: {e}")
-        sys.exit(1)
-
-
-@cli.command()
-@click.argument("node_id")
-@click.option("--title", help="Update title")
-@click.option("--description", help="Update description")
-@click.option("--owner", help="Update owner")
-@click.option(
-    "--severity",
-    help="Update severity (case-insensitive: low, medium, med, high, "
-    "critical)",
-)
-@click.option(
-    "--work-type",
-    help="Update work type (case-insensitive: architecture, spec, interface, "
-    "validation, implementation, docs, ops, refactor, chore, test)",
-)
-@click.option(
-    "--status",
-    help="Update status (case-insensitive: planned, in_progress, completed, "
-    "blocked, cancelled)",
-)
-@click.option(
-    "--progress",
-    type=click.IntRange(0, 100),
-    help="Update progress percentage",
-)
-@click.option("--labels", help="Comma-separated labels")
-# Command-specific options
-@click.option(
-    "--ac-ref", help="Update acceptance criteria reference (for Commands)"
-)
-@click.option("--run-shell", help="Update shell command (for Commands)")
-@click.option(
-    "--artifacts", help="Comma-separated artifact paths (for Commands)"
-)
-@click.pass_context
-def update(
-    _: click.Context,
-    node_id: str,
-    title: str | None,
     description: str | None,
     owner: str | None,
     severity: str | None,
-    work_type: str | None,
-    status: str | None,
-    progress: int | None,
-    labels: str | None,
-    ac_ref: str | None,
-    run_shell: str | None,
-    artifacts: str | None,
+    status: str,
+    run_command: str | None,
+    progress: int,
 ) -> None:
-    """Update a node's properties."""
+    """Create a new item."""
+    database_url = ctx.obj["database_url"]
+    session, engine = get_session(database_url)
+
     try:
-        app = get_app()
-        node = cast("Any", app.get_node(node_id))
-        if not node:
-            console.print(f"[red]✗[/red] Node with ID '{node_id}' not found")
-            sys.exit(1)
+        model_class = MODEL_MAP[layer.lower()]
 
-        # Track what fields we're trying to update for result display
-        original_fields = {}
-        if title is not None:
-            original_fields["title"] = title
-        if status is not None:
-            original_fields["status"] = status
-        if progress is not None:
-            original_fields["progress"] = progress
-        if owner is not None:
-            original_fields["metadata"] = {"owner": owner}
+        # Create model instance
+        kwargs = {
+            "title": title,
+            "status": status,
+            "progress": progress,
+        }
 
-        # Build update data
-        try:
-            update_data = build_update_data(
-                title,
-                description,
-                owner,
-                severity,
-                work_type,
-                status,
-                progress,
-                labels,
-            )
-        except ValueError as e:
-            console.print(f"[red]✗[/red] {e}")
-            sys.exit(1)
+        if description:
+            kwargs["description"] = description
+        if owner:
+            kwargs["owner"] = owner
+        if severity:
+            kwargs["severity"] = severity
+        if run_command and model_class == Command:
+            kwargs["run_command"] = run_command
 
-        # Handle command-specific updates
-        if node.layer == "Command":
-            update_command_data(update_data, ac_ref, run_shell, artifacts)
+        item = model_class(**kwargs)
+        session.add(item)
+        session.commit()
+        session.refresh(item)
 
-        if not update_data:
-            console.print("[yellow]⚠️[/yellow] No fields to update")
-            return
-
-        app = get_app()
-        updated_node = app.update_node(node_id, update_data)
-        if updated_node:
-            display_update_results(updated_node, original_fields)
+        console.print(
+            f"✅ Created {layer.title()} '{title}' with ID {item.id}"
+        )
 
     except Exception as e:
-        console.print(f"[red]✗[/red] Error updating node: {e}")
-        sys.exit(1)
+        console.print(f"❌ Error creating item: {e}")
+        session.rollback()
+    finally:
+        session.close()
+
+
+@cli.command()
+@click.option("--layer", help="Filter by layer type")
+@click.option("--owner", help="Filter by owner")
+@click.option("--status", help="Filter by status")
+@click.option(
+    "--limit", type=int, default=20, help="Maximum number of items to show"
+)
+@click.pass_context
+def list(
+    ctx: click.Context,
+    layer: str | None,
+    owner: str | None,
+    status: str | None,
+    limit: int,
+) -> None:
+    """List items."""
+    database_url = ctx.obj["database_url"]
+    session, engine = get_session(database_url)
+
+    try:
+        # Start with all models or filter by specific layer
+        if layer:
+            model_classes = [MODEL_MAP.get(layer.lower())]
+            if not model_classes or not model_classes[0]:
+                console.print(f"❌ Unknown layer: {layer}")
+                return
+        else:
+            model_classes = [
+                Goal,
+                Concept,
+                Context,
+                Constraints,
+                Requirements,
+                AcceptanceCriteria,
+                InterfaceContract,
+                Phase,
+                Step,
+                Task,
+                SubTask,
+                Command,
+                Label,
+            ]
+
+        all_items = []
+        for model_class in model_classes:
+            if not model_class:
+                continue
+
+            query = select(model_class)
+
+            # Apply filters
+            if owner:
+                query = query.where(model_class.owner == owner)
+            if status:
+                query = query.where(model_class.status == status)
+
+            items = session.execute(query.limit(limit)).scalars().all()
+            all_items.extend(items)
+
+        if not all_items:
+            console.print("No items found.")
+            return
+
+        # Create table
+        table = Table(title="ToDoWrite Items")
+        table.add_column("ID", style="cyan", no_wrap=True)
+        table.add_column("Type", style="magenta")
+        table.add_column("Title", style="white")
+        table.add_column("Owner", style="green")
+        table.add_column("Status", style="yellow")
+        table.add_column("Progress", justify="right", style="blue")
+
+        for item in all_items:
+            table.add_row(
+                str(item.id),
+                LAYER_NAMES.get(type(item), "Unknown"),
+                item.title,
+                item.owner or "No owner",
+                item.status or "No status",
+                f"{item.progress}%" if hasattr(item, "progress") else "N/A",
+            )
+
+        console.print(table)
+        console.print(f"\nTotal: {len(all_items)} items")
+
+    except Exception as e:
+        console.print(f"❌ Error listing items: {e}")
+    finally:
+        session.close()
+
+
+@cli.command()
+@click.argument("item_id", type=int)
+@click.pass_context
+def get(ctx: click.Context, item_id: int) -> None:
+    """Get details of a specific item."""
+    database_url = ctx.obj["database_url"]
+    session, engine = get_session(database_url)
+
+    try:
+        # Search in all model classes
+        for model_class in [
+            Goal,
+            Concept,
+            Context,
+            Constraints,
+            Requirements,
+            AcceptanceCriteria,
+            InterfaceContract,
+            Phase,
+            Step,
+            Task,
+            SubTask,
+            Command,
+            Label,
+        ]:
+            item = session.query(model_class).filter_by(id=item_id).first()
+            if item:
+                # Display item details
+                table = Table(
+                    title=f"{LAYER_NAMES.get(type(item), 'Unknown')} Details"
+                )
+                table.add_column("Field", style="cyan")
+                table.add_column("Value", style="white")
+
+                table.add_row("ID", str(item.id))
+                table.add_row("Type", LAYER_NAMES.get(type(item), "Unknown"))
+                table.add_row("Title", item.title)
+
+                if hasattr(item, "description") and item.description:
+                    table.add_row("Description", item.description)
+                if hasattr(item, "owner") and item.owner:
+                    table.add_row("Owner", item.owner)
+                if hasattr(item, "status") and item.status:
+                    table.add_row("Status", item.status)
+                if hasattr(item, "severity") and item.severity:
+                    table.add_row("Severity", item.severity)
+                if hasattr(item, "progress"):
+                    table.add_row("Progress", f"{item.progress}%")
+                if hasattr(item, "run_command") and item.run_command:
+                    table.add_row("Run Command", item.run_command)
+                if hasattr(item, "created_at") and item.created_at:
+                    table.add_row("Created", str(item.created_at))
+                if hasattr(item, "updated_at") and item.updated_at:
+                    table.add_row("Updated", str(item.updated_at))
+
+                console.print(table)
+                return
+
+        console.print(f"❌ Item with ID {item_id} not found.")
+
+    except Exception as e:
+        console.print(f"❌ Error getting item: {e}")
+    finally:
+        session.close()
 
 
 @cli.command()
 @click.argument("query")
+@click.option("--layer", help="Search in specific layer only")
 @click.pass_context
-def search(_: click.Context, query: str) -> None:
-    """Search for nodes by query string."""
-    try:
-        app = get_app()
-        # Simple text search - look for query in title and description
-        criteria = {"text_search": query}
-        results = app.search_nodes(criteria)
+def search(ctx: click.Context, query: str, layer: str | None) -> None:
+    """Search for items."""
+    database_url = ctx.obj["database_url"]
+    session, engine = get_session(database_url)
 
-        if not results:
-            console.print(f"[yellow]No results found for '{query}'[/yellow]")
+    try:
+        # Determine which models to search
+        if layer:
+            model_classes = [MODEL_MAP.get(layer.lower())]
+            if not model_classes or not model_classes[0]:
+                console.print(f"❌ Unknown layer: {layer}")
+                return
+        else:
+            model_classes = [
+                Goal,
+                Concept,
+                Context,
+                Constraints,
+                Requirements,
+                AcceptanceCriteria,
+                InterfaceContract,
+                Phase,
+                Step,
+                Task,
+                SubTask,
+                Command,
+                Label,
+            ]
+
+        matching_items = []
+        search_lower = query.lower()
+
+        for model_class in model_classes:
+            if not model_class:
+                continue
+
+            # Search in title and description fields
+            items = session.query(model_class).all()
+            for item in items:
+                match = False
+
+                if (
+                    (
+                        hasattr(item, "title")
+                        and item.title
+                        and search_lower in item.title.lower()
+                    )
+                    or (
+                        hasattr(item, "description")
+                        and item.description
+                        and search_lower in item.description.lower()
+                    )
+                    or (
+                        hasattr(item, "owner")
+                        and item.owner
+                        and search_lower in item.owner.lower()
+                    )
+                ):
+                    match = True
+
+                if match:
+                    matching_items.append(item)
+
+        if not matching_items:
+            console.print(f"No items found matching '{query}'.")
             return
 
-        table = Table(title=f"Search Results for: {query}")
-        table.add_column("Layer", style="cyan")
-        table.add_column("ID", style="magenta")
-        table.add_column("Title", style="green")
+        # Create results table
+        table = Table(title=f"Search Results for '{query}'")
+        table.add_column("ID", style="cyan", no_wrap=True)
+        table.add_column("Type", style="magenta")
+        table.add_column("Title", style="white")
+        table.add_column("Owner", style="green")
         table.add_column("Status", style="yellow")
-        table.add_column("Progress", style="blue")
-        table.add_column("Owner", style="red")
 
-        for node in results:
-            # Get owner from metadata with proper fallback
-            owner_val = get_current_username()  # Default to current user
-            if hasattr(node, "metadata") and node.metadata:
-                owner_val = (
-                    getattr(node.metadata, "owner", "")
-                    or get_current_username()
-                )
-
+        for item in matching_items:
             table.add_row(
-                node.layer,
-                node.id,
-                node.title,
-                capitalize_status(node.status),
-                f"{node.progress or 0}%",
-                owner_val,
+                str(item.id),
+                LAYER_NAMES.get(type(item), "Unknown"),
+                item.title or "No title",
+                item.owner or "No owner",
+                item.status or "No status",
             )
 
         console.print(table)
+        console.print(f"\nFound {len(matching_items)} matching items.")
+
     except Exception as e:
-        console.print(f"[red]✗[/red] Error searching nodes: {e}")
-        sys.exit(1)
+        console.print(f"❌ Error searching items: {e}")
+    finally:
+        session.close()
 
 
-def main() -> None:
-    """Main entry point for the CLI."""
-    cli()
+@cli.command()
+@click.pass_context
+def stats(ctx: click.Context) -> None:
+    """Show database statistics."""
+    database_url = ctx.obj["database_url"]
+    session, engine = get_session(database_url)
+
+    try:
+        table = Table(title="Database Statistics")
+        table.add_column("Layer", style="cyan")
+        table.add_column("Count", justify="right", style="green")
+
+        total_count = 0
+
+        for model_class in [
+            Goal,
+            Concept,
+            Context,
+            Constraints,
+            Requirements,
+            AcceptanceCriteria,
+            InterfaceContract,
+            Phase,
+            Step,
+            Task,
+            SubTask,
+            Command,
+            Label,
+        ]:
+            count = session.query(model_class).count()
+            if count > 0:
+                table.add_row(
+                    LAYER_NAMES.get(model_class, "Unknown"), str(count)
+                )
+                total_count += count
+
+        table.add_row("TOTAL", str(total_count), style="bold red")
+        console.print(table)
+
+    except Exception as e:
+        console.print(f"❌ Error getting statistics: {e}")
+    finally:
+        session.close()
 
 
 if __name__ == "__main__":
-    main()
+    cli()

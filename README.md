@@ -109,46 +109,87 @@ ToDoWrite transforms complex project planning into a structured, hierarchical fr
 # Initialize a project (creates todowrite.db in current directory)
 todowrite init
 
-# Create a goal
+# Create items using the new CLI
 todowrite create --layer goal --title "Implement User Authentication" --description "Create secure user authentication system" --owner "dev-team"
-
-# Create additional layers
-todowrite create --layer concept --title "OAuth2 Authentication Strategy" --description "Use OAuth2 for user login flow"
+todowrite create --layer concept --title "OAuth2 Authentication Strategy" --description "Use OAuth2 for user login flow" --owner "dev-team"
 todowrite create --layer requirement --title "User Registration Form" --description "Form for new user registration" --owner "ui-team"
-todowrite create --layer acceptancecriteria --title "Valid Email Required" --description "Users must register with valid email"
-todowrite create --layer phase --title "Authentication Backend" --description "Implement core authentication logic"
-todowrite create --layer task --title "Design Database Schema" --description "Design user database schema" --owner "dev-team"
-todowrite create --layer command --title "Run Database Migration" --description "Execute user table migration script"
+todowrite create --layer acceptancecriteria --title "Valid Email Required" --description "Users must register with valid email" --owner "qa-team"
+todowrite create --layer task --title "Design Database Schema" --description "Design user database schema" --owner "dev-team" --progress 25
+todowrite create --layer command --title "Run Database Migration" --description "Execute user table migration script" --run-command "python manage.py migrate" --owner "dev-team"
 
 # View all items
 todowrite list
 
-# Search for items
-todowrite search "authentication"
-
-# Export to YAML
-todowrite export-yaml
-
-# List items by layer
+# List items by layer type
 todowrite list --layer goal
 todowrite list --layer task
 todowrite list --layer command
 
-# View project statistics
+# Filter by owner or status
+todowrite list --owner "dev-team"
+todowrite list --status "in_progress"
+
+# Get details of a specific item (by integer ID)
+todowrite get 1
+
+# Search for items
+todowrite search "authentication"
+todowrite search "database" --layer task
+
+# View database statistics
 todowrite stats
 
-# Show relationships between items
-todowrite relationships --layer goal --id 1
+# Use custom database file
+todowrite --database myproject.db init
+todowrite --database myproject.db list
+```
+
+### Available CLI Commands
+
+**Core Commands:**
+- `todowrite init` - Initialize the database
+- `todowrite create --layer <type> --title <text>` - Create new item
+- `todowrite list [--layer <type>] [--owner <name>] [--status <status>]` - List items
+- `todowrite get <id>` - Get details of specific item
+- `todowrite search <query> [--layer <type>]` - Search items
+- `todowrite stats` - Show database statistics
+
+**Layer Types:**
+- `goal`, `concept`, `context`, `constraints`
+- `requirement`, `acceptancecriteria` (or `ac`), `interfacecontract`
+- `phase`, `step`, `task`, `subtask`, `command`, `label`
+
+**Examples:**
+```bash
+# Create different layer types
+todowrite create --layer goal --title "Launch Product" --owner "product-team"
+todowrite create --layer task --title "Fix login bug" --owner "dev-team" --status "in_progress"
+todowrite create --layer command --title "Run tests" --run-command "pytest" --owner "qa-team"
+
+# Query and filter
+todowrite list --layer task --owner "dev-team"
+todowrite list --status "completed"
+todowrite search "security" --layer requirement
+
+# Get details
+todowrite get 1  # Show item with ID 1
+todowrite get --database myproject.db 5  # Item 5 from custom database
 ```
 
 ### Python API Usage
 
 ```python
-from todowrite import create_engine, sessionmaker
 from todowrite.core.models import Goal, Task, Requirement, AcceptanceCriteria, Command
+from todowrite.core.schema_validator import initialize_database
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
-# Initialize database connection
-engine = create_engine("sqlite:///myproject.db")
+# Initialize database
+database_url = "sqlite:///myproject.db"
+initialize_database(database_url)
+
+# Create database session
+engine = create_engine(database_url)
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -157,74 +198,66 @@ goal = Goal(
     title="Implement User Authentication",
     description="Create secure user authentication system",
     owner="dev-team",
-    severity="high"
+    severity="high",
+    status="planned"
 )
 session.add(goal)
-session.commit()
+session.commit()  # Get the ID
 
 # Create additional models
-concept = Concept(
-    title="OAuth2 Authentication Strategy",
-    description="Use OAuth2 for user login flow",
-    owner="dev-team"
-)
-session.add(concept)
-
 requirement = Requirement(
     title="User Registration Form",
     description="Form for new user registration",
     owner="ui-team",
-    severity="medium"
+    severity="medium",
+    status="planned"
 )
 session.add(requirement)
-
-acceptance_criteria = AcceptanceCriteria(
-    title="Valid Email Required",
-    description="Users must register with valid email",
-    owner="qa-team"
-)
-session.add(acceptance_criteria)
 
 task = Task(
     title="Design Database Schema",
     description="Design user database schema",
     owner="dev-team",
-    severity="medium"
+    severity="medium",
+    status="planned",
+    progress=0
 )
 session.add(task)
 
 command = Command(
-    title="Email Format Validation Test",
-    description="Test email validation logic",
+    title="Run Database Migration",
+    description="Execute user table migration script",
     owner="dev-team",
-    run_command="uv run pytest tests/test_email_validation.py",
-    artifacts=["test_report.html"]
+    run_command="python manage.py migrate",
+    status="planned"
 )
 session.add(command)
 
-# Create relationships using many-to-many associations
-goal.concepts.append(concept)
+# Link models through many-to-many associations (if needed)
 goal.requirements.append(requirement)
-requirement.acceptance_criteria.append(acceptance_criteria)
-acceptance_criteria.tasks.append(task)
+requirement.tasks.append(task)
 task.commands.append(command)
 
 session.commit()
 
-# Query project overview
+# Query examples
 goals = session.query(Goal).all()
-tasks = session.query(Task).all()
-requirements = session.query(Requirement).all()
+tasks = session.query(Task).filter_by(owner="dev-team").all()
+in_progress_tasks = session.query(Task).filter_by(status="in_progress").all()
 
-print(f"Project has {len(goals)} goals, {len(requirements)} requirements, {len(tasks)} tasks")
+print(f"Project has {len(goals)} goals")
+print(f"Dev team has {len(tasks)} tasks")
+print(f"{len(in_progress_tasks)} tasks in progress")
 
-# Example: Get all tasks for a specific goal
-for goal in goals:
-    print(f"Goal: {goal.title}")
-    for requirement in goal.requirements:
-        print(f"  Requirement: {requirement.title}")
-        for task in requirement.tasks:
-            print(f"    Task: {task.title} (Status: {task.status})")
+# Get specific item by ID
+goal_id = goal.id  # Auto-generated integer ID
+retrieved_goal = session.query(Goal).filter_by(id=goal_id).first()
+print(f"Retrieved goal: {retrieved_goal.title}")
+
+# Update item
+task.status = "in_progress"
+task.progress = 75
+session.commit()
 ```
 
 ## 🏗️ **12-Layer Hierarchy**
