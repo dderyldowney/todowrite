@@ -400,7 +400,7 @@ Unified Ruff configuration across all packages:
 
 ### Version Management
 
-- **Single source of truth**: `VERSION` file in project root (currently 0.4.1)
+- **Single source of truth**: `VERSION` file in project root (currently 0.5.0)
 - **Dynamic version reading**: All packages use `dynamic = ["version"]` with path to central VERSION
 - **Build integration**: Hatchling automatically reads VERSION during package builds
 - **Release management**: Commitizen configured for conventional commits

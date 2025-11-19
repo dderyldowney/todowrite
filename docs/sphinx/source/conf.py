@@ -15,7 +15,7 @@ project = "ToDoWrite"
 copyright_year = "2025"
 copyright_author = "D Deryl Downey"
 author = "D Deryl Downey"
-release = "0.4.1"
+release = "0.5.0"
 
 # -- General configuration --
 extensions = [

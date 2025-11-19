@@ -39,17 +39,21 @@ git tag v0.5.0
 
 ## 📋 Current Release Status
 
-### **Version 0.4.1** - Current
-- ✅ Basic Sphinx documentation system
-- ✅ Documentation reorganization
-- ✅ TDD implementation
-- ✅ Build system integration
+### **Version 0.5.0** - Current
+- ✅ SQLAlchemy-based architecture
+- ✅ Model relationships and associations
+- ✅ Migration system
+- ✅ Updated API documentation
+- ✅ Modern CLI with integer IDs
+- ✅ Rich table output
+- ✅ Comprehensive documentation cleanup
+- ✅ Complete Rails/ActiveRecord reference removal
 
-### **Version 0.5.0** - Next Release
-- 🔄 SQLAlchemy-based architecture
-- 🔄 Model relationships and associations
-- 🔄 Migration system
-- 🔄 Updated API documentation
+### **Version 0.6.0** - Next Release
+- 🔄 Web application interface
+- 🔄 Advanced reporting and analytics
+- 🔄 Team collaboration features
+- 🔄 REST API endpoints
 
 ## 🔧 Release Tools
 

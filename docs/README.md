@@ -179,8 +179,8 @@ This project follows strict documentation standards:
 - **Many-to-Many Associations**: Proper join tables for complex relationships
 
 ### 📦 Available Packages
-- **`todowrite`**: Core Python library (v0.4.1)
-- **`todowrite-cli`**: Command-line interface (v0.4.1)
+- **`todowrite`**: Core Python library (v0.5.0)
+- **`todowrite-cli`**: Command-line interface (v0.5.0)
 - **`web_package`**: Web application (planning stage)
 
 ---
