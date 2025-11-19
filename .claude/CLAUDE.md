@@ -7,6 +7,25 @@ These mandates apply **at all times** with **zero exceptions**.
 
 ## Core Mandates (Must ALWAYS Be Followed)
 
+## 0. VIRTUAL ENVIRONMENT - MANDATORY FOR ALL OPERATIONS
+
+**ABSOLUTE REQUIREMENT**: ALL operations MUST use the project virtual environment
+
+- **MANDATORY**: Activate virtual environment: `source .venv/bin/activate`
+- **FORBIDDEN**: Any CLI operations without activated virtual environment
+- **FORBIDDEN**: Using system Python for any development work
+- **MANDATORY**: Use relative paths for virtual environment: `$PWD/.venv/bin/activate`
+- **FORBIDDEN**: Hardcoded absolute paths like `/Users/username/.venv/` or `/home/user/.venv/`
+- **MANDATORY**: Verify virtual environment activation before any work
+- **ENFORCED**: All development scripts must fail if virtual environment not active
+- **ZERO EXCEPTIONS**: This applies to ALL agents at ALL times
+
+**Required Environment Variables** (set after virtual environment activation):
+```bash
+export TODOWRITE_DATABASE_URL="sqlite:///$HOME/dbs/todowrite_development.db"
+export PYTHONPATH="$PWD/lib_package/src:$PWD/cli_package/src"
+```
+
 ## 1. No mocking allowed, ever
 
 - No mocks, stubs, fakes, or any test double.
@@ -52,19 +71,112 @@ This rule applies to ALL files in the repository:
 - Configuration files (`.json`, `.yaml`, `.toml`)
 - Hooks and automation scripts
 
-## 4. Agents MUST read and load documentation files IN ORDER on startup and across '/clear'
+## 4. DATABASE ENFORCEMENT - MANDATORY FOR ALL DEVELOPMENT
 
-- **FIRST**: Read `.claude/CLAUDE.md` (this file)
-- **SECOND**: Read `docs/BRANCH_WORKFLOW.md` for branch workflow rules
-- **THIRD**: Read `docs/ToDoWrite.md` to understand project structure
-- **FOURTH**: Read `BUILD_SYSTEM.md` to understand build requirements
-- **FIFTH**: Run `.claude/auto_init_todowrite_models.py` - MANDATORY ToDoWrite Models initialization
+**ABSOLUTE REQUIREMENT**: ALL development work MUST use the designated project database
+
+- **MANDATORY DATABASE**: `$HOME/dbs/todowrite_development.db`
+- **FORBIDDEN**: Any other database for development work
+- **FORBIDDEN**: Database files in project root directory
+- **FORBIDDEN**: Hardcoded absolute database paths like `/Users/username/dbs/`
+- **MANDATORY**: Use `$HOME/dbs/` for persistent databases, `$PWD/tmp/` for test databases
+- **MANDATORY**: Database must be loaded on every CLI session startup
+- **ENFORCED**: All CLI commands must use the correct database
+- **ZERO EXCEPTIONS**: This applies to ALL agents at ALL times
+
+### Database Path Security
+
+**ALLOWED Database Path Patterns**:
+- Development: `sqlite:///$HOME/dbs/todowrite_development.db` ✅
+- Production: `sqlite:///$HOME/dbs/todowrite_production.db` ✅
+- Testing: `sqlite:///$PWD/tmp/todowrite_testing.db` ✅
+
+**FORBIDDEN Database Path Patterns**:
+- Development: `sqlite:///Users/username/dbs/todowrite_development.db` ❌
+- Production: `sqlite:///absolute/path/to/database.db` ❌
+- Testing: `sqlite:///hardcoded/test/path.db` ❌
+
+### Database Loading Requirements
+
+**CLI Initialization**:
+```bash
+# REQUIRED: Set correct database for all CLI operations
+export TODOWRITE_DATABASE_URL="sqlite:///$HOME/dbs/todowrite_development.db"
+
+# REQUIRED: Verify database connection before any work
+todowrite list --verify-database
+```
+
+**Development Workflow**:
+```bash
+# 1. ALWAYS verify correct database is loaded
+source .venv/bin/activate
+export TODOWRITE_DATABASE_URL="sqlite:///$HOME/dbs/todowrite_development.db"
+
+# 2. VERIFY database contains complete planning structure
+todowrite list --layer goal --title "Enhance ToDoWrite Planning Capabilities"
+
+# 3. ONLY PROCEED if verification passes
+```
+
+### Database Content Verification
+
+**Mandatory Verification**:
+- Database must contain the goal: "Enhance ToDoWrite Planning Capabilities"
+- Database must have complete 12-layer hierarchy (143+ records)
+- Database must be accessible and operational
+- Database must use correct naming convention
+
+**Verification Commands**:
+```bash
+# Check database content
+todowrite list --layer goal
+todowrite list --layer concept --count 5
+todowrite list --layer task --count 4
+
+# Verify hierarchical relationships
+todowrite show --goal "Enhance ToDoWrite Planning Capabilities" --tree
+```
+
+### Forbidden Database Operations
+
+**STRICTLY FORBIDDEN**:
+- Using `todowrite.db` in project root
+- Using `development_todowrite.db` in project root
+- Using any database other than `~/dbs/todowrite_development.db`
+- Creating new databases without approval
+- Modifying database location without updating CLAUDE.md
+
+**Consequences of Violation**:
+- Immediate session termination
+- Database migration to correct location
+- Complete work re-initialization
+- Documentation update requirement
+
+### Enforcement Mechanism
+
+**Automatic Verification**:
+- CLI startup scripts must verify database location
+- All todowrite commands must validate database connection
+- Database content verification before development work
+- Automatic correction of database location violations
+
+## 5. Agents MUST read and load documentation files IN ORDER on startup and across '/clear'
+
+- **FIRST**: Activate virtual environment: `source $PWD/.venv/bin/activate`
+- **SECOND**: Read `.claude/CLAUDE.md` (this file)
+- **THIRD**: Read `docs/BRANCH_WORKFLOW.md` for branch workflow rules
+- **FOURTH**: Read `docs/ToDoWrite.md` to understand project structure
+- **FIFTH**: Read `BUILD_SYSTEM.md` to understand build requirements
+- **SIXTH**: Set development database environment variable: `export TODOWRITE_DATABASE_URL="sqlite:///$HOME/dbs/todowrite_development.db"`
+- **SEVENTH**: Verify database contains planning goal: `todowrite list --layer goal --title "Enhance ToDoWrite Planning Capabilities"`
+- **EIGHTH**: Run `.claude/auto_init_todowrite_models.py` - MANDATORY ToDoWrite Models initialization
 - **NO EXCEPTIONS**: This applies to ALL agents at ALL times
-- **NO BYPASSING**: Documentation loading is a prerequisite for ALL other work
-- **AFTER '/clear'**: Immediately re-load all files IN ORDER, then run ToDoWrite Models initialization
-- **AFTER '/quit'**: Re-load all files IN ORDER in new session, then run ToDoWrite Models initialization
+- **NO BYPASSING**: Virtual environment activation, documentation loading and database verification are prerequisites for ALL other work
+- **AFTER '/clear'**: Immediately activate virtual environment, re-load all files IN ORDER, verify database, then run ToDoWrite Models initialization
+- **AFTER '/quit'**: Activate virtual environment, re-load all files IN ORDER in new session, verify database, then run ToDoWrite Models initialization
 
-## 4. Authoritative sources have final say - MUST be consulted
+## 6. Authoritative sources have final say - MUST be consulted
 
 - **Python**: <https://python.org> (official), <https://docs.python.org/3/library/typing.html> (typing), and <https://docs.python.org/3/library/asyncio.html> (async programming)
 - **UV**: <https://docs.astral.sh/uv> (package management and environments)
@@ -93,7 +205,7 @@ This rule applies to ALL files in the repository:
 - **CODE GENERATION**: Must reference current official documentation, not memory or assumptions
 - **TEST CREATION**: Must validate behavior against authoritative specifications
 
-## 5. TRIPLE-CHECK before modifying - understand existing architecture FIRST
+## 7. TRIPLE-CHECK before modifying - understand existing architecture FIRST
 
 - **NEVER** modify architecture without fully understanding existing system
 - **ALWAYS** cross-verify changes don't break existing relationships/patterns
