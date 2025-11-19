@@ -20,6 +20,7 @@ eggs/
 /lib/
 /lib64/
 !tests/lib/
+!docs/lib/
 parts/
 sdist/
 var/
