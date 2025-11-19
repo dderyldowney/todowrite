@@ -186,6 +186,23 @@ Thumbs.db
 .claude/conversation-index/
 .claude/conversation-archive/
 
+# Claude session and runtime JSON files (local-only, never commit)
+.claude/agent_registry.json
+.claude/session_heartbeat.json
+.claude/session_start.json
+.claude/session_summary.json
+.claude/session_restoration_complete.json
+.claude/todowrite_session_active.json
+.claude/workflow_active*.json
+.claude/workflow_enforcement.json
+.claude/ToDoWrite_Models_session*.json
+.claude/rails_activerecord_session.json
+.claude/dashboard_data*.json
+.claude/test_persistence_marker.json
+
+# Claude reports (local-only, never commit)
+.claude/reports/
+
 # All episodic memory database files
 **/episodic_memory.db
 **/episodic_memory.db-*
