@@ -203,7 +203,11 @@ When `/clear` is issued, the CLI MUST:
 1. Re-read this file
 2. Re-verify all environment conditions
 3. Re-validate database state
-4. Only then clear context
+4. Verify HAL Agent System is ready
+5. Verify Token Optimization System is active
+6. Verify MCP Systems are initialized
+7. Verify Anthropic API configuration
+8. Only then clear context
 
 ### Violation Consequences
 - 🚫 **Immediate termination** for virtual environment violations

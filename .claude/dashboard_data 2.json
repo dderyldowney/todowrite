@@ -1,0 +1,114 @@
+{
+  "timestamp": "2025-11-18T18:12:11.161312",
+  "system_status": "healthy",
+  "metrics_summary": {
+    "time_period_hours": 24,
+    "total_metrics": 60,
+    "metric_breakdown": {
+      "response_time_ms": {
+        "count": 60,
+        "average": 121.17,
+        "minimum": 100.0,
+        "maximum": 149.0
+      }
+    }
+  },
+  "security_summary": {
+    "time_period_days": 7,
+    "total_events": 1,
+    "events_by_severity": {
+      "medium": 1
+    },
+    "recent_events": [
+      {
+        "event_type": "authentication_failure",
+        "severity": "medium",
+        "description": "Failed login attempt from unknown source",
+        "timestamp": "2025-11-18T18:12:11.148671"
+      }
+    ],
+    "critical_events": 0,
+    "high_events": 0
+  },
+  "alert_summary": {
+    "time_period_hours": 24,
+    "total_alerts": 0,
+    "alerts_by_severity": {},
+    "recent_alerts": [],
+    "critical_alerts": 0,
+    "warning_alerts": 0
+  },
+  "performance_trends": {
+    "response_time_ms": [
+      109.0,
+      108.0,
+      107.0,
+      106.0,
+      105.0,
+      104.0,
+      103.0,
+      102.0,
+      101.0,
+      100.0,
+      149.0,
+      148.0,
+      147.0,
+      146.0,
+      145.0,
+      144.0,
+      143.0,
+      142.0,
+      141.0,
+      140.0,
+      139.0,
+      138.0,
+      137.0,
+      136.0,
+      135.0,
+      134.0,
+      133.0,
+      132.0,
+      131.0,
+      130.0,
+      129.0,
+      128.0,
+      127.0,
+      126.0,
+      125.0,
+      124.0,
+      123.0,
+      122.0,
+      121.0,
+      120.0,
+      119.0,
+      118.0,
+      117.0,
+      116.0,
+      115.0,
+      114.0,
+      113.0,
+      112.0,
+      111.0,
+      110.0,
+      109.0,
+      108.0,
+      107.0,
+      106.0,
+      105.0,
+      104.0,
+      103.0,
+      102.0,
+      101.0,
+      100.0
+    ],
+    "memory_usage_percent": [],
+    "cpu_usage_percent": [],
+    "cache_hit_rate_percent": []
+  },
+  "health_indicators": {
+    "database_health": "healthy",
+    "security_health": "healthy",
+    "performance_health": "healthy",
+    "last_update": "2025-11-18T18:12:11.165770"
+  }
+}
