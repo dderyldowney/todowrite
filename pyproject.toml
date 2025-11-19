@@ -68,7 +68,7 @@ target-version = "py312"
 [tool.pydocstyle]
 convention = "google"
 ignore-decorators = false  # Check decorators in docstrings
-extend-exclude = [
+exclude = [
     ".git",
     "__pycache__",
     ".pytest_cache",
