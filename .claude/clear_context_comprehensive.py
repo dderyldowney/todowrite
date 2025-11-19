@@ -82,10 +82,9 @@ def verify_mcp_systems() -> bool:
 
 def verify_anthropic_configuration() -> bool:
     """Verify Anthropic API configuration for HAL Agent."""
-    api_key_set = bool(os.environ.get("ANTHROPIC_API_KEY"))
+    return bool(os.environ.get("ANTHROPIC_API_KEY"))
 
     # API key is mandatory, model is optional
-    return api_key_set
 
 
 def enforce_comprehensive_clear_context_rules() -> bool:

@@ -122,7 +122,8 @@ class MCPSecurityOptimizer:
             ValueError: If configuration format is invalid
         """
         if not config_path.exists():
-            raise FileNotFoundError(f"Configuration file not found: {config_path}")
+            msg = f"Configuration file not found: {config_path}"
+            raise FileNotFoundError(msg)
 
         # Check cache first
         cache_key = str(config_path) + str(config_path.stat().st_mtime)
@@ -133,12 +134,14 @@ class MCPSecurityOptimizer:
             with open(config_path, encoding="utf-8") as f:
                 if config_path.suffix.lower() in [".yaml", ".yml"]:
                     if yaml is None:
-                        raise ValueError("PyYAML not installed for YAML configuration")
+                        msg = "PyYAML not installed for YAML configuration"
+                        raise ValueError(msg)
                     config = yaml.safe_load(f)
                 elif config_path.suffix.lower() == ".json":
                     config = json.load(f)
                 else:
-                    raise ValueError(f"Unsupported configuration format: {config_path.suffix}")
+                    msg = f"Unsupported configuration format: {config_path.suffix}"
+                    raise ValueError(msg)
 
             # Cache the configuration
             self.config_cache[cache_key] = config
@@ -146,11 +149,14 @@ class MCPSecurityOptimizer:
             return config
 
         except json.JSONDecodeError as e:
-            raise ValueError(f"Invalid JSON in configuration file {config_path}: {e}")
+            msg = f"Invalid JSON in configuration file {config_path}: {e}"
+            raise ValueError(msg)
         except yaml.YAMLError as e:
-            raise ValueError(f"Invalid YAML in configuration file {config_path}: {e}")
+            msg = f"Invalid YAML in configuration file {config_path}: {e}"
+            raise ValueError(msg)
         except Exception as e:
-            raise ValueError(f"Error loading configuration {config_path}: {e}")
+            msg = f"Error loading configuration {config_path}: {e}"
+            raise ValueError(msg)
 
     def check_security_compliance(
         self, config: dict[str, Any], config_name: str
@@ -400,13 +406,10 @@ class MCPSecurityOptimizer:
             cache_size = perf_config.get("cache_size_mb", 0)
             if cache_size >= 100:
                 status = "good"
-                message = "Adequate cache size configured"
             elif cache_size >= 50:
                 status = "warning"
-                message = "Consider increasing cache size for better performance"
             else:
                 status = "critical"
-                message = "Cache size is too small for optimal performance"
 
             metrics.append(
                 PerformanceMetric(

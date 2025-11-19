@@ -7,7 +7,6 @@ then refactor (REFACTOR) while keeping tests passing.
 """
 
 import json
-import os
 import re
 import subprocess
 import sys

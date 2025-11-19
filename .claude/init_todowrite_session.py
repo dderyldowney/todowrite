@@ -203,7 +203,7 @@ def verify_session_health() -> dict:
         # Check for our production goal
         prod_goals = Node.find_by(title="Deploy ToDoWrite as Standard Development Tracking System")
 
-        health_status = {
+        return {
             "status": "healthy",
             "database_path": str(get_database_path()),
             "total_nodes": total_nodes,
@@ -213,7 +213,6 @@ def verify_session_health() -> dict:
             "session_active": _session_initialized,
         }
 
-        return health_status
 
     except Exception as e:
         return {

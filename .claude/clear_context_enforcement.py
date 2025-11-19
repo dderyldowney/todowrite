@@ -5,10 +5,8 @@ Clear Context Enforcement - Must re-verify all rules before clearing.
 This script enforces CLAUDE.md rules when /clear command is used.
 """
 
-import os
 import sys
 from pathlib import Path
-from typing import List, Optional
 
 # Import from the startup script to avoid duplication
 sys.path.insert(0, str(Path(__file__).parent))

@@ -10,11 +10,10 @@ Permanently enforces alembic best practices including:
 """
 
 import json
-import os
 import re
 import sys
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any
 
 
 class AlembicEnforcer:
@@ -82,7 +81,7 @@ class AlembicEnforcer:
             with open(self.config_file, "w") as f:
                 json.dump(self.config, f, indent=2)
 
-    def find_alembic_directories(self) -> List[Path]:
+    def find_alembic_directories(self) -> list[Path]:
         """Find all alembic directories in the project."""
         alembic_dirs = []
 
@@ -93,7 +92,7 @@ class AlembicEnforcer:
 
         return alembic_dirs
 
-    def check_single_head(self, alembic_dir: Path) -> Dict[str, Any]:
+    def check_single_head(self, alembic_dir: Path) -> dict[str, Any]:
         """Check that there's only one migration head."""
         versions_dir = alembic_dir / "versions"
         if not versions_dir.exists():
@@ -118,7 +117,7 @@ class AlembicEnforcer:
             "head_files": heads
         }
 
-    def check_duplicate_revision_ids(self, alembic_dir: Path) -> Dict[str, Any]:
+    def check_duplicate_revision_ids(self, alembic_dir: Path) -> dict[str, Any]:
         """Check for duplicate revision IDs."""
         versions_dir = alembic_dir / "versions"
         if not versions_dir.exists():
@@ -160,7 +159,7 @@ class AlembicEnforcer:
             "duplicates": duplicates
         }
 
-    def check_migration_messages(self, alembic_dir: Path) -> Dict[str, Any]:
+    def check_migration_messages(self, alembic_dir: Path) -> dict[str, Any]:
         """Check migration message conventions."""
         versions_dir = alembic_dir / "versions"
         if not versions_dir.exists():
@@ -208,7 +207,7 @@ class AlembicEnforcer:
             "issues": issues
         }
 
-    def verify_alembic_requirements(self) -> Dict[str, Any]:
+    def verify_alembic_requirements(self) -> dict[str, Any]:
         """Verify alembic installation and requirements."""
         try:
             import alembic
@@ -243,7 +242,7 @@ class AlembicEnforcer:
             "config_file": str(alembic_ini)
         }
 
-    def run_alembic_check(self) -> Dict[str, Any]:
+    def run_alembic_check(self) -> dict[str, Any]:
         """Run comprehensive alembic checks."""
         results = {
             "alembic_status": self.verify_alembic_requirements(),
@@ -281,7 +280,7 @@ class AlembicEnforcer:
         results["overall_status"] = "passed" if not results["issues"] else "failed"
         return results
 
-    def verify_compliance(self) -> tuple[bool, List[str]]:
+    def verify_compliance(self) -> tuple[bool, list[str]]:
         """Verify compliance with alembic rules."""
         results = self.run_alembic_check()
         errors = []
@@ -406,7 +405,7 @@ def main():
         enforcer = AlembicEnforcer()
         results = enforcer.run_alembic_check()
 
-        print(f"🔄 ALEMBIC ENFORCEMENT REPORT")
+        print("🔄 ALEMBIC ENFORCEMENT REPORT")
         print(f"Overall status: {results['overall_status']}")
         print(f"Directories checked: {len(results['directories_checked'])}")
 

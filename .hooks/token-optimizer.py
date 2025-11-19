@@ -11,7 +11,7 @@ import json
 import re
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any
 
 
 class TokenOptimizer:
@@ -88,7 +88,7 @@ class TokenOptimizer:
             with open(self.config_file, "w") as f:
                 json.dump(self.config, f, indent=2)
 
-    def analyze_file_tokens(self, file_path: Path) -> Dict[str, Any]:
+    def analyze_file_tokens(self, file_path: Path) -> dict[str, Any]:
         """Analyze token usage in a Python file."""
         try:
             with open(file_path, encoding='utf-8') as f:
@@ -168,7 +168,7 @@ class TokenOptimizer:
             # Fallback: count triple-quoted strings
             return len(re.findall(r'""".*?"""', content, re.DOTALL))
 
-    def _find_redundant_comments(self, lines: List[str]) -> List[str]:
+    def _find_redundant_comments(self, lines: list[str]) -> list[str]:
         """Find comments that are redundant with obvious code."""
         redundant = []
 
@@ -184,14 +184,12 @@ class TokenOptimizer:
                 continue
 
             # Check for obviously redundant comments
-            if comment in ['increment', 'decrement', 'return', 'break', 'continue']:
-                redundant.append(f"Line {i+1}: {line}")
-            elif comment.startswith(('get ', 'set ', 'add ', 'remove ', 'create ', 'delete ')):
+            if comment in ['increment', 'decrement', 'return', 'break', 'continue'] or comment.startswith(('get ', 'set ', 'add ', 'remove ', 'create ', 'delete ')):
                 redundant.append(f"Line {i+1}: {line}")
 
         return redundant
 
-    def _find_long_docstrings(self, content: str) -> List[Dict[str, Any]]:
+    def _find_long_docstrings(self, content: str) -> list[dict[str, Any]]:
         """Find docstrings that could be simplified."""
         try:
             tree = ast.parse(content)
@@ -218,7 +216,7 @@ class TokenOptimizer:
         except:
             return []
 
-    def _find_unused_imports(self, file_path: Path) -> List[str]:
+    def _find_unused_imports(self, file_path: Path) -> list[str]:
         """Find potentially unused imports (basic analysis)."""
         try:
             with open(file_path, encoding='utf-8') as f:
@@ -252,7 +250,7 @@ class TokenOptimizer:
         except:
             return []
 
-    def _find_inline_candidates(self, content: str) -> List[Dict[str, Any]]:
+    def _find_inline_candidates(self, content: str) -> list[dict[str, Any]]:
         """Find simple functions that could be inlined."""
         try:
             tree = ast.parse(content)
@@ -276,7 +274,7 @@ class TokenOptimizer:
         except:
             return []
 
-    def _calculate_potential_savings(self, analysis: Dict[str, Any]) -> Dict[str, Any]:
+    def _calculate_potential_savings(self, analysis: dict[str, Any]) -> dict[str, Any]:
         """Calculate potential token savings for a file."""
         potential_savings = 0
 
@@ -296,7 +294,7 @@ class TokenOptimizer:
 
         # Savings from inline candidates
         if "inline_candidates" in analysis:
-            for func in analysis["inline_candidates"]:
+            for _func in analysis["inline_candidates"]:
                 potential_savings += 20  # avg 20 tokens per function definition
 
         percentage = (potential_savings / analysis["total_tokens"] * 100) if analysis["total_tokens"] > 0 else 0
@@ -306,7 +304,7 @@ class TokenOptimizer:
             "percentage": round(percentage, 2)
         }
 
-    def analyze_project(self, directory: Path = None) -> Dict[str, Any]:
+    def analyze_project(self, directory: Path | None = None) -> dict[str, Any]:
         """Analyze entire project for token optimization opportunities."""
         if directory is None:
             directory = self.project_root
@@ -349,13 +347,9 @@ class TokenOptimizer:
         file_str = str(file_path)
 
         # Check excluded files/directories
-        for excluded in self.config["excluded_files"]:
-            if excluded in file_str:
-                return True
+        return any(excluded in file_str for excluded in self.config["excluded_files"])
 
-        return False
-
-    def generate_optimization_report(self, analysis: Dict[str, Any]) -> str:
+    def generate_optimization_report(self, analysis: dict[str, Any]) -> str:
         """Generate a comprehensive optimization report."""
         report = []
         report.append("🔍 TOKEN OPTIMIZATION ANALYSIS REPORT")
@@ -376,7 +370,7 @@ class TokenOptimizer:
                             f"({file_analysis['potential_percentage_reduction']:.1f}%)")
 
                 if file_analysis.get("optimization_opportunities"):
-                    report.append(f"     🔧 Opportunities:")
+                    report.append("     🔧 Opportunities:")
                     for opportunity in file_analysis["optimization_opportunities"]:
                         report.append(f"        • {opportunity}")
                 report.append("")
@@ -430,13 +424,13 @@ def main():
     if mode == "--report":
         print(optimizer.generate_optimization_report(analysis))
     else:
-        print(f"📊 Token Analysis Summary:")
+        print("📊 Token Analysis Summary:")
         print(f"   Files analyzed: {analysis['total_files_analyzed']}")
         print(f"   Total tokens: {analysis['total_tokens']:,}")
         print(f"   Potential savings: {analysis['total_potential_savings']:,} tokens ({analysis['project_reduction_percentage']:.1f}%)")
 
         if analysis['top_optimization_candidates']:
-            print(f"\n🎯 Top 5 files to optimize:")
+            print("\n🎯 Top 5 files to optimize:")
             for i, file_analysis in enumerate(analysis['top_optimization_candidates'][:5], 1):
                 filename = Path(file_analysis['file_path']).name
                 reduction = file_analysis['potential_percentage_reduction']

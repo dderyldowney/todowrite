@@ -147,10 +147,7 @@ class TestCleanupEnforcer:
             return False
 
         # Skip if file doesn't exist
-        if not file_path.exists():
-            return False
-
-        return True
+        return file_path.exists()
 
     def enforce_cleanup(self, force: bool = False) -> dict:
         """Enforce test artifact cleanup."""

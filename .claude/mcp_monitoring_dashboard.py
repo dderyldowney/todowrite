@@ -427,7 +427,7 @@ class MCPMonitoringDashboard:
 
             conn.close()
 
-            summary = {
+            return {
                 "time_period_days": days,
                 "total_events": sum(severity_counts.values()),
                 "events_by_severity": severity_counts,
@@ -436,7 +436,6 @@ class MCPMonitoringDashboard:
                 "high_events": severity_counts.get("high", 0),
             }
 
-            return summary
 
         except sqlite3.Error as e:
             logger.error(f"Error getting security summary: {e}")
@@ -499,7 +498,7 @@ class MCPMonitoringDashboard:
 
             conn.close()
 
-            summary = {
+            return {
                 "time_period_hours": hours,
                 "total_alerts": sum(severity_counts.values()),
                 "alerts_by_severity": severity_counts,
@@ -508,7 +507,6 @@ class MCPMonitoringDashboard:
                 "warning_alerts": severity_counts.get("warning", 0),
             }
 
-            return summary
 
         except sqlite3.Error as e:
             logger.error(f"Error getting alert summary: {e}")

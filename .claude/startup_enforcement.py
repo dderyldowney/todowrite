@@ -9,7 +9,6 @@ It MUST be run before any development work can proceed.
 import os
 import sys
 from pathlib import Path
-from typing import List, Optional
 
 try:
     from rich.console import Console
@@ -22,15 +21,14 @@ except ImportError:
 
 class ClaudeRuleViolationError(Exception):
     """Raised when CLAUDE.md rules are violated."""
-    pass
 
 
 class ClaudeRuleEnforcer:
     """Enforces CLAUDE.md rules - ZERO EXCEPTIONS."""
 
-    def __init__(self, console: Optional[Console] = None):
+    def __init__(self, console: Console | None = None):
         self.console = console or Console()
-        self.violations: List[str] = []
+        self.violations: list[str] = []
 
     def enforce_all_rules(self) -> None:
         """Enforce all CLAUDE.md rules - cannot be bypassed."""
@@ -40,7 +38,8 @@ class ClaudeRuleEnforcer:
 
         if self.violations:
             self._report_violations()
-            raise ClaudeRuleViolationError("CLAUDE.md rules violated - session terminated")
+            msg = "CLAUDE.md rules violated - session terminated"
+            raise ClaudeRuleViolationError(msg)
 
     def _enforce_virtual_environment(self) -> None:
         """MUST have virtual environment activated."""
@@ -58,9 +57,9 @@ class ClaudeRuleEnforcer:
 
         # Verify essential packages are available
         try:
-            import todowrite
             import click
             import rich
+            import todowrite
         except ImportError as e:
             self.violations.append(f"❌ Required package not available in virtual environment: {e}")
             return
@@ -98,10 +97,10 @@ class ClaudeRuleEnforcer:
     def _enforce_database_content(self) -> None:
         """Database must contain required planning structure."""
         try:
-            from todowrite.utils.database_utils import get_database_path
-            from sqlalchemy import create_engine, select, text
+            from sqlalchemy import create_engine, text
             from sqlalchemy.orm import sessionmaker
             from todowrite.core.models import Goal
+            from todowrite.utils.database_utils import get_database_path
 
             # Connect to database
             db_path = get_database_path('development')
@@ -165,7 +164,7 @@ class ClaudeRuleEnforcer:
             error_text.append("• Run: source $PWD/.venv/bin/activate\n", style="yellow")
 
         if any("database" in v.lower() for v in self.violations):
-            error_text.append("• Run: export TODOWRITE_DATABASE_URL=\"sqlite:///$HOME/dbs/todowrite_development.db\"\n", style="yellow")
+            error_text.append('• Run: export TODOWRITE_DATABASE_URL="sqlite:///$HOME/dbs/todowrite_development.db"\n', style="yellow")
 
         if any("Enhance ToDoWrite Planning Capabilities" in v for v in self.violations):
             error_text.append("• Initialize database: python .claude/auto_init_todowrite_models.py\n", style="yellow")

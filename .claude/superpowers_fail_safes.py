@@ -402,7 +402,8 @@ def with_fail_safes(subagent_name: str) -> Callable:
             subagent_id = f"{subagent_name}_{int(time.time())}"
 
             if not fail_safes.register_subagent(subagent_id):
-                raise RuntimeError(f"Failed to register subagent: {subagent_id}")
+                msg = f"Failed to register subagent: {subagent_id}"
+                raise RuntimeError(msg)
 
             try:
                 # Update resource tracking
@@ -411,12 +412,12 @@ def with_fail_safes(subagent_name: str) -> Callable:
                 # Check health before execution
                 status = fail_safes.check_subagent_health(subagent_id)
                 if status == FailSafeStatus.TERMINATED:
-                    raise RuntimeError(f"Subagent {subagent_id} terminated before execution")
+                    msg = f"Subagent {subagent_id} terminated before execution"
+                    raise RuntimeError(msg)
 
                 # Execute function
-                result = func(*args, **kwargs)
+                return func(*args, **kwargs)
 
-                return result
 
             except Exception as e:
                 logger.error(f"Subagent {subagent_id} execution failed: {e}")
