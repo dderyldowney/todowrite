@@ -23,7 +23,7 @@ try:
     import todowrite as ToDoWrite
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
-    from todowrite.core.types import Base, Goal, Label, Task
+    from todowrite.core.models import Base, Goal, Label, Task
 
 except ImportError as e:
     print(f"❌ Failed to import todowrite modules: {e}")

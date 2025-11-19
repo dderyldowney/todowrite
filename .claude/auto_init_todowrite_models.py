@@ -38,7 +38,7 @@ def initialize_ToDoWrite_Models_system():
             create_engine,
             sessionmaker,
         )
-        from todowrite.core.types import Base
+        from todowrite.core.models import Base
 
         print("✅ ToDoWrite Models imported successfully")
 
@@ -84,7 +84,13 @@ def initialize_ToDoWrite_Models_system():
             "goals_tasks",
             "goals_concepts",
             "goals_contexts",
+            "concepts_contexts",
             "goals_phases",
+            # Requirements-related association tables
+            "constraints_requirements",
+            "requirements_acceptance_criteria",
+            "requirements_concepts",
+            "requirements_contexts",
         ]
 
         with engine.connect() as conn:

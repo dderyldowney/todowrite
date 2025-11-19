@@ -2,576 +2,237 @@
 
 **Version**: See VERSION file
 **Status**: Production Ready
-**Testing**: 157/157 tests passing with real implementations
+**Testing**: Comprehensive test suite with real implementations
 
 ## Overview
 
-ToDoWrite provides verified programmatic interfaces for hierarchical task management with database persistence and schema validation.
+ToDoWrite provides SQLAlchemy ORM interfaces for hierarchical task management with database persistence and schema validation. The system uses 12 hierarchical models with proper foreign key relationships.
 
-## Current Implementation Status
+## Core Models API
 
-| Interface Type | Status | Description |
-|---|---|---|
-| **Python Module API** | ✅ **Implemented & Verified** | Programmatic interface via `ToDoWrite` class |
-| **CLI API** | ✅ **Implemented & Verified** | Command-line interface via `todowrite` commands |
-| **REST API** | ❌ **Not Implemented** | No REST API exists |
+### SQLAlchemy Models
 
-## Python Module API
-
-### Core Classes
-
-#### `ToDoWrite`
-Main application class for database operations.
+The 12 hierarchical layers are implemented as individual SQLAlchemy models:
 
 ```python
-from todowrite import ToDoWrite
+from todowrite import (
+    Goal, Concept, Context, Constraints,
+    Requirements, AcceptanceCriteria, InterfaceContract,
+    Phase, Step, Task, SubTask, Command, Label,
+    create_engine, sessionmaker
+)
 
-# Initialize
-app = ToDoWrite("sqlite:///project.db")
-app.init_database()
+# Initialize database session
+engine = create_engine("sqlite:///project.db")
+Session = sessionmaker(bind=engine)
+session = Session()
 ```
 
-#### `Node`
-Represents a task, goal, concept, or command with **Rails-style ActiveRecord patterns**.
+### Model Creation Examples
 
+#### Creating a Goal
 ```python
-from todowrite import Node
-
-# Configure session (required for ActiveRecord methods)
-Node.configure_session(app.get_session())
-
-# Rails-style creation
-node = Node.new(
-    layer="Goal",
-    title="My Goal",
-    owner="dev"
-).save()
-
-# Traditional creation (still supported)
-node = Node.from_dict({
-    "id": "GOAL-001",
-    "layer": "Goal",
-    "title": "My Goal",
-    "metadata": {"owner": "dev"}
-})
-```
-
-## ActiveRecord-Style API (Recommended)
-
-ToDoWrite provides Rails-inspired ActiveRecord patterns for intuitive database operations.
-
-### Session Configuration
-
-**Required** for all ActiveRecord methods:
-
-```python
-from todowrite import ToDoWrite, Node
-
-# Initialize application
-app = ToDoWrite("sqlite:///project.db")
-app.init_database()
-
-# Configure Node class with database session
-Node.configure_session(app.get_session())
-```
-
-### Factory Methods (Rails-style)
-
-#### Creating New Records
-```python
-# Create new instance (not saved)
-goal = Node.new(
-    layer="Goal",
-    title="Launch Product",
-    description="Successfully launch v1.0",
-    owner="product-team",
+# Create a goal
+goal = Goal(
+    title="Build User Authentication System",
+    description="Implement secure user authentication with JWT tokens",
+    status="planned",
+    owner="dev-team",
     severity="high"
 )
-
-# Save to database
-goal = goal.save()
-
-# Create and save in one step
-goal = Node.new(
-    layer="Goal",
-    title="Launch Product",
-    owner="product-team"
-).save()
+session.add(goal)
+session.commit()
 ```
 
-#### Layer-Specific Factory Methods
+#### Creating a Command with Acceptance Criteria
 ```python
-# Create specific layer types
-goal = Node.create_goal("Launch Product", "product-team", description="Successfully launch v1.0")
-phase = Node.create_phase("Development", "GOAL-001", description="Build the product")
-task = Node.create_task("Implement API", "PH-001", owner="backend-team")
-command = Node.create_command("Run Tests", "TSK-001", command="pytest")
-```
-
-### Finder Methods
-
-#### Basic Finders
-```python
-# Find by ID (like Rails .find())
-goal = Node.find("GOAL-001")  # Returns Node or None
-
-# Find by attributes (like Rails .find_by())
-task = Node.find_by(title="Implement API")  # Returns Node or None
-tasks = Node.find_by(owner="backend-team")  # Returns list[Node]
-
-# Get all records (like Rails .all())
-all_goals = Node.all()
-all_tasks = Node.where(layer="Task")
-```
-
-#### Query Methods
-```python
-# Where clauses (like Rails .where())
-high_priority = Node.where(severity="high")
-in_progress = Node.where(status="in_progress")
-backend_tasks = Node.where(owner="backend-team", layer="Task")
-
-# Chain queries (like Rails)
-backend_high_priority = Node.where(owner="backend-team").where(severity="high")
-```
-
-### Instance Methods
-
-#### Persistence Operations
-```python
-# Find existing node
-task = Node.find("TSK-001")
-
-# Update and save
-task.update(title="Updated Task Title", progress=75)
-task.save()  # Explicit save after update()
-
-# Reload from database
-task.reload()
-
-# Delete record
-task.destroy()
-```
-
-#### Business Logic Methods
-```python
-# Workflow state management
-task = Node.find("TSK-001")
-
-# Start work
-task.start().save()  # Sets status to "in_progress"
-
-# Mark complete
-task.complete().save()  # Sets status to "completed", progress to 100
-
-# Block work
-task.block().save()  # Sets status to "blocked"
-
-# Cancel work
-task.cancel().save()  # Sets status to "cancelled"
-
-# Update progress manually
-task.update_progress(50)  # Sets progress field
-```
-
-### Collection Methods (Rails has_many style)
-
-#### Hierarchical Relationships
-```python
-# Get a goal
-goal = Node.find("GOAL-001")
-
-# Access related collections (like Rails has_many)
-phases = goal.phases()          # Get Phase collection
-requirements = goal.requirements()  # Get Requirement collection
-tasks = goal.tasks()           # Get Task collection
-commands = goal.commands()     # Get Command collection
-```
-
-#### Collection Operations
-```python
-# Collection methods (like Rails collections)
-phases = goal.phases()
-
-# Get all items
-all_phases = phases.all()
-
-# Get count
-count = phases.size()
-
-# Check existence
-has_phases = phases.exists()
-is_empty = phases.empty()
-
-# Build new (not saved)
-new_phase = phases.build(
-    title="Development Phase",
-    description="Build the product"
+# Create acceptance criteria first
+ac = AcceptanceCriteria(
+    title="User Can Login",
+    description="Users must be able to log in with valid credentials",
+    status="pending"
 )
+session.add(ac)
+session.commit()
 
-# Create and save
-created_phase = phases.create(
-    title="Development Phase",
-    description="Build the product"
+# Create command for that acceptance criteria
+command = Command(
+    title="Run Authentication Tests",
+    cmd="pytest",
+    cmd_params="tests/auth/test_login.py -v",
+    runtime_env='{"PYTHONPATH": "./src", "TEST_DB": "sqlite:///:memory:"}',
+    acceptance_criteria_id=ac.id
 )
-
-# Query within collection
-planned_phases = phases.where(status="planned")
+session.add(command)
+session.commit()
 ```
 
-### Advanced Patterns
+### Querying Models
 
-#### Method Chaining
+#### Basic Queries
 ```python
-# Chain multiple operations
-completed_task = Node.new(
-    layer="Task",
-    title="Quick Task",
-    owner="dev"
-).save().complete().save()
+# Get all goals
+goals = session.query(Goal).all()
 
-# Chain queries
-backend_tasks = Node.where(layer="Task").where(owner="backend-team")
-high_priority_backend = backend_tasks.where(severity="high")
+# Find a specific command
+command = session.query(Command).filter(
+    Command.title == "Run Authentication Tests"
+).first()
+
+# Get commands for specific acceptance criteria
+commands = session.query(Command).filter(
+    Command.acceptance_criteria_id == ac.id
+).all()
 ```
 
-#### Complex Queries
+#### Relationship Navigation
 ```python
-# Find with relationships
-goal_with_tasks = Node.find_with_children("GOAL-001", include_tasks=True)
-
-# Complex filtering
-critical_tasks = Node.where(
-    layer="Task",
-    severity="critical",
-    status="in_progress"
-)
-
-# Business logic queries
-blocked_high_priority = Node.where(
-    status="blocked",
-    severity__in=["high", "critical"]
-)
+# Navigate from goal to commands
+goal = session.query(Goal).first()
+for phase in goal.phases:
+    for step in phase.steps:
+        for task in step.tasks:
+            for subtask in task.sub_tasks:
+                for command in subtask.commands:
+                    print(f"Command: {command.title} - {command.cmd}")
 ```
 
-### Error Handling
+### Many-to-Many Relationships
 
-#### ActiveRecord-Style Errors
+#### Using Labels for Categorization
 ```python
-# Find operations return None (like Rails)
-node = Node.find("NONEXISTENT")
-if node is None:
-    print("Node not found")
+# Create labels
+strategic_label = Label(name="strategic")
+technical_label = Label(name="technical")
+session.add_all([strategic_label, technical_label])
+session.commit()
 
-# Session configuration errors
-try:
-    Node.find("GOAL-001")  # Without configure_session()
-except RuntimeError as e:
-    print(f"Session error: {e}")
+# Associate labels with goals
+goal.labels.extend([strategic_label, technical_label])
+session.commit()
 
-# Validation errors (if implemented)
-try:
-    node = Node.new(layer="InvalidLayer").save()
-except Exception as e:
-    print(f"Validation error: {e}")
+# Query goals by label
+strategic_goals = session.query(Goal).join(Goal.labels).filter(
+    Label.name == "strategic"
+).all()
 ```
 
-### Core Methods
-
-#### Database Operations
+#### Complex Relationships
 ```python
-# Initialize database
-app.init_database()
+# Get all concepts for a goal
+goal_concepts = session.query(Concept).join(Concept.goals).filter(
+    Goal.id == goal.id
+).all()
 
-# Create node
-node = app.create_node(node_data)
-
-# Get node by ID
-node = app.get_node("GOAL-001")
-
-# Update node
-updated = app.update_node("GOAL-001", {"title": "Updated Title"})
-
-# Delete node
-app.delete_node("GOAL-001")
-
-# Get all nodes organized by layer
-all_nodes = app.get_all_nodes()
+# Get goals that have specific constraints
+constrained_goals = session.query(Goal).join(Goal.constraints).filter(
+    Constraints.severity == "critical"
+).all()
 ```
 
-#### Node Relationships
+### Database Operations
+
+#### Schema Validation
 ```python
-from todowrite import link_nodes, unlink_nodes
+from todowrite import validate_model_data, DatabaseInitializationError
 
-# Link parent to child
-link_nodes("sqlite:///project.db", "GOAL-001", "TSK-001")
-
-# Unlink nodes
-unlink_nodes("sqlite:///project.db", "GOAL-001", "TSK-001")
-```
-
-#### Search and Query
-```python
-from todowrite import search_nodes, list_nodes
-
-# Search nodes by criteria
-results = search_nodes("sqlite:///project.db", {"owner": "dev"})
-
-# List all nodes (convenience function)
-nodes = list_nodes("sqlite:///project.db")
-```
-
-#### Import/Export
-```python
-from todowrite import export_nodes, import_nodes
-
-# Export to file
-exported = export_nodes("sqlite:///project.db", "export.json")
-
-# Import from file
-import_results = import_nodes("sqlite:///project.db", "export.json")
-```
-
-### Node Types
-
-#### Supported Layers
-- `Goal` - High-level objectives
-- `Concept` - Design concepts and patterns
-- `Context` - Environmental context
-- `Constraints` - Project constraints
-- `Requirements` - Functional requirements
-- `AcceptanceCriteria` - Acceptance conditions
-- `InterfaceContract` - Interface specifications
-- `Phase` - Project phases
-- `Step` - Implementation steps
-- `Task` - Specific tasks
-- `SubTask` - Sub-tasks
-- `Command` - Executable commands
-
-#### Node Data Structure
-```python
-node_data = {
-    "id": "GOAL-001",                    # Required: Unique identifier
-    "layer": "Goal",                     # Required: Layer type
-    "title": "My Goal",                  # Required: Node title
-    "description": "Description here",    # Optional: Description
-    "status": "planned",                 # Optional: Status (planned, in_progress, completed, blocked, cancelled)
-    "progress": 0,                       # Optional: Progress percentage (0-100)
-    "links": {                           # Required: Relationships
-        "parents": [],                   # Parent node IDs
-        "children": []                   # Child node IDs
-    },
-    "metadata": {                        # Required: Metadata
-        "owner": "user",                 # Owner of the node
-        "labels": ["label1"],            # List of labels
-        "severity": "medium",            # Severity level (low, med, medium, high, critical)
-        "work_type": "implementation",   # Type of work
-        "assignee": "assignee"           # Assigned person (optional)
-    }
-}
-```
-
-#### Command Nodes (Special Case)
-```python
+# Validate data before creation
 command_data = {
-    "id": "CMD-001",
-    "layer": "Command",
-    "title": "Build Project",
-    "command": {                        # Required for Command nodes
-        "ac_ref": "AC-001",             # Acceptance criteria reference
-        "run": {                        # Command execution details
-            "shell": "make build",
-            "workdir": "/project",
-            "env": {"TARGET": "production"}
-        },
-        "artifacts": ["dist/", "build.log"]  # Output files
-    },
-    # ... standard node fields
+    "title": "Deploy Application",
+    "cmd": "docker-compose up",
+    "acceptance_criteria_id": 1
 }
-```
 
-## CLI API
-
-### Installation
-```bash
-pip install todowrite-cli
-```
-
-### Available Commands
-```bash
-# Show help
-todowrite --help
-
-# Initialize project (creates todowrite.db)
-todowrite init
-
-# Create nodes
-todowrite create --layer goal --title "My Goal" --description "Description"
-todowrite create --layer task --title "My Task" --owner "dev" --labels "urgent"
-
-# Manage nodes
-todowrite get GOAL-001
-todowrite list
-todowrite search "keyword"
-todowrite update GOAL-001 --title "New Title"
-todowrite delete GOAL-001
-
-# Status commands
-todowrite status update GOAL-001 --status in_progress --progress 50
-todowrite status list
-
-# YAML operations
-todowrite export-yaml
-todowrite import-yaml
-todowrite sync-status
-
-# Database status
-todowrite db-status
-```
-
-## Validation
-
-### Schema Validation
-```python
-from todowrite.storage import validate_node_data
-
-# Validate node data before creation
 try:
-    validate_node_data(node_data)
-    print("Node data is valid")
+    is_valid = validate_model_data(command_data, "Command")
+    if is_valid:
+        command = Command(**command_data)
+        session.add(command)
+        session.commit()
+except DatabaseInitializationError as e:
+    print(f"Validation failed: {e}")
+```
+
+#### Database Initialization
+```python
+from todowrite import initialize_database
+
+# Create all tables with proper foreign key constraints
+try:
+    initialize_database(engine)
+    print("Database initialized successfully")
 except Exception as e:
-    print(f"Invalid: {e}")
+    print(f"Database initialization failed: {e}")
 ```
 
-### ID Pattern Validation
-Valid node IDs follow this pattern:
-- Format: `{LAYER}-{IDENTIFIER}`
-- Layers: GOAL, CON, CTX, CST, R, AC, IF, PH, STP, TSK, SUB, CMD
-- Example: `GOAL-PROJECT-COMPLETION`, `TSK-DATABASE-SETUP`
+### Foreign Key Relationships
 
-### Metadata Validation
-- `severity`: Must be one of [low, med, medium, high, critical]
-- `work_type`: Must be a valid work type from the schema
-- `status`: Must be one of [planned, in_progress, completed, blocked, cancelled]
+All relationships maintain referential integrity with proper foreign key constraints:
 
-## Storage Backends
-
-### SQLite (Default)
 ```python
-app = ToDoWrite("sqlite:///project.db")
-```
+# These relationships are enforced at the database level:
+# - Command.acceptance_criteria_id -> AcceptanceCriteria.id
+# - All association tables use REFERENCES model_name(id)
 
-### PostgreSQL
-```python
-app = ToDoWrite("postgresql://user:password@localhost/projectdb")
-```
-
-### Installation
-```bash
-# Core library
-pip install todowrite
-
-# With PostgreSQL support
-pip install 'todowrite[postgres]'
-
-# CLI interface
-pip install todowrite-cli
-```
-
-## Error Handling
-
-### Common Exceptions
-```python
-from todowrite.core.exceptions import (
-    InvalidNodeError,
-    NodeNotFoundError,
-    DatabaseError,
-    SchemaError
+# Example of relationship that will fail if parent doesn't exist:
+invalid_command = Command(
+    title="Invalid Command",
+    acceptance_criteria_id=999  # This will fail if AC 999 doesn't exist
 )
-
-try:
-    node = app.get_node("NONEXISTENT")
-    if node is None:
-        print("Node not found")
-except DatabaseError as e:
-    print(f"Database error: {e}")
+# session.add(invalid_command)  # DatabaseError: foreign key constraint violation
 ```
 
-### Return Values
-- `get_node()`: Returns `None` for non-existent nodes (doesn't raise)
-- `update_node()`: Returns `None` for non-existent nodes
-- `delete_node()`: Doesn't raise for non-existent nodes
+### Command Execution Pattern
 
-## Performance
+Commands are the **only executable layer** in ToDoWrite:
 
-### Verified Performance Characteristics
-- **Node Creation**: 100 nodes in ~2.4 seconds
-- **Node Retrieval**: 100 nodes in ~0.01 seconds
-- **Individual Lookups**: 10 nodes in ~0.02 seconds
-- **Test Coverage**: 119/119 tests passing (real implementations, no mocks)
+```python
+# Execute commands and store results
+def execute_command(command: Command) -> None:
+    """Execute a command and store the output."""
+    import subprocess
+    import json
 
-## Testing
+    try:
+        # Parse runtime environment
+        env = json.loads(command.runtime_env or "{}")
 
-### Running Tests
-```bash
-# Clone repository
-git clone https://github.com/dderyldowney/todowrite.git
-cd todowrite
+        # Execute command
+        result = subprocess.run(
+            f"{command.cmd} {command.cmd_params or ''}",
+            shell=True,
+            capture_output=True,
+            text=True,
+            env={**os.environ, **env}
+        )
 
-# Run all tests
-pytest tests/
+        # Store execution results
+        command.output = f"STDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"
+        command.status = "completed" if result.returncode == 0 else "failed"
 
-# Run specific test categories
-pytest tests/library/test_api.py
-pytest tests/database/test_models.py
+        # Update artifacts if expected files were created
+        if command.artifacts:
+            artifacts = json.loads(command.artifacts or "[]")
+            created_files = []
+            for file_path in artifacts:
+                if Path(file_path).exists():
+                    created_files.append(file_path)
+            command.artifacts = json.dumps(created_files)
+
+        session.commit()
+
+    except Exception as e:
+        command.output = f"Error: {str(e)}"
+        command.status = "failed"
+        session.commit()
 ```
 
-### Test Results
-- **Total Tests**: 119
-- **Pass Rate**: 100%
-- **Implementation Type**: Real implementations (no mocks)
-- **Coverage**: 47.86% (includes CLI and library components)
+## Schema Information
 
-## Version History
+- **Total Tables**: 41 (12 model tables + 29 association tables)
+- **Foreign Key Constraints**: 59 total REFERENCES ensuring referential integrity
+- **Association Table Pattern**: `model1_model2` with `model_name_id INTEGER REFERENCES model_name(id)`
 
-### Current Version (See VERSION file)
-- ✅ Fixed progress field storage/retrieval issue
-- ✅ Comprehensive library verification completed
-- ✅ All 119 tests verified using real implementations
-- ✅ Database integrity confirmed
-- ✅ Schema validation robust
-- ✅ Performance verified
-
-## Limitations
-
-### Known Issues
-- Labels field gets cleared during node updates (minor cosmetic issue)
-- No REST API implementation
-- No web interface
-
-### Current Scope
-- Local database storage only (SQLite/PostgreSQL)
-- Python 3.12+ required
-- No built-in authentication or multi-user support
-
-## Contributing
-
-### Development Setup
-```bash
-git clone https://github.com/dderyldowney/todowrite.git
-cd todowrite
-./setup_dev.sh
-```
-
-### Quality Standards
-- All tests use real implementations (no mocking)
-- 100% test pass rate required
-- Static analysis compliance (MyPy, Ruff)
-- Comprehensive schema validation
-
----
-
-**Status**: ✅ Production Ready
-**Version**: See VERSION file
-**Tests**: 119/119 passing
-**Implementation**: Real (no mocks)
+For complete schema details, see:
+- `lib_package/src/todowrite/core/schemas/todowrite_models_schema.sql`
+- `lib_package/src/todowrite/core/schemas/todowrite_models.schema.json`

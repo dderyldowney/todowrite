@@ -19,7 +19,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Session, sessionmaker
 
-from ..core.types import Command, Label, Link, Node, links
+from ..core.models import Command, Label, Link, Node, links
 from .backends import (
     NodeCreationError,
     NodeCreationResult,

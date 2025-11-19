@@ -1,6 +1,6 @@
 {
   "enforcement_level": "strict",
-  "enforcement_time": "2025-11-11T17:12:05.707410",
+  "enforcement_time": "2025-11-18T20:33:05.639407",
   "tools": {
     "semantic_scoping": {
       "active": true,
@@ -108,7 +108,7 @@
       "semantic_scoping_awareness",
       "red_green_refactor_methodology",
       "token_optimization_consideration",
-      "todowrite_cli_usage"
+      "ToDoWrite_cli_usage"
     ],
     "forbidden_practices": [
       "mocking_frameworks",

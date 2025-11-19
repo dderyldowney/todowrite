@@ -106,17 +106,17 @@ After installation, you can use:
 # Initialize the database
 todowrite init
 
-# List all nodes
+# List all items
 todowrite list
 
-# Create a new node
-todowrite create
+# Create a new item
+todowrite create --layer goal --title "My Goal" --owner "team"
 
-# Get a node by ID
-todowrite get <node-id>
+# Get items by status
+todowrite list --status in_progress
 
-# Check database status
-todowrite db-status
+# Search items
+todowrite search "database"
 
 # Export to YAML
 todowrite export-yaml
@@ -124,8 +124,8 @@ todowrite export-yaml
 # Import from YAML
 todowrite import-yaml
 
-# Check sync status
-todowrite sync-status
+# Check database status
+todowrite db-status
 
 ## 🛠️ Project Development Utilities
 
@@ -170,87 +170,105 @@ print(f"Project valid: {results['valid']}")
 
 See [Project Utilities](docs/PROJECT_UTILITIES.md) for comprehensive documentation.
 
-### Getting Started with ActiveRecord API
+### Getting Started with SQLAlchemy ORM API
 
 #### Basic Setup
 ```python
-from todowrite import ToDoWrite, Node
+from todowrite import (
+    Goal, Concept, Context, Constraints,
+    Requirements, AcceptanceCriteria, InterfaceContract,
+    Phase, Step, Task, SubTask, Command, Label,
+    create_engine, sessionmaker
+)
 
-# Initialize application
-app = ToDoWrite("sqlite:///project.db")
-app.init_database()
+# Initialize database session
+engine = create_engine("sqlite:///project.db")
+Session = sessionmaker(bind=engine)
+session = Session()
 
-# Configure Node class for ActiveRecord methods
-Node.configure_session(app.get_session())
-
-print("✅ ToDoWrite ActiveRecord API ready!")
+print("✅ ToDoWrite SQLAlchemy ORM API ready!")
 ```
 
 #### Your First Project
 ```python
 # Create a goal
-goal = Node.create_goal(
-    "Learn ToDoWrite",
-    "your-name",
-    description="Master the ActiveRecord API",
+goal = Goal(
+    title="Learn ToDoWrite",
+    description="Master the SQLAlchemy ORM API",
+    owner="your-name",
     severity="medium"
 )
+session.add(goal)
+session.commit()
 
 # Add tasks to your goal
-setup_task = goal.tasks().create(
+setup_task = Task(
     title="Install todowrite",
-    description="pip install todowrite",
+    description="Use UV to install todowrite",
     owner="your-name"
 )
+session.add(setup_task)
+session.commit()
 
-api_task = goal.tasks().create(
-    title="Try ActiveRecord API",
-    description="Use Node.find(), .save(), .complete() methods",
+api_task = Task(
+    title="Try SQLAlchemy ORM API",
+    description="Use SQLAlchemy sessions and queries",
     owner="your-name"
 )
+session.add(api_task)
+session.commit()
+
+# Associate tasks with goal
+goal.tasks.extend([setup_task, api_task])
+session.commit()
 
 # Start working on tasks
-setup_task.start().save()
+setup_task.status = "in_progress"
+setup_task.progress = 25
+session.commit()
 print(f"Started: {setup_task.title}")
 
 # Mark a task complete
-api_task.complete().save()
+api_task.status = "completed"
+api_task.progress = 100
+session.commit()
 print(f"Completed: {api_task.title}")
 
 # Check your progress
-tasks = goal.tasks().all()
-completed = goal.tasks().where(status="completed")
+all_tasks = goal.tasks
+completed_tasks = [t for t in all_tasks if t.status == "completed"]
 print(f"Goal: {goal.title}")
-print(f"Total tasks: {len(tasks)}")
-print(f"Completed: {len(completed)}")
+print(f"Total tasks: {len(all_tasks)}")
+print(f"Completed: {len(completed_tasks)}")
 ```
 
 #### Common Patterns
 ```python
 # Find existing items
-goal = Node.find_by(title="Learn ToDoWrite")
-all_goals = Node.where(layer="Goal")
+goal = session.query(Goal).filter(Goal.title == "Learn ToDoWrite").first()
+all_goals = session.query(Goal).all()
 
 # Create new items
-task = Node.new(
-    layer="Task",
+task = Task(
     title="New task",
     owner="your-name"
-).save()
+)
+session.add(task)
+session.commit()
 
 # Update items
-task.update(title="Updated task title")
-task.save()
+task.title = "Updated task title"
+session.commit()
 
 # Business workflows
-task.start().save()    # Start work
-task.update_progress(75)  # Update progress
-task.complete().save()    # Mark complete
+task.status = "in_progress"
+task.progress = 50
+session.commit()
 
 # Collection operations
-goal_tasks = goal.tasks()
-task_count = goal_tasks.size()
-has_tasks = goal_tasks.exists()
+goal_tasks = goal.tasks
+task_count = len(goal_tasks) if goal_tasks else 0
+print(f"Goal has {task_count} tasks")
 ```
 
 ### Python Module
@@ -261,10 +279,13 @@ import todowrite
 print(todowrite.__version__)
 print(todowrite.get_version())
 
-# Import components
-from todowrite.app import ToDoWrite
-from todowrite.cli import cli
-from todowrite.core.types import Node  # ActiveRecord class
+# Import components - ALL 12 LAYERS
+from todowrite import (
+    Goal, Concept, Context, Constraints,
+    Requirements, AcceptanceCriteria, InterfaceContract,
+    Phase, Step, Task, SubTask, Command, Label,
+    create_engine, sessionmaker
+)
 ```
 
 ## 🔍 Troubleshooting

@@ -111,7 +111,7 @@ Core Database Components
 SQLAlchemy Base
 ~~~~~~~~~~~~~~
 
-.. autoclass:: todowrite.core.types.Base
+.. autoclass:: todowrite.core.models.Base
    :members:
    :show-inheritance:
    :undoc-members:
@@ -177,7 +177,7 @@ Associations
    session.add(database_label)
    session.commit()
 
-   # Associate (Rails-style)
+   # Associate using SQLAlchemy patterns
    task.labels.append(database_label)
    session.commit()
 
@@ -211,7 +211,7 @@ Hierarchical Relationships
 Data Schema
 ~~~~~~~~~~~
 
-For complete database schema documentation, see :doc:`../userdocs/ToDoWrite_Data_Schema`.
+For complete database schema documentation, see :doc:`../userdocs/ToDoWrite_Models_Data_Schema`.
 
 Key Features:
 

@@ -1,33 +1,33 @@
 # Development Guide
 
-**Comprehensive development guide for the ToDoWrite project with Rails ActiveRecord-inspired architecture.**
+**Comprehensive development guide for the ToDoWrite hierarchical task management system with SQLAlchemy ORM.**
 
 ---
 
 ## 🏗️ Architecture Overview
 
-ToDoWrite now uses a **Rails ActiveRecord-inspired architecture** that provides:
+ToDoWrite uses a **SQLAlchemy ORM architecture** with individual database tables for each hierarchical layer:
 
-- **Model-based entities** with relationships (has_many, belongs_to)
-- **Automatic migrations and schema management** (like Rails migrations)
-- **Database-agnostic storage backends** (SQLite, PostgreSQL)
-- **ActiveRecord-style query interfaces** and method chaining
-- **Model validations and callbacks**
-- **Association management** between hierarchical nodes
+- **12 Individual Models** - One for each layer of the hierarchy
+- **Database-agnostic storage** - SQLite and PostgreSQL support
+- **SQLAlchemy query interfaces** - Type-safe database operations
+- **Proper foreign key relationships** - Enforced referential integrity
+- **Many-to-many associations** - Through join tables
+- **Schema validation** - JSON schema validation for all models
 
 ### Key Components
 
 #### Models (`lib_package/src/todowrite/core/models.py`)
-- **`Node`** - Base ActiveRecord-like model for all nodes
-- **Relationships** - `has_many`, `belongs_to`, `has_one` associations
-- **Validations** - Model-level validation framework
-- **Callbacks** - Before/after save, create, update, delete hooks
+- **12 Hierarchical Models** - Goal, Concept, Context, Constraints, Requirements, AcceptanceCriteria, InterfaceContract, Phase, Step, Task, SubTask, Command
+- **Label Model** - Shared categorization system
+- **Relationships** - SQLAlchemy associations and join tables
+- **Type Safety** - Full Python type hints
 
 #### Database Layer
-- **`ActiveRecord`** - Base ORM functionality
-- **`Connection`** - Database connection management
-- **`Migration`** - Schema migration system
-- **`QueryBuilder`** - ActiveRecord-style query builder
+- **SQLAlchemy ORM** - Professional database ORM
+- **Database Engines** - SQLite and PostgreSQL support
+- **Session Management** - Connection and transaction handling
+- **Schema Generation** - Automated table creation
 
 ## 🚀 Development Workflow
 
@@ -48,19 +48,16 @@ cd lib_package && uv pip install -e . && cd ..
 ```
 todowrite/
 ├── lib_package/src/todowrite/          # Core library
-│   ├── core/                           # ActiveRecord-like core
-│   │   ├── models.py                   # Model definitions (Node, etc.)
-│   │   ├── active_record.py           # Base ActiveRecord functionality
-│   │   ├── associations.py            # Model relationships
-│   │   ├── validations.py             # Model validations
-│   │   ├── migrations.py              # Migration system
-│   │   └── query_builder.py           # Query builder
+│   ├── core/                           # SQLAlchemy models and core functionality
+│   │   ├── models.py                  # 12 hierarchical models + Label
+│   │   ├── exceptions.py              # Custom exception classes
+│   │   ├── schemas/                   # JSON and SQL schema files
+│   │   └── types.py                   # Type definitions
 │   ├── database/                      # Database layer
 │   │   ├── connection.py              # Database connections
-│   │   ├── models.py                  # SQLAlchemy models
-│   │   └── migrations/                # Migration files
+│   │   └── initialization.py          # Database setup
 │   ├── storage/                       # Storage backends
-│   └── tools/                         # Utilities
+│   └── tools/                         # Utilities and schema generator
 ├── cli_package/src/todowrite_cli/     # CLI interface
 └── web_package/                        # Web application (planning)
 ```
@@ -96,84 +93,70 @@ open docs/sphinx/build/html/index.html
 ./dev_tools/build.sh lint
 ```
 
-## 🔧 ActiveRecord Features
+## 🔧 SQLAlchemy ORM Features
 
-### Model Definitions
+### Model Usage
 ```python
-from todowrite.core.models import Node, has_many, belongs_to
+from todowrite import (
+    Goal, Task, Label, create_engine, sessionmaker
+)
 
-class Goal(Node):
-    """Goal model with ActiveRecord-like features."""
+# Initialize database session
+engine = create_engine("sqlite:///project.db")
+Session = sessionmaker(bind=engine)
+session = Session()
 
-    class Meta:
-        table_name = "nodes"
-        layer = "Goal"
-
-    # Rails-style associations
-    has_many("tasks", foreign_key="parent_id")
-    has_many("children", class_name="Node", foreign_key="parent_id")
-    belongs_to("project", class_name="Node", foreign_key="parent_id", optional=True)
-
-    # Validations
-    validates_presence_of(["title", "owner"])
-    validates_length_of("title", maximum=200)
-
-    # Callbacks
-    before_save :set_default_status
-    after_create :log_creation
-
-    def set_default_status(self):
-        if not self.status:
-            self.status = "planned"
-
-    def log_creation(self):
-        print(f"Goal created: {self.title}")
-
-# Usage
-goal = Goal.create(
+# Create a goal
+goal = Goal(
     title="Build Application",
     owner="dev-team",
-    description="Main application goal"
+    description="Main application goal",
+    severity="high"
 )
+session.add(goal)
+session.commit()
+
+# Create and associate labels
+label = Label(name="backend")
+session.add(label)
+session.commit()
+
+goal.labels.append(label)
+session.commit()
 ```
 
 ### Query Interface
 ```python
-# ActiveRecord-style queries
-goals = Goal.where(status="planned").order("created_at desc").limit(10)
+# SQLAlchemy queries
+goals = session.query(Goal).filter(Goal.status == "planned").order_by(Goal.created_at.desc()).limit(10)
 
 # Method chaining
-completed_tasks = Task.where(status="completed").where("progress = 100")
+completed_tasks = session.query(Task).filter(
+    Task.status == "completed",
+    Task.progress == 100
+).all()
 
-# Finders
-goal = Goal.find_by_title("Build Application")
+# Find specific items
+goal = session.query(Goal).filter(Goal.title == "Build Application").first()
 
-# Scopes
-class Task(Node):
-    @classmethod
-    def high_priority(cls):
-        return cls.where(metadata__contains="high")
-
-# Usage
-urgent_tasks = Task.high_priority().where("progress < 50")
+# Complex queries
+high_priority_tasks = session.query(Task).filter(
+    Task.severity.in_(["high", "critical"]),
+    Task.progress < 50
+).all()
 ```
 
-### Migrations
+### Schema Management
 ```python
-# Create migration
-from todowrite.core.migrations import Migration
+# Initialize database with all tables
+from todowrite.core.models import Base
+from todowrite.database import initialize_database
 
-class AddProgressTracking(Migration):
-    def change(self):
-        self.add_column("nodes", "progress", self.integer, default=0)
-        self.add_index("nodes", "progress")
+# Create all tables
+initialize_database(engine)
 
-        # Add new association
-        self.add_reference("nodes", "parent", foreign_key="parent_id")
-
-# Run migration
-from todowrite.core.active_record import ActiveRecord
-ActiveRecord.migrate()
+# Or manually
+Base.metadata.create_all(engine)
 ```
 
 ## 🧪 Testing
@@ -181,81 +164,127 @@ ActiveRecord.migrate()
 ### Model Testing
 ```python
 import pytest
-from todowrite.core.models import Goal, Task
+from todowrite import Goal, Task, create_engine, sessionmaker
 
 class TestGoalModel:
     def test_goal_creation(self):
-        goal = Goal.create(
+        engine = create_engine("sqlite:///:memory:")
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
+        goal = Goal(
             title="Test Goal",
-            owner="test-user"
+            owner="test-user",
+            status="planned"
         )
+        session.add(goal)
+        session.commit()
+
         assert goal.id is not None
-        assert goal.status == "planned"  # Set by callback
+        assert goal.status == "planned"
 
     def test_associations(self):
-        goal = Goal.create(title="Test Goal", owner="test")
-        task = Task.create(
+        engine = create_engine("sqlite:///:memory:")
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
+        goal = Goal(title="Test Goal", owner="test")
+        task = Task(
             title="Test Task",
-            owner="test",
-            parent_id=goal.id
+            owner="test"
         )
 
+        session.add_all([goal, task])
+        session.commit()
+
+        # Associate task with goal through phases
+        phase = Phase(title="Development", owner="test")
+        session.add(phase)
+        session.commit()
+
+        goal.phases.append(phase)
+        phase.tasks.append(task)
+        session.commit()
+
         # Test associations
-        assert len(goal.tasks) == 1
-        assert task.parent == goal
+        assert len(goal.phases) == 1
+        assert len(phase.tasks) == 1
 ```
 
 ### Database Testing
 ```python
 class TestDatabaseOperations:
-    def test_migration_execution(self):
-        # Test that migrations run successfully
-        from todowrite.core.active_record import ActiveRecord
+    def test_table_creation(self):
+        from todowrite.core.models import Base
+        from sqlalchemy import inspect as Inspector
 
-        result = ActiveRecord.migrate()
-        assert result.success
+        engine = create_engine("sqlite:///:memory:")
+        Base.metadata.create_all(engine)
 
-    def test_connection_management(self):
-        # Test database connections
-        conn = ActiveRecord.connection()
-        assert conn.is_connected()
+        # Test that tables exist
+        inspector = Inspector.from_engine(engine)
+        tables = inspector.get_table_names()
+
+        expected_tables = [
+            'goals', 'concepts', 'contexts', 'constraints',
+            'requirements', 'acceptance_criteria', 'interface_contracts',
+            'phases', 'steps', 'tasks', 'sub_tasks', 'commands', 'labels'
+        ]
+
+        for table in expected_tables:
+            assert table in tables
+
+    def test_session_management(self):
+        from todowrite.database import create_session
+
+        # Test database session creation
+        session = create_session("sqlite:///:memory:")
 
         # Test queries
-        result = conn.execute("SELECT COUNT(*) FROM nodes")
-        assert result[0][0] >= 0
+        goal_count = session.query(Goal).count()
+        assert goal_count >= 0
 ```
 
 ## 🔄 Migration from Old System
 
-The project has migrated from a traditional ORM to an ActiveRecord-inspired system:
+The project has migrated from a Node-based system to individual SQLAlchemy models:
 
 ### Key Changes
-1. **Model-centric design** - Models now contain business logic
-2. **Associations** - `has_many`, `belongs_to` relationships
-3. **Migrations** - Schema changes via migration files
-4. **Query builder** - Chainable query methods
-5. **Validations** - Model-level validation framework
+1. **Individual Models** - 12 separate models instead of generic Node
+2. **SQLAlchemy ORM** - Professional database ORM instead of custom implementation
+3. **Proper Relationships** - Foreign key relationships and join tables
+4. **Type Safety** - Full Python type hints throughout
+5. **Schema Validation** - JSON schema validation for all models
 
 ### Updated Patterns
 ```python
-# Old approach
-app = ToDoWrite("sqlite:///project.db")
-node = app.create_node({...})
+# Old approach (REMOVED)
+from todowrite import create_node, Node
+node = create_node(database, node_data)
+Node.where(status="pending")
 
-# New ActiveRecord approach
-goal = Goal.create({...})
-tasks = goal.tasks.where(status="pending")
+# New SQLAlchemy approach
+from todowrite import Goal, Task, create_engine, sessionmaker
+engine = create_engine("sqlite:///project.db")
+Session = sessionmaker(bind=engine)
+session = Session()
+
+goal = Goal(title="My Goal", owner="team")
+session.add(goal)
+session.commit()
+
+tasks = session.query(Task).filter(Task.status == "pending").all()
 ```
 
 ## 📚 Additional Resources
 
-- **[Build System](BUILD_SYSTEM.md)** - Build tools and automation
-- **[Database Architecture](UNIVERSAL_DATABASE_ARCHITECTURE.md)** - Database design
-- **[Development Workflow](DEVELOPMENT_WORKFLOW.md)** - Claude Code powered workflow
-- **[Enforcement System](ENFORCEMENT_SYSTEM.md)** - Code quality enforcement
+- **[Build System](../../BUILD_SYSTEM.md)** - Build tools and automation
+- **[ToDoWrite Models Data Schema](../../ToDoWrite_Models_Data_Schema.md)** - Database design
+- **[ToDoWrite Documentation](../../ToDoWrite.md)** - Project overview
+- **[SQLAlchemy API](../../docs/sphinx/source/userdocs/SQLALCHEMY_API.rst)** - API documentation
 
 ---
 
-**Last Updated**: 2025-11-17
-**Architecture**: ActiveRecord-inspired
+**Last Updated**: 2025-11-18
+**Architecture**: SQLAlchemy ORM with 12 Hierarchical Models
 **Status**: ✅ Production Ready

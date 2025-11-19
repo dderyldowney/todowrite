@@ -10,28 +10,29 @@ from __future__ import annotations
 from typing import Any
 
 
-class todowriteError(Exception):
+class ToDoWriteError(Exception):
     """Base exception class for all ToDoWrite errors."""
 
     pass
 
 
-class NodeError(todowriteError):
-    """Base exception for node-related errors."""
+class ModelError(ToDoWriteError):
+    """Base exception for Rails ActiveRecord model-related errors."""
 
     pass
 
 
-class NodeNotFoundError(NodeError):
-    """Raised when a node is not found."""
+class ModelNotFoundError(ModelError):
+    """Raised when a model record is not found."""
 
-    def __init__(self, node_id: str) -> None:
-        self.node_id = node_id
-        super().__init__(f"Node not found: {node_id}")
+    def __init__(self, model_name: str, record_id: int) -> None:
+        self.model_name = model_name
+        self.record_id = record_id
+        super().__init__(f"{model_name} not found: {record_id}")
 
 
-class InvalidNodeError(NodeError):
-    """Raised when node data is invalid."""
+class InvalidModelError(ModelError):
+    """Raised when model data is invalid."""
 
     def __init__(
         self, message: str, details: dict[str, Any] | None = None
@@ -40,7 +41,7 @@ class InvalidNodeError(NodeError):
         super().__init__(message)
 
 
-class StorageError(todowriteError):
+class StorageError(ToDoWriteError):
     """Base exception for storage-related errors."""
 
     pass
@@ -67,7 +68,7 @@ class YAMLError(StorageError):
         super().__init__(msg)
 
 
-class SchemaError(todowriteError):
+class SchemaError(ToDoWriteError):
     """Raised for schema validation errors."""
 
     def __init__(
@@ -80,19 +81,19 @@ class SchemaError(todowriteError):
         super().__init__(msg)
 
 
-class ConfigurationError(todowriteError):
+class ConfigurationError(ToDoWriteError):
     """Raised for configuration-related errors."""
 
     pass
 
 
-class CLIError(todowriteError):
+class CLIError(ToDoWriteError):
     """Raised for CLI-related errors."""
 
     pass
 
 
-class TokenOptimizationError(todowriteError):
+class TokenOptimizationError(ToDoWriteError):
     """Raised for token optimization errors."""
 
     pass

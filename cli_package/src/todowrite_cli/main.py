@@ -51,7 +51,7 @@ class ToDoWrite:
 
     def init_database(self) -> None:
         """Initialize database tables."""
-        from todowrite.core.types import Base
+        from todowrite.core.models import Base
 
         Base.metadata.create_all(self.engine)
 

@@ -1,7 +1,7 @@
-API Guide
-=========
+SQLAlchemy ORM API Guide
+========================
 
-ToDoWrite provides intuitive database operations with proper associations and relationships. **This is the ONLY supported API** - the old Node-based API has been completely removed.
+ToDoWrite provides SQLAlchemy ORM interfaces for hierarchical task management with proper foreign key relationships and referential integrity. This is the **ONLY supported API** - the old Node-based API has been completely removed.
 
 .. contents::
    :local:
@@ -12,22 +12,28 @@ Getting Started
 
 ### Database Session Configuration
 
-**Required** for all ActiveRecord operations:
+**Required** for all SQLAlchemy operations:
 
 .. code-block:: python
 
-   from todowrite import Goal, Task, Label, create_engine, sessionmaker
+   from todowrite import (
+       Goal, Concept, Context, Constraints,
+       Requirements, AcceptanceCriteria, InterfaceContract,
+       Phase, Step, Task, SubTask, Command, Label,
+       create_engine, sessionmaker
+   )
 
-   # Development database (for all development work)
-   engine = create_engine("sqlite:////$HOME/dbs/todowrite_development.db")
+   # Development database
+   engine = create_engine("sqlite:///project.db")
    Session = sessionmaker(bind=engine)
    session = Session()
 
-   print("✅ Rails ActiveRecord API ready!")
+   print("✅ SQLAlchemy ORM API ready!")
 
 **Database Naming Conventions:**
 
-- **Production**: ``$HOME/dbs/todowrite_production.db`` (Production deployments)
+- **Development**: ``sqlite:///project.db`` (Development work)
+- **Production**: ``postgresql://user:pass@localhost/projectdb`` (Production)
 - **Development**: ``$HOME/dbs/todowrite_development.db`` (All development work)
 - **Testing**: ``tests/todowrite_testing.db`` (Test suite only)
 - **Sessions**: ``$HOME/dbs/todowrite_sessions.db`` (Session tracking)
@@ -101,7 +107,7 @@ Creating Records
    session.add(auth_task)
    session.commit()
 
-   # Associate labels (Rails-style)
+   # Associate labels (ToDoWrite-style)
    auth_task.labels.append(backend_label)
    auth_task.labels.append(auth_label)
    session.commit()
@@ -113,13 +119,13 @@ Querying Records
 
 .. code-block:: python
 
-   # Get all goals (like Rails .all())
+   # Get all goals (like ToDoWrite .all())
    all_goals = session.query(Goal).all()
 
-   # Find by primary key (like Rails .find())
+   # Find by primary key (like ToDoWrite .find())
    goal = session.query(Goal).filter(Goal.id == 1).first()
 
-   # Find by attributes (like Rails .find_by())
+   # Find by attributes (like ToDoWrite .find_by())
    task = session.query(Task).filter(Task.title == "Build authentication").first()
    backend_tasks = session.query(Task).filter(Task.owner == "backend-team").all()
 
@@ -127,7 +133,7 @@ Querying Records
 
 .. code-block:: python
 
-   # Where clauses (like Rails .where())
+   # Where clauses (like ToDoWrite .where())
    high_priority = session.query(Goal).filter(Goal.severity == "high").all()
    in_progress = session.query(Task).filter(Task.status == "in_progress").all()
 
@@ -227,7 +233,7 @@ Associations and Relationships
    session.add(api_task)
    session.commit()
 
-   # Associate labels (Rails-style)
+   # Associate labels (ToDoWrite-style)
    api_task.labels.append(database_label)
    api_task.labels.append(api_label)
    session.commit()
@@ -409,7 +415,7 @@ Error Handling
 
 .. code-block:: python
 
-   # Find operations return None (like Rails)
+   # Find operations return None (like ToDoWrite)
    task = session.query(Task).filter(Task.id == 99999).first()
    if task is None:
        print("Task not found")
@@ -444,7 +450,7 @@ Error Handling
 Complete Example
 ----------------
 
-Here's a complete workflow using the Rails ActiveRecord API:
+Here's a complete workflow using the ToDoWrite Models API:
 
 .. code-block:: python
 
@@ -583,7 +589,7 @@ API Migration from Old System
    node = create_node(database, node_data)
    Node.where(status="in_progress")
 
-**New Rails ActiveRecord API:**
+**New ToDoWrite Models API:**
 
 .. code-block:: python
 
@@ -607,6 +613,6 @@ The Rails ActiveRecord API provides:
 * **⚡ Better Performance** - Optimized database queries
 * **📊 Rich Analytics** - Powerful aggregation and reporting
 * **🛡️ Data Integrity** - Enforced constraints and validation
-* **🎯 Rails Patterns** - Familiar ActiveRecord conventions
+* **🎯 ToDoWrite Patterns** - Hierarchical task management conventions
 
-For complete schema documentation, see :doc:`Rails_ActiveRecord_Data_Schema`.
+For complete schema documentation, see :doc:`ToDoWrite_Models_Data_Schema`.

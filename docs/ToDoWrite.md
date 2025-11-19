@@ -43,13 +43,13 @@ ToDoWrite is a hierarchical task management system that allows you to:
 - **Simplicity First**: Code and tests that read like natural language
 - **Progressive Disclosure**: From high-level goals to detailed commands
 
-## Rails ActiveRecord Tables (2025 Design Update)
+## ToDoWrite Models Tables (2025 Design Update)
 
-**NEW DESIGN (2025): Rails ActiveRecord with Individual Tables Per Layer**
+**NEW DESIGN (2025): Individual Tables Per Layer**
 
-The ToDoWrite system has been completely redesigned to follow Rails ActiveRecord conventions with **individual database tables** for each layer:
+The ToDoWrite system uses the ToDoWrite Models API with **individual database tables** for each layer:
 
-### ActiveRecord Tables (12 Layers)
+### ToDoWrite Models Tables (12 Layers)
 
 | Layer | Table Name | Model Class | Description |
 |------|------------|-------------|-------------|
@@ -66,32 +66,32 @@ The ToDoWrite system has been completely redesigned to follow Rails ActiveRecord
 | SubTask | `sub_tasks` | `SubTask` | Sub-tasks that break down larger tasks |
 | Command | `commands` | `Command` | Executable commands with run instructions |
 
-### Rails ActiveRecord Design Benefits
+### ToDoWrite Models Design Benefits
 
 **✅ Clean Database Design:**
 - Each layer has its own table with clear separation of concerns
-- Plural table names following Rails conventions (`goals`, not `goal`)
+- Plural table names following database conventions (`goals`, not `goal`)
 - Individual entries trackable by unique integer IDs
 
-**✅ Rails Primary Key Conventions:**
+**✅ Database Primary Key Design:**
 - `id INTEGER PRIMARY KEY AUTOINCREMENT` for every table
 - IDs are **UNIQUE, NOT NULL, and NEVER REUSED** (referential integrity)
 - Auto-incrementing sequence: 1, 2, 3, 4, 5...
 
-**✅ Rails Timestamp Conventions:**
+**✅ Database Timestamp Fields:**
 - `created_at` - Set once on creation, readonly afterward
 - `updated_at` - Automatically updated on every save
 - ISO format timestamps with timezone awareness
 
-**✅ Rails Relationship Conventions:**
+**✅ Database Relationship Design:**
 - Many-to-many relationships through join tables
 - Lexical naming: `goals_labels`, `concepts_labels`, etc.
 - Bidirectional navigation: `goal.labels` and `label.goals` both work
 - Foreign keys follow `model_name_id` pattern
 
-**✅ Rails Query Patterns:**
+**✅ Database Query Patterns:**
 - Type-safe SQLAlchemy queries with full Python support
-- ActiveRecord-style query methods
+- Modern query methods
 - Efficient relationship loading and caching
 
 ### Database Schema Example
@@ -186,21 +186,21 @@ todowrite export-yaml
 ### Python API Usage
 
 
-#### Rails ActiveRecord-Style API (Recommended) - Updated Design
+#### ToDoWrite Models API (Recommended) - Updated Design
 
 **NEW DESIGN (2025): Individual Tables per Layer**
 
-The ToDoWrite system has been redesigned to follow Rails ActiveRecord conventions with separate tables for each layer:
+The ToDoWrite system uses the ToDoWrite Models API with separate tables for each layer:
 
 - **Pluralized tables**: `goals`, `concepts`, `contexts`, `constraints`, `requirements`, `acceptance_criteria`, `interface_contracts`, `phases`, `steps`, `tasks`, `sub_tasks`
 - **Integer primary keys**: Auto-incrementing IDs that are never reused
-- **Rails timestamps**: `created_at` (readonly) and `updated_at` (writable)
-- **Individual models**: Each layer has its own ActiveRecord model class
+- **Database timestamps**: `created_at` (readonly) and `updated_at` (writable)
+- **Individual models**: Each layer has its own ToDoWrite Model class
 
 ```python
 from todowrite.core.types import Goal, Task, Label
 
-# Initialize database session (same as Rails database.yml)
+# Initialize database session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -208,7 +208,7 @@ engine = create_engine("sqlite:///project.db")
 Session = sessionmaker(bind=engine)
 session = Session()
 
-# Create records using Rails ActiveRecord patterns
+# Create records using ToDoWrite Models patterns
 goal = Goal(
     title="Build TodoWrite App",
     description="Create the application",
@@ -242,7 +242,7 @@ goal.labels.append(strategic_label)
 task.labels.extend([strategic_label, database_label])
 session.commit()
 
-# Rails-style queries
+# ToDoWrite Models queries
 all_goals = session.query(Goal).all()
 backend_tasks = session.query(Task).filter(Task.owner == "dev-team").all()
 in_progress = session.query(Task).filter(Task.status == "in_progress").all()
@@ -260,14 +260,14 @@ print(f"Backend tasks: {len(backend_tasks)}")
 print(f"In-progress tasks: {len(in_progress)}")
 ```
 
-**Key Rails ActiveRecord Benefits:**
+**Key ToDoWrite Models Benefits:**
 
 1. **Clean Database Design**: Each layer has its own table with auto-incrementing integer IDs
 2. **Referential Integrity**: IDs are never reused, even after deletion
-3. **Rails Conventions**: Plural table names, timestamp fields, proper foreign keys
+3. **Database Conventions**: Plural table names, timestamp fields, proper foreign keys
 4. **Bidirectional Relationships**: `goal.labels` and `label.goals` both work
 5. **Type Safety**: Full Python type hints for all models
-6. **SQLAlchemy Integration**: Leverages powerful ORM features while maintaining Rails patterns
+6. **SQLAlchemy Integration**: Leverages powerful ORM features while maintaining ToDoWrite Models patterns
 
 #### Method Chaining Examples
 ```python
@@ -322,31 +322,43 @@ node_data = {
 }
 ```
 
-## Command Nodes
+## Command Model - The Executable Layer
 
-Command nodes have additional executable information:
+The Command model is the **only executable layer** in ToDoWrite, bridging planning with automation:
 
+### Core Fields
+- **`acceptance_criteria_id`**: Foreign key to parent AcceptanceCriteria (INTEGER)
+- **`cmd`**: The executable script or command name (TEXT)
+- **`cmd_params`**: Command parameters and arguments (TEXT)
+- **`runtime_env`**: Environment variables and runtime configuration (TEXT)
+- **`output`**: Command execution output (stdout/stderr) (TEXT)
+- **`artifacts`**: Expected output files and generated artifacts (TEXT)
+
+### Example Usage
 ```python
-command_node = {
-    "id": "CMD-001",
-    "layer": "Command",
-    "title": "Build Application",
-    "command": {                        # Required for Command nodes
-        "ac_ref": "AC-001",             # Acceptance criteria reference
-        "run": {
-            "shell": "make build",
-            "workdir": "/project",
-            "env": {"TARGET": "production"}
-        },
-        "artifacts": ["dist/", "build.log"]
-    },
-    # ... standard node fields
-}
+from todowrite import Command, AcceptanceCriteria, sessionmaker
+
+# Find acceptance criteria
+ac = session.query(AcceptanceCriteria).filter(
+    AcceptanceCriteria.title == "User Authentication Complete"
+).first()
+
+# Create command for that acceptance criteria
+cmd = Command(
+    title="Run Authentication Tests",
+    cmd="pytest",
+    cmd_params="tests/auth/ -v",
+    runtime_env='{"PYTHONPATH": "./src"}',
+    acceptance_criteria_id=ac.id
+)
+session.add(cmd)
+session.commit()
+```
 ```
 
 ## Database Operations
 
-### CRUD Operations (Rails ActiveRecord Pattern)
+### CRUD Operations (ToDoWrite Models Pattern)
 ```python
 from todowrite import Goal, Task, create_engine, sessionmaker
 
@@ -355,7 +367,7 @@ engine = create_engine("sqlite:///project.db")
 Session = sessionmaker(bind=engine)
 session = Session()
 
-# Create (Rails-style)
+# Create (ToDoWrite Models pattern)
 goal = Goal(title="Build TodoWrite App", owner="dev-team", severity="high")
 session.add(goal)
 session.commit()
@@ -372,7 +384,7 @@ session.delete(goal)
 session.commit()
 ```
 
-### Search Operations (Rails ActiveRecord Pattern)
+### Search Operations (ToDoWrite Models Pattern)
 ```python
 from todowrite import Goal, Task, create_engine, sessionmaker
 
@@ -381,7 +393,7 @@ engine = create_engine("sqlite:///project.db")
 Session = sessionmaker(bind=engine)
 session = Session()
 
-# Search by criteria (Rails-style)
+# Search by criteria (ToDoWrite Models pattern)
 results = session.query(Goal).filter(Goal.owner == "dev").all()
 tasks = session.query(Task).filter(Task.status == "in_progress").all()
 
@@ -451,7 +463,7 @@ data = yaml_manager.read_yaml()
 
 ## Error Handling
 
-### Graceful Degradation (Rails ActiveRecord Pattern)
+### Graceful Degradation (ToDoWrite Models Pattern)
 ```python
 # Non-existent records return None (don't raise exceptions)
 goal = session.query(Goal).filter(Goal.id == 99999).first()  # Returns None

@@ -17,7 +17,8 @@ New to ToDoWrite? Start here to understand the basics and get up and running qui
    Project Overview <userdocs/ToDoWrite>
    Quick Start <userdocs/README>
    Installation Guide <devdocs/INSTALLATION_GUIDE>
-   ActiveRecord API <userdocs/ACTIVE_RECORD_API>
+   SQLAlchemy API <userdocs/SQLALCHEMY_API>
+   Data Schema <userdocs/ToDoWrite_Models_Data_Schema>
 
 LIBRARY
 =======

@@ -21,7 +21,7 @@ __description__ = (
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from .core.types import (
+from .core.models import (
     AcceptanceCriteria,
     # SQLAlchemy base and utilities
     Base,
@@ -38,6 +38,17 @@ from .core.types import (
     Step,
     SubTask,
     Task,
+)
+
+# Schema validation and database management
+from .core.schema_validator import (
+    DatabaseInitializationError,
+    DatabaseSchemaInitializer,
+    SchemaValidationError,
+    ToDoWriteSchemaValidator,
+    get_schema_validator,
+    initialize_database,
+    validate_model_data,
 )
 
 __all__ = [
@@ -59,6 +70,14 @@ __all__ = [
     "Base",
     "create_engine",
     "sessionmaker",
+    # Schema validation and management
+    "ToDoWriteSchemaValidator",
+    "DatabaseSchemaInitializer",
+    "get_schema_validator",
+    "validate_model_data",
+    "initialize_database",
+    "SchemaValidationError",
+    "DatabaseInitializationError",
     # Metadata
     "__description__",
     "__title__",

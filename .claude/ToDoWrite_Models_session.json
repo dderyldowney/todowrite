@@ -1,0 +1,13 @@
+{
+  "ToDoWrite_Models_init_time": "2025-11-18T21:06:01.266713",
+  "database_path": "/Users/dderyldowney/Documents/GitHub/dderyldowney/todowrite/development_todowrite.db",
+  "session_type": "ToDoWrite_Models_only",
+  "version": "2025.1.0",
+  "api_enforced": "ToDoWrite_Models_exclusive",
+  "old_api_removed": true,
+  "tables_created": 33,
+  "session_id": "ToDoWrite-session-20251118-210601",
+  "system_goal_id": 1,
+  "current_task_id": 3,
+  "auto_init_complete": true
+}

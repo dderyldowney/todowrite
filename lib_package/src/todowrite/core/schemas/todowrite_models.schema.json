@@ -1,0 +1,1385 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ToDoWrite Models Schema",
+  "description": "Schema for hierarchical task management with integer primary keys",
+  "generated_at": "2025-11-18T21:16:05.840313",
+  "models": {
+    "Goal": {
+      "table_name": "goals",
+      "description": "Individual Goal model instance",
+      "table_description": "Collection of goal instances stored as rows",
+      "primary_key": "id (integer, NOT NULL, autoincrement)",
+      "fields": {
+        "id": {
+          "type": "integer",
+          "nullable": false,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "title": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        },
+        "status": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "progress": {
+          "type": "integer",
+          "nullable": true,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "started_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "completion_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "owner": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "severity": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "work_type": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "assignee": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "extra_data": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        }
+      },
+      "required_fields": [
+        "title",
+        "status"
+      ],
+      "relationships": {
+        "labels": {
+          "type": "relationship",
+          "target": "Label",
+          "description": "This goal has related label instances",
+          "accessor": "Use .labels to access related label records"
+        },
+        "tasks": {
+          "type": "relationship",
+          "target": "Task",
+          "description": "This goal has related task instances",
+          "accessor": "Use .tasks to access related task records"
+        },
+        "phases": {
+          "type": "relationship",
+          "target": "Phase",
+          "description": "This goal has related phase instances",
+          "accessor": "Use .phases to access related phase records"
+        },
+        "constraints": {
+          "type": "relationship",
+          "target": "Constraints",
+          "description": "This goal has related constraints instances",
+          "accessor": "Use .constraints to access related constraints records"
+        },
+        "concepts": {
+          "type": "relationship",
+          "target": "Concept",
+          "description": "This goal has related concept instances",
+          "accessor": "Use .concepts to access related concept records"
+        },
+        "contexts": {
+          "type": "relationship",
+          "target": "Context",
+          "description": "This goal has related context instances",
+          "accessor": "Use .contexts to access related context records"
+        }
+      },
+      "model_purpose": "Represents one goal with its specific attributes"
+    },
+    "Concept": {
+      "table_name": "concepts",
+      "description": "Individual Concept model instance",
+      "table_description": "Collection of concept instances stored as rows",
+      "primary_key": "id (integer, NOT NULL, autoincrement)",
+      "fields": {
+        "id": {
+          "type": "integer",
+          "nullable": false,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "title": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        },
+        "status": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "progress": {
+          "type": "integer",
+          "nullable": true,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "started_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "completion_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "owner": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "severity": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "work_type": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "assignee": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "extra_data": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        }
+      },
+      "required_fields": [
+        "title",
+        "status"
+      ],
+      "relationships": {
+        "labels": {
+          "type": "relationship",
+          "target": "Label",
+          "description": "This concept has related label instances",
+          "accessor": "Use .labels to access related label records"
+        },
+        "goals": {
+          "type": "relationship",
+          "target": "Goal",
+          "description": "This concept has related goal instances",
+          "accessor": "Use .goals to access related goal records"
+        },
+        "contexts": {
+          "type": "relationship",
+          "target": "Context",
+          "description": "This concept has related context instances",
+          "accessor": "Use .contexts to access related context records"
+        },
+        "requirements": {
+          "type": "relationship",
+          "target": "Requirements",
+          "description": "This concept has related requirements instances",
+          "accessor": "Use .requirements to access related requirements records"
+        }
+      },
+      "model_purpose": "Represents one concept with its specific attributes"
+    },
+    "Context": {
+      "table_name": "contexts",
+      "description": "Individual Context model instance",
+      "table_description": "Collection of context instances stored as rows",
+      "primary_key": "id (integer, NOT NULL, autoincrement)",
+      "fields": {
+        "id": {
+          "type": "integer",
+          "nullable": false,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "title": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        },
+        "status": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "progress": {
+          "type": "integer",
+          "nullable": true,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "started_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "completion_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "owner": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "severity": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "work_type": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "assignee": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "extra_data": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        }
+      },
+      "required_fields": [
+        "title",
+        "status"
+      ],
+      "relationships": {
+        "labels": {
+          "type": "relationship",
+          "target": "Label",
+          "description": "This context has related label instances",
+          "accessor": "Use .labels to access related label records"
+        },
+        "concepts": {
+          "type": "relationship",
+          "target": "Concept",
+          "description": "This context has related concept instances",
+          "accessor": "Use .concepts to access related concept records"
+        },
+        "goals": {
+          "type": "relationship",
+          "target": "Goal",
+          "description": "This context has related goal instances",
+          "accessor": "Use .goals to access related goal records"
+        },
+        "requirements": {
+          "type": "relationship",
+          "target": "Requirements",
+          "description": "This context has related requirements instances",
+          "accessor": "Use .requirements to access related requirements records"
+        }
+      },
+      "model_purpose": "Represents one context with its specific attributes"
+    },
+    "Constraints": {
+      "table_name": "constraints",
+      "description": "Individual Constraints model instance",
+      "table_description": "Collection of constraints instances stored as rows",
+      "primary_key": "id (integer, NOT NULL, autoincrement)",
+      "fields": {
+        "id": {
+          "type": "integer",
+          "nullable": false,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "title": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        },
+        "status": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "progress": {
+          "type": "integer",
+          "nullable": true,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "started_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "completion_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "owner": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "severity": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "work_type": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "assignee": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "extra_data": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        }
+      },
+      "required_fields": [
+        "title",
+        "status"
+      ],
+      "relationships": {
+        "labels": {
+          "type": "relationship",
+          "target": "Label",
+          "description": "This constraints has related label instances",
+          "accessor": "Use .labels to access related label records"
+        },
+        "goals": {
+          "type": "relationship",
+          "target": "Goal",
+          "description": "This constraints has related goal instances",
+          "accessor": "Use .goals to access related goal records"
+        },
+        "requirements": {
+          "type": "relationship",
+          "target": "Requirements",
+          "description": "This constraints has related requirements instances",
+          "accessor": "Use .requirements to access related requirements records"
+        }
+      },
+      "model_purpose": "Represents one constraints with its specific attributes"
+    },
+    "Requirements": {
+      "table_name": "requirements",
+      "description": "Individual Requirements model instance",
+      "table_description": "Collection of requirements instances stored as rows",
+      "primary_key": "id (integer, NOT NULL, autoincrement)",
+      "fields": {
+        "id": {
+          "type": "integer",
+          "nullable": false,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "title": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        },
+        "status": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "progress": {
+          "type": "integer",
+          "nullable": true,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "started_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "completion_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "owner": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "severity": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "work_type": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "assignee": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "extra_data": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        }
+      },
+      "required_fields": [
+        "title",
+        "status"
+      ],
+      "relationships": {
+        "labels": {
+          "type": "relationship",
+          "target": "Label",
+          "description": "This requirements has related label instances",
+          "accessor": "Use .labels to access related label records"
+        },
+        "constraints": {
+          "type": "relationship",
+          "target": "Constraints",
+          "description": "This requirements has related constraints instances",
+          "accessor": "Use .constraints to access related constraints records"
+        },
+        "acceptance_criteria": {
+          "type": "relationship",
+          "target": "AcceptanceCriteria",
+          "description": "This requirements has related acceptancecriteria instances",
+          "accessor": "Use .acceptance_criteria to access related acceptancecriteria records"
+        },
+        "concepts": {
+          "type": "relationship",
+          "target": "Concept",
+          "description": "This requirements has related concept instances",
+          "accessor": "Use .concepts to access related concept records"
+        },
+        "contexts": {
+          "type": "relationship",
+          "target": "Context",
+          "description": "This requirements has related context instances",
+          "accessor": "Use .contexts to access related context records"
+        }
+      },
+      "model_purpose": "Represents one requirements with its specific attributes"
+    },
+    "AcceptanceCriteria": {
+      "table_name": "acceptance_criteria",
+      "description": "Individual AcceptanceCriteria model instance",
+      "table_description": "Collection of acceptancecriteria instances stored as rows",
+      "primary_key": "id (integer, NOT NULL, autoincrement)",
+      "fields": {
+        "id": {
+          "type": "integer",
+          "nullable": false,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "title": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        },
+        "status": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "progress": {
+          "type": "integer",
+          "nullable": true,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "started_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "completion_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "owner": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "severity": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "work_type": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "assignee": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "extra_data": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        }
+      },
+      "required_fields": [
+        "title",
+        "status"
+      ],
+      "relationships": {
+        "labels": {
+          "type": "relationship",
+          "target": "Label",
+          "description": "This acceptancecriteria has related label instances",
+          "accessor": "Use .labels to access related label records"
+        },
+        "requirements": {
+          "type": "relationship",
+          "target": "Requirements",
+          "description": "This acceptancecriteria has related requirements instances",
+          "accessor": "Use .requirements to access related requirements records"
+        },
+        "interface_contracts": {
+          "type": "relationship",
+          "target": "InterfaceContract",
+          "description": "This acceptancecriteria has related interfacecontract instances",
+          "accessor": "Use .interface_contracts to access related interfacecontract records"
+        },
+        "commands": {
+          "type": "relationship",
+          "target": "Command",
+          "description": "This acceptancecriteria has related command instances",
+          "accessor": "Use .commands to access related command records"
+        }
+      },
+      "model_purpose": "Represents one acceptancecriteria with its specific attributes"
+    },
+    "InterfaceContract": {
+      "table_name": "interface_contracts",
+      "description": "Individual InterfaceContract model instance",
+      "table_description": "Collection of interfacecontract instances stored as rows",
+      "primary_key": "id (integer, NOT NULL, autoincrement)",
+      "fields": {
+        "id": {
+          "type": "integer",
+          "nullable": false,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "title": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        },
+        "status": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "progress": {
+          "type": "integer",
+          "nullable": true,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "started_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "completion_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "owner": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "severity": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "work_type": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "assignee": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "extra_data": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        }
+      },
+      "required_fields": [
+        "title",
+        "status"
+      ],
+      "relationships": {
+        "labels": {
+          "type": "relationship",
+          "target": "Label",
+          "description": "This interfacecontract has related label instances",
+          "accessor": "Use .labels to access related label records"
+        },
+        "acceptance_criteria": {
+          "type": "relationship",
+          "target": "AcceptanceCriteria",
+          "description": "This interfacecontract has related acceptancecriteria instances",
+          "accessor": "Use .acceptance_criteria to access related acceptancecriteria records"
+        },
+        "phases": {
+          "type": "relationship",
+          "target": "Phase",
+          "description": "This interfacecontract has related phase instances",
+          "accessor": "Use .phases to access related phase records"
+        }
+      },
+      "model_purpose": "Represents one interfacecontract with its specific attributes"
+    },
+    "Phase": {
+      "table_name": "phases",
+      "description": "Individual Phase model instance",
+      "table_description": "Collection of phase instances stored as rows",
+      "primary_key": "id (integer, NOT NULL, autoincrement)",
+      "fields": {
+        "id": {
+          "type": "integer",
+          "nullable": false,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "title": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        },
+        "status": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "progress": {
+          "type": "integer",
+          "nullable": true,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "started_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "completion_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "owner": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "severity": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "work_type": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "assignee": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "extra_data": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        }
+      },
+      "required_fields": [
+        "title",
+        "status"
+      ],
+      "relationships": {
+        "labels": {
+          "type": "relationship",
+          "target": "Label",
+          "description": "This phase has related label instances",
+          "accessor": "Use .labels to access related label records"
+        },
+        "goals": {
+          "type": "relationship",
+          "target": "Goal",
+          "description": "This phase has related goal instances",
+          "accessor": "Use .goals to access related goal records"
+        },
+        "steps": {
+          "type": "relationship",
+          "target": "Step",
+          "description": "This phase has related step instances",
+          "accessor": "Use .steps to access related step records"
+        },
+        "interface_contracts": {
+          "type": "relationship",
+          "target": "InterfaceContract",
+          "description": "This phase has related interfacecontract instances",
+          "accessor": "Use .interface_contracts to access related interfacecontract records"
+        }
+      },
+      "model_purpose": "Represents one phase with its specific attributes"
+    },
+    "Step": {
+      "table_name": "steps",
+      "description": "Individual Step model instance",
+      "table_description": "Collection of step instances stored as rows",
+      "primary_key": "id (integer, NOT NULL, autoincrement)",
+      "fields": {
+        "id": {
+          "type": "integer",
+          "nullable": false,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "title": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        },
+        "status": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "progress": {
+          "type": "integer",
+          "nullable": true,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "started_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "completion_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "owner": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "severity": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "work_type": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "assignee": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "extra_data": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        }
+      },
+      "required_fields": [
+        "title",
+        "status"
+      ],
+      "relationships": {
+        "labels": {
+          "type": "relationship",
+          "target": "Label",
+          "description": "This step has related label instances",
+          "accessor": "Use .labels to access related label records"
+        },
+        "phases": {
+          "type": "relationship",
+          "target": "Phase",
+          "description": "This step has related phase instances",
+          "accessor": "Use .phases to access related phase records"
+        },
+        "tasks": {
+          "type": "relationship",
+          "target": "Task",
+          "description": "This step has related task instances",
+          "accessor": "Use .tasks to access related task records"
+        }
+      },
+      "model_purpose": "Represents one step with its specific attributes"
+    },
+    "Task": {
+      "table_name": "tasks",
+      "description": "Individual Task model instance",
+      "table_description": "Collection of task instances stored as rows",
+      "primary_key": "id (integer, NOT NULL, autoincrement)",
+      "fields": {
+        "id": {
+          "type": "integer",
+          "nullable": false,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "title": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        },
+        "status": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "progress": {
+          "type": "integer",
+          "nullable": true,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "started_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "completion_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "owner": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "severity": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "work_type": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "assignee": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "extra_data": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        }
+      },
+      "required_fields": [
+        "title",
+        "status"
+      ],
+      "relationships": {
+        "labels": {
+          "type": "relationship",
+          "target": "Label",
+          "description": "This task has related label instances",
+          "accessor": "Use .labels to access related label records"
+        },
+        "goals": {
+          "type": "relationship",
+          "target": "Goal",
+          "description": "This task has related goal instances",
+          "accessor": "Use .goals to access related goal records"
+        },
+        "steps": {
+          "type": "relationship",
+          "target": "Step",
+          "description": "This task has related step instances",
+          "accessor": "Use .steps to access related step records"
+        },
+        "sub_tasks": {
+          "type": "relationship",
+          "target": "SubTask",
+          "description": "This task has related subtask instances",
+          "accessor": "Use .sub_tasks to access related subtask records"
+        }
+      },
+      "model_purpose": "Represents one task with its specific attributes"
+    },
+    "SubTask": {
+      "table_name": "sub_tasks",
+      "description": "Individual SubTask model instance",
+      "table_description": "Collection of subtask instances stored as rows",
+      "primary_key": "id (integer, NOT NULL, autoincrement)",
+      "fields": {
+        "id": {
+          "type": "integer",
+          "nullable": false,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "title": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        },
+        "status": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "progress": {
+          "type": "integer",
+          "nullable": true,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "started_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "completion_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "owner": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "severity": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "work_type": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "assignee": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "extra_data": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        }
+      },
+      "required_fields": [
+        "title",
+        "status"
+      ],
+      "relationships": {
+        "labels": {
+          "type": "relationship",
+          "target": "Label",
+          "description": "This subtask has related label instances",
+          "accessor": "Use .labels to access related label records"
+        },
+        "tasks": {
+          "type": "relationship",
+          "target": "Task",
+          "description": "This subtask has related task instances",
+          "accessor": "Use .tasks to access related task records"
+        },
+        "commands": {
+          "type": "relationship",
+          "target": "Command",
+          "description": "This subtask has related command instances",
+          "accessor": "Use .commands to access related command records"
+        }
+      },
+      "model_purpose": "Represents one subtask with its specific attributes"
+    },
+    "Command": {
+      "table_name": "commands",
+      "description": "Executable command script for accomplishing specific SubTasks",
+      "table_description": "Collection of executable commands that define what script or command to run to accomplish SubTasks",
+      "primary_key": "id (integer, NOT NULL, autoincrement)",
+      "fields": {
+        "id": {
+          "type": "integer",
+          "nullable": false,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "title": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        },
+        "status": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "progress": {
+          "type": "integer",
+          "nullable": true,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "started_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "completion_date": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "owner": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "severity": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "work_type": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "assignee": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "VARCHAR"
+        },
+        "acceptance_criteria_id": {
+          "type": "integer",
+          "nullable": true,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "cmd": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        },
+        "cmd_params": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        },
+        "runtime_env": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        },
+        "output": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        },
+        "artifacts": {
+          "type": "string",
+          "nullable": true,
+          "sqlalchemy_type": "TEXT"
+        }
+      },
+      "required_fields": [
+        "title",
+        "status"
+      ],
+      "relationships": {
+        "acceptance_criteria": {
+          "type": "relationship",
+          "target": "AcceptanceCriteria",
+          "description": "This command belongs to a specific acceptance criteria instance",
+          "accessor": "Use .acceptance_criteria to access the parent acceptance criteria record"
+        },
+        "labels": {
+          "type": "relationship",
+          "target": "Label",
+          "description": "This command has related label instances",
+          "accessor": "Use .labels to access related label records"
+        }
+      },
+      "model_purpose": "Represents the ONLY executable layer in ToDoWrite - defines what script or command to run to accomplish specific SubTasks"
+    },
+    "Label": {
+      "table_name": "labels",
+      "description": "Strategic categorization label for classifying models by purpose and type",
+      "table_description": "Collection of strategic labels used to categorize and classify models (strategic, financial, design, technical, etc.)",
+      "primary_key": "id (integer, NOT NULL, autoincrement)",
+      "fields": {
+        "id": {
+          "type": "integer",
+          "nullable": false,
+          "sqlalchemy_type": "INTEGER"
+        },
+        "name": {
+          "type": "string",
+          "nullable": false,
+          "sqlalchemy_type": "VARCHAR"
+        }
+      },
+      "required_fields": [
+        "name"
+      ],
+      "relationships": {
+        "goals": {
+          "type": "relationship",
+          "target": "Goal",
+          "description": "This label has related goal instances",
+          "accessor": "Use .goals to access related goal records"
+        },
+        "concepts": {
+          "type": "relationship",
+          "target": "Concept",
+          "description": "This label has related concept instances",
+          "accessor": "Use .concepts to access related concept records"
+        },
+        "contexts": {
+          "type": "relationship",
+          "target": "Context",
+          "description": "This label has related context instances",
+          "accessor": "Use .contexts to access related context records"
+        },
+        "constraints": {
+          "type": "relationship",
+          "target": "Constraints",
+          "description": "This label has related constraints instances",
+          "accessor": "Use .constraints to access related constraints records"
+        },
+        "requirements": {
+          "type": "relationship",
+          "target": "Requirements",
+          "description": "This label has related requirements instances",
+          "accessor": "Use .requirements to access related requirements records"
+        },
+        "acceptance_criteria": {
+          "type": "relationship",
+          "target": "AcceptanceCriteria",
+          "description": "This label has related acceptancecriteria instances",
+          "accessor": "Use .acceptance_criteria to access related acceptancecriteria records"
+        },
+        "interface_contracts": {
+          "type": "relationship",
+          "target": "InterfaceContract",
+          "description": "This label has related interfacecontract instances",
+          "accessor": "Use .interface_contracts to access related interfacecontract records"
+        },
+        "phases": {
+          "type": "relationship",
+          "target": "Phase",
+          "description": "This label has related phase instances",
+          "accessor": "Use .phases to access related phase records"
+        },
+        "steps": {
+          "type": "relationship",
+          "target": "Step",
+          "description": "This label has related step instances",
+          "accessor": "Use .steps to access related step records"
+        },
+        "tasks": {
+          "type": "relationship",
+          "target": "Task",
+          "description": "This label has related task instances",
+          "accessor": "Use .tasks to access related task records"
+        },
+        "sub_tasks": {
+          "type": "relationship",
+          "target": "SubTask",
+          "description": "This label has related subtask instances",
+          "accessor": "Use .sub_tasks to access related subtask records"
+        },
+        "commands": {
+          "type": "relationship",
+          "target": "Command",
+          "description": "This label has related command instances",
+          "accessor": "Use .commands to access related command records"
+        }
+      },
+      "model_purpose": "Represents a strategic categorization label used to classify models by purpose (strategic, financial, design, technical, etc.)"
+    }
+  },
+  "association_tables": {
+    "goals_concepts": {
+      "rails_associations": "Goal has_and_belongs_to_many :concepts (through this table), Concept has_and_belongs_to_many :goals (through this table)",
+      "purpose": "Implements the many-to-many relationship between Goal and Concept models",
+      "table_purpose": "Stores the specific Goal-Concept pairs that are associated",
+      "models_involved": [
+        "Goal",
+        "Concept"
+      ],
+      "columns": [
+        "goal_id",
+        "concept_id"
+      ],
+      "relationship_description": "These specific Goals are connected to these specific Concepts"
+    },
+    "goals_contexts": {
+      "rails_associations": "Goal has_and_belongs_to_many :contexts (through this table), Context has_and_belongs_to_many :goals (through this table)",
+      "purpose": "Implements the many-to-many relationship between Goal and Context models",
+      "table_purpose": "Stores the specific Goal-Context pairs that define 'why are we defining this goal'",
+      "models_involved": [
+        "Goal",
+        "Context"
+      ],
+      "columns": [
+        "goal_id",
+        "context_id"
+      ],
+      "relationship_description": "These specific Goals are defined within these specific Contexts"
+    },
+    "concepts_contexts": {
+      "rails_associations": "Concept has_and_belongs_to_many :contexts (through this table), Context has_and_belongs_to_many :concepts (through this table)",
+      "purpose": "Implements the many-to-many relationship between Concept and Context models",
+      "table_purpose": "Stores the specific Concept-Context pairs that define 'what conceptually are we building'",
+      "models_involved": [
+        "Concept",
+        "Context"
+      ],
+      "columns": [
+        "concept_id",
+        "context_id"
+      ],
+      "relationship_description": "These specific Concepts are viewed through these specific Contexts"
+    },
+    "requirements_concepts": {
+      "rails_associations": "Requirement has_and_belongs_to_many :concepts (through this table), Concept has_and_belongs_to_many :requirements (through this table)",
+      "purpose": "Implements the many-to-many relationship between Requirements and Concept models",
+      "table_purpose": "Stores the specific Requirement-Concept pairs that answer 'what conceptually do you mean?'",
+      "models_involved": [
+        "Requirements",
+        "Concept"
+      ],
+      "columns": [
+        "requirement_id",
+        "concept_id"
+      ],
+      "relationship_description": "These specific Requirements are clarified by these specific Concepts"
+    },
+    "requirements_contexts": {
+      "rails_associations": "Requirement has_and_belongs_to_many :contexts (through this table), Context has_and_belongs_to_many :requirements (through this table)",
+      "purpose": "Implements the many-to-many relationship between Requirements and Context models",
+      "table_purpose": "Stores the specific Requirement-Context pairs that answer 'in what context does this requirement apply?'",
+      "models_involved": [
+        "Requirements",
+        "Context"
+      ],
+      "columns": [
+        "requirement_id",
+        "context_id"
+      ],
+      "relationship_description": "These specific Requirements apply in these specific Contexts"
+    },
+    "constraints_requirements": {
+      "rails_associations": "Constraint has_and_belongs_to_many :requirements (through this table), Requirement has_and_belongs_to_many :constraints (through this table)",
+      "purpose": "Implements the many-to-many relationship between Constraints and Requirements models",
+      "table_purpose": "Stores the specific Constraint-Requirement pairs that define constraints",
+      "models_involved": [
+        "Constraints",
+        "Requirements"
+      ],
+      "columns": [
+        "constraint_id",
+        "requirement_id"
+      ],
+      "relationship_description": "These specific Constraints constrain these specific Requirements"
+    }
+  }
+}

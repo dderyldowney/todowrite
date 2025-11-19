@@ -2,42 +2,72 @@
 
 ## Overview
 
-This guide covers database schema migrations for the ToDoWrite system using SQLAlchemy. The system supports automatic schema migrations and handles both SQLite and PostgreSQL backends.
+This guide covers database schema migrations for the ToDoWrite hierarchical task management system using SQLAlchemy ORM. The system supports automatic schema migrations and handles both SQLite and PostgreSQL backends.
 
 ## Current Database Schema
 
-### Unified Node Architecture (v0.4.0+)
+### 12-Layer Model Architecture (Current)
 
-The current schema uses a unified approach defined in `lib_package/src/todowrite/database/node_mapping.py`:
+The current schema uses individual SQLAlchemy models for each hierarchical layer defined in `lib_package/src/todowrite/core/models.py`:
 
 #### Core Architecture
-- **NodeTable** - Simple database table for Node storage (thin persistence layer)
-- **core.types.Node** - Single source of truth for Node objects and business logic
-- **Association Tables** - Simplified tables for links, labels, commands, and artifacts
+- **12 Individual Models** - One database table per hierarchical layer
+- **SQLAlchemy ORM** - Professional database persistence with full relationships
+- **Foreign Key Constraints** - Enforced referential integrity
+- **Association Tables** - 29 join tables for many-to-many relationships
+- **Type Safety** - Full Python type hints throughout
 
-**Key Change**: No separate database models - everything works with `core.types.Node` objects directly.
+#### The 12 Hierarchical Layers
+1. **Goal** - High-level project objectives
+2. **Concept** - Design concepts and architectural patterns
+3. **Context** - Environmental and project context
+4. **Constraints** - Project constraints and limitations
+5. **Requirements** - Functional requirements
+6. **AcceptanceCriteria** - Acceptance conditions and criteria
+7. **InterfaceContract** - Interface specifications and contracts
+8. **Phase** - Project phases and milestones
+9. **Step** - Implementation steps
+10. **Task** - Specific tasks with progress tracking
+11. **SubTask** - Sub-tasks that break down larger tasks
+12. **Command** - Executable commands with run instructions
 
-#### Association Tables
-- **node_labels** - Many-to-many relationship between nodes and labels
+#### Additional Models
+- **Label** - Shared categorization system across all layers
+- **29 Association Tables** - Many-to-many relationships (e.g., goals_labels, tasks_labels)
 
 ## Database Initialization
 
 ### Automatic Schema Creation
 
 ```python
-from todowrite import ToDoWrite
+from todowrite import (
+    Goal, Concept, Context, Constraints, Requirements,
+    AcceptanceCriteria, InterfaceContract, Phase, Step,
+    Task, SubTask, Command, Label,
+    create_engine, sessionmaker
+)
 
-# Initialize with automatic schema creation
-tdw = ToDoWrite("sqlite:///project.db")
-tdw.init_database()  # Creates tables if they don't exist
+# Initialize database engine
+engine = create_engine("sqlite:///project.db")
+
+# Create all tables automatically
+from todowrite.core.models import Base
+Base.metadata.create_all(engine)
+
+# Initialize session
+Session = sessionmaker(bind=engine)
+session = Session()
 ```
 
 ### Manual Schema Control
 
 ```python
 # Create all tables
-from todowrite.database.node_mapping import Base, create_database_tables, engine
-create_database_tables(engine)
+from todowrite.core.models import Base
+from todowrite.database import initialize_database
+
+# Initialize all tables with proper constraints
+initialize_database(engine)
 
 # Drop all tables (development only)
 Base.metadata.drop_all(engine)
