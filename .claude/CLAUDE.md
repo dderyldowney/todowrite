@@ -329,3 +329,23 @@ For all technical decisions, consult:
 # Or automatic via startup hook
 .claude/hooks/session_startup_episodic_memory.py
 ```
+
+## 21. Episodic Memory Initialization - MANDATORY
+
+**ABSOLUTE REQUIREMENT**: ALL agents MUST ensure episodic memory is initialized and available
+
+- **MANDATORY**: Run episodic memory indexing before starting development work
+- **MANDATORY**: Ensure `/search-conversations` slash command is available
+- **MANDATORY**: Verify embedding model is loaded and ready
+- **MANDATORY**: Use episodic memory for context before starting new tasks
+- **AUTOMATED**: Session startup hooks ensure episodic memory is ready
+- **ZERO EXCEPTIONS**: This applies to ALL agents at ALL times
+
+### Implementation:
+```bash
+# Manual episodic memory initialization
+./dev_tools/ensure_episodic_memory.sh
+
+# Or automatic via startup hook
+.claude/hooks/session_startup_episodic_memory.py
+```

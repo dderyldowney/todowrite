@@ -21,11 +21,15 @@ fi
 echo "🔧 Initializing session with comprehensive enforcement..."
 python .claude/hooks/session_initialization.py
 
-# 4. Run AI CLI systems verification
+# 4. Run permanent enforcement activation (CRITICAL: runs after every /clear)
+echo "🔒 Activating permanent code quality enforcement..."
+python .claude/autorun.py
+
+# 5. Run AI CLI systems verification
 echo "🤖 Verifying AI CLI systems..."
 python .claude/hooks/session_startup_systems.py
 
-# 5. Initialize episodic memory
+# 6. Initialize episodic memory
 echo "🧠 Initializing episodic memory..."
 python .claude/hooks/session_startup_episodic_memory.py
 

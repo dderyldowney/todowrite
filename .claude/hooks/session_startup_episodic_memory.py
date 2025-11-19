@@ -9,12 +9,6 @@ def main():
     """Ensure episodic memory is ready for the session."""
     project_root = Path(__file__).parent.parent
 
-    # CRITICAL: Set project-specific episodic memory database path
-    import os
-
-    os.environ["EPISODIC_MEMORY_DB_PATH"] = ".claude/episodic_memory.db"
-    print("📍 Project episodic memory database: .claude/episodic_memory.db")
-
     # Check if episodic memory plugin is installed
     plugins_file = Path.home() / ".claude" / "plugins" / "installed_plugins.json"
     if not plugins_file.exists():
