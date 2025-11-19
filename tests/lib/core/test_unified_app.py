@@ -8,14 +8,13 @@ from pathlib import Path
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
 from todowrite.core.models import (
+    Base,
     Goal,
-    Task,
+    Label,
     Phase,
     Step,
-    Label,
-    Base,
+    Task,
 )
 
 
@@ -62,8 +61,7 @@ class TestUnifiedModelsAPI:
     def test_create_goal_with_minimal_data(self, session):
         """Test creating a goal with minimal required data."""
         goal_data = create_test_model_data(
-            title="Test Goal",
-            description="A test goal for the unified API"
+            title="Test Goal", description="A test goal for the unified API"
         )
 
         goal = Goal(**goal_data)
@@ -82,7 +80,7 @@ class TestUnifiedModelsAPI:
             title="Product Launch",
             description="Successfully launch the new product",
             owner="product-manager",
-            severity="high"
+            severity="high",
         )
         goal = Goal(**goal_data)
         session.add(goal)
@@ -93,7 +91,7 @@ class TestUnifiedModelsAPI:
             title="Development Phase",
             description="Core development work",
             owner="tech-lead",
-            work_type="development"
+            work_type="development",
         )
         phase = Phase(**phase_data)
         session.add(phase)
@@ -101,9 +99,7 @@ class TestUnifiedModelsAPI:
 
         # Create step
         step_data = create_test_model_data(
-            title="API Development",
-            description="Develop REST API endpoints",
-            owner="backend-dev"
+            title="API Development", description="Develop REST API endpoints", owner="backend-dev"
         )
         step = Step(**step_data)
         session.add(step)
@@ -114,7 +110,7 @@ class TestUnifiedModelsAPI:
             title="User Authentication",
             description="Implement user authentication system",
             owner="security-dev",
-            assignee="senior-dev"
+            assignee="senior-dev",
         )
         task = Task(**task_data)
         session.add(task)
@@ -197,7 +193,7 @@ class TestUnifiedModelsAPI:
             severity="critical",
             work_type="bug-fix",
             assignee="senior-developer",
-            extra_data='{"priority": 1, "estimated_hours": 40}'
+            extra_data='{"priority": 1, "estimated_hours": 40}',
         )
         session.add(goal)
         session.commit()
@@ -213,10 +209,7 @@ class TestUnifiedModelsAPI:
 
     def test_model_timestamps(self, session):
         """Test automatic timestamp functionality."""
-        goal = Goal(
-            title="Timestamp Test",
-            description="Testing created_at and updated_at"
-        )
+        goal = Goal(title="Timestamp Test", description="Testing created_at and updated_at")
         session.add(goal)
         session.commit()
 

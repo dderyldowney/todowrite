@@ -7,27 +7,19 @@ Tests functionality only - no fakes, no mocks, no stubs.
 from __future__ import annotations
 
 import tempfile
-from pathlib import Path
 
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
 from todowrite.core.models import (
     Base,
+    Command,
     Goal,
-    Task,
-    Concept,
-    Context,
-    Constraints,
-    Requirements,
-    AcceptanceCriteria,
-    InterfaceContract,
+    Label,
     Phase,
     Step,
     SubTask,
-    Command,
-    Label,
+    Task,
 )
 
 
@@ -37,7 +29,7 @@ class TestModelsCore:
     @pytest.fixture
     def temp_db_path(self):
         """Create a temporary database path."""
-        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as temp_file:
             yield temp_file.name
 
     @pytest.fixture
@@ -57,7 +49,7 @@ class TestModelsCore:
             title="Test Goal",
             owner="test-user",
             severity="high",
-            description="A test goal created via direct instantiation"
+            description="A test goal created via direct instantiation",
         )
 
         models_session.add(goal)
@@ -76,9 +68,7 @@ class TestModelsCore:
         """Test task creation with goal relationship."""
         # Create a goal first
         goal = Goal(
-            title="Parent Goal",
-            owner="test-user",
-            description="Parent goal for task testing"
+            title="Parent Goal", owner="test-user", description="Parent goal for task testing"
         )
         models_session.add(goal)
         models_session.commit()
@@ -86,10 +76,7 @@ class TestModelsCore:
 
         # Create task
         task = Task(
-            title="Test Task",
-            owner="test-user",
-            description="A test task",
-            status="in_progress"
+            title="Test Task", owner="test-user", description="A test task", status="in_progress"
         )
         models_session.add(task)
         models_session.commit()
@@ -111,16 +98,14 @@ class TestModelsCore:
             title="Launch Product",
             owner="product-team",
             severity="high",
-            description="Successfully launch the new product"
+            description="Successfully launch the new product",
         )
         models_session.add(goal)
         models_session.commit()
 
         # Create Phase
         phase = Phase(
-            title="Development Phase",
-            owner="dev-team",
-            description="Development and testing phase"
+            title="Development Phase", owner="dev-team", description="Development and testing phase"
         )
         models_session.add(phase)
         models_session.commit()
@@ -129,7 +114,7 @@ class TestModelsCore:
         step = Step(
             title="Implement Core Features",
             owner="dev-team",
-            description="Implement the main product features"
+            description="Implement the main product features",
         )
         models_session.add(step)
         models_session.commit()
@@ -140,7 +125,7 @@ class TestModelsCore:
             owner="backend-team",
             description="Implement user login and registration",
             status="in_progress",
-            progress=60
+            progress=60,
         )
         models_session.add(task)
         models_session.commit()
@@ -150,7 +135,7 @@ class TestModelsCore:
             title="Set up Database Schema",
             owner="backend-team",
             description="Create user tables and relationships",
-            status="completed"
+            status="completed",
         )
         models_session.add(subtask)
         models_session.commit()
@@ -161,7 +146,7 @@ class TestModelsCore:
             owner="backend-team",
             description="Execute database migration script",
             cmd="alembic upgrade head",
-            status="completed"
+            status="completed",
         )
         models_session.add(command)
         models_session.commit()
@@ -215,16 +200,8 @@ class TestModelsCore:
         backend_label = Label(name="backend")
 
         # Create goal and task
-        goal = Goal(
-            title="Critical Backend Fix",
-            owner="dev-team",
-            severity="high"
-        )
-        task = Task(
-            title="Fix Database Connection",
-            owner="backend-team",
-            status="in_progress"
-        )
+        goal = Goal(title="Critical Backend Fix", owner="dev-team", severity="high")
+        task = Task(title="Fix Database Connection", owner="backend-team", status="in_progress")
 
         models_session.add_all([urgent_label, backend_label, goal, task])
         models_session.commit()

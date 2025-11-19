@@ -11,8 +11,16 @@ from pathlib import Path
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-from todowrite.core.models import Base, Goal, Task, Concept, Context, Constraints, Requirements, AcceptanceCriteria, InterfaceContract, Phase, Step, SubTask, Command, Label
+from todowrite.core.models import (
+    Base,
+    Command,
+    Goal,
+    Label,
+    Phase,
+    Step,
+    SubTask,
+    Task,
+)
 
 
 class TestToDoWriteModels(unittest.TestCase):
@@ -21,7 +29,7 @@ class TestToDoWriteModels(unittest.TestCase):
     def setUp(self) -> None:
         """Set up isolated test database for each test."""
         # Create a temporary file for the test database
-        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
             self.test_db_path = tmp.name
 
         # Create engine and session
@@ -59,7 +67,7 @@ class TestToDoWriteModels(unittest.TestCase):
             description="A test goal for unit testing",
             owner="test-user",
             severity="medium",
-            status="planned"
+            status="planned",
         )
 
         # Save to database
@@ -82,9 +90,7 @@ class TestToDoWriteModels(unittest.TestCase):
         """Test creating goal and task with proper relationship."""
         # Create goal
         goal = Goal(
-            title="Parent Goal",
-            owner="test-user",
-            description="Goal with associated tasks"
+            title="Parent Goal", owner="test-user", description="Goal with associated tasks"
         )
         self.session.add(goal)
         self.session.commit()
@@ -96,7 +102,7 @@ class TestToDoWriteModels(unittest.TestCase):
             owner="test-user",
             description="Task associated with goal",
             status="in_progress",
-            progress=30
+            progress=30,
         )
         self.session.add(task)
         self.session.commit()
@@ -118,16 +124,14 @@ class TestToDoWriteModels(unittest.TestCase):
             title="Launch Product",
             owner="product-team",
             severity="high",
-            description="Successfully launch the new product"
+            description="Successfully launch the new product",
         )
         self.session.add(goal)
         self.session.commit()
 
         # Create Phase
         phase = Phase(
-            title="Development Phase",
-            owner="dev-team",
-            description="Development and testing phase"
+            title="Development Phase", owner="dev-team", description="Development and testing phase"
         )
         self.session.add(phase)
         self.session.commit()
@@ -136,7 +140,7 @@ class TestToDoWriteModels(unittest.TestCase):
         step = Step(
             title="Implement Core Features",
             owner="dev-team",
-            description="Implement the main product features"
+            description="Implement the main product features",
         )
         self.session.add(step)
         self.session.commit()
@@ -147,7 +151,7 @@ class TestToDoWriteModels(unittest.TestCase):
             owner="backend-team",
             description="Implement user login and registration",
             status="in_progress",
-            progress=60
+            progress=60,
         )
         self.session.add(task)
         self.session.commit()
@@ -157,7 +161,7 @@ class TestToDoWriteModels(unittest.TestCase):
             title="Set up Database Schema",
             owner="backend-team",
             description="Create user tables and relationships",
-            status="completed"
+            status="completed",
         )
         self.session.add(subtask)
         self.session.commit()
@@ -168,7 +172,7 @@ class TestToDoWriteModels(unittest.TestCase):
             owner="backend-team",
             description="Execute database migration script",
             cmd="alembic upgrade head",
-            status="completed"
+            status="completed",
         )
         self.session.add(command)
         self.session.commit()
@@ -207,16 +211,8 @@ class TestToDoWriteModels(unittest.TestCase):
         self.session.commit()
 
         # Create models
-        goal = Goal(
-            title="Critical Backend Feature",
-            owner="dev-team",
-            severity="high"
-        )
-        task = Task(
-            title="Implement API Endpoint",
-            owner="backend-team",
-            status="in_progress"
-        )
+        goal = Goal(title="Critical Backend Feature", owner="dev-team", severity="high")
+        task = Task(title="Implement API Endpoint", owner="backend-team", status="in_progress")
 
         self.session.add_all([goal, task])
         self.session.commit()
@@ -307,5 +303,5 @@ class TestToDoWriteModels(unittest.TestCase):
         self.assertEqual(len(goals), 1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,93 @@
+# Docker Compose configuration for testing PostgreSQL with ToDoWrite
+# This configuration is optimized for automated testing with faster startup and better isolation
+
+services:
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: todowrite-postgres-test
+    environment:
+      POSTGRES_DB: todowrite_test
+      POSTGRES_USER: todowrite
+      POSTGRES_PASSWORD: todowrite_test_password
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5433:5432"  # Use different port to avoid conflicts
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+      - ./test-init-scripts:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U todowrite -d todowrite_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+    labels:
+      - "todowrite-test=true"
+    networks:
+      - todowrite-test-network
+
+  # PostgreSQL with custom configuration for performance testing
+  postgres-perf:
+    image: postgres:16-alpine
+    container_name: todowrite-postgres-perf
+    environment:
+      POSTGRES_DB: todowrite_perf
+      POSTGRES_USER: todowrite
+      POSTGRES_PASSWORD: todowrite_perf_password
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5434:5432"  # Different port for performance testing
+    volumes:
+      - postgres_perf_data:/var/lib/postgresql/data
+      - ./perf-config/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U todowrite -d todowrite_perf"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+    labels:
+      - "todowrite-test=true"
+    networks:
+      - todowrite-test-network
+    profiles:
+      - performance
+
+  # Redis for testing future caching features
+  redis-test:
+    image: redis:7-alpine
+    container_name: todowrite-redis-test
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_test_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    labels:
+      - "todowrite-test=true"
+    networks:
+      - todowrite-test-network
+    profiles:
+      - redis
+
+volumes:
+  postgres_test_data:
+    driver: local
+  postgres_perf_data:
+    driver: local
+  redis_test_data:
+    driver: local
+
+networks:
+  todowrite-test-network:
+    name: todowrite-test-network
+    driver: bridge

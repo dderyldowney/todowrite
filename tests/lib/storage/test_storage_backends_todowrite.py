@@ -4,22 +4,19 @@ import tempfile
 from pathlib import Path
 
 import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
+from lib_package.src.todowrite.core.types import Base, Node
 from lib_package.src.todowrite.storage import (
-    StorageBackend,
+    NodeNotFoundError,
     PostgreSQLBackend,
     SQLiteBackend,
     create_storage_backend,
     detect_storage_backend_type,
-    validate_database_url,
     get_default_database_url,
-    NodeNotFoundError,
-    NodeCreationError,
-    StorageConnectionError,
+    validate_database_url,
 )
-from lib_package.src.todowrite.core.types import Node, Base
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 
 class TestStorageBackendFactoryModels:
@@ -52,7 +49,7 @@ class TestStorageBackendFactoryModels:
 
     def test_create_storage_backend_sqlite(self):
         """Test SQLite backend creation."""
-        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
             db_path = tmp.name
 
         try:
@@ -73,7 +70,7 @@ class TestStorageBackendFactoryModels:
             "sqlite:///tests/todowrite_testing.db",
             "sqlite:///:memory:",
             "/absolute/path/to/db.db",
-            "relative/path/to/db.db"
+            "relative/path/to/db.db",
         ]
         for url in valid_urls:
             result = validate_database_url(url)
@@ -89,12 +86,7 @@ class TestStorageBackendFactoryModels:
         """Test invalid database URL validation."""
         # Note: The validation function is quite permissive and accepts many URLs
         # This test documents the current behavior
-        test_urls = [
-            "invalid://format",
-            "",
-            "not-a-url",
-            "ftp://file.server.com/file.db"
-        ]
+        test_urls = ["invalid://format", "", "not-a-url", "ftp://file.server.com/file.db"]
         for url in test_urls:
             result = validate_database_url(url)
             # The function returns a tuple, check that it does
@@ -116,7 +108,7 @@ class TestSQLiteBackendModels:
 
     def test_sqlite_backend_connection(self):
         """Test SQLite backend connection and setup."""
-        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
             db_path = tmp.name
 
         try:
@@ -134,7 +126,7 @@ class TestSQLiteBackendModels:
 
     def test_sqlite_backend_create_node_with_Models(self):
         """Test creating nodes using storage backend with Models."""
-        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
             db_path = tmp.name
 
         try:
@@ -149,10 +141,7 @@ class TestSQLiteBackendModels:
             backend.connect_to_storage()
 
             # Create goal using Models first
-            goal = Node.create_goal(
-                title="Storage Test Goal",
-                owner="test-user"
-            )
+            goal = Node.create_goal(title="Storage Test Goal", owner="test-user")
 
             # Now use storage backend - should detect it already exists
             result = backend.create_new_node(goal)
@@ -173,7 +162,7 @@ class TestSQLiteBackendModels:
 
     def test_sqlite_backend_relationships_with_Models(self):
         """Test relationship creation using storage backend with Models."""
-        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
             db_path = tmp.name
 
         try:
@@ -191,17 +180,11 @@ class TestSQLiteBackendModels:
             goal = Node.create_goal("Parent Goal", "test-user")
             backend.create_new_node(goal)
 
-            phase = Node.new(
-                layer="Constraints",
-                title="Child Phase",
-                owner="test-user"
-            ).save()
+            phase = Node.new(layer="Constraints", title="Child Phase", owner="test-user").save()
             backend.create_new_node(phase)
 
             # Create relationship using storage backend (should use Models)
-            relationship_result = backend.create_parent_child_relationship(
-                goal.id, phase.id
-            )
+            relationship_result = backend.create_parent_child_relationship(goal.id, phase.id)
             assert relationship_result.was_newly_linked
             assert relationship_result.parent_id == goal.id
             assert relationship_result.child_id == phase.id
@@ -223,7 +206,7 @@ class TestSQLiteBackendModels:
 
     def test_sqlite_backend_update_with_Models(self):
         """Test updating nodes using storage backend with Models."""
-        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
             db_path = tmp.name
 
         try:
@@ -243,11 +226,7 @@ class TestSQLiteBackendModels:
 
             # Update using storage backend
             updated_node = backend.update_existing_node(
-                node.id,
-                {
-                    "progress": 50,
-                    "status": "in_progress"
-                }
+                node.id, {"progress": 50, "status": "in_progress"}
             )
             assert updated_node.progress == 50
             assert updated_node.status == "in_progress"
@@ -265,7 +244,7 @@ class TestSQLiteBackendModels:
 
     def test_sqlite_backend_delete_with_Models(self):
         """Test deleting nodes using storage backend with Models."""
-        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
             db_path = tmp.name
 
         try:
@@ -306,7 +285,7 @@ class TestSQLiteBackendModels:
 
     def test_sqlite_backend_list_nodes_by_layer(self):
         """Test listing nodes by layer using Models."""
-        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
             db_path = tmp.name
 
         try:
@@ -355,4 +334,5 @@ class TestSQLiteBackendModels:
 if __name__ == "__main__":
     # Allow running as script for debugging
     import sys
+
     sys.exit(pytest.main([__file__]))

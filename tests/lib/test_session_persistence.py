@@ -14,14 +14,15 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-
-from todowrite.core.models import Base, Goal, Task, Label
+from todowrite.core.models import Base, Goal, Label, Task
 
 
 class TestSessionPersistence:
     """Test class for session persistence functionality."""
 
-    def test_session_marker_creation_missing_directory_should_fail_with_file_not_found_error(self) -> None:
+    def test_session_marker_creation_missing_directory_should_fail_with_file_not_found_error(
+        self,
+    ) -> None:
         """
         RED: Test that session marker creation fails when directory doesn't exist.
 
@@ -51,7 +52,7 @@ class TestSessionPersistence:
             "session_id": "test-session-123",
             "created_at": "2025-01-01T00:00:00Z",
             "user_id": "test-user",
-            "data": {"test": "data"}
+            "data": {"test": "data"},
         }
 
         # Ensure parent directory exists
@@ -59,7 +60,7 @@ class TestSessionPersistence:
             raise FileNotFoundError(f"Parent directory does not exist: {session_path.parent}")
 
         # Write session marker
-        with open(session_path, 'w') as f:
+        with open(session_path, "w") as f:
             json.dump(session_data, f, indent=2)
 
         return session_data
@@ -80,7 +81,7 @@ class TestSessionPersistence:
             # Verify file was created and contains correct data
             assert session_path.exists()
 
-            with open(session_path, 'r') as f:
+            with open(session_path) as f:
                 loaded_data = json.load(f)
 
             assert loaded_data["session_id"] == "test-session-123"
@@ -105,22 +106,22 @@ class TestSessionPersistence:
                 "data": {
                     "goals": [
                         {"title": "Goal 1", "priority": "high"},
-                        {"title": "Goal 2", "priority": "low"}
+                        {"title": "Goal 2", "priority": "low"},
                     ],
                     "settings": {
                         "theme": "dark",
                         "notifications": True,
-                        "preferences": {"language": "en", "timezone": "UTC"}
-                    }
-                }
+                        "preferences": {"language": "en", "timezone": "UTC"},
+                    },
+                },
             }
 
             # Write complex data
-            with open(session_path, 'w') as f:
+            with open(session_path, "w") as f:
                 json.dump(complex_session_data, f, indent=2)
 
             # Load and verify integrity
-            with open(session_path, 'r') as f:
+            with open(session_path) as f:
                 loaded_data = json.load(f)
 
             assert loaded_data == complex_session_data
@@ -143,10 +144,10 @@ class TestSessionPersistence:
                 session_data = {
                     "session_id": f"concurrent-session-{i}",
                     "user_id": f"user-{i}",
-                    "data": {"index": i, "concurrent": True}
+                    "data": {"index": i, "concurrent": True},
                 }
 
-                with open(session_path, 'w') as f:
+                with open(session_path, "w") as f:
                     json.dump(session_data, f, indent=2)
 
                 sessions.append(session_data)
@@ -154,7 +155,7 @@ class TestSessionPersistence:
             # Verify all sessions were created correctly
             for i, expected_data in enumerate(sessions):
                 session_path = Path(temp_dir) / f"session_{i}.json"
-                with open(session_path, 'r') as f:
+                with open(session_path) as f:
                     loaded_data = json.load(f)
 
                 assert loaded_data["session_id"] == f"concurrent-session-{i}"
@@ -185,7 +186,7 @@ class TestSessionPersistence:
                 goal = Goal(
                     title="Persistence Test Goal",
                     description="Testing database persistence",
-                    owner="test-user"
+                    owner="test-user",
                 )
                 session.add(goal)
 
@@ -196,7 +197,7 @@ class TestSessionPersistence:
                     title="Persistence Test Task",
                     description="Task for persistence testing",
                     owner="test-user",
-                    assignee="developer"
+                    assignee="developer",
                 )
                 session.add(task)
 
@@ -243,13 +244,12 @@ class TestSessionPersistence:
             session_path = Path(temp_dir) / "invalid.json"
 
             # Write invalid JSON
-            with open(session_path, 'w') as f:
+            with open(session_path, "w") as f:
                 f.write('{"invalid": json content}')  # Invalid JSON syntax
 
             # Should raise JSONDecodeError when trying to load
-            with pytest.raises(json.JSONDecodeError):
-                with open(session_path, 'r') as f:
-                    json.load(f)
+            with pytest.raises(json.JSONDecodeError), open(session_path) as f:
+                json.load(f)
 
     def test_session_persistence_with_models_data(self) -> None:
         """
@@ -273,33 +273,28 @@ class TestSessionPersistence:
                             "title": "Test Goal from Session",
                             "description": "Goal created in session",
                             "owner": "session-owner",
-                            "severity": "medium"
+                            "severity": "medium",
                         }
                     ],
-                    "labels": [
-                        {
-                            "id": 1,
-                            "name": "session-label"
-                        }
-                    ],
+                    "labels": [{"id": 1, "name": "session-label"}],
                     "tasks": [
                         {
                             "id": 1,
                             "title": "Session Task",
                             "description": "Task from session",
                             "owner": "task-owner",
-                            "assignee": "task-assignee"
+                            "assignee": "task-assignee",
                         }
-                    ]
-                }
+                    ],
+                },
             }
 
             # Write session data
-            with open(session_path, 'w') as f:
+            with open(session_path, "w") as f:
                 json.dump(models_session_data, f, indent=2)
 
             # Load and verify model data integrity
-            with open(session_path, 'r') as f:
+            with open(session_path) as f:
                 loaded_data = json.load(f)
 
             assert loaded_data["session_id"] == "models-session-789"
