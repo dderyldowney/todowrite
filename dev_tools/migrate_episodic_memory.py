@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
-"""
-Migrate episodic memory conversations from global database to project-specific database
+"""Migrate episodic memory conversations from global database to project-specific database
 
 This script extracts only the current project's conversations from the global episodic memory
 database and imports them into the project-specific database, maintaining project isolation.
 """
 
-import os
-import sys
-import shutil
-from pathlib import Path
-import sqlite3
 import argparse
-from typing import List, Dict, Any
+import os
+import shutil
+import sqlite3
+import sys
+from pathlib import Path
+from typing import Any
 
-def get_project_conversation_paths(project_root: Path) -> List[str]:
+
+def get_project_conversation_paths(project_root: Path) -> list[str]:
     """Get all possible conversation directory paths for the current project"""
     project_root = project_root.resolve()
 
@@ -22,7 +22,7 @@ def get_project_conversation_paths(project_root: Path) -> List[str]:
     paths = []
 
     # Current working directory approach
-    cwd_encoded = str(project_root).lstrip('/').replace('/', '-')
+    cwd_encoded = str(project_root).lstrip("/").replace("/", "-")
     paths.append(f"-Users-{cwd_encoded}")
 
     # Alternative encoding approaches
@@ -33,14 +33,15 @@ def get_project_conversation_paths(project_root: Path) -> List[str]:
     # Also check common variations
     home = Path.home()
     if str(project_root).startswith(str(home)):
-        relative = str(project_root).replace(str(home), "~").lstrip('~').lstrip('/')
-        relative_encoded = relative.replace('/', '-')
+        relative = str(project_root).replace(str(home), "~").lstrip("~").lstrip("/")
+        relative_encoded = relative.replace("/", "-")
         paths.append(f"-Users-{relative_encoded}")
 
     # Remove duplicates
     return list(set(paths))
 
-def find_global_conversations(project_conversation_paths: List[str]) -> List[str]:
+
+def find_global_conversations(project_conversation_paths: list[str]) -> list[str]:
     """Find conversation files in global episodic memory archive"""
     global_archive = Path.home() / ".config" / "superpowers" / "conversation-archive"
 
@@ -60,7 +61,10 @@ def find_global_conversations(project_conversation_paths: List[str]) -> List[str
 
     return conversations
 
-def extract_project_conversations_from_global_db(project_paths: List[str], project_db_path: Path) -> List[Dict[str, Any]]:
+
+def extract_project_conversations_from_global_db(
+    project_paths: list[str], project_db_path: Path
+) -> list[dict[str, Any]]:
     """Extract project-specific conversations from global episodic memory database"""
     global_db_path = Path.home() / ".config" / "superpowers" / "conversation-index" / "db.sqlite"
 
@@ -81,7 +85,7 @@ def extract_project_conversations_from_global_db(project_paths: List[str], proje
         print(f"📋 Database columns: {column_names}")
 
         # Query for exchanges that match our project paths (adjust column names as needed)
-        if 'content' in column_names:
+        if "content" in column_names:
             query = f"""
             SELECT DISTINCT id, project, timestamp, content, role, metadata
             FROM exchanges
@@ -102,14 +106,16 @@ def extract_project_conversations_from_global_db(project_paths: List[str], proje
 
         conversations = []
         for row in rows:
-            conversations.append({
-                'id': row[0],
-                'project': row[1],
-                'timestamp': row[2],
-                'content': row[3],
-                'role': row[4],
-                'metadata': row[5]
-            })
+            conversations.append(
+                {
+                    "id": row[0],
+                    "project": row[1],
+                    "timestamp": row[2],
+                    "content": row[3],
+                    "role": row[4],
+                    "metadata": row[5],
+                }
+            )
 
         conn.close()
         print(f"📊 Found {len(conversations)} project-specific exchanges in global database")
@@ -118,6 +124,7 @@ def extract_project_conversations_from_global_db(project_paths: List[str], proje
     except Exception as e:
         print(f"❌ Error reading global database: {e}")
         return []
+
 
 def create_project_database(project_db_path: Path) -> bool:
     """Create project-specific episodic memory database"""
@@ -146,40 +153,55 @@ def create_project_database(project_db_path: Path) -> bool:
 
         # Run episodic memory index on project archive
         import subprocess
-        episodic_cli = Path.home() / ".claude" / "plugins" / "cache" / "episodic-memory" / "cli" / "episodic-memory.js"
+
+        episodic_cli = (
+            Path.home()
+            / ".claude"
+            / "plugins"
+            / "cache"
+            / "episodic-memory"
+            / "cli"
+            / "episodic-memory.js"
+        )
 
         if episodic_cli.exists():
             # Set environment variable for project database
             env = os.environ.copy()
-            env['EPISODIC_MEMORY_DB_PATH'] = str(project_db_path)
+            env["EPISODIC_MEMORY_DB_PATH"] = str(project_db_path)
 
             print("🔧 Indexing project conversations...")
             result = subprocess.run(
                 ["node", str(episodic_cli), "index", "--cleanup", "--concurrency", "2"],
+                check=False,
                 env=env,
                 capture_output=True,
                 text=True,
-                timeout=120
+                timeout=120,
             )
 
             if result.returncode == 0:
                 print("✅ Successfully indexed project conversations")
                 return True
-            else:
-                print(f"❌ Error indexing conversations: {result.stderr}")
-                return False
-        else:
-            print(f"❌ Episodic memory CLI not found: {episodic_cli}")
+            print(f"❌ Error indexing conversations: {result.stderr}")
             return False
+        print(f"❌ Episodic memory CLI not found: {episodic_cli}")
+        return False
 
     except Exception as e:
         print(f"❌ Error creating project database: {e}")
         return False
 
+
 def main():
-    parser = argparse.ArgumentParser(description="Migrate episodic memory to project-specific database")
-    parser.add_argument("--project-root", type=str, help="Project root directory (default: current directory)")
-    parser.add_argument("--dry-run", action="store_true", help="Show what would be migrated without doing it")
+    parser = argparse.ArgumentParser(
+        description="Migrate episodic memory to project-specific database"
+    )
+    parser.add_argument(
+        "--project-root", type=str, help="Project root directory (default: current directory)"
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Show what would be migrated without doing it"
+    )
     parser.add_argument("--force", action="store_true", help="Overwrite existing project database")
 
     args = parser.parse_args()
@@ -206,9 +228,11 @@ def main():
     if args.dry_run:
         # Just show what would be migrated
         conversations = find_global_conversations(project_conversation_paths)
-        db_conversations = extract_project_conversations_from_global_db(project_conversation_paths, project_db_path)
+        db_conversations = extract_project_conversations_from_global_db(
+            project_conversation_paths, project_db_path
+        )
 
-        print(f"\n📊 DRY RUN RESULTS:")
+        print("\n📊 DRY RUN RESULTS:")
         print(f"   Found {len(conversations)} conversation files")
         print(f"   Found {len(db_conversations)} database exchanges")
         print(f"   Project database would be: {project_db_path}")
@@ -216,7 +240,9 @@ def main():
 
     # Check if we have anything to migrate
     conversations = find_global_conversations(project_conversation_paths)
-    db_conversations = extract_project_conversations_from_global_db(project_conversation_paths, project_db_path)
+    db_conversations = extract_project_conversations_from_global_db(
+        project_conversation_paths, project_db_path
+    )
 
     if not conversations and not db_conversations:
         print("ℹ️  No project conversations found in global episodic memory")
@@ -227,12 +253,13 @@ def main():
     print(f"\n🚀 Starting migration to project database: {project_db_path}")
 
     if create_project_database(project_db_path):
-        print(f"✅ Migration completed successfully!")
+        print("✅ Migration completed successfully!")
         print(f"   Project database: {project_db_path}")
-        print(f"   Run './dev_tools/project_episodic_memory.sh stats' to verify")
+        print("   Run './dev_tools/project_episodic_memory.sh stats' to verify")
     else:
-        print(f"❌ Migration failed")
+        print("❌ Migration failed")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

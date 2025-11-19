@@ -3,8 +3,8 @@
 
 import os
 import subprocess
-import sys
 from pathlib import Path
+
 
 def main():
     """Index current project conversations at session end"""
@@ -20,10 +20,7 @@ def main():
         # Run project-specific indexing
         try:
             result = subprocess.run(
-                [str(script_path), "index"],
-                capture_output=True,
-                text=True,
-                timeout=300
+                [str(script_path), "index"], capture_output=True, text=True, timeout=300
             )
             if result.returncode == 0:
                 print("✅ Project episodic memory indexed successfully")
@@ -33,6 +30,7 @@ def main():
             print("⏳ Episodic memory indexing timed down...")
         except Exception as e:
             print(f"⚠️  Episodic memory error: {e}")
+
 
 if __name__ == "__main__":
     main()

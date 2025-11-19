@@ -958,4 +958,3 @@ Node.where(...)  # REMOVED
 # Or automatic via startup hook
 .claude/hooks/session_startup_episodic_memory.py
 ```
-
