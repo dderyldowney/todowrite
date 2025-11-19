@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16.10-alpine
     container_name: todowrite-postgres
     environment:
       POSTGRES_DB: todowrite
@@ -42,10 +42,13 @@ services:
     restart: unless-stopped
 
 volumes:
+  # Persistent development database volume - survives container restarts and system reboots
   postgres_data:
     driver: local
+    name: todowrite_postgres_development_data
   pgadmin_data:
     driver: local
+    name: todowrite_pgadmin_data
 
 networks:
   default:

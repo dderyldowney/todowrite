@@ -10,8 +10,9 @@
 ```bash
 # REQUIRED before ANY operation
 source $PWD/.venv/bin/activate
-export TODOWRITE_DATABASE_URL="sqlite:///$HOME/dbs/todowrite_development.db"
 export PYTHONPATH="lib_package/src:cli_package/src"
+# PostgreSQL development database is auto-configured by startup script
+# Manual override: export TODOWRITE_DATABASE_URL="postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"
 ```
 
 **FORBIDDEN**:
@@ -20,20 +21,23 @@ export PYTHONPATH="lib_package/src:cli_package/src"
 - ❌ Hardcoded absolute paths (use `$HOME/` and `$PWD/` only)
 
 ### 2. DATABASE ENFORCEMENT - ALWAYS ENFORCED
-**MANDATORY DATABASE**: `$HOME/dbs/todowrite_development.db`
+**MANDATORY DATABASE**: PostgreSQL development database (auto-configured via Docker)
 
 **REQUIRED VERIFICATION** (before any work):
 ```bash
-# Database must contain this goal
+# PostgreSQL development database is auto-initialized by startup script
+# Database must contain this goal:
 todowrite list --layer goal --title "Enhance ToDoWrite Planning Capabilities"
-# Must have 143+ records across all layers
+# Must have 140+ records across all layers (PostgreSQL with persistent volume)
 todowrite list --verify-completeness
 ```
 
 **FORBIDDEN**:
 - ❌ Database files in project root
-- ❌ Any database except `$HOME/dbs/todowrite_development.db`
+- ❌ SQLite database for new development work (use PostgreSQL only)
 - ❌ Hardcoded absolute database paths
+- ❌ Manual database URL overrides without approval
+- ❌ Direct PostgreSQL container manipulation without startup script
 
 ### 3. BRANCH WORKFLOW - ALWAYS ENFORCED
 - ❌ Direct commits to `main` (production releases only)
@@ -65,8 +69,8 @@ todowrite list --verify-completeness
 ```bash
 # 1. Activate venv
 source $PWD/.venv/bin/activate
-# 2. Set database
-export TODOWRITE_DATABASE_URL="sqlite:///$HOME/dbs/todowrite_development.db"
+# 2. Set database (PostgreSQL is auto-configured by startup script)
+# Manual override: export TODOWRITE_DATABASE_URL="postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"
 # 3. Load and apply CLAUDE.md rules
 todowrite --enforce-claude-rules
 # 4. Verify database content
@@ -223,7 +227,7 @@ When `/clear` is issued, the CLI MUST:
 ```bash
 # 1. Environment (MANDATORY)
 source $PWD/.venv/bin/activate
-export TODOWRITE_DATABASE_URL="sqlite:///$HOME/dbs/todowrite_development.db"
+# PostgreSQL development database is auto-configured by startup script
 
 # 2. Verification (MANDATORY)
 todowrite list --layer goal --title "Enhance ToDoWrite Planning Capabilities"

@@ -5,7 +5,10 @@ echo "🚀 Running session startup enforcement..."
 
 # 1. Set required environment variables
 export PYTHONPATH="lib_package/src:cli_package/src"
-export TODOWRITE_DATABASE_URL="sqlite:///$HOME/dbs/todowrite_development.db"
+
+# PostgreSQL is now the preferred development backend
+# The setup_postgresql_development.py script will configure the correct URL
+# export TODOWRITE_DATABASE_URL will be set by the PostgreSQL setup script
 
 # CRITICAL: Set project-specific episodic memory database path
 export EPISODIC_MEMORY_DB_PATH=".claude/episodic_memory.db"
@@ -17,19 +20,35 @@ if [[ "$VIRTUAL_ENV" == "" ]]; then
     source "$PWD/.venv/bin/activate"
 fi
 
-# 3. Run comprehensive session initialization
+# 3. Initialize PostgreSQL development environment
+echo "🐳 Initializing PostgreSQL development environment..."
+python .claude/hooks/setup_postgresql_development.py
+
+# Source PostgreSQL environment if created
+if [ -f ".claude/postgresql_env.sh" ]; then
+    echo "🔧 Loading PostgreSQL environment..."
+    source .claude/postgresql_env.sh
+fi
+
+# Source episodic memory environment if created
+if [ -f ".claude/episodic_memory_env.sh" ]; then
+    echo "🧠 Loading episodic memory PostgreSQL environment..."
+    source .claude/episodic_memory_env.sh
+fi
+
+# 4. Run comprehensive session initialization
 echo "🔧 Initializing session with comprehensive enforcement..."
 python .claude/hooks/session_initialization.py
 
-# 4. Run permanent enforcement activation (CRITICAL: runs after every /clear)
+# 5. Run permanent enforcement activation (CRITICAL: runs after every /clear)
 echo "🔒 Activating permanent code quality enforcement..."
 python .claude/autorun.py
 
-# 5. Run AI CLI systems verification
+# 6. Run AI CLI systems verification
 echo "🤖 Verifying AI CLI systems..."
 python .claude/hooks/session_startup_systems.py
 
-# 6. Initialize episodic memory
+# 7. Initialize episodic memory
 echo "🧠 Initializing episodic memory..."
 python .claude/hooks/session_startup_episodic_memory.py
 

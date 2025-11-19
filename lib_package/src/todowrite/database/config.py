@@ -32,7 +32,7 @@ class StoragePreference(Enum):
 
 
 # Global storage preference - can be overridden
-storage_preference: StoragePreference = StoragePreference.AUTO
+storage_preference: StoragePreference = StoragePreference.POSTGRESQL_ONLY
 
 
 def get_database_url() -> str:
@@ -82,12 +82,204 @@ def check_postgresql_connection(url: str) -> bool:
     try:
         from sqlalchemy import create_engine, text
 
-        engine = create_engine(url)
+        engine = create_engine(url, pool_pre_ping=True, pool_timeout=5)
         with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
-        return True
+            result = conn.execute(text("SELECT 1"))
+            return result.scalar() == 1
     except Exception:
         return False
+
+
+def is_docker_available() -> bool:
+    """Check if Docker is available and running."""
+    try:
+        import subprocess
+        # Check if Docker daemon is running
+        result = subprocess.run(
+            ["docker", "info"],
+            capture_output=True,
+            check=True,
+            timeout=5,
+        )
+        return result.returncode == 0
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError):
+        return False
+
+
+def is_docker_postgresql_running() -> bool:
+    """Check if PostgreSQL Docker container is running."""
+    if not is_docker_available():
+        return False
+
+    try:
+        import subprocess
+        import json
+
+        # Check for running PostgreSQL containers (try multiple methods)
+        # Method 1: Filter by image name
+        result = subprocess.run(
+            ["docker", "ps", "--filter", "ancestor=postgres", "--format", "json"],
+            capture_output=True,
+            timeout=10,
+        )
+
+        if result.returncode == 0 and result.stdout:
+            # Docker --format json outputs JSONL (one JSON per line)
+            lines = result.stdout.decode().strip().split('\n')
+            for line in lines:
+                if line.strip():
+                    container = json.loads(line)
+                    if container.get("State") == "running":
+                        return True
+
+        # Method 2: Filter by image name (more permissive)
+        result = subprocess.run(
+            ["docker", "ps", "--filter", "name=postgres", "--format", "json"],
+            capture_output=True,
+            timeout=10,
+        )
+
+        if result.returncode == 0 and result.stdout:
+            # Docker --format json outputs JSONL (one JSON per line)
+            lines = result.stdout.decode().strip().split('\n')
+            for line in lines:
+                if line.strip():
+                    container = json.loads(line)
+                    if container.get("State") == "running":
+                        return True
+
+        # Method 3: Check all containers for postgres in image name
+        result = subprocess.run(
+            ["docker", "ps", "--format", "json"],
+            capture_output=True,
+            timeout=10,
+        )
+
+        if result.returncode == 0 and result.stdout:
+            # Docker --format json outputs JSONL (one JSON per line)
+            lines = result.stdout.decode().strip().split('\n')
+            for line in lines:
+                if line.strip():
+                    container = json.loads(line)
+                    image = container.get("Image", "")
+                    names = container.get("Names", "")
+                    if (container.get("State") == "running" and
+                        ("postgres" in image.lower() or "postgres" in str(names))):
+                        return True
+
+    except Exception:
+        pass
+
+    return False
+
+
+def get_docker_postgresql_candidates() -> list[str]:
+    """Get PostgreSQL connection candidates from running Docker containers."""
+    candidates = []
+
+    if not is_docker_available():
+        return candidates
+
+    try:
+        import subprocess
+        import json
+
+        # Use the same detection logic as is_docker_postgresql_running
+        # Method 1: Filter by image name
+        result = subprocess.run(
+            ["docker", "ps", "--filter", "ancestor=postgres", "--format", "json"],
+            capture_output=True,
+            timeout=10,
+        )
+
+        if result.returncode == 0 and result.stdout:
+            # Docker --format json outputs JSONL (one JSON per line)
+            lines = result.stdout.decode().strip().split('\n')
+            for line in lines:
+                if line.strip():
+                    container = json.loads(line)
+                    if container.get("State") == "running":
+                        # Extract port information
+                        ports = container.get("Ports", "")
+                        port = _extract_port_from_container(container)
+                        candidates.append(
+                            f"postgresql://todowrite:todowrite_dev_password@localhost:{port}/todowrite"
+                        )
+
+        # Method 2: Filter by container name (more permissive)
+        result = subprocess.run(
+            ["docker", "ps", "--filter", "name=postgres", "--format", "json"],
+            capture_output=True,
+            timeout=10,
+        )
+
+        if result.returncode == 0 and result.stdout:
+            # Docker --format json outputs JSONL (one JSON per line)
+            lines = result.stdout.decode().strip().split('\n')
+            for line in lines:
+                if line.strip():
+                    container = json.loads(line)
+                    if container.get("State") == "running":
+                        # Extract port information
+                        ports = container.get("Ports", "")
+                        port = _extract_port_from_container(container)
+                        candidates.append(
+                            f"postgresql://todowrite:todowrite_dev_password@localhost:{port}/todowrite"
+                        )
+
+        # Method 3: Check all containers for postgres in image or name
+        result = subprocess.run(
+            ["docker", "ps", "--format", "json"],
+            capture_output=True,
+            timeout=10,
+        )
+
+        if result.returncode == 0 and result.stdout:
+            # Docker --format json outputs JSONL (one JSON per line)
+            lines = result.stdout.decode().strip().split('\n')
+            for line in lines:
+                if line.strip():
+                    container = json.loads(line)
+                    if container.get("State") == "running":
+                        image = container.get("Image", "")
+                        names = container.get("Names", [])
+                        if ("postgres" in image.lower() or "postgres" in str(names)):
+                            port = _extract_port_from_container(container)
+                            candidates.append(
+                                f"postgresql://todowrite:todowrite_dev_password@localhost:{port}/todowrite"
+                            )
+
+    except Exception:
+        pass
+
+    return candidates
+
+
+def _extract_port_from_container(container: dict[str, Any]) -> int:
+    """Extract PostgreSQL port from Docker container info."""
+    ports = container.get("Ports", "")
+
+    # Default PostgreSQL ports
+    if "5434" in ports:
+        return 5434  # Performance testing container
+    elif "5433" in ports:
+        return 5433  # Test container
+    elif "5432" in ports:
+        return 5432  # Default container
+
+    # Extract port from port mapping if available
+    # Format is typically "0.0.0.0:5432->5432/tcp"
+    port_mappings = ports.split(", ") if ports else []
+    for mapping in port_mappings:
+        if "->" in mapping:
+            try:
+                host_port = mapping.split("->")[0].split(":")[-1]
+                if host_port.isdigit():
+                    return int(host_port)
+            except (ValueError, IndexError):
+                continue
+
+    return 5432  # Default fallback
 
 
 def check_sqlite_connection(url: str) -> bool:
@@ -107,6 +299,10 @@ def get_postgresql_candidates() -> list[str]:
     """Get list of potential PostgreSQL connection URLs to try."""
     candidates: list[str] = []
 
+    # Check Docker PostgreSQL containers first (highest priority)
+    docker_candidates = get_docker_postgresql_candidates()
+    candidates.extend(docker_candidates)
+
     # Explicit URL from environment (read dynamically)
     db_url = get_database_url()
     if db_url and db_url.startswith("postgresql:"):
@@ -114,7 +310,7 @@ def get_postgresql_candidates() -> list[str]:
 
     # Standard localhost (simple, no Docker detection)
     candidates.append(
-        "postgresql://ToDoWrite:ToDoWrite_dev_password@localhost:5432/ToDoWrite"
+        "postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"
     )
 
     return candidates
@@ -156,10 +352,17 @@ def _handle_explicit_database_url(
 
 
 def _try_postgresql_candidates() -> tuple[StorageType, str] | None:
-    """Try to find a working PostgreSQL connection."""
-    for url in get_postgresql_candidates():
-        if check_postgresql_connection(url):
-            return StorageType.POSTGRESQL, url
+    """Try to find a working PostgreSQL connection (legacy compatibility)."""
+    # This function is kept for backward compatibility but the actual logic
+    # is now in _try_native_postgresql_candidates and _try_docker_postgresql_candidates
+    native_result = _try_native_postgresql_candidates()
+    if native_result:
+        return native_result
+
+    docker_result = _try_docker_postgresql_candidates()
+    if docker_result:
+        return docker_result
+
     return None
 
 
@@ -172,19 +375,59 @@ def _try_sqlite_candidates() -> tuple[StorageType, str] | None:
 
 
 def _auto_detect_storage() -> tuple[StorageType, str | None]:
-    """Auto-detect the best available storage backend."""
-    # Try PostgreSQL first
-    postgresql_result = _try_postgresql_candidates()
-    if postgresql_result:
-        return postgresql_result
+    """Auto-detect the best available storage backend following priority: Native PostgreSQL → Docker PostgreSQL → SQLite3 → YAML."""
+    # Priority 1: Try native PostgreSQL first
+    native_postgresql_result = _try_native_postgresql_candidates()
+    if native_postgresql_result:
+        return native_postgresql_result
 
-    # Try SQLite second
+    # Priority 2: Try Docker PostgreSQL
+    docker_postgresql_result = _try_docker_postgresql_candidates()
+    if docker_postgresql_result:
+        return docker_postgresql_result
+
+    # Priority 3: Try SQLite3
     sqlite_result = _try_sqlite_candidates()
     if sqlite_result:
         return sqlite_result
 
-    # Fall back to YAML
+    # Priority 4: Fall back to YAML
     return StorageType.YAML, None
+
+
+def _try_native_postgresql_candidates() -> tuple[StorageType, str] | None:
+    """Try to find a working native PostgreSQL connection."""
+    # Check native PostgreSQL candidates first
+    native_candidates = [
+        # Standard localhost PostgreSQL
+        "postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite",
+        # Environment variable for native PostgreSQL
+        os.getenv("POSTGRESQL_URL", ""),
+        os.getenv("DATABASE_URL", ""),
+    ]
+
+    # Filter out empty strings and check PostgreSQL-specific URLs
+    postgresql_candidates = [
+        url for url in native_candidates
+        if url.startswith("postgresql://")
+    ]
+
+    for url in postgresql_candidates:
+        if check_postgresql_connection(url):
+            return StorageType.POSTGRESQL, url
+
+    return None
+
+
+def _try_docker_postgresql_candidates() -> tuple[StorageType, str] | None:
+    """Try to find a working PostgreSQL connection via Docker."""
+    docker_candidates = get_docker_postgresql_candidates()
+
+    for url in docker_candidates:
+        if check_postgresql_connection(url):
+            return StorageType.POSTGRESQL, url
+
+    return None
 
 
 def determine_storage_backend() -> tuple[StorageType, str | None]:
@@ -269,40 +512,79 @@ def get_setup_guidance() -> str:
     info = get_storage_info()
 
     if info["type"] == "PostgreSQL":
-        return """
-✅ PostgreSQL detected (preferred storage)
+        docker_running = is_docker_postgresql_running()
+        if docker_running:
+            return """
+✅ PostgreSQL detected via Docker (preferred storage)
+   Connected to running PostgreSQL container.
    No additional setup needed.
-        """.strip()
+            """.strip()
+        else:
+            return """
+✅ PostgreSQL detected (preferred storage)
+   Direct PostgreSQL connection established.
+   No additional setup needed.
+            """.strip()
 
     elif info["type"] == "SQLite":
-        return """
-📋 SQLite detected (database fallback)
+        docker_available = is_docker_available()
+        if docker_available:
+            return """
+📋 SQLite detected (PostgreSQL available via Docker)
 
    To use PostgreSQL (recommended):
-   1. Run: cd tests && docker-compose up -d postgres
-   2. Optional: export TODOWRITE_DATABASE_URL=postgresql://ToDoWrite:ToDoWrite_dev_password@localhost:5432/ToDoWrite
-   3. Restart application (will auto-detect PostgreSQL)
-        """.strip()
+   1. Start PostgreSQL: cd tests && docker-compose up -d postgres
+   2. Restart application (will auto-detect Docker PostgreSQL)
+   3. Or manually: export TODOWRITE_DATABASE_URL=postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite
+
+   Current SQLite file: {sqlite_path}
+            """.format(sqlite_path=info.get("url", "Unknown"))
+        else:
+            return """
+📋 SQLite detected (database fallback)
+
+   PostgreSQL is not available on this system.
+   Current SQLite file: {sqlite_path}
+
+   To enable PostgreSQL:
+   1. Install Docker Desktop
+   2. Run: cd tests && docker-compose up -d postgres
+   3. Restart application
+            """.format(sqlite_path=info.get("url", "Unknown"))
 
     elif info["type"] == "YAML Files":
-        return """
+        docker_available = is_docker_available()
+        if docker_available:
+            return """
+📄 YAML files mode (Docker PostgreSQL available)
+
+   Database connections failed, using YAML files for storage.
+
+   To use database storage:
+   1. Start PostgreSQL: cd tests && docker-compose up -d postgres
+   2. Restart application (will auto-detect)
+   3. Check with: python -c "from todowrite.database.config import get_storage_info; print(get_storage_info())"
+            """.strip()
+        else:
+            return """
 📄 YAML files mode (last resort fallback)
    Database connections failed, using YAML files for storage.
 
    To use database storage:
-   1. For PostgreSQL: cd tests && docker-compose up -d postgres
-   2. For SQLite: Ensure write permissions in current directory
-   3. Check: python -m ToDoWrite db-status
-        """.strip()
+   1. Install Docker Desktop for PostgreSQL support
+   2. Ensure write permissions for SQLite fallback
+   3. Or use YAML-only mode with: export TODOWRITE_STORAGE_PREFERENCE=yaml_only
+            """.strip()
 
     else:
         return """
 ❌ Storage configuration error
 
    To resolve:
-   1. Try: cd tests && docker-compose up -d postgres (PostgreSQL)
-   2. Or: ensure current directory is writable (SQLite)
+   1. Try: cd tests && docker-compose up -d postgres (PostgreSQL with Docker)
+   2. Or: ensure write permissions for SQLite
    3. Or: set TODOWRITE_STORAGE_PREFERENCE=yaml_only (YAML fallback)
+   4. Check: python -c "from todowrite.database.config import get_storage_info; print(get_storage_info())"
         """.strip()
 
 
