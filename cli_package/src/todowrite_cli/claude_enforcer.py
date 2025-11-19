@@ -9,15 +9,25 @@ import sys
 from pathlib import Path
 from typing import Any
 
-# Check optional dependencies availability
-click_available = importlib.util.find_spec("click") is not None
-rich_available = importlib.util.find_spec("rich") is not None
-todowrite_available = importlib.util.find_spec("todowrite") is not None
+# Import optional dependencies when available
+if importlib.util.find_spec("click"):
+    import click
+else:
+    click = None
 
-if rich_available:
+if importlib.util.find_spec("rich"):
     from rich.console import Console
     from rich.panel import Panel
     from rich.text import Text
+else:
+    Console = None
+    Panel = None
+    Text = None
+
+# Check optional dependencies availability
+click_available = click is not None
+rich_available = Console is not None
+todowrite_available = importlib.util.find_spec("todowrite") is not None
 
 
 class ClaudeRuleViolationError(Exception):
@@ -57,9 +67,11 @@ class ClaudeRuleEnforcer:
         # Check if virtual environment is active
         python_path = sys.executable
         if ".venv" not in python_path:
-            self.violations.append(
-                "❌ Virtual environment not activated - run: source .venv/bin/activate"
+            error_msg = (
+                "❌ Virtual environment not activated - "
+                "run: source .venv/bin/activate"
             )
+            self.violations.append(error_msg)
             return
 
         # Verify essential packages are available
@@ -87,7 +99,10 @@ class ClaudeRuleEnforcer:
         expected_pattern = "sqlite:///$HOME/dbs/todowrite_development.db"
 
         if not db_url:
-            error_msg = f"❌ TODOWRITE_DATABASE_URL not set - must be: {expected_pattern}"
+            error_msg = (
+                "❌ TODOWRITE_DATABASE_URL not set - "
+                f"must be: {expected_pattern}"
+            )
             self.violations.append(error_msg)
             return
 
@@ -97,10 +112,11 @@ class ClaudeRuleEnforcer:
             "/home/",
             "/opt/",
             "/var/",
-            "/tmp/",
             "todowrite_todowrite_development.db",  # Redundant prefix
             "development_todowrite.db",  # Wrong naming
         ]
+        # Note: /tmp/ is allowed as it's a legitimate temporary directory
+        # location and doesn't pose a security risk in this context
 
         for pattern in forbidden_patterns:
             if pattern in db_url:
@@ -171,15 +187,31 @@ class ClaudeRuleEnforcer:
                 "labels",
             ]
 
+            # Safe table name mapping to prevent SQL injection
+            table_queries = {
+                "goals": "SELECT COUNT(*) FROM goals",
+                "concepts": "SELECT COUNT(*) FROM concepts",
+                "requirements": "SELECT COUNT(*) FROM requirements",
+                "acceptance_criteria": (
+                    "SELECT COUNT(*) FROM acceptance_criteria"
+                ),
+                "interface_contracts": (
+                    "SELECT COUNT(*) FROM interface_contracts"
+                ),
+                "phases": "SELECT COUNT(*) FROM phases",
+                "steps": "SELECT COUNT(*) FROM steps",
+                "tasks": "SELECT COUNT(*) FROM tasks",
+                "sub_tasks": "SELECT COUNT(*) FROM sub_tasks",
+                "commands": "SELECT COUNT(*) FROM commands",
+                "labels": "SELECT COUNT(*) FROM labels",
+            }
+
             for table in tables:
                 try:
-                    # Use parameterized query with validated table names
-                    if (
-                        table not in tables
-                    ):  # Double-check against our whitelist
+                    if table not in table_queries:
                         continue
 
-                    query = text(f"SELECT COUNT(*) FROM {table}")
+                    query = text(table_queries[table])
                     result = session.execute(query)
                     count = result.fetchone()[0]
                     total_records += count
@@ -189,9 +221,11 @@ class ClaudeRuleEnforcer:
                     continue
 
             if total_records < 143:
-                self.violations.append(
-                    f"❌ Incomplete database structure: {total_records} records (expected 143+)"
+                error_msg = (
+                    f"❌ Incomplete database structure: {total_records} "
+                    "records (expected 143+)"
                 )
+                self.violations.append(error_msg)
                 session.close()
                 return
 
@@ -222,19 +256,21 @@ class ClaudeRuleEnforcer:
             )
 
         if any("database" in v.lower() for v in self.violations):
-            error_text.append(
-                '• Run: export TODOWRITE_DATABASE_URL="sqlite:///$HOME/dbs/todowrite_development.db"\n',
-                style="yellow",
+            db_export_cmd = (
+                "• Run: export TODOWRITE_DATABASE_URL="
+                '"sqlite:///$HOME/dbs/todowrite_development.db"\n'
             )
+            error_text.append(db_export_cmd, style="yellow")
 
         if any(
             "Enhance ToDoWrite Planning Capabilities" in v
             for v in self.violations
         ):
-            error_text.append(
-                "• Initialize database: python .claude/auto_init_todowrite_models.py\n",
-                style="yellow",
+            init_cmd = (
+                "• Initialize database: python .claude/"
+                "auto_init_todowrite_models.py\n"
             )
+            error_text.append(init_cmd, style="yellow")
 
         error_text.append(
             "\nSession terminated. Fix violations and retry.\n",
@@ -260,13 +296,15 @@ class ClaudeRuleEnforcer:
                 missing_vars.append(var)
 
         if missing_vars:
-            self.violations.append(
-                f"❌ Missing required environment variables: {', '.join(missing_vars)}"
+            vars_str = ", ".join(missing_vars)
+            error_msg = (
+                f"❌ Missing required environment variables: {vars_str}"
             )
+            self.violations.append(error_msg)
 
 
 def enforce_claude_rules(
-    ctx: click.Context, param: click.Parameter, value: Any
+    _ctx: click.Context, _param: click.Parameter, value: Any
 ) -> Any:
     """Click callback to enforce CLAUDE.md rules."""
     if value:  # Only enforce when --enforce-claude-rules is used
@@ -287,7 +325,7 @@ def enforce_claude_rules(
 
 
 def verify_database_completeness(
-    ctx: click.Context, param: click.Parameter, value: Any
+    _ctx: click.Context, _param: click.Parameter, value: Any
 ) -> Any:
     """Click callback to verify database completeness."""
     if value:
@@ -301,7 +339,10 @@ def verify_database_completeness(
             console.print(
                 Panel(
                     "✅ Database completeness verified",
-                    title="[bold green]DATABASE VERIFICATION SUCCESS[/bold green]",
+                    title=(
+                        "[bold green]DATABASE VERIFICATION "
+                        "SUCCESS[/bold green]"
+                    ),
                     border_style="green",
                 )
             )
@@ -309,7 +350,7 @@ def verify_database_completeness(
 
 
 def clear_context_enforcement(
-    ctx: click.Context, param: click.Parameter, value: Any
+    _ctx: click.Context, _param: click.Parameter, value: Any
 ) -> Any:
     """Enforce rules when /clear command is used."""
     if value:

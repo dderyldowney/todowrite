@@ -11,15 +11,14 @@ from pathlib import Path
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-from todowrite.database.models import (
-    Artifact,
+from todowrite.core.models import (
     Base,
     Command,
+    Goal,
     Label,
-    Link,
-    Node,
-    node_labels,
+    Phase,
+    Step,
+    Task,
 )
 
 
@@ -28,351 +27,249 @@ class TestDatabaseModels(unittest.TestCase):
 
     def setUp(self) -> None:
         """Set up test database."""
-        self.test_db = Path("test_models.db")
-        self.engine = create_engine(f"sqlite:///{self.test_db}")
-        self.Session = sessionmaker(bind=self.engine)
-
-        # Create tables
+        self.temp_db = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+        self.temp_db.close()
+        self.engine = create_engine(f"sqlite:///{self.temp_db.name}")
         Base.metadata.create_all(self.engine)
+        self.Session = sessionmaker(bind=self.engine)
+        self.session = self.Session()
 
     def tearDown(self) -> None:
         """Clean up test database."""
-        self.test_db.unlink(missing_ok=True)
+        self.session.close()
+        Path(self.temp_db.name).unlink(missing_ok=True)
 
-    def test_node_model_creation(self) -> None:
-        """Test Node model creation and basic properties."""
-        with self.Session() as session:
-            node = Node(
-                id="GOAL-001",
-                layer="Goal",
-                title="Test Goal",
-                description="Test goal description",
-                status="planned",
-                progress=0,
-                owner="test-user",
-                severity="med",
-                work_type="architecture",
-            )
-            session.add(node)
-            session.commit()
+    def test_create_goal(self) -> None:
+        """Test creating a goal."""
+        goal = Goal(
+            title="Test Goal", description="A test goal", owner="test-user", severity="medium"
+        )
+        self.session.add(goal)
+        self.session.commit()
 
-            # Verify node was created
-            result = session.query(Node).filter(Node.id == "GOAL-001").first()
-            self.assertIsNotNone(result)
-            self.assertEqual(result.title, "Test Goal")
-            self.assertEqual(result.layer, "Goal")
-            self.assertEqual(result.status, "planned")
+        retrieved_goal = self.session.query(Goal).filter(Goal.title == "Test Goal").first()
+        self.assertIsNotNone(retrieved_goal)
+        self.assertEqual(retrieved_goal.title, "Test Goal")
+        self.assertEqual(retrieved_goal.description, "A test goal")
+        self.assertEqual(retrieved_goal.owner, "test-user")
+        self.assertEqual(retrieved_goal.severity, "medium")
 
-    def test_node_relationships(self) -> None:
-        """Test node relationships with labels and links."""
-        with self.Session() as session:
-            # Create parent node
-            parent = Node(
-                id="GOAL-001",
-                layer="Goal",
-                title="Parent Goal",
-                description="Parent goal",
-            )
-            session.add(parent)
+    def test_create_task(self) -> None:
+        """Test creating a task."""
+        task = Task(
+            title="Test Task",
+            description="A test task",
+            owner="test-user",
+            severity="high",
+            work_type="feature",
+            assignee="developer",
+        )
+        self.session.add(task)
+        self.session.commit()
 
-            # Create child node
-            child = Node(
-                id="TSK-001",
-                layer="Task",
-                title="Child Task",
-                description="Child task",
-            )
-            session.add(child)
+        retrieved_task = self.session.query(Task).filter(Task.title == "Test Task").first()
+        self.assertIsNotNone(retrieved_task)
+        self.assertEqual(retrieved_task.title, "Test Task")
+        self.assertEqual(retrieved_task.description, "A test task")
+        self.assertEqual(retrieved_task.severity, "high")
+        self.assertEqual(retrieved_task.work_type, "feature")
+        self.assertEqual(retrieved_task.assignee, "developer")
 
-            # Create link
-            link = Link(parent_id="GOAL-001", child_id="TSK-001")
-            session.add(link)
+    def test_create_phase(self) -> None:
+        """Test creating a phase."""
+        phase = Phase(
+            title="Development Phase",
+            description="Development work phase",
+            owner="team-lead",
+            severity="medium",
+        )
+        self.session.add(phase)
+        self.session.commit()
 
-            # Create label
-            label = Label(label="urgent")
-            session.add(label)
+        retrieved_phase = (
+            self.session.query(Phase).filter(Phase.title == "Development Phase").first()
+        )
+        self.assertIsNotNone(retrieved_phase)
+        self.assertEqual(retrieved_phase.title, "Development Phase")
+        self.assertEqual(retrieved_phase.description, "Development work phase")
+        self.assertEqual(retrieved_phase.owner, "team-lead")
 
-            # Add label to child node
-            child.labels.append(label)
+    def test_create_step(self) -> None:
+        """Test creating a step."""
+        step = Step(
+            title="API Development",
+            description="Develop REST API",
+            owner="backend-dev",
+            severity="high",
+        )
+        self.session.add(step)
+        self.session.commit()
 
-            session.commit()
+        retrieved_step = self.session.query(Step).filter(Step.title == "API Development").first()
+        self.assertIsNotNone(retrieved_step)
+        self.assertEqual(retrieved_step.title, "API Development")
+        self.assertEqual(retrieved_step.description, "Develop REST API")
+        self.assertEqual(retrieved_step.owner, "backend-dev")
 
-            # Verify relationships
-            result = session.query(Node).filter(Node.id == "TSK-001").first()
-            self.assertEqual(len(result.labels), 1)
-            self.assertEqual(result.labels[0].label, "urgent")
+    def test_create_label(self) -> None:
+        """Test creating a label."""
+        label = Label(name="urgent")
+        self.session.add(label)
+        self.session.commit()
 
-            # Verify link
-            link_result = (
-                session.query(Link)
-                .filter(
-                    Link.parent_id == "GOAL-001",
-                    Link.child_id == "TSK-001",
-                )
-                .first()
-            )
-            self.assertIsNotNone(link_result)
+        retrieved_label = self.session.query(Label).filter(Label.name == "urgent").first()
+        self.assertIsNotNone(retrieved_label)
+        self.assertEqual(retrieved_label.name, "urgent")
 
-    def test_command_model(self) -> None:
-        """Test Command and Artifact models."""
-        with self.Session() as session:
-            # Create node with command
-            node = Node(
-                id="CMD-001",
-                layer="Command",
-                title="Test Command",
-                description="Test command description",
-            )
-            session.add(node)
+    def test_create_command(self) -> None:
+        """Test creating a command."""
+        command = Command(
+            title="Test Command",
+            description="A test command",
+            cmd="echo 'Hello, World!'",
+            cmd_params="--verbose",
+            owner="test-user",
+        )
+        self.session.add(command)
+        self.session.commit()
 
-            # Create command
+        retrieved_command = (
+            self.session.query(Command).filter(Command.title == "Test Command").first()
+        )
+        self.assertIsNotNone(retrieved_command)
+        self.assertEqual(retrieved_command.title, "Test Command")
+        self.assertEqual(retrieved_command.cmd, "echo 'Hello, World!'")
+        self.assertEqual(retrieved_command.cmd_params, "--verbose")
 
-            command = Command(
-                node_id="CMD-001",
-                ac_ref="AC-001",
-                run=json.dumps(
-                    {
-                        "shell": "echo hello",
-                        "workdir": tempfile.gettempdir(),
-                        "env": {"DEBUG": "true"},
-                    },
-                ),
-            )
-            session.add(command)
+    def test_label_uniqueness(self) -> None:
+        """Test label name uniqueness constraint."""
+        label1 = Label(name="urgent")
+        self.session.add(label1)
+        self.session.commit()
 
-            # Create artifacts
-            artifact1 = Artifact(command_id="CMD-001", artifact="output.txt")
-            artifact2 = Artifact(command_id="CMD-001", artifact="log.txt")
-            session.add(artifact1)
-            session.add(artifact2)
+        # Try to create duplicate label
+        label2 = Label(name="urgent")
+        self.session.add(label2)
 
-            session.commit()
+        # Should raise an exception due to unique constraint
+        with self.assertRaises(Exception):
+            self.session.commit()
 
-            # Verify command
-            result = (
-                session.query(Command)
-                .filter(Command.node_id == "CMD-001")
-                .first()
-            )
-            self.assertIsNotNone(result)
-            self.assertEqual(result.ac_ref, "AC-001")
+    def test_model_extra_data(self) -> None:
+        """Test extra_data JSON field."""
+        extra_data = {"priority": 1, "estimated_hours": 40, "tags": ["backend", "api"]}
+        goal = Goal(
+            title="Goal with Extra Data",
+            description="Testing extra data field",
+            extra_data=json.dumps(extra_data),
+        )
+        self.session.add(goal)
+        self.session.commit()
 
-            # Verify artifacts
-            artifacts = (
-                session.query(Artifact)
-                .filter(Artifact.command_id == "CMD-001")
-                .all()
-            )
-            self.assertEqual(len(artifacts), 2)
+        retrieved_goal = (
+            self.session.query(Goal).filter(Goal.title == "Goal with Extra Data").first()
+        )
+        self.assertIsNotNone(retrieved_goal)
 
-    def test_node_labels_association(self) -> None:
-        """Test many-to-many relationship between nodes and labels."""
-        with self.Session() as session:
-            # Create labels
-            label1 = Label(label="urgent")
-            label2 = Label(label="critical")
-            session.add(label1)
-            session.add(label2)
+        # Parse and verify extra data
+        parsed_extra_data = json.loads(retrieved_goal.extra_data)
+        self.assertEqual(parsed_extra_data["priority"], 1)
+        self.assertEqual(parsed_extra_data["estimated_hours"], 40)
+        self.assertEqual(parsed_extra_data["tags"], ["backend", "api"])
 
-            # Create node with multiple labels
-            node = Node(
-                id="TSK-001",
-                layer="Task",
-                title="Task with Labels",
-                description="Task description",
-            )
-            node.labels.extend([label1, label2])
-            session.add(node)
+    def test_model_timestamps(self) -> None:
+        """Test automatic timestamp fields."""
+        goal = Goal(title="Timestamp Test", description="Testing timestamps")
+        self.session.add(goal)
+        self.session.commit()
 
-            session.commit()
+        # Verify timestamps are set
+        self.assertIsNotNone(goal.created_at)
+        self.assertIsNotNone(goal.updated_at)
 
-            # Verify association
-            result = session.query(Node).filter(Node.id == "TSK-001").first()
-            self.assertEqual(len(result.labels), 2)
-            label_names = [label.label for label in result.labels]
-            self.assertIn("urgent", label_names)
-            self.assertIn("critical", label_names)
+    def test_query_by_fields(self) -> None:
+        """Test querying models by various fields."""
+        # Create test data
+        goals = [
+            Goal(title="High Priority Goal", description="Test", severity="high", owner="alice"),
+            Goal(title="Medium Priority Goal", description="Test", severity="medium", owner="bob"),
+            Goal(title="Low Priority Goal", description="Test", severity="low", owner="alice"),
+        ]
 
-    def test_node_labels_table(self) -> None:
-        """Test the association table between nodes and labels."""
-        with self.Session() as session:
-            # Create node and label
-            node = Node(id="TSK-001", layer="Task", title="Test Task")
-            label = Label(label="test-label")
+        for goal in goals:
+            self.session.add(goal)
+        self.session.commit()
 
-            node.labels.append(label)
-            session.add(node)
-            session.add(label)
+        # Query by severity
+        high_priority_goals = self.session.query(Goal).filter(Goal.severity == "high").all()
+        self.assertEqual(len(high_priority_goals), 1)
+        self.assertEqual(high_priority_goals[0].title, "High Priority Goal")
 
-            session.commit()
+        # Query by owner
+        alice_goals = self.session.query(Goal).filter(Goal.owner == "alice").all()
+        self.assertEqual(len(alice_goals), 2)
 
-            # Check association table
-            result = (
-                session.query(node_labels)
-                .filter(
-                    node_labels.c.node_id == "TSK-001",
-                    node_labels.c.label == label.label,
-                )
-                .first()
-            )
-            self.assertIsNotNone(result)
+        # Query by multiple fields
+        alice_high_priority = (
+            self.session.query(Goal).filter(Goal.owner == "alice", Goal.severity == "high").all()
+        )
+        self.assertEqual(len(alice_high_priority), 1)
 
-    def test_cascade_delete(self) -> None:
-        """Test cascade deletion of related records."""
-        with self.Session() as session:
-            # Create node with relationships
-            node = Node(id="TSK-001", layer="Task", title="Test Task")
-            label = Label(label="test")
-            link = Link(parent_id="GOAL-001", child_id="TSK-001")
+    def test_order_and_limit_queries(self) -> None:
+        """Test ordered and limited queries."""
+        # Create test data
+        titles = ["C Goal", "A Goal", "B Goal", "D Goal"]
+        for title in titles:
+            goal = Goal(title=title, description="Test")
+            self.session.add(goal)
+        self.session.commit()
 
-            node.labels.append(label)
-            session.add(node)
-            session.add(link)
+        # Test ordering
+        ordered_goals = self.session.query(Goal).order_by(Goal.title).all()
+        ordered_titles = [g.title for g in ordered_goals]
+        self.assertEqual(ordered_titles, ["A Goal", "B Goal", "C Goal", "D Goal"])
 
-            session.commit()
+        # Test limit
+        limited_goals = self.session.query(Goal).order_by(Goal.title).limit(2).all()
+        self.assertEqual(len(limited_goals), 2)
+        self.assertEqual([g.title for g in limited_goals], ["A Goal", "B Goal"])
 
-            # Delete node
-            session.delete(node)
-            session.commit()
+    def test_update_operations(self) -> None:
+        """Test updating model instances."""
+        goal = Goal(
+            title="Original Title", description="Original description", owner="original-owner"
+        )
+        self.session.add(goal)
+        self.session.commit()
 
-            # Verify related records are deleted
-            self.assertIsNone(
-                session.query(Node).filter(Node.id == "TSK-001").first(),
-            )
-            # Link should still exist (we might want to handle this differently)
+        # Update goal
+        goal.title = "Updated Title"
+        goal.description = "Updated description"
+        goal.owner = "updated-owner"
+        self.session.commit()
 
+        # Verify updates
+        retrieved_goal = self.session.query(Goal).filter(Goal.id == goal.id).first()
+        self.assertIsNotNone(retrieved_goal)
+        self.assertEqual(retrieved_goal.title, "Updated Title")
+        self.assertEqual(retrieved_goal.description, "Updated description")
+        self.assertEqual(retrieved_goal.owner, "updated-owner")
 
-class TestDatabaseIntegration(unittest.TestCase):
-    """Integration tests for database operations."""
+    def test_delete_operations(self) -> None:
+        """Test deleting model instances."""
+        goal = Goal(title="To Be Deleted", description="Will be deleted")
+        self.session.add(goal)
+        self.session.commit()
 
-    def setUp(self) -> None:
-        """Set up test database."""
-        self.test_db = Path("test_integration.db")
-        self.engine = create_engine(f"sqlite:///{self.test_db}")
-        self.Session = sessionmaker(bind=self.engine)
+        goal_id = goal.id
 
-        # Create tables
-        Base.metadata.create_all(self.engine)
+        # Delete goal
+        self.session.delete(goal)
+        self.session.commit()
 
-    def tearDown(self) -> None:
-        """Clean up test database."""
-        self.test_db.unlink(missing_ok=True)
-
-    def test_complex_hierarchy(self) -> None:
-        """Test creating a complex node hierarchy."""
-        with self.Session() as session:
-            # Create goal
-            goal = Node(
-                id="GOAL-001",
-                layer="Goal",
-                title="Main Goal",
-                description="Main project goal",
-            )
-            session.add(goal)
-
-            # Create concepts
-            concept1 = Node(
-                id="CON-001",
-                layer="Concept",
-                title="Concept 1",
-                description="First concept",
-            )
-            concept2 = Node(
-                id="CON-002",
-                layer="Concept",
-                title="Concept 2",
-                description="Second concept",
-            )
-            session.add(concept1)
-            session.add(concept2)
-
-            # Create tasks
-            task1 = Node(
-                id="TSK-001",
-                layer="Task",
-                title="Task 1",
-                description="First task",
-                owner="user1",
-            )
-            task2 = Node(
-                id="TSK-002",
-                layer="Task",
-                title="Task 2",
-                description="Second task",
-                owner="user2",
-            )
-            session.add(task1)
-            session.add(task2)
-
-            # Create links
-            goal_link1 = Link(parent_id="GOAL-001", child_id="CON-001")
-            goal_link2 = Link(parent_id="GOAL-001", child_id="CON-002")
-            goal_link3 = Link(parent_id="GOAL-001", child_id="TSK-001")
-            goal_link4 = Link(parent_id="GOAL-001", child_id="TSK-002")
-
-            session.add_all([goal_link1, goal_link2, goal_link3, goal_link4])
-
-            session.commit()
-
-            # Verify hierarchy
-            goal_result = (
-                session.query(Node).filter(Node.id == "GOAL-001").first()
-            )
-            self.assertEqual(
-                len(goal_result.children),
-                4,
-            )  # 2 concepts + 2 tasks
-
-    def test_command_artifacts_integration(self) -> None:
-        """Test command and artifact integration."""
-        with self.Session() as session:
-            # Create command node
-            command_node = Node(
-                id="CMD-001",
-                layer="Command",
-                title="Build Command",
-                description="Build the project",
-            )
-            session.add(command_node)
-
-            # Create command with artifacts
-
-            command = Command(
-                node_id="CMD-001",
-                ac_ref="AC-001",
-                run=json.dumps(
-                    {
-                        "shell": "make build",
-                        "workdir": "/project",
-                        "env": {"TARGET": "production"},
-                    },
-                ),
-            )
-
-            artifacts = [
-                Artifact(command_id="CMD-001", artifact="build.log"),
-                Artifact(command_id="CMD-001", artifact="dist/"),
-                Artifact(command_id="CMD-001", artifact="reports/"),
-            ]
-
-            session.add(command)
-            session.add_all(artifacts)
-            session.commit()
-
-            # Verify command with artifacts
-            result = (
-                session.query(Command)
-                .filter(Command.node_id == "CMD-001")
-                .first()
-            )
-            self.assertIsNotNone(result)
-
-            db_artifacts = (
-                session.query(Artifact)
-                .filter(Artifact.command_id == "CMD-001")
-                .all()
-            )
-            self.assertEqual(len(db_artifacts), 3)
+        # Verify deletion
+        deleted_goal = self.session.query(Goal).filter(Goal.id == goal_id).first()
+        self.assertIsNone(deleted_goal)
 
 
 if __name__ == "__main__":

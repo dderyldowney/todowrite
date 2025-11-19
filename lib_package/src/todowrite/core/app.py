@@ -40,8 +40,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-# DEPRECATED: Legacy ToDoWrite application class using old Node system
-# This class is REMOVED as part of the MAJOR BREAKING CHANGE to ToDoWrite Models API
+# DEPRECATED: Legacy ToDoWrite app class removed as part of
+# the MAJOR BREAKING CHANGE to ToDoWrite Models API
 # Use the new ToDoWrite Models directly instead:
 #
 # from todowrite import Goal, Task, create_engine, sessionmaker

@@ -125,9 +125,9 @@ def setup_test_environment(monkeypatch: pytest.MonkeyPatch) -> None:
         warnings.warn(
             "Production todowrite.db found in test environment. "
             "Removing to enforce database naming conventions. "
-            f"Use: {get_project_database_name('development')} (dev), "
-            f"{get_project_database_name('testing')} (test), "
-            f"{get_project_database_name('production')} (prod)",
+            "Use: todowrite_development.db (dev), "
+            "tests/todowrite_testing.db (test), "
+            "todowrite_production.db (prod)",
             UserWarning,
             stacklevel=2,
         )

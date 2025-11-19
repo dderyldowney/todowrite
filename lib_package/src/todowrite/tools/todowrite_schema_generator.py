@@ -514,15 +514,16 @@ class ToDoWriteSchemaGenerator:
         print("=" * 60)
         print(f"📊 Generated schemas for {len(json_schema['models'])} models")
         print(
-            f"🔗 Includes {len(json_schema['association_tables'])} association tables"
+            f"🔗 Includes {len(json_schema['association_tables'])} "
+            "association tables"
         )
-        print(
-            f"🗄️  Generated SQL for: {', '.join([db.upper() for db in supported_databases])}"
-        )
+        db_list = ", ".join([db.upper() for db in supported_databases])
+        print(f"🗄️  Generated SQL for: {db_list}")
         print("✅ Models and schemas are now synchronized")
         print("✅ Ready for multi-database ToDoWrite Models development")
         print(
-            "✅ Compatible with SQLite3, PostgreSQL, and any SQLAlchemy-supported database"
+            "✅ Compatible with SQLite3, PostgreSQL, and any "
+            "SQLAlchemy-supported database"
         )
 
 

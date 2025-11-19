@@ -44,15 +44,10 @@ from sqlalchemy import (
     String,
     Table,
     Text,
-    and_,
-    exists,
-    func,
-    select,
 )
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
-    Session,
     mapped_column,
     relationship,
 )
@@ -217,7 +212,7 @@ requirements_acceptance_criteria = Table(
     ),
 )
 
-# AcceptanceCriteria + InterfaceContract = acceptance_criteria_interface_contracts
+# AcceptanceCriteria + InterfaceContract association table
 acceptance_criteria_interface_contracts = Table(
     "acceptance_criteria_interface_contracts",
     Base.metadata,
@@ -377,7 +372,7 @@ class Goal(Base):
         "Concept", secondary=goals_concepts, back_populates="goals"
     )
 
-    # has_many :contexts (direct relationship - "why are we defining this goal")
+    # has_many :contexts (direct relationship - "why defining this goal")
     contexts: Mapped[list[Context]] = relationship(
         "Context", secondary=goals_contexts, back_populates="goals"
     )
@@ -431,7 +426,7 @@ class Concept(Base):
         "Goal", secondary=goals_concepts, back_populates="concepts"
     )
 
-    # has_many :contexts (direct relationship - "what conceptually are we building")
+    # has_many :contexts (direct relationship - "conceptually building")
     contexts: Mapped[list[Context]] = relationship(
         "Context", secondary=concepts_contexts, back_populates="concepts"
     )
@@ -625,7 +620,7 @@ class Requirements(Base):
         back_populates="requirements",
     )
 
-    # has_many :contexts (direct relationship - "in what context does this requirement apply")
+    # has_many :contexts (direct relationship - "context for requirement")
     contexts: Mapped[list[Context]] = relationship(
         "Context",
         secondary=requirements_contexts,
@@ -685,7 +680,7 @@ class AcceptanceCriteria(Base):
         back_populates="acceptance_criteria",
     )
 
-    # has_many :interface_contracts (through acceptance_criteria_interface_contracts)
+    # has_many :interface_contracts (through association table)
     interface_contracts: Mapped[list[InterfaceContract]] = relationship(
         "InterfaceContract",
         secondary=acceptance_criteria_interface_contracts,
@@ -738,7 +733,7 @@ class InterfaceContract(Base):
         back_populates="interface_contracts",
     )
 
-    # belongs_to :acceptance_criteria (through acceptance_criteria_interface_contracts)
+    # belongs_to :acceptance_criteria (through association table)
     acceptance_criteria: Mapped[list[AcceptanceCriteria]] = relationship(
         "AcceptanceCriteria",
         secondary=acceptance_criteria_interface_contracts,
@@ -1114,14 +1109,14 @@ class Command(Base):
     )
 
     @property
-    def run(self) -> dict[str, Any]:
-        """Get run data as dictionary."""
-        return json.loads(self.run_data) if self.run_data else {}
+    def runtime_env_dict(self) -> dict[str, Any]:
+        """Get runtime environment as dictionary."""
+        return json.loads(self.runtime_env) if self.runtime_env else {}
 
-    @run.setter
-    def run(self, value: dict[str, Any]) -> None:
-        """Set run data from dictionary."""
-        self.run_data = json.dumps(value)
+    @runtime_env_dict.setter
+    def runtime_env_dict(self, value: dict[str, Any]) -> None:
+        """Set runtime environment from dictionary."""
+        self.runtime_env = json.dumps(value)
 
     @property
     def artifacts_list(self) -> list[str]:
@@ -1163,417 +1158,3 @@ class Metadata:
             "assignee": self.assignee,
             **self.extra,
         }
-
-
-class ToDoWriteCollection:
-    """
-    Collection manager for ToDoWrite Model relationships.
-
-    Implements collection methods:
-    - .all() - Get all items
-    - .size() - Get count
-    - .empty() - Check if empty
-    - .exists() - Check if any exist
-    - .build() - Create new item (not saved)
-    - .create() - Create new item (saved)
-
-    Smart Query Optimization:
-    - Small datasets (< 20 items): Use simple separate queries
-      (faster for small data)
-    - Large datasets (>= 20 items): Use optimized JOIN queries
-      (faster for large data)
-    """
-
-    # Performance thresholds for adaptive query optimization
-    SMALL_DATASET_THRESHOLD = 20  # Items below this use simple queries
-    EAGER_LOADING_THRESHOLD = 10  # Items below this don't use eager loading
-
-    def __init__(
-        self, parent_node: Node, session: Session | None, target_layer: str
-    ) -> None:
-        self.parent_node = parent_node
-        self.session = session
-        self.target_layer = target_layer
-
-        # Map layers to their proper association tables and column names
-        self.association_mappings = {
-            "Constraints": (constraints_goals, "goal_id", "constraint_id"),
-            "Requirements": (
-                constraints_requirements,
-                "constraint_id",
-                "requirement_id",
-            ),
-            "AcceptanceCriteria": (
-                requirements_acceptance_criteria,
-                "requirement_id",
-                "acceptance_criteria_id",
-            ),
-            "InterfaceContract": (
-                acceptance_criteria_interface_contracts,
-                "acceptance_criteria_id",
-                "interface_contract_id",
-            ),
-            "Phase": (
-                interface_contracts_phases,
-                "interface_contract_id",
-                "phase_id",
-            ),
-            "Step": (phases_steps, "phase_id", "step_id"),
-            "Task": (steps_tasks, "step_id", "task_id"),
-            "SubTask": (tasks_sub_tasks, "task_id", "sub_task_id"),
-            "Command": (sub_tasks_commands, "sub_task_id", "command_id"),
-        }
-
-        # Map parent layers to their child association tables and column names
-        # This handles the case where parent nodes have different layer
-        # names than expected
-        self.parent_to_child_mappings = {
-            # When a Constraints node (layer="Constraints") creates
-            # Requirements
-            ("Constraints", "Requirements"): (
-                constraints_requirements,
-                "constraint_id",
-                "requirement_id",
-            ),
-            # When a Requirements node (layer="Requirements") creates
-            # AcceptanceCriteria
-            ("Requirements", "AcceptanceCriteria"): (
-                requirements_acceptance_criteria,
-                "requirement_id",
-                "acceptance_criteria_id",
-            ),
-            # When an AcceptanceCriteria node creates InterfaceContracts
-            ("AcceptanceCriteria", "InterfaceContract"): (
-                acceptance_criteria_interface_contracts,
-                "acceptance_criteria_id",
-                "interface_contract_id",
-            ),
-            # When an InterfaceContract creates Phases
-            ("InterfaceContract", "Phase"): (
-                interface_contracts_phases,
-                "interface_contract_id",
-                "phase_id",
-            ),
-            # When a Phase node creates Steps
-            ("Phase", "Step"): (phases_steps, "phase_id", "step_id"),
-            # When a Step node creates Tasks
-            ("Step", "Task"): (steps_tasks, "step_id", "task_id"),
-            # When a Task node creates SubTasks
-            ("Task", "SubTask"): (tasks_sub_tasks, "task_id", "sub_task_id"),
-            # When a SubTask creates Commands
-            ("SubTask", "Command"): (
-                sub_tasks_commands,
-                "sub_task_id",
-                "command_id",
-            ),
-        }
-
-        # Get the correct association table and column names for this layer
-        parent_layer = parent_node.layer
-        parent_child_key = (parent_layer, target_layer)
-
-        if parent_child_key in self.parent_to_child_mappings:
-            self.association_table, self.parent_col, self.child_col = (
-                self.parent_to_child_mappings[parent_child_key]
-            )
-        elif target_layer in self.association_mappings:
-            self.association_table, self.parent_col, self.child_col = (
-                self.association_mappings[target_layer]
-            )
-        else:
-            # Fallback to generic links table
-            self.association_table = links
-            self.parent_col = "parent_id"
-            self.child_col = "child_id"
-
-    def _should_use_optimized_queries(self) -> bool:
-        """
-        Determine if we should use optimized JOIN queries or simple queries.
-
-        Returns:
-            True for large datasets (optimized JOIN),
-            False for small datasets (simple queries)
-        """
-        # Quick count check to determine dataset size
-        count_query = (
-            select(func.count())
-            .select_from(self.association_table)
-            .where(
-                self.association_table.c[self.parent_col]
-                == self.parent_node.id
-            )
-        )
-
-        count_result = self.session.execute(count_query).scalar()
-        return (count_result or 0) >= self.SMALL_DATASET_THRESHOLD
-
-    def all(self) -> list[Node]:
-        """Get all associated nodes using adaptive query optimization."""
-        if not self.session:
-            raise RuntimeError("No database session configured")
-
-        # Smart query optimization: choose strategy based on dataset size
-        if self._should_use_optimized_queries():
-            # Large dataset: Use optimized JOIN query (better for 20+ items)
-            nodes_query = (
-                select(Node)
-                .join(
-                    self.association_table,
-                    Node.id == self.association_table.c[self.child_col],
-                )
-                .where(
-                    and_(
-                        self.association_table.c[self.parent_col]
-                        == self.parent_node.id,
-                        Node.layer == self.target_layer,
-                    )
-                )
-                .order_by(Node.title)
-            )
-            nodes = self.session.execute(nodes_query).scalars().all()
-        else:
-            # Small dataset: Use simple separate queries (faster for <20 items)
-            # This avoids JOIN overhead for small datasets
-            association_query = select(
-                self.association_table.c[self.child_col]
-            ).where(
-                self.association_table.c[self.parent_col]
-                == self.parent_node.id
-            )
-            result = self.session.execute(association_query).fetchall()
-            child_ids = [row[0] for row in result]
-
-            if not child_ids:
-                return []
-
-            nodes_query = (
-                select(Node)
-                .where(Node.id.in_(child_ids), Node.layer == self.target_layer)
-                .order_by(Node.title)
-            )
-            nodes = self.session.execute(nodes_query).scalars().all()
-
-        return list(nodes)
-
-    def size(self) -> int:
-        """Get count of associated nodes using adaptive query optimization."""
-        if not self.session:
-            raise RuntimeError("No database session configured")
-
-        # Simple count query - no JOIN needed for counting relationships
-        count_query = (
-            select(func.count())
-            .select_from(self.association_table)
-            .where(
-                and_(
-                    self.association_table.c[self.parent_col]
-                    == self.parent_node.id
-                )
-            )
-        )
-
-        # For datasets with mixed layer types, we need to filter by layer too
-        # But only if we're not using a layer-specific association table
-        if (
-            self.association_table == links
-        ):  # Generic table needs layer filtering
-            count_query = count_query.where(
-                exists(
-                    select(1)
-                    .select_from(Node)
-                    .where(
-                        and_(
-                            Node.id
-                            == self.association_table.c[self.child_col],
-                            Node.layer == self.target_layer,
-                        )
-                    )
-                )
-            )
-
-        result = self.session.execute(count_query).scalar()
-        return result or 0
-
-    def empty(self) -> bool:
-        """Check if collection is empty."""
-        return self.size() == 0
-
-    def exists(self, **kwargs: str | int | bool | None) -> bool:
-        """Check if node exists using optimized EXISTS query."""
-        if not self.session:
-            raise RuntimeError("No database session configured")
-
-        if not kwargs:
-            # Use efficient EXISTS query when no criteria provided
-            exists_query = (
-                select(func.count())
-                .join(
-                    self.association_table,
-                    Node.id == self.association_table.c[self.child_col],
-                )
-                .where(
-                    and_(
-                        self.association_table.c[self.parent_col]
-                        == self.parent_node.id,
-                        Node.layer == self.target_layer,
-                    )
-                )
-                .limit(1)  # We only need to know if at least one exists
-            )
-            result = self.session.execute(exists_query).scalar()
-            return (result or 0) > 0
-
-        # For specific criteria, use EXISTS with additional conditions
-        conditions = [
-            self.association_table.c[self.parent_col] == self.parent_node.id,
-            Node.layer == self.target_layer,
-        ]
-
-        # Add criteria conditions
-        for key, value in kwargs.items():
-            if hasattr(Node, key):
-                conditions.append(getattr(Node, key) == value)
-
-        exists_query = (
-            select(func.count())
-            .join(
-                self.association_table,
-                Node.id == self.association_table.c[self.child_col],
-            )
-            .where(and_(*conditions))
-            .limit(1)  # We only need to know if at least one exists
-        )
-
-        result = self.session.execute(exists_query).scalar()
-        return (result or 0) > 0
-
-    def build(self, **kwargs: str | int | bool | None) -> Node:
-        """
-        Build new associated node.
-
-        Creates new node but doesn't save it. Association is set up in memory
-        and persists to database when the node is saved.
-        """
-
-        node = self.parent_node.__class__.new(
-            layer=self.target_layer, **kwargs
-        )
-
-        # Set up in-memory association only (not database)
-        # Database association created when node.save() is called
-        if hasattr(node, "_pending_parent"):
-            node._pending_parent = self.parent_node
-        else:
-            node._pending_parent = self.parent_node
-
-        # For automatic back-reference
-        if hasattr(node, "_belongs_to"):
-            node._belongs_to[self.parent_node.__class__.__name__.lower()] = (
-                self.parent_node
-            )
-
-        return node
-
-    def _insert_association(self, parent: Node, child: Node) -> None:
-        """Insert relationship into the correct association table."""
-
-        # Use the parent-child mappings for dynamic column assignment
-        parent_layer = parent.layer
-        parent_child_key = (parent_layer, self.target_layer)
-
-        if parent_child_key in self.parent_to_child_mappings:
-            # Use mapped columns for this parent-child relationship
-            mapping = self.parent_to_child_mappings[parent_child_key]
-            _table, parent_col, child_col = mapping
-            insert_values = {parent_col: parent.id, child_col: child.id}
-        else:
-            # Fallback to the target layer mappings
-            insert_values = {
-                self.parent_col: parent.id,
-                self.child_col: child.id,
-            }
-
-        self.session.execute(
-            self.association_table.insert().values(**insert_values)
-        )
-
-        self.session.commit()
-
-    def create(self, **kwargs: str | int | bool | None) -> Node:
-        """
-        Create new associated node.
-
-        Creates new node, sets up association, and saves it.
-        """
-        node = self.build(**kwargs)
-        return node.save()
-
-    def where(self, **kwargs: NodeQueryFields) -> list[Node]:
-        """Find nodes in collection matching criteria."""
-        items = self.all()
-        result = []
-
-        for item in items:
-            matches = True
-            for key, value in kwargs.items():
-                if getattr(item, key, None) != value:
-                    matches = False
-                    break
-            if matches:
-                result.append(item)
-
-        return result
-
-    def find_by(self, **kwargs: NodeQueryFields) -> Node | None:
-        """Find first node in collection matching criteria."""
-        items = self.where(**kwargs)
-        return items[0] if items else None
-
-
-class PhaseCollection(ToDoWriteCollection):
-    """Specialized collection for Phase (Constraints layer) nodes."""
-
-    def __init__(self, parent_node: Node, session: Session | None) -> None:
-        super().__init__(parent_node, session, "Constraints")
-
-
-class RequirementCollection(ToDoWriteCollection):
-    """Specialized collection for Requirement nodes."""
-
-    def __init__(self, parent_node: Node, session: Session | None) -> None:
-        super().__init__(parent_node, session, "Requirements")
-
-
-class TaskCollection(ToDoWriteCollection):
-    """Specialized collection for Task (SubTask layer) nodes."""
-
-    def __init__(self, parent_node: Node, session: Session | None) -> None:
-        super().__init__(parent_node, session, "SubTask")
-
-
-class AcceptanceCriteriaCollection(ToDoWriteCollection):
-    """Specialized collection for AcceptanceCriteria nodes."""
-
-    def __init__(self, parent_node: Node, session: Session | None) -> None:
-        super().__init__(parent_node, session, "AcceptanceCriteria")
-
-
-class StepCollection(ToDoWriteCollection):
-    """Specialized collection for Step nodes."""
-
-    def __init__(self, parent_node: Node, session: Session | None) -> None:
-        super().__init__(parent_node, session, "Step")
-
-
-class SubTaskCollection(ToDoWriteCollection):
-    """Specialized collection for SubTask nodes."""
-
-    def __init__(self, parent_node: Node, session: Session | None) -> None:
-        super().__init__(parent_node, session, "SubTask")
-
-
-class CommandCollection(ToDoWriteCollection):
-    """Specialized collection for Command nodes."""
-
-    def __init__(self, parent_node: Node, session: Session | None) -> None:
-        super().__init__(parent_node, session, "Command")

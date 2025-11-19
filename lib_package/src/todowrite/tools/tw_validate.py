@@ -27,7 +27,7 @@ class todowriteValidator:
             try:
                 from todowrite.core.schemas import todowrite_SCHEMA
 
-                self.schema = cast("dict[str, Any]", ToDoWrite_SCHEMA)
+                self.schema = cast("dict[str, Any]", todowrite_SCHEMA)
                 self.schema_path = (
                     "ToDoWrite.schema"  # Virtual path for display
                 )
@@ -103,9 +103,8 @@ class todowriteValidator:
             print(f"✗ {file_path}")
             print(f"  Validation Error: {e.message}")
             if e.absolute_path:
-                print(
-                    f"  Location: {' -> '.join(str(p) for p in e.absolute_path)}"
-                )
+                path_str = " -> ".join(str(p) for p in e.absolute_path)
+                print(f"  Location: {path_str}")
             if e.instance is not None:
                 print(f"  Invalid value: {e.instance}")
             print()

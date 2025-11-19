@@ -46,9 +46,11 @@ class CommandStubGenerator:
                     if ac_ref:
                         self.existing_commands.add(ac_ref)
                 except Exception as e:
-                    print(
-                        f"WARNING: Failed to read existing command file {cmd_file}: {e}"
+                    error_msg = (
+                        f"WARNING: Failed to read existing command file "
+                        f"{cmd_file}: {e}"
                     )
+                    print(error_msg)
                     continue
 
         print(f"Found {len(self.existing_commands)} existing commands")
@@ -90,7 +92,10 @@ class CommandStubGenerator:
         elif "cli" in title or "command" in title:
             return "python -m ToDoWrite --help && echo 'CLI commands verified'"
         elif "documentation" in title or "docs" in title:
-            return "find docs -name '*.md' -exec echo 'Documentation file: {}' \\; && echo 'Documentation verified'"
+            return (
+                "find docs -name '*.md' -exec echo "
+                "'Documentation file: {}' \\; && echo 'Documentation verified'"
+            )
         elif "test" in title:
             return "python -m pytest tests/ -v"
         else:
@@ -163,8 +168,14 @@ class CommandStubGenerator:
         command_data = {
             "id": cmd_id,
             "layer": "Command",
-            "title": f"Execute validation for {ac_data.get('title', 'Acceptance Criteria')}",
-            "description": f"Automated execution to verify: {ac_data.get('description', '')[:200]}...",
+            "title": (
+                f"Execute validation for "
+                f"{ac_data.get('title', 'Acceptance Criteria')}"
+            ),
+            "description": (
+                f"Automated execution to verify: "
+                f"{ac_data.get('description', '')[:200]}..."
+            ),
             "metadata": {
                 "owner": ac_data.get("metadata", {}).get("owner", "system"),
                 "labels": ["generated", "automated", "verification"],
@@ -203,7 +214,8 @@ class CommandStubGenerator:
             return False
 
     def update_ac_children_links(self, ac_file: Path, cmd_id: str) -> bool:
-        """Update Acceptance Criteria file to include command in children links"""
+        """Update Acceptance Criteria file to include command
+        in children links"""
         ac_data, success = self._load_yaml_file(ac_file)
         if not success:
             return False
@@ -235,9 +247,11 @@ class CommandStubGenerator:
             print("No Acceptance Criteria files found")
             return 0, 0
 
-        print(
-            f"Generating command stubs for {len(self.ac_files)} Acceptance Criteria..."
+        msg = (
+            f"Generating command stubs for {len(self.ac_files)} "
+            "Acceptance Criteria..."
         )
+        print(msg)
         print()
 
         success_count = 0

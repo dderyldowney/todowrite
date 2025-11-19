@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
 ToDoWrite Separation of Concerns Linter (tw_lint_soc.py)
-Ensures layers 1-11 are non-executable and only layer 12 (Command) contains executable content
+
+Ensures layers 1-11 are non-executable and only layer 12 (Command)
+contains executable content.
 """
 
 from __future__ import annotations
@@ -39,7 +41,8 @@ class SoCLinter:
         "SubTask",
     }
 
-    # Patterns that indicate actual executable content (focused on dangerous patterns)
+    # Patterns that indicate actual executable content
+    # (focused on dangerous patterns)
     EXECUTABLE_PATTERNS: ClassVar[list[str]] = [
         r"#!/.*",  # Shebang lines
         r"exec\s*\(",  # Python exec calls
@@ -97,9 +100,11 @@ class SoCLinter:
 
         layer = data.get("layer", "")
         if layer in self.NON_EXECUTABLE_LAYERS and "command" in data:
-            violations.append(
-                f"Layer '{layer}' contains forbidden 'command' key (only Layer 12/Command allowed)"
+            error_msg = (
+                f"Layer '{layer}' contains forbidden 'command' key "
+                "(only Layer 12/Command allowed)"
             )
+            violations.append(error_msg)
 
         return violations
 
@@ -124,9 +129,13 @@ class SoCLinter:
         if isinstance(data, str):
             for pattern in self.EXECUTABLE_PATTERNS:
                 if re.search(pattern, data, re.IGNORECASE):
-                    violations.append(
-                        f"Potential executable content found{path}: '{pattern.strip()}' matches in '{data[:100]}...'"
+                    pattern_str = pattern.strip()
+                    data_preview = data[:100]
+                    error_msg = (
+                        f"Potential executable content found{path}: "
+                        f"'{pattern_str}' matches in '{data_preview}...'"
                     )
+                    violations.append(error_msg)
         elif isinstance(data, dict):
             data_dict: dict[str, YAMLData | YAMLValue] = data
             for key, value in data_dict.items():
@@ -225,9 +234,11 @@ class SoCLinter:
         clean_files = 0
         self.total_files = len(yaml_files)
 
-        print(
-            f"Linting {self.total_files} YAML files for Separation of Concerns..."
+        msg = (
+            f"Linting {self.total_files} YAML files "
+            "for Separation of Concerns..."
         )
+        print(msg)
         print()
 
         for file_path in yaml_files:
@@ -260,7 +271,9 @@ class SoCLinter:
 def main() -> None:
     """Main entry point for tw_lint_soc.py"""
     parser = argparse.ArgumentParser(
-        description="Lint ToDoWrite YAML files for Separation of Concerns violations"
+        description=(
+            "Lint ToDoWrite YAML files for Separation of Concerns violations"
+        )
     )
     parser.add_argument(
         "--summary", action="store_true", help="Show summary report only"
