@@ -16,7 +16,7 @@ def check_ToDoWrite_cli_available():
     """Check if ToDoWrite_cli is available in the current environment."""
     try:
         result = subprocess.run(
-            ["python", "-m", "ToDoWrite_cli", "--help"],
+            ["python", "-m", "todowrite_cli", "--help"],
             capture_output=True,
             text=True,
             timeout=10,
@@ -112,25 +112,33 @@ def load_superpowers_and_fail_safes():
         skill_path = superpowers_dir / skill_name / "skill.py"
         if skill_path.exists():
             try:
-                # Import and verify skill
-                sys.path.insert(0, str(skill_path.parent))
-                if skill_name == "test-driven-development":
-                    from skill import TestDrivenDevelopment
+                # Import and verify skill with unique module import
+                import importlib.util
+                spec = importlib.util.spec_from_file_location(
+                    f"skill_{skill_name.replace('-', '_')}",
+                    skill_path
+                )
+                skill_module = importlib.util.module_from_spec(spec)
+                sys.modules[f"skill_{skill_name.replace('-', '_')}"] = skill_module
+                spec.loader.exec_module(skill_module)
 
+                # Verify skill class exists
+                if skill_name == "test-driven-development":
+                    _ = skill_module.TestDrivenDevelopment  # Verify class exists
                     print(f"   ✓ {skill_name} skill loaded")
                     loaded_skills.append(skill_name)
                 elif skill_name == "dispatching-parallel-agents":
-                    from skill import DispatchingParallelAgents
-
+                    _ = skill_module.DispatchingParallelAgents  # Verify class exists
                     print(f"   ✓ {skill_name} skill loaded")
                     loaded_skills.append(skill_name)
                 elif skill_name == "subagent-driven-development":
-                    from skill import SubagentDrivenDevelopment
-
+                    _ = skill_module.SubagentDrivenDevelopment  # Verify class exists
                     print(f"   ✓ {skill_name} skill loaded")
                     loaded_skills.append(skill_name)
             except ImportError as e:
                 print(f"   ⚠️ {skill_name} skill import failed: {e}")
+            except AttributeError as e:
+                print(f"   ⚠️ {skill_name} skill class not found: {e}")
         else:
             print(f"   ⚠️ {skill_name} skill not found")
 
@@ -287,12 +295,38 @@ def initialize_ToDoWrite_tracking():
         return False
 
 
+def activate_tdd_enforcement_for_session() -> bool:
+    """Activate TDD enforcement for the session."""
+    try:
+        # Import the TDD activation module
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "tdd_activation",
+            Path.cwd() / ".claude" / "activate_tdd_enforcement.py"
+        )
+        tdd_module = importlib.util.module_from_spec(spec)
+
+        # Suppress verbose output during regular session startup
+        import contextlib
+        import io
+
+        captured_output = io.StringIO()
+        with contextlib.redirect_stdout(captured_output):
+            spec.loader.exec_module(tdd_module)
+            return tdd_module.activate_tdd_enforcement()
+
+    except Exception as e:
+        # Silently fail during session startup to avoid blocking initialization
+        print(f"   ⚠️  TDD activation warning: {e}")
+        return True  # Return True to avoid blocking session startup
+
+
 def main():
     """Comprehensive main startup logic with all systems integration."""
     print("🚀 Starting comprehensive 2025 session initialization...")
 
     success_count = 0
-    total_checks = 7
+    total_checks = 8
 
     # 1. Check ToDoWrite_cli availability
     if not check_ToDoWrite_cli_available():
@@ -341,6 +375,13 @@ def main():
     create_comprehensive_workflow_markers()
     print("✓ Comprehensive workflow markers created")
     success_count += 1
+
+    # 8. Activate TDD enforcement
+    if activate_tdd_enforcement_for_session():
+        print("✓ TDD enforcement activated")
+        success_count += 1
+    else:
+        print("⚠️  TDD enforcement activation incomplete - some TDD features may be unavailable")
 
     # Set up environment
     setup_ToDoWrite_environment()

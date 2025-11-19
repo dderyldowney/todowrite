@@ -44,7 +44,7 @@ def main():
     print()
 
     success_count = 0
-    total_scripts = 3
+    total_scripts = 4
 
     # 1. Session initialization
     if run_script(".claude/hooks/session_initialization.py", "Session initialization"):
@@ -58,6 +58,10 @@ def main():
     if run_script(
         ".claude/hooks/session_startup_episodic_memory.py", "Episodic memory initialization"
     ):
+        success_count += 1
+
+    # 4. TDD enforcement activation
+    if run_script(".claude/activate_tdd_enforcement.py", "TDD enforcement activation"):
         success_count += 1
 
     print()

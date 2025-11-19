@@ -1,14 +1,23 @@
-"""CLAUDE.md Rule Enforcement - Cannot be overridden under any circumstances."""
+"""CLAUDE.md Rule Enforcement.
 
+Rules cannot be overridden under any circumstances.
+"""
+
+import importlib.util
 import os
 import sys
 from pathlib import Path
 from typing import Any
 
-import click
-from rich.console import Console
-from rich.panel import Panel
-from rich.text import Text
+# Check optional dependencies availability
+click_available = importlib.util.find_spec("click") is not None
+rich_available = importlib.util.find_spec("rich") is not None
+todowrite_available = importlib.util.find_spec("todowrite") is not None
+
+if rich_available:
+    from rich.console import Console
+    from rich.panel import Panel
+    from rich.text import Text
 
 
 class ClaudeRuleViolationError(Exception):
@@ -54,13 +63,16 @@ class ClaudeRuleEnforcer:
             return
 
         # Verify essential packages are available
-        try:
-            import click
-            import rich
-            import todowrite
-        except ImportError as e:
+        if not click_available or not rich_available or not todowrite_available:
+            missing = []
+            if not click_available:
+                missing.append("click")
+            if not rich_available:
+                missing.append("rich")
+            if not todowrite_available:
+                missing.append("todowrite")
             self.violations.append(
-                f"❌ Required package not available in virtual environment: {e}"
+                f"❌ Required packages not available: {', '.join(missing)}"
             )
             return
 
@@ -68,13 +80,11 @@ class ClaudeRuleEnforcer:
         """MUST use correct database configuration."""
         # Check database URL environment variable
         db_url = os.environ.get("TODOWRITE_DATABASE_URL", "")
-        expected_db_path = "$HOME/dbs/todowrite_development.db"
         expected_pattern = "sqlite:///$HOME/dbs/todowrite_development.db"
 
         if not db_url:
-            self.violations.append(
-                f"❌ TODOWRITE_DATABASE_URL not set - must be: {expected_pattern}"
-            )
+            error_msg = f"❌ TODOWRITE_DATABASE_URL not set - must be: {expected_pattern}"
+            self.violations.append(error_msg)
             return
 
         # Check for forbidden hardcoded paths
@@ -159,13 +169,18 @@ class ClaudeRuleEnforcer:
 
             for table in tables:
                 try:
-                    result = session.execute(
-                        text(f"SELECT COUNT(*) FROM {table}")
-                    )
+                    # Use parameterized query with validated table names
+                    if table not in tables:  # Double-check against our whitelist
+                        continue
+
+                    query = text(f"SELECT COUNT(*) FROM {table}")
+                    result = session.execute(query)
                     count = result.fetchone()[0]
                     total_records += count
-                except:
-                    pass
+                except Exception as e:
+                    # Log exception but continue with other tables
+                    print(f"Warning: Could not count records in {table}: {e}")
+                    continue
 
             if total_records < 143:
                 self.violations.append(

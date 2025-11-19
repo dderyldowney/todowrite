@@ -8,13 +8,15 @@ The command will:
 1. Run session initialization to reactivate session markers and agent registry
 2. Activate permanent code quality enforcement systems
 3. Initialize project-specific episodic memory database connection
-4. Verify all quality gates and compliance systems are active
+4. Activate TDD (Test-Driven Development) enforcement with Red-Green-Refactor methodology
+5. Verify all quality gates and compliance systems are active
 
 ## You'll See
 
 - 🔒 Permanent enforcement activation message
 - ✅ All quality gates marked as ENFORCED
 - 🧠 Episodic memory ready confirmation
+- 🧪 TDD enforcement activation with Red-Green-Refactor methodology
 - 📋 Compliance system status
 
 ## When to Use
