@@ -7,20 +7,14 @@ Replaces the legacy storage backend functionality.
 
 import tempfile
 from pathlib import Path
-from typing import Any
 
 import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
-
 from todowrite.core.models import (
-    Goal,
-    Task,
-    Phase,
-    Step,
-    Label,
-    Command,
     Base,
+    Goal,
+    Label,
 )
 
 
@@ -58,9 +52,19 @@ class TestDatabaseOperations:
 
             # Should have all our model tables
             expected_tables = {
-                'goals', 'concepts', 'contexts', 'constraints',
-                'requirements', 'acceptance_criteria', 'interface_contracts',
-                'phases', 'steps', 'tasks', 'sub_tasks', 'commands', 'labels'
+                "goals",
+                "concepts",
+                "contexts",
+                "constraints",
+                "requirements",
+                "acceptance_criteria",
+                "interface_contracts",
+                "phases",
+                "steps",
+                "tasks",
+                "sub_tasks",
+                "commands",
+                "labels",
             }
 
             for table in expected_tables:
@@ -92,10 +96,22 @@ class TestDatabaseOperations:
             result = conn.execute(text("PRAGMA table_info(goals)"))
             columns = [row[1] for row in result]
 
-            expected_columns = ['id', 'title', 'description', 'status',
-                              'progress', 'started_date', 'completion_date',
-                              'owner', 'severity', 'work_type', 'assignee',
-                              'extra_data', 'created_at', 'updated_at']
+            expected_columns = [
+                "id",
+                "title",
+                "description",
+                "status",
+                "progress",
+                "started_date",
+                "completion_date",
+                "owner",
+                "severity",
+                "work_type",
+                "assignee",
+                "extra_data",
+                "created_at",
+                "updated_at",
+            ]
 
             for column in expected_columns:
                 assert column in columns, f"Column {column} should exist in goals table"
@@ -113,6 +129,7 @@ class TestDatabaseOperations:
             try:
                 # Should be able to parse the URL without errors
                 from urllib.parse import urlparse
+
                 parsed = urlparse(url)
                 assert parsed.scheme == "postgresql"
             except Exception as e:
@@ -183,7 +200,7 @@ class TestDatabaseOperations:
                 all_goals.extend(session_goals)
 
             # Count unique goal titles
-            unique_titles = set(goal.title for goal in all_goals)
+            unique_titles = {goal.title for goal in all_goals}
             assert len(unique_titles) == 5
 
         finally:
@@ -208,15 +225,17 @@ class TestDatabaseOperations:
                 session.commit()
 
                 # Verify tables are properly created with relationships
-                result = conn.execute(text("""
+                result = conn.execute(
+                    text("""
                     SELECT name FROM sqlite_master
                     WHERE type='table'
                     AND name LIKE '%_labels%'
-                """))
+                """)
+                )
                 association_tables = [row[0] for row in result]
 
                 # Should have association tables
-                assert any('goals_labels' in table for table in association_tables)
+                assert any("goals_labels" in table for table in association_tables)
 
             finally:
                 session.close()
@@ -233,8 +252,7 @@ class TestDatabaseOperations:
             start_time = time.time()
 
             goals = [
-                Goal(title=f"Performance Goal {i}", description=f"Test {i}")
-                for i in range(100)
+                Goal(title=f"Performance Goal {i}", description=f"Test {i}") for i in range(100)
             ]
 
             session.add_all(goals)

@@ -66,14 +66,16 @@ extra_data:
             severity=yaml_data["severity"],
             work_type=yaml_data["work_type"],
             assignee=yaml_data["assignee"],
-            extra_data=json.dumps(yaml_data["extra_data"])
+            extra_data=json.dumps(yaml_data["extra_data"]),
         )
 
         temp_session.add(goal)
         temp_session.commit()
 
         # Verify goal was created correctly
-        retrieved_goal = temp_session.query(Goal).filter(Goal.title == "Implement User Authentication").first()
+        retrieved_goal = (
+            temp_session.query(Goal).filter(Goal.title == "Implement User Authentication").first()
+        )
         assert retrieved_goal is not None
         assert retrieved_goal.owner == "backend-team"
         assert retrieved_goal.severity == "high"
@@ -112,7 +114,7 @@ extra_data:
             owner=yaml_data["owner"],
             severity=yaml_data["severity"],
             work_type=yaml_data["work_type"],
-            assignee=yaml_data["assignee"]
+            assignee=yaml_data["assignee"],
         )
 
         command = Command(
@@ -122,15 +124,21 @@ extra_data:
             cmd_params=yaml_data["cmd_params"],
             owner=yaml_data["owner"],
             runtime_env=json.dumps(yaml_data["extra_data"]["runtime_env"]),
-            artifacts=json.dumps(yaml_data["extra_data"]["artifacts"])
+            artifacts=json.dumps(yaml_data["extra_data"]["artifacts"]),
         )
 
         temp_session.add_all([task, command])
         temp_session.commit()
 
         # Verify task and command were created
-        retrieved_task = temp_session.query(Task).filter(Task.title == "Database Migration Script").first()
-        retrieved_command = temp_session.query(Command).filter(Command.title == "Database Migration Script Command").first()
+        retrieved_task = (
+            temp_session.query(Task).filter(Task.title == "Database Migration Script").first()
+        )
+        retrieved_command = (
+            temp_session.query(Command)
+            .filter(Command.title == "Database Migration Script Command")
+            .first()
+        )
 
         assert retrieved_task is not None
         assert retrieved_command is not None
@@ -246,7 +254,7 @@ extra_data:
             severity=yaml_data["severity"],
             work_type=yaml_data["work_type"],
             assignee=yaml_data["assignee"],
-            extra_data=json.dumps(yaml_data["extra_data"])
+            extra_data=json.dumps(yaml_data["extra_data"]),
         )
 
         temp_session.add(goal)
@@ -272,7 +280,7 @@ extra_data:
             severity="high",
             work_type="feature",
             assignee="developer",
-            extra_data='{"priority": 1, "complex": true}'
+            extra_data='{"priority": 1, "complex": true}',
         )
         temp_session.add(goal)
         temp_session.commit()
@@ -288,7 +296,7 @@ extra_data:
             "extra_data": json.loads(goal.extra_data) if goal.extra_data else {},
             "created_at": goal.created_at,
             "updated_at": goal.updated_at,
-            "id": goal.id
+            "id": goal.id,
         }
 
         yaml_output = yaml.dump(yaml_data, default_flow_style=False)
@@ -405,7 +413,7 @@ labels:
                 description=phase_data["description"],
                 owner=phase_data["owner"],
                 severity=phase_data["severity"],
-                work_type="phase"
+                work_type="phase",
             )
             created_goals.append(goal)
 
@@ -417,7 +425,9 @@ labels:
                     owner=task_data["owner"],
                     severity=task_data["severity"],
                     work_type=task_data["work_type"],
-                    extra_data=json.dumps(task_data.get("extra_data", {}))  # Use .get() to avoid KeyError
+                    extra_data=json.dumps(
+                        task_data.get("extra_data", {})
+                    ),  # Use .get() to avoid KeyError
                 )
                 created_tasks.append(task)  # In real app, would link to phase
 
@@ -479,14 +489,16 @@ metadata:
             title=yaml_data["title"],
             description=yaml_data["description"],
             owner="conversion-test",
-            extra_data=json.dumps(yaml_data)
+            extra_data=json.dumps(yaml_data),
         )
 
         temp_session.add(goal)
         temp_session.commit()
 
         # Retrieve and verify type preservation
-        retrieved_goal = temp_session.query(Goal).filter(Goal.title == "Type Conversion Test").first()
+        retrieved_goal = (
+            temp_session.query(Goal).filter(Goal.title == "Type Conversion Test").first()
+        )
         assert retrieved_goal is not None
 
         stored_data = json.loads(retrieved_goal.extra_data)

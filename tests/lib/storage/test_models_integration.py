@@ -50,7 +50,7 @@ class TestModelsIntegration:
             description="Successfully launch the new product to market",
             owner="product-manager",
             severity="high",
-            work_type="milestone"
+            work_type="milestone",
         )
         database_session.add(goal)
         database_session.commit()
@@ -61,7 +61,7 @@ class TestModelsIntegration:
             description="Core development work for the product",
             owner="tech-lead",
             severity="high",
-            work_type="development"
+            work_type="development",
         )
         database_session.add(phase)
         database_session.commit()
@@ -72,7 +72,7 @@ class TestModelsIntegration:
             description="Develop the REST API backend services",
             owner="backend-lead",
             severity="medium",
-            work_type="development"
+            work_type="development",
         )
         database_session.add(step)
         database_session.commit()
@@ -84,7 +84,7 @@ class TestModelsIntegration:
             owner="backend-dev",
             severity="high",
             work_type="feature",
-            assignee="senior-dev"
+            assignee="senior-dev",
         )
         database_session.add(task)
         database_session.commit()
@@ -96,16 +96,14 @@ class TestModelsIntegration:
             cmd="python -m pytest tests/auth/",
             cmd_params="--verbose --coverage",
             owner="qa-engineer",
-            runtime_env=json.dumps({
-                "PYTHONPATH": "/app/src",
-                "DATABASE_URL": "sqlite:///test.db",
-                "JWT_SECRET": "test-secret"
-            }),
-            artifacts=json.dumps([
-                "test_report.xml",
-                "coverage_report.html",
-                "auth_test.log"
-            ])
+            runtime_env=json.dumps(
+                {
+                    "PYTHONPATH": "/app/src",
+                    "DATABASE_URL": "sqlite:///test.db",
+                    "JWT_SECRET": "test-secret",
+                }
+            ),
+            artifacts=json.dumps(["test_report.xml", "coverage_report.html", "auth_test.log"]),
         )
         database_session.add(command)
         database_session.commit()
@@ -131,15 +129,44 @@ class TestModelsIntegration:
         # Create test data
         goals = [
             Goal(title="Project Alpha", description="Main project", severity="high", owner="alice"),
-            Goal(title="Project Beta", description="Secondary project", severity="medium", owner="bob"),
+            Goal(
+                title="Project Beta",
+                description="Secondary project",
+                severity="medium",
+                owner="bob",
+            ),
             Goal(title="Project Gamma", description="Minor project", severity="low", owner="alice"),
         ]
 
         tasks = [
-            Task(title="Frontend Development", description="Frontend development work", work_type="feature", owner="charlie", assignee="designer"),
-            Task(title="Backend Development", description="Backend development work", work_type="feature", owner="charlie", assignee="backend-dev"),
-            Task(title="Database Setup", description="Database setup work", work_type="infrastructure", owner="alice", assignee="dba"),
-            Task(title="Testing Setup", description="Testing framework work", work_type="testing", owner="bob", assignee="qa-engineer"),
+            Task(
+                title="Frontend Development",
+                description="Frontend development work",
+                work_type="feature",
+                owner="charlie",
+                assignee="designer",
+            ),
+            Task(
+                title="Backend Development",
+                description="Backend development work",
+                work_type="feature",
+                owner="charlie",
+                assignee="backend-dev",
+            ),
+            Task(
+                title="Database Setup",
+                description="Database setup work",
+                work_type="infrastructure",
+                owner="alice",
+                assignee="dba",
+            ),
+            Task(
+                title="Testing Setup",
+                description="Testing framework work",
+                work_type="testing",
+                owner="bob",
+                assignee="qa-engineer",
+            ),
         ]
 
         labels = [
@@ -155,29 +182,32 @@ class TestModelsIntegration:
 
         # Test complex queries
         # Query by severity and owner
-        high_priority_alice_goals = database_session.query(Goal).filter(
-            and_(Goal.severity == "high", Goal.owner == "alice")
-        ).all()
+        high_priority_alice_goals = (
+            database_session.query(Goal)
+            .filter(and_(Goal.severity == "high", Goal.owner == "alice"))
+            .all()
+        )
         assert len(high_priority_alice_goals) == 1
         assert high_priority_alice_goals[0].title == "Project Alpha"
 
         # Query by work_type using OR condition
-        feature_or_infrastructure = database_session.query(Task).filter(
-            or_(Task.work_type == "feature", Task.work_type == "infrastructure")
-        ).all()
+        feature_or_infrastructure = (
+            database_session.query(Task)
+            .filter(or_(Task.work_type == "feature", Task.work_type == "infrastructure"))
+            .all()
+        )
         assert len(feature_or_infrastructure) == 3
 
         # Query using LIKE pattern matching
-        dev_tasks = database_session.query(Task).filter(
-            Task.description.ilike("%dev%")
-        ).all()
+        dev_tasks = database_session.query(Task).filter(Task.description.ilike("%dev%")).all()
         assert len(dev_tasks) == 2
 
         # Test aggregate functions
-        task_count_by_work_type = database_session.query(
-            Task.work_type,
-            func.count(Task.id).label("count")
-        ).group_by(Task.work_type).all()
+        task_count_by_work_type = (
+            database_session.query(Task.work_type, func.count(Task.id).label("count"))
+            .group_by(Task.work_type)
+            .all()
+        )
 
         work_type_counts = {row.work_type: row.count for row in task_count_by_work_type}
         assert work_type_counts["feature"] == 2
@@ -224,41 +254,39 @@ class TestModelsIntegration:
                 "team": {
                     "lead": "project-manager",
                     "members": ["dev1", "dev2", "dev3"],
-                    "skills": ["python", "javascript", "sql"]
-                }
+                    "skills": ["python", "javascript", "sql"],
+                },
             },
             "requirements": {
-                "functional": [
-                    "User authentication",
-                    "Data visualization",
-                    "Reporting dashboard"
-                ],
+                "functional": ["User authentication", "Data visualization", "Reporting dashboard"],
                 "non_functional": [
                     "Performance: <2s response time",
                     "Security: OAuth2 implementation",
-                    "Availability: 99.9% uptime"
-                ]
+                    "Availability: 99.9% uptime",
+                ],
             },
             "metrics": {
                 "story_points": 120,
                 "estimated_hours": 240,
                 "complexity_score": 8.5,
-                "risk_level": "medium"
-            }
+                "risk_level": "medium",
+            },
         }
 
         goal = Goal(
             title="Complex Data Test",
             description="Testing JSON field with complex nested data",
             owner="data-architect",
-            extra_data=json.dumps(complex_extra_data)
+            extra_data=json.dumps(complex_extra_data),
         )
 
         database_session.add(goal)
         database_session.commit()
 
         # Retrieve and verify JSON data integrity
-        retrieved_goal = database_session.query(Goal).filter(Goal.title == "Complex Data Test").first()
+        retrieved_goal = (
+            database_session.query(Goal).filter(Goal.title == "Complex Data Test").first()
+        )
         assert retrieved_goal is not None
 
         # Parse and verify nested structure
@@ -343,7 +371,7 @@ class TestModelsIntegration:
                 title=f"Bulk Goal {i}",
                 description=f"Bulk insert test goal number {i}",
                 owner=f"user{i % 5}",  # Rotate through 5 users
-                severity=["low", "medium", "high"][i % 3]
+                severity=["low", "medium", "high"][i % 3],
             )
             for i in range(100)
         ]
@@ -353,15 +381,12 @@ class TestModelsIntegration:
                 title=f"Bulk Task {i}",
                 description=f"Bulk insert test task number {i}",
                 owner=f"user{i % 5}",
-                work_type=["feature", "bug-fix", "testing"][i % 3]
+                work_type=["feature", "bug-fix", "testing"][i % 3],
             )
             for i in range(100)
         ]
 
-        labels = [
-            Label(name=f"label{i}")
-            for i in range(20)
-        ]
+        labels = [Label(name=f"label{i}") for i in range(20)]
 
         database_session.add_all(goals + tasks + labels)
         database_session.commit()
@@ -398,11 +423,13 @@ class TestModelsIntegration:
             owner="product-owner",
             severity="high",
             work_type="milestone",
-            extra_data=json.dumps({
-                "business_objectives": ["Revenue generation", "Market expansion"],
-                "success_metrics": ["1000 daily active users", "$10k monthly revenue"],
-                "timeline": "6 months"
-            })
+            extra_data=json.dumps(
+                {
+                    "business_objectives": ["Revenue generation", "Market expansion"],
+                    "success_metrics": ["1000 daily active users", "$10k monthly revenue"],
+                    "timeline": "6 months",
+                }
+            ),
         )
 
         development_phase = Phase(
@@ -411,11 +438,9 @@ class TestModelsIntegration:
             owner="tech-lead",
             severity="high",
             work_type="development",
-            extra_data=json.dumps({
-                "duration": "4 months",
-                "team_size": 8,
-                "methodology": "Agile/Scrum"
-            })
+            extra_data=json.dumps(
+                {"duration": "4 months", "team_size": 8, "methodology": "Agile/Scrum"}
+            ),
         )
 
         # Create development tasks
@@ -427,15 +452,17 @@ class TestModelsIntegration:
                 severity="high",
                 work_type="feature",
                 assignee="senior-backend-dev",
-                extra_data=json.dumps({
-                    "technologies": ["Node.js", "Express", "JWT", "bcrypt"],
-                    "acceptance_criteria": [
-                        "Users can register with email",
-                        "Users can login with email/password",
-                        "JWT tokens are properly signed",
-                        "Password reset functionality works"
-                    ]
-                })
+                extra_data=json.dumps(
+                    {
+                        "technologies": ["Node.js", "Express", "JWT", "bcrypt"],
+                        "acceptance_criteria": [
+                            "Users can register with email",
+                            "Users can login with email/password",
+                            "JWT tokens are properly signed",
+                            "Password reset functionality works",
+                        ],
+                    }
+                ),
             ),
             Task(
                 title="Product Catalog API",
@@ -444,10 +471,12 @@ class TestModelsIntegration:
                 severity="high",
                 work_type="feature",
                 assignee="backend-dev",
-                extra_data=json.dumps({
-                    "endpoints": ["/api/products", "/api/products/:id", "/api/products/search"],
-                    "features": ["search", "filtering", "sorting", "pagination"]
-                })
+                extra_data=json.dumps(
+                    {
+                        "endpoints": ["/api/products", "/api/products/:id", "/api/products/search"],
+                        "features": ["search", "filtering", "sorting", "pagination"],
+                    }
+                ),
             ),
             Task(
                 title="Payment Integration",
@@ -456,11 +485,13 @@ class TestModelsIntegration:
                 severity="high",
                 work_type="integration",
                 assignee="backend-dev",
-                extra_data=json.dumps({
-                    "payment_providers": ["Stripe", "PayPal"],
-                    "test_coverage": ["sandbox testing", "edge cases"]
-                })
-            )
+                extra_data=json.dumps(
+                    {
+                        "payment_providers": ["Stripe", "PayPal"],
+                        "test_coverage": ["sandbox testing", "edge cases"],
+                    }
+                ),
+            ),
         ]
 
         # Create database commands
@@ -471,12 +502,14 @@ class TestModelsIntegration:
                 cmd="python -m pytest tests/auth/ --cov=auth",
                 cmd_params="--verbose --junitxml",
                 owner="qa-lead",
-                runtime_env=json.dumps({
-                    "NODE_ENV": "test",
-                    "TEST_DB": "sqlite:///:memory:",
-                    "JWT_SECRET": "test-jwt-secret"
-                }),
-                artifacts=json.dumps(["test-results.xml", "coverage-report.html"])
+                runtime_env=json.dumps(
+                    {
+                        "NODE_ENV": "test",
+                        "TEST_DB": "sqlite:///:memory:",
+                        "JWT_SECRET": "test-jwt-secret",
+                    }
+                ),
+                artifacts=json.dumps(["test-results.xml", "coverage-report.html"]),
             ),
             Command(
                 title="Database Migration",
@@ -484,12 +517,11 @@ class TestModelsIntegration:
                 cmd="python manage.py migrate",
                 cmd_params="--fake-initial",
                 owner="devops",
-                runtime_env=json.dumps({
-                    "DATABASE_URL": "sqlite:///production.db",
-                    "BACKUP_DB": "true"
-                }),
-                artifacts=json.dumps(["migration_log.txt", "backup.sql"])
-            )
+                runtime_env=json.dumps(
+                    {"DATABASE_URL": "sqlite:///production.db", "BACKUP_DB": "true"}
+                ),
+                artifacts=json.dumps(["migration_log.txt", "backup.sql"]),
+            ),
         ]
 
         # Create labels for categorization
@@ -504,9 +536,15 @@ class TestModelsIntegration:
         ]
 
         # Add all records to database
-        database_session.add_all([
-            project_goal, development_phase,
-        ] + tasks + commands + labels)
+        database_session.add_all(
+            [
+                project_goal,
+                development_phase,
+            ]
+            + tasks
+            + commands
+            + labels
+        )
 
         database_session.commit()
 
@@ -518,7 +556,9 @@ class TestModelsIntegration:
         assert database_session.query(Label).count() == 7
 
         # Verify real-world data integrity
-        auth_task = database_session.query(Task).filter(Task.title == "User Authentication System").first()
+        auth_task = (
+            database_session.query(Task).filter(Task.title == "User Authentication System").first()
+        )
         assert auth_task is not None
         assert auth_task.extra_data is not None
 
@@ -527,18 +567,20 @@ class TestModelsIntegration:
         assert len(auth_data["acceptance_criteria"]) == 4
 
         # Test complex queries that would be used in real applications
-        critical_path_tasks = database_session.query(Task).join(
-            Label, Task.title.like("%Authentication%")
-        ).filter(
-            or_(Task.severity == "high", Task.work_type == "integration")
-        ).all()
+        critical_path_tasks = (
+            database_session.query(Task)
+            .join(Label, Task.title.like("%Authentication%"))
+            .filter(or_(Task.severity == "high", Task.work_type == "integration"))
+            .all()
+        )
         assert len(critical_path_tasks) >= 1
 
         # Test aggregation queries for project management
-        tasks_by_work_type = database_session.query(
-            Task.work_type,
-            func.count(Task.id).label("task_count")
-        ).group_by(Task.work_type).all()
+        tasks_by_work_type = (
+            database_session.query(Task.work_type, func.count(Task.id).label("task_count"))
+            .group_by(Task.work_type)
+            .all()
+        )
 
         work_type_distribution = {row.work_type: row.task_count for row in tasks_by_work_type}
         assert work_type_distribution["feature"] == 2

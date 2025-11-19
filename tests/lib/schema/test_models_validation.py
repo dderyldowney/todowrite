@@ -8,20 +8,16 @@ Replaces the legacy schema validation functionality.
 import json
 import tempfile
 from pathlib import Path
-from typing import Any
 
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
 from todowrite.core.models import (
-    Goal,
-    Task,
-    Phase,
-    Step,
-    Label,
-    Command,
     Base,
+    Command,
+    Goal,
+    Label,
+    Task,
 )
 
 
@@ -51,7 +47,7 @@ class TestModelsValidation:
             title="Valid Goal",
             description="A properly formatted goal",
             owner="test-user",
-            severity="medium"
+            severity="medium",
         )
         temp_session.add(valid_goal)
         temp_session.commit()
@@ -70,7 +66,7 @@ class TestModelsValidation:
             owner="test-user",
             severity="high",
             work_type="feature",
-            assignee="developer"
+            assignee="developer",
         )
         temp_session.add(valid_task)
         temp_session.commit()
@@ -92,7 +88,11 @@ class TestModelsValidation:
         retrieved_label = temp_session.query(Label).filter(Label.name == "urgent").first()
         assert retrieved_label is not None
         assert len(retrieved_label.name) > 0
-        assert retrieved_label.name.isalnum() or '-' in retrieved_label.name or '_' in retrieved_label.name
+        assert (
+            retrieved_label.name.isalnum()
+            or "-" in retrieved_label.name
+            or "_" in retrieved_label.name
+        )
 
     def test_command_model_validation(self, temp_session):
         """Test Command model validation rules."""
@@ -102,13 +102,15 @@ class TestModelsValidation:
             description="A properly formatted command",
             cmd="echo 'Hello World'",
             cmd_params="--verbose",
-            owner="test-user"
+            owner="test-user",
         )
         temp_session.add(valid_command)
         temp_session.commit()
 
         # Verify valid command persists correctly
-        retrieved_command = temp_session.query(Command).filter(Command.title == "Valid Command").first()
+        retrieved_command = (
+            temp_session.query(Command).filter(Command.title == "Valid Command").first()
+        )
         assert retrieved_command is not None
         assert retrieved_command.cmd is not None
         assert len(retrieved_command.cmd.strip()) > 0
@@ -120,20 +122,22 @@ class TestModelsValidation:
             "priority": 1,
             "estimated_hours": 40,
             "tags": ["backend", "api"],
-            "metadata": {"complex": True, "nested": {"value": 42}}
+            "metadata": {"complex": True, "nested": {"value": 42}},
         }
         valid_json = json.dumps(valid_extra_data)
 
         goal = Goal(
             title="Goal with JSON Data",
             description="Testing JSON extra_data field",
-            extra_data=valid_json
+            extra_data=valid_json,
         )
         temp_session.add(goal)
         temp_session.commit()
 
         # Verify JSON persists and can be retrieved
-        retrieved_goal = temp_session.query(Goal).filter(Goal.title == "Goal with JSON Data").first()
+        retrieved_goal = (
+            temp_session.query(Goal).filter(Goal.title == "Goal with JSON Data").first()
+        )
         assert retrieved_goal is not None
 
         # Verify JSON is valid
@@ -167,10 +171,7 @@ class TestModelsValidation:
 
     def test_model_timestamp_validation(self, temp_session):
         """Test model timestamp validation."""
-        goal = Goal(
-            title="Timestamp Test",
-            description="Testing automatic timestamps"
-        )
+        goal = Goal(title="Timestamp Test", description="Testing automatic timestamps")
         temp_session.add(goal)
         temp_session.commit()
 
@@ -181,17 +182,14 @@ class TestModelsValidation:
         assert len(goal.updated_at) >= 19
 
         # Verify timestamp format (basic check for ISO datetime)
-        assert 'T' in goal.created_at
-        assert goal.created_at.count('-') == 2  # YYYY-MM-DD
+        assert "T" in goal.created_at
+        assert goal.created_at.count("-") == 2  # YYYY-MM-DD
 
     def test_model_field_length_validation(self, temp_session):
         """Test model field length validation."""
         # Test very long title (should work if no explicit length constraint)
         long_title = "A" * 200  # 200 character title
-        goal = Goal(
-            title=long_title,
-            description="Testing long field lengths"
-        )
+        goal = Goal(title=long_title, description="Testing long field lengths")
         temp_session.add(goal)
         temp_session.commit()
 
@@ -208,15 +206,15 @@ class TestModelsValidation:
                 "description": "First goal",
                 "owner": "user1",
                 "severity": "high",
-                "extra_data": json.dumps({"priority": 1, "complex": True})
+                "extra_data": json.dumps({"priority": 1, "complex": True}),
             },
             {
                 "title": "Goal 2",
                 "description": "Second goal",
                 "owner": "user2",
                 "severity": "low",
-                "extra_data": json.dumps({"priority": 3, "complex": False})
-            }
+                "extra_data": json.dumps({"priority": 3, "complex": False}),
+            },
         ]
 
         # Create goals
