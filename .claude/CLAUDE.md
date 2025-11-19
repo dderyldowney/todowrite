@@ -246,14 +246,43 @@ git commit -m "feat(scope): description"
 git push origin develop
 ```
 
-**IMPORTANT**: Step 4 (Pre-commit Quality Checks) is MANDATORY before all commits. This ensures:
-- Code formatting compliance (ruff format)
-- Linting compliance (ruff check)
-- No security issues (bandit)
-- No secrets exposed (detect-secrets)
-- Clean commit history without relying on pre-commit hook fixes
+**IMPORTANT**: Step 4 (Pre-commit Quality Checks) is MANDATORY before all commits. This follows a strict 4-phase process:
 
-**NEVER** commit without running these checks first. Pre-commit hooks are safety nets, not primary tools.
+### Phase 1: INFORMATION GATHERING
+```bash
+./dev_tools/build.sh format
+./dev_tools/build.sh lint
+```
+- Tools **INFORM** you of exactly what errors/warnings exist and where
+- Tools report specific file locations and line numbers for each issue
+- Tools provide clear descriptions of what needs to be fixed
+
+### Phase 2: SYSTEMATIC FIXING
+- **FIX ALL** issues identified by the tools
+- Address every single error and warning reported
+- Use the specific location information provided by the tools
+- Do NOT proceed until all issues are resolved
+
+### Phase 3: VERIFICATION
+```bash
+./dev_tools/build.sh format
+./dev_tools/build.sh lint
+```
+- Re-run tools to **confirm ZERO issues remain**
+- Only proceed when tools report clean output with no errors/warnings
+- If any issues remain, return to Phase 2
+
+### Phase 4: COMMIT
+```bash
+git add .
+git commit -m "feat(scope): description"
+git push origin develop
+```
+- **ONLY** commit after tools confirm clean code
+- Pre-commit hooks should pass without any fixes needed
+- Clean commit history maintained
+
+**CRITICAL**: The tools must give you the "all clear" (ZERO issues) before any commit is attempted. Pre-commit hooks are safety nets, not primary workflow tools.
 
 ### Quick Commands
 ```bash
