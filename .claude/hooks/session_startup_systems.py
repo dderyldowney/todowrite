@@ -48,6 +48,7 @@ def initialize_all_systems():
         print("🤖 Verifying HAL Agent System...")
         try:
             import importlib.util
+
             openai_spec = importlib.util.find_spec("openai")
             if openai_spec is not None:
                 result = os.system(

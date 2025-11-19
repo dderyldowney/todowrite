@@ -31,6 +31,7 @@ def verify_hal_agent_system() -> bool:
         # Test HAL Agent dependencies
         try:
             import importlib.util
+
             openai_spec = importlib.util.find_spec("openai")
             if openai_spec is None:
                 return False
