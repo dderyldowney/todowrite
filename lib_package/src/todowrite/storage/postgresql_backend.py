@@ -14,7 +14,7 @@ class PostgreSQLBackend(StorageBackend):
 
     def __init__(
         self, database_url: str, pool_size: int = 5, max_overflow: int = 10
-    ):
+    ) -> None:
         self.database_url = database_url
         self.pool_size = pool_size
         self.max_overflow = max_overflow

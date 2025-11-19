@@ -170,7 +170,7 @@ class ToDoWriteSchemaValidator:
         """Verify that all expected tables and columns exist in the database."""
         with engine.connect() as conn:
             # Check model tables
-            for model_name, model_schema in self.schema.get(
+            for _model_name, model_schema in self.schema.get(
                 "models", {}
             ).items():
                 table_name = model_schema["table_name"]
@@ -206,7 +206,7 @@ class ToDoWriteSchemaValidator:
                         )
 
             # Check association tables
-            for table_name in self.schema.get("association_tables", {}).keys():
+            for table_name in self.schema.get("association_tables", {}):
                 result = conn.execute(
                     text(
                         "SELECT name FROM sqlite_master WHERE type='table' AND name=:table_name"
@@ -328,7 +328,7 @@ class DatabaseSchemaInitializer:
                 table_counts = {}
 
                 for (
-                    model_name,
+                    _model_name,
                     model_schema,
                 ) in self.validator.get_all_model_schemas().items():
                     table_name = model_schema["table_name"]

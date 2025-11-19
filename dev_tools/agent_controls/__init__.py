@@ -1,5 +1,4 @@
-"""
-Agent Controls Development Tools
+"""Agent Controls Development Tools.
 
 This package contains development utilities for managing and controlling
 autonomous agents, including HAL agents and workflow orchestration.

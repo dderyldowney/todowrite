@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Claude Auto-Initialization Script
+"""Claude Auto-Initialization Script.
 
 This script is automatically loaded when Claude starts.
 It ensures token-sage is always ready and HAL agents are integrated.
@@ -12,7 +11,7 @@ from pathlib import Path
 
 
 def initialize_claude_session() -> bool | None:
-    """Initialize Claude session with token optimization"""
+    """Initialize Claude session with token optimization."""
     try:
         print("🚀 Claude auto-initializing for maximum token efficiency...")
 
@@ -79,7 +78,7 @@ def initialize_claude_session() -> bool | None:
 
 
 def get_optimized_analysis_command(goal, pattern=None) -> str:
-    """Generate optimized analysis command"""
+    """Generate optimized analysis command."""
     current_dir = Path(os.environ.get("TOKEN_OPTIMIZED_PATH", Path.cwd()))
     always_token_sage = current_dir / "always_token_sage.py"
 
@@ -94,7 +93,7 @@ def get_optimized_analysis_command(goal, pattern=None) -> str:
 
 
 def auto_optimize_query(query):
-    """Automatically optimize a query for token efficiency"""
+    """Automatically optimize a query for token efficiency."""
     code_indicators = [
         "analyze",
         "find",

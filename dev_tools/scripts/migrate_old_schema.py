@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Database migration script for ToDoWrite.
+"""Database migration script for ToDoWrite.
 
 This script migrates databases from the old schema (with session_id column)
 to the new schema (without session_id column).

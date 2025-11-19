@@ -40,18 +40,9 @@ class TestTestDrivenDevelopment(TestSuperpowersBase):
         """RED TEST: Test that TDD workflow fails without implementation"""
         # Create temporary directory for testing
         with tempfile.TemporaryDirectory() as temp_dir:
-            temp_path = Path(temp_dir)
+            Path(temp_dir)
 
             # Create a simple feature request
-            feature_request = {
-                "description": "Add user authentication to the system",
-                "requirements": [
-                    "Users can register with email and password",
-                    "Users can login with email and password",
-                    "Passwords are securely hashed",
-                    "Session management is implemented",
-                ],
-            }
 
             # Try to run TDD workflow - should fail without implementation
             with pytest.raises((FileNotFoundError, ImportError, subprocess.CalledProcessError)):
@@ -72,7 +63,8 @@ class TestTestDrivenDevelopment(TestSuperpowersBase):
                 )
 
                 if result.returncode != 0:
-                    raise FileNotFoundError("TDD skill implementation not found")
+                    msg = "TDD skill implementation not found"
+                    raise FileNotFoundError(msg)
 
     def test_tdd_failing_test_creation_should_fail(self) -> None:
         """RED TEST: Test that failing test creation fails without TDD implementation"""
@@ -239,7 +231,8 @@ class UserAuth:
                 status = fail_safes.check_subagent_health(subagent_id)
 
                 if status.value == "active":
-                    raise RuntimeError("TDD subagent should not be active without implementation")
+                    msg = "TDD subagent should not be active without implementation"
+                    raise RuntimeError(msg)
 
     def test_tdd_skill_discovery_should_fail(self) -> None:
         """RED TEST: Test that TDD skill discovery fails initially"""

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Always Use Token-Sage First
+"""Always Use Token-Sage First.
 
 This script ensures token-sage is always loaded before any work.
 It's a wrapper that automatically initializes token-sage.
@@ -11,7 +10,7 @@ from pathlib import Path
 
 
 def ensure_token_sage() -> None:
-    """Ensure token-sage is always loaded first"""
+    """Ensure token-sage is always loaded first."""
     print("🚀 Ensuring token-sage is loaded...")
 
     # This would normally initialize token-sage
@@ -26,7 +25,7 @@ def ensure_token_sage() -> None:
 
 
 def run_with_hal_preprocessing(command_args) -> int:
-    """Run any command with HAL preprocessing first"""
+    """Run any command with HAL preprocessing first."""
     if not command_args:
         print("Usage: python always_token_sage.py <your_command> [args]")
         print("Example: python always_token_sage.py 'analyze database models'")
@@ -89,7 +88,7 @@ def run_with_hal_preprocessing(command_args) -> int:
 
 
 def main():
-    """Main entry point"""
+    """Main entry point."""
     if len(sys.argv) < 2:
         print("🚀 Always Token-Sage - Maximum Token Efficiency")
         print("=" * 50)

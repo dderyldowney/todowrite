@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Advanced Token Optimizer - 2025 Industry Standards
+"""Advanced Token Optimizer - 2025 Industry Standards.
 
 Implements cutting-edge token reduction and optimization techniques:
 1. Context-aware filtering and compression
@@ -24,7 +24,7 @@ from typing import Any
 
 @dataclass
 class TokenMetrics:
-    """Token usage metrics for optimization analysis"""
+    """Token usage metrics for optimization analysis."""
 
     total_tokens: int = 0
     optimized_tokens: int = 0
@@ -37,7 +37,7 @@ class TokenMetrics:
 
 @dataclass
 class CodeContext:
-    """Structured code context with metadata"""
+    """Structured code context with metadata."""
 
     file_path: str
     content: str
@@ -51,7 +51,7 @@ class CodeContext:
 
 
 class TokenCache:
-    """Intelligent LRU cache for token optimization results"""
+    """Intelligent LRU cache for token optimization results."""
 
     def __init__(self, max_size: int = 1000, ttl_seconds: int = 3600):
         self.cache: OrderedDict[str, tuple[Any, float]] = OrderedDict()
@@ -61,11 +61,11 @@ class TokenCache:
         self.miss_count = 0
 
     def _is_expired(self, timestamp: float) -> bool:
-        """Check if cache entry has expired"""
+        """Check if cache entry has expired."""
         return time.time() - timestamp > self.ttl_seconds
 
     def get(self, key: str) -> Any | None:
-        """Get cached value if not expired"""
+        """Get cached value if not expired."""
         if key in self.cache:
             value, timestamp = self.cache[key]
             if self._is_expired(timestamp):
@@ -79,7 +79,7 @@ class TokenCache:
         return None
 
     def put(self, key: str, value: Any) -> None:
-        """Store value in cache with timestamp"""
+        """Store value in cache with timestamp."""
         current_time = time.time()
 
         # Remove expired entries
@@ -94,13 +94,13 @@ class TokenCache:
         self.cache[key] = (value, current_time)
 
     def get_hit_rate(self) -> float:
-        """Calculate cache hit rate"""
+        """Calculate cache hit rate."""
         total = self.hit_count + self.miss_count
         return self.hit_count / total if total > 0 else 0.0
 
 
 class SemanticCodeAnalyzer:
-    """Advanced semantic analysis for intelligent token reduction"""
+    """Advanced semantic analysis for intelligent token reduction."""
 
     def __init__(self):
         self.importance_keywords = {
@@ -136,7 +136,7 @@ class SemanticCodeAnalyzer:
         }
 
     def analyze_importance(self, content: str, file_path: str) -> float:
-        """Calculate importance score (0.0 to 1.0) for code content"""
+        """Calculate importance score (0.0 to 1.0) for code content."""
         if not content.strip():
             return 0.0
 
@@ -170,7 +170,7 @@ class SemanticCodeAnalyzer:
         return max(0.0, min(1.0, score))
 
     def _get_path_importance(self, file_path: str) -> float:
-        """Get importance score based on file path patterns"""
+        """Get importance score based on file path patterns."""
         path = Path(file_path)
 
         # High importance paths
@@ -188,7 +188,7 @@ class SemanticCodeAnalyzer:
         return 0.15
 
     def extract_dependencies(self, content: str) -> set[str]:
-        """Extract import dependencies from code"""
+        """Extract import dependencies from code."""
         imports = set()
 
         # Extract from import statements
@@ -202,7 +202,7 @@ class SemanticCodeAnalyzer:
         return imports
 
     def extract_exports(self, content: str) -> set[str]:
-        """Extract exported symbols from code"""
+        """Extract exported symbols from code."""
         exports = set()
 
         # __all__ assignments
@@ -218,19 +218,17 @@ class SemanticCodeAnalyzer:
         return exports
 
     def calculate_complexity(self, content: str) -> float:
-        """Calculate cyclomatic complexity score"""
+        """Calculate cyclomatic complexity score."""
         try:
             tree = ast.parse(content)
             complexity = 1  # Base complexity
 
             for node in ast.walk(tree):
-                if isinstance(node, (ast.If, ast.While, ast.For, ast.AsyncFor)) or isinstance(
-                    node, (ast.ExceptHandler, ast.With, ast.AsyncWith)
-                ):
+                if isinstance(node, (ast.If, ast.While, ast.For, ast.AsyncFor, ast.ExceptHandler, ast.With, ast.AsyncWith)):
                     complexity += 1
                 elif isinstance(node, ast.BoolOp):
                     complexity += len(node.values) - 1
-                elif isinstance(node, ast.ListComp) or isinstance(node, ast.DictComp):
+                elif isinstance(node, (ast.ListComp, ast.DictComp)):
                     complexity += 1
 
             return float(complexity)
@@ -239,7 +237,7 @@ class SemanticCodeAnalyzer:
 
 
 class TokenCompressor:
-    """Advanced token compression using semantic analysis"""
+    """Advanced token compression using semantic analysis."""
 
     def __init__(self):
         self.compression_strategies = {
@@ -251,7 +249,7 @@ class TokenCompressor:
         }
 
     def compress_content(self, content: str, strategies: list[str] | None = None) -> str:
-        """Apply compression strategies to reduce token count"""
+        """Apply compression strategies to reduce token count."""
         if not content:
             return content
 
@@ -265,7 +263,7 @@ class TokenCompressor:
         return compressed
 
     def _compress_whitespace(self, content: str) -> str:
-        """Compress whitespace while preserving structure"""
+        """Compress whitespace while preserving structure."""
         # Remove excessive blank lines
         content = re.sub(r"\n\s*\n\s*\n", "\n\n", content)
 
@@ -289,7 +287,7 @@ class TokenCompressor:
         return "\n".join(compressed_lines)
 
     def _compress_comments(self, content: str) -> str:
-        """Compress or remove less important comments"""
+        """Compress or remove less important comments."""
         lines = content.split("\n")
         filtered_lines = []
 
@@ -298,12 +296,7 @@ class TokenCompressor:
 
             # Keep docstring markers and important comments
             if (
-                stripped.startswith('"""')
-                or stripped.startswith("'''")
-                or stripped.startswith("# TODO")
-                or stripped.startswith("# FIXME")
-                or stripped.startswith("# NOTE")
-                or stripped.startswith("# WARNING")
+                stripped.startswith(('"""', "'''", "# TODO", "# FIXME", "# NOTE", "# WARNING"))
             ):
                 filtered_lines.append(line)
             # Remove simple comments
@@ -315,7 +308,7 @@ class TokenCompressor:
         return "\n".join(filtered_lines)
 
     def _compress_imports(self, content: str) -> str:
-        """Optimize import statements for token efficiency"""
+        """Optimize import statements for token efficiency."""
         # Group similar imports
         import_lines = []
         other_lines = []
@@ -331,11 +324,11 @@ class TokenCompressor:
 
         # Rebuild content
         if unique_imports:
-            return "\n".join(unique_imports + [""] + other_lines)
+            return "\n".join([*unique_imports, "", *other_lines])
         return content
 
     def _compress_strings(self, content: str) -> str:
-        """Compress string literals where safe"""
+        """Compress string literals where safe."""
         # This is conservative to preserve functionality
         lines = content.split("\n")
         compressed_lines = []
@@ -350,7 +343,7 @@ class TokenCompressor:
         return "\n".join(compressed_lines)
 
     def _compress_docstrings(self, content: str) -> str:
-        """Compress docstrings while preserving essential info"""
+        """Compress docstrings while preserving essential info."""
 
         # Find and compress long docstrings
         def compress_docstring(match):
@@ -367,15 +360,14 @@ class TokenCompressor:
             return f"{first}\n    ...[docstring compressed]...\n{last}"
 
         # Compress triple-quoted strings (likely docstrings)
-        content = re.sub(
+        return re.sub(
             r'("""[^"]*?"""|\'\'\'[^\']*?\'\'\')', compress_docstring, content, flags=re.DOTALL
         )
 
-        return content
 
 
 class AdvancedTokenOptimizer:
-    """Main optimizer implementing industry-standard techniques"""
+    """Main optimizer implementing industry-standard techniques."""
 
     def __init__(self, cache_size: int = 1000, cache_ttl: int = 3600):
         self.cache = TokenCache(cache_size, cache_ttl)
@@ -395,7 +387,7 @@ class AdvancedTokenOptimizer:
         pattern: str | None = None,
         token_budget: int | None = None,
     ) -> tuple[str, TokenMetrics]:
-        """Optimize code context for minimal token usage"""
+        """Optimize code context for minimal token usage."""
         start_time = time.time()
 
         # Generate cache key
@@ -439,7 +431,7 @@ class AdvancedTokenOptimizer:
         return optimized_content, self.metrics
 
     def _analyze_files(self, files: list[str], goal: str, pattern: str | None) -> list[CodeContext]:
-        """Analyze files and create context objects"""
+        """Analyze files and create context objects."""
         contexts = []
 
         for file_path in files:
@@ -486,7 +478,7 @@ class AdvancedTokenOptimizer:
         return contexts
 
     def _calculate_relevance_boost(self, content: str, goal: str, pattern: str | None) -> float:
-        """Calculate relevance boost based on goal and pattern matching"""
+        """Calculate relevance boost based on goal and pattern matching."""
         boost = 0.0
 
         # Pattern matching boost
@@ -506,7 +498,7 @@ class AdvancedTokenOptimizer:
     def _select_contexts_by_budget(
         self, contexts: list[CodeContext], token_budget: int
     ) -> list[CodeContext]:
-        """Select contexts based on importance within token budget"""
+        """Select contexts based on importance within token budget."""
         # Sort by importance score (descending)
         sorted_contexts = sorted(contexts, key=lambda c: c.importance_score, reverse=True)
 
@@ -533,7 +525,7 @@ class AdvancedTokenOptimizer:
         return selected
 
     def _compress_and_format(self, contexts: list[CodeContext], goal: str) -> str:
-        """Compress and format selected contexts"""
+        """Compress and format selected contexts."""
         if not contexts:
             return "# No relevant context found"
 
@@ -557,7 +549,7 @@ class AdvancedTokenOptimizer:
         return "\n".join(sections)
 
     def _estimate_tokens(self, text: str) -> int:
-        """Estimate token count using industry-standard approximation"""
+        """Estimate token count using industry-standard approximation."""
         if not text:
             return 0
 
@@ -581,7 +573,7 @@ class AdvancedTokenOptimizer:
     def _generate_cache_key(
         self, files: list[str], goal: str, pattern: str | None, budget: int | None
     ) -> str:
-        """Generate cache key for optimization results"""
+        """Generate cache key for optimization results."""
         key_data = {
             "files": sorted(files),
             "goal": goal,
@@ -593,7 +585,7 @@ class AdvancedTokenOptimizer:
         return hashlib.sha256(key_json.encode()).hexdigest()[:16]
 
     def _detect_language(self, file_path: str) -> str:
-        """Detect programming language from file extension"""
+        """Detect programming language from file extension."""
         suffix = Path(file_path).suffix.lower()
         language_map = {
             ".py": "python",
@@ -610,7 +602,7 @@ class AdvancedTokenOptimizer:
         return language_map.get(suffix, "text")
 
     def get_analytics(self) -> dict[str, Any]:
-        """Get comprehensive analytics and performance metrics"""
+        """Get comprehensive analytics and performance metrics."""
         return {
             "metrics": asdict(self.metrics),
             "cache_performance": {
@@ -627,7 +619,7 @@ class AdvancedTokenOptimizer:
 
 
 def main():
-    """CLI interface for token optimization"""
+    """CLI interface for token optimization."""
     import argparse
 
     parser = argparse.ArgumentParser(
@@ -647,10 +639,7 @@ def main():
     optimizer = AdvancedTokenOptimizer()
 
     # Get files (default to current directory Python files)
-    if args.files:
-        files = args.files
-    else:
-        files = [str(p) for p in Path().rglob("*.py") if p.is_file()]
+    files = args.files or [str(p) for p in Path().rglob("*.py") if p.is_file()]
 
     if not files:
         print("No files found for optimization")

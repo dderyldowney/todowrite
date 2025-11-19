@@ -357,7 +357,8 @@ class SubagentDrivenDevelopment:
                 if not ready_tasks:
                     logger.warning("No ready tasks found - checking for deadlocks")
                     if self._check_deadlock(remaining_tasks):
-                        raise RuntimeError("Deadlock detected in task dependencies")
+                        msg = "Deadlock detected in task dependencies"
+                        raise RuntimeError(msg)
                     time.sleep(1)
                     continue
 
@@ -631,7 +632,8 @@ print(json.dumps(result))
         )
 
         if process.returncode != 0:
-            raise RuntimeError(f"Analyzer task failed: {process.stderr}")
+            msg = f"Analyzer task failed: {process.stderr}"
+            raise RuntimeError(msg)
 
         return json.loads(process.stdout)
 

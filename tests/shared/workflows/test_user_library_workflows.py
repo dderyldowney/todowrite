@@ -74,7 +74,8 @@ class ToDoWrite:
 
         model_class = model_map.get(layer)
         if not model_class:
-            raise ValueError(f"Unknown layer: {layer}")
+            msg = f"Unknown layer: {layer}"
+            raise ValueError(msg)
 
         # Create and save node
         session = self.Session()

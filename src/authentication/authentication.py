@@ -1,4 +1,4 @@
-"""Minimal implementation for authentication
+"""Minimal implementation for authentication.
 
 This is the GREEN phase implementation created to make tests pass.
 It provides the minimal functionality required by the failing tests.
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class FeatureResult:
-    """Result object for feature operations"""
+    """Result object for feature operations."""
 
     success: bool
     data: Any | None = None
@@ -29,14 +29,14 @@ class FeatureResult:
 
 
 class FeatureImplementation:
-    """Minimal implementation of authentication functionality
+    """Minimal implementation of authentication functionality.
 
     This class provides the basic functionality required to pass the tests.
     It follows the TDD GREEN phase principle of minimal implementation.
     """
 
     def __init__(self, config: dict[str, Any] | None = None):
-        """Initialize authentication
+        """Initialize authentication.
 
         Args:
             config: Optional configuration dictionary
@@ -46,7 +46,7 @@ class FeatureImplementation:
         logger.info(f"Initialized {self.__class__.__name__}")
 
     def create(self, **kwargs) -> FeatureResult:
-        """Create new feature instance
+        """Create new feature instance.
 
         This is a minimal implementation for GREEN phase.
         """
@@ -69,7 +69,7 @@ class FeatureImplementation:
             return FeatureResult(success=False, error=str(e))
 
     def authenticate(self, identifier: str, credential: str) -> FeatureResult:
-        """Authenticate user
+        """Authenticate user.
 
         This is a minimal implementation for GREEN phase.
         """
@@ -98,7 +98,7 @@ class FeatureImplementation:
             return FeatureResult(success=False, error=str(e))
 
     def validate(self, data: Any) -> FeatureResult:
-        """Validate input data
+        """Validate input data.
 
         This is a minimal implementation for GREEN phase.
         """
@@ -123,7 +123,7 @@ class FeatureImplementation:
 
 # Factory function for easy instantiation
 def create_feature_implementation(config: dict[str, Any] | None = None) -> FeatureImplementation:
-    """Factory function to create feature instance
+    """Factory function to create feature instance.
 
     Args:
         config: Optional configuration

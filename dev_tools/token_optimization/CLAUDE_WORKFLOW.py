@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Claude Workflow - Always Use Token-Sage + HAL Agents
+"""Claude Workflow - Always Use Token-Sage + HAL Agents.
 
 This is the main entry point that ensures Claude always uses
 the token-optimized workflow automatically.
@@ -12,7 +11,7 @@ from pathlib import Path
 
 # Auto-initialize token optimization
 def ensure_token_optimization() -> bool | None:
-    """Ensure token optimization is always active"""
+    """Ensure token optimization is always active."""
     try:
         # Import the auto-initialization
         sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -27,7 +26,7 @@ def ensure_token_optimization() -> bool | None:
 
 
 def main() -> None:
-    """Main workflow function"""
+    """Main workflow function."""
     print("🎯 Claude Token-Optimized Workflow")
     print("=" * 50)
 

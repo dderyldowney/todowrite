@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Automatic Claude Initialization System
+"""Automatic Claude Initialization System.
 
 This script automatically configures Claude to always use:
 1. Token-sage agent first
@@ -15,7 +14,7 @@ from pathlib import Path
 
 
 def setup_claude_environment() -> bool:
-    """Setup Claude environment for automatic token optimization"""
+    """Setup Claude environment for automatic token optimization."""
     print("🚀 Setting up Claude for automatic token optimization...")
 
     # Create .claude directory in home
@@ -53,7 +52,7 @@ def setup_claude_environment() -> bool:
 
 
 def create_claude_hooks() -> bool:
-    """Create automatic Claude hooks"""
+    """Create automatic Claude hooks."""
     print("🔧 Creating Claude hooks...")
 
     hooks_dir = Path.home() / ".claude" / "hooks"
@@ -163,7 +162,7 @@ if __name__ == "__main__":
 
 
 def create_startup_script() -> bool:
-    """Create automatic startup script"""
+    """Create automatic startup script."""
     print("📝 Creating startup script...")
 
     startup_script = Path.home() / ".claude" / "startup.sh"
@@ -198,7 +197,7 @@ echo "🎯 Token optimization workflow ready!"
 
 
 def create_claude_config() -> bool:
-    """Create Claude configuration file"""
+    """Create Claude configuration file."""
     print("⚙️ Creating Claude configuration...")
 
     config_dir = Path.home() / ".claude"
@@ -232,7 +231,7 @@ def create_claude_config() -> bool:
 
 
 def main() -> int:
-    """Main setup function"""
+    """Main setup function."""
     print("🎯 Claude Automatic Token-Sage + HAL Setup")
     print("=" * 50)
 

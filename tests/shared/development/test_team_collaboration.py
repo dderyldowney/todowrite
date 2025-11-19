@@ -153,10 +153,9 @@ class TestTeamCollaborationInDevelopment:
         )
 
         # Extract review task ID
-        review_task_id: str = ""
         for line in review_task_result.stdout.split("\n"):
             if "TSK-" in line:
-                review_task_id = line.split("✓ Created")[1].split(":")[0].strip()
+                line.split("✓ Created")[1].split(":")[0].strip()
                 break
 
         # Create subtasks for review process
@@ -334,10 +333,9 @@ class TestTeamCollaborationInDevelopment:
         assert "PH-" in release_phase_result.stdout, "Release phase should be created with PH- ID"
 
         # Extract phase ID
-        phase_id: str = ""
         for line in release_phase_result.stdout.split("\n"):
             if "PH-" in line:
-                phase_id = line.split("✓ Created")[1].split(":")[0].strip()
+                line.split("✓ Created")[1].split(":")[0].strip()
                 break
 
         # Create release coordination tasks
@@ -421,10 +419,9 @@ class TestTeamCollaborationInDevelopment:
         assert "TSK-" in incident_task_result.stdout, "Incident task should be created with TSK- ID"
 
         # Extract incident task ID
-        incident_id: str = ""
         for line in incident_task_result.stdout.split("\n"):
             if "TSK-" in line:
-                incident_id = line.split("✓ Created")[1].split(":")[0].strip()
+                line.split("✓ Created")[1].split(":")[0].strip()
                 break
 
         # Create incident response subtasks

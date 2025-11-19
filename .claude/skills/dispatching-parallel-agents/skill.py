@@ -229,7 +229,8 @@ print(json.dumps(result))
         )
 
         if process.returncode != 0:
-            raise RuntimeError(f"Code analysis failed: {process.stderr}")
+            msg = f"Code analysis failed: {process.stderr}"
+            raise RuntimeError(msg)
 
         return json.loads(process.stdout)
 
@@ -354,7 +355,8 @@ print(json.dumps(result))
         )
 
         if process.returncode != 0:
-            raise RuntimeError(f"Security scan failed: {process.stderr}")
+            msg = f"Security scan failed: {process.stderr}"
+            raise RuntimeError(msg)
 
         return json.loads(process.stdout)
 
@@ -471,7 +473,8 @@ class DispatchingParallelAgents:
 
         # Validate resource limits
         if not self._validate_resource_limits(tasks):
-            raise RuntimeError("Resource limits validation failed")
+            msg = "Resource limits validation failed"
+            raise RuntimeError(msg)
 
         # Sort tasks by priority and dependencies
         sorted_tasks = self._sort_tasks_by_priority_and_dependencies(tasks)
@@ -568,10 +571,7 @@ class DispatchingParallelAgents:
 
         # Check worker availability
         busy_workers = sum(1 for worker in self.workers.values() if worker.status == "busy")
-        if busy_workers >= self.max_workers:
-            return False
-
-        return True
+        return not busy_workers >= self.max_workers
 
     def _start_workers(self) -> None:
         """Start worker threads."""
@@ -591,7 +591,8 @@ class DispatchingParallelAgents:
         )
 
         if available_worker is None:
-            raise RuntimeError("No available workers")
+            msg = "No available workers"
+            raise RuntimeError(msg)
 
         # Update worker status
         self.workers[available_worker].status = "busy"
@@ -660,7 +661,7 @@ class DispatchingParallelAgents:
         # Wait for all futures to complete
         for future in as_completed(self.active_futures.values(), timeout=timeout):
             try:
-                result = future.result()
+                future.result()
             except Exception as e:
                 logger.error(f"Task execution failed: {e}")
 

@@ -59,7 +59,8 @@ def create_standalone_node(layer: str, title: str, description: str) -> dict[str
         # Get the appropriate model class
         model_class = layer_model_map.get(layer)
         if not model_class:
-            raise ValueError(f"Unsupported layer: {layer}")
+            msg = f"Unsupported layer: {layer}"
+            raise ValueError(msg)
 
         # Create node with basic fields
         if layer == "Command":

@@ -1,5 +1,4 @@
-"""
-Development Tools
+"""Development Tools.
 
 This package contains development utilities and tools that are not part
 of the main ToDoWrite packages but are used during development.

@@ -623,8 +623,7 @@ def create_feature_implementation(config: Optional[Dict[str, Any]] = None) -> Fe
         import re
 
         matches = re.findall(r"(\d+) passed|(\d+) failed", output)
-        total = sum(int(match[0] or match[1]) for match in matches)
-        return total
+        return sum(int(match[0] or match[1]) for match in matches)
 
     def _count_failing_tests(self, output: str) -> int:
         """Count failing tests in pytest output."""

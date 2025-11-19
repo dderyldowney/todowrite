@@ -63,7 +63,11 @@ class ClaudeRuleEnforcer:
             return
 
         # Verify essential packages are available
-        if not click_available or not rich_available or not todowrite_available:
+        if (
+            not click_available
+            or not rich_available
+            or not todowrite_available
+        ):
             missing = []
             if not click_available:
                 missing.append("click")
@@ -170,7 +174,9 @@ class ClaudeRuleEnforcer:
             for table in tables:
                 try:
                     # Use parameterized query with validated table names
-                    if table not in tables:  # Double-check against our whitelist
+                    if (
+                        table not in tables
+                    ):  # Double-check against our whitelist
                         continue
 
                     query = text(f"SELECT COUNT(*) FROM {table}")

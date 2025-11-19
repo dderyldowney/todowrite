@@ -46,6 +46,7 @@ def activate_tdd_enforcement() -> bool:
 
     if tdd_workflow_path.exists():
         import json
+
         with open(tdd_workflow_path) as f:
             tdd_config = json.load(f)
 

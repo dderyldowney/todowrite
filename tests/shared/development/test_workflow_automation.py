@@ -73,7 +73,7 @@ exit 0
                     break
 
             # Execute the command to verify it works
-            exec_result = subprocess.run(
+            subprocess.run(
                 ["python", "-m", "ToDoWrite_cli", "execute", cmd_id],
                 capture_output=True,
                 text=True,

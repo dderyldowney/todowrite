@@ -314,7 +314,7 @@ class TesttodowriteFlexibleHierarchy:
         assert error is None
         ac_id = ac["id"]
 
-        interface, error = add_interface_contract(
+        _interface, error = add_interface_contract(
             "Tractor Position API", "JSON position data format", ac_id
         )
         assert error is None
@@ -335,7 +335,7 @@ class TesttodowriteFlexibleHierarchy:
         assert error is None
         subtask_id = subtask["id"]
 
-        command, error = add_command(
+        _command, error = add_command(
             "Configure CAN Interface",
             "Set up CAN bus parameters",
             "sudo ip link set can0 type can bitrate 250000",
@@ -394,7 +394,7 @@ class TesttodowriteFlexibleHierarchy:
         assert error is None
         subtask_id = subtask["id"]
 
-        command, error = add_command(
+        _command, error = add_command(
             "Test GPS Accuracy",
             "Validate GPS precision meets requirements",
             "python test_gps_accuracy.py --threshold 2cm",
@@ -440,7 +440,7 @@ class TesttodowriteFlexibleHierarchy:
         assert error is None
         subtask_id = subtask["id"]
 
-        command, error = add_command(
+        _command, error = add_command(
             "Run CAN Tests",
             "Execute CAN driver test suite",
             "pytest tests/can_driver/ -v",
@@ -465,7 +465,7 @@ class TesttodowriteFlexibleHierarchy:
     def test_can_start_at_command_layer(self):
         """Test starting at Command (Layer 12) - direct execution entry."""
         # Start directly at Command - minimal hierarchy
-        command, error = create_node_without_parent(
+        _command, error = create_node_without_parent(
             "Command", "Quick System Check", "Rapid system validation"
         )
         assert error is None
@@ -502,7 +502,7 @@ class TesttodowriteFlexibleHierarchy:
         phase_id = phase["id"]
 
         # Add Step but skip Task/SubTask/Command
-        step, error = add_step(phase_id, "Incomplete Step", "Step without tasks")
+        _step, error = add_step(phase_id, "Incomplete Step", "Step without tasks")
         assert error is None
 
         # Hierarchy is incomplete - missing Task, SubTask, Command
@@ -526,7 +526,7 @@ class TesttodowriteFlexibleHierarchy:
         assert error is None
         goal_id = goal["id"]
 
-        phase1, error = add_phase(goal_id, "Strategic Phase", "Goal-driven phase")
+        _phase1, error = add_phase(goal_id, "Strategic Phase", "Goal-driven phase")
         assert error is None
 
         # Entry point 2: Start at Phase (independent)
@@ -534,7 +534,7 @@ class TesttodowriteFlexibleHierarchy:
         assert error is None
         phase2_id = phase2["id"]
 
-        step2, error = add_step(phase2_id, "Independent Step", "Standalone step")
+        _step2, error = add_step(phase2_id, "Independent Step", "Standalone step")
         assert error is None
 
         # Entry point 3: Start at Task (independent)
@@ -546,7 +546,7 @@ class TesttodowriteFlexibleHierarchy:
         assert error is None
         subtask3_id = subtask3["id"]
 
-        command3, error = add_command(
+        _command3, error = add_command(
             "Independent Command",
             "Standalone command",
             "echo 'Independent execution'",
@@ -607,7 +607,7 @@ class TesttodowriteFlexibleHierarchy:
         test_subtask_id = test_subtask["id"]
 
         # Commands for each subtask
-        diag_command, error = add_command(
+        _diag_command, error = add_command(
             "CAN Bus Diagnostic",
             "Run diagnostic on CAN network",
             "candump can0 -n 100 | grep ERROR",
@@ -616,7 +616,7 @@ class TesttodowriteFlexibleHierarchy:
         )
         assert error is None
 
-        repair_command, error = add_command(
+        _repair_command, error = add_command(
             "Install New Transceiver",
             "Physical hardware replacement",
             "systemctl stop can-service && ./install_transceiver.sh",
@@ -625,7 +625,7 @@ class TesttodowriteFlexibleHierarchy:
         )
         assert error is None
 
-        test_command, error = add_command(
+        _test_command, error = add_command(
             "Test CAN Communication",
             "Validate repair success",
             "cansend can0 123#DEADBEEF && echo 'CAN OK'",
@@ -711,7 +711,7 @@ class TesttodowriteFlexibleHierarchy:
         subtask, error = add_subtask(task_id, "Test SubTask", "Test subtask")
         subtask_id = subtask["id"]
 
-        command, error = add_command("Test Command", "Test command", "echo test", subtask_id)
+        _command, error = add_command("Test Command", "Test command", "echo test", subtask_id)
 
         todos = load_todos()
         validation = validate_hierarchy_completion("Phase", todos)
@@ -725,7 +725,7 @@ class TesttodowriteFlexibleHierarchy:
         # Reset database
         app = ToDoWrite(auto_import=False)
         app.init_database()
-        incomplete_phase, error = add_phase(None, "Incomplete Phase", "Missing children")
+        _incomplete_phase, _error = add_phase(None, "Incomplete Phase", "Missing children")
 
         todos = load_todos()
         validation = validate_hierarchy_completion("Phase", todos)
@@ -763,7 +763,7 @@ class TesttodowriteFlexibleHierarchy:
         assert error is None
         ac_id = ac["id"]
 
-        interface, error = add_interface_contract(
+        _interface, error = add_interface_contract(
             "GPS Data Format", "NMEA 0183 standard format", ac_id
         )
         assert error is None
@@ -785,7 +785,7 @@ class TesttodowriteFlexibleHierarchy:
         assert error is None
         subtask_id = subtask["id"]
 
-        command, error = add_command(
+        _command, error = add_command(
             "Execute GPS Test",
             "Run GPS accuracy measurement",
             "python gps_accuracy_test.py --duration 3600",
@@ -868,7 +868,7 @@ class TesttodowriteFlexibleHierarchy:
         subtask, error = add_subtask(task_id, "Complete SubTask", "Now with subtask")
         subtask_id = subtask["id"]
 
-        command, error = add_command(
+        _command, error = add_command(
             "Complete Command", "Now complete", "echo complete", subtask_id
         )
 
@@ -892,7 +892,7 @@ class TesttodowriteFlexibleHierarchy:
         goal_id = goal["id"]
 
         # Complete strategic planning layers
-        concept, error = add_concept(
+        _concept, error = add_concept(
             "Multi-Harvester Coordination",
             "Coordinate 3 harvesters with real-time optimization",
             goal_id,
@@ -924,7 +924,7 @@ class TesttodowriteFlexibleHierarchy:
         assert error is None
         subtask_id = subtask["id"]
 
-        command, error = add_command(
+        _command, error = add_command(
             "Run Sensor Calibration",
             "Execute calibration protocol",
             "python calibrate_yield_sensors.py --field corn_field_7",
@@ -948,7 +948,7 @@ class TesttodowriteFlexibleHierarchy:
         assert error is None
         fix_subtask_id = fix_subtask["id"]
 
-        fix_command, error = add_command(
+        _fix_command, error = add_command(
             "Install GPS Unit",
             "Physical GPS replacement",
             "systemctl stop gps-service && ./install_gps.sh --unit rtk-2000",
@@ -1023,7 +1023,7 @@ class TesttodowriteFlexibleHierarchy:
         assert error is None
         subtask_id = subtask["id"]
 
-        proper_command, error = add_command(
+        _proper_command, error = add_command(
             "Proper Command",
             "Follows hierarchy",
             "echo 'This follows proper hierarchy'",

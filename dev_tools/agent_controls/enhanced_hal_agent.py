@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Enhanced HAL Agent - Industry-Standard Local Preprocessing
+"""Enhanced HAL Agent - Industry-Standard Local Preprocessing.
 
 Advanced HAL (Human-Aware Language) preprocessing system for zero-token
 local operations before AI interaction. Implements 2025 industry standards
@@ -20,7 +20,7 @@ from pathlib import Path
 
 @dataclass
 class FileInfo:
-    """Structured information about analyzed files"""
+    """Structured information about analyzed files."""
 
     path: str
     size: int
@@ -35,7 +35,7 @@ class FileInfo:
 
 @dataclass
 class AnalysisResult:
-    """Results from HAL preprocessing analysis"""
+    """Results from HAL preprocessing analysis."""
 
     files: list[FileInfo]
     total_files_analyzed: int
@@ -47,7 +47,7 @@ class AnalysisResult:
 
 
 class SemanticAnalyzer:
-    """Advanced semantic analysis for intelligent file selection"""
+    """Advanced semantic analysis for intelligent file selection."""
 
     def __init__(self):
         self.importance_indicators = {
@@ -138,7 +138,7 @@ class SemanticAnalyzer:
     def analyze_file_relevance(
         self, file_path: str, content: str, goal: str, pattern: str | None = None
     ) -> float:
-        """Analyze file relevance to the given goal and pattern"""
+        """Analyze file relevance to the given goal and pattern."""
         if not content.strip():
             return 0.0
 
@@ -184,7 +184,7 @@ class SemanticAnalyzer:
         return min(1.0, relevance)
 
     def _get_path_importance(self, file_path: str) -> float:
-        """Get importance score based on file path patterns"""
+        """Get importance score based on file path patterns."""
         for pattern, importance in self.file_importance_patterns.items():
             if re.match(pattern, file_path):
                 return importance
@@ -203,7 +203,7 @@ class SemanticAnalyzer:
         return 0.4  # Default
 
     def _extract_keywords(self, text: str) -> set[str]:
-        """Extract meaningful keywords from text"""
+        """Extract meaningful keywords from text."""
         # Remove common stop words and extract meaningful terms
         stop_words = {
             "the",
@@ -286,7 +286,7 @@ class SemanticAnalyzer:
         return {word for word in words if len(word) > 2 and word not in stop_words}
 
     def _calculate_structural_importance(self, content: str) -> float:
-        """Calculate importance based on code structure"""
+        """Calculate importance based on code structure."""
         try:
             tree = ast.parse(content)
 
@@ -305,7 +305,7 @@ class SemanticAnalyzer:
                     importance_metrics["functions"] += 1
                     if node.decorators:
                         importance_metrics["decorators"] += len(node.decorators)
-                elif isinstance(node, ast.Import) or isinstance(node, ast.ImportFrom):
+                elif isinstance(node, (ast.Import, ast.ImportFrom)):
                     importance_metrics["imports"] += 1
                 elif isinstance(node, (ast.If, ast.For, ast.While, ast.Try)):
                     importance_metrics["complexity"] += 1
@@ -325,7 +325,7 @@ class SemanticAnalyzer:
             return 0.3  # Default if parsing fails
 
     def _calculate_code_density(self, content: str) -> float:
-        """Calculate code density (ratio of meaningful code to total content)"""
+        """Calculate code density (ratio of meaningful code to total content)."""
         lines = content.split("\n")
 
         if not lines:
@@ -341,18 +341,17 @@ class SemanticAnalyzer:
                 empty_lines += 1
             elif stripped.startswith("#"):
                 comment_lines += 1
-            elif not (stripped.startswith('"""') or stripped.startswith("'''")):
+            elif not (stripped.startswith(('"""', "'''"))):
                 code_lines += 1
 
         total_lines = len(lines)
         if total_lines == 0:
             return 0.0
 
-        density = code_lines / total_lines
-        return density
+        return code_lines / total_lines
 
     def extract_dependencies(self, content: str) -> set[str]:
-        """Extract import dependencies from code"""
+        """Extract import dependencies from code."""
         dependencies = set()
 
         try:
@@ -361,9 +360,8 @@ class SemanticAnalyzer:
                 if isinstance(node, ast.Import):
                     for alias in node.names:
                         dependencies.add(alias.name)
-                elif isinstance(node, ast.ImportFrom):
-                    if node.module:
-                        dependencies.add(node.module)
+                elif isinstance(node, ast.ImportFrom) and node.module:
+                    dependencies.add(node.module)
         except:
             # Fallback to regex-based extraction
             import_patterns = [
@@ -377,7 +375,7 @@ class SemanticAnalyzer:
         return dependencies
 
     def extract_exports(self, content: str) -> set[str]:
-        """Extract exported symbols"""
+        """Extract exported symbols."""
         exports = set()
 
         # __all__ assignments
@@ -390,7 +388,7 @@ class SemanticAnalyzer:
         try:
             tree = ast.parse(content)
             for node in ast.walk(tree):
-                if isinstance(node, ast.ClassDef) or isinstance(node, ast.FunctionDef):
+                if isinstance(node, (ast.ClassDef, ast.FunctionDef)):
                     exports.add(node.name)
         except:
             # Fallback to regex
@@ -401,7 +399,7 @@ class SemanticAnalyzer:
 
 
 class ContentProcessor:
-    """Advanced content processing for token optimization"""
+    """Advanced content processing for token optimization."""
 
     def __init__(self):
         self.max_snippet_chars = 2000
@@ -415,7 +413,7 @@ class ContentProcessor:
         max_chars: int | None = None,
         max_files: int | None = None,
     ) -> AnalysisResult:
-        """Process files and return optimized content"""
+        """Process files and return optimized content."""
         start_time = time.time()
         analyzer = SemanticAnalyzer()
 
@@ -473,7 +471,7 @@ class ContentProcessor:
     def _analyze_file(
         self, file_path: str, analyzer: SemanticAnalyzer, goal: str, pattern: str | None
     ) -> FileInfo | None:
-        """Analyze individual file"""
+        """Analyze individual file."""
         try:
             path = Path(file_path)
             if not path.exists() or not path.is_file():
@@ -506,7 +504,7 @@ class ContentProcessor:
             return None
 
     def _detect_language(self, file_path: str) -> str:
-        """Detect programming language from file path"""
+        """Detect programming language from file path."""
         suffix = Path(file_path).suffix.lower()
         language_map = {
             ".py": "python",
@@ -548,7 +546,7 @@ class ContentProcessor:
     def _generate_recommendations(
         self, all_files: list[FileInfo], selected_files: list[str], goal: str, pattern: str | None
     ) -> list[str]:
-        """Generate optimization recommendations"""
+        """Generate optimization recommendations."""
         recommendations = []
 
         # Analyze selection quality
@@ -619,7 +617,7 @@ class ContentProcessor:
         return recommendations
 
     def _detect_language(self, file_path: str) -> str:
-        """Detect programming language from file path"""
+        """Detect programming language from file path."""
         suffix = Path(file_path).suffix.lower()
         language_map = {
             ".py": "python",
@@ -659,7 +657,7 @@ class ContentProcessor:
         return language_map.get(suffix, "unknown")
 
     def _estimate_tokens(self, char_count: int) -> int:
-        """Estimate token count from character count"""
+        """Estimate token count from character count."""
         # Industry-standard approximation: ~4 characters per token
         return max(1, char_count // 4)
 
@@ -675,7 +673,7 @@ def filter_repository(
     context_lines: int = 0,
     verbose: bool = False,
 ) -> AnalysisResult:
-    """Main function for repository filtering and analysis"""
+    """Main function for repository filtering and analysis."""
     processor = ContentProcessor()
 
     # Find files
@@ -729,7 +727,7 @@ def filter_repository(
 
 
 def main():
-    """CLI interface for enhanced HAL agent"""
+    """CLI interface for enhanced HAL agent."""
     parser = argparse.ArgumentParser(
         description="Enhanced HAL Agent - Industry-Standard Local Preprocessing",
         formatter_class=argparse.RawDescriptionHelpFormatter,

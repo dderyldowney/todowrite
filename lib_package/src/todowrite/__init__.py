@@ -52,36 +52,36 @@ from .core.schema_validator import (
 )
 
 __all__ = [
-    # ToDoWrite Models (12 layers) - PRIMARY API
-    "Goal",
-    "Concept",
-    "Context",
-    "Constraints",
-    "Requirements",
     "AcceptanceCriteria",
-    "InterfaceContract",
-    "Phase",
-    "Step",
-    "Task",
-    "SubTask",
-    "Command",
-    "Label",
     # Database utilities
     "Base",
-    "create_engine",
-    "sessionmaker",
+    "Command",
+    "Concept",
+    "Constraints",
+    "Context",
+    "DatabaseInitializationError",
+    "DatabaseSchemaInitializer",
+    # ToDoWrite Models (12 layers) - PRIMARY API
+    "Goal",
+    "InterfaceContract",
+    "Label",
+    "Phase",
+    "Requirements",
+    "SchemaValidationError",
+    "Step",
+    "SubTask",
+    "Task",
     # Schema validation and management
     "ToDoWriteSchemaValidator",
-    "DatabaseSchemaInitializer",
-    "get_schema_validator",
-    "validate_model_data",
-    "initialize_database",
-    "SchemaValidationError",
-    "DatabaseInitializationError",
     # Metadata
     "__description__",
     "__title__",
     "__version__",
+    "create_engine",
+    "get_schema_validator",
+    "initialize_database",
+    "sessionmaker",
+    "validate_model_data",
 ]
 
 

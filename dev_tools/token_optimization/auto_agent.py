@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Automatic Token-Optimized Agent Pipeline
+"""Automatic Token-Optimized Agent Pipeline.
 
 Always uses token-sage + HAL agents for maximum token efficiency.
 """
@@ -10,7 +9,7 @@ from pathlib import Path
 
 
 def initialize_token_sage() -> bool | None:
-    """Initialize token-sage agent first"""
+    """Initialize token-sage agent first."""
     print("🚀 Initializing token-sage agent...")
     try:
         # This would normally be called through the Task tool
@@ -22,7 +21,7 @@ def initialize_token_sage() -> bool | None:
 
 
 def run_hal_filtering(goal: str, pattern: str | None = None, **kwargs):
-    """Run HAL agent filtering for maximum token efficiency"""
+    """Run HAL agent filtering for maximum token efficiency."""
     print(f"🔍 Running HAL agent pre-filtering for: {goal}")
 
     try:
@@ -61,7 +60,7 @@ def run_hal_filtering(goal: str, pattern: str | None = None, **kwargs):
 
 
 def analyze_with_token_sage(context: str, query: str) -> None:
-    """Use token-sage for final analysis with minimal context"""
+    """Use token-sage for final analysis with minimal context."""
     print(f"🧠 Token-sage analysis with {len(context)} chars of context")
 
     # This would normally be called through the Task tool
@@ -77,7 +76,7 @@ def analyze_with_token_sage(context: str, query: str) -> None:
 
 
 def main() -> int:
-    """Main automatic agent pipeline"""
+    """Main automatic agent pipeline."""
     if len(sys.argv) < 2:
         print("Usage: python auto_agent.py <goal> [pattern]")
         print(

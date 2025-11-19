@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Migrate episodic memory conversations from global database to project-specific database
+"""Migrate episodic memory conversations from global database to project-specific database.
 
 This script extracts only the current project's conversations from the global episodic memory
 database and imports them into the project-specific database, maintaining project isolation.
@@ -15,7 +15,7 @@ from typing import Any
 
 
 def get_project_conversation_paths(project_root: Path) -> list[str]:
-    """Get all possible conversation directory paths for the current project"""
+    """Get all possible conversation directory paths for the current project."""
     project_root = project_root.resolve()
 
     # Generate possible encoded paths that Claude might use
@@ -42,7 +42,7 @@ def get_project_conversation_paths(project_root: Path) -> list[str]:
 
 
 def find_global_conversations(project_conversation_paths: list[str]) -> list[str]:
-    """Find conversation files in global episodic memory archive"""
+    """Find conversation files in global episodic memory archive."""
     global_archive = Path.home() / ".config" / "superpowers" / "conversation-archive"
 
     if not global_archive.exists():
@@ -65,7 +65,7 @@ def find_global_conversations(project_conversation_paths: list[str]) -> list[str
 def extract_project_conversations_from_global_db(
     project_paths: list[str], project_db_path: Path
 ) -> list[dict[str, Any]]:
-    """Extract project-specific conversations from global episodic memory database"""
+    """Extract project-specific conversations from global episodic memory database."""
     global_db_path = Path.home() / ".config" / "superpowers" / "conversation-index" / "db.sqlite"
 
     if not global_db_path.exists():
@@ -127,7 +127,7 @@ def extract_project_conversations_from_global_db(
 
 
 def create_project_database(project_db_path: Path) -> bool:
-    """Create project-specific episodic memory database"""
+    """Create project-specific episodic memory database."""
     try:
         # Ensure directory exists
         project_db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -206,10 +206,7 @@ def main():
 
     args = parser.parse_args()
 
-    if args.project_root:
-        project_root = Path(args.project_root)
-    else:
-        project_root = Path.cwd()
+    project_root = Path(args.project_root) if args.project_root else Path.cwd()
 
     print(f"🏠 Project Root: {project_root}")
 

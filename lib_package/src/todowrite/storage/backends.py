@@ -92,7 +92,7 @@ class NodeCreationResult:
 
     def __init__(
         self, success: bool, node_id: int | None = None, message: str = ""
-    ):
+    ) -> None:
         self.success = success
         self.node_id = node_id
         self.message = message
@@ -101,7 +101,7 @@ class NodeCreationResult:
 class RelationshipCreationResult:
     """Result of relationship creation operation."""
 
-    def __init__(self, success: bool, message: str = ""):
+    def __init__(self, success: bool, message: str = "") -> None:
         self.success = success
         self.message = message
 

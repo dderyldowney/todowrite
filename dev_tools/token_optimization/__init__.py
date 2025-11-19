@@ -1,5 +1,4 @@
-"""
-Token Optimization Development Tools
+"""Token Optimization Development Tools.
 
 This package contains development utilities for optimizing token usage
 when working with large language models and codebases.

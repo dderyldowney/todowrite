@@ -114,9 +114,9 @@ def load_superpowers_and_fail_safes():
             try:
                 # Import and verify skill with unique module import
                 import importlib.util
+
                 spec = importlib.util.spec_from_file_location(
-                    f"skill_{skill_name.replace('-', '_')}",
-                    skill_path
+                    f"skill_{skill_name.replace('-', '_')}", skill_path
                 )
                 skill_module = importlib.util.module_from_spec(spec)
                 sys.modules[f"skill_{skill_name.replace('-', '_')}"] = skill_module
@@ -300,9 +300,9 @@ def activate_tdd_enforcement_for_session() -> bool:
     try:
         # Import the TDD activation module
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "tdd_activation",
-            Path.cwd() / ".claude" / "activate_tdd_enforcement.py"
+            "tdd_activation", Path.cwd() / ".claude" / "activate_tdd_enforcement.py"
         )
         tdd_module = importlib.util.module_from_spec(spec)
 

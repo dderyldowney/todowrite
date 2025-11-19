@@ -196,7 +196,8 @@ class TestRealDatabaseIsolation:
             )
             session.add(rollback_node)
             session.flush()  # Flush but don't commit
-            raise Exception("Force rollback")
+            msg = "Force rollback"
+            raise Exception(msg)
         except Exception:
             session.rollback()
 

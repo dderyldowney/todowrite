@@ -1,5 +1,4 @@
-"""
-Build System API for ToDoWrite monorepo.
+"""Build System API for ToDoWrite monorepo.
 
 Clean architecture implementation following REFACTOR phase of TDD cycle.
 Provides a clean interface for managing the unified monorepo build system.
@@ -89,7 +88,6 @@ class VersionValidator(BuildSystemValidator):
     def validate(self, project_root: Path) -> ValidationResult:
         """Validate version management setup."""
         errors = []
-        warnings = []
 
         # Check VERSION file exists
         version_file = project_root / "VERSION"
@@ -123,19 +121,18 @@ class VersionValidator(BuildSystemValidator):
 
 
 class BuildManager:
-    """
-    Manages the unified monorepo build system with clean architecture.
+    """Manages the unified monorepo build system with clean architecture.
 
     Provides a high-level interface for build operations while maintaining
     separation of concerns and proper error handling.
     """
 
     def __init__(self, project_root: str | None = None) -> None:
-        """
-        Initialize BuildManager with project root path.
+        """Initialize BuildManager with project root path.
 
         Args:
             project_root: Path to project root. If None, auto-detect.
+
         """
         if project_root is None:
             # Auto-detect project root (1 level up from this file)
@@ -150,11 +147,11 @@ class BuildManager:
         self._packages: dict[str, PackageInfo] | None = None
 
     def validate_configuration(self) -> ValidationResult:
-        """
-        Validate that the build system is properly configured.
+        """Validate that the build system is properly configured.
 
         Returns:
             ValidationResult: Detailed validation result
+
         """
         all_errors = []
         all_warnings = []
@@ -172,8 +169,7 @@ class BuildManager:
         )
 
     def run_build_script(self, command: str) -> subprocess.CompletedProcess:
-        """
-        Run a build script command with proper error handling.
+        """Run a build script command with proper error handling.
 
         Args:
             command: Command to run (e.g., 'build', 'test', 'validate')
@@ -183,17 +179,20 @@ class BuildManager:
 
         Raises:
             RuntimeError: If build script not found
+
         """
         build_script = self.project_root / "dev_tools" / "build.sh"
 
         if not build_script.exists():
-            raise RuntimeError(f"Build script not found: {build_script}")
+            msg = f"Build script not found: {build_script}"
+            raise RuntimeError(msg)
 
         if not build_script.is_file():
-            raise RuntimeError(f"Build script is not a file: {build_script}")
+            msg = f"Build script is not a file: {build_script}"
+            raise RuntimeError(msg)
 
         # Execute build script
-        result = subprocess.run(
+        return subprocess.run(
             [str(build_script), command],
             check=False,
             capture_output=True,
@@ -202,14 +201,13 @@ class BuildManager:
             timeout=300,  # 5 minute timeout
         )
 
-        return result
 
     def get_workspace_packages(self) -> dict[str, PackageInfo]:
-        """
-        Get information about workspace packages.
+        """Get information about workspace packages.
 
         Returns:
             Dict mapping package names to PackageInfo objects
+
         """
         if self._packages is None:
             self._packages = self._load_package_info()
@@ -234,8 +232,7 @@ class BuildManager:
         return packages
 
     def build_package(self, package_name: str) -> subprocess.CompletedProcess:
-        """
-        Build a specific package using hatchling.
+        """Build a specific package using hatchling.
 
         Args:
             package_name: Name of package to build
@@ -246,16 +243,18 @@ class BuildManager:
         Raises:
             ValueError: If package doesn't exist
             RuntimeError: If build fails
+
         """
         packages = self.get_workspace_packages()
 
         if package_name not in packages:
             available = list(packages.keys())
-            raise ValueError(f"Package '{package_name}' not found. Available: {available}")
+            msg = f"Package '{package_name}' not found. Available: {available}"
+            raise ValueError(msg)
 
         package_info = packages[package_name]
 
-        result = subprocess.run(
+        return subprocess.run(
             [sys.executable, "-m", "build", str(package_info.path)],
             check=False,
             capture_output=True,
@@ -263,18 +262,17 @@ class BuildManager:
             cwd=package_info.path,
         )
 
-        return result
 
     def __str__(self) -> str:
         """String representation of BuildManager."""
         return f"BuildManager(project_root={self.project_root})"
 
     def analyze_dependencies(self) -> dict[str, Any]:
-        """
-        Analyze dependencies across workspace packages.
+        """Analyze dependencies across workspace packages.
 
         Returns:
             Dict with comprehensive dependency analysis information
+
         """
         packages = self.get_workspace_packages()
 
@@ -345,14 +343,14 @@ class BuildManager:
         return analysis
 
     def _extract_dependencies_from_toml(self, toml_content: str) -> list[str]:
-        """
-        Extract dependency names from pyproject.toml content.
+        """Extract dependency names from pyproject.toml content.
 
         Args:
             toml_content: Content of pyproject.toml file
 
         Returns:
             List of dependency names
+
         """
         dependencies = []
         try:

@@ -102,20 +102,7 @@ class TestTodosManagerWithDatabaseIsolation:
     def test_node_lifecycle_operations(self, test_db_session) -> None:
         """Test complete node lifecycle with real database operations."""
         # Create unique test data
-        unique_id = uuid.uuid4().hex[:8].upper()
-        test_node_data = {
-            "id": f"TSK-{unique_id}",
-            "title": f"Test Task {unique_id}",
-            "description": f"A test task for unit testing {unique_id}",
-            "layer": "Task",
-            "status": "planned",
-            "metadata": {
-                "created_at": "2024-01-01T00:00:00Z",
-                "updated_at": "2024-01-01T00:00:00Z",
-                "version": 1,
-            },
-            "links": {"parents": [], "children": []},
-        }
+        uuid.uuid4().hex[:8].upper()
 
         # Create node
         created_node = app.create_node
@@ -187,7 +174,7 @@ class TestTodosManagerWithDatabaseIsolation:
         ]
 
         created_nodes = []
-        for node_data in nodes_to_create:
+        for _node_data in nodes_to_create:
             created_node = app.create_node
             created_nodes.append(created_node)
 
@@ -224,20 +211,7 @@ class TestTodosManagerWithDatabaseIsolation:
         # (tables were dropped and recreated by the fixture)
 
         # Create a node
-        unique_id = uuid.uuid4().hex[:8].upper()
-        test_node_data = {
-            "id": f"GOAL-{unique_id}",
-            "title": f"Isolation Test {unique_id}",
-            "description": f"Testing database isolation {unique_id}",
-            "layer": "Goal",
-            "status": "planned",
-            "metadata": {
-                "created_at": "2024-01-01T00:00:00Z",
-                "updated_at": "2024-01-01T00:00:00Z",
-                "version": 1,
-            },
-            "links": {"parents": [], "children": []},
-        }
+        uuid.uuid4().hex[:8].upper()
 
         created_node = app.create_node
 
@@ -260,7 +234,7 @@ class TestTodosManagerWithDatabaseIsolation:
         created_nodes = []
 
         for term in search_terms:
-            node_data = {
+            {
                 "id": f"GOAL-{uuid.uuid4().hex[:8].upper()}",
                 "title": f"{term} System",
                 "description": f"Complete {term.lower()} system implementation",

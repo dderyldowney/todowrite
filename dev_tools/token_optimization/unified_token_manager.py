@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unified Token Manager - Industry-Standard Token Optimization System
+"""Unified Token Manager - Industry-Standard Token Optimization System.
 
 Integrates HAL preprocessing and Token-Sage optimization with advanced
 caching, analytics, and real-time monitoring. Implements 2025 industry
@@ -25,7 +25,7 @@ from enhanced_hal_agent import AnalysisResult, filter_repository
 
 @dataclass
 class OptimizationSession:
-    """Complete optimization session with all metrics"""
+    """Complete optimization session with all metrics."""
 
     session_id: str
     timestamp: datetime
@@ -41,7 +41,7 @@ class OptimizationSession:
 
 @dataclass
 class TokenBudget:
-    """Token budget management and allocation"""
+    """Token budget management and allocation."""
 
     daily_limit: int
     per_request_limit: int
@@ -50,13 +50,13 @@ class TokenBudget:
     last_reset: datetime
 
     def is_within_limits(self, requested: int) -> bool:
-        """Check if requested tokens are within budget limits"""
+        """Check if requested tokens are within budget limits."""
         return (
             self.used_today + requested <= self.daily_limit and requested <= self.per_request_limit
         )
 
     def allocate_tokens(self, requested: int) -> bool:
-        """Allocate tokens from budget"""
+        """Allocate tokens from budget."""
         if not self.is_within_limits(requested):
             return False
 
@@ -65,7 +65,7 @@ class TokenBudget:
         return True
 
     def reset_if_needed(self):
-        """Reset daily budget if needed"""
+        """Reset daily budget if needed."""
         now = datetime.now()
         if (now - self.last_reset).days >= 1:
             self.used_today = 0
@@ -74,7 +74,7 @@ class TokenBudget:
 
 
 class TokenAnalytics:
-    """Comprehensive analytics and monitoring system"""
+    """Comprehensive analytics and monitoring system."""
 
     def __init__(self, storage_path: Path):
         self.storage_path = storage_path
@@ -83,7 +83,7 @@ class TokenAnalytics:
         self.metrics_file = storage_path / "metrics.json"
 
     def record_session(self, session: OptimizationSession) -> None:
-        """Record optimization session"""
+        """Record optimization session."""
         session_data = asdict(session)
         session_data["timestamp"] = session.timestamp.isoformat()
 
@@ -117,7 +117,7 @@ class TokenAnalytics:
             json.dump(sessions, f, indent=2)
 
     def _load_sessions(self) -> list[dict]:
-        """Load existing sessions"""
+        """Load existing sessions."""
         if not self.sessions_file.exists():
             return []
 
@@ -128,7 +128,7 @@ class TokenAnalytics:
             return []
 
     def get_metrics(self, days: int = 7) -> dict[str, Any]:
-        """Get analytics metrics for specified period"""
+        """Get analytics metrics for specified period."""
         sessions = self._load_sessions()
 
         # Filter by date
@@ -176,7 +176,7 @@ class TokenAnalytics:
         }
 
     def get_top_goals(self, days: int = 7, limit: int = 10) -> list[dict[str, Any]]:
-        """Get most common goals and their performance"""
+        """Get most common goals and their performance."""
         sessions = self._load_sessions()
 
         cutoff_date = datetime.now() - timedelta(days=days)
@@ -215,7 +215,7 @@ class TokenAnalytics:
 
 
 class UnifiedTokenManager:
-    """Main unified token optimization manager"""
+    """Main unified token optimization manager."""
 
     def __init__(self, config_path: Path | None = None):
         self.config_path = config_path or Path.home() / ".token_optimizer"
@@ -235,7 +235,7 @@ class UnifiedTokenManager:
         self.session_counter = 0
 
     def _load_budget(self) -> TokenBudget:
-        """Load token budget from config"""
+        """Load token budget from config."""
         budget_file = self.config_path / "budget.json"
 
         if budget_file.exists():
@@ -258,7 +258,7 @@ class UnifiedTokenManager:
         )
 
     def _save_budget(self) -> None:
-        """Save token budget to config"""
+        """Save token budget to config."""
         budget_file = self.config_path / "budget.json"
         with open(budget_file, "w") as f:
             json.dump(asdict(self.budget), f, indent=2, default=str)
@@ -276,7 +276,7 @@ class UnifiedTokenManager:
         use_cache: bool = True,
         verbose: bool = False,
     ) -> OptimizationSession:
-        """Perform complete token optimization"""
+        """Perform complete token optimization."""
         start_time = time.time()
         self.session_counter += 1
 
@@ -337,7 +337,7 @@ class UnifiedTokenManager:
             estimated_tokens = self.budget.per_request_limit
 
         # Perform optimization
-        optimized_content, token_metrics = self.optimizer.optimize_for_context(
+        _optimized_content, token_metrics = self.optimizer.optimize_for_context(
             files=hal_result.selected_files,
             goal=goal,
             pattern=pattern,
@@ -392,7 +392,7 @@ class UnifiedTokenManager:
         return session
 
     def get_analytics(self, days: int = 7) -> dict[str, Any]:
-        """Get comprehensive analytics"""
+        """Get comprehensive analytics."""
         metrics = self.analytics.get_metrics(days)
         top_goals = self.analytics.get_top_goals(days)
 
@@ -409,7 +409,7 @@ class UnifiedTokenManager:
         }
 
     def reset_cache(self) -> None:
-        """Reset optimization cache"""
+        """Reset optimization cache."""
         self.optimizer.cache.cache.clear()
         if self.optimizer.cache.hit_count > 0:
             old_hits = self.optimizer.cache.hit_count
@@ -418,7 +418,7 @@ class UnifiedTokenManager:
             print(f"🧹 Cache reset (had {old_hits} entries)")
 
     def set_budget(self, daily_limit: int, per_request_limit: int) -> None:
-        """Update token budget limits"""
+        """Update token budget limits."""
         self.budget.daily_limit = daily_limit
         self.budget.per_request_limit = per_request_limit
         self._save_budget()
@@ -426,7 +426,7 @@ class UnifiedTokenManager:
 
 
 def main():
-    """CLI interface for unified token manager"""
+    """CLI interface for unified token manager."""
     parser = argparse.ArgumentParser(
         description="Unified Token Manager - Industry-Standard Token Optimization",
         formatter_class=argparse.RawDescriptionHelpFormatter,

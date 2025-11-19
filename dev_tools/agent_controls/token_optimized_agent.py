@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Token-Optimized Agent Integration
+"""Token-Optimized Agent Integration.
 
 Automatically chains token-sage with HAL agents for maximum efficiency.
 This ensures zero wasted tokens through local-first processing.
@@ -19,7 +18,7 @@ except ImportError:
 
 
 class FilterParams(TypedDict):
-    """Type definition for filter_repo_for_llm parameters"""
+    """Type definition for filter_repo_for_llm parameters."""
 
     goal: str
     llm_snippet_chars: int
@@ -34,8 +33,7 @@ class FilterParams(TypedDict):
 
 
 class TokenOptimizedAgent:
-    """
-    Automatic agent that always uses token-sage + HAL agents
+    """Automatic agent that always uses token-sage + HAL agents
     for maximum token efficiency.
     """
 
@@ -44,7 +42,7 @@ class TokenOptimizedAgent:
         self.cache_dir.mkdir(exist_ok=True)
 
     def load_token_sage(self) -> bool:
-        """Initialize token-sage agent"""
+        """Initialize token-sage agent."""
         print("🚀 Loading token-sage agent...")
         # In a real implementation, this would load token-sage
         print("✅ Token-sage ready for token-efficient analysis")
@@ -55,9 +53,7 @@ class TokenOptimizedAgent:
         goal: str,
         pattern: str | None = None,
     ) -> str | None:
-        """
-        Run HAL agents for local preprocessing (0 tokens used)
-        """
+        """Run HAL agents for local preprocessing (0 tokens used)."""
         print(f"🔍 HAL agents preprocessing: {goal}")
 
         try:
@@ -92,9 +88,7 @@ class TokenOptimizedAgent:
             return None
 
     def run_token_sage_analysis(self, context: str, query: str) -> str:
-        """
-        Run token-sage analysis with minimal, optimized context
-        """
+        """Run token-sage analysis with minimal, optimized context."""
         print(f"🧠 Token-sage analysis ({len(context)} chars)")
 
         # Simulate token-sage processing
@@ -122,8 +116,7 @@ Estimated Savings: ~10,000+ tokens
         return analysis
 
     def get_cache_key(self, goal: str, pattern: str | None = None) -> str:
-        """Generate cache key for repeated queries"""
-
+        """Generate cache key for repeated queries."""
         key_data = f"{goal}:{pattern or ''}"
         return hashlib.md5(
             key_data.encode(),
@@ -131,7 +124,7 @@ Estimated Savings: ~10,000+ tokens
         ).hexdigest()
 
     def get_cached_result(self, cache_key: str) -> str | None:
-        """Get cached result if available"""
+        """Get cached result if available."""
         cache_file = self.cache_dir / f"{cache_key}.json"
         if cache_file.exists():
             try:
@@ -144,10 +137,10 @@ Estimated Savings: ~10,000+ tokens
         return None
 
     def cache_result(self, cache_key: str, result: str) -> None:
-        """Cache the result"""
+        """Cache the result."""
         try:
             cache_file = self.cache_dir / f"{cache_key}.json"
-            data = {"result": result, "timestamp": str(Path().resolve())}
+            data = {"result": result, "timestamp": str(Path.cwd())}
             cache_file.write_text(json.dumps(data, indent=2))
             print("💾 Result cached for future use")
         except (OSError, TypeError):
@@ -159,9 +152,7 @@ Estimated Savings: ~10,000+ tokens
         pattern: str | None = None,
         use_cache: bool = True,
     ) -> str:
-        """
-        Main analysis method with automatic token optimization
-        """
+        """Main analysis method with automatic token optimization."""
         print("🎯 Token-Optimized Analysis Pipeline")
         print("=" * 50)
 
@@ -203,7 +194,7 @@ Estimated Savings: ~10,000+ tokens
 
 
 def main() -> int:
-    """Command-line interface"""
+    """Command-line interface."""
     if len(sys.argv) < 2:
         print("Usage: python token_optimized_agent.py <goal> [pattern]")
         print(

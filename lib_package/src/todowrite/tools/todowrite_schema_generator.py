@@ -173,7 +173,7 @@ class ToDoWriteSchemaGenerator:
                 required_fields.append(field_name)
 
         # Get relationships
-        for relationship_name in model_class.__mapper__.relationships.keys():
+        for relationship_name in model_class.__mapper__.relationships:
             rel = model_class.__mapper__.relationships[relationship_name]
             relationships[relationship_name] = {
                 "target_model": rel.entity.class_.__name__,

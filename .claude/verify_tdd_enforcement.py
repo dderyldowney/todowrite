@@ -80,6 +80,7 @@ def check_tdd_enforcement() -> None:
         try:
             sys.path.insert(0, str(tdd_skill_path.parent))
             from skill import TestDrivenDevelopment
+
             print("   ✅ TDD Skill Import: SUCCESS")
 
             # Test skill instantiation
@@ -102,7 +103,9 @@ def check_tdd_enforcement() -> None:
     if autorun_file.exists():
         content = autorun_file.read_text()
         tdd_in_required_skills = "test-driven-development" in content
-        print(f"   {'✅' if tdd_in_required_skills else '❌'} TDD in Required Skills: {tdd_in_required_skills}")
+        print(
+            f"   {'✅' if tdd_in_required_skills else '❌'} TDD in Required Skills: {tdd_in_required_skills}"
+        )
     else:
         print("   ❌ Autorun script not found")
 
@@ -122,10 +125,13 @@ def check_tdd_enforcement() -> None:
 
     all_checks = [
         tdd_workflow is not None and tdd_workflow.get("tdd_enabled", False),
-        superpowers_config is not None and "test-driven-development" in superpowers_config.get("skill_categories", {}).get("development", []),
-        quality_config is not None and quality_config.get("tools", {}).get("red_green_refactor", {}).get("active", False),
+        superpowers_config is not None
+        and "test-driven-development"
+        in superpowers_config.get("skill_categories", {}).get("development", []),
+        quality_config is not None
+        and quality_config.get("tools", {}).get("red_green_refactor", {}).get("active", False),
         tdd_skill_path.exists(),
-        autorun_file.exists() and "test-driven-development" in autorun_file.read_text()
+        autorun_file.exists() and "test-driven-development" in autorun_file.read_text(),
     ]
 
     passed_checks = sum(all_checks)

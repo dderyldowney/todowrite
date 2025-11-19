@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Hal Agent Loop - v2: local-filter-first + token guard + delta mode.
+"""Hal Agent Loop - v2: local-filter-first + token guard + delta mode.
 
 What's new:
 - Token/char gate before API call (hard stop if over budget).
@@ -528,8 +527,7 @@ def filter_repo_for_llm(
     abbreviate_paths: bool = True,
     delta_mode: bool = False,
 ) -> str:
-    """
-    Filter repository content for LLM consumption with token efficiency.
+    """Filter repository content for LLM consumption with token efficiency.
 
     This function searches through files and returns a compact snippet
     optimized for LLM context windows with comprehensive filtering options.
