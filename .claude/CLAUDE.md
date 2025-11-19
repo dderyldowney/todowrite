@@ -232,15 +232,28 @@ todowrite list --layer goal --title "Enhance ToDoWrite Planning Capabilities"
 todowrite create --layer task --title "Your task title"
 # ... your work here ...
 
-# 4. Quality Gates
+# 4. Pre-commit Quality Checks (MANDATORY)
+./dev_tools/build.sh format
+./dev_tools/build.sh lint
+
+# 5. Quality Gates
 ./dev_tools/build.sh dev
 ./dev_tools/build.sh quality-gate
 
-# 5. Commit (with verification)
+# 6. Commit (with verification)
 git add .
 git commit -m "feat(scope): description"
 git push origin develop
 ```
+
+**IMPORTANT**: Step 4 (Pre-commit Quality Checks) is MANDATORY before all commits. This ensures:
+- Code formatting compliance (ruff format)
+- Linting compliance (ruff check)
+- No security issues (bandit)
+- No secrets exposed (detect-secrets)
+- Clean commit history without relying on pre-commit hook fixes
+
+**NEVER** commit without running these checks first. Pre-commit hooks are safety nets, not primary tools.
 
 ### Quick Commands
 ```bash
@@ -268,67 +281,6 @@ For all technical decisions, consult:
 ---
 
 **🚨 CRITICAL: These rules are enforced by the CLI and cannot be bypassed. Any attempt to override them will result in immediate session termination.**
-
-## 21. Episodic Memory Initialization - MANDATORY
-
-**ABSOLUTE REQUIREMENT**: ALL agents MUST ensure episodic memory is initialized and available
-
-- **MANDATORY**: Run episodic memory indexing before starting development work
-- **MANDATORY**: Ensure `/search-conversations` slash command is available
-- **MANDATORY**: Verify embedding model is loaded and ready
-- **MANDATORY**: Use episodic memory for context before starting new tasks
-- **AUTOMATED**: Session startup hooks ensure episodic memory is ready
-- **ZERO EXCEPTIONS**: This applies to ALL agents at ALL times
-
-### Implementation:
-```bash
-# Manual episodic memory initialization
-./dev_tools/ensure_episodic_memory.sh
-
-# Or automatic via startup hook
-.claude/hooks/session_startup_episodic_memory.py
-```
-
-## 21. Episodic Memory Initialization - MANDATORY
-
-**ABSOLUTE REQUIREMENT**: ALL agents MUST ensure episodic memory is initialized and available
-
-- **MANDATORY**: Run episodic memory indexing before starting development work
-- **MANDATORY**: Ensure `/search-conversations` slash command is available
-- **MANDATORY**: Verify embedding model is loaded and ready
-- **MANDATORY**: Use episodic memory for context before starting new tasks
-- **AUTOMATED**: Session startup hooks ensure episodic memory is ready
-- **ZERO EXCEPTIONS**: This applies to ALL agents at ALL times
-
-### Implementation:
-```bash
-# Manual episodic memory initialization
-./dev_tools/ensure_episodic_memory.sh
-
-# Or automatic via startup hook
-.claude/hooks/session_startup_episodic_memory.py
-```
-
-
-## 21. Episodic Memory Initialization - MANDATORY
-
-**ABSOLUTE REQUIREMENT**: ALL agents MUST ensure episodic memory is initialized and available
-
-- **MANDATORY**: Run episodic memory indexing before starting development work
-- **MANDATORY**: Ensure `/search-conversations` slash command is available
-- **MANDATORY**: Verify embedding model is loaded and ready
-- **MANDATORY**: Use episodic memory for context before starting new tasks
-- **AUTOMATED**: Session startup hooks ensure episodic memory is ready
-- **ZERO EXCEPTIONS**: This applies to ALL agents at ALL times
-
-### Implementation:
-```bash
-# Manual episodic memory initialization
-./dev_tools/ensure_episodic_memory.sh
-
-# Or automatic via startup hook
-.claude/hooks/session_startup_episodic_memory.py
-```
 
 ## 21. Episodic Memory Initialization - MANDATORY
 
