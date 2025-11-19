@@ -84,8 +84,30 @@ python .claude/auto_init_todowrite_models.py
 ### 8. IMPLEMENTATION STANDARDS
 - ✅ Full type hints (Python 3.12+ syntax, NO `Any` types)
 - ✅ Natural language code style (reads like conversation)
-- ✅ Comprehensive error handling (specific exceptions, no bare `except`)
+- ✅ Comprehensive error handling (specific exceptions only, **NO `except Exception:` allowed**)
 - ✅ Complete import organization (standard library → third-party → local, alphabetical)
+
+**FORBIDDEN Exception Patterns**:
+- ❌ `except Exception:` (too generic)
+- ❌ `except:` (bare except)
+- ❌ `except BaseException:` (too broad)
+
+**REQUIRED Exception Patterns**:
+```python
+# ✅ CORRECT: Specific exceptions only
+try:
+    database.connect()
+except DatabaseConnectionError as e:
+    logger.error(f"Database connection failed: {e}")
+except ConfigurationError as e:
+    logger.error(f"Configuration error: {e}")
+
+# ✅ CORRECT: Multiple specific exceptions
+try:
+    node = session.query(Node).filter(Node.id == node_id).one()
+except (NodeNotFoundError, DatabaseError) as e:
+    handle_node_error(e)
+```
 
 ### 9. TESTING REQUIREMENTS (REAL TESTING ONLY)
 - ✅ TDD methodology only (Red → Green → Refactor)
