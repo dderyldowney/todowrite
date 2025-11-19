@@ -83,9 +83,9 @@ Both shells provide the same core functionality:
 ## Database Architecture
 
 ### Naming Convention
-- **Development**: `~/dbs/{project}_{project}_development.db`
-- **Production**: `~/dbs/{project}_{project}_production.db`
-- **Testing**: `$PROJECT_ROOT/tmp/todowrite_todowrite_testing.db`
+- **Development**: `~/dbs/todowrite_{project}_development.db` (or `todowrite_development.db` for the todowrite project)
+- **Production**: `~/dbs/todowrite_{project}_production.db` (or `todowrite_production.db` for the todowrite project)
+- **Testing**: `$PROJECT_ROOT/tmp/todowrite_{project}_testing.db` (or `todowrite_testing.db` for the todowrite project)
 
 ### Directory Structure
 - **Project Root** (`$PROJECT_ROOT`): Monorepo root containing `lib_package`, `cli_package`, `web_package`
@@ -124,7 +124,7 @@ cleanup_todowrite_databases    # Find database naming violations
 cd ~/Projects/myapp
 
 # Shell automatically loads development database
-🗂️  ToDoWrite DEV DB: myapp_myapp_development.db (collaborative project: myapp)
+🗂️  ToDoWrite DEV DB: todowrite_myapp_development.db (collaborative project: myapp)
 
 # Use todowrite commands
 todowrite list
@@ -139,7 +139,7 @@ show_todowrite_status
 ### Database Not Found
 ```bash
 # Create development database manually
-TODOWRITE_DATABASE_URL=sqlite:///$HOME/dbs/myapp_myapp_development.db todowrite create -l goal --title "Setup"
+TODOWRITE_DATABASE_URL=sqlite:///$HOME/dbs/todowrite_myapp_development.db todowrite create -l goal --title "Setup"
 
 # Or use reload function
 reload_todowrite
@@ -151,7 +151,7 @@ reload_todowrite
 cleanup_todowrite_databases
 
 # Manual fix
-mv development_todowrite.db ~/dbs/todowrite_todowrite_development.db
+mv development_todowrite.db ~/dbs/todowrite_development.db
 ```
 
 ### Test Database Issues
@@ -185,8 +185,8 @@ When found, it uses that directory as the project root for database naming.
 ## Migration Notes
 
 If you were using the old database naming:
-- `development_todowrite.db` → `todowrite_todowrite_development.db`
-- `todowrite.db` → `todowrite_todowrite_production.db`
+- `development_todowrite.db` → `todowrite_development.db`
+- `todowrite.db` → `todowrite_production.db`
 - Move files from project directories to `~/dbs/`
 
 The integration script will warn you about old naming patterns and provide migration guidance.

@@ -76,7 +76,13 @@ def get_project_database_name(
     if project_name is None:
         project_name = get_project_name()
 
-    return f"ToDoWrite_{project_name}_{environment}.db"
+    # Avoid redundant prefix when project name contains "todowrite"
+    # Example: todowrite_development.db
+    # (not todowrite_todowrite_development.db)
+    if project_name.lower() == "todowrite":
+        return f"todowrite_{environment}.db"
+    else:
+        return f"todowrite_{project_name}_{environment}.db"
 
 
 def get_database_path(

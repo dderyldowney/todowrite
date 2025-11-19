@@ -8,7 +8,7 @@ TodoWrite uses a **three-tier database strategy** with project-specific naming t
 
 ### 1. Development Database
 - **Purpose**: Tracking development work (we eat our own dog food!)
-- **Location**: `~/dbs/todowrite_{project}_development.db`
+- **Location**: `~/dbs/todowrite_{project}_development.db` (or `todowrite_development.db` for the todowrite project)
 - **Usage**: Daily development work, project planning, task tracking
 - **Persistence**: Long-term, permanent storage
 
@@ -20,7 +20,7 @@ TodoWrite uses a **three-tier database strategy** with project-specific naming t
 
 ### 3. Production Database
 - **Purpose**: Production deployment
-- **Location**: `~/dbs/todowrite_{project}_production.db`
+- **Location**: `~/dbs/todowrite_{project}_production.db` (or `todowrite_production.db` for the todowrite project)
 - **Usage**: Production work, user data
 - **Persistence**: Long-term, permanent storage
 
@@ -35,6 +35,19 @@ The system automatically detects the project name from the current working direc
 #   Development: ~/dbs/todowrite_my-awesome_app_development.db
 #   Testing: /Users/me/projects/my-awesome-app/tmp/todowrite_my-awesome_app_testing.db
 #   Production: ~/dbs/todowrite_my-awesome_app_production.db
+```
+
+### Special Case: ToDoWrite Project
+
+When the project name is "todowrite", the system avoids the redundant prefix:
+
+```python
+# Current directory: /Users/me/projects/todowrite/
+# Project name: todowrite
+# Database names:
+#   Development: ~/dbs/todowrite_development.db
+#   Testing: /tmp/todowrite_testing.db
+#   Production: ~/dbs/todowrite_production.db
 ```
 
 ## Fallback for Generic Directories
