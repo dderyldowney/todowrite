@@ -107,7 +107,7 @@ Creating Records
    session.add(auth_task)
    session.commit()
 
-   # Associate labels (ToDoWrite-style)
+   # Associate labels (SQLAlchemy ORM pattern)
    auth_task.labels.append(backend_label)
    auth_task.labels.append(auth_label)
    session.commit()
@@ -119,13 +119,13 @@ Querying Records
 
 .. code-block:: python
 
-   # Get all goals (like ToDoWrite .all())
+   # Get all goals (SQLAlchemy ORM pattern)
    all_goals = session.query(Goal).all()
 
-   # Find by primary key (like ToDoWrite .find())
+   # Find by primary key (SQLAlchemy ORM pattern)
    goal = session.query(Goal).filter(Goal.id == 1).first()
 
-   # Find by attributes (like ToDoWrite .find_by())
+   # Find by attributes (SQLAlchemy ORM pattern)
    task = session.query(Task).filter(Task.title == "Build authentication").first()
    backend_tasks = session.query(Task).filter(Task.owner == "backend-team").all()
 
@@ -133,7 +133,7 @@ Querying Records
 
 .. code-block:: python
 
-   # Where clauses (like ToDoWrite .where())
+   # Filter with where clauses (SQLAlchemy ORM pattern)
    high_priority = session.query(Goal).filter(Goal.severity == "high").all()
    in_progress = session.query(Task).filter(Task.status == "in_progress").all()
 
@@ -233,7 +233,7 @@ Associations and Relationships
    session.add(api_task)
    session.commit()
 
-   # Associate labels (ToDoWrite-style)
+   # Associate labels (SQLAlchemy ORM pattern)
    api_task.labels.append(database_label)
    api_task.labels.append(api_label)
    session.commit()
@@ -415,7 +415,7 @@ Error Handling
 
 .. code-block:: python
 
-   # Find operations return None (like ToDoWrite)
+   # Find operations return None (SQLAlchemy ORM pattern)
    task = session.query(Task).filter(Task.id == 99999).first()
    if task is None:
        print("Task not found")
@@ -450,7 +450,7 @@ Error Handling
 Complete Example
 ----------------
 
-Here's a complete workflow using the ToDoWrite Models API:
+Here's a complete workflow using the actual SQLAlchemy ORM API:
 
 .. code-block:: python
 
@@ -589,7 +589,7 @@ API Migration from Old System
    node = create_node(database, node_data)
    Node.where(status="in_progress")
 
-**New ToDoWrite Models API:**
+**Actual SQLAlchemy ORM API:**
 
 .. code-block:: python
 
@@ -606,13 +606,13 @@ API Migration from Old System
 
    in_progress_tasks = session.query(Task).filter(Task.status == "in_progress").all()
 
-The Rails ActiveRecord API provides:
+The SQLAlchemy ORM API provides:
 
-* **🔒 Type Safety** - No more dictionary construction
-* **🔗 True Relationships** - Proper foreign keys and associations
-* **⚡ Better Performance** - Optimized database queries
-* **📊 Rich Analytics** - Powerful aggregation and reporting
-* **🛡️ Data Integrity** - Enforced constraints and validation
-* **🎯 ToDoWrite Patterns** - Hierarchical task management conventions
+* **🔒 Type Safety** - SQLAlchemy ORM models with comprehensive type hints
+* **🔗 True Relationships** - Proper foreign keys and SQLAlchemy associations
+* **⚡ Better Performance** - Optimized database queries with SQLAlchemy engine
+* **📊 Rich Analytics** - Powerful aggregation and reporting with SQLAlchemy functions
+* **🛡️ Data Integrity** - Enforced constraints and validation through SQLAlchemy
+* **🎯 Standard ORM Patterns** - Familiar SQLAlchemy patterns for database operations
 
 For complete schema documentation, see :doc:`ToDoWrite_Models_Data_Schema`.
