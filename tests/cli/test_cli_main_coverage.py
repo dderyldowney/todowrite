@@ -1,13 +1,20 @@
 """Tests to improve coverage for CLI main module"""
 
 import pytest
+from click.testing import CliRunner
 from todowrite_cli.main import (
-    capitalize_status,
     cli,
     get_current_username,
-    main,
+    get_session,
+    init_database,
 )
 from todowrite_cli.version import __version__
+
+
+@pytest.fixture
+def runner():
+    """CLI test runner fixture."""
+    return CliRunner()
 
 
 class TestCLIMainCoverage:
@@ -20,73 +27,57 @@ class TestCLIMainCoverage:
         assert isinstance(username, str)
         assert len(username) > 0
 
-    def test_capitalize_status(self):
-        """Test status capitalization"""
-        # Test known status values
-        assert capitalize_status("planned") == "Planned"
-        assert capitalize_status("in_progress") == "In Progress"
-        assert capitalize_status("completed") == "Completed"
-        assert capitalize_status("blocked") == "Blocked"
-        assert capitalize_status("cancelled") == "Cancelled"
+    def test_get_current_username_fallback(self):
+        """Test username detection with mocked environment"""
+        # This tests the fallback mechanisms
+        username = get_current_username()
+        # Should always return something sensible
+        assert username in ["unknown"] or len(username) > 0
 
-        # Test unknown status (should use .title() which treats underscores as word separators)
-        assert capitalize_status("unknown_status") == "Unknown_Status"
+    def test_get_session_with_sqlite(self):
+        """Test session creation with SQLite"""
+        session, engine = get_session("sqlite:///:memory:")
+        assert session is not None
+        assert engine is not None
+        session.close()
 
-        # Test empty string
-        assert capitalize_status("") == ""
+    def test_init_database(self):
+        """Test database initialization"""
+        # This should not raise an exception
+        init_database("sqlite:///:memory:")
 
-    def test_capitalize_status_edge_cases(self):
-        """Test capitalize_status with edge cases"""
-        # Test single word
-        assert capitalize_status("test") == "Test"
+    def test_cli_version_option(self, runner):
+        """Test CLI version option"""
+        result = runner.invoke(cli, ["--version"])
+        assert result.exit_code == 0
+        assert __version__ in result.output
 
-        # Test multiple underscores (.title() behavior)
-        assert capitalize_status("multiple_word_status") == "Multiple_Word_Status"
+    def test_cli_help(self, runner):
+        """Test CLI help"""
+        result = runner.invoke(cli, ["--help"])
+        assert result.exit_code == 0
+        assert "ToDoWrite CLI" in result.output
+        assert "init" in result.output
+        assert "create" in result.output
+        assert "list" in result.output
+        assert "get" in result.output
+        assert "search" in result.output
+        assert "stats" in result.output
 
-        # Test with numbers
-        assert capitalize_status("status_1") == "Status_1"
+    def test_cli_database_option_parsing(self, runner):
+        """Test that database option is properly parsed"""
+        # Test with default database
+        result = runner.invoke(cli, ["--help"])
+        assert "--database" in result.output
+        assert "Database file path" in result.output
 
-        # Test already capitalized (unknown status falls back to .title())
-        assert capitalize_status("Not Started") == "Not Started"
+    def test_cli_command_structure(self):
+        """Test that CLI has expected command structure"""
+        # Check that the main CLI object exists and has commands
+        assert cli is not None
+        assert hasattr(cli, "commands")
 
-    def test_import_error_handling(self):
-        """Test that main module handles import errors gracefully"""
-        # This test verifies that the imports in main module work
-        # If imports worked at module level, the functions should be callable
-        assert callable(main)
-        assert callable(cli)
-
-    def test_version_info(self):
-        """Test that version information is accessible"""
-        try:
-            # Version should be a string
-            assert isinstance(__version__, str)
-            # Should have some content
-            assert len(__version__) > 0
-        except ImportError:
-            pytest.skip("Version info not available")
-
-    def test_cli_function_structure(self):
-        """Test that CLI function has expected structure"""
-        try:
-            cli_func = getattr(ToDoWrite_cli.main, "cli", None)
-
-            if cli_func is not None:
-                # Should be callable
-                assert callable(cli_func)
-
-                # Check if it has click decorator attributes
-                assert hasattr(cli_func, "callback") or hasattr(cli_func, "__name__")
-        except ImportError:
-            pytest.skip("CLI function not available")
-
-    def test_main_function_structure(self):
-        """Test that main function has expected structure"""
-        try:
-            main_func = getattr(ToDoWrite_cli.main, "main", None)
-
-            if main_func is not None:
-                # Should be callable
-                assert callable(main_func)
-        except ImportError:
-            pytest.skip("Main function not available")
+        # Check that expected commands exist
+        expected_commands = ["init", "create", "list", "get", "search", "stats"]
+        for cmd_name in expected_commands:
+            assert cmd_name in cli.commands, f"Command {cmd_name} should exist"

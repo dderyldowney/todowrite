@@ -15,7 +15,6 @@ try:
     from sqlalchemy.orm import sessionmaker
     from todowrite.core.models import (
         AcceptanceCriteria,
-        Base,
         Command,
         Concept,
         Constraints,
@@ -128,7 +127,7 @@ def get_current_username() -> str:
 )
 @click.pass_context
 def cli(ctx: click.Context, database: str) -> None:
-    """ToDoWrite CLI - Hierarchical Task Management System."""
+    """Todowrite CLI - Hierarchical Task Management System."""
     ctx.ensure_object(dict)
 
     # Convert to SQLite URL if needed
@@ -186,7 +185,7 @@ def create(
 ) -> None:
     """Create a new item."""
     database_url = ctx.obj["database_url"]
-    session, engine = get_session(database_url)
+    session, _engine = get_session(database_url)
 
     try:
         model_class = MODEL_MAP[layer.lower()]
@@ -205,7 +204,8 @@ def create(
         if severity:
             kwargs["severity"] = severity
         if run_command and model_class == Command:
-            kwargs["run_command"] = run_command
+            # Store the command in cmd field (can be parsed later)
+            kwargs["cmd"] = run_command
 
         item = model_class(**kwargs)
         session.add(item)
@@ -240,7 +240,7 @@ def list(
 ) -> None:
     """List items."""
     database_url = ctx.obj["database_url"]
-    session, engine = get_session(database_url)
+    session, _engine = get_session(database_url)
 
     try:
         # Start with all models or filter by specific layer
@@ -320,7 +320,7 @@ def list(
 def get(ctx: click.Context, item_id: int) -> None:
     """Get details of a specific item."""
     database_url = ctx.obj["database_url"]
-    session, engine = get_session(database_url)
+    session, _engine = get_session(database_url)
 
     try:
         # Search in all model classes
@@ -362,8 +362,10 @@ def get(ctx: click.Context, item_id: int) -> None:
                     table.add_row("Severity", item.severity)
                 if hasattr(item, "progress"):
                     table.add_row("Progress", f"{item.progress}%")
-                if hasattr(item, "run_command") and item.run_command:
-                    table.add_row("Run Command", item.run_command)
+                if hasattr(item, "cmd") and item.cmd:
+                    table.add_row("Command", item.cmd)
+                if hasattr(item, "cmd_params") and item.cmd_params:
+                    table.add_row("Parameters", item.cmd_params)
                 if hasattr(item, "created_at") and item.created_at:
                     table.add_row("Created", str(item.created_at))
                 if hasattr(item, "updated_at") and item.updated_at:
@@ -387,7 +389,7 @@ def get(ctx: click.Context, item_id: int) -> None:
 def search(ctx: click.Context, query: str, layer: str | None) -> None:
     """Search for items."""
     database_url = ctx.obj["database_url"]
-    session, engine = get_session(database_url)
+    session, _engine = get_session(database_url)
 
     try:
         # Determine which models to search
@@ -482,7 +484,7 @@ def search(ctx: click.Context, query: str, layer: str | None) -> None:
 def stats(ctx: click.Context) -> None:
     """Show database statistics."""
     database_url = ctx.obj["database_url"]
-    session, engine = get_session(database_url)
+    session, _engine = get_session(database_url)
 
     try:
         table = Table(title="Database Statistics")
@@ -520,8 +522,6 @@ def stats(ctx: click.Context) -> None:
         console.print(f"❌ Error getting statistics: {e}")
     finally:
         session.close()
-
-
 
 
 if __name__ == "__main__":

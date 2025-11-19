@@ -268,3 +268,23 @@ For all technical decisions, consult:
 ---
 
 **🚨 CRITICAL: These rules are enforced by the CLI and cannot be bypassed. Any attempt to override them will result in immediate session termination.**
+
+## 21. Episodic Memory Initialization - MANDATORY
+
+**ABSOLUTE REQUIREMENT**: ALL agents MUST ensure episodic memory is initialized and available
+
+- **MANDATORY**: Run episodic memory indexing before starting development work
+- **MANDATORY**: Ensure `/search-conversations` slash command is available
+- **MANDATORY**: Verify embedding model is loaded and ready
+- **MANDATORY**: Use episodic memory for context before starting new tasks
+- **AUTOMATED**: Session startup hooks ensure episodic memory is ready
+- **ZERO EXCEPTIONS**: This applies to ALL agents at ALL times
+
+### Implementation:
+```bash
+# Manual episodic memory initialization
+./dev_tools/ensure_episodic_memory.sh
+
+# Or automatic via startup hook
+.claude/hooks/session_startup_episodic_memory.py
+```

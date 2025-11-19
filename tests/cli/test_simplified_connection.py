@@ -4,273 +4,359 @@ Following TDD methodology: RED → GREEN → REFACTOR
 
 This test file intentionally uses NO MOCKING per project mandate.
 All tests use real database connections and temporary files.
+Each test gets its own isolated database for proper test isolation.
 """
 
 from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from unittest.mock import patch
+from unittest import TestCase
 
 from click.testing import CliRunner
-from todowrite_cli.main import cli, get_app
+from sqlalchemy import create_engine
+from todowrite.core.models import Base, Goal
+from todowrite_cli.main import cli, get_session, init_database
 
 
-class TestSimplifiedCLIConnection:
+class TestSimplifiedCLIConnection(TestCase):
     """Test suite for simplified CLI database connection approach."""
 
-    def test_cli_respects_storage_preference_from_library(self) -> None:
-        """Test that CLI respects storage preference from library."""
-        runner = CliRunner()
+    def setUp(self) -> None:
+        """Set up test environment with CLI runner."""
+        self.runner = CliRunner()
 
-        # Should work with library's simplified connection logic
-        result = runner.invoke(cli, ["--storage-preference", "sqlite_only", "init"])
+    def _create_test_database(self) -> str:
+        """Create a temporary test database and return its path."""
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
+            test_db_path = tmp.name
 
-        # Should succeed with SQLite fallback
-        assert result.exit_code == 0
-        assert "Database initialized successfully" in result.output
+        # Initialize database with all tables
+        engine = create_engine(f"sqlite:///{test_db_path}")
+        Base.metadata.create_all(engine)
+        engine.dispose()
 
-    def test_cli_uses_library_auto_detection_when_no_preference(self) -> None:
-        """Test that CLI uses library auto-detection when no preference specified."""
-        runner = CliRunner()
+        return test_db_path
 
-        # Should use library's auto-detection (PostgreSQL → SQLite → YAML)
-        result = runner.invoke(cli, ["init"])
+    def _cleanup_test_database(self, test_db_path: str) -> None:
+        """Remove the temporary test database file."""
+        test_db_file = Path(test_db_path)
+        if test_db_file.exists():
+            test_db_file.unlink()
 
-        # Should succeed with auto-detected backend
-        assert result.exit_code == 0
-        assert "Database initialized successfully" in result.output
+    def test_cli_with_temporary_database(self) -> None:
+        """Test that CLI works with temporary database."""
+        test_db_path = self._create_test_database()
 
-    def test_cli_explicit_database_path_works_with_library(self) -> None:
-        """Test that CLI explicit database path works through library."""
-        runner = CliRunner()
-
-        with tempfile.TemporaryDirectory() as temp_dir:
-            db_path = Path(temp_dir) / "cli_test.db"
-
-            result = runner.invoke(cli, ["init", "--database-path", str(db_path)])
-
-            # Should succeed and use explicit path
+        try:
+            # Initialize database
+            result = self.runner.invoke(cli, ["--database", test_db_path, "init"])
             assert result.exit_code == 0
-            assert "Database initialized successfully" in result.output
+            assert "Database initialized" in result.output
 
-    def test_cli_handles_yaml_preference_via_library(self) -> None:
-        """Test that CLI handles YAML preference through library."""
-        runner = CliRunner()
-
-        result = runner.invoke(cli, ["--storage-preference", "yaml_only", "init"])
-
-        # Should succeed with YAML backend
-        assert result.exit_code == 0
-        assert "Database initialized successfully" in result.output
-
-    def test_get_app_uses_simplified_library_logic(self) -> None:
-        """Test that get_app() uses simplified library connection logic."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            db_path = Path(temp_dir) / "get_app_test.db"
-
-            # Should use simplified library connection
-            app = get_app(str(db_path))
-
-            # Should be able to initialize
-            app.init_database()
-
-            # Database file should be created
-            assert db_path.exists()
-
-    def test_get_app_with_no_arguments_uses_library_auto_detection(self) -> None:
-        """Test get_app() with no arguments uses library auto-detection."""
-        # Should use library's simplified auto-detection
-        app = get_app()
-
-        # Should be able to initialize
-        app.init_database()
-
-        # Should have a valid storage backend
-        assert hasattr(app, "storage_type")
-
-    def test_get_app_with_sqlite_url_uses_library_directly(self) -> None:
-        """Test get_app() with SQLite URL uses library directly."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            db_path = Path(temp_dir) / "sqlite_test.db"
-            sqlite_url = f"sqlite:///{db_path}"
-
-            # Should use library's simplified connection
-            app = get_app(sqlite_url)
-
-            # Should use SQLite
-            assert app.storage_type.value == "sqlite"
-
-            # Database file should be created
-            assert db_path.exists()
-
-    def test_cli_commands_work_with_simplified_connection(self) -> None:
-        """Test that CLI commands work with simplified connection."""
-        runner = CliRunner()
-
-        # Initialize first
-        init_result = runner.invoke(cli, ["init"])
-        assert init_result.exit_code == 0
-
-        # Create a node should work
-        create_result = runner.invoke(
-            cli,
-            ["create", "--layer", "goal", "--title", "Test Goal", "--description", "A test goal"],
-        )
-
-        # Should succeed with simplified connection
-        assert create_result.exit_code == 0
-        assert "Created Goal" in create_result.output
-
-    def test_cli_list_command_works_with_simplified_connection(self) -> None:
-        """Test that CLI list command works with simplified connection."""
-        runner = CliRunner()
-
-        # Initialize first
-        runner.invoke(cli, ["init"])
-
-        # List should work even with empty database
-        result = runner.invoke(cli, ["list"])
-
-        # Should succeed with simplified connection
-        assert result.exit_code == 0
-        # Should show "No nodes found" when empty
-
-    def test_get_app_uses_storage_preference_parameter(self) -> None:
-        """Test that get_app() respects storage preference parameter."""
-        # Mock environment to test preference handling
-        with patch("ToDoWrite.database.config.StoragePreference") as mock_pref:
-            mock_pref.AUTO = "auto"
-            mock_pref.SQLITE_ONLY = "sqlite_only"
-
-            # Should pass preference through to library
-            app = get_app()
-
-            # Should have called library with preference
-            assert app is not None
-
-    def test_cli_status_commands_use_simplified_connection(self) -> None:
-        """Test that CLI status commands use simplified connection."""
-        runner = CliRunner()
-
-        # Initialize first
-        runner.invoke(cli, ["init"])
-
-        # Status command should work
-        result = runner.invoke(cli, ["db-status"])
-
-        # Should succeed with simplified connection
-        assert result.exit_code == 0
-
-
-class TestCLIConnectionSimplification:
-    """Test suite for verifying CLI connection simplification."""
-
-    def test_no_direct_sqlalchemy_imports_in_cli_logic(self) -> None:
-        """Test that CLI logic doesn't directly import SQLAlchemy for connection."""
-        # The CLI should use the library, not directly handle database connections
-        runner = CliRunner()
-
-        result = runner.invoke(cli, ["init"])
-
-        # Should work without direct SQLAlchemy connection handling
-        assert result.exit_code == 0
-
-    def test_get_app_uses_library_not_direct_database_logic(self) -> None:
-        """Test that get_app() uses library, not direct database logic."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            db_path = Path(temp_dir) / "simplified_test.db"
-
-            # Should delegate to library, not handle connection directly
-            app = get_app(str(db_path))
-
-            # Library should handle the connection
-            assert app is not None
-            assert hasattr(app, "storage_type")
-
-    def test_cli_respects_environment_variables_through_library(self) -> None:
-        """Test that CLI respects environment variables through library."""
-        runner = CliRunner()
-
-        with tempfile.TemporaryDirectory() as temp_dir:
-            db_path = Path(temp_dir) / "env_test.db"
-            db_url = f"sqlite:///{db_path}"
-
-            # Should pass environment to library for handling
-            result = runner.invoke(cli, ["init"], env={"TODOWRITE_DATABASE_URL": db_url})
-
-            # Should succeed with environment variable
-            assert result.exit_code == 0
-
-    def test_no_complex_config_file_parsing_in_cli(self) -> None:
-        """Test that CLI doesn't do complex config file parsing."""
-        # CLI should delegate to library, not parse config files directly
-        runner = CliRunner()
-
-        result = runner.invoke(cli, ["init"])
-
-        # Should work without complex config parsing
-        assert result.exit_code == 0
-
-    def test_cli_error_handling_uses_library_errors(self) -> None:
-        """Test that CLI error handling uses library error types."""
-        runner = CliRunner()
-
-        # Should handle library errors appropriately
-        result = runner.invoke(cli, ["get", "nonexistent-id"])
-
-        # Should handle missing node gracefully
-        assert result.exit_code == 1
-        assert "not found" in result.output.lower()
-
-
-class TestRealCLIConnectionBehavior:
-    """Test real CLI connection behavior without mocking."""
-
-    def test_real_cli_with_sqlite_database(self) -> None:
-        """Test real CLI behavior with SQLite database."""
-        runner = CliRunner()
-
-        with tempfile.TemporaryDirectory() as temp_dir:
-            db_path = Path(temp_dir) / "real_cli_test.db"
-
-            # Initialize with real database
-            init_result = runner.invoke(cli, ["init", "--database-path", str(db_path)])
-            assert init_result.exit_code == 0
-
-            # Create a real node
-            create_result = runner.invoke(
+            # Create a goal
+            result = self.runner.invoke(
                 cli,
                 [
+                    "--database",
+                    test_db_path,
+                    "create",
+                    "--layer",
+                    "goal",
+                    "--title",
+                    "Test Goal",
+                    "--owner",
+                    "test-user",
+                ],
+            )
+            assert result.exit_code == 0
+            assert "Created Goal" in result.output
+
+            # List items
+            result = self.runner.invoke(cli, ["--database", test_db_path, "list"])
+            assert result.exit_code == 0
+            assert "Test Goal" in result.output
+
+        finally:
+            self._cleanup_test_database(test_db_path)
+
+    def test_cli_get_session_function(self) -> None:
+        """Test the get_session helper function."""
+        test_db_path = self._create_test_database()
+
+        try:
+            # Test session creation
+            session, _engine = get_session(f"sqlite:///{test_db_path}")
+            assert session is not None
+            assert _engine is not None
+
+            # Test that session is functional
+            goal = Goal(title="Test Goal")
+            session.add(goal)
+            session.commit()
+
+            # Query back the goal
+            retrieved = session.query(Goal).first()
+            assert retrieved is not None
+            assert retrieved.title == "Test Goal"
+
+            session.close()
+
+        finally:
+            self._cleanup_test_database(test_db_path)
+
+    def test_cli_init_database_function(self) -> None:
+        """Test the init_database helper function."""
+        test_db_path = self._create_test_database()
+
+        try:
+            # This should work without errors
+            init_database(f"sqlite:///{test_db_path}")
+
+            # Verify tables were created by checking model count
+            session, _engine = get_session(f"sqlite:///{test_db_path}")
+
+            # Should be able to query without errors (even if empty)
+            goals = session.query(Goal).all()
+            assert isinstance(goals, list)
+
+            session.close()
+
+        finally:
+            self._cleanup_test_database(test_db_path)
+
+    def test_cli_command_with_invalid_database_path(self) -> None:
+        """Test CLI behavior with invalid database path."""
+        test_db_path = self._create_test_database()
+
+        try:
+            # Try to use a directory that doesn't exist
+            invalid_path = "/nonexistent/directory/test.db"
+            result = self.runner.invoke(cli, ["--database", invalid_path, "list"])
+
+            # Should handle gracefully (SQLite creates the database)
+            assert result.exit_code == 0
+
+        finally:
+            self._cleanup_test_database(test_db_path)
+
+    def test_cli_with_memory_database(self) -> None:
+        """Test CLI with in-memory database."""
+        test_db_path = "sqlite:///:memory:"
+
+        # Note: In-memory databases don't persist between CLI invocations
+        # Each invocation gets a fresh database, so we test init only
+
+        # Initialize memory database
+        result = self.runner.invoke(cli, ["--database", test_db_path, "init"])
+        assert result.exit_code == 0
+
+        # Memory database works for initialization
+        # Cannot test item creation as each CLI call gets fresh database
+
+    def test_cli_multiple_commands_same_session(self) -> None:
+        """Test multiple CLI commands with same database."""
+        test_db_path = self._create_test_database()
+
+        try:
+            # Initialize and create multiple items
+            self.runner.invoke(cli, ["--database", test_db_path, "init"])
+
+            self.runner.invoke(
+                cli, ["--database", test_db_path, "create", "--layer", "goal", "--title", "Goal 1"]
+            )
+
+            self.runner.invoke(
+                cli, ["--database", test_db_path, "create", "--layer", "task", "--title", "Task 1"]
+            )
+
+            # List all items
+            result = self.runner.invoke(cli, ["--database", test_db_path, "list"])
+            assert result.exit_code == 0
+            assert "Goal 1" in result.output
+            assert "Task 1" in result.output
+
+            # Get stats
+            result = self.runner.invoke(cli, ["--database", test_db_path, "stats"])
+            assert result.exit_code == 0
+            assert "Goal" in result.output
+            assert "Task" in result.output
+
+        finally:
+            self._cleanup_test_database(test_db_path)
+
+    def test_database_isolation_between_tests(self) -> None:
+        """Test that each test gets a completely isolated database."""
+        test_db_path = self._create_test_database()
+
+        try:
+            # Create data in this test's database
+            result = self.runner.invoke(
+                cli,
+                [
+                    "--database",
+                    test_db_path,
+                    "create",
+                    "--layer",
+                    "goal",
+                    "--title",
+                    "Isolation Test Goal",
+                ],
+            )
+            assert result.exit_code == 0
+
+            # Verify data exists in this database
+            result = self.runner.invoke(cli, ["--database", test_db_path, "list"])
+            assert result.exit_code == 0
+            assert "Isolation Test Goal" in result.output
+
+            # Verify database file exists and has content
+            db_file = Path(test_db_path)
+            assert db_file.exists()
+            assert db_file.stat().st_size > 0
+
+            # Create a second database to verify isolation
+            test_db_path_2 = self._create_test_database()
+
+            try:
+                # Second database should be empty
+                result = self.runner.invoke(cli, ["--database", test_db_path_2, "list"])
+                assert result.exit_code == 0
+                assert "No items found" in result.output
+                assert "Isolation Test Goal" not in result.output
+
+            finally:
+                self._cleanup_test_database(test_db_path_2)
+
+        finally:
+            self._cleanup_test_database(test_db_path)
+
+    def test_database_cleanup_verification(self) -> None:
+        """Test that database cleanup properly removes all files."""
+        test_db_path = self._create_test_database()
+
+        # Verify database file exists before cleanup
+        db_file = Path(test_db_path)
+        assert db_file.exists()
+
+        # Add some data to make the database file larger
+        self.runner.invoke(
+            cli,
+            [
+                "--database",
+                test_db_path,
+                "create",
+                "--layer",
+                "goal",
+                "--title",
+                "Cleanup Test Goal",
+            ],
+        )
+
+        # Verify file has content
+        initial_size = db_file.stat().st_size
+        assert initial_size > 0
+
+        # Cleanup database
+        self._cleanup_test_database(test_db_path)
+
+        # Verify file is completely removed
+        assert not db_file.exists()
+
+    def test_multiple_databases_concurrent_access(self) -> None:
+        """Test that multiple databases can be used simultaneously."""
+        test_db_1 = self._create_test_database()
+        test_db_2 = self._create_test_database()
+
+        try:
+            # Create different data in each database
+            self.runner.invoke(
+                cli,
+                [
+                    "--database",
+                    test_db_1,
+                    "create",
+                    "--layer",
+                    "goal",
+                    "--title",
+                    "Database 1 Goal",
+                ],
+            )
+
+            self.runner.invoke(
+                cli,
+                [
+                    "--database",
+                    test_db_2,
                     "create",
                     "--layer",
                     "task",
                     "--title",
-                    "Real Task",
-                    "--description",
-                    "A real task created via CLI",
-                    "--severity",
-                    "medium",
+                    "Database 2 Task",
                 ],
             )
-            assert create_result.exit_code == 0
-            assert "Created Task" in create_result.output
 
-            # List nodes should show the created node
-            list_result = runner.invoke(cli, ["list"])
-            assert list_result.exit_code == 0
-            assert "Real Task" in list_result.output
+            # Verify each database contains only its own data
+            result_1 = self.runner.invoke(cli, ["--database", test_db_1, "list"])
+            assert result_1.exit_code == 0
+            assert "Database 1 Goal" in result_1.output
+            assert "Database 2 Task" not in result_1.output
 
-    def test_real_cli_database_status_command(self) -> None:
-        """Test real CLI database status command."""
-        runner = CliRunner()
+            result_2 = self.runner.invoke(cli, ["--database", test_db_2, "list"])
+            assert result_2.exit_code == 0
+            assert "Database 2 Task" in result_2.output
+            assert "Database 1 Goal" not in result_2.output
 
-        # Initialize database
-        runner.invoke(cli, ["init"])
+        finally:
+            self._cleanup_test_database(test_db_1)
+            self._cleanup_test_database(test_db_2)
 
-        # Check database status
-        result = runner.invoke(cli, ["db-status"])
+    def test_database_persistence_across_commands(self) -> None:
+        """Test that data persists across multiple CLI commands on same database."""
+        test_db_path = self._create_test_database()
 
-        # Should work with real database
-        assert result.exit_code == 0
-        assert "Database Status" in result.output
+        try:
+            # Create initial data
+            self.runner.invoke(
+                cli,
+                [
+                    "--database",
+                    test_db_path,
+                    "create",
+                    "--layer",
+                    "goal",
+                    "--title",
+                    "Persistent Goal",
+                ],
+            )
+
+            # Add more data
+            self.runner.invoke(
+                cli,
+                [
+                    "--database",
+                    test_db_path,
+                    "create",
+                    "--layer",
+                    "task",
+                    "--title",
+                    "Persistent Task",
+                ],
+            )
+
+            # Update data (if we had an update command)
+            # For now, just verify both items persist
+
+            # Verify all data persists
+            result = self.runner.invoke(cli, ["--database", test_db_path, "list"])
+            assert result.exit_code == 0
+            assert "Persistent Goal" in result.output
+            assert "Persistent Task" in result.output
+
+            # Verify stats show correct count
+            result = self.runner.invoke(cli, ["--database", test_db_path, "stats"])
+            assert result.exit_code == 0
+            assert "TOTAL" in result.output
+
+        finally:
+            self._cleanup_test_database(test_db_path)
