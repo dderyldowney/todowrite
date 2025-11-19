@@ -947,14 +947,22 @@ Node.where(...)  # REMOVED
 - **MANDATORY**: Ensure `/search-conversations` slash command is available
 - **MANDATORY**: Verify embedding model is loaded and ready
 - **MANDATORY**: Use episodic memory for context before starting new tasks
+- **MANDATORY**: Set `EPISODIC_MEMORY_DB_PATH` for project-specific isolation
 - **AUTOMATED**: Session startup hooks ensure episodic memory is ready
 - **ZERO EXCEPTIONS**: This applies to ALL agents at ALL times
 
 ### Implementation:
 ```bash
+# REQUIRED: Set project-specific episodic memory database
+export EPISODIC_MEMORY_DB_PATH="$(pwd)/.claude/episodic_memory.db"
+
 # Manual episodic memory initialization
 ./dev_tools/ensure_episodic_memory.sh
 
 # Or automatic via startup hook
 .claude/hooks/session_startup_episodic_memory.py
 ```
+
+**CRITICAL**: The `EPISODIC_MEMORY_DB_PATH` environment variable MUST be set BEFORE any episodic memory commands to ensure project isolation and prevent cross-project contamination.
+
+**📍 DATABASE LOCATIONS**: See `.claude/EPISODIC_MEMORY_LOCATIONS.md` for complete file locations and recovery instructions. Episodic memory files are gitignored for security but must be preserved.
