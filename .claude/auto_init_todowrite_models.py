@@ -68,6 +68,22 @@ def initialize_todowrite_models_system():
         Base.metadata.create_all(engine)
         print("✅ ToDoWrite Models schema created")
 
+        # Initialize sequence manager and fix any sequence issues
+        try:
+            # Import sequence manager from the main package
+            sys.path.insert(0, str(project_root / "lib_package" / "src"))
+            from todowrite.core.sequence_manager import ensure_sequences_before_init
+
+            print("🔧 Ensuring database sequences are correct...")
+            if ensure_sequences_before_init():
+                print("✅ Database sequences validated and fixed")
+            else:
+                print("⚠️  Sequence validation failed, continuing anyway")
+        except ImportError:
+            print("⚠️  Sequence manager not available, skipping sequence validation")
+        except Exception as e:
+            print(f"⚠️  Sequence validation error: {e}")
+
         # Create session
         session_class = sessionmaker(bind=engine)
         session = session_class()
