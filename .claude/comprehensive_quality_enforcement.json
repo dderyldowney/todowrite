@@ -1,6 +1,6 @@
 {
   "enforcement_level": "strict",
-  "enforcement_time": "2025-11-20T07:13:57.211406",
+  "enforcement_time": "2025-11-20T07:22:18.498457",
   "tools": {
     "semantic_scoping": {
       "active": true,
@@ -104,7 +104,6 @@
   },
   "agent_requirements": {
     "mandatory_workflows": [
-      "episodic_memory_search_before_work",
       "semantic_scoping_awareness",
       "red_green_refactor_methodology",
       "token_optimization_consideration",
