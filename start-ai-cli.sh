@@ -64,7 +64,7 @@ print_success "✅ Virtual environment automatically activated"
 # 4. Set required environment variables
 print_status "Setting required environment variables..."
 export PYTHONPATH="$PWD/lib_package/src:$PWD/cli_package/src"
-export EPISODIC_MEMORY_DB_PATH="$(pwd)/.claude/episodic_memory.db"
+# export EPISODIC_MEMORY_DB_PATH="$(pwd)/.claude/episodic_memory.db"  # DISABLED
 
 # Load PostgreSQL environment
 if [ -f ".claude/postgresql_env.sh" ]; then
@@ -107,13 +107,13 @@ if ! python .claude/startup_enforcement.py; then
 fi
 print_success "All CLAUDE.md rules verified"
 
-# 7. Initialize episodic memory
-print_status "Initializing episodic memory..."
-if [ -f "./dev_tools/ensure_episodic_memory.sh" ]; then
-    ./dev_tools/ensure_episodic_memory.sh
-else
-    print_warning "Episodic memory initialization script not found"
-fi
+# 7. Initialize episodic memory (DISABLED)
+# print_status "Initializing episodic memory..."
+# if [ -f "./dev_tools/ensure_episodic_memory.sh" ]; then
+#     ./dev_tools/ensure_episodic_memory.sh
+# else
+#     print_warning "Episodic memory initialization script not found"
+# fi
 
 # 7.5. Initialize HAL Agent dependencies if needed
 print_status "Checking HAL Agent dependencies..."
