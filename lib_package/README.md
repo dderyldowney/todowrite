@@ -1,4 +1,4 @@
-# ToDoWrite Core Library
+# ToDoWrite Core Library (todowrite)
 
 **Package Type**: `library` | **Package Name**: `todowrite` | **Status**: ✅ Published
 

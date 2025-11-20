@@ -1,4 +1,4 @@
-# ToDoWrite CLI Interface
+# ToDoWrite CLI Interface - (todowrite_cli)
 
 **Package Type**: `cli` | **Package Name**: `todowrite-cli` | **Status**: ✅ Published
 
