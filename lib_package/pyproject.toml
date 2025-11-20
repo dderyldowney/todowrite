@@ -43,9 +43,9 @@ postgres = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/dderyldowney/todowrite"
-Repository = "https://github.com/dderyldowney/todowrite.git"
-Documentation = "https://github.com/dderyldowney/todowrite/blob/main/README.md"
+Homepage = "https://todowrite.davidderyldowney.com"
+Repository = "https://github.com/dderyldowney/todowrite"
+Documentation = "https://todowrite.davidderyldowney.com"
 "Bug Tracker" = "https://github.com/dderyldowney/todowrite/issues"
 
 [tool.hatch.version]

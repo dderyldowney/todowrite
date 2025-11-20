@@ -1,6 +1,6 @@
 # ToDoWrite API Documentation
 
-**Version**: 0.6.0 - **MAJOR BREAKING CHANGE**
+**Version**: 0.6.1 - **MAJOR BREAKING CHANGE**
 **Status**: Production Ready
 **Testing**: Comprehensive test suite with real implementations
 
@@ -8,7 +8,7 @@
 
 ToDoWrite provides SQLAlchemy ORM interfaces for hierarchical task management with database persistence and schema validation. The system uses 12 hierarchical models with proper foreign key relationships.
 
-## ⚠️ BREAKING CHANGES in v0.6.0
+## ⚠️ BREAKING CHANGES in v0.6.1
 
 This version includes a **complete architectural redesign** that is **not backward compatible** with previous versions:
 
