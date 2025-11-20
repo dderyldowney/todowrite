@@ -10,6 +10,7 @@ Author: Claude Code Assistant
 Version: 2025.1.0
 """
 
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -20,10 +21,9 @@ sys.path.insert(0, str(project_root / "lib_package" / "src"))
 sys.path.insert(0, str(project_root / "cli_package" / "src"))
 
 try:
-    import todowrite as ToDoWrite
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
-    from todowrite.core.models import Base, Goal, Label, Task
+    from todowrite.core.models import Base, Goal
 
 except ImportError as e:
     print(f"❌ Failed to import todowrite modules: {e}")
@@ -32,28 +32,44 @@ except ImportError as e:
 # Global session variables
 _session_initialized = False
 _db_session = None
-_db_path = None
+_database_url = None
 
 
-def get_database_path() -> Path:
-    """Get the path to the ToDoWrite database."""
-    global _db_path
+def get_database_url() -> str:
+    """Get the PostgreSQL database URL from environment."""
+    global _database_url
 
-    if _db_path is None:
-        # Use correct development database in ~/dbs/
-        _db_path = Path.home() / "dbs" / "todowrite_development.db"
+    if _database_url is None:
+        # Load PostgreSQL environment from .claude/postgresql_env.sh
+        postgresql_env_file = project_root / ".claude" / "postgresql_env.sh"
+        if postgresql_env_file.exists():
+            # Read and source the environment file
+            with open(postgresql_env_file) as f:
+                for line in f:
+                    line = line.strip()
+                    if line.startswith("export TODOWRITE_DATABASE_URL="):
+                        _database_url = line.split("=", 1)[1].strip('"')
+                        break
 
-    return _db_path
+        # Fallback to environment variable if file not found
+        if _database_url is None:
+            # pragma: allowlist secret
+            _database_url = os.getenv(
+                "TODOWRITE_DATABASE_URL",
+                "postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite",
+            )
+
+    return _database_url
 
 
-def get_session_database_path() -> Path:
-    """Get the path to the ToDoWrite session tracking database."""
-    return Path.home() / "dbs" / "todowrite_sessions.db"
+def get_session_database_url() -> str:
+    """Get the PostgreSQL database URL for session tracking."""
+    return get_database_url()
 
 
 def initialize_ToDoWrite_session() -> bool:
     """
-    Initialize ToDoWrite session for development tracking.
+    Initialize ToDoWrite session for development tracking using PostgreSQL.
 
     Returns:
         True if initialization successful, False otherwise
@@ -66,25 +82,22 @@ def initialize_ToDoWrite_session() -> bool:
     try:
         print("🔧 Initializing ToDoWrite session for development tracking...")
 
-        # Setup development database with proper directory handling
-        db_path = get_database_path()
-        db_path.parent.mkdir(parents=True, exist_ok=True)
+        # Get PostgreSQL database URL
+        database_url = get_database_url()
+        print(f"   Using PostgreSQL database: {database_url}")
 
         # Initialize ToDoWrite Models database
-        engine = create_engine(f"sqlite:///{db_path}")
+        engine = create_engine(database_url)
         Base.metadata.create_all(engine)
 
         # Create session for development database
         Session = sessionmaker(bind=engine)
         _db_session = Session()
 
-        # Initialize session tracking database
-        session_db_path = get_session_database_path()
-        session_db_path.parent.mkdir(parents=True, exist_ok=True)
-
+        # Initialize session tracking table in PostgreSQL
         from datetime import datetime
 
-        from sqlalchemy import Column, Integer, String, Text
+        from sqlalchemy import Integer, String, Text
         from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
         class SessionBase(DeclarativeBase):
@@ -102,9 +115,8 @@ def initialize_ToDoWrite_session() -> bool:
                 String, default=lambda: datetime.now().isoformat(), nullable=False
             )
 
-        session_engine = create_engine(f"sqlite:///{session_db_path}")
-        SessionBase.metadata.create_all(session_engine)
-        session_session = sessionmaker(bind=session_engine)()
+        # Create session tracking table
+        SessionBase.metadata.create_all(engine)
 
         # Create session record
         session_record = DevelopmentSession(
@@ -113,10 +125,8 @@ def initialize_ToDoWrite_session() -> bool:
             activities_completed=0,
             notes="ToDoWrite Models Session Initialized",
         )
-        session_session.add(session_record)
-        session_session.commit()
-        session_session.close()
-        session_engine.dispose()
+        _db_session.add(session_record)
+        _db_session.commit()
 
         # Verify ToDoWrite functionality
         test_goal = Goal(title="Test Goal", owner="session-init")
@@ -124,19 +134,12 @@ def initialize_ToDoWrite_session() -> bool:
         _db_session.commit()
 
         print("✅ ToDoWrite session initialized successfully!")
-        print(f"   Development Database: {db_path}")
-        print(f"   Session Database: {session_db_path}")
+        print(f"   PostgreSQL Database: {database_url}")
         print("   API: Working correctly")
 
         _session_initialized = True
         return True
 
-    except (FileNotFoundError, PermissionError) as e:
-        print(f"❌ Cannot initialize ToDoWrite session - file system error: {e}")
-        return False
-    except ImportError as e:
-        print(f"❌ Cannot initialize ToDoWrite session - missing dependencies: {e}")
-        return False
     except Exception as e:
         print(f"❌ Failed to initialize ToDoWrite session: {e}")
         return False
@@ -153,7 +156,7 @@ def create_session_marker() -> None:
     """Create a marker file indicating successful session initialization."""
     marker_data = {
         "session_init_time": datetime.now().isoformat(),
-        "database_path": str(get_database_path()),
+        "database_url": get_database_url(),
         "session_type": "todowrite_development_tracking",
         "version": "2025.1.0",
     }
@@ -193,32 +196,23 @@ def verify_session_health() -> dict:
         if not _session_initialized:
             return {"status": "not_initialized", "message": "Session not initialized"}
 
-        # Test database connection
-        total_nodes = len(Node.all())
+        # Test database connection by checking goals count
+        from todowrite.core.models import Goal
 
-        # Test queries
-        goals_count = len(Node.where(layer="Goal"))
-        tasks_count = len(Node.where(layer="SubTask"))
-
-        # Check for our production goal
-        prod_goals = Node.find_by(title="Deploy ToDoWrite as Standard Development Tracking System")
+        goals_count = _db_session.query(Goal).count()
 
         return {
             "status": "healthy",
-            "database_path": str(get_database_path()),
-            "total_nodes": total_nodes,
+            "database_url": get_database_url(),
             "goals": goals_count,
-            "tasks": tasks_count,
-            "production_goal_found": len(prod_goals) > 0,
             "session_active": _session_initialized,
         }
-
 
     except Exception as e:
         return {
             "status": "error",
             "message": str(e),
-            "database_path": str(get_database_path()) if _db_path else "unknown",
+            "database_url": get_database_url() if _database_url else "unknown",
         }
 
 
@@ -235,13 +229,8 @@ def main():
         health = verify_session_health()
         print("\n📊 Session Health Status:")
         print(f"   Status: {health['status']}")
-        print(f"   Database: {health['database_path']}")
-        print(f"   Total nodes: {health.get('total_nodes', 0)}")
+        print(f"   Database: {health['database_url']}")
         print(f"   Goals: {health.get('goals', 0)}")
-        print(f"   Tasks: {health.get('tasks', 0)}")
-
-        if health.get("production_goal_found"):
-            print("   ✅ Production goal active")
 
         print("\n✅ ToDoWrite system ready for development tracking!")
         print("   All development work should now be tracked using ToDoWrite.")

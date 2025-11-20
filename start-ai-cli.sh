@@ -63,9 +63,17 @@ print_success "✅ Virtual environment automatically activated"
 
 # 4. Set required environment variables
 print_status "Setting required environment variables..."
-export TODOWRITE_DATABASE_URL="sqlite:///$HOME/dbs/todowrite_development.db"
 export PYTHONPATH="$PWD/lib_package/src:$PWD/cli_package/src"
 export EPISODIC_MEMORY_DB_PATH="$(pwd)/.claude/episodic_memory.db"
+
+# Load PostgreSQL environment
+if [ -f ".claude/postgresql_env.sh" ]; then
+    source .claude/postgresql_env.sh
+    print_success "✅ PostgreSQL environment loaded"
+else
+    print_error "❌ PostgreSQL environment file not found: .claude/postgresql_env.sh"
+    exit 1
+fi
 
 # Verify environment variables
 if [ -z "$TODOWRITE_DATABASE_URL" ]; then
@@ -78,15 +86,17 @@ if [ -z "$PYTHONPATH" ]; then
     exit 1
 fi
 
-print_success "Environment variables set"
-print_status "Database URL: $TODOWRITE_DATABASE_URL"
-print_status "Python Path: $PYTHONPATH"
+print_success "✅ Environment variables set"
+print_info "📍 Database URL: $TODOWRITE_DATABASE_URL"
+print_info "📍 Python Path: $PYTHONPATH"
 
-# 5. Verify database exists
-if [ ! -f "$HOME/dbs/todowrite_development.db" ]; then
-    print_warning "Development database not found at $HOME/dbs/todowrite_development.db"
-    print_status "You may need to initialize it with: python .claude/auto_init_todowrite_models.py"
+# 5. Verify PostgreSQL environment is loaded
+print_status "Verifying PostgreSQL environment..."
+if [[ "$TODOWRITE_DATABASE_URL" != postgresql://* ]]; then
+    print_error "❌ Database URL is not PostgreSQL: $TODOWRITE_DATABASE_URL"
+    exit 1
 fi
+print_success "✅ PostgreSQL environment verified"
 
 # 6. Run startup enforcement (MANDATORY)
 print_status "Running CLAUDE.md rule enforcement..."

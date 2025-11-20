@@ -96,7 +96,8 @@ class ClaudeRuleEnforcer:
         """MUST use correct database configuration."""
         # Check database URL environment variable
         db_url = os.environ.get("TODOWRITE_DATABASE_URL", "")
-        expected_pattern = "sqlite:///$HOME/dbs/todowrite_development.db"
+        # pragma: allowlist secret
+        expected_pattern = "postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"
 
         if not db_url:
             error_msg = (
@@ -112,8 +113,7 @@ class ClaudeRuleEnforcer:
             "/home/",
             "/opt/",
             "/var/",
-            "todowrite_todowrite_development.db",  # Redundant prefix
-            "development_todowrite.db",  # Wrong naming
+            "sqlite:///",  # SQLite is forbidden, must use PostgreSQL
         ]
         # Note: /tmp/ is allowed as it's a legitimate temporary directory
         # location and doesn't pose a security risk in this context
@@ -121,16 +121,14 @@ class ClaudeRuleEnforcer:
         for pattern in forbidden_patterns:
             if pattern in db_url:
                 self.violations.append(
-                    f"❌ Forbidden hardcoded path in database URL: {pattern}"
+                    f"❌ Forbidden hardcoded path or protocol in database URL: {pattern}"
                 )
                 return
 
         # Verify correct pattern
-        if not db_url.startswith(
-            "sqlite:///$HOME/dbs/todowrite_development.db"
-        ):
+        if not db_url.startswith("postgresql://"):
             self.violations.append(
-                f"❌ Incorrect database URL: must be {expected_pattern}"
+                f"❌ Incorrect database URL: must use PostgreSQL, found: {db_url[:20]}..."
             )
             return
 
@@ -140,11 +138,16 @@ class ClaudeRuleEnforcer:
             from sqlalchemy import create_engine, text
             from sqlalchemy.orm import sessionmaker
             from todowrite.core.models import Goal
-            from todowrite.utils.database_utils import get_database_path
 
-            # Connect to database
-            db_path = get_database_path("development")
-            engine = create_engine(f"sqlite:///{db_path}")
+            # Connect to PostgreSQL database
+            db_url = os.environ.get("TODOWRITE_DATABASE_URL", "")
+            if not db_url:
+                self.violations.append(
+                    "❌ TODOWRITE_DATABASE_URL not set for database verification"
+                )
+                return
+
+            engine = create_engine(db_url)
             Session = sessionmaker(bind=engine)
             session = Session()
 
@@ -256,9 +259,10 @@ class ClaudeRuleEnforcer:
             )
 
         if any("database" in v.lower() for v in self.violations):
+            # pragma: allowlist secret
             db_export_cmd = (
                 "• Run: export TODOWRITE_DATABASE_URL="
-                '"sqlite:///$HOME/dbs/todowrite_development.db"\n'
+                '"postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"\n'
             )
             error_text.append(db_export_cmd, style="yellow")
 

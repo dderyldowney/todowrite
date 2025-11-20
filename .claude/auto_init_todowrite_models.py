@@ -30,6 +30,8 @@ def initialize_ToDoWrite_Models_system():
 
     try:
         # Import ToDoWrite Models ONLY
+        import os
+
         from sqlalchemy import text
         from todowrite import (
             Goal,
@@ -42,9 +44,28 @@ def initialize_ToDoWrite_Models_system():
 
         print("✅ ToDoWrite Models imported successfully")
 
+        # Get PostgreSQL database URL from environment
+        postgresql_env_file = project_root / ".claude" / "postgresql_env.sh"
+        database_url = os.getenv("TODOWRITE_DATABASE_URL", "")
+
+        if postgresql_env_file.exists() and not database_url:
+            # Read and source the environment file
+            with open(postgresql_env_file) as f:
+                for line in f:
+                    line = line.strip()
+                    if line.startswith("export TODOWRITE_DATABASE_URL="):
+                        database_url = line.split("=", 1)[1].strip('"')
+                        break
+
+        # Fallback if still not set
+        if not database_url:
+            # pragma: allowlist secret
+            database_url = "postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"
+
+        print(f"   Using PostgreSQL database: {database_url}")
+
         # Initialize database with proper schema
-        db_path = project_root / "development_todowrite.db"
-        engine = create_engine(f"sqlite:///{db_path}")
+        engine = create_engine(database_url)
 
         # Create ALL ToDoWrite Model tables
         Base.metadata.create_all(engine)
@@ -95,7 +116,9 @@ def initialize_ToDoWrite_Models_system():
 
         with engine.connect() as conn:
             result = conn.execute(
-                text("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+                text(
+                    "SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename"
+                )
             )
             existing_tables = [row[0] for row in result.fetchall()]
 
@@ -108,11 +131,11 @@ def initialize_ToDoWrite_Models_system():
 
         # Create automatic session tracking infrastructure
         with engine.connect() as conn:
-            # Development sessions table
+            # Development sessions table (PostgreSQL syntax)
             conn.execute(
                 text("""
                 CREATE TABLE IF NOT EXISTS development_sessions (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     session_id TEXT UNIQUE NOT NULL,
                     start_time TEXT NOT NULL,
                     end_time TEXT,
@@ -178,8 +201,9 @@ def initialize_ToDoWrite_Models_system():
         with engine.connect() as conn:
             conn.execute(
                 text("""
-                INSERT OR IGNORE INTO goals_tasks (goal_id, task_id)
+                INSERT INTO goals_tasks (goal_id, task_id)
                 VALUES (:goal_id, :task_id)
+                ON CONFLICT DO NOTHING
             """),
                 {"goal_id": system_goal.id, "task_id": session_task.id},
             )
@@ -226,9 +250,12 @@ def initialize_ToDoWrite_Models_system():
         session.commit()
 
         # Verify association works
-        assert len(test_goal.labels) == 1
-        assert test_goal.labels[0].name == "test-api"
-        assert len(test_label.goals) == 1
+        if len(test_goal.labels) != 1:
+            raise RuntimeError(f"Expected 1 label, got {len(test_goal.labels)}")
+        if test_goal.labels[0].name != "test-api":
+            raise RuntimeError(f"Expected label name 'test-api', got '{test_goal.labels[0].name}'")
+        if len(test_label.goals) != 1:
+            raise RuntimeError(f"Expected 1 goal, got {len(test_label.goals)}")
 
         # Clean up test data
         session.delete(test_goal)
@@ -240,7 +267,7 @@ def initialize_ToDoWrite_Models_system():
         # Create session marker
         session_marker = {
             "ToDoWrite_Models_init_time": datetime.now().isoformat(),
-            "database_path": str(db_path),
+            "database_url": database_url,
             "session_type": "ToDoWrite_Models_only",
             "version": "2025.1.0",
             "api_enforced": "ToDoWrite_Models_exclusive",
