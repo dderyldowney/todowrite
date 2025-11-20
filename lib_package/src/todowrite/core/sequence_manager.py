@@ -1,14 +1,15 @@
 """
 Database Sequence Management System.
 
-This module provides comprehensive sequence management for PostgreSQL databases
-to prevent duplicate key constraint violations and ensure proper ID sequencing.
+This module provides comprehensive sequence management for PostgreSQL and SQLite3
+databases to prevent duplicate key constraint violations and ensure proper ID sequencing.
 
 Features:
 - Automatic sequence validation and correction
 - Real-time sequence synchronization
 - Prevention of duplicate key constraint errors
 - Support for all ToDoWrite model tables
+- Multi-database support (PostgreSQL sequences + SQLite3 AUTOINCREMENT)
 """
 
 from __future__ import annotations
@@ -28,6 +29,9 @@ class SequenceManager:
             raise ValueError("Database URL is required")
 
         self.engine = create_engine(self.database_url)
+
+        # Detect database type
+        self.db_type = self._detect_database_type()
 
         # Define tables with auto-incrementing IDs
         self.managed_tables = [
@@ -49,6 +53,17 @@ class SequenceManager:
             "claude_sessions",
         ]
 
+    def _detect_database_type(self) -> str:
+        """Detect if we're using PostgreSQL or SQLite3."""
+        url = self.database_url.lower()
+        if url.startswith("postgresql://") or url.startswith("postgres://"):
+            return "postgresql"
+        elif url.startswith("sqlite://") or url.endswith(".db") or url.endswith(".sqlite"):
+            return "sqlite3"
+        else:
+            # Default to PostgreSQL for safety
+            return "postgresql"
+
     def validate_all_sequences(self) -> dict[str, dict[str, int]]:
         """Validate all managed table sequences."""
         results = {}
@@ -56,7 +71,7 @@ class SequenceManager:
         with self.engine.connect() as conn:
             for table in self.managed_tables:
                 try:
-                    result = conn.execute(  # noqa: S608
+                    result = conn.execute(
                         text(f"SELECT id FROM {table} ORDER BY id")
                     )
                     records = result.fetchall()
@@ -64,16 +79,31 @@ class SequenceManager:
                     if records:
                         max_id = max(record[0] for record in records)
 
-                        # Get current sequence value
-                        seq_result = conn.execute(  # noqa: S608
-                            text(f"SELECT last_value FROM {table}_id_seq")
-                        )
-                        seq_value = seq_result.fetchone()[0]
+                        if self.db_type == "postgresql":
+                            # PostgreSQL: Check sequence
+                            seq_result = conn.execute(
+                                text(f"SELECT last_value FROM {table}_id_seq")
+                            )
+                            seq_value = seq_result.fetchone()[0]
+                            needs_fix = seq_value <= max_id
+                        else:
+                            # SQLite3: Check sqlite_sequence table
+                            try:
+                                seq_result = conn.execute(
+                                    text(f"SELECT seq FROM sqlite_sequence WHERE name = '{table}'")
+                                )
+                                seq_row = seq_result.fetchone()
+                                seq_value = seq_row[0] if seq_row else 0
+                                needs_fix = seq_value <= max_id
+                            except Exception:
+                                # Table might not exist in sqlite_sequence yet
+                                seq_value = 0
+                                needs_fix = True
 
                         results[table] = {
                             "max_id": max_id,
                             "current_sequence": seq_value,
-                            "needs_fix": seq_value <= max_id,
+                            "needs_fix": needs_fix,
                         }
                     else:
                         results[table] = {
@@ -101,11 +131,23 @@ class SequenceManager:
                 if info["needs_fix"] or force:
                     try:
                         new_seq_value = info["max_id"] + 1
-                        conn.execute(  # noqa: S608
-                            text(
-                                f"ALTER SEQUENCE {table}_id_seq RESTART WITH {new_seq_value}"
+                        if self.db_type == "postgresql":
+                            # PostgreSQL: Reset sequence
+                            conn.execute(
+                                text(
+                                    f"ALTER SEQUENCE {table}_id_seq RESTART WITH {new_seq_value}"
+                                )
                             )
-                        )
+                        else:
+                            # SQLite3: Update sqlite_sequence table
+                            conn.execute(
+                                text(f"UPDATE sqlite_sequence SET seq = {new_seq_value} WHERE name = '{table}'")
+                            )
+                            # If no entry exists, insert one
+                            conn.execute(
+                                text(f"INSERT OR IGNORE INTO sqlite_sequence (name, seq) VALUES ('{table}', {new_seq_value})")
+                            )
+
                         conn.commit()
                         fixed_results[table] = True
                     except Exception as e:
@@ -164,10 +206,21 @@ class SequenceManager:
                 count, max_id = result.fetchone()
 
                 # Get sequence value
-                result = conn.execute(
-                    text(f"SELECT last_value FROM {table_name}_id_seq")
-                )
-                seq_value = result.fetchone()[0]
+                if self.db_type == "postgresql":
+                    result = conn.execute(
+                        text(f"SELECT last_value FROM {table_name}_id_seq")
+                    )
+                    seq_value = result.fetchone()[0]
+                else:
+                    # SQLite3: Check sqlite_sequence table
+                    try:
+                        result = conn.execute(
+                            text(f"SELECT seq FROM sqlite_sequence WHERE name = '{table_name}'")
+                        )
+                        seq_row = result.fetchone()
+                        seq_value = seq_row[0] if seq_row else 0
+                    except Exception:
+                        seq_value = 0
 
                 return {
                     "table": table_name,
@@ -184,7 +237,7 @@ class SequenceManager:
         """Generate a comprehensive status report."""
         validation = self.validate_all_sequences()
 
-        report_lines = ["Database Sequence Status Report", "=" * 40]
+        report_lines = [f"Database Sequence Status Report ({self.db_type.upper()})", "=" * 50]
 
         needs_fix_count = 0
         for table, info in validation.items():
