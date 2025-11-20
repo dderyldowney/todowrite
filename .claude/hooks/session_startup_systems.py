@@ -80,12 +80,13 @@ def initialize_all_systems():
         print("⚠️  Token Optimization System not found")
 
     # 6. Verify MCP Systems
-    episodic_memory = Path(".claude/episodic_memory")
-    episodic_db = Path(".claude/episodic_memory.db")
+    # episodic_memory = Path(".claude/episodic_memory")  # DISABLED
+    # episodic_db = Path(".claude/episodic_memory.db")   # DISABLED
     plugins_dir = Path(".claude/plugins")
 
-    if episodic_memory.exists() or episodic_db.exists():
-        print("🧠 Episodic Memory MCP available")
+    # if episodic_memory.exists() or episodic_db.exists():
+    #     print("🧠 Episodic Memory MCP available")
+    print("🧠 Episodic Memory MCP: DISABLED")
 
     if plugins_dir.exists():
         plugin_count = len(list(plugins_dir.glob("*.py")))

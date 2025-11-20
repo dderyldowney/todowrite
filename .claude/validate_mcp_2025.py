@@ -143,10 +143,11 @@ def validate_integration() -> list[str]:
     elif not os.access(token_sage, os.X_OK):
         errors.append("Token-Sage script is not executable")
 
-    # Check episodic memory
-    episodic_memory = Path(f"{Path.home()}/.claude/plugins/cache/episodic-memory")
-    if not episodic_memory.exists():
-        errors.append("Episodic memory plugin not found")
+    # Check episodic memory (DISABLED)
+    # episodic_memory = Path(f"{Path.home()}/.claude/plugins/cache/episodic-memory")
+    # if not episodic_memory.exists():
+    #     errors.append("Episodic memory plugin not found")
+    print("🔍 Episodic memory check: DISABLED")
 
     return errors
 
@@ -167,7 +168,7 @@ def main() -> None:
     config_files = [
         (".claude/mcp_config_2025.json", "main"),
         (".claude/mcp_superpowers_config_2025.json", "superpowers"),
-        (".claude/mcp_episodic_memory_config_2025.json", "episodic_memory"),
+        # (".claude/mcp_episodic_memory_config_2025.json", "episodic_memory"),  # DISABLED
     ]
 
     # Test configuration files

@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Session Startup Hook - Ensure Episodic Memory is Ready."""
+"""Session Startup Hook - Ensure Episodic Memory is Ready"""
 
-import subprocess  # nosec B404
+import subprocess
 from pathlib import Path
 
 
 def main():
-    """Ensure episodic memory is ready for the session."""
+    """Ensure episodic memory is ready for the session"""
+
     project_root = Path(__file__).parent.parent
 
     # Check if episodic memory plugin is installed
@@ -29,7 +30,7 @@ def main():
     if episodic_cli.exists():
         try:
             # Run a quick index to load embedding model
-            result = subprocess.run(  # nosec B603, B607
+            result = subprocess.run(
                 ["node", str(episodic_cli), "stats"], capture_output=True, text=True, timeout=30
             )
 
@@ -38,7 +39,7 @@ def main():
             else:
                 print("🔄 Initializing episodic memory indexing...")
                 # Run background indexing if stats fail
-                subprocess.Popen(  # nosec B603, B607
+                subprocess.Popen(
                     ["node", str(episodic_cli), "index", "--cleanup"],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,

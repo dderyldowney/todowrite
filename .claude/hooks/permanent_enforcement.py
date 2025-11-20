@@ -35,7 +35,7 @@ def setup_permanent_enforcement():
             "require_red_green_refactor": True,
             "require_token_optimization": True,
             "require_ToDoWrite_cli": True,
-            "require_episodic_memory_search": True,
+            "require_episodic_memory_search": False,  # DISABLED
             "forbidden_practices": [
                 "mocking_frameworks",
                 "committing_without_tests",
@@ -64,7 +64,7 @@ def setup_permanent_enforcement():
         # Required workflow steps (cannot be skipped)
         "mandatory_workflows": {
             "before_any_work": [
-                "check_episodic_memory_for_context",
+                # "check_episodic_memory_for_context",  # DISABLED
                 "verify_semantic_scoping_understanding",
                 "ensure_ToDoWrite_cli_available",
             ],
@@ -108,7 +108,7 @@ def setup_permanent_enforcement():
             "CLAUDE_ENFORCE_TOKEN_OPTIMIZATION": "1",
             "CLAUDE_ENFORCE_ToDoWrite_CLI": "1",
             "CLAUDE_ENFORCE_ZERO_MOCKING": "1",
-            "CLAUDE_REQUIRE_EPISODIC_MEMORY": "1",
+            "CLAUDE_REQUIRE_EPISODIC_MEMORY": "0",  # DISABLED
             "CLAUDE_MANDATORY_QUALITY_GATES": "1",
             "CLAUDE_PRE_COMMIT_ENFORCEMENT": "1",
         },
@@ -158,9 +158,10 @@ export CLAUDE_REAL_IMPLEMENTATIONS_ONLY=1
 export CLAUDE_ENFORCE_ToDoWrite_CLI=1
 export CLAUDE_MANDATORY_PLANNING=1
 
-# Episodic Memory
-export CLAUDE_REQUIRE_EPISODIC_MEMORY=1
-export CLAUDE_CONTEXT_SEARCH_REQUIRED=1
+# Episodic Memory (DISABLED)
+# export CLAUDE_REQUIRE_EPISODIC_MEMORY=1
+# export CLAUDE_CONTEXT_SEARCH_REQUIRED=1
+export CLAUDE_REQUIRE_EPISODIC_MEMORY=0
 
 # Quality Gates
 export CLAUDE_MANDATORY_QUALITY_GATES=1
@@ -193,7 +194,7 @@ The following practices are FORBIDDEN and will result in immediate session termi
 ## 🎯 MANDATORY WORKFLOWS
 
 ### Before ANY Work (No Exceptions):
-1. Check episodic memory for past context: `/.episodic-memory:search-conversations`
+1. ~~Check episodic memory for past context: `/.episodic-memory:search-conversations`~~ (DISABLED)
 2. Verify semantic scoping understanding
 3. Ensure ToDoWrite_cli is available and working
 4. Read this file to understand current requirements
@@ -295,7 +296,7 @@ export CLAUDE_ENFORCE_RED_GREEN_REFACTOR=1
 export CLAUDE_ENFORCE_TOKEN_OPTIMIZATION=1
 export CLAUDE_ENFORCE_ToDoWrite_CLI=1
 export CLAUDE_ENFORCE_ZERO_MOCKING=1
-export CLAUDE_REQUIRE_EPISODIC_MEMORY=1
+export CLAUDE_REQUIRE_EPISODIC_MEMORY=0  # DISABLED
 export CLAUDE_MANDATORY_QUALITY_GATES=1
 export CLAUDE_PRE_COMMIT_ENFORCEMENT=1
 
@@ -359,7 +360,7 @@ def verify_permanent_enforcement():
         "CLAUDE_ENFORCE_TOKEN_OPTIMIZATION",
         "CLAUDE_ENFORCE_ToDoWrite_CLI",
         "CLAUDE_ENFORCE_ZERO_MOCKING",
-        "CLAUDE_REQUIRE_EPISODIC_MEMORY",
+        # "CLAUDE_REQUIRE_EPISODIC_MEMORY",  # DISABLED
         "CLAUDE_MANDATORY_QUALITY_GATES",
         "CLAUDE_PRE_COMMIT_ENFORCEMENT",
     ]

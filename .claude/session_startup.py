@@ -166,7 +166,7 @@ def initialize_mcp_2025():
     mcp_configs = [
         "mcp_config_2025.json",
         "mcp_superpowers_config_2025.json",
-        "mcp_episodic_memory_config_2025.json",
+        # "mcp_episodic_memory_config_2025.json",  # DISABLED
     ]
 
     config_count = 0
@@ -233,7 +233,7 @@ def create_comprehensive_workflow_markers():
         "fail_safes_active": True,
         "mcp_2025_active": True,
         "hal_token_optimization_active": True,
-        "episodic_memory_available": True,
+        "episodic_memory_available": False,  # DISABLED
         "workflow_version": "2025.1",
         "required_skills": [
             "test-driven-development",
@@ -384,7 +384,7 @@ def main():
 
     print("\n📋 2025 Session Requirements:")
     print("  1. ALL planning must use ToDoWrite_cli")
-    print("  2. Check episodic memory before starting work")
+    # print("  2. Check episodic memory before starting work")  # DISABLED
     print("  3. Token optimization is active (HAL + Token-Sage)")
     print("  4. Superpowers skills with fail-safes are enabled")
     print("  5. MCP 2025 system provides industry-standard tools")

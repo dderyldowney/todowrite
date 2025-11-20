@@ -96,11 +96,12 @@ setup_configurations() {
         success "Superpowers MCP configuration installed"
     fi
 
-    # Episodic memory configuration
-    if [[ -f "$SCRIPT_DIR/mcp_episodic_memory_config_2025.json" ]]; then
-        cp "$SCRIPT_DIR/mcp_episodic_memory_config_2025.json" "$USER_CLAUDE_DIR/"
-        success "Episodic Memory MCP configuration installed"
-    fi
+    # Episodic memory configuration (DISABLED)
+    # if [[ -f "$SCRIPT_DIR/mcp_episodic_memory_config_2025.json" ]]; then
+    #     cp "$SCRIPT_DIR/mcp_episodic_memory_config_2025.json" "$USER_CLAUDE_DIR/"
+    #     success "Episodic Memory MCP configuration installed"
+    # fi
+    echo "🔍 Episodic Memory MCP configuration installation: DISABLED"
 
     # Documentation
     if [[ -f "$SCRIPT_DIR/MCP_2025_Documentation.md" ]]; then
@@ -229,19 +230,20 @@ setup_integration() {
         warning "Token-Sage not found - token optimization integration may be limited"
     fi
 
-    # Check episodic memory CLI
-    if [[ -d "$HOME/.claude/plugins/cache/episodic-memory" ]]; then
-        success "Episodic Memory plugin available"
-
-        # Initialize episodic memory if needed
-        if [[ -f "$SCRIPT_DIR/init_mcp.sh" ]]; then
-            bash "$SCRIPT_DIR/init_mcp.sh" > /dev/null 2>&1 || {
-                warning "Episodic memory initialization completed with warnings"
-            }
-        fi
-    else
-        warning "Episodic Memory plugin not found - conversation search may be limited"
-    fi
+    # Check episodic memory CLI (DISABLED)
+    # if [[ -d "$HOME/.claude/plugins/cache/episodic-memory" ]]; then
+    #     success "Episodic Memory plugin available"
+    #
+    #     # Initialize episodic memory if needed
+    #     if [[ -f "$SCRIPT_DIR/init_mcp.sh" ]]; then
+    #         bash "$SCRIPT_DIR/init_mcp.sh" > /dev/null 2>&1 || {
+    #             warning "Episodic memory initialization completed with warnings"
+    #         }
+    #     fi
+    # else
+    #     warning "Episodic Memory plugin not found - conversation search may be limited"
+    # fi
+    echo "🔍 Episodic Memory plugin check: DISABLED"
 }
 
 # Create quick start scripts
@@ -360,7 +362,7 @@ print_summary() {
     echo "🔧 Configuration Files:"
     echo "  - Main config: $HOME/.claude/mcp_config_2025.json"
     echo "  - Superpowers: $HOME/.claude/mcp_superpowers_config_2025.json"
-    echo "  - Episodic Memory: $HOME/.claude/mcp_episodic_memory_config_2025.json"
+    # echo "  - Episodic Memory: $HOME/.claude/mcp_episodic_memory_config_2025.json"  # DISABLED
     echo ""
     echo "💡 For detailed usage instructions, see the MCP 2025 Documentation."
     echo ""

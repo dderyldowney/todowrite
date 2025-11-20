@@ -10,9 +10,10 @@ export PYTHONPATH="lib_package/src:cli_package/src"
 # The setup_postgresql_development.py script will configure the correct URL
 # export TODOWRITE_DATABASE_URL will be set by the PostgreSQL setup script
 
-# CRITICAL: Set project-specific episodic memory database path
-export EPISODIC_MEMORY_DB_PATH=".claude/episodic_memory.db"
-echo "📍 Project episodic memory database: $EPISODIC_MEMORY_DB_PATH"
+# CRITICAL: Set project-specific episodic memory database path (DISABLED)
+# export EPISODIC_MEMORY_DB_PATH=".claude/episodic_memory.db"
+# echo "📍 Project episodic memory database: $EPISODIC_MEMORY_DB_PATH"
+echo "⏸️  Episodic memory database configuration DISABLED"
 
 # 2. Activate virtual environment if not already active
 if [[ "$VIRTUAL_ENV" == "" ]]; then
@@ -30,11 +31,12 @@ if [ -f ".claude/postgresql_env.sh" ]; then
     source .claude/postgresql_env.sh
 fi
 
-# Source episodic memory environment if created
-if [ -f ".claude/episodic_memory_env.sh" ]; then
-    echo "🧠 Loading episodic memory PostgreSQL environment..."
-    source .claude/episodic_memory_env.sh
-fi
+# Source episodic memory environment if created (DISABLED)
+# if [ -f ".claude/episodic_memory_env.sh" ]; then
+#     echo "🧠 Loading episodic memory PostgreSQL environment..."
+#     source .claude/episodic_memory_env.sh
+# fi
+echo "⏸️  Episodic memory environment loading DISABLED"
 
 # 4. Run comprehensive session initialization
 echo "🔧 Initializing session with comprehensive enforcement..."
@@ -48,8 +50,9 @@ python .claude/autorun.py
 echo "🤖 Verifying AI CLI systems..."
 python .claude/hooks/session_startup_systems.py
 
-# 7. Initialize episodic memory
-echo "🧠 Initializing episodic memory..."
-python .claude/hooks/session_startup_episodic_memory.py
+# 7. Initialize episodic memory (DISABLED)
+# echo "🧠 Initializing episodic memory..."
+# python .claude/hooks/session_startup_episodic_memory.py
+echo "⏸️  Episodic memory initialization DISABLED"
 
 echo "✅ Session startup enforcement complete - All systems ready"
