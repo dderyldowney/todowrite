@@ -7,8 +7,6 @@ This script ensures that:
 3. ToDoWrite Models API is used exclusively
 4. Automatic session tracking is enabled
 5. Works on every startup and after '/clear'
-
-This replaces ALL old Node-based functionality with ToDoWrite Models patterns.
 """
 
 import sys
@@ -187,7 +185,7 @@ def initialize_todowrite_models_system():
         if not system_goal:
             system_goal = Goal(
                 title="ToDoWrite Models API Enforcement",
-                description="Ensure exclusive use of ToDoWrite Models API and complete removal of old Node-based patterns",
+                description="Ensure exclusive use of ToDoWrite Models API",
                 owner="system",
                 severity="critical",
                 status="completed",
@@ -290,7 +288,7 @@ def initialize_todowrite_models_system():
             "session_type": "ToDoWrite_Models_only",
             "version": "2025.1.0",
             "api_enforced": "ToDoWrite_Models_exclusive",
-            "old_api_removed": True,
+            "models_api_active": True,
             "tables_created": len(required_tables),
             "session_id": current_session_id,
             "system_goal_id": system_goal.id,
@@ -312,7 +310,7 @@ def initialize_todowrite_models_system():
         print("=" * 60)
         print("✅ Exclusive ToDoWrite Models API enforced")
         print("✅ All required tables created and verified")
-        print("✅ Old Node-based API completely removed")
+        print("✅ ToDoWrite Models API initialized")
         print("✅ Integer primary keys enforced (1, 2, 3...)")
         print("✅ Proper ToDoWrite associations working")
         print("✅ Automatic session tracking active")

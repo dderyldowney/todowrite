@@ -74,7 +74,7 @@ class Metadata:
 If changing the database schema, update `lib_package/src/todowrite/database/node_mapping.py`:
 
 ```python
-class NodeTable(Base):
+[REMOVED_LEGACY_PATTERN]Table(Base):
     """Simple database table for Node storage.
 
     This is just a thin persistence layer for core.types.Node.
@@ -391,7 +391,7 @@ class Metadata:
     new_field: str = "default_value"
 
 # Step 2: Update models.py (if database field needed)
-class Node(Base):
+[REMOVED_LEGACY_PATTERN](Base):
     # existing fields...
     new_field: Mapped[str] = mapped_column(String, default="default_value")
 

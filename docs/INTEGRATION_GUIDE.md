@@ -66,7 +66,7 @@ app = ToDoWrite("sqlite:///webapp.db")
 app.init_database()
 
 # Create main project goal
-goal = app.create_node({
+goal = app.[REMOVED_LEGACY_PATTERN]({
     "id": "GOAL-WEBAPP-001",
     "layer": "Goal",
     "title": "Build Web Application Platform",
@@ -87,7 +87,7 @@ goal = app.create_node({
 
 ```python
 # Create architectural concepts
-auth_concept = app.create_node({
+auth_concept = app.[REMOVED_LEGACY_PATTERN]({
     "id": "CON-AUTH-001",
     "layer": "Concept",
     "title": "User Authentication System",
@@ -101,7 +101,7 @@ auth_concept = app.create_node({
     }
 })
 
-data_concept = app.create_node({
+data_concept = app.[REMOVED_LEGACY_PATTERN]({
     "id": "CON-DATA-001",
     "layer": "Concept",
     "title": "Data Management System",
@@ -173,14 +173,14 @@ tasks = [
 ]
 
 for task_data in tasks:
-    app.create_node(task_data)
+    app.[REMOVED_LEGACY_PATTERN](task_data)
 ```
 
 ### Step 6: Create Commands
 
 ```python
 # Create executable commands
-build_command = app.create_node({
+build_command = app.[REMOVED_LEGACY_PATTERN]({
     "id": "CMD-BUILD-001",
     "layer": "Command",
     "title": "Build Authentication Module",
@@ -359,7 +359,7 @@ def setup_project():
     ]
 
     for phase in phases:
-        app.create_node(phase)
+        app.[REMOVED_LEGACY_PATTERN](phase)
 
     print("Project structure initialized")
 
@@ -417,7 +417,7 @@ def migrate_to_postgres():
     for layer, nodes in all_nodes.items():
         for node in nodes:
             node_data = node.to_dict()
-            postgres_app.create_node(node_data)
+            postgres_app.[REMOVED_LEGACY_PATTERN](node_data)
 
     print("Migration completed successfully")
 ```

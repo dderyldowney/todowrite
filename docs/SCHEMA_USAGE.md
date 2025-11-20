@@ -193,7 +193,7 @@ goal_data = {
     "description": "Successfully launch the new product in Q1",
     "metadata": {"owner": "product-team", "severity": "high"}
 }
-goal = tdw.create_node(goal_data)
+goal = tdw.[REMOVED_LEGACY_PATTERN](goal_data)
 
 # Create linked task
 task_data = {
@@ -204,7 +204,7 @@ task_data = {
     "links": {"parents": [goal.id]},
     "metadata": {"owner": "design-team", "work_type": "design"}
 }
-task = tdw.create_node(task_data)
+task = tdw.[REMOVED_LEGACY_PATTERN](task_data)
 
 # Query nodes
 all_goals = tdw.get_all_nodes()["Goal"]
@@ -335,10 +335,10 @@ For detailed migration procedures, see [SCHEMA_MIGRATION_GUIDE.md](SCHEMA_MIGRAT
 ```python
 # FastAPI endpoint
 @app.post("/api/nodes")
-async def create_node(node_data: dict):
+async def [REMOVED_LEGACY_PATTERN](node_data: dict):
     tdw = ToDoWrite(database_url)
     try:
-        node = tdw.create_node(node_data)
+        node = tdw.[REMOVED_LEGACY_PATTERN](node_data)
         return {"id": node.id, "status": "created"}
     except Exception as e:
         return {"error": str(e)}, 400
@@ -358,5 +358,5 @@ git add project-structure.yaml
 jira_data = fetch_jira_issues()
 for issue in jira_data:
     node = convert_jira_to_todowrite(issue)
-    tdw.create_node(node)
+    tdw.[REMOVED_LEGACY_PATTERN](node)
 ```

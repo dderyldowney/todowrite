@@ -57,7 +57,7 @@ def get_active_items(self, todos: dict[str, list[Node]]) -> dict[str, Node]:
 **Implementation Steps:**
 1. Read the current `todowrite/app.py` file to understand the full context
 2. Modify the `get_active_items()` method signature and implementation:
-   - Change return type from `dict[str, Node]` to `dict[str, list[Node]]`
+   - Change return type [REMOVED_LEGACY_PATTERN]]]`
    - Remove the `break` statement that limits to one item per layer
    - Use `defaultdict(list)` to collect all active items
 3. Update any code that calls this method to handle list instead of single Node
@@ -78,7 +78,7 @@ def get_active_items(self, todos: dict[str, list[Node]]) -> dict[str, list[Node]
 **✅ COMPLETED - Implementation Results:**
 - **Date Completed:** 2025-10-30
 - **Changes Made:**
-  - Modified method signature from `dict[str, Node]` to `dict[str, list[Node]]`
+  - Modified method signature [REMOVED_LEGACY_PATTERN]]]`
   - Added `defaultdict` import and usage
   - Removed artificial `break` limitation
   - Method now returns all active items per layer

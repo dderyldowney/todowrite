@@ -315,7 +315,7 @@ def __init__(
 
 **Create:**
 ```python
-def create_node(self, node_data: dict[str, Any]) -> Node
+def [REMOVED_LEGACY_PATTERN](self, node_data: dict[str, Any]) -> Node
 ```
 - Validates against JSON schema
 - Routes to DB or YAML based on storage type
@@ -347,7 +347,7 @@ def delete_node(self, node_id: str) -> None
 - `add_constraint()`, `add_requirement()`, `add_acceptance_criteria()`
 - `add_interface_contract()`
 
-Each generates appropriate ID prefix and calls `create_node()`
+Each generates appropriate ID prefix and calls `[REMOVED_LEGACY_PATTERN]()`
 
 ### Session Management
 
@@ -757,7 +757,7 @@ Located: `$HOME/projects/ToDoWrite/tests/`
 
 **Test Coverage:**
 - `test_init_database()`: Database initialization
-- `test_create_node()`: Node creation with metadata
+- `test_[REMOVED_LEGACY_PATTERN]()`: Node creation with metadata
 - `test_get_node()`: Single node retrieval
 - `test_get_all_nodes()`: Bulk node retrieval
 - `test_update_node()`: Node updates with link changes
@@ -954,7 +954,7 @@ When using database storage and auto_import=True:
 - Identical interface (load/save/delete)
 
 ### ToDoWrite ↔ YAMLManager
-- Import: YAMLManager → ToDoWrite.create_node()
+- Import: YAMLManager → ToDoWrite.[REMOVED_LEGACY_PATTERN]()
 - Export: ToDoWrite.get_all_nodes() → YAMLManager
 - Sync check: Compare file lists with node IDs
 

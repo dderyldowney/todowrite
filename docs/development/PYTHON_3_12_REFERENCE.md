@@ -135,7 +135,7 @@ from datetime import datetime
 from typing import ClassVar
 
 @dataclass(frozen=True, slots=True)
-class Node:
+[REMOVED_LEGACY_PATTERN]:
     type: str
     title: str
     description: str
@@ -155,7 +155,7 @@ class Node:
 ```python
 from typing import TypedDict, NotRequired, Required
 
-class NodeResponse(TypedDict):
+[REMOVED_LEGACY_PATTERN]Response(TypedDict):
     id: Required[str]
     type: Required[str]
     title: Required[str]
@@ -195,7 +195,7 @@ def get_db_connection(db_path: str) -> Generator[sqlite3.Connection, None, None]
         conn.close()
 
 # Type-safe queries
-def create_node_table(conn: sqlite3.Connection) -> None:
+def [REMOVED_LEGACY_PATTERN]_table(conn: sqlite3.Connection) -> None:
     conn.execute('''
         CREATE TABLE IF NOT EXISTS nodes (
             id TEXT PRIMARY KEY,
@@ -366,7 +366,7 @@ class ToDoWriteError(Exception):
     """Base exception for ToDoWrite."""
     pass
 
-class NodeNotFoundError(ToDoWriteError):
+[REMOVED_LEGACY_PATTERN]NotFoundError(ToDoWriteError):
     """Raised when a node is not found."""
     def __init__(self, node_id: str):
         self.node_id = node_id

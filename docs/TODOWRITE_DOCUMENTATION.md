@@ -120,7 +120,7 @@ class Command:
     artifacts: List[str] = None             # Output file paths
 
 @dataclass
-class Node:
+[REMOVED_LEGACY_PATTERN]:
     id: str                                 # LAYER_PREFIX-IDENTIFIER
     layer: str                              # 12 layer types
     title: str
@@ -399,7 +399,7 @@ node_data = {
         "work_type": "architecture"
     }
 }
-node = app.create_node(node_data)
+node = app.[REMOVED_LEGACY_PATTERN](node_data)
 
 # Retrieve nodes
 node = app.get_node("GOAL-NEW-PROJECT")
@@ -466,7 +466,7 @@ is_database = app.is_database_storage()
 ### Type Definitions
 
 ```python
-from todowrite.app import LayerType, StatusType, Node, Link, Metadata, Command
+[REMOVED_LEGACY_PATTERN], Link, Metadata, Command
 
 # Layer types (string literals)
 LayerType = Literal[

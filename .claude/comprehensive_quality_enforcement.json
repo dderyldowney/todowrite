@@ -1,6 +1,6 @@
 {
   "enforcement_level": "strict",
-  "enforcement_time": "2025-11-20T07:39:48.651737",
+  "enforcement_time": "2025-11-20T11:12:15.531432",
   "tools": {
     "semantic_scoping": {
       "active": true,

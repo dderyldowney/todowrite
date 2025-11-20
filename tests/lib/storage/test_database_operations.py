@@ -2,7 +2,6 @@
 Database Operations Tests
 
 Tests for database operations using modern SQLAlchemy patterns.
-Replaces the legacy storage backend functionality.
 """
 
 import tempfile

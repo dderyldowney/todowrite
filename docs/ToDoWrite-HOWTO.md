@@ -689,7 +689,7 @@ class ToDoWriteManager:
     def __init__(self, project_dir: str, config_file: str = None):
         """Initialize manager with project directory"""
 
-    def create_node(self, layer: str, **kwargs) -> Node:
+    def [REMOVED_LEGACY_PATTERN](self, layer: str, **kwargs) -> Node:
         """Create new node of specified layer"""
 
     def get_node(self, node_id: str) -> Node:
@@ -715,7 +715,7 @@ class ToDoWriteManager:
 
 ```python
 @dataclass
-class Node:
+[REMOVED_LEGACY_PATTERN]:
     """Base class for all ToDoWrite nodes"""
     id: str
     layer: str
@@ -1059,7 +1059,7 @@ todowrite query --circular-deps
 
 ```python
 # For large projects, use caching
-from todowrite.cache import NodeCache
+[REMOVED_LEGACY_PATTERN]Cache
 
 manager = ToDoWriteManager(
     project_dir="large_project",

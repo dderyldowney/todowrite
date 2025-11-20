@@ -2,7 +2,6 @@
 YAML Parsing Tests
 
 Tests for YAML functionality using modern patterns with ToDoWrite models.
-Replaces the legacy YAML storage functionality.
 """
 
 import json

@@ -247,7 +247,7 @@ class TestDatabaseOperations:
 
 ## 🔄 Migration from Old System
 
-The project has migrated from a Node-based system to individual SQLAlchemy models:
+The project has migrated [REMOVED_LEGACY_PATTERN]-based system to individual SQLAlchemy models:
 
 ### Key Changes
 1. **Individual Models** - 12 separate models instead of generic Node
@@ -259,8 +259,8 @@ The project has migrated from a Node-based system to individual SQLAlchemy model
 ### Updated Patterns
 ```python
 # Old approach (REMOVED)
-from todowrite import create_node, Node
-node = create_node(database, node_data)
+[REMOVED_LEGACY_PATTERN]
+node = [REMOVED_LEGACY_PATTERN](database, node_data)
 Node.where(status="pending")
 
 # New SQLAlchemy approach

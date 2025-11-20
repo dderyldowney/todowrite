@@ -2,7 +2,6 @@
 Models Validation Tests
 
 Tests for validating ToDoWrite models using modern SQLAlchemy patterns.
-Replaces the legacy schema validation functionality.
 """
 
 import json

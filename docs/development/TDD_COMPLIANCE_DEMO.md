@@ -12,7 +12,7 @@ import pytest
 from todowrite_web.api.backend.main import app
 from fastapi.testclient import TestClient
 
-def test_create_node_endpoint_returns_201():
+def test_[REMOVED_LEGACY_PATTERN]_endpoint_returns_201():
     """
     RED: Test does not exist yet, will fail
     Testing that POST /api/v1/nodes returns 201 status
@@ -35,7 +35,7 @@ def test_create_node_endpoint_returns_201():
 **Run Test (Expected to FAIL):**
 ```bash
 # Using pytest with coverage
-uv run pytest tests/test_web_package_api.py::test_create_node_endpoint_returns_201 -v
+uv run pytest tests/test_web_package_api.py::test_[REMOVED_LEGACY_PATTERN]_endpoint_returns_201 -v
 
 # Expected output: FAILED - AttributeError: module 'todowrite_web.api.backend.main' has no attribute 'app'
 ```
@@ -49,19 +49,19 @@ from pydantic import BaseModel
 
 app = FastAPI(title="ToDoWrite Web API")
 
-class NodeCreateRequest(BaseModel):
+[REMOVED_LEGACY_PATTERN]CreateRequest(BaseModel):
     type: str
     title: str
     description: str
 
-class NodeResponse(BaseModel):
+[REMOVED_LEGACY_PATTERN]Response(BaseModel):
     id: str
     type: str
     title: str
     description: str
 
 @app.post("/api/v1/nodes", response_model=NodeResponse, status_code=201)
-def create_node(request: NodeCreateRequest) -> NodeResponse:
+def [REMOVED_LEGACY_PATTERN](request: NodeCreateRequest) -> NodeResponse:
     """
     GREEN: Minimal implementation to pass the test
     """
@@ -79,7 +79,7 @@ def create_node(request: NodeCreateRequest) -> NodeResponse:
 
 **Run Test (Expected to PASS):**
 ```bash
-uv run pytest tests/test_web_package_api.py::test_create_node_endpoint_returns_201 -v
+uv run pytest tests/test_web_package_api.py::test_[REMOVED_LEGACY_PATTERN]_endpoint_returns_201 -v
 
 # Expected output: PASSED
 ```
@@ -105,7 +105,7 @@ VALID_NODE_TYPES = {
     "phase", "step", "task", "subtask", "command"
 }
 
-class NodeCreateRequest(BaseModel):
+[REMOVED_LEGACY_PATTERN]CreateRequest(BaseModel):
     type: str
     title: str
     description: str
@@ -131,7 +131,7 @@ class NodeCreateRequest(BaseModel):
             raise ValueError(f"Description too long: {len(v)} > {MAX_DESCRIPTION_LENGTH}")
         return v.strip()
 
-class NodeResponse(BaseModel):
+[REMOVED_LEGACY_PATTERN]Response(BaseModel):
     id: str
     type: str
     title: str
@@ -145,7 +145,7 @@ def get_database():
     pass
 
 @app.post("/api/v1/nodes", response_model=NodeResponse, status_code=201)
-def create_node(request: NodeCreateRequest, db=Depends(get_database)) -> NodeResponse:
+def [REMOVED_LEGACY_PATTERN](request: NodeCreateRequest, db=Depends(get_database)) -> NodeResponse:
     """
     REFACTOR: Enhanced implementation with validation, typing, and error handling
     """
@@ -237,7 +237,7 @@ def test_node_id_generation(node_type, expected_prefix):
         title="Test Title",
         description="Test Description"
     )
-    response = create_node(request)
+    response = [REMOVED_LEGACY_PATTERN](request)
     assert response.id.startswith(expected_prefix)
 ```
 
@@ -257,7 +257,7 @@ def sample_node_request():
         description="Test Description"
     )
 
-def test_create_node_with_fixture(client, sample_node_request):
+def test_[REMOVED_LEGACY_PATTERN]_with_fixture(client, sample_node_request):
     """Test using reusable fixtures"""
     response = client.post("/api/v1/nodes", json=sample_node_request.dict())
     assert response.status_code == 201
@@ -308,13 +308,13 @@ For EVERY development session:
 # Edit tests/test_web_package_api.py
 
 # 3. Run test (expect failure)
-uv run pytest tests/test_web_package_api.py::test_create_node_endpoint_returns_201 -v
+uv run pytest tests/test_web_package_api.py::test_[REMOVED_LEGACY_PATTERN]_endpoint_returns_201 -v
 
 # 4. Implement minimal code (GREEN)
 # Edit web_package/src/todowrite_web/api/backend/main.py
 
 # 5. Run test (expect success)
-uv run pytest tests/test_web_package_api.py::test_create_node_endpoint_returns_201 -v
+uv run pytest tests/test_web_package_api.py::test_[REMOVED_LEGACY_PATTERN]_endpoint_returns_201 -v
 
 # 6. Refactor and enhance
 # Improve implementation with validation and error handling

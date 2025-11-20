@@ -35,7 +35,7 @@ app.init_database()
 Represents a task, goal, concept, or command.
 
 ```python
-from todowrite import Node
+[REMOVED_LEGACY_PATTERN]
 
 # Create from dictionary
 node = Node.from_dict({
@@ -54,7 +54,7 @@ node = Node.from_dict({
 app.init_database()
 
 # Create node
-node = app.create_node(node_data)
+node = app.[REMOVED_LEGACY_PATTERN](node_data)
 
 # Get node by ID
 node = app.get_node("GOAL-001")

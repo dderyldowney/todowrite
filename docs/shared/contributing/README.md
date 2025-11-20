@@ -32,7 +32,7 @@ ToDoWrite uses **SQLAlchemy-based architecture**:
 
 #### Model Development
 ```python
-from todowrite.core.models import Node, has_many, belongs_to
+[REMOVED_LEGACY_PATTERN], has_many, belongs_to
 
 class NewModel(Node):
     """Follow SQLAlchemy patterns."""

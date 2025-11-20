@@ -194,7 +194,7 @@ import json
 from typing import Any, TypedDict
 from datetime import datetime
 
-class NodeData(TypedDict):
+[REMOVED_LEGACY_PATTERN]Data(TypedDict):
     id: str
     type: str
     title: str
@@ -220,7 +220,7 @@ def test_create_goal_node():
     """RED: Test doesn't exist yet, will fail"""
     with get_db_connection(":memory:") as conn:
         app = ToDoWrite(conn)
-        node = app.create_node("goal", "Test Goal", "Description")
+        node = app.[REMOVED_LEGACY_PATTERN]("goal", "Test Goal", "Description")
         assert node["type"] == "goal"
         assert node["id"].startswith("GOAL-")
 ```
@@ -228,7 +228,7 @@ def test_create_goal_node():
 ### GREEN Phase: Minimal Implementation
 ```python
 # core/app.py
-def create_node(self, node_type: str, title: str, description: str) -> dict[str, str]:
+def [REMOVED_LEGACY_PATTERN](self, node_type: str, title: str, description: str) -> dict[str, str]:
     """GREEN: Minimal implementation to pass test"""
     node_id = f"{node_type.upper()}-{uuid.uuid4().hex[:8]}"
     return {
@@ -243,7 +243,7 @@ def create_node(self, node_type: str, title: str, description: str) -> dict[str,
 ```python
 # core/app.py (refactored)
 @validate_node_type
-def create_node(self, node_type: str, title: str, description: str) -> NodeData:
+def [REMOVED_LEGACY_PATTERN](self, node_type: str, title: str, description: str) -> NodeData:
     """REFACTOR: Enhanced with validation and proper typing"""
     if len(title) > self.MAX_TITLE_LENGTH:
         raise ValueError(f"Title too long: {len(title)}")
@@ -327,7 +327,7 @@ def stream_nodes(query: str) -> Generator[Node, None, None]:
 # Use @cached_property for expensive computations
 from functools import cached_property
 
-class NodeProcessor:
+[REMOVED_LEGACY_PATTERN]Processor:
     @cached_property
     def compiled_schema(self) -> dict:
         return json.loads(self.schema_string)
@@ -336,7 +336,7 @@ class NodeProcessor:
 ### Batch Operations
 ```python
 # Batch database writes
-def create_nodes_batch(nodes: list[NodeData]) -> list[str]:
+def [REMOVED_LEGACY_PATTERN]s_batch(nodes: list[NodeData]) -> list[str]:
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.executemany(
@@ -380,7 +380,7 @@ def create_nodes_batch(nodes: list[NodeData]) -> list[str]:
 ### Dataclass with slots
 ```python
 @dataclass(frozen=True, slots=True)
-class Node:
+[REMOVED_LEGACY_PATTERN]:
     """Memory-efficient node representation"""
     id: str
     type: str

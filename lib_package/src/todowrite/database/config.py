@@ -54,7 +54,7 @@ def get_database_url() -> str:
     )
 
 
-# Legacy compatibility - use get_database_url() instead
+# Default database URL
 DATABASE_URL = get_database_url()
 
 
@@ -374,9 +374,8 @@ def _handle_explicit_database_url(
 
 
 def _try_postgresql_candidates() -> tuple[StorageType, str] | None:
-    """Try to find a working PostgreSQL connection (legacy compatibility)."""
-    # This function is kept for backward compatibility but the actual logic
-    # is now in _try_native_postgresql_candidates and _try_docker_postgresql_candidates
+    """Try to find a working PostgreSQL connection."""
+    # The actual logic is in _try_native_postgresql_candidates and _try_docker_postgresql_candidates
     native_result = _try_native_postgresql_candidates()
     if native_result:
         return native_result
@@ -609,7 +608,7 @@ def get_setup_guidance() -> str:
         """.strip()
 
 
-# Legacy compatibility functions
+# PostgreSQL URL construction functions
 def get_postgresql_url(
     user: str,
     password: str,

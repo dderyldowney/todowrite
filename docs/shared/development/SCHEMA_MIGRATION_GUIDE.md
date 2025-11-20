@@ -138,7 +138,7 @@ def migrate_sqlite_to_postgres():
         for node in nodes:
             # Convert node to dict and create in PostgreSQL
             node_dict = node.to_dict()
-            postgres_tdw.create_node(node_dict)
+            postgres_tdw.[REMOVED_LEGACY_PATTERN](node_dict)
 
     print("Migration completed successfully")
 ```
@@ -266,7 +266,7 @@ def add_performance_indexes():
 def get_active_tasks_by_owner(tdw, owner):
     """Get active tasks for a specific owner"""
     with tdw.get_db_session() as session:
-        from todowrite.database.models import Node
+        [REMOVED_LEGACY_PATTERN]
 
         return session.query(Node).filter(
             Node.layer == "Task",
@@ -277,7 +277,7 @@ def get_active_tasks_by_owner(tdw, owner):
 def get_hierarchy_summary(tdw):
     """Get summary of all nodes by layer and status"""
     with tdw.get_db_session() as session:
-        from todowrite.database.models import Node
+        [REMOVED_LEGACY_PATTERN]
         from sqlalchemy import func
 
         return session.query(
@@ -371,7 +371,7 @@ def test_migration_backward_compatibility():
             "title": "Migration Test",
             "description": "Test backward compatibility"
         }
-        tdw.create_node(test_node)
+        tdw.[REMOVED_LEGACY_PATTERN](test_node)
 
         # Verify data integrity
         retrieved = tdw.get_node("TEST-MIGRATION-001")

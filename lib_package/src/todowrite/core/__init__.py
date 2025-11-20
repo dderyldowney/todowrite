@@ -1,7 +1,7 @@
-"""Core ToDoWrite functionality - ToDoWrite Models API only."""
+"""Core ToDoWrite functionality - Clean separation of models and types."""
 
-# ToDoWrite Models types - PRIMARY API
-from .types import (
+# SQLAlchemy Models - ONLY from todowrite.core.models
+from .models import (
     AcceptanceCriteria,
     Base,
     Command,
@@ -11,32 +11,36 @@ from .types import (
     Goal,
     InterfaceContract,
     Label,
-    LayerType,
     Phase,
     Requirements,
-    StatusType,
     Step,
     SubTask,
     Task,
 )
 
+# Type definitions - ONLY from todowrite.core.types
+from .types import (
+    LayerType,
+    StatusType,
+)
+
 __all__ = [
+    # SQLAlchemy Models (12 layers + Base)
     "AcceptanceCriteria",
     "Base",
     "Command",
     "Concept",
     "Constraints",
     "Context",
-    # ToDoWrite Models (12 layers) - PRIMARY API
     "Goal",
     "InterfaceContract",
     "Label",
-    # Types and utilities
-    "LayerType",
     "Phase",
     "Requirements",
-    "StatusType",
     "Step",
     "SubTask",
     "Task",
+    # Type definitions
+    "LayerType",
+    "StatusType",
 ]

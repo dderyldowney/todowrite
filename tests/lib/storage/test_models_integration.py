@@ -2,7 +2,6 @@
 Models Integration Tests
 
 Tests for integrating ToDoWrite models with modern database operations.
-Replaces the legacy todowrite storage backend functionality.
 """
 
 import json

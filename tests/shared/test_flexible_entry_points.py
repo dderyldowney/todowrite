@@ -22,7 +22,7 @@ sys.path.insert(0, str(project_root))
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from todowrite.core.types import (
+from todowrite.core.models import (
     Command,
     Goal,
     Phase,
@@ -42,7 +42,7 @@ def create_standalone_node(layer: str, title: str, description: str) -> dict[str
     Session = sessionmaker(bind=engine)
 
     # Create all tables
-    from todowrite.core.types import Base
+    from todowrite.core.models import Base
 
     Base.metadata.create_all(engine)
 

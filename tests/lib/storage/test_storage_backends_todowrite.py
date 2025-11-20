@@ -1,3 +1,5 @@
+"""Tests for storage backend compatibility with ToDoWrite Models."""
+
 from __future__ import annotations
 
 import tempfile
@@ -6,333 +8,263 @@ from pathlib import Path
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-from lib_package.src.todowrite.core.types import Base, Node
-from lib_package.src.todowrite.storage import (
-    NodeNotFoundError,
-    PostgreSQLBackend,
-    SQLiteBackend,
-    create_storage_backend,
-    detect_storage_backend_type,
-    get_default_database_url,
-    validate_database_url,
+from todowrite.core.models import Goal, Label, Task
+from todowrite.storage import (
+    initialize_database,
+    validate_model_data,
 )
 
 
-class TestStorageBackendFactoryModels:
-    """Test the storage backend factory with Models integration."""
+class TestDatabaseSchemaValidation:
+    """Test database schema validation with ToDoWrite Models."""
 
-    def test_detect_storage_backend_type_postgresql(self):
-        """Test PostgreSQL URL detection."""
-        url = "postgresql://user:pass@localhost:5432/ToDoWrite"
-        assert detect_storage_backend_type(url) == "postgresql"
+    def test_validate_goal_model_data(self):
+        """Test validation of Goal model data."""
+        valid_goal_data = {
+            "title": "Test Goal",
+            "description": "A test goal",
+            "owner": "test-user",
+            "status": "planned",
+        }
 
-    def test_detect_storage_backend_type_sqlite_url(self):
-        """Test SQLite URL detection."""
-        url = "sqlite:///tests/todowrite_testing.db"
-        assert detect_storage_backend_type(url) == "sqlite"
+        # This should not raise an exception
+        assert validate_model_data("Goal", valid_goal_data) == True
 
-    def test_detect_storage_backend_type_sqlite_path(self):
-        """Test SQLite file path detection."""
-        path = "/path/to/database.db"
-        assert detect_storage_backend_type(path) == "sqlite"
+    def test_validate_task_model_data(self):
+        """Test validation of Task model data."""
+        valid_task_data = {
+            "title": "Test Task",
+            "description": "A test task",
+            "owner": "test-user",
+            "status": "planned",
+        }
 
-    def test_detect_storage_backend_type_yaml(self):
-        """Test YAML file detection."""
-        path = "/path/to/config.yaml"
-        assert detect_storage_backend_type(path) == "yaml"
+        # This should not raise an exception
+        assert validate_model_data("Task", valid_task_data) == True
 
-    def test_detect_storage_backend_type_unknown(self):
-        """Test unknown URL format detection."""
-        url = "justsomeinvalidformat"
-        assert detect_storage_backend_type(url) == "unknown"
+    def test_validate_label_model_data(self):
+        """Test validation of Label model data."""
+        valid_label_data = {"name": "test-label"}
 
-    def test_create_storage_backend_sqlite(self):
-        """Test SQLite backend creation."""
-        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
-            db_path = tmp.name
+        # This should not raise an exception
+        assert validate_model_data("Label", valid_label_data) == True
 
+    def test_validate_invalid_model_data(self):
+        """Test validation fails with invalid data."""
+        # Missing required title field
+        invalid_goal_data = {"description": "A test goal without title", "owner": "test-user"}
+
+        # This should return False or raise an exception
         try:
-            backend = create_storage_backend(str(db_path))
-            assert isinstance(backend, SQLiteBackend)
-        finally:
-            Path(db_path).unlink(missing_ok=True)
+            result = validate_model_data("Goal", invalid_goal_data)
+            assert result == False
+        except Exception:
+            # Expected behavior for validation failures
+            pass
 
-    def test_create_storage_backend_postgresql(self):
-        """Test PostgreSQL backend creation."""
-        url = "postgresql://user:pass@localhost:5432/ToDoWrite_test"
-        backend = create_storage_backend(url)
-        assert isinstance(backend, PostgreSQLBackend)
 
-    def test_validate_database_url_sqlite(self):
-        """Test SQLite database URL validation."""
-        valid_urls = [
-            "sqlite:///tests/todowrite_testing.db",
-            "sqlite:///:memory:",
-            "/absolute/path/to/db.db",
-            "relative/path/to/db.db",
+class TestSQLiteDatabaseIntegration:
+    """Test SQLite database integration with ToDoWrite Models."""
+
+    @pytest.fixture
+    def temp_sqlite_db(self):
+        """Create a temporary SQLite database for testing."""
+        temp_db = tempfile.mktemp(suffix=".db")
+        engine = create_engine(f"sqlite:///{temp_db}")
+
+        # Use todowrite storage initialize_database function
+        initialize_database(f"sqlite:///{temp_db}")
+
+        Session = sessionmaker(bind=engine)
+        yield Session
+
+        Path(temp_db).unlink(missing_ok=True)
+
+    def test_create_goal_with_validation(self, temp_sqlite_db):
+        """Test creating a Goal with validation."""
+        session = temp_sqlite_db()
+
+        # Create goal data
+        goal_data = {
+            "title": "Test Goal",
+            "description": "A test goal for database integration",
+            "owner": "test-user",
+            "status": "planned",
+        }
+
+        # Validate first
+        assert validate_model_data("Goal", goal_data) == True
+
+        # Create the goal
+        goal = Goal(**goal_data)
+        session.add(goal)
+        session.commit()
+
+        # Verify the goal was created
+        retrieved_goal = session.query(Goal).filter(Goal.id == goal.id).first()
+        assert retrieved_goal is not None
+        assert retrieved_goal.title == goal_data["title"]
+        assert retrieved_goal.owner == goal_data["owner"]
+        assert retrieved_goal.status == goal_data["status"]
+
+        session.close()
+
+    def test_create_task_with_validation(self, temp_sqlite_db):
+        """Test creating a Task with validation."""
+        session = temp_sqlite_db()
+
+        # Create task data
+        task_data = {
+            "title": "Test Task",
+            "description": "A test task for database integration",
+            "owner": "test-user",
+            "status": "planned",
+        }
+
+        # Validate first
+        assert validate_model_data("Task", task_data) == True
+
+        # Create the task
+        task = Task(**task_data)
+        session.add(task)
+        session.commit()
+
+        # Verify the task was created
+        retrieved_task = session.query(Task).filter(Task.id == task.id).first()
+        assert retrieved_task is not None
+        assert retrieved_task.title == task_data["title"]
+        assert retrieved_task.owner == task_data["owner"]
+
+        session.close()
+
+    def test_create_label_with_validation(self, temp_sqlite_db):
+        """Test creating a Label with validation."""
+        session = temp_sqlite_db()
+
+        # Create label data
+        label_data = {"name": "test-label"}
+
+        # Validate first
+        assert validate_model_data("Label", label_data) == True
+
+        # Create the label
+        label = Label(**label_data)
+        session.add(label)
+        session.commit()
+
+        # Verify the label was created
+        retrieved_label = session.query(Label).filter(Label.id == label.id).first()
+        assert retrieved_label is not None
+        assert retrieved_label.name == label_data["name"]
+
+        session.close()
+
+    def test_query_and_filter_models(self, temp_sqlite_db):
+        """Test querying and filtering ToDoWrite Models."""
+        session = temp_sqlite_db()
+
+        # Create multiple goals
+        goals = [
+            Goal(title="Goal 1", owner="user1", status="planned"),
+            Goal(title="Goal 2", owner="user2", status="in_progress"),
+            Goal(title="Goal 3", owner="user1", status="completed"),
         ]
-        for url in valid_urls:
-            result = validate_database_url(url)
-            assert isinstance(result, tuple) and result[0] is True
 
-    def test_validate_database_url_postgresql(self):
-        """Test PostgreSQL database URL validation."""
-        valid_url = "postgresql://user:pass@localhost:5432/ToDoWrite"
-        result = validate_database_url(valid_url)
-        assert isinstance(result, tuple) and result[0] is True
+        for goal in goals:
+            session.add(goal)
 
-    def test_validate_database_url_invalid(self):
-        """Test invalid database URL validation."""
-        # Note: The validation function is quite permissive and accepts many URLs
-        # This test documents the current behavior
-        test_urls = ["invalid://format", "", "not-a-url", "ftp://file.server.com/file.db"]
-        for url in test_urls:
-            result = validate_database_url(url)
-            # The function returns a tuple, check that it does
-            assert isinstance(result, tuple)
-            # Document the actual behavior - function is permissive
-            if url:
-                assert len(result) == 2  # Always returns (bool, message) tuple
+        session.commit()
 
-    def test_get_default_database_url(self):
-        """Test getting default database URL."""
-        url = get_default_database_url()
-        assert url is not None
-        result = validate_database_url(url)
-        assert isinstance(result, tuple) and result[0] is True
+        # Query all goals
+        all_goals = session.query(Goal).all()
+        assert len(all_goals) == 3
+
+        # Filter by owner
+        user1_goals = session.query(Goal).filter(Goal.owner == "user1").all()
+        assert len(user1_goals) == 2
+
+        # Filter by status
+        planned_goals = session.query(Goal).filter(Goal.status == "planned").all()
+        assert len(planned_goals) == 1
+
+        session.close()
+
+    def test_model_relationships(self, temp_sqlite_db):
+        """Test that models can have proper relationships."""
+        session = temp_sqlite_db()
+
+        # Create goal and task
+        goal = Goal(title="Parent Goal", owner="test-user")
+        task = Task(title="Child Task", owner="test-user")
+
+        session.add(goal)
+        session.add(task)
+        session.commit()
+
+        # Both should be created successfully
+        assert goal.id is not None
+        assert task.id is not None
+
+        # Basic queries should work
+        retrieved_goal = session.query(Goal).filter(Goal.id == goal.id).first()
+        retrieved_task = session.query(Task).filter(Task.id == task.id).first()
+
+        assert retrieved_goal is not None
+        assert retrieved_task is not None
+        assert retrieved_goal.title == "Parent Goal"
+        assert retrieved_task.title == "Child Task"
+
+        session.close()
 
 
-class TestSQLiteBackendModels:
-    """Test SQLite backend with Models integration."""
+class TestModelConstraints:
+    """Test model constraints and validation."""
 
-    def test_sqlite_backend_connection(self):
-        """Test SQLite backend connection and setup."""
-        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
-            db_path = tmp.name
+    def test_label_name_uniqueness(self):
+        """Test that Label names must be unique."""
+        temp_db = tempfile.mktemp(suffix=".db")
+        engine = create_engine(f"sqlite:///{temp_db}")
+        initialize_database(f"sqlite:///{temp_db}")
+
+        Session = sessionmaker(bind=engine)
+        session = Session()
 
         try:
-            backend = SQLiteBackend(db_path)
-            backend.connect_to_storage()
+            # Create first label
+            label1 = Label(name="unique-label")
+            session.add(label1)
+            session.commit()
 
-            # Should be connected now
-            assert backend.backend_name == "SQLite"
-            assert backend._is_connected  # Private attribute for now
+            # Try to create second label with same name
+            label2 = Label(name="unique-label")
+            session.add(label2)
 
-            backend.disconnect_from_storage()
+            # This should fail due to unique constraint
+            with pytest.raises(Exception):
+                session.commit()
 
         finally:
-            Path(db_path).unlink(missing_ok=True)
-
-    def test_sqlite_backend_create_node_with_Models(self):
-        """Test creating nodes using storage backend with Models."""
-        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
-            db_path = tmp.name
-
-        try:
-            # Setup database with Models
-            engine = create_engine(f"sqlite:///{db_path}")
-            Base.metadata.create_all(engine)
-            Session = sessionmaker(bind=engine)
-            session = Session()
-            Node.configure_session(session)
-
-            backend = SQLiteBackend(db_path)
-            backend.connect_to_storage()
-
-            # Create goal using Models first
-            goal = Node.create_goal(title="Storage Test Goal", owner="test-user")
-
-            # Now use storage backend - should detect it already exists
-            result = backend.create_new_node(goal)
-            # Note: was_newly_created is False because Node.create_goal() already saved it
-            assert not result.was_newly_created
-            assert result.created_node.title == "Storage Test Goal"
-
-            # Test retrieval
-            retrieved = backend.retrieve_node_by_id(goal.id)
-            assert retrieved.title == "Storage Test Goal"
-            assert retrieved.layer == "Goal"
-
-            backend.disconnect_from_storage()
             session.close()
+            Path(temp_db).unlink(missing_ok=True)
 
-        finally:
-            Path(db_path).unlink(missing_ok=True)
+    def test_goal_required_fields(self):
+        """Test that Goal model enforces required fields."""
+        temp_db = tempfile.mktemp(suffix=".db")
+        engine = create_engine(f"sqlite:///{temp_db}")
+        initialize_database(f"sqlite:///{temp_db}")
 
-    def test_sqlite_backend_relationships_with_Models(self):
-        """Test relationship creation using storage backend with Models."""
-        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
-            db_path = tmp.name
-
-        try:
-            # Setup database with Models
-            engine = create_engine(f"sqlite:///{db_path}")
-            Base.metadata.create_all(engine)
-            Session = sessionmaker(bind=engine)
-            session = Session()
-            Node.configure_session(session)
-
-            backend = SQLiteBackend(db_path)
-            backend.connect_to_storage()
-
-            # Create parent and child nodes
-            goal = Node.create_goal("Parent Goal", "test-user")
-            backend.create_new_node(goal)
-
-            phase = Node.new(layer="Constraints", title="Child Phase", owner="test-user").save()
-            backend.create_new_node(phase)
-
-            # Create relationship using storage backend (should use Models)
-            relationship_result = backend.create_parent_child_relationship(goal.id, phase.id)
-            assert relationship_result.was_newly_linked
-            assert relationship_result.parent_id == goal.id
-            assert relationship_result.child_id == phase.id
-
-            # Test that relationship exists
-            child_nodes = backend.get_all_children_of_node(goal.id)
-            assert len(child_nodes) >= 1
-            assert any(child.id == phase.id for child in child_nodes)
-
-            parent_nodes = backend.get_all_parents_of_node(phase.id)
-            assert len(parent_nodes) >= 1
-            assert any(parent.id == goal.id for parent in parent_nodes)
-
-            backend.disconnect_from_storage()
-            session.close()
-
-        finally:
-            Path(db_path).unlink(missing_ok=True)
-
-    def test_sqlite_backend_update_with_Models(self):
-        """Test updating nodes using storage backend with Models."""
-        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
-            db_path = tmp.name
+        Session = sessionmaker(bind=engine)
+        session = Session()
 
         try:
-            # Setup database with Models
-            engine = create_engine(f"sqlite:///{db_path}")
-            Base.metadata.create_all(engine)
-            Session = sessionmaker(bind=engine)
-            session = Session()
-            Node.configure_session(session)
+            # Try to create goal without required title
+            goal = Goal()  # No title provided
+            session.add(goal)
 
-            backend = SQLiteBackend(db_path)
-            backend.connect_to_storage()
-
-            # Create node
-            node = Node.create_goal("Update Test", "test-user")
-            backend.create_new_node(node)
-
-            # Update using storage backend
-            updated_node = backend.update_existing_node(
-                node.id, {"progress": 50, "status": "in_progress"}
-            )
-            assert updated_node.progress == 50
-            assert updated_node.status == "in_progress"
-
-            # Verify persistence
-            retrieved = backend.retrieve_node_by_id(node.id)
-            assert retrieved.progress == 50
-            assert retrieved.status == "in_progress"
-
-            backend.disconnect_from_storage()
-            session.close()
+            # This should fail
+            with pytest.raises(Exception):
+                session.commit()
 
         finally:
-            Path(db_path).unlink(missing_ok=True)
-
-    def test_sqlite_backend_delete_with_Models(self):
-        """Test deleting nodes using storage backend with Models."""
-        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
-            db_path = tmp.name
-
-        try:
-            # Setup database with Models
-            engine = create_engine(f"sqlite:///{db_path}")
-            Base.metadata.create_all(engine)
-            Session = sessionmaker(bind=engine)
-            session = Session()
-            Node.configure_session(session)
-
-            backend = SQLiteBackend(db_path)
-            backend.connect_to_storage()
-
-            # Create node
-            node = Node.create_goal("Delete Test", "test-user")
-            backend.create_new_node(node)
-
-            # Verify it exists
-            retrieved = backend.retrieve_node_by_id(node.id)
-            assert retrieved is not None
-
-            # Delete using storage backend
-            delete_result = backend.remove_node_by_id(node.id)
-            assert delete_result is True
-
-            # Verify it's gone
-            try:
-                backend.retrieve_node_by_id(node.id)
-                assert False, "Node should have been deleted"
-            except NodeNotFoundError:
-                pass  # Expected
-
-            backend.disconnect_from_storage()
             session.close()
-
-        finally:
-            Path(db_path).unlink(missing_ok=True)
-
-    def test_sqlite_backend_list_nodes_by_layer(self):
-        """Test listing nodes by layer using Models."""
-        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
-            db_path = tmp.name
-
-        try:
-            # Setup database with Models
-            engine = create_engine(f"sqlite:///{db_path}")
-            Base.metadata.create_all(engine)
-            Session = sessionmaker(bind=engine)
-            session = Session()
-            Node.configure_session(session)
-
-            backend = SQLiteBackend(db_path)
-            backend.connect_to_storage()
-
-            # Create nodes in different layers
-            goal1 = Node.create_goal("Goal 1", "user1")
-            goal2 = Node.create_goal("Goal 2", "user2")
-            phase = Node.new(layer="Constraints", title="Phase", owner="user1").save()
-            task = Node.new(layer="SubTask", title="Task", owner="user1").save()
-
-            backend.create_new_node(goal1)
-            backend.create_new_node(goal2)
-            backend.create_new_node(phase)
-            backend.create_new_node(task)
-
-            # Test listing by layer
-            goals = backend.list_all_nodes_in_layer("Goal")
-            phases = backend.list_all_nodes_in_layer("Constraints")
-            tasks = backend.list_all_nodes_in_layer("SubTask")
-
-            assert len(goals) == 2
-            assert len(phases) == 1
-            assert len(tasks) == 1
-
-            # Verify layer filtering
-            assert all(node.layer == "Goal" for node in goals)
-            assert all(node.layer == "Constraints" for node in phases)
-            assert all(node.layer == "SubTask" for node in tasks)
-
-            backend.disconnect_from_storage()
-            session.close()
-
-        finally:
-            Path(db_path).unlink(missing_ok=True)
-
-
-if __name__ == "__main__":
-    # Allow running as script for debugging
-    import sys
-
-    sys.exit(pytest.main([__file__]))
+            Path(temp_db).unlink(missing_ok=True)

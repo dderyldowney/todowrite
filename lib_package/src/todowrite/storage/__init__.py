@@ -5,7 +5,7 @@ This module provides compatibility utilities for the ToDoWrite Models implementa
 """
 
 
-# Legacy storage exceptions for backward compatibility
+# Storage exception classes
 class StorageError(Exception):
     """Base storage exception."""
 
@@ -43,42 +43,18 @@ except ImportError:
     YAMLManager = None
     yaml_manager_available = False
 
-# Re-export factory functions if they exist
-try:
-    from .factory import (
-        create_storage_backend,
-        create_storage_backend_for_environment,
-        detect_storage_backend_type,
-        get_default_database_url,
-        validate_database_url,
-    )
-
-    factory_available = True
-except ImportError:
-    factory_available = False
-    create_storage_backend = None
-    create_storage_backend_for_environment = None
-    detect_storage_backend_type = None
-    get_default_database_url = None
-    validate_database_url = None
 
 __all__ = [
     "DatabaseSchemaInitializer",
     "SchemaValidationError",
     "StorageConnectionError",
-    # Legacy storage exceptions
     "StorageError",
     "StorageQueryError",
     # ToDoWrite Models schema validation
     "ToDoWriteSchemaValidator",
     # Conditional exports
     "YAMLManager",
-    "create_storage_backend",
-    "create_storage_backend_for_environment",
-    "detect_storage_backend_type",
-    "get_default_database_url",
     "get_schema_validator",
     "initialize_database",
-    "validate_database_url",
     "validate_model_data",
 ]

@@ -74,7 +74,7 @@ nodes_data = [
 
 created_nodes = []
 for node_data in nodes_data:
-    node = app.create_node(node_data)
+    node = app.[REMOVED_LEGACY_PATTERN](node_data)
     created_nodes.append(node)
 
 # Link nodes together
@@ -317,7 +317,7 @@ def setup_project(project_name: str, db_type: str = "sqlite"):
     app.init_database()
 
     # Create project goal
-    goal = app.create_node({
+    goal = app.[REMOVED_LEGACY_PATTERN]({
         "id": f"GOAL-{project_name.upper()}-001",
         "layer": "Goal",
         "title": f"Complete {project_name}",
@@ -390,7 +390,7 @@ class ProjectManager:
 
     def add_feature_task(self, feature_name: str, description: str):
         """Add a new feature task"""
-        task = self.app.create_node({
+        task = self.app.[REMOVED_LEGACY_PATTERN]({
             "id": f"TSK-{feature_name.upper().replace(' ', '-')}",
             "layer": "Task",
             "title": f"Implement {feature_name}",
@@ -416,7 +416,7 @@ pm.complete_feature(task.id)
 ## Error Handling
 
 ```python
-from todowrite import ToDoWrite, NodeNotFoundError, ValidationError
+[REMOVED_LEGACY_PATTERN]NotFoundError, ValidationError
 
 app = ToDoWrite("sqlite:///project.db")
 
@@ -426,7 +426,7 @@ except NodeNotFoundError:
     print("Node not found")
 
 try:
-    app.create_node(invalid_data)
+    app.[REMOVED_LEGACY_PATTERN](invalid_data)
 except ValidationError as e:
     print(f"Validation error: {e}")
 except Exception as e:

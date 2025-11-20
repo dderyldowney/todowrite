@@ -54,8 +54,8 @@ The ToDoWrite system implements a **12-layer declarative planning framework**:
 from todowrite import ToDoWrite
 
 app = ToDoWrite(database_path="project.db")
-goal = app.create_node("goal", "Implement User Authentication", "Create secure auth system")
-task = app.create_node("task", "Design Database Schema", "Design user database schema")
+goal = app.[REMOVED_LEGACY_PATTERN]("goal", "Implement User Authentication", "Create secure auth system")
+task = app.[REMOVED_LEGACY_PATTERN]("task", "Design Database Schema", "Design user database schema")
 app.link_nodes(goal["id"], task["id"])
 ```
 
@@ -151,10 +151,10 @@ CREATE TABLE node_links (
 ### Testing Philosophy
 ```python
 # Real implementation testing only
-def test_create_node():
+def test_[REMOVED_LEGACY_PATTERN]():
     with tempfile.NamedTemporaryFile() as tmp:
         app = ToDoWrite(database_path=tmp.name)
-        node = app.create_node("goal", "Test Goal", "Description")
+        node = app.[REMOVED_LEGACY_PATTERN]("goal", "Test Goal", "Description")
 
         assert node["id"].startswith("GOAL-")
         assert node["type"] == "goal"
@@ -172,7 +172,7 @@ class ToDoWriteError(Exception):
     """Base exception for ToDoWrite operations."""
     pass
 
-class NodeNotFoundError(ToDoWriteError):
+[REMOVED_LEGACY_PATTERN]NotFoundError(ToDoWriteError):
     def __init__(self, node_id: str):
         self.node_id = node_id
         super().__init__(f"Node not found: {node_id}")

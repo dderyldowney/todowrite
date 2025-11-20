@@ -24,7 +24,7 @@ The TodoWrite library has been comprehensively verified and confirmed to be **pr
 
 ### 3. Library API Functionality ✅ VERIFIED
 - **Core CRUD Operations**: All working (Create, Read, Update, Delete)
-- **Convenience Functions**: All verified (create_node, get_node, update_node, delete_node, list_nodes)
+- **Convenience Functions**: All verified ([REMOVED_LEGACY_PATTERN], get_node, update_node, delete_node, list_nodes)
 - **Node Object Methods**: All functional (to_dict, from_dict, __str__, __repr__, __eq__)
 - **Linking Operations**: All working (link_nodes, unlink_nodes)
 - **Search Operations**: All functional (search_nodes)

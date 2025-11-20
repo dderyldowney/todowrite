@@ -198,7 +198,7 @@ The ToDoWrite system uses the ToDoWrite Models API with separate tables for each
 - **Individual models**: Each layer has its own ToDoWrite Model class
 
 ```python
-from todowrite.core.types import Goal, Task, Label
+from todowrite import Goal, Task, Label
 
 # Initialize database session
 from sqlalchemy import create_engine

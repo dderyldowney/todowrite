@@ -122,20 +122,26 @@ def get_current_username() -> str:
 @click.version_option(version=__version__)
 @click.option(
     "--database",
-    default="todowrite.db",
-    help="Database file path (default: todowrite.db)",
+    default=lambda: os.environ.get("TODOWRITE_DATABASE_URL", "todowrite.db"),
+    help="Database URL (default: TODOWRITE_DATABASE_URL env var or todowrite.db)",
 )
 @click.pass_context
 def cli(ctx: click.Context, database: str) -> None:
     """Todowrite CLI - Hierarchical Task Management System."""
     ctx.ensure_object(dict)
 
-    # Convert to SQLite URL if needed
-    if not database.startswith(("sqlite:///", "postgresql://")):
-        database_path = os.path.expanduser(database)
-        database_url = f"sqlite:///{database_path}"
-    else:
+    # Use PostgreSQL environment variable if available, otherwise process as before
+    if database.startswith(("sqlite:///", "postgresql://")):
         database_url = database
+    else:
+        # Check if this is an environment variable containing a full URL
+        env_url = os.environ.get("TODOWRITE_DATABASE_URL")
+        if env_url and env_url.startswith(("sqlite:///", "postgresql://")):
+            database_url = env_url
+        else:
+            # Convert to SQLite URL
+            database_path = os.path.expanduser(database)
+            database_url = f"sqlite:///{database_path}"
 
     ctx.obj["database_url"] = database_url
     ctx.obj["database_path"] = database
@@ -296,12 +302,20 @@ def list(
         table.add_column("Progress", justify="right", style="blue")
 
         for item in all_items:
+            # Handle different attribute names for different model types
+            if hasattr(item, "title"):
+                title = item.title or "No title"
+            elif hasattr(item, "name"):
+                title = item.name or "No name"
+            else:
+                title = "No title"
+
             table.add_row(
                 str(item.id),
                 LAYER_NAMES.get(type(item), "Unknown"),
-                item.title,
-                item.owner or "No owner",
-                item.status or "No status",
+                title,
+                getattr(item, "owner", None) or "No owner",
+                getattr(item, "status", None) or "No status",
                 f"{item.progress}%" if hasattr(item, "progress") else "N/A",
             )
 
@@ -350,7 +364,16 @@ def get(ctx: click.Context, item_id: int) -> None:
 
                 table.add_row("ID", str(item.id))
                 table.add_row("Type", LAYER_NAMES.get(type(item), "Unknown"))
-                table.add_row("Title", item.title)
+
+                # Handle different attribute names for different model types
+                if hasattr(item, "title"):
+                    title = item.title or "No title"
+                elif hasattr(item, "name"):
+                    title = item.name or "No name"
+                else:
+                    title = "No title"
+
+                table.add_row("Title", title)
 
                 if hasattr(item, "description") and item.description:
                     table.add_row("Description", item.description)
@@ -462,12 +485,20 @@ def search(ctx: click.Context, query: str, layer: str | None) -> None:
         table.add_column("Status", style="yellow")
 
         for item in matching_items:
+            # Handle different attribute names for different model types
+            if hasattr(item, "title"):
+                title = item.title or "No title"
+            elif hasattr(item, "name"):
+                title = item.name or "No name"
+            else:
+                title = "No title"
+
             table.add_row(
                 str(item.id),
                 LAYER_NAMES.get(type(item), "Unknown"),
-                item.title or "No title",
-                item.owner or "No owner",
-                item.status or "No status",
+                title,
+                getattr(item, "owner", None) or "No owner",
+                getattr(item, "status", None) or "No status",
             )
 
         console.print(table)

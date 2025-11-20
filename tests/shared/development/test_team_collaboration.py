@@ -198,8 +198,8 @@ class TestTeamCollaborationInDevelopment:
         # Create technical debt tasks
         technical_debt_tasks: list[dict[str, str]] = [
             {
-                "title": "Refactor Legacy Authentication Module",
-                "description": "Rewrite old authentication code to use modern patterns",
+                "title": "Authentication Module Refactoring",
+                "description": "Update authentication code to use modern patterns",
                 "priority": "high",
                 "impact": "security",
             },

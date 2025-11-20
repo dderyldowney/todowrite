@@ -1,7 +1,7 @@
-"""Tests for CLI API compatibility with new ToDoWrite Models.
+"""Tests for CLI API compatibility with ToDoWrite Models.
 
-These tests ensure that the CLI commands work correctly with the new
-ToDoWrite Models API instead of the old Node-based functions.
+These tests ensure that the CLI commands work correctly with the
+ToDoWrite Models API.
 Each test gets its own isolated database for proper test isolation.
 """
 

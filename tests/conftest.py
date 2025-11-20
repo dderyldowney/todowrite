@@ -27,7 +27,7 @@ sys.path.insert(0, str(lib_package_path))
 
 # Import todowrite modules first
 from todowrite import create_engine, sessionmaker  # noqa: E402
-from todowrite.core.types import Base  # noqa: E402
+from todowrite.core.models import Base  # noqa: E402
 
 
 # Define get_database_path function since it's referenced but missing

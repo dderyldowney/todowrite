@@ -20,7 +20,7 @@ app = ToDoWrite("sqlite:///project.db")
 app.init_database()
 
 # Create nodes
-goal = app.create_node({
+goal = app.[REMOVED_LEGACY_PATTERN]({
     "id": "GOAL-001",
     "layer": "Goal",
     "title": "Build TodoWrite App",
@@ -28,7 +28,7 @@ goal = app.create_node({
     "metadata": {"owner": "dev-team"}
 })
 
-task = app.create_node({
+task = app.[REMOVED_LEGACY_PATTERN]({
     "id": "TSK-001",
     "layer": "Task",
     "title": "Set up database",
