@@ -15,7 +15,7 @@ project = "ToDoWrite"
 copyright_year = "2025"
 copyright_author = "D Deryl Downey"
 author = "D Deryl Downey"
-release = "0.5.0"
+release = "0.6.0"
 
 # -- General configuration --
 extensions = [
@@ -87,7 +87,6 @@ autodoc_typehints = "none"  # Disable type hints for now to avoid forward refere
 
 # Skip modules that don't exist
 autodoc_mock_imports = [
-    "todowrite.database.models",
     "todowrite.database.node_mapping",
     "todowrite.core.app_node_updater",
     "todowrite.storage.backends",
