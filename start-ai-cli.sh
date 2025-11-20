@@ -87,8 +87,8 @@ if [ -z "$PYTHONPATH" ]; then
 fi
 
 print_success "✅ Environment variables set"
-print_info "📍 Database URL: $TODOWRITE_DATABASE_URL"
-print_info "📍 Python Path: $PYTHONPATH"
+print_status "📍 Database URL: $TODOWRITE_DATABASE_URL"
+print_status "📍 Python Path: $PYTHONPATH"
 
 # 5. Verify PostgreSQL environment is loaded
 print_status "Verifying PostgreSQL environment..."
@@ -190,7 +190,7 @@ if [ -n "$ANTHROPIC_API_KEY" ]; then
     fi
 else
     print_warning "ANTHROPIC_API_KEY not set - HAL Agent will need it"
-    print_status "Set it with: export ANTHROPIC_API_KEY='your-key-here'"
+    print_status "Set it with: export ANTHROPIC_API_KEY='your-key-here'"  # pragma: allowlist secret
 fi
 
 # 13. Start Claude Code
