@@ -21,7 +21,8 @@ members = [
 # UV workspace sources for internal dependencies
 [tool.uv.sources]
 todowrite = { workspace = true }
-todowrite-cli = { workspace = true }
+todowrite_cli = { workspace = true }
+todowrite_web = { workspace = true }
 
 # Development environment configuration
 [dependency-groups]
@@ -53,10 +54,13 @@ dev = [
     "psutil>=7.1.3",
     "todowrite-cli",
     "todowrite",
+    "todowrite_web",
     "sphinx>=8.2.3",
     "sphinx-rtd-theme>=3.0.2",
     "sphinx-autodoc-typehints>=3.5.2",
     "myst-parser>=4.0.1",
+    "twine>=6.2.0",
+    "psycopg2-binary>=2.9.11",
 ]
 postgres = [
     "psycopg2-binary>=2.9.11",
