@@ -3,8 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "todowrite-web"
-version = "0.1.0"
+name = "todowrite_web"
+version = "0.5.2"
 description = "Modern web interface for ToDoWrite hierarchical task management"
 readme = "README.md"
 requires-python = ">=3.12"
