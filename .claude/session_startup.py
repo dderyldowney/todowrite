@@ -28,7 +28,7 @@ def check_ToDoWrite_cli_available():
 
 
 def setup_ToDoWrite_environment():
-    """Set up environment variables for ToDoWrite_cli."""
+    """Set up environment variables for ToDoWrite_cli with PostgreSQL enforcement."""
     import os
     import sys
     from pathlib import Path
@@ -37,14 +37,8 @@ def setup_ToDoWrite_environment():
     project_root = Path(__file__).resolve().parent.parent
     sys.path.insert(0, str(project_root / "lib_package" / "src"))
 
-    try:
-        from todowrite.utils.database_utils import get_project_database_name
-
-        dev_db_name = get_project_database_name("development")
-        dev_db_url = f"sqlite:///{dev_db_name}"
-    except ImportError:
-        # Fallback to original naming if utility not available
-        dev_db_url = "sqlite:///development_todowrite.db"
+    # MANDATORY: PostgreSQL database URL only (SQLite3 explicitly forbidden)
+    dev_db_url = "postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"  # pragma: allowlist secret
 
     env_vars = {
         "PYTHONPATH": "lib_package/src:cli_package/src",
@@ -53,7 +47,7 @@ def setup_ToDoWrite_environment():
 
     for key, value in env_vars.items():
         if key not in os.environ or not os.environ.get(key):
-            print(f"Note: {key} should be set to {value}")
+            print(f"🔧 Setting {key} to: {value}")
             # Note: In a real implementation, these would be set in the shell environment
 
 

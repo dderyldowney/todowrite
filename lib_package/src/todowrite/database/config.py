@@ -94,6 +94,7 @@ def is_docker_available() -> bool:
     """Check if Docker is available and running."""
     try:
         import subprocess
+
         # Check if Docker daemon is running
         result = subprocess.run(
             ["docker", "info"],
@@ -102,7 +103,11 @@ def is_docker_available() -> bool:
             timeout=5,
         )
         return result.returncode == 0
-    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError):
+    except (
+        subprocess.CalledProcessError,
+        subprocess.TimeoutExpired,
+        FileNotFoundError,
+    ):
         return False
 
 
@@ -112,20 +117,27 @@ def is_docker_postgresql_running() -> bool:
         return False
 
     try:
-        import subprocess
         import json
+        import subprocess
 
         # Check for running PostgreSQL containers (try multiple methods)
         # Method 1: Filter by image name
         result = subprocess.run(
-            ["docker", "ps", "--filter", "ancestor=postgres", "--format", "json"],
+            [
+                "docker",
+                "ps",
+                "--filter",
+                "ancestor=postgres",
+                "--format",
+                "json",
+            ],
             capture_output=True,
             timeout=10,
         )
 
         if result.returncode == 0 and result.stdout:
             # Docker --format json outputs JSONL (one JSON per line)
-            lines = result.stdout.decode().strip().split('\n')
+            lines = result.stdout.decode().strip().split("\n")
             for line in lines:
                 if line.strip():
                     container = json.loads(line)
@@ -141,7 +153,7 @@ def is_docker_postgresql_running() -> bool:
 
         if result.returncode == 0 and result.stdout:
             # Docker --format json outputs JSONL (one JSON per line)
-            lines = result.stdout.decode().strip().split('\n')
+            lines = result.stdout.decode().strip().split("\n")
             for line in lines:
                 if line.strip():
                     container = json.loads(line)
@@ -157,14 +169,15 @@ def is_docker_postgresql_running() -> bool:
 
         if result.returncode == 0 and result.stdout:
             # Docker --format json outputs JSONL (one JSON per line)
-            lines = result.stdout.decode().strip().split('\n')
+            lines = result.stdout.decode().strip().split("\n")
             for line in lines:
                 if line.strip():
                     container = json.loads(line)
                     image = container.get("Image", "")
                     names = container.get("Names", "")
-                    if (container.get("State") == "running" and
-                        ("postgres" in image.lower() or "postgres" in str(names))):
+                    if container.get("State") == "running" and (
+                        "postgres" in image.lower() or "postgres" in str(names)
+                    ):
                         return True
 
     except Exception:
@@ -181,20 +194,27 @@ def get_docker_postgresql_candidates() -> list[str]:
         return candidates
 
     try:
-        import subprocess
         import json
+        import subprocess
 
         # Use the same detection logic as is_docker_postgresql_running
         # Method 1: Filter by image name
         result = subprocess.run(
-            ["docker", "ps", "--filter", "ancestor=postgres", "--format", "json"],
+            [
+                "docker",
+                "ps",
+                "--filter",
+                "ancestor=postgres",
+                "--format",
+                "json",
+            ],
             capture_output=True,
             timeout=10,
         )
 
         if result.returncode == 0 and result.stdout:
             # Docker --format json outputs JSONL (one JSON per line)
-            lines = result.stdout.decode().strip().split('\n')
+            lines = result.stdout.decode().strip().split("\n")
             for line in lines:
                 if line.strip():
                     container = json.loads(line)
@@ -215,7 +235,7 @@ def get_docker_postgresql_candidates() -> list[str]:
 
         if result.returncode == 0 and result.stdout:
             # Docker --format json outputs JSONL (one JSON per line)
-            lines = result.stdout.decode().strip().split('\n')
+            lines = result.stdout.decode().strip().split("\n")
             for line in lines:
                 if line.strip():
                     container = json.loads(line)
@@ -236,14 +256,16 @@ def get_docker_postgresql_candidates() -> list[str]:
 
         if result.returncode == 0 and result.stdout:
             # Docker --format json outputs JSONL (one JSON per line)
-            lines = result.stdout.decode().strip().split('\n')
+            lines = result.stdout.decode().strip().split("\n")
             for line in lines:
                 if line.strip():
                     container = json.loads(line)
                     if container.get("State") == "running":
                         image = container.get("Image", "")
                         names = container.get("Names", [])
-                        if ("postgres" in image.lower() or "postgres" in str(names)):
+                        if "postgres" in image.lower() or "postgres" in str(
+                            names
+                        ):
                             port = _extract_port_from_container(container)
                             candidates.append(
                                 f"postgresql://todowrite:todowrite_dev_password@localhost:{port}/todowrite"
@@ -408,8 +430,7 @@ def _try_native_postgresql_candidates() -> tuple[StorageType, str] | None:
 
     # Filter out empty strings and check PostgreSQL-specific URLs
     postgresql_candidates = [
-        url for url in native_candidates
-        if url.startswith("postgresql://")
+        url for url in native_candidates if url.startswith("postgresql://")
     ]
 
     for url in postgresql_candidates:

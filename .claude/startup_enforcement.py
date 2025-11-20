@@ -52,7 +52,9 @@ class ClaudeRuleEnforcer:
         # Check if virtual environment is active
         python_path = sys.executable
         if ".venv" not in python_path:
-            self.violations.append("❌ Virtual environment not activated - run: source .venv/bin/activate")
+            self.violations.append(
+                "❌ Virtual environment not activated - run: source .venv/bin/activate"
+            )
             return
 
         # Verify essential packages are available
@@ -65,32 +67,43 @@ class ClaudeRuleEnforcer:
             return
 
     def _enforce_database_configuration(self) -> None:
-        """MUST use correct database configuration."""
+        """MUST use PostgreSQL database configuration."""
         # Check database URL environment variable
         db_url = os.environ.get("TODOWRITE_DATABASE_URL", "")
-        expected_pattern = "sqlite:///$HOME/dbs/todowrite_development.db"
+        expected_pattern = "postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"  # pragma: allowlist secret
 
         if not db_url:
-            self.violations.append(f"❌ TODOWRITE_DATABASE_URL not set - must be: {expected_pattern}")
+            self.violations.append(
+                f"❌ TODOWRITE_DATABASE_URL not set - must be PostgreSQL: {expected_pattern}"
+            )
             return
 
-        # Normalize the database URL to check pattern
-        expanded_db_url = db_url.replace(os.path.expanduser("~"), "$HOME")
+        # FORBIDDEN: SQLite3 database URLs
+        if db_url.startswith("sqlite://"):
+            self.violations.append(
+                "❌ SQLite3 database forbidden - must use PostgreSQL development database"
+            )
+            return
 
-        # Check for forbidden hardcoded paths (after expansion)
+        # Check for forbidden hardcoded paths
         forbidden_patterns = [
-            "/opt/", "/var/", "/tmp/",
+            "/opt/",
+            "/var/",
+            "/tmp/",
             "todowrite_todowrite_development.db",  # Redundant prefix
-            "development_todowrite.db",           # Wrong naming
+            "development_todowrite.db",  # Wrong naming
+            ".db",  # SQLite files forbidden
         ]
 
         for pattern in forbidden_patterns:
-            if pattern in expanded_db_url:
-                self.violations.append(f"❌ Forbidden hardcoded path in database URL: {pattern}")
+            if pattern in db_url:
+                self.violations.append(f"❌ Forbidden pattern in database URL: {pattern}")
                 return
 
-        # Verify correct pattern
-        if not expanded_db_url.startswith("sqlite:///$HOME/dbs/todowrite_development.db"):
+        # Verify correct PostgreSQL pattern
+        if not db_url.startswith(
+            "postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"  # pragma: allowlist secret
+        ):
             self.violations.append(f"❌ Incorrect database URL: must be {expected_pattern}")
             return
 
@@ -100,11 +113,14 @@ class ClaudeRuleEnforcer:
             from sqlalchemy import create_engine, text
             from sqlalchemy.orm import sessionmaker
             from todowrite.core.models import Goal
-            from todowrite.utils.database_utils import get_database_path
 
-            # Connect to database
-            db_path = get_database_path('development')
-            engine = create_engine(f"sqlite:///{db_path}")
+            # Connect to PostgreSQL database
+            db_url = os.environ.get("TODOWRITE_DATABASE_URL", "")
+            if not db_url.startswith("postgresql://"):
+                self.violations.append("❌ Database content verification requires PostgreSQL URL")
+                return
+
+            engine = create_engine(db_url)
             Session = sessionmaker(bind=engine)
             session = Session()
 
@@ -127,9 +143,21 @@ class ClaudeRuleEnforcer:
 
             # Check for complete hierarchy (143+ records)
             total_records = 0
-            tables = ['goals', 'concepts', 'contexts', 'constraints', 'requirements',
-                     'acceptance_criteria', 'interface_contracts', 'phases', 'steps',
-                     'tasks', 'sub_tasks', 'commands', 'labels']
+            tables = [
+                "goals",
+                "concepts",
+                "contexts",
+                "constraints",
+                "requirements",
+                "acceptance_criteria",
+                "interface_contracts",
+                "phases",
+                "steps",
+                "tasks",
+                "sub_tasks",
+                "commands",
+                "labels",
+            ]
 
             for table in tables:
                 try:
@@ -140,7 +168,9 @@ class ClaudeRuleEnforcer:
                     pass
 
             if total_records < 143:
-                self.violations.append(f"❌ Incomplete database structure: {total_records} records (expected 143+)")
+                self.violations.append(
+                    f"❌ Incomplete database structure: {total_records} records (expected 143+)"
+                )
                 session.close()
                 return
 
@@ -152,7 +182,9 @@ class ClaudeRuleEnforcer:
     def _report_violations(self) -> None:
         """Report rule violations and terminate."""
         error_text = Text("\n🚨 CLAUDE.md RULE VIOLATIONS DETECTED 🚨\n", style="bold red")
-        error_text.append("These rules cannot be overridden under any circumstances.\n\n", style="red")
+        error_text.append(
+            "These rules cannot be overridden under any circumstances.\n\n", style="red"
+        )
 
         for violation in self.violations:
             error_text.append(f"{violation}\n", style="red")
@@ -164,10 +196,17 @@ class ClaudeRuleEnforcer:
             error_text.append("• Run: source $PWD/.venv/bin/activate\n", style="yellow")
 
         if any("database" in v.lower() for v in self.violations):
-            error_text.append('• Run: export TODOWRITE_DATABASE_URL="sqlite:///$HOME/dbs/todowrite_development.db"\n', style="yellow")
+            error_text.append("• Run: source .claude/postgresql_env.sh\n", style="yellow")
+            error_text.append(
+                '• Or: export TODOWRITE_DATABASE_URL="postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"\n',  # pragma: allowlist secret
+                style="yellow",
+            )
 
         if any("Enhance ToDoWrite Planning Capabilities" in v for v in self.violations):
-            error_text.append("• Initialize database: python .claude/auto_init_todowrite_models.py\n", style="yellow")
+            error_text.append(
+                "• Initialize database: python .claude/auto_init_todowrite_models.py\n",
+                style="yellow",
+            )
 
         error_text.append("\nSession terminated. Fix violations and retry.\n", style="bold red")
 
@@ -175,7 +214,7 @@ class ClaudeRuleEnforcer:
             error_text,
             title="[bold red]ENFORCEMENT FAILURE[/bold red]",
             border_style="red",
-            padding=(1, 2)
+            padding=(1, 2),
         )
 
         self.console.print(panel)
@@ -185,40 +224,55 @@ def enforce_startup_rules() -> bool:
     """Enforce CLAUDE.md rules on startup."""
     console = Console()
 
-    console.print(Panel(
-        "[bold blue]🚀 ENFORCING CLAUDE.md RULES FOR AI CLI[/bold blue]",
-        title="STARTUP VERIFICATION",
-        border_style="blue"
-    ))
+    console.print(
+        Panel(
+            "[bold blue]🚀 ENFORCING CLAUDE.md RULES FOR AI CLI[/bold blue]",
+            title="STARTUP VERIFICATION",
+            border_style="blue",
+        )
+    )
 
     enforcer = ClaudeRuleEnforcer(console)
 
     try:
         enforcer.enforce_all_rules()
 
-        console.print(Panel(
-            "[bold green]✅ ALL RULES VERIFIED - AI CLI READY[/bold green]",
-            title="ENFORCEMENT SUCCESS",
-            border_style="green"
-        ))
+        console.print(
+            Panel(
+                "[bold green]✅ ALL RULES VERIFIED - AI CLI READY[/bold green]",
+                title="ENFORCEMENT SUCCESS",
+                border_style="green",
+            )
+        )
 
         # Print current environment status
         env_info = Text()
         env_info.append("📍 Current Environment:\n", style="bold")
-        env_info.append(f"• Virtual Environment: {'.venv' in sys.executable}\n", style="green" if '.venv' in sys.executable else "red")
-        env_info.append(f"• Database URL: {os.environ.get('TODOWRITE_DATABASE_URL', 'NOT SET')}\n", style="green" if os.environ.get('TODOWRITE_DATABASE_URL') else "red")
-        env_info.append(f"• PYTHONPATH: {os.environ.get('PYTHONPATH', 'NOT SET')}\n", style="green" if os.environ.get('PYTHONPATH') else "red")
+        env_info.append(
+            f"• Virtual Environment: {'.venv' in sys.executable}\n",
+            style="green" if ".venv" in sys.executable else "red",
+        )
+        env_info.append(
+            f"• Database URL: {os.environ.get('TODOWRITE_DATABASE_URL', 'NOT SET')}\n",
+            style="green" if os.environ.get("TODOWRITE_DATABASE_URL") else "red",
+        )
+        env_info.append(
+            f"• PYTHONPATH: {os.environ.get('PYTHONPATH', 'NOT SET')}\n",
+            style="green" if os.environ.get("PYTHONPATH") else "red",
+        )
 
         console.print(Panel(env_info, title="ENVIRONMENT STATUS", border_style="cyan"))
 
         return True
 
     except ClaudeRuleViolationError:
-        console.print(Panel(
-            "[bold red]❌ RULE ENFORCEMENT FAILED[/bold red]",
-            title="ENFORCEMENT FAILURE",
-            border_style="red"
-        ))
+        console.print(
+            Panel(
+                "[bold red]❌ RULE ENFORCEMENT FAILED[/bold red]",
+                title="ENFORCEMENT FAILURE",
+                border_style="red",
+            )
+        )
         return False
     except Exception as e:
         console.print(f"[red]❌ Unexpected error: {e}[/red]")

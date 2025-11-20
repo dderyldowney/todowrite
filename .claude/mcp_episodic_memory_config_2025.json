@@ -31,9 +31,9 @@
   },
 
   "storage": {
-    "backend": "sqlite_with_vector_support",
-    "connection_string": "${EPISODIC_MEMORY_DB_PATH}",
-    "vector_database": "sqlite_vec",
+    "backend": "postgresql",
+    "connection_string": "${EPISODIC_MEMORY_POSTGRESQL_URL}",
+    "vector_database": "postgresql",
     "backup_strategy": "automatic_incremental",
     "backup_retention_days": 90,
     "max_database_size_gb": 10

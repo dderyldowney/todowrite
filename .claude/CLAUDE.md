@@ -11,14 +11,16 @@
 # REQUIRED before ANY operation
 source $PWD/.venv/bin/activate
 export PYTHONPATH="lib_package/src:cli_package/src"
+# Load PostgreSQL development environment (MANDATORY)
+source .claude/postgresql_env.sh
 # PostgreSQL development database is auto-configured by startup script
-# Manual override: export TODOWRITE_DATABASE_URL="postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"
 ```
 
 **FORBIDDEN**:
 - ❌ Any operation without virtual environment
 - ❌ System Python usage
 - ❌ Hardcoded absolute paths (use `$HOME/` and `$PWD/` only)
+- ❌ SQLite3 database usage (PostgreSQL only for development)
 
 ### 2. DATABASE ENFORCEMENT - ALWAYS ENFORCED
 **MANDATORY DATABASE**: PostgreSQL development database (auto-configured via Docker)
@@ -34,7 +36,7 @@ todowrite list --verify-completeness
 
 **FORBIDDEN**:
 - ❌ Database files in project root
-- ❌ SQLite database for new development work (use PostgreSQL only)
+- ❌ ANY SQLite3 database usage (PostgreSQL ONLY)
 - ❌ Hardcoded absolute database paths
 - ❌ Manual database URL overrides without approval
 - ❌ Direct PostgreSQL container manipulation without startup script
@@ -69,8 +71,8 @@ todowrite list --verify-completeness
 ```bash
 # 1. Activate venv
 source $PWD/.venv/bin/activate
-# 2. Set database (PostgreSQL is auto-configured by startup script)
-# Manual override: export TODOWRITE_DATABASE_URL="postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"
+# 2. Load PostgreSQL environment (MANDATORY)
+source .claude/postgresql_env.sh
 # 3. Load and apply CLAUDE.md rules
 todowrite --enforce-claude-rules
 # 4. Verify database content
@@ -227,7 +229,8 @@ When `/clear` is issued, the CLI MUST:
 ```bash
 # 1. Environment (MANDATORY)
 source $PWD/.venv/bin/activate
-# PostgreSQL development database is auto-configured by startup script
+source .claude/postgresql_env.sh
+# PostgreSQL development database is now configured
 
 # 2. Verification (MANDATORY)
 todowrite list --layer goal --title "Enhance ToDoWrite Planning Capabilities"
