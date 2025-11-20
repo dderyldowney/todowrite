@@ -6,8 +6,49 @@
 [![PyPI CLI](https://img.shields.io/badge/todowrite--cli-0.5.0-blue.svg)](https://pypi.org/project/todowrite-cli/)
 [![Tests Passing](https://img.shields.io/badge/tests-157%20passing-brightgreen.svg)](https://github.com/dderyldowney/todowrite)
 [![Real Implementations](https://img.shields.io/badge/tests-real%20implementations-blue.svg)](https://github.com/dderyldowney/todowrite)
+[![Web App Ready](https://img.shields.io/badge/web%20app-react%20%2B%20fastapi-blue.svg)](https://github.com/dderyldowney/todowrite)
 
-**ToDoWrite** is a hierarchical task management system designed for project planning and execution. It provides both CLI capabilities and Python module integration for developers and project managers who need structured task management with SQLAlchemy-based models, database persistence, and schema validation.
+**ToDoWrite** is a hierarchical task management system designed for project planning and execution. It provides both CLI capabilities, Python module integration, and a modern web application for developers and project managers who need structured task management with SQLAlchemy-based models, database persistence, and schema validation.
+
+## 🌐 Web Application (NEW!)
+
+ToDoWrite now includes a modern web application that provides an online calendar-like interface for task management. Perfect for users who prefer web-based tools over command-line interfaces!
+
+### Web App Features
+- **📅 Calendar View**: Monthly calendar interface for visual task management
+- **📊 Dashboard**: Overview with statistics and recent activity
+- **✅ Task Management**: Comprehensive task listing with filtering and search
+- **🎯 Goal Tracking**: High-level goal visualization with progress tracking
+- **🔄 Real-time Sync**: Web app and CLI share the same PostgreSQL database
+- **📱 Responsive Design**: Works seamlessly on desktop and mobile devices
+
+### Quick Start Web App
+
+```bash
+# Set up PostgreSQL (required for web app)
+source .claude/postgresql_env.sh
+
+# Start the FastAPI backend
+cd web_package
+uv run uvicorn src.todowrite_web.main:app --reload --port 8000
+
+# In another terminal, start the React frontend
+cd web_package/frontend
+npm install
+npm run dev
+
+# Access your web application at:
+# Frontend: http://localhost:3000
+# Backend API: http://localhost:8000
+```
+
+### Web App Requirements
+- **PostgreSQL**: Required (web app uses production-grade database)
+- **Node.js 18+**: For the React frontend
+- **Python 3.12+**: For the FastAPI backend
+- **Modern Browser**: Chrome, Firefox, Safari, or Edge
+
+The web application provides the same powerful hierarchical task management as the CLI, but with a user-friendly interface that feels like an online calendar for your tasks and goals!
 
 ## 🚀 Installation
 
@@ -89,10 +130,15 @@ ToDoWrite transforms complex project planning into a structured, hierarchical fr
 
 ### Key Features
 
+- **🌐 Modern Web Application**: React + FastAPI web app with calendar-like task interface
+- **📅 Calendar View**: Visual task management like an online calendar
+- **📊 Dashboard**: Real-time statistics and activity overview
 - **12-Layer Hierarchical Framework**: Goals → Concepts → Contexts → Constraints → Requirements → AcceptanceCriteria → InterfaceContracts → Phases → Steps → Tasks → SubTasks → Commands
 - **SQLAlchemy-based Models**: Modern ORM with database relationships and associations
 - **CLI and Python API**: Command-line interface and programmatic access
 - **Database Storage**: SQLite and PostgreSQL support with auto-generated integer primary keys
+- **🔄 Real-time Sync**: Web app and CLI share the same database instantly
+- **PostgreSQL-Ready**: Production-grade database with connection pooling
 - **Schema Validation**: JSON Schema validation ensures data integrity
 - **Progress Tracking**: Track task completion with progress percentages
 - **Model Relationships**: Many-to-many associations through proper join tables
@@ -100,6 +146,7 @@ ToDoWrite transforms complex project planning into a structured, hierarchical fr
 - **Type Safety**: Comprehensive type hints with Python 3.12+ syntax
 - **Status Management**: Track models through planned, in_progress, completed states
 - **Real Testing**: 157 tests using actual implementations (no mocks)
+- **📱 Responsive Design**: Works on desktop, tablet, and mobile devices
 
 ## 🚀 Quick Start
 
@@ -262,45 +309,180 @@ session.commit()
 
 ## 🏗️ **12-Layer Hierarchy**
 
-ToDoWrite uses a comprehensive 12-layer framework that breaks down complex goals into actionable commands:
+ToDoWrite uses a comprehensive 12-layer framework that systematically breaks down complex goals into actionable commands. This hierarchical approach ensures nothing falls through the cracks while maintaining complete traceability from high-level objectives to executable actions.
 
-### **Strategic Planning Layers**
-1. **🎯 Goals** - High-level project objectives and deliverables
-2. **💡 Concepts** - Abstract ideas and design principles
-3. **🌍 Contexts** - Environmental factors and external constraints
-4. **⚠️ Constraints** - Technical, business, or regulatory limitations
+### **Strategic Planning Layers (High-Level Vision)**
 
-### **Implementation Planning Layers**
-5. **📋 Requirements** - Functional and non-functional specifications
-6. **✅ AcceptanceCriteria** - Success conditions and validation criteria
-7. **🤝 InterfaceContracts** - API contracts and integration points
-8. **📅 Phases** - Project phases and milestone planning
+#### **1. 🎯 Goals** - Strategic Objectives
+**Purpose**: High-level project objectives and deliverables that define project success.
+- **What they are**: The ultimate outcomes you want to achieve
+- **Characteristics**: Broad, measurable, time-bound, and inspiring
+- **Example**: "Launch Q1 Product with complete user authentication system"
+- **Typical Count**: 2-5 goals per major project
 
-### **Execution Layers**
-9. **🔢 Steps** - Sequential work items within phases
-10. **📝 Tasks** - Individual work assignments
-11. **🔧 SubTasks** - Detailed breakdown of complex tasks
-12. **⚡ Commands** - Executable instructions and automated actions
+#### **2. 💡 Concepts** - Design Principles
+**Purpose**: Abstract ideas and design philosophies that guide the project direction.
+- **What they are**: Core design principles and architectural concepts
+- **Characteristics**: High-level, abstract, influence multiple decisions
+- **Example**: "Mobile-first responsive design approach" or "Microservices-based architecture"
+- **Typical Count**: 3-7 concepts per goal
 
-### **Layer Relationships**
-- **Top-Down Flow**: Goals → Concepts → Contexts → Constraints → Requirements → AcceptanceCriteria → InterfaceContracts → Phases → Steps → Tasks → SubTasks → Commands
-- **Bottom-Up Execution**: Commands implement SubTasks, which complete Tasks, which fulfill Steps, which complete Phases, which meet AcceptanceCriteria, which satisfy Requirements
-- **Cross-Linking**: Any layer can link to any other layer for complex relationships
+#### **3. 🌍 Contexts** - Environmental Factors
+**Purpose**: Environmental factors, market conditions, and external influences that affect the project.
+- **What they are**: External factors that impact project decisions
+- **Characteristics**: External constraints, market trends, user expectations
+- **Example**: "Target users primarily use mobile devices" or "Compliance with GDPR regulations"
+- **Typical Count**: 2-6 contexts per goal
 
-### **ID Pattern System**
+#### **4. ⚠️ Constraints** - Limitations and Boundaries
+**Purpose**: Technical, business, or regulatory limitations that the project must operate within.
+- **What they are**: Specific limitations that cannot be violated
+- **Characteristics**: Concrete, measurable, non-negotiable boundaries
+- **Example**: "Must use existing PostgreSQL infrastructure" or "Budget limited to $50,000"
+- **Typical Count**: 2-5 constraints per goal
+
+### **Implementation Planning Layers (Detailed Planning)**
+
+#### **5. 📋 Requirements** - Functional Specifications
+**Purpose**: Functional and non-functional specifications that must be satisfied.
+- **What they are**: Specific functional and technical requirements
+- **Characteristics**: Measurable, testable, specific conditions
+- **Example**: "User registration form must validate email format" or "System must support 100 concurrent users"
+- **Typical Count**: 5-15 requirements per goal
+
+#### **6. ✅ AcceptanceCriteria** - Success Conditions
+**Purpose**: Success conditions and validation criteria that prove requirements are met.
+- **What they are**: Testable criteria that validate requirement completion
+- **Characteristics**: Binary (pass/fail), testable, measurable
+- **Example**: "Registration form rejects invalid email formats" or "Login page responds within 2 seconds"
+- **Typical Count**: 3-10 acceptance criteria per requirement
+
+#### **7. 🤝 InterfaceContracts** - Integration Points
+**Purpose**: API contracts, service interfaces, and integration points between system components.
+- **What they are**: Defined interfaces and contracts between systems or components
+- **Characteristics**: Technically specific, versioned, documented
+- **Example**: "REST API endpoints for user management" or "Database schema version 1.2"
+- **Typical Count**: 2-8 interface contracts per requirement
+
+#### **8. 📅 Phases** - Project Phases
+**Purpose**: Project phases, milestone planning, and high-level scheduling.
+- **What they are**: Time-based phases or sprints that organize work execution
+- **Characteristics**: Time-bound, milestone-focused, sequential or parallel
+- **Example**: "Phase 1: Backend Development (Weeks 1-4)" or "Sprint 2: Frontend Implementation"
+- **Typical Count**: 3-8 phases per goal
+
+### **Execution Layers (Detailed Implementation)**
+
+#### **9. 🔢 Steps** - Sequential Work Items
+**Purpose**: Sequential work items within phases that represent logical progress units.
+- **What they are**: Logical steps or milestones within a phase
+- **Characteristics**: Sequential, logically ordered, measurable progress
+- **Example**: "Design database schema" → "Implement authentication API" → "Create frontend login form"
+- **Typical Count**: 3-15 steps per phase
+
+#### **10. 📝 Tasks** - Individual Work Assignments
+**Purpose**: Individual work assignments that can be assigned to team members.
+- **What they are**: Specific work items that can be completed by individuals
+- **Characteristics**: Assignable, completable, time-estimable
+- **Example**: "Create user registration endpoint" or "Design responsive login form"
+- **Typical Count**: 5-25 tasks per step
+
+#### **11. 🔧 SubTasks** - Task Breakdown
+**Purpose**: Detailed breakdown of complex tasks into smaller, manageable components.
+- **What they are**: Subcomponents of complex tasks that need to be completed individually
+- **Characteristics**: Detailed, sequential dependencies, completable
+- **Example**: "Setup database connection" → "Create user model" → "Implement validation logic" → "Add error handling"
+- **Typical Count**: 1-8 subtasks per task
+
+#### **12. ⚡ Commands** - Executable Actions
+**Purpose**: Executable instructions, automated actions, and specific technical operations.
+**What they are**: Concrete commands or scripts that can be executed
+- **Characteristics**: Executable, specific, automated or manual
+- **Example**: "Run database migration" or "Execute pytest test suite" or "Deploy to staging server"
+- **Typical Count**: 1-5 commands per subtask
+
+### **Layer Relationships and Data Flow**
+
+#### **Top-Down Strategic Flow**
+```
+Goals → Concepts → Contexts → Constraints → Requirements → AcceptanceCriteria → InterfaceContracts → Phases → Steps → Tasks → SubTasks → Commands
+```
+**How it works**: Start with high-level goals and progressively break them down into increasingly detailed components.
+
+#### **Bottom-Up Execution Flow**
+```
+Commands implement SubTasks
+↓
+SubTasks complete Tasks
+↓
+Tasks fulfill Steps
+↓
+Steps complete Phases
+↓
+Phases meet AcceptanceCriteria
+↓
+AcceptanceCriteria satisfy Requirements
+↓
+Requirements support Goals
+```
+**How it works**: Execute commands to build up components, progressively completing higher-level objectives.
+
+#### **Cross-Linking and Relationships**
+- **Horizontal Links**: Items at the same level can be related (e.g., multiple tasks for one step)
+- **Vertical Links**: Each layer can have parent-child relationships
+- **Cross-Hierarchy**: Any layer can reference any other layer for complex relationships
+- **Many-to-Many**: Multiple items can be associated through labels for flexible organization
+
+### **Practical Example: User Authentication System**
+
+```
+🎯 Goal: "Implement Secure User Authentication"
+├─ 💡 Concept: "OAuth2-based authentication"
+├─ 🌍 Context: "Users expect social login options"
+├─ ⚠️ Constraint: "Must use existing auth provider"
+│
+└─ 📋 Requirement: "User Registration System"
+   ├─ ✅ AcceptanceCriteria: "Valid email required"
+   ├─ ✅ AcceptanceCriteria: "Password strength enforced"
+   │
+   └─ 📅 Phase: "Sprint 1 - Backend Development"
+      ├─ 🔢 Step: "Database Setup"
+      │  ├─ 📝 Task: "Create user table schema"
+      │  │  ├─ 🔧 SubTask: "Add email field"
+      │  │  ├─ 🔧 SubTask: "Add password hash field"
+      │  │  └─ ⚡ Command: "Run migration script"
+      │
+      └─ 🔢 Step: "Authentication API"
+         ├─ 📝 Task: "Implement registration endpoint"
+         └─ ⚡ Command: "Run integration tests"
+```
+
+### **ID Pattern System for Easy Identification**
+
 Each layer uses a specific ID prefix for easy identification:
-- `GOAL-*` - Goals
-- `CON-*` - Concepts
-- `CTX-*` - Contexts
-- `CST-*` - Constraints
-- `R-*` - Requirements
-- `AC-*` - AcceptanceCriteria
-- `IF-*` - InterfaceContracts
-- `PH-*` - Phases
-- `STP-*` - Steps
-- `TSK-*` - Tasks
-- `SUB-*` - SubTasks
-- `CMD-*` - Commands
+
+- `GOAL-*` - Goals (strategic objectives)
+- `CON-*` - Concepts (design principles)
+- `CTX-*` - Contexts (environmental factors)
+- `CST-*` - Constraints (limitations)
+- `R-*` - Requirements (functional specs)
+- `AC-*` - AcceptanceCriteria (success conditions)
+- `IF-*` - InterfaceContracts (integration points)
+- `PH-*` - Phases (milestone planning)
+- `STP-*` - Steps (sequential work)
+- `TSK-*` - Tasks (individual assignments)
+- `SUB-*` - SubTasks (task breakdown)
+- `CMD-*` - Commands (executable actions)
+
+### **Benefits of the 12-Layer System**
+
+✅ **Complete Traceability**: Every action can be traced back to its strategic purpose
+✅ **Risk Mitigation**: Early identification of constraints and contexts
+✅ **Clear Progression**: Natural flow from abstract to concrete
+✅ **Flexible Organization**: Cross-linking accommodates complex projects
+✅ **Team Scalability**: Different layers can be worked on by different team members
+✅ **Quality Assurance**: Acceptance criteria ensure requirements are actually met
+✅ **Automated Execution**: Commands can be automated for continuous deployment
 
 ## 📚 Documentation
 
@@ -387,6 +569,36 @@ We welcome contributions to ToDoWrite! Please see our [Contributing Guidelines](
 - ✅ **PEP 517/518**: Compliant build system with hatchling backend
 - ✅ **Static Analysis**: ruff handles all code quality: formatting, linting, import sorting, security, and type checking
 - ✅ **Security**: Subprocess calls secured, proper exception handling throughout
+
+### Web Application Development
+
+For users who want to extend or modify the web application:
+
+```bash
+# Set up PostgreSQL (required for web app)
+source .claude/postgresql_env.sh
+
+# Navigate to web package
+cd web_package
+
+# Backend development (FastAPI)
+source $PWD/.venv/bin/activate
+export PYTHONPATH="lib_package/src:cli_package/src"
+uv sync --dev
+uv run uvicorn src.todowrite_web.main:app --reload --host 127.0.0.1 --port 8000
+
+# Frontend development (React) - in another terminal
+cd web_package/frontend
+npm install
+npm run dev  # Starts at http://localhost:3000
+
+# Access your web application:
+# Frontend: http://localhost:3000
+# Backend API: http://localhost:8000
+# API Documentation: http://localhost:8000/docs
+```
+
+The web application provides a modern, calendar-like interface for task management that seamlessly syncs with the CLI through the shared PostgreSQL database.
 
 ## 🛠️ Development
 
