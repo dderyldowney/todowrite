@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Automatic ToDoWrite Models Initialization System
+"""Automatic ToDoWrite Models Initialization System.
 
 This script ensures that:
 1. All required ToDoWrite Model tables are created
@@ -22,9 +21,8 @@ lib_src = project_root / "lib_package" / "src"
 sys.path.insert(0, str(lib_src))
 
 
-def initialize_ToDoWrite_Models_system():
+def initialize_todowrite_models_system():
     """Initialize the complete ToDoWrite Models system."""
-
     print("🚀 Initializing ToDoWrite Models System...")
     print("=" * 60)
 
@@ -59,8 +57,7 @@ def initialize_ToDoWrite_Models_system():
 
         # Fallback if still not set
         if not database_url:
-            # pragma: allowlist secret
-            database_url = "postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"
+            database_url = "postgresql://todowrite:todowrite_dev_password@localhost:5432/todowrite"  # pragma: allowlist secret
 
         print(f"   Using PostgreSQL database: {database_url}")
 
@@ -72,8 +69,8 @@ def initialize_ToDoWrite_Models_system():
         print("✅ ToDoWrite Models schema created")
 
         # Create session
-        Session = sessionmaker(bind=engine)
-        session = Session()
+        session_class = sessionmaker(bind=engine)
+        session = session_class()
 
         # Verify all required tables exist
         required_tables = [
@@ -251,11 +248,17 @@ def initialize_ToDoWrite_Models_system():
 
         # Verify association works
         if len(test_goal.labels) != 1:
-            raise RuntimeError(f"Expected 1 label, got {len(test_goal.labels)}")
+            label_count = len(test_goal.labels)
+            error_msg = f"Expected 1 label, got {label_count}"
+            raise RuntimeError(error_msg)
         if test_goal.labels[0].name != "test-api":
-            raise RuntimeError(f"Expected label name 'test-api', got '{test_goal.labels[0].name}'")
+            label_name = test_goal.labels[0].name
+            error_msg = f"Expected label name 'test-api', got '{label_name}'"
+            raise RuntimeError(error_msg)
         if len(test_label.goals) != 1:
-            raise RuntimeError(f"Expected 1 goal, got {len(test_label.goals)}")
+            goal_count = len(test_label.goals)
+            error_msg = f"Expected 1 goal, got {goal_count}"
+            raise RuntimeError(error_msg)
 
         # Clean up test data
         session.delete(test_goal)
@@ -309,7 +312,7 @@ def initialize_ToDoWrite_Models_system():
 
 def main():
     """Main initialization function."""
-    success = initialize_ToDoWrite_Models_system()
+    success = initialize_todowrite_models_system()
     return 0 if success else 1
 
 
