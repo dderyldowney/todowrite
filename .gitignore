@@ -251,3 +251,4 @@ export_test/
 # .claude/postgresql_env.sh
 # .claude/episodic_memory_env.sh
 .vscode/settings.json
+.env

@@ -18,12 +18,13 @@ class SessionManager:
     """Manages session state persistence and restoration"""
 
     def __init__(self):
+        # Load configuration from environment variables
         self.db_config = {
-            "host": "localhost",
-            "port": 5433,
-            "database": "mcp_tools",
-            "user": "mcp_user",
-            "password": "mcp_secure_password_2024",
+            "host": os.environ.get("MCP_DB_HOST", "localhost"),
+            "port": int(os.environ.get("MCP_DB_PORT", "5433")),
+            "database": os.environ.get("MCP_DB_SESSIONS", "mcp_sessions"),
+            "user": os.environ.get("MCP_DB_USER", "mcp_user"),
+            "password": os.environ.get("MCP_DB_PASSWORD", "mcp_secure_password_2024"),
         }
         self.project_name = Path.cwd().name
         self.session_id = self._get_or_create_session_id()
@@ -117,7 +118,7 @@ class SessionManager:
                         print(f"⚠️  Unexpected context type: {type(context)}")
                         return None
                 else:
-                    print("ℹ️  No previous session state found")
+                    print("No previous session state found")
                     return None
 
         except Exception as e:
@@ -158,7 +159,7 @@ class SessionManager:
 
 Ready to continue development with full context restored!
 """
-        return summary
+        return f"""{summary}"""
 
 
 def save_current_session(context: dict[str, Any]) -> bool:

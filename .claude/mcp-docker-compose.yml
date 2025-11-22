@@ -1,11 +1,11 @@
-version: '3.9'
-
 # MCP Docker Servers Configuration
-# Runs Context7, HuggingFace, Filesystem, Git, and other MCP servers
-# Separate from testing infrastructure - these are development/production MCP services
+# Runs Context7, Filesystem, Git, and other MCP servers as stdio MCP services
+# These are stdio-based MCP servers that communicate via stdio, not HTTP
+# All paths are relative to the project root where docker-compose is run
+# Uses single shared volume with service-specific subdirectories
 
 services:
-  # Context7 MCP Server - Documentation and context search
+  # Context7 MCP Server - Documentation and context search (HTTP server on port 3001)
   context7:
     image: mcp/context7:latest
     container_name: mcp-context7
@@ -13,224 +13,126 @@ services:
     environment:
       - NODE_ENV=production
       - CONTEXT7_LOG_LEVEL=info
-      - CONTEXT7_PORT=3001
       - UPSTASH_REDIS_REST_URL=${UPSTASH_REDIS_REST_URL:-}
       - UPSTASH_REDIS_REST_TOKEN=${UPSTASH_REDIS_REST_TOKEN:-}
+      # Database connection (if needed)
+      - DATABASE_URL=postgresql://${MCP_DB_USER}:${MCP_DB_PASSWORD}@host.docker.internal:${MCP_DB_PORT}/mcp_tools
     ports:
-      - "3001:3001"
+      - "3001:8080"
     volumes:
-      - context7_data:/app/data
-      - ./context7-config:/app/config:ro
+      - mcp_shared_data:/app/data
+      - ./.claude/context7-config:/app/config:ro
     networks:
       - mcp-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    command: node dist/index.js
 
-  # Filesystem MCP Server - Secure file system access
+  # Filesystem MCP Server - Secure file system access (stdio transport)
   filesystem:
     image: mcp/filesystem:latest
     container_name: mcp-filesystem
     restart: always
     environment:
       - NODE_ENV=production
-      - FILESYSTEM_PORT=3002
       - FILESYSTEM_ROOT=/workspace
-      - FILESYSTEM_ALLOWED_PATHS=/workspace,/Users/dderyldowney/Documents/GitHub/dderyldowney
-    ports:
-      - "3002:3002"
+      - FILESYSTEM_ALLOWED_PATHS=/workspace
+      # Database connection for tracking
+      - DATABASE_URL=postgresql://${MCP_DB_USER}:${MCP_DB_PASSWORD}@host.docker.internal:${MCP_DB_PORT}/${MCP_DB_FILESYSTEM}
     volumes:
-      - /Users/dderyldowney/Documents/GitHub/dderyldowney:/workspace:ro
-      - filesystem_cache:/app/cache
+      - ..:/workspace:ro
+      - mcp_shared_data:/app/data
     networks:
       - mcp-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    command: node dist/index.js
+    command: ["/workspace"]
 
-  # Git MCP Server - Git repository operations
+  # Git MCP Server - Git repository operations (stdio transport)
   git-server:
     image: mcp/git:latest
     container_name: mcp-git
     restart: always
     environment:
       - NODE_ENV=production
-      - GIT_PORT=3003
       - GIT_ROOT=/workspace
       - GIT_AUTO_COMMIT=false
       - GIT_LOG_LEVEL=info
-    ports:
-      - "3003:3003"
+      # Database connection for tracking
+      - DATABASE_URL=postgresql://${MCP_DB_USER}:${MCP_DB_PASSWORD}@host.docker.internal:${MCP_DB_PORT}/mcp_git
     volumes:
-      - /Users/dderyldowney/Documents/GitHub/dderyldowney:/workspace:ro
-      - git_cache:/app/cache
-      - /Users/dderyldowney/.gitconfig:/root/.gitconfig:ro
+      - ..:/workspace:ro
+      - mcp_shared_data:/app/data
+      - ${HOME}/.gitconfig:/root/.gitconfig:ro
     networks:
       - mcp-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    command: node dist/index.js
+    command: ["-r", "/workspace"]
 
-  # GitHub MCP Server - GitHub API integration
+  # GitHub MCP Server - GitHub API integration (stdio transport)
   github-server:
     image: ghcr.io/github/github-mcp-server:latest
     container_name: mcp-github
     restart: always
     environment:
       - NODE_ENV=production
-      - GITHUB_PORT=3004
-      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITHUB_PERSONAL_ACCESS_TOKEN=${GITHUB_TOKEN}
       - GITHUB_API_URL=${GITHUB_API_URL:-https://api.github.com}
-    ports:
-      - "3004:3004"
+      # Database connection for tracking
+      - DATABASE_URL=postgresql://${MCP_DB_USER}:${MCP_DB_PASSWORD}@host.docker.internal:${MCP_DB_PORT}/mcp_github
     volumes:
-      - github_cache:/app/cache
+      - mcp_shared_data:/app/data
     networks:
       - mcp-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3004/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    # stdio MCP servers run as default entrypoint without extra args
 
-  # Playwright MCP Server - Web automation and testing
+  # Playwright MCP Server - Web automation and testing (stdio transport)
   playwright:
     image: mcp/playwright:latest
     container_name: mcp-playwright
     restart: always
     environment:
       - NODE_ENV=production
-      - PLAYWRIGHT_PORT=3005
       - PLAYWRIGHT_HEADLESS=true
-      - PLAYWRIGHT_TIMEOUT=30000
-    ports:
-      - "3005:3005"
+      # Database connection for tracking
+      - DATABASE_URL=postgresql://${MCP_DB_USER}:${MCP_DB_PASSWORD}@host.docker.internal:${MCP_DB_PORT}/mcp_playwright
     volumes:
-      - playwright_cache:/app/cache
-      - /Users/dderyldowney/Documents/GitHub/dderyldowney:/workspace:ro
+      - mcp_shared_data:/app/data
+      - ..:/workspace:ro
     networks:
       - mcp-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3005/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-    command: node dist/index.js
+    # stdio MCP servers run as default entrypoint without extra args
 
-  # SQLite MCP Server - Database operations
+  # SQLite MCP Server - Database operations (stdio transport)
   sqlite-server:
     image: mcp/sqlite:latest
     container_name: mcp-sqlite
     restart: always
     environment:
       - NODE_ENV=production
-      - SQLITE_PORT=3006
       - SQLITE_DB_PATH=/app/data/mcp-sqlite.db
-    ports:
-      - "3006:3006"
     volumes:
-      - sqlite_data:/app/data
-      - sqlite_cache:/app/cache
+      - mcp_shared_data:/app/data/sqlite
+      - mcp_shared_data:/app/cache/sqlite
     networks:
       - mcp-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3006/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    command: node dist/index.js
 
-  # Rust MCP Filesystem Server - High-performance file operations
-  rust-filesystem:
-    image: mcp/rust-mcp-filesystem:latest
-    container_name: mcp-rust-filesystem
-    restart: always
-    environment:
-      - RUST_LOG=info
-      - FILESYSTEM_PORT=3007
-      - FILESYSTEM_ROOT=/workspace
-    ports:
-      - "3007:3007"
-    volumes:
-      - /Users/dderyldowney/Documents/GitHub/dderyldowney:/workspace:ro
-      - rust_filesystem_cache:/app/cache
-    networks:
-      - mcp-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3007/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-  # Python Refactoring MCP Server - Code analysis and refactoring
+  # Python Refactoring MCP Server - Code analysis and refactoring (stdio transport)
   python-refactoring:
     image: mcp/mcp-python-refactoring:latest
     container_name: mcp-python-refactoring
     restart: always
     environment:
       - NODE_ENV=production
-      - PYTHON_PORT=3008
       - PYTHON_ROOT=/workspace
-    ports:
-      - "3008:3008"
+      # Database connection for tracking
+      - DATABASE_URL=postgresql://${MCP_DB_USER}:${MCP_DB_PASSWORD}@host.docker.internal:${MCP_DB_PORT}/mcp_python_refactoring
     volumes:
-      - /Users/dderyldowney/Documents/GitHub/dderyldowney:/workspace:ro
-      - python_refactoring_cache:/app/cache
+      - ..:/workspace:ro
+      - mcp_shared_data:/app/data
     networks:
       - mcp-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3008/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    command: node dist/index.js
+    # stdio MCP servers run as default entrypoint without extra args
 
 volumes:
-  # Data persistence volumes
-  context7_data:
+  # Single shared MCP data volume - each service uses its own subdirectory
+  mcp_shared_data:
     driver: local
-    name: mcp_context7_data
-  filesystem_cache:
-    driver: local
-    name: mcp_filesystem_cache
-  git_cache:
-    driver: local
-    name: mcp_git_cache
-  github_cache:
-    driver: local
-    name: mcp_github_cache
-  playwright_cache:
-    driver: local
-    name: mcp_playwright_cache
-  sqlite_data:
-    driver: local
-    name: mcp_sqlite_data
-  sqlite_cache:
-    driver: local
-    name: mcp_sqlite_cache
-  rust_filesystem_cache:
-    driver: local
-    name: mcp_rust_filesystem_cache
-  python_refactoring_cache:
-    driver: local
-    name: mcp_python_refactoring_cache
 
 networks:
   mcp-network:

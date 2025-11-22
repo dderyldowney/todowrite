@@ -104,34 +104,33 @@ start_services() {
     fi
 }
 
-# Wait for services to be healthy
-wait_for_health() {
-    log_info "Waiting for MCP services to become healthy..."
+# Wait for services to start
+wait_for_startup() {
+    log_info "Waiting for MCP services to start..."
 
     local services=(
-        "context7:3001"
-        "filesystem:3002"
-        "git-server:3003"
-        "github-server:3004"
-        "playwright:3005"
-        "sqlite-server:3006"
-        "rust-filesystem:3007"
-        "python-refactoring:3008"
+        "context7"
+        "filesystem"
+        "git-server"
+        "github-server"
+        "playwright"
+        "sqlite-server"
+        "rust-filesystem"
+        "python-refactoring"
     )
 
-    local max_wait=120  # 2 minutes max wait
+    local max_wait=60  # 1 minute max wait
     local wait_interval=5
 
-    for service_port in "${services[@]}"; do
-        local service_name="${service_port%:*}"
-        local port="${service_port#*:}"
+    for service_name in "${services[@]}"; do
         local wait_time=0
+        local container_name="mcp-$service_name"
 
-        log_info "Waiting for $service_name (port $port)..."
+        log_info "Waiting for $service_name..."
 
         while [[ $wait_time -lt $max_wait ]]; do
-            if docker exec "mcp-$service_name" curl -f "http://localhost:$port/health" >/dev/null 2>&1; then
-                log_success "$service_name is healthy"
+            if docker ps --filter "name=$container_name" --filter "status=running" --quiet | grep -q .; then
+                log_success "$service_name is running"
                 break
             fi
 
@@ -144,7 +143,7 @@ wait_for_health() {
         done
 
         if [[ $wait_time -ge $max_wait ]]; then
-            log_warning "$service_name did not become healthy within ${max_wait}s"
+            log_warning "$service_name did not start within ${max_wait}s"
         fi
     done
 }
@@ -182,7 +181,7 @@ main() {
     load_env_vars
     pull_images
     start_services
-    wait_for_health
+    wait_for_startup
     show_status
 
     log_success "MCP Docker servers are now running!"
