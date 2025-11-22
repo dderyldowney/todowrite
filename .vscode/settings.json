@@ -30,7 +30,8 @@
 
   "problems.showCurrentInStatus": true,
   "terminal.integrated.env.osx": {
-    "PYTHONPATH": "${workspaceFolder}"
+    "PYTHONPATH": "${workspaceFolder}",
+    "TODOWRITE_WORKSPACE": "true"
   },
   "terminal.integrated.env.linux": {
     "PYTHONPATH": "${workspaceFolder}"
@@ -40,12 +41,16 @@
   },
 
   "terminal.integrated.profiles.osx": {
+    "zsh": {
+      "path": "/bin/zsh",
+      "args": ["-l"]
+    },
     "bash": {
       "path": "/bin/bash",
       "args": ["-l"]
     }
   },
-  "terminal.integrated.defaultProfile.osx": "bash",
+  "terminal.integrated.defaultProfile.osx": "zsh",
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff",
     "editor.formatOnSave": true,

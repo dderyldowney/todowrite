@@ -1,7 +1,7 @@
 {
   "mcp_version": "2025.1",
   "project_name": "todowrite",
-  "project_version": "0.4.1",
+  "project_version": "0.6.1",
   "configuration": {
     "security": {
       "max_response_time_ms": 30000,

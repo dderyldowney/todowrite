@@ -6,21 +6,43 @@
 # Automatically sources token optimizations when entering the project directory
 
 _todowrite_optimization_hook() {
-    # Get current directory
-    local current_dir="$(pwd)"
+    # Only run optimization check once per session or when directory changes
+    if [[ "$PWD" != "$_TODOWRITE_LAST_DIR" ]]; then
+        local current_dir="$PWD"
 
-    # Check if we're in the ToDoWrite project
-    if [[ -f "$current_dir/.claude/optimization_env.sh" ]]; then
-        # Source the optimization environment if not already loaded
-        if [[ "$CLAUDE_MAX_TOKENS" != "40000" ]]; then
-            source "$current_dir/.claude/optimization_env.sh"
-            echo "🔧 Auto-enabled token optimizations for ToDoWrite"
+        # Check if we're in the ToDoWrite project (must have both marker file AND be in correct directory structure)
+        if [[ -f "$current_dir/.claude/optimization_env.sh" && -d "$current_dir/lib_package/src" && -d "$current_dir/cli_package/src" ]]; then
+            # Source the optimization environment if not already loaded
+            if [[ "$CLAUDE_MAX_TOKENS" != "40000" ]]; then
+                source "$current_dir/.claude/optimization_env.sh"
+                echo "🔧 Auto-enabled token optimizations for ToDoWrite"
+            fi
+
+            # Set proper PYTHONPATH for ToDoWrite project (only if we're in the actual project directory)
+            if [[ "$PYTHONPATH" != *"lib_package/src:cli_package/src"* ]]; then
+                export PYTHONPATH="lib_package/src:cli_package/src:${PYTHONPATH}"
+                echo "📦 Set PYTHONPATH for ToDoWrite project"
+            fi
+
+            # Remember we're in ToDoWrite project
+            export _TODOWRITE_IN_PROJECT=true
+
+        else
+            # We're not in the ToDoWrite project directory, clean up if needed
+            if [[ "$_TODOWRITE_IN_PROJECT" == "true" ]]; then
+                # Remove ToDoWrite PYTHONPATH when leaving the project
+                if [[ "$PYTHONPATH" == *"lib_package/src:cli_package/src"* ]]; then
+                    # Remove todowrite PYTHONPATH components
+                    export PYTHONPATH="${PYTHONPATH//lib_package\/src:cli_package\/src:/}"
+                    export PYTHONPATH="${PYTHONPATH//:lib_package\/src:cli_package\/src/}"
+                    echo "📦 Cleared ToDoWrite PYTHONPATH (left project directory)"
+                fi
+                export _TODOWRITE_IN_PROJECT=false
+            fi
         fi
-    elif [[ "$current_dir" == *"todowrite"* ]]; then
-        # Check if we've left the project but still have optimizations loaded
-        if [[ "$CLAUDE_MAX_TOKENS" == "40000" ]]; then
-            echo "ℹ️  ToDoWrite optimizations still loaded (run 'deactivate_todowrite_optimizations' to disable)"
-        fi
+
+        # Remember current directory to avoid repeated checks
+        export _TODOWRITE_LAST_DIR="$PWD"
     fi
 }
 
@@ -30,6 +52,14 @@ deactivate_todowrite_optimizations() {
     unset CLI_TOOLS_MANDATORY READ_TOOL_RESTRICTED EDIT_TOOL_RESTRICTED
     unset PACKAGE_CONTEXT MAX_FILES MAX_CONTEXT_CHARS CONTEXT_LINES
     unset -f verify_optimization apply_optimizations
+
+    # Remove ToDoWrite PYTHONPATH (keep any existing path components)
+    if [[ "$PYTHONPATH" == *"lib_package/src:cli_package/src"* ]]; then
+        export PYTHONPATH="${PYTHONPATH//lib_package\/src:cli_package\/src:/}"
+        export PYTHONPATH="${PYTHONPATH//:lib_package\/src:cli_package\/src/}"
+        echo "📦 Removed ToDoWrite PYTHONPATH"
+    fi
+
     echo "🔌 ToDoWrite optimizations deactivated"
 }
 
@@ -47,6 +77,4 @@ elif [[ -n "$ZSH_VERSION" ]]; then
     add-zsh-hook precmd _todowrite_optimization_hook
 fi
 
-echo "✅ ToDoWrite auto-optimization hook loaded"
-echo "💡 Add this to your ~/.zshrc or ~/.bashrc:"
-echo "   source $(pwd)/.claude/auto_optimization_hook.sh"
+# Silent loading - no status messages needed
