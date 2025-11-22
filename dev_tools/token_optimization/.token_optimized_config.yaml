@@ -12,10 +12,13 @@ agent_pipeline:
 
 # Token optimization settings
 optimization:
-  # Local filtering limits (saves tokens)
-  max_context_chars: 1000
-  max_files: 50
-  max_bytes: 50000
+  # INCREASED: Maximum allowed tokens set to 40000 for enhanced capacity
+  max_allowed_tokens: 40000
+
+  # Local filtering limits (saves tokens) - Adaptive based on package size
+  max_context_chars: 2000  # Increased from 1000 for better context
+  max_files: 100  # Increased from 50 for comprehensive analysis
+  max_bytes: 100000  # Increased from 50000 for larger files
 
   # Always enable caching
   cache_enabled: true
@@ -24,8 +27,23 @@ optimization:
   # Always use path abbreviation
   abbreviate_paths: true
 
-  # Minimal context lines
-  context_lines: 1
+  # Enhanced context lines for better analysis
+  context_lines: 3  # Increased from 1 for better context
+
+  # Package-specific adaptive limits
+  package_limits:
+    lib_package:
+      max_files: 150  # Core library - highest limit
+      max_context_chars: 3000
+      context_lines: 5
+    cli_package:
+      max_files: 100  # CLI - moderate limit
+      max_context_chars: 2000
+      context_lines: 3
+    web_package:
+      max_files: 120  # Web app - higher limit
+      max_context_chars: 2500
+      context_lines: 4
 
 # File patterns for analysis
 include_patterns:

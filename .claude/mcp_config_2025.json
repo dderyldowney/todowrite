@@ -175,5 +175,6 @@
       "performance_benchmarks": true,
       "load_testing": false
     }
-  }
+  },
+  "max_allowed_tokens": 40000
 }

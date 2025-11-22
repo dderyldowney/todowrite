@@ -6,13 +6,24 @@ Provides 90% token reduction by preprocessing queries
 
 import re
 import subprocess
-import sys
 
 
 class HALPreprocessor:
-    def __init__(self):
-        self.max_chars = 1000  # Very conservative
-        self.max_files = 3  # Very limited files
+    def __init__(self, package_context="root"):
+        self.package_context = package_context
+        # ENHANCED: Increased limits with package-specific adaptation
+        self.max_chars = self._get_adaptive_max_chars()
+        self.max_files = self._get_adaptive_max_files()
+
+    def _get_adaptive_max_chars(self):
+        """Get adaptive max characters based on package context"""
+        limits = {"lib_package": 3000, "cli_package": 2000, "web_package": 2500, "root": 2000}
+        return limits.get(self.package_context, 2000)
+
+    def _get_adaptive_max_files(self):
+        """Get adaptive max files based on package context"""
+        limits = {"lib_package": 150, "cli_package": 100, "web_package": 120, "root": 100}
+        return limits.get(self.package_context, 100)
 
     def preprocess_query(self, query):
         """Preprocess a query to minimize context"""
@@ -21,8 +32,8 @@ class HALPreprocessor:
         # Extract key terms and targets
         targets = self._extract_targets(query)
 
-        # Find most relevant files (limit severely)
-        relevant_files = self._find_relevant_files(targets, max_files=2)
+        # Find most relevant files (adaptive limits)
+        relevant_files = self._find_relevant_files(targets, max_files=self.max_files)
 
         # Generate compact context
         context = self._generate_compact_context(relevant_files, targets)
@@ -125,8 +136,8 @@ class HALPreprocessor:
 
         return "\n".join(context_parts)
 
-    def _read_python_compact(self, file_path, max_lines=5):
-        """Read Python file with extreme compression"""
+    def _read_python_compact(self, file_path, max_lines=10):
+        """Read Python file with enhanced compression"""
         try:
             with open(file_path) as f:
                 lines = f.readlines()
@@ -136,7 +147,9 @@ class HALPreprocessor:
             functions = []
             imports = []
 
-            for line in lines[:50]:  # Only look at first 50 lines
+            # ENHANCED: Look at more lines for better analysis (adaptive)
+            line_limit = min(100, len(lines)) if self.package_context == "lib_package" else 50
+            for line in lines[:line_limit]:
                 line = line.strip()
                 if line.startswith("class "):
                     classes.append(line.split("(")[0].replace("class ", ""))
@@ -190,12 +203,27 @@ class HALPreprocessor:
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python hal_preprocessor.py 'your query here'")
-        sys.exit(1)
+    import argparse
 
-    query = " ".join(sys.argv[1:])
-    hal = HALPreprocessor()
+    parser = argparse.ArgumentParser(description="HAL Preprocessing for Token Optimization")
+    parser.add_argument("query", nargs="+", help="Query to preprocess")
+    parser.add_argument(
+        "--package-context", default="root", help="Package context for adaptive limits"
+    )
+    parser.add_argument("--max-files", type=int, help="Override max files limit")
+    parser.add_argument("--max-chars", type=int, help="Override max characters limit")
+
+    args = parser.parse_args()
+
+    query = " ".join(args.query)
+    hal = HALPreprocessor(package_context=args.package_context)
+
+    # Apply overrides if provided
+    if args.max_files:
+        hal.max_files = args.max_files
+    if args.max_chars:
+        hal.max_chars = args.max_chars
+
     result = hal.preprocess_query(query)
 
     print("\n" + "=" * 50)

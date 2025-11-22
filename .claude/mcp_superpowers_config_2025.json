@@ -3,7 +3,6 @@
   "plugin_name": "superpowers",
   "plugin_version": "2.1.0",
   "description": "2025 industry-standard superpowers skills with enhanced security, performance, and monitoring",
-
   "security": {
     "authentication_required": false,
     "skill_validation": true,
@@ -25,7 +24,6 @@
       "shell_injection"
     ]
   },
-
   "performance": {
     "caching_enabled": true,
     "cache_strategy": "lru_with_ttl",
@@ -37,7 +35,6 @@
     "memory_limit_mb": 512,
     "performance_profiling": true
   },
-
   "skills_directory": "~/.claude/plugins/cache/superpowers/skills",
   "auto_discovery": true,
   "skill_execution": {
@@ -47,7 +44,6 @@
     "retry_delay_ms": 1000,
     "progress_tracking": true
   },
-
   "monitoring": {
     "execution_analytics": true,
     "performance_metrics": true,
@@ -57,7 +53,6 @@
     "detailed_logging": true,
     "log_retention_days": 30
   },
-
   "workspace_integration": {
     "git_operations": true,
     "file_system_access": "sandboxed",
@@ -65,7 +60,6 @@
     "network_access": "controlled",
     "api_access": "validated"
   },
-
   "skill_categories": {
     "development": [
       "test-driven-development",
@@ -98,7 +92,6 @@
       "finishing-a-development-branch"
     ]
   },
-
   "quality_assurance": {
     "skill_testing_required": true,
     "code_quality_standards": true,
@@ -106,7 +99,6 @@
     "type_checking": true,
     "security_review": true
   },
-
   "token_optimization": {
     "hal_integration": true,
     "token_sage_integration": true,
@@ -114,7 +106,6 @@
     "semantic_filtering": true,
     "intelligent_caching": true
   },
-
   "compliance": {
     "industry_standards": [
       "iso_27001",
@@ -132,7 +123,6 @@
       "correlation_ids": true
     }
   },
-
   "features_2025": {
     "enhanced_error_recovery": true,
     "intelligent_skill_recommendation": true,
@@ -141,7 +131,6 @@
     "skill_success_prediction": true,
     "automated_quality_gates": true
   },
-
   "integration_points": {
     "hal_agent": {
       "enabled": true,
@@ -163,5 +152,6 @@
       "search_integration": true,
       "skill_learning": true
     }
-  }
+  },
+  "max_allowed_tokens": 40000
 }
