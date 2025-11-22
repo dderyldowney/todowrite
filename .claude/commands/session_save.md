@@ -1,30 +1,14 @@
-# Save current session state
+Save the current session state to the PostgreSQL database for persistence across Claude sessions, capturing current context and accomplishments.
 
-Automatically saves the current session state to the PostgreSQL database for persistence across Claude sessions.
+The command will:
+1. Capture current session context and accomplishments
+2. Save to todowrite_sessions table in PostgreSQL
+3. Associate session with current project (todowrite)
+4. Generate unique session ID with timestamp
+5. Provide confirmation of successful save
 
-## Usage
-
-```
-/session-save
-```
-
-## What it does
-
-1. Captures current session context and accomplishments
-2. Saves to todowrite_sessions table in PostgreSQL
-3. Associates session with current project (todowrite)
-4. Generates unique session ID with timestamp
-5. Provides confirmation of successful save
-
-## Output
-
-Returns a confirmation message showing:
-- Session ID that was saved
-- Timestamp of save operation
-- Success/failure status
-
-## Requirements
-
-- PostgreSQL container running (mcp-postgres)
-- Virtual environment activated
-- Proper database connectivity established
+You'll see:
+- Confirmation of successful save operation
+- Session ID that was created/saved
+- Timestamp of the save operation
+- Success/failure status message

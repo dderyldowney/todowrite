@@ -1,58 +1,15 @@
-# Load and display session state
+Load and display the most recent session state from the PostgreSQL database, restoring previous accomplishments and system status for continued development.
 
-Retrieves and displays the most recent session state for the current project from the PostgreSQL database.
+The command will:
+1. Query todowrite_sessions table for the latest project session
+2. Retrieve previous session context and accomplishments
+3. Display formatted summary of previous work
+4. Show system status and key findings
+5. Restore continuity for continued development
 
-## Usage
-
-```
-/session-load
-```
-
-## What it does
-
-1. Queries todowrite_sessions table for latest project session
-2. Retrieves previous session context and accomplishments
-3. Displays formatted summary of previous work
-4. Shows system status and key findings
-5. Restores continuity for continued development
-
-## Output
-
-Displays a comprehensive summary including:
-
-### 🔄 **SESSION RESTORED**
-- Timestamp of previous session
-- Session ID reference
-
-### 📋 **Previous Accomplishments**
-- List of completed tasks and achievements
-- Progress milestones reached
-
-### 🔍 **Key Findings**
-- Important discoveries and insights
-- Technical solutions implemented
-- Documentation created
-
-### 🗄️ **System Status**
-- PostgreSQL container status
-- Database connectivity information
-- Table and record counts
-- Current system configuration
-
-### 💾 **Session Information**
-- Current session ID
-- Project name
-- Ready state for continued work
-
-## Requirements
-
-- PostgreSQL container running (mcp-postgres)
-- Virtual environment activated
-- Previous session data exists in database
-- Proper database connectivity established
-
-## Notes
-
-- If no previous session found, indicates first-time setup
-- Sessions are project-specific (todowrite project only)
-- Most recent session for the project is loaded
+You'll see:
+- 🔄 Session restoration timestamp and session ID
+- 📋 Previous accomplishments and completed tasks
+- 🔍 Key findings and technical solutions
+- 🗄️ Current PostgreSQL system status
+- 💾 Session information and ready state
