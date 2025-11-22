@@ -1,0 +1,61 @@
+{
+  "mcpServers": {
+    "context7": {
+      "command": "curl",
+      "args": ["-s", "http://localhost:3001/mcp"],
+      "env": {
+        "CONTEXT7_SERVER_URL": "http://localhost:3001"
+      }
+    },
+    "filesystem": {
+      "command": "curl",
+      "args": ["-s", "http://localhost:3002/mcp"],
+      "env": {
+        "FILESYSTEM_SERVER_URL": "http://localhost:3002"
+      }
+    },
+    "git-server": {
+      "command": "curl",
+      "args": ["-s", "http://localhost:3003/mcp"],
+      "env": {
+        "GIT_SERVER_URL": "http://localhost:3003"
+      }
+    },
+    "github-server": {
+      "command": "curl",
+      "args": ["-s", "http://localhost:3004/mcp"],
+      "env": {
+        "GITHUB_SERVER_URL": "http://localhost:3004",
+        "GITHUB_TOKEN": "${GITHUB_TOKEN:-}"
+      }
+    },
+    "playwright": {
+      "command": "curl",
+      "args": ["-s", "http://localhost:3005/mcp"],
+      "env": {
+        "PLAYWRIGHT_SERVER_URL": "http://localhost:3005"
+      }
+    },
+    "sqlite-server": {
+      "command": "curl",
+      "args": ["-s", "http://localhost:3006/mcp"],
+      "env": {
+        "SQLITE_SERVER_URL": "http://localhost:3006"
+      }
+    },
+    "rust-filesystem": {
+      "command": "curl",
+      "args": ["-s", "http://localhost:3007/mcp"],
+      "env": {
+        "RUST_FILESYSTEM_SERVER_URL": "http://localhost:3007"
+      }
+    },
+    "python-refactoring": {
+      "command": "curl",
+      "args": ["-s", "http://localhost:3008/mcp"],
+      "env": {
+        "PYTHON_REFACTORING_SERVER_URL": "http://localhost:3008"
+      }
+    }
+  }
+}
