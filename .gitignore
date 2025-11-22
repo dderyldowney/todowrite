@@ -250,3 +250,4 @@ export_test/
 # PostgreSQL environment files (credentials - allowlisted but tracked)
 # .claude/postgresql_env.sh
 # .claude/episodic_memory_env.sh
+.vscode/settings.json

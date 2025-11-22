@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  todowrite-postgres:
+    image: postgres:16-alpine
+    container_name: todowrite-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: todowrite
+      POSTGRES_USER: todowrite_user
+      POSTGRES_PASSWORD: todowrite_secure_2024
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    ports:
+      - "5433:5432"
+    volumes:
+      - todowrite_postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+      - ./database/backups:/backups
+    networks:
+      - todowrite-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U todowrite_user -d todowrite"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command: >
+      postgres
+      -c shared_preload_libraries=pg_stat_statements
+      -c pg_stat_statements.track=all
+      -c max_connections=200
+      -c shared_buffers=256MB
+      -c effective_cache_size=1GB
+      -c work_mem=4MB
+      -c maintenance_work_mem=64MB
+
+  # PgAdmin for management (optional)
+  todowrite-pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: todowrite-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@todowrite.local
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - todowrite_pgadmin_data:/var/lib/pgadmin
+    networks:
+      - todowrite-network
+    depends_on:
+      - todowrite-postgres
+
+volumes:
+  todowrite_postgres_data:
+    driver: local
+  todowrite_pgadmin_data:
+    driver: local
+
+networks:
+  todowrite-network:
+    driver: bridge
