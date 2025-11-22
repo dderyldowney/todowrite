@@ -1,8 +1,34 @@
 # CLAUDE.md
 
 **ToDoWrite PostgreSQL Backend System Configuration**
-**Last Updated: 2025-11-21**
+**Last Updated: 2025-11-22**
 **Status: FULLY OPERATIONAL**
+
+---
+
+## ⚠️ **CRITICAL: SYSTEM SEPARATION MANDATE**
+
+**TWO COMPLETELY SEPARATE SYSTEMS - NEVER MIX UNDER ANY CIRCUMSTANCES**
+
+### **SYSTEM 1: TODOWRITE MODELS API**
+- **Tables**: `goals`, `concepts`, `contexts`, `constraints`, `requirements`, `acceptance_criteria`, `interface_contracts`, `phases`, `steps`, `tasks`, `sub_tasks`, `commands`, `labels`
+- **Purpose**: Hierarchical project planning and task management
+- **ALLOWED**: `title`, `description`, `status`, `priority`, `metadata` (ToDowrite ONLY), `tags`, `owner`, `severity`
+- **FORBIDDEN**: `session_id`, `actions`, `context` (session data)
+
+### **SYSTEM 2: SESSIONS TRACKING**
+- **Tables**: `sessions` ONLY
+- **Purpose**: Cross-session continuity, audit trail, conversation state
+- **ALLOWED**: `session_id`, `actions`, `context`, `environment`, `last_activity`
+- **FORBIDDEN**: ToDoWrite hierarchical data
+
+### **🚫 ABSOLUTE PROHIBITIONS**
+- **NEVER** store `session_id` in ToDoWrite tables
+- **NEVER** store ToDoWrite model data in sessions
+- **NEVER** mix systems under any circumstances
+- **IMMEDIATE REJECTION** of any violations
+
+**SEE:** `.claude/SYSTEM_SEPARATION_MANDATE.md` for complete enforcement rules
 
 ---
 

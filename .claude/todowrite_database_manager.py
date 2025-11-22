@@ -3,6 +3,20 @@
 ToDoWrite Database Manager - Using Existing Models API
 Central management for all ToDoWrite database operations
 MUST use existing lib_package Models API - NO parallel implementations
+
+⚠️ CRITICAL SYSTEM SEPARATION MANDATE ⚠️
+TWO COMPLETELY SEPARATE SYSTEMS - NEVER MIX:
+
+SYSTEM 1: TODOWRITE MODELS API (goals, concepts, tasks, etc.)
+- STORE: title, description, status, priority, metadata (ToDoWrite ONLY)
+- FORBIDDEN: session_id, actions, context (NEVER store session data here!)
+
+SYSTEM 2: SESSIONS TRACKING (sessions table ONLY)
+- STORE: session_id, actions, context, environment
+- FORBIDDEN: ToDoWrite hierarchical data
+
+VIOLATION WILL IMMEDIATELY CORRUPT BOTH SYSTEMS!
+SEE: .claude/SYSTEM_SEPARATION_MANDATE.md
 """
 
 import json
@@ -50,7 +64,7 @@ class ToDoWriteDatabaseManager:
         self.db_config = {
             "host": "localhost",
             "port": 5433,
-            "database": "mcp_tools",
+            "database": "todowrite",
             "user": "mcp_user",
             "password": "mcp_secure_password_2024",
         }
@@ -61,17 +75,18 @@ class ToDoWriteDatabaseManager:
         # Create the model instance using existing API
         goal = Goal(title=title, description=description, **kwargs)
 
-        # Store in PostgreSQL (goals table)
+        # Store in PostgreSQL (goals table) using NEW ToDoWrite Models API schema
         try:
             conn = psycopg2.connect(**self.db_config)
             with conn.cursor() as cursor:
+                # Use the correct schema for NEW ToDoWrite Models API (no session_id here!)
                 cursor.execute(
                     """
-                    INSERT INTO todowrite_goals (title, description, session_id)
-                    VALUES (%s, %s, %s)
+                    INSERT INTO goals (title, description)
+                    VALUES (%s, %s)
                     RETURNING id
                 """,
-                    (title, description, self.session_id),
+                    (title, description),
                 )
 
                 result = cursor.fetchone()
@@ -104,7 +119,7 @@ class ToDoWriteDatabaseManager:
 
                 cursor.execute(
                     """
-                    INSERT INTO todowrite_sessions (session_id, title, description, actions, context)
+                    INSERT INTO sessions (session_id, title, description, actions, context)
                     VALUES (%s, %s, %s, %s, %s)
                     ON CONFLICT (session_id)
                     DO UPDATE SET
@@ -213,24 +228,26 @@ class ToDoWriteDatabaseManager:
             conn = psycopg2.connect(**self.db_config)
             with conn.cursor() as cursor:
                 if layer == "concept":
+                    # Use correct schema for NEW ToDoWrite Models API (no session_id here!)
                     cursor.execute(
                         """
-                        INSERT INTO todowrite_concepts (title, description, session_id)
-                        VALUES (%s, %s, %s)
+                        INSERT INTO concepts (title, description)
+                        VALUES (%s, %s)
                         RETURNING id
                     """,
-                        (title, description, self.session_id),
+                        (title, description),
                     )
                     result = cursor.fetchone()
                     item_id = result[0] if result and len(result) > 0 else None
                 elif layer == "task":
+                    # Use correct schema for NEW ToDoWrite Models API (no session_id here!)
                     cursor.execute(
                         """
-                        INSERT INTO todowrite_tasks (title, description, session_id)
-                        VALUES (%s, %s, %s)
+                        INSERT INTO tasks (title, description)
+                        VALUES (%s, %s)
                         RETURNING id
                     """,
-                        (title, description, self.session_id),
+                        (title, description),
                     )
                     result = cursor.fetchone()
                     item_id = result[0] if result and len(result) > 0 else None
@@ -265,7 +282,7 @@ class ToDoWriteDatabaseManager:
 
                 cursor.execute(
                     """
-                    INSERT INTO todowrite_sessions (session_id, title, description, actions, context)
+                    INSERT INTO sessions (session_id, title, description, actions, context)
                     VALUES (%s, %s, %s, %s, %s)
                     ON CONFLICT (session_id)
                     DO UPDATE SET
@@ -309,7 +326,7 @@ class ToDoWriteDatabaseManager:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(
                     """
-                    SELECT * FROM todowrite_planning_sessions
+                    SELECT * FROM sessions
                     WHERE session_id = %s
                     ORDER BY created_at DESC
                 """,

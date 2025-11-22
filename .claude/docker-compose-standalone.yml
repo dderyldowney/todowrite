@@ -1,0 +1,94 @@
+# Standalone Episodic Memory System
+# Production-ready PostgreSQL-powered conversation search
+# One-command deployment for any project
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  episodic-memory-db:
+    image: postgres:16-alpine
+    container_name: episodic-memory-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: episodic_memory
+      POSTGRES_USER: episodic_user
+      POSTGRES_PASSWORD: episodic_secure_password_2024
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - episodic_memory_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5434:5432"  # Different port to avoid conflicts
+    networks:
+      - episodic-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U episodic_user -d episodic_memory"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Episodic Memory Service
+  episodic-memory:
+    build:
+      context: .
+      dockerfile: Dockerfile-standalone
+    container_name: episodic-memory
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://episodic_user:episodic_secure_password_2024@episodic-memory-db:5432/episodic_memory
+      CONVERSATIONS_DIR: /data/conversations
+      BATCH_SIZE: 25
+      ADAPTIVE_INDEXING: "true"
+      LOG_LEVEL: info
+    volumes:
+      - ./data:/data/conversations:ro
+      - episodic_memory_cache:/app/cache
+      - episodic_memory_logs:/app/logs
+    ports:
+      - "3002:8080"  # Optional web interface
+    networks:
+      - episodic-network
+    depends_on:
+      episodic-memory-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import episodic_memory; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Optional: Redis for caching
+  redis-cache:
+    image: redis:7-alpine
+    container_name: episodic-memory-redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - episodic_redis_data:/data
+    networks:
+      - episodic-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# Volumes for data persistence
+volumes:
+  episodic_memory_data:
+    driver: local
+  episodic_memory_cache:
+    driver: local
+  episodic_memory_logs:
+    driver: local
+  episodic_redis_data:
+    driver: local
+
+networks:
+  episodic-network:
+    driver: bridge
+    name: episodic-network
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16

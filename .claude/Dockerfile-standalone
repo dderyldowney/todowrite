@@ -1,0 +1,66 @@
+# Standalone Episodic Memory System
+# Production Docker image for PostgreSQL-powered conversation search
+
+FROM python:3.12-slim
+
+# Metadata
+LABEL maintainer="episodic-memory@example.com"
+LABEL description="Standalone Episodic Memory System - PostgreSQL-powered conversation search"
+LABEL version="1.0.0"
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    postgresql-client \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create app user
+RUN useradd --create-home --shell /bin/bash episodic
+
+# Set work directory
+WORKDIR /app
+
+# Copy Python requirements
+COPY requirements-standalone.txt requirements.txt
+
+# Install Python dependencies
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
+
+# Copy application code
+COPY episodic_memory/ ./episodic_memory/
+COPY scripts/ ./scripts/
+COPY commands/ ./commands/
+
+# Install the application
+RUN pip install -e .
+
+# Create necessary directories
+RUN mkdir -p /app/cache /app/logs /data/conversations && \
+    chown -R episodic:episodic /app /data
+
+# Copy entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Switch to app user
+USER episodic
+
+# Expose ports
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD python -c "import episodic_memory; print('OK')" || exit 1
+
+# Set entrypoint
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["--help"]

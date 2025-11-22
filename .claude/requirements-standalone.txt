@@ -1,0 +1,36 @@
+# Standalone Episodic Memory System Dependencies
+# Production-ready PostgreSQL-powered conversation search
+
+# Core Database
+psycopg2-binary==2.9.9
+SQLAlchemy==2.0.23
+
+# CLI Framework
+click==8.1.7
+rich==13.7.0
+
+# Data Processing
+python-dateutil==2.8.2
+hashlib-compat==1.0.1
+
+# Optional: Performance enhancements
+uvloop==0.19.0; sys_platform != "win32"
+orjson==3.9.10
+
+# Optional: Caching (Redis support)
+redis==5.0.1
+hiredis==2.2.3
+
+# Optional: Vector similarity search (future)
+# pgvector==0.2.4
+# sentence-transformers==2.2.2
+
+# Development dependencies (optional)
+pytest==7.4.3
+pytest-cov==4.1.0
+black==23.11.0
+flake8==6.1.0
+
+# Optional: Web interface (future)
+# fastapi==0.104.1
+# uvicorn==0.24.0
