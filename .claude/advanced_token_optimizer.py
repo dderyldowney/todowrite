@@ -4,18 +4,15 @@ Advanced Token Optimizer - Implements multiple algorithms beyond KV-cache
 Target: 90% token reduction while maintaining semantic quality
 """
 
-import os
 import re
-import json
 import subprocess
-import hashlib
+from collections import Counter
 from pathlib import Path
-from collections import defaultdict, Counter
-import math
+
 
 class AdvancedTokenOptimizer:
     def __init__(self):
-        self.cache_dir = Path('.claude/context_cache')
+        self.cache_dir = Path(".claude/context_cache")
         self.cache_dir.mkdir(exist_ok=True)
         self.compression_level = 0.1  # Keep 10% of content
 
@@ -23,11 +20,11 @@ class AdvancedTokenOptimizer:
         """Apply multi-algorithm optimization to current session"""
         print("🚀 ADVANCED TOKEN OPTIMIZATION")
         print("Target: 90% reduction while preserving strategic context")
-        print("")
+        print()
 
         # Step 1: Analyze current session
         analysis = self._analyze_session()
-        print(f"📊 Current Session Analysis:")
+        print("📊 Current Session Analysis:")
         print(f"   Files: {analysis['file_count']}")
         print(f"   Estimated tokens: {analysis['estimated_tokens']:,}")
         print(f"   Content types: {analysis['content_types']}")
@@ -36,8 +33,10 @@ class AdvancedTokenOptimizer:
         print("\n🔧 Applying Optimization Algorithms...")
 
         # Algorithm 1: Semantic Deduplication
-        deduped = self._semantic_deduplication(analysis['content'])
-        print(f"   1️⃣ Semantic Deduplication: {self._calculate_reduction(analysis['content'], deduped)}")
+        deduped = self._semantic_deduplication(analysis["content"])
+        print(
+            f"   1️⃣ Semantic Deduplication: {self._calculate_reduction(analysis['content'], deduped)}"
+        )
 
         # Algorithm 2: Context Compression
         compressed = self._context_compression(deduped)
@@ -52,11 +51,11 @@ class AdvancedTokenOptimizer:
         print(f"   4️⃣ Adaptive Selection: {self._calculate_reduction(windowed, final_context)}")
 
         # Step 3: Results
-        original_size = len(analysis['content'])
+        original_size = len(analysis["content"])
         final_size = len(final_context)
         reduction_percent = ((original_size - final_size) / original_size) * 100
 
-        print(f"\n🎯 OPTIMIZATION RESULTS:")
+        print("\n🎯 OPTIMIZATION RESULTS:")
         print(f"   Original: {original_size:,} chars")
         print(f"   Final: {final_size:,} chars")
         print(f"   Reduction: {reduction_percent:.1f}%")
@@ -67,19 +66,23 @@ class AdvancedTokenOptimizer:
     def _analyze_session(self):
         """Analyze current session content"""
         content = []
-        file_patterns = ['*.py', '*.md', '*.json', '*.yaml', '*.yml', '*.toml']
+        file_patterns = ["*.py", "*.md", "*.json", "*.yaml", "*.yml", "*.toml"]
         content_types = Counter()
 
         for pattern in file_patterns:
             try:
-                result = subprocess.run(['find', '.', '-name', pattern, '-type', 'f'],
-                                      capture_output=True, text=True, timeout=10)
-                files = result.stdout.strip().split('\n') if result.stdout.strip() else []
+                result = subprocess.run(
+                    ["find", ".", "-name", pattern, "-type", "f"],
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                )
+                files = result.stdout.strip().split("\n") if result.stdout.strip() else []
 
                 for file_path in files:
-                    if file_path and file_path != '.':
+                    if file_path and file_path != ".":
                         try:
-                            with open(file_path, 'r', encoding='utf-8') as f:
+                            with open(file_path, encoding="utf-8") as f:
                                 file_content = f.read(2000)  # Read first 2K only
                                 content.append(file_content)
                                 content_types[Path(file_path).suffix] += 1
@@ -89,15 +92,15 @@ class AdvancedTokenOptimizer:
                 continue
 
         return {
-            'content': '\n'.join(content),
-            'file_count': sum(content_types.values()),
-            'content_types': dict(content_types),
-            'estimated_tokens': len('\n'.join(content)) // 4
+            "content": "\n".join(content),
+            "file_count": sum(content_types.values()),
+            "content_types": dict(content_types),
+            "estimated_tokens": len("\n".join(content)) // 4,
         }
 
     def _semantic_deduplication(self, content):
         """Remove semantically duplicate content"""
-        lines = content.split('\n')
+        lines = content.split("\n")
         unique_lines = []
         seen_patterns = set()
 
@@ -111,15 +114,15 @@ class AdvancedTokenOptimizer:
                 unique_lines.append(line)
                 seen_patterns.add(signature)
 
-        return '\n'.join(unique_lines)
+        return "\n".join(unique_lines)
 
     def _create_semantic_signature(self, line):
         """Create semantic signature for deduplication"""
         # Remove specific values, keep patterns
         normalized = re.sub(r'["\'].*?["\']', '""', line)  # Replace strings
-        normalized = re.sub(r'\b\d+\b', 'N', normalized)  # Replace numbers
-        normalized = re.sub(r'\b[a-fA-F0-9]{8,}\b', 'HASH', normalized)  # Replace hashes
-        normalized = re.sub(r'\s+', ' ', normalized).strip()
+        normalized = re.sub(r"\b\d+\b", "N", normalized)  # Replace numbers
+        normalized = re.sub(r"\b[a-fA-F0-9]{8,}\b", "HASH", normalized)  # Replace hashes
+        normalized = re.sub(r"\s+", " ", normalized).strip()
         return normalized
 
     def _context_compression(self, content):
@@ -138,7 +141,7 @@ class AdvancedTokenOptimizer:
         keep_count = max(1, int(len(scored_chunks) * self.compression_level))
         selected_chunks = [chunk for score, chunk in scored_chunks[:keep_count]]
 
-        return '\n'.join(selected_chunks)
+        return "\n".join(selected_chunks)
 
     def _semantic_chunking(self, content):
         """Split content into semantic chunks"""
@@ -147,18 +150,18 @@ class AdvancedTokenOptimizer:
         chunk_size = 0
         max_chunk_size = 500
 
-        for line in content.split('\n'):
+        for line in content.split("\n"):
             if line.strip():
                 current_chunk.append(line)
                 chunk_size += len(line)
 
                 if chunk_size > max_chunk_size:
-                    chunks.append('\n'.join(current_chunk))
+                    chunks.append("\n".join(current_chunk))
                     current_chunk = []
                     chunk_size = 0
 
         if current_chunk:
-            chunks.append('\n'.join(current_chunk))
+            chunks.append("\n".join(current_chunk))
 
         return chunks
 
@@ -168,20 +171,34 @@ class AdvancedTokenOptimizer:
 
         # High-relevance patterns for strategic work
         strategic_keywords = [
-            'class ', 'def ', 'import ', 'architecture', 'design', 'strategy',
-            'config', 'system', 'model', 'database', 'api', 'interface',
-            'context', 'token', 'mcp', 'server', 'gateway'
+            "class ",
+            "def ",
+            "import ",
+            "architecture",
+            "design",
+            "strategy",
+            "config",
+            "system",
+            "model",
+            "database",
+            "api",
+            "interface",
+            "context",
+            "token",
+            "mcp",
+            "server",
+            "gateway",
         ]
 
         for keyword in strategic_keywords:
             score += chunk.lower().count(keyword) * 2
 
         # Complexity bonus
-        if 'class ' in chunk:
+        if "class " in chunk:
             score += 3
-        if 'def ' in chunk:
+        if "def " in chunk:
             score += 2
-        if 'import ' in chunk:
+        if "import " in chunk:
             score += 1
 
         # Length penalty (prefer concise, high-value content)
@@ -192,7 +209,7 @@ class AdvancedTokenOptimizer:
 
     def _progressive_windowing(self, content):
         """Apply progressive relevance windowing"""
-        lines = content.split('\n')
+        lines = content.split("\n")
         if len(lines) <= 20:
             return content
 
@@ -202,8 +219,8 @@ class AdvancedTokenOptimizer:
         windows = []
 
         for i in range(0, len(lines) - window_size + 1, step_size):
-            window = lines[i:i + window_size]
-            window_content = '\n'.join(window)
+            window = lines[i : i + window_size]
+            window_content = "\n".join(window)
             relevance = self._relevance_score(window_content)
             windows.append((relevance, i, window_content))
 
@@ -211,11 +228,11 @@ class AdvancedTokenOptimizer:
         windows.sort(reverse=True, key=lambda x: x[0])
         selected_windows = [window for score, _, window in windows[:3]]  # Top 3 windows
 
-        return '\n'.join(selected_windows)
+        return "\n".join(selected_windows)
 
     def _adaptive_selection(self, content):
         """Adaptive content selection based on usage patterns"""
-        lines = content.split('\n')
+        lines = content.split("\n")
         if len(lines) <= 50:
             return content
 
@@ -228,7 +245,7 @@ class AdvancedTokenOptimizer:
             if len(selected_lines) >= 100:  # Hard limit
                 break
 
-        return '\n'.join(selected_lines)
+        return "\n".join(selected_lines)
 
     def _should_keep_line(self, line):
         """Determine if line should be kept in optimized context"""
@@ -237,13 +254,13 @@ class AdvancedTokenOptimizer:
 
         # Keep strategic content
         keep_patterns = [
-            r'class\s+\w+',  # Class definitions
-            r'def\s+\w+',   # Function definitions
-            r'import\s+\w+', # Imports
-            r'config',       # Configuration
-            r'system',       # System definitions
-            r'model',        # Model definitions
-            r'api',          # API definitions
+            r"class\s+\w+",  # Class definitions
+            r"def\s+\w+",  # Function definitions
+            r"import\s+\w+",  # Imports
+            r"config",  # Configuration
+            r"system",  # System definitions
+            r"model",  # Model definitions
+            r"api",  # API definitions
         ]
 
         for pattern in keep_patterns:
@@ -252,12 +269,12 @@ class AdvancedTokenOptimizer:
 
         # Filter out boilerplate and low-value content
         skip_patterns = [
-            r'^\s*#.*TODO',
-            r'^\s*#.*FIXME',
-            r'^\s*print\(',
-            r'^\s*pass$',
+            r"^\s*#.*TODO",
+            r"^\s*#.*FIXME",
+            r"^\s*print\(",
+            r"^\s*pass$",
             r'^\s*"""',
-            r'^\s*#.*docstring'
+            r"^\s*#.*docstring",
         ]
 
         for pattern in skip_patterns:
@@ -276,12 +293,14 @@ class AdvancedTokenOptimizer:
         reduction = ((original_size - optimized_size) / original_size) * 100
         return f"{reduction:.1f}% reduction"
 
+
 def main():
     optimizer = AdvancedTokenOptimizer()
     optimized_context = optimizer.optimize_session_context()
 
-    print(f"\n💾 Optimized context saved for session use")
-    print(f"🔄 Use this optimized context for reduced token usage")
+    print("\n💾 Optimized context saved for session use")
+    print("🔄 Use this optimized context for reduced token usage")
+
 
 if __name__ == "__main__":
     main()

@@ -4,10 +4,8 @@ Session startup hook that monitors and limits token usage
 Runs automatically to enforce token discipline
 """
 
-import subprocess
-import sys
-import os
 from pathlib import Path
+
 
 def main():
     print("🔒 TOKEN LIMITER: Enforcing token discipline...")
@@ -15,16 +13,16 @@ def main():
     # Quick session analysis
     try:
         # Count potential context sources
-        python_files = len(list(Path('.').rglob('*.py')))
-        md_files = len(list(Path('.').rglob('*.md')))
-        json_files = len(list(Path('.').rglob('*.json')))
+        python_files = len(list(Path().rglob("*.py")))
+        md_files = len(list(Path().rglob("*.md")))
+        json_files = len(list(Path().rglob("*.json")))
 
         total_files = python_files + md_files + json_files
 
         # Rough token estimation
         estimated_tokens = total_files * 800  # Conservative estimate
 
-        print(f"📊 Context Analysis:")
+        print("📊 Context Analysis:")
         print(f"   Python files: {python_files}")
         print(f"   Markdown files: {md_files}")
         print(f"   JSON files: {json_files}")
@@ -56,7 +54,9 @@ def main():
         # MCP server recommendation
         print("\n🔧 MCP SERVER OPTIMIZATION:")
         print("   Use specific servers: docker mcp gateway run --servers context7,github")
-        print("   Full suite only when needed: --servers context7,docker,github,git,filesystem,postgres,SQLite,hugging-face,playwright")
+        print(
+            "   Full suite only when needed: --servers context7,docker,github,git,filesystem,postgres,SQLite,hugging-face,playwright"
+        )
 
         print("\n💰 TOKEN-SAVING COMMANDS:")
         print("   Monitor: python .claude/token_monitor.py")
@@ -66,6 +66,7 @@ def main():
     except Exception as e:
         print(f"⚠️  Error analyzing tokens: {e}")
         print("💡 Still apply token discipline principles")
+
 
 if __name__ == "__main__":
     main()

@@ -6,6 +6,32 @@
 
 ---
 
+## 🔄 **AUTOMATIC SESSION STATE MANAGEMENT**
+
+### **Session Persistence & Restoration:**
+This system includes **automatic session state management** that saves and restores your work context across Claude sessions.
+
+#### **When CLAUDE.md is loaded, the system will:**
+1. **🔄 RESTORE** the latest session state automatically
+2. **💾 SAVE** current session state on exit
+3. **📋 DISPLAY** previous accomplishments and findings
+
+#### **Session Management Commands:**
+```bash
+# Get session summary
+source $PWD/.venv/bin/activate && python .claude/session_manager.py --summary
+
+# Save current session manually
+python .claude/session_manager.py --save --context '{"status": "working", "task": "implementation"}'
+
+# Load latest session state
+python .claude/session_manager.py --load
+```
+
+---
+
+---
+
 ## 🚀 **SYSTEM OVERVIEW**
 
 This project uses a **complete PostgreSQL backend system** built on the existing MCP PostgreSQL container with comprehensive 12-layer hierarchy and cross-association tables.
@@ -236,3 +262,28 @@ bash .claude/run_all_tests.sh
 - ✅ Session Tracking: COMPLETE (audit trail)
 
 **Ready for full development work with guaranteed data persistence and session continuity.**
+
+---
+
+## 🔄 **SESSION STATE AUTO-RESTORE**
+
+**When this CLAUDE.md is loaded, the system automatically attempts to restore your previous session state:**
+
+```bash
+# This command runs automatically when CLAUDE.md is processed:
+source $PWD/.venv/bin/activate && python .claude/session_manager.py --summary
+```
+
+**If you see a session summary above, your previous work context has been successfully restored!**
+
+---
+
+## 📋 **QUARTERLY STATUS CHECK**
+
+**Last Session Activity:**
+- **Previous Session:** VS Code setup and testing completed
+- **Major Accomplishments:** PostgreSQL backend fully operational, VS Code integration documented
+- **Current Status:** Ready for continued development
+- **Next Steps:** Continue with ToDoWrite development using persistent backend
+
+**Session Continuity:** ✅ **MAINTAINED** - All work preserved in PostgreSQL database
