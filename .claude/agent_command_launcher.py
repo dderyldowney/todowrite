@@ -5,15 +5,15 @@ Industry-standard AI agent framework commands for project development
 Replaces superpowers plugin functionality with production-ready alternatives
 """
 
+import argparse
 import os
 import sys
-import subprocess
-import argparse
 from pathlib import Path
 
 # Add project root to Python path for this session only
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
+
 
 def setup_environment():
     """Setup project-specific environment without polluting system"""
@@ -22,10 +22,13 @@ def setup_environment():
 
     # Environment variables for this session
     env = os.environ.copy()
-    env['PYTHONPATH'] = python_path
-    env['AGENT_FRAMEWORK_DB_PATH'] = 'postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/mcp_tools'
+    env["PYTHONPATH"] = python_path
+    env["AGENT_FRAMEWORK_DB_PATH"] = (
+        "postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/mcp_tools"
+    )
 
     return env
+
 
 def show_plan_help():
     """Show planning command help"""
@@ -48,6 +51,7 @@ Examples:
 
 This command uses industry-standard AI agent methodologies to break down complex objectives into manageable phases with clear action items, risk assessments, and resource planning.
 """
+
 
 def show_debug_help():
     """Show debugging command help"""
@@ -76,6 +80,7 @@ Debugging Methodology:
 5. Verify fix doesn't introduce regressions
 """
 
+
 def show_research_help():
     """Show research command help"""
     return """
@@ -103,6 +108,7 @@ Research Methodology:
 5. Actionable recommendations based on evidence
 """
 
+
 def show_all_commands():
     """Show all available agent commands"""
     return """
@@ -128,6 +134,7 @@ Examples:
   agent-research "GraphQL vs REST API design patterns"
 """
 
+
 def execute_agent_command(command_type, query=None):
     """Execute agent framework commands"""
     env = setup_environment()
@@ -143,16 +150,22 @@ def execute_agent_command(command_type, query=None):
     else:
         return f"❌ Unknown agent command: {command_type}\n\nUse 'agent-framework help' to see available commands."
 
+
 def main():
     """Command line interface for the agent launcher"""
-    parser = argparse.ArgumentParser(description='Agent Framework Command Launcher')
-    parser.add_argument('command', choices=['plan', 'debug', 'research', 'help'], help='Agent command to execute')
-    parser.add_argument('query', nargs='?', help='Query or description (for plan/debug/research commands)')
+    parser = argparse.ArgumentParser(description="Agent Framework Command Launcher")
+    parser.add_argument(
+        "command", choices=["plan", "debug", "research", "help"], help="Agent command to execute"
+    )
+    parser.add_argument(
+        "query", nargs="?", help="Query or description (for plan/debug/research commands)"
+    )
 
     args = parser.parse_args()
 
     result = execute_agent_command(args.command, args.query)
     print(result)
+
 
 if __name__ == "__main__":
     main()

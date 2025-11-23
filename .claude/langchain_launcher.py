@@ -5,15 +5,16 @@ Industry-standard AI agent commands built on LangChain
 Replaces superpowers plugin with production-ready framework
 """
 
-import os
-import sys
-import subprocess
 import argparse
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 # Add project root to Python path for this session only
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
+
 
 def setup_environment():
     """Setup project-specific environment without polluting system"""
@@ -22,10 +23,11 @@ def setup_environment():
 
     # Environment variables for this session
     env = os.environ.copy()
-    env['PYTHONPATH'] = python_path
-    env['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY', '')  # Required for LangChain
+    env["PYTHONPATH"] = python_path
+    env["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")  # Required for LangChain
 
     return env
+
 
 def show_brainstorm_help():
     """Show brainstorming command help"""
@@ -47,6 +49,7 @@ Examples:
 
 This command uses LangChain with GPT-4 to generate creative, structured ideas using proven brainstorming methodologies.
 """
+
 
 def show_plan_help():
     """Show planning command help"""
@@ -70,6 +73,7 @@ Examples:
 This command uses LangChain to create comprehensive, production-ready project plans using enterprise methodologies.
 """
 
+
 def show_tdd_help():
     """Show TDD command help"""
     return """
@@ -91,6 +95,7 @@ Examples:
 
 This command uses LangChain to enforce strict TDD workflows, ensuring test-first development with industry best practices.
 """
+
 
 def show_implement_help():
     """Show implementation command help"""
@@ -114,6 +119,7 @@ Examples:
 This command uses LangChain to provide detailed, production-ready implementation guidance from expert software architects.
 """
 
+
 def show_review_help():
     """Show code review command help"""
     return """
@@ -135,6 +141,7 @@ Examples:
 
 This command uses LangChain to perform expert-level code reviews with specific, actionable feedback.
 """
+
 
 def show_all_commands():
     """Show all available LangChain superpowers commands"""
@@ -167,12 +174,13 @@ Examples:
 This replaces the superpowers plugin with a battle-tested, enterprise-grade AI agent framework.
 """
 
+
 def execute_langchain_command(command_type, input_text="", context="", focus=""):
     """Execute LangChain superpowers commands"""
     env = setup_environment()
 
     # Check for OpenAI API key
-    if not env.get('OPENAI_API_KEY'):
+    if not env.get("OPENAI_API_KEY"):
         return "❌ Error: OPENAI_API_KEY environment variable is required for LangChain commands.\n\nSet it with: export OPENAI_API_KEY='your-api-key-here'"
 
     # Path to LangChain superpowers script
@@ -195,13 +203,7 @@ def execute_langchain_command(command_type, input_text="", context="", focus="")
             cmd.extend(["--focus", focus])
 
         # Execute the command
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            env=env,
-            cwd=PROJECT_ROOT
-        )
+        result = subprocess.run(cmd, capture_output=True, text=True, env=env, cwd=PROJECT_ROOT)
 
         if result.returncode == 0:
             return result.stdout
@@ -211,47 +213,53 @@ def execute_langchain_command(command_type, input_text="", context="", focus="")
     except Exception as e:
         return f"❌ Error executing command: {e}"
 
+
 def main():
     """Command line interface for the LangChain launcher"""
-    parser = argparse.ArgumentParser(description='LangChain Superpowers Launcher')
-    parser.add_argument('command',
-                       choices=['brainstorm', 'plan', 'tdd', 'implement', 'review', 'help'],
-                       help='LangChain superpower command to execute')
-    parser.add_argument('input', nargs='?', help='Input for the command')
-    parser.add_argument('--context', default='', help='Additional context for planning/implementation')
-    parser.add_argument('--focus', default='', help='Specific focus for code review')
+    parser = argparse.ArgumentParser(description="LangChain Superpowers Launcher")
+    parser.add_argument(
+        "command",
+        choices=["brainstorm", "plan", "tdd", "implement", "review", "help"],
+        help="LangChain superpower command to execute",
+    )
+    parser.add_argument("input", nargs="?", help="Input for the command")
+    parser.add_argument(
+        "--context", default="", help="Additional context for planning/implementation"
+    )
+    parser.add_argument("--focus", default="", help="Specific focus for code review")
 
     args = parser.parse_args()
 
-    if args.command == 'help':
+    if args.command == "help":
         result = show_all_commands()
-    elif args.command == 'brainstorm':
+    elif args.command == "brainstorm":
         if not args.input:
             result = show_brainstorm_help()
         else:
-            result = execute_langchain_command('brainstorm', args.input, args.context)
-    elif args.command == 'plan':
+            result = execute_langchain_command("brainstorm", args.input, args.context)
+    elif args.command == "plan":
         if not args.input:
             result = show_plan_help()
         else:
-            result = execute_langchain_command('plan', args.input, args.context)
-    elif args.command == 'tdd':
+            result = execute_langchain_command("plan", args.input, args.context)
+    elif args.command == "tdd":
         if not args.input:
             result = show_tdd_help()
         else:
-            result = execute_langchain_command('tdd', args.input)
-    elif args.command == 'implement':
+            result = execute_langchain_command("tdd", args.input)
+    elif args.command == "implement":
         if not args.input:
             result = show_implement_help()
         else:
-            result = execute_langchain_command('implement', args.input, args.context)
-    elif args.command == 'review':
+            result = execute_langchain_command("implement", args.input, args.context)
+    elif args.command == "review":
         if not args.input:
             result = show_review_help()
         else:
-            result = execute_langchain_command('review', args.input, '', args.focus)
+            result = execute_langchain_command("review", args.input, "", args.focus)
 
     print(result)
+
 
 if __name__ == "__main__":
     main()
