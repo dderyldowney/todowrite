@@ -137,7 +137,8 @@ Examples:
 
 def execute_agent_command(command_type, query=None):
     """Execute agent framework commands"""
-    env = setup_environment()
+    _ = query  # Mark as intentionally unused for future extensibility
+    setup_environment()  # Setup environment for potential future use
 
     if command_type == "plan":
         return show_plan_help()
