@@ -2,7 +2,7 @@ Save the current session state to the PostgreSQL database for persistence across
 
 The command will:
 1. Capture current session context and accomplishments
-2. Save to todowrite_sessions table in PostgreSQL
+2. Save to sessions table in PostgreSQL
 3. Associate session with current project (todowrite)
 4. Generate unique session ID with timestamp
 5. Provide confirmation of successful save

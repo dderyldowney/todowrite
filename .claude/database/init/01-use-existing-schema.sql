@@ -13,7 +13,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- Create a session tracking table that doesn't conflict with existing models
-CREATE TABLE IF NOT EXISTS todowrite_sessions (
+CREATE TABLE IF NOT EXISTS sessions (
     id SERIAL PRIMARY KEY,
     session_id TEXT NOT NULL UNIQUE,
     title TEXT,
@@ -29,12 +29,12 @@ CREATE TABLE IF NOT EXISTS todowrite_sessions (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     ended_at TIMESTAMP WITH TIME ZONE,
 
-    CONSTRAINT todowrite_sessions_session_id_not_empty CHECK (length(trim(session_id)) > 0)
+    CONSTRAINT sessions_session_id_not_empty CHECK (length(trim(session_id)) > 0)
 );
 
 -- Create indexes for session table
-CREATE INDEX IF NOT EXISTS idx_todowrite_sessions_session_id ON todowrite_sessions(session_id);
-CREATE INDEX IF NOT EXISTS idx_todowrite_sessions_last_activity ON todowrite_sessions(last_activity);
+CREATE INDEX IF NOT EXISTS idx_sessions_session_id ON sessions(session_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_last_activity ON sessions(last_activity);
 
 -- Create cross-session planning table
 CREATE TABLE IF NOT EXISTS todowrite_planning_sessions (

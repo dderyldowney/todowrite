@@ -21,11 +21,11 @@ try:
     )
 
     with conn.cursor() as cursor:
-        cursor.execute('SELECT COUNT(*) FROM todowrite_goals'); goals = cursor.fetchone()[0]
-        cursor.execute('SELECT COUNT(*) FROM todowrite_concepts'); concepts = cursor.fetchone()[0]
+        cursor.execute('SELECT COUNT(*) FROM goals'); goals = cursor.fetchone()[0]
+        cursor.execute('SELECT COUNT(*) FROM concepts'); concepts = cursor.fetchone()[0]
         cursor.execute(\"\"\"
             SELECT COUNT(*) FROM information_schema.tables
-            WHERE table_schema='public' AND table_name LIKE 'todowrite_%'
+            WHERE table_schema='public' AND table_name NOT IN ('information_schema','pg_catalog')
         \"\"\"); tables = cursor.fetchone()[0]
 
     conn.close()

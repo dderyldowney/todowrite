@@ -6,10 +6,12 @@ Automatically saves and restores session state when CLAUDE.md is loaded
 
 import json
 import os
+import subprocess
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict
 
 import psycopg2
 
@@ -22,7 +24,7 @@ class SessionManager:
         self.db_config = {
             "host": os.environ.get("MCP_DB_HOST", "localhost"),
             "port": int(os.environ.get("MCP_DB_PORT", "5433")),
-            "database": os.environ.get("MCP_DB_SESSIONS", "mcp_sessions"),
+            "database": os.environ.get("MCP_DB_SESSIONS", "todowrite"),
             "user": os.environ.get("MCP_DB_USER", "mcp_user"),
             "password": os.environ.get("MCP_DB_PASSWORD", "mcp_secure_password_2024"),
         }
@@ -42,6 +44,67 @@ class SessionManager:
 
         return session_id
 
+    def check_mcp_servers_health(self) -> Dict[str, Any]:
+        """Check health of MCP servers and wait for them to be available"""
+        mcp_servers = {
+            "context7": {"port": 3001, "container": "mcp-context7"},
+            "filesystem": {"port": 3002, "container": "mcp-filesystem"},
+            "git-server": {"port": 3003, "container": "mcp-git-server"},
+            "github-server": {"port": 3004, "container": "mcp-github-server"},
+            "playwright": {"port": 3005, "container": "mcp-playwright"},
+            "sqlite-server": {"port": 3006, "container": "mcp-sqlite-server"},
+            "rust-filesystem": {"port": 3007, "container": "mcp-rust-filesystem"},
+            "python-refactoring": {"port": 3008, "container": "mcp-python-refactoring"},
+        }
+
+        health_results = {}
+        print("🔍 Checking MCP server health...")
+
+        for service_name, config in mcp_servers.items():
+            try:
+                # Check if Docker container is running
+                result = subprocess.run(
+                    ["docker", "ps", "--filter", f"name={config['container']}", "--filter", "status=running", "--quiet"],
+                    capture_output=True, text=True, timeout=10
+                )
+                container_running = bool(result.stdout.strip())
+
+                # Check if port is accessible
+                port_accessible = self._check_port(config['port'])
+
+                if container_running and port_accessible:
+                    health_results[service_name] = {"status": "healthy", "message": "Container running and port accessible"}
+                    print(f"✅ {service_name}: Healthy")
+                else:
+                    health_results[service_name] = {
+                        "status": "unhealthy",
+                        "message": f"Container: {container_running}, Port: {port_accessible}"
+                    }
+                    print(f"❌ {service_name}: Unhealthy")
+
+            except Exception as e:
+                health_results[service_name] = {"status": "error", "message": str(e)}
+                print(f"❌ {service_name}: Error - {str(e)}")
+
+        healthy_count = sum(1 for r in health_results.values() if r["status"] == "healthy")
+        total_count = len(mcp_servers)
+
+        print(f"\n📊 MCP Server Health Summary: {healthy_count}/{total_count} healthy")
+
+        return health_results
+
+    def _check_port(self, port: int) -> bool:
+        """Check if port is open and accessible"""
+        try:
+            import socket
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(3)
+            result = sock.connect_ex(('localhost', port))
+            sock.close()
+            return result == 0
+        except (socket.error, OSError):
+            return False
+
     def save_session_state(self, context: dict[str, Any]) -> bool:
         """Save current session state to database"""
         try:
@@ -58,7 +121,7 @@ class SessionManager:
 
                 cursor.execute(
                     """
-                    INSERT INTO todowrite_sessions (
+                    INSERT INTO sessions (
                         session_id, title, description, environment, context,
                         created_at, updated_at, last_activity
                     ) VALUES (%s, %s, %s, %s, %s, NOW(), NOW(), NOW())
@@ -97,7 +160,7 @@ class SessionManager:
                 cursor.execute(
                     """
                     SELECT context, created_at, last_activity
-                    FROM todowrite_sessions
+                    FROM sessions
                     WHERE context::text LIKE %s
                     ORDER BY last_activity DESC
                     LIMIT 1
@@ -182,6 +245,7 @@ def main():
     parser.add_argument("--save", action="store_true", help="Save current session state")
     parser.add_argument("--load", action="store_true", help="Load and display latest session")
     parser.add_argument("--summary", action="store_true", help="Get session summary")
+    parser.add_argument("--mcp-health", action="store_true", help="Check MCP server health")
     parser.add_argument("--context", help="JSON context to save")
 
     args = parser.parse_args()
@@ -198,6 +262,15 @@ def main():
         sys.exit(0 if state else 1)
     elif args.summary:
         print(load_session_summary())
+    elif args.mcp_health:
+        manager = SessionManager()
+        health_results = manager.check_mcp_servers_health()
+        healthy_count = sum(1 for r in health_results.values() if r["status"] == "healthy")
+        total_count = len(health_results)
+        print(f"\nMCP Health Summary: {healthy_count}/{total_count} servers healthy")
+        if healthy_count < total_count:
+            print("⚠️  Some MCP servers are unhealthy - may affect development capabilities")
+        sys.exit(0 if healthy_count > 0 else 1)
     else:
         parser.print_help()
 

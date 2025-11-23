@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS schema_migrations (
 );
 
 -- Main sessions table (matches session manager expectations)
-CREATE TABLE IF NOT EXISTS todowrite_sessions (
+CREATE TABLE IF NOT EXISTS sessions (
     id SERIAL PRIMARY KEY,
     session_id TEXT NOT NULL UNIQUE,
     title TEXT,
@@ -35,13 +35,13 @@ CREATE TABLE IF NOT EXISTS todowrite_sessions (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     ended_at TIMESTAMP WITH TIME ZONE,
 
-    CONSTRAINT todowrite_sessions_session_id_not_empty CHECK (length(trim(session_id)) > 0)
+    CONSTRAINT sessions_session_id_not_empty CHECK (length(trim(session_id)) > 0)
 );
 
 -- Session operations tracking
 CREATE TABLE IF NOT EXISTS session_operations (
     id SERIAL PRIMARY KEY,
-    session_id TEXT REFERENCES todowrite_sessions(session_id) ON DELETE CASCADE,
+    session_id TEXT REFERENCES sessions(session_id) ON DELETE CASCADE,
     operation_type VARCHAR(50) NOT NULL, -- save, load, restore, etc.
     status VARCHAR(20) DEFAULT 'completed', -- pending, completed, failed
     operation_details JSONB DEFAULT '{}',
@@ -50,9 +50,9 @@ CREATE TABLE IF NOT EXISTS session_operations (
 );
 
 -- Indexes for performance
-CREATE INDEX IF NOT EXISTS idx_todowrite_sessions_session_id ON todowrite_sessions(session_id);
-CREATE INDEX IF NOT EXISTS idx_todowrite_sessions_status ON todowrite_sessions(status);
-CREATE INDEX IF NOT EXISTS idx_todowrite_sessions_last_activity ON todowrite_sessions(last_activity);
+CREATE INDEX IF NOT EXISTS idx_sessions_session_id ON sessions(session_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_status ON sessions(status);
+CREATE INDEX IF NOT EXISTS idx_sessions_last_activity ON sessions(last_activity);
 CREATE INDEX IF NOT EXISTS idx_session_operations_session_id ON session_operations(session_id);
 CREATE INDEX IF NOT EXISTS idx_session_operations_status ON session_operations(status);
 

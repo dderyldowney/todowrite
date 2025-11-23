@@ -198,12 +198,12 @@ python .claude/todowrite_database_manager.py
 ```bash
 # Check data counts
 docker exec mcp-postgres psql -U mcp_user -d mcp_tools -c "
-SELECT 'Goals:', COUNT(*) FROM todowrite_goals
+SELECT 'Goals:', COUNT(*) FROM goals
 UNION ALL
-SELECT 'Concepts:', COUNT(*) FROM todowrite_concepts
+SELECT 'Concepts:', COUNT(*) FROM concepts
 UNION ALL
 SELECT 'Tables:', COUNT(*) FROM information_schema.tables
-WHERE table_schema='public' AND table_name LIKE 'todowrite_%';
+WHERE table_schema='public' AND table_name NOT IN ('information_schema','pg_catalog');
 "
 ```
 
@@ -233,7 +233,7 @@ concept = manager.create_layer_item('concept', "Title", "Description")
 ### **Session Persistence:**
 - ✅ All work automatically stored in PostgreSQL
 - ✅ Cross-session continuity maintained
-- ✅ Session tracking via todowrite_sessions table
+- ✅ Session tracking via sessions table
 
 ---
 
@@ -290,7 +290,7 @@ bash .claude/run_all_tests.sh
 - ❌ Do NOT create separate PostgreSQL containers
 
 ### **Session Continuity:**
-- ✅ All work tracked via session_id in todowrite_sessions table
+- ✅ All work tracked via session_id in sessions table
 - ✅ Cross-session data persistence guaranteed
 - ✅ Complete audit trail of all actions and decisions
 - ✅ Session restoration capabilities implemented

@@ -23,13 +23,13 @@
 
 ## 🚀 **SYSTEM OVERVIEW**
 
-This project uses a **complete PostgreSQL backend system** built on the existing MCP PostgreSQL container with comprehensive 12-layer hierarchy and cross-association tables.
+This project uses a **complete PostgreSQL backend system** built on the existing MCP PostgreSQL container with comprehensive 12-layer hierarchy and association tables.
 
 ### **Current Architecture:**
 - ✅ **Container**: `mcp-postgres` (running 23+ hours, auto-restart enabled)
 - ✅ **Database**: `mcp_tools` with user `mcp_user`
 - ✅ **Port**: 5433 (mapped from container port 5432)
-- ✅ **Tables**: 23 total tables with complete associations
+- ✅ **Tables**: 42 total tables with complete associations
 - ✅ **Models API**: Existing lib_package Models (Goal → ... → Command)
 - ✅ **Data**: 10 goals, 14 concepts, 2 tasks, 1 session (27+ total records)
 
@@ -75,33 +75,37 @@ db_config = {
 }
 ```
 
-### **Table Structure (23 Tables):**
-**Core Hierarchy Tables:**
-- `todowrite_goals` - Top-level objectives
-- `todowrite_concepts` - Strategic concepts linked to goals
-- `todowrite_contexts` - Development contexts
-- `todowrite_constraints` - Project constraints
-- `todowrite_requirements` - Detailed requirements
-- `todowrite_acceptance_criteria` - Success criteria
-- `todowrite_interface_contracts` - API contracts
-- `todowrite_phases` - Project phases
-- `todowrite_steps` - Implementation steps
-- `todowrite_tasks` - Specific tasks
-- `todowrite_subtasks` - Detailed subtasks
-- `todowrite_commands` - Executable commands
-- `todowrite_sessions` - Cross-session tracking
+### **Table Structure (42 Tables):**
+**Core Hierarchy Tables (12):**
+- `goals` - Top-level objectives
+- `concepts` - Strategic concepts linked to goals
+- `contexts` - Development contexts
+- `constraints` - Project constraints
+- `requirements` - Detailed requirements
+- `acceptance_criteria` - Success criteria
+- `interface_contracts` - API contracts
+- `phases` - Project phases
+- `steps` - Implementation steps
+- `tasks` - Specific tasks
+- `sub_tasks` - Detailed subtasks
+- `commands` - Executable commands
 
-**Association Tables (10 additional):**
-- `todowrite_goal_concepts` - Goals ↔ Concepts (many-to-many)
-- `todowrite_goal_tasks` - Goals ↔ Tasks (direct mapping)
-- `todowrite_concept_tasks` - Concepts ↔ Tasks (mapping)
-- `todowrite_phase_tasks` - Phases ↔ Tasks (phase-to-task)
-- `todowrite_step_tasks` - Steps ↔ Tasks (step-to-task)
-- `todowrite_requirement_tasks` - Requirements ↔ Tasks
-- `todowrite_task_subtasks` - Tasks ↔ SubTasks (decomposition)
-- `todowrite_subtask_commands` - SubTasks ↔ Commands (execution)
-- `todowrite_goal_phases` - Goals ↔ Phases (planning)
-- `todowrite_phase_steps` - Phases ↔ Steps (process)
+**Supporting Tables:**
+- `labels` - Tags and categorization
+- `sessions` - Cross-session tracking
+
+**Association Tables (28):**
+- `goals_concepts`, `goals_contexts`, `goals_labels`, `goals_phases`, `goals_tasks`
+- `concepts_contexts`, `concepts_labels`, `requirements_concepts`, `requirements_contexts`, `requirements_labels`
+- `constraints_goals`, `constraints_labels`, `constraints_requirements`
+- `acceptance_criteria_labels`, `acceptance_criteria_interface_contracts`
+- `interface_contracts_labels`, `interface_contracts_phases`
+- `phases_labels`, `phases_steps`
+- `steps_labels`, `steps_tasks`
+- `tasks_labels`, `tasks_sub_tasks`
+- `sub_tasks_labels`, `sub_tasks_commands`
+- `commands_labels`
+- `requirements_acceptance_criteria`
 
 ---
 
@@ -141,12 +145,12 @@ python .claude/todowrite_database_manager.py
 ```bash
 # Check data counts
 docker exec mcp-postgres psql -U mcp_user -d mcp_tools -c "
-SELECT 'Goals:', COUNT(*) FROM todowrite_goals
+SELECT 'Goals:', COUNT(*) FROM goals
 UNION ALL
-SELECT 'Concepts:', COUNT(*) FROM todowrite_concepts
+SELECT 'Concepts:', COUNT(*) FROM concepts
 UNION ALL
 SELECT 'Tables:', COUNT(*) FROM information_schema.tables
-WHERE table_schema='public' AND table_name LIKE 'todowrite_%';
+WHERE table_schema='public' AND table_name LIKE '%';
 "
 ```
 
@@ -176,7 +180,7 @@ concept = manager.create_layer_item('concept', "Title", "Description")
 ### **Session Persistence:**
 - ✅ All work automatically stored in PostgreSQL
 - ✅ Cross-session continuity maintained
-- ✅ Session tracking via todowrite_sessions table
+- ✅ Session tracking via sessions table
 
 ---
 
@@ -233,7 +237,7 @@ bash .claude/run_all_tests.sh
 - ❌ Do NOT create separate PostgreSQL containers
 
 ### **Session Continuity:**
-- ✅ All work tracked via session_id in todowrite_sessions table
+- ✅ All work tracked via session_id in sessions table
 - ✅ Cross-session data persistence guaranteed
 - ✅ Complete audit trail of all actions and decisions
 - ✅ Session restoration capabilities implemented
@@ -243,11 +247,11 @@ bash .claude/run_all_tests.sh
 ## 🎯 **CURRENT STATUS: PRODUCTION READY**
 
 **System Components:**
-- ✅ PostgreSQL Backend: COMPLETE (23 tables, 31 FK constraints)
+- ✅ PostgreSQL Backend: COMPLETE (42 tables, association system)
 - ✅ Models API Integration: COMPLETE (existing lib_package)
 - ✅ Data Persistence: COMPLETE (cross-session)
 - ✅ Container Management: COMPLETE (auto-restart)
-- ✅ Association System: COMPLETE (10 association tables)
+- ✅ Association System: COMPLETE (28 association tables)
 - ✅ Session Tracking: COMPLETE (audit trail)
 
 **Ready for full development work with guaranteed data persistence and session continuity.**
