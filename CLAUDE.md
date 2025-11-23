@@ -6,29 +6,18 @@
 
 ---
 
-## ⚠️ **CRITICAL: SYSTEM SEPARATION MANDATE**
+## ⚠️ **CRITICAL: COMPREHENSIVE MANDATE**
 
-**TWO COMPLETELY SEPARATE SYSTEMS - NEVER MIX UNDER ANY CIRCUMSTANCES**
+**ALL DEVELOPMENT REQUIREMENTS - ZERO EXCEPTIONS**
 
-### **SYSTEM 1: TODOWRITE MODELS API**
-- **Tables**: `goals`, `concepts`, `contexts`, `constraints`, `requirements`, `acceptance_criteria`, `interface_contracts`, `phases`, `steps`, `tasks`, `sub_tasks`, `commands`, `labels`
-- **Purpose**: Hierarchical project planning and task management
-- **ALLOWED**: `title`, `description`, `status`, `priority`, `metadata` (ToDowrite ONLY), `tags`, `owner`, `severity`
-- **FORBIDDEN**: `session_id`, `actions`, `context` (session data)
+### **MANDATORY COMPLIANCE:**
+- **ToDoWrite Planning**: ALL work MUST start with goal/concept/task breakdown
+- **TDD Enforcement**: Red-Green-Refactor cycle REQUIRED for all code
+- **System Separation**: Never mix ToDoWrite with session storage
+- **HAL Token Optimization**: Mandatory monitoring and enforcement
 
-### **SYSTEM 2: SESSIONS TRACKING**
-- **Tables**: `sessions` ONLY
-- **Purpose**: Cross-session continuity, audit trail, conversation state
-- **ALLOWED**: `session_id`, `actions`, `context`, `environment`, `last_activity`
-- **FORBIDDEN**: ToDoWrite hierarchical data
-
-### **🚫 ABSOLUTE PROHIBITIONS**
-- **NEVER** store `session_id` in ToDoWrite tables
-- **NEVER** store ToDoWrite model data in sessions
-- **NEVER** mix systems under any circumstances
-- **IMMEDIATE REJECTION** of any violations
-
-**SEE:** `.claude/SYSTEM_SEPARATION_MANDATE.md` for complete enforcement rules
+**SEE:** [`.claude/STREAMLINED_MANDATE.md`](./.claude/STREAMLINED_MANDATE.md) for complete requirements
+**SEE:** [`.claude/SYSTEM_SEPARATION_MANDATE.md`](./.claude/SYSTEM_SEPARATION_MANDATE.md) for system separation rules
 
 ---
 

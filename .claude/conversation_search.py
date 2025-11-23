@@ -6,28 +6,30 @@ Industry-standard episodic memory replacement using PostgreSQL + vector similari
 Replaces the non-functional superpowers and episodic-memory plugins with a production-ready solution.
 """
 
-import os
+import argparse
+import hashlib
 import json
-import psycopg2
-from typing import List, Dict, Optional, Tuple, Any
+import os
+import sys
+import time
 from dataclasses import dataclass
 from datetime import datetime
-import argparse
-import sys
-import hashlib
-import time
-from pathlib import Path
+
+import psycopg2
+
 
 @dataclass
 class SearchResult:
     """Represents a search result with similarity score"""
+
     conversation_id: str
     message_type: str
     content: str
     timestamp: str
     similarity: float
-    project: Optional[str] = None
-    session_id: Optional[str] = None
+    project: str | None = None
+    session_id: str | None = None
+
 
 class ConversationSearchSystem:
     """Production-ready conversation search with PostgreSQL backend"""
@@ -42,7 +44,7 @@ class ConversationSearchSystem:
         try:
             self.conn = psycopg2.connect(self.db_connection)
             self.conn.autocommit = True
-            print(f"✅ Connected to PostgreSQL database")
+            print("✅ Connected to PostgreSQL database")
         except Exception as e:
             print(f"❌ Database connection failed: {e}")
             raise
@@ -118,15 +120,17 @@ class ConversationSearchSystem:
                 """)
                 existing_columns = [row[0] for row in cursor.fetchall()]
 
-                if 'file_hash' not in existing_columns:
+                if "file_hash" not in existing_columns:
                     cursor.execute("ALTER TABLE conversations ADD COLUMN file_hash TEXT")
                     print("✅ Added file_hash column")
 
-                if 'file_modified' not in existing_columns:
-                    cursor.execute("ALTER TABLE conversations ADD COLUMN file_modified TIMESTAMP WITH TIME ZONE")
+                if "file_modified" not in existing_columns:
+                    cursor.execute(
+                        "ALTER TABLE conversations ADD COLUMN file_modified TIMESTAMP WITH TIME ZONE"
+                    )
                     print("✅ Added file_modified column")
 
-                if 'file_hash' in existing_columns and 'file_modified' in existing_columns:
+                if "file_hash" in existing_columns and "file_modified" in existing_columns:
                     print("✅ Adaptive schema columns already exist")
 
             except Exception as e:
@@ -137,18 +141,18 @@ class ConversationSearchSystem:
         finally:
             cursor.close()
 
-    def load_conversation_file(self, file_path: str) -> Optional[Tuple[str, List[Dict]]]:
+    def load_conversation_file(self, file_path: str) -> tuple[str, list[dict]] | None:
         """Load and parse a conversation JSONL file"""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 lines = [line for line in f if line.strip()]
 
             messages = []
             for line in lines:
                 try:
                     data = json.loads(line)
-                    if data.get('type') in ['user', 'assistant'] and data.get('message'):
-                        message_obj = data['message']
+                    if data.get("type") in ["user", "assistant"] and data.get("message"):
+                        message_obj = data["message"]
                         content = ""
 
                         # Handle different message content formats
@@ -156,31 +160,33 @@ class ConversationSearchSystem:
                             content = message_obj
                         elif isinstance(message_obj, dict):
                             # Extract content from message object
-                            if 'content' in message_obj:
-                                content_field = message_obj['content']
+                            if "content" in message_obj:
+                                content_field = message_obj["content"]
                                 if isinstance(content_field, str):
                                     content = content_field
                                 elif isinstance(content_field, list):
                                     # Join content array elements
                                     content_parts = []
                                     for part in content_field:
-                                        if isinstance(part, dict) and 'text' in part:
-                                            content_parts.append(part['text'])
+                                        if isinstance(part, dict) and "text" in part:
+                                            content_parts.append(part["text"])
                                         elif isinstance(part, str):
                                             content_parts.append(part)
-                                    content = ' '.join(content_parts)
+                                    content = " ".join(content_parts)
 
                         if content:  # Only add messages with content
-                            messages.append({
-                                'type': data['type'],
-                                'content': content,
-                                'timestamp': data.get('timestamp', datetime.now().isoformat())
-                            })
+                            messages.append(
+                                {
+                                    "type": data["type"],
+                                    "content": content,
+                                    "timestamp": data.get("timestamp", datetime.now().isoformat()),
+                                }
+                            )
                 except json.JSONDecodeError:
                     continue
 
             if messages:
-                conversation_id = os.path.basename(file_path).replace('.jsonl', '')
+                conversation_id = os.path.basename(file_path).replace(".jsonl", "")
                 return conversation_id, messages
 
         except Exception as e:
@@ -203,10 +209,13 @@ class ConversationSearchSystem:
         """Check if file needs reindexing based on hash and modification time"""
         cursor = self.conn.cursor()
         try:
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT file_hash, file_modified FROM conversations
                 WHERE conversation_file = %s
-            """, (os.path.basename(file_path),))
+            """,
+                (os.path.basename(file_path),),
+            )
 
             result = cursor.fetchone()
             if not result:
@@ -235,7 +244,8 @@ class ConversationSearchSystem:
         cursor = self.conn.cursor()
         try:
             # Insert or update conversation record with file tracking
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO conversations
                 (conversation_file, project, session_id, message_count, file_path, file_hash, file_modified)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
@@ -247,15 +257,17 @@ class ConversationSearchSystem:
                     file_modified = EXCLUDED.file_modified,
                     indexed_at = NOW()
                 RETURNING id
-            """, (
-                conversation_id,
-                os.path.basename(os.path.dirname(file_path)),
-                None,  # session_id extraction would require parsing
-                len(messages),
-                file_path,
-                file_hash,
-                file_modified
-            ))
+            """,
+                (
+                    conversation_id,
+                    os.path.basename(os.path.dirname(file_path)),
+                    None,  # session_id extraction would require parsing
+                    len(messages),
+                    file_path,
+                    file_hash,
+                    file_modified,
+                ),
+            )
 
             conv_uuid = cursor.fetchone()[0]
 
@@ -264,17 +276,20 @@ class ConversationSearchSystem:
 
             # Insert messages
             for msg in messages:
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT INTO messages
                     (conversation_id, message_type, content, timestamp, token_count)
                     VALUES (%s, %s, %s, %s, %s)
-                """, (
-                    conv_uuid,
-                    msg['type'],
-                    msg['content'],
-                    msg['timestamp'],
-                    len(msg['content'].split())  # rough token count
-                ))
+                """,
+                    (
+                        conv_uuid,
+                        msg["type"],
+                        msg["content"],
+                        msg["timestamp"],
+                        len(msg["content"].split()),  # rough token count
+                    ),
+                )
 
             return True
 
@@ -284,12 +299,17 @@ class ConversationSearchSystem:
         finally:
             cursor.close()
 
-    def index_conversation_directory(self, directory_path: str, limit: Optional[int] = None,
-                                   batch_size: int = 50, adaptive: bool = True) -> int:
+    def index_conversation_directory(
+        self,
+        directory_path: str,
+        limit: int | None = None,
+        batch_size: int = 50,
+        adaptive: bool = True,
+    ) -> int:
         """Index all conversation files in a directory with resource-aware processing"""
         print(f"📁 Indexing conversations from: {directory_path}")
         if adaptive:
-            print(f"🔄 Adaptive mode: Only processing new/changed files")
+            print("🔄 Adaptive mode: Only processing new/changed files")
         print(f"⚙️  Batch size: {batch_size} files")
 
         indexed_count = 0
@@ -299,7 +319,7 @@ class ConversationSearchSystem:
 
         for root, _, files in os.walk(directory_path):
             for file in files:
-                if file.endswith('.jsonl'):
+                if file.endswith(".jsonl"):
                     if limit and processed >= limit:
                         break
 
@@ -323,7 +343,9 @@ class ConversationSearchSystem:
                     if processed % batch_size == 0:
                         elapsed = time.time() - start_time
                         rate = processed / elapsed if elapsed > 0 else 0
-                        print(f"📊 Processed {processed} files (+{skipped_count} skipped), indexed {indexed_count} | Rate: {rate:.1f} files/sec")
+                        print(
+                            f"📊 Processed {processed} files (+{skipped_count} skipped), indexed {indexed_count} | Rate: {rate:.1f} files/sec"
+                        )
 
                         # Brief pause to prevent system overload
                         time.sleep(0.1)
@@ -336,11 +358,12 @@ class ConversationSearchSystem:
         print(f"📈 Skipped {skipped_count} unchanged files | Total time: {total_time:.1f}s")
         return indexed_count
 
-    def keyword_search(self, query: str, limit: int = 10) -> List[SearchResult]:
+    def keyword_search(self, query: str, limit: int = 10) -> list[SearchResult]:
         """Perform keyword-based search using PostgreSQL full-text search"""
         cursor = self.conn.cursor()
         try:
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT
                     c.conversation_file,
                     m.message_type,
@@ -354,26 +377,30 @@ class ConversationSearchSystem:
                 WHERE to_tsvector('english', m.content) @@ plainto_tsquery('english', %s)
                 ORDER BY rank DESC
                 LIMIT %s
-            """, (query, query, limit))
+            """,
+                (query, query, limit),
+            )
 
             results = []
             rows = cursor.fetchall()
             for row in rows:
-                results.append(SearchResult(
-                    conversation_id=row[0],
-                    message_type=row[1],
-                    content=row[2],
-                    timestamp=str(row[3]),
-                    similarity=float(row[6]) if row[6] else 0.0,
-                    project=row[4],
-                    session_id=row[5]
-                ))
+                results.append(
+                    SearchResult(
+                        conversation_id=row[0],
+                        message_type=row[1],
+                        content=row[2],
+                        timestamp=str(row[3]),
+                        similarity=float(row[6]) if row[6] else 0.0,
+                        project=row[4],
+                        session_id=row[5],
+                    )
+                )
 
             return results
         finally:
             cursor.close()
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """Get database statistics"""
         cursor = self.conn.cursor()
         try:
@@ -386,25 +413,31 @@ class ConversationSearchSystem:
             cursor.execute("SELECT COUNT(DISTINCT project) FROM conversations")
             project_count = cursor.fetchone()[0]
 
-            return {
-                'conversations': conv_count,
-                'messages': msg_count,
-                'projects': project_count
-            }
+            return {"conversations": conv_count, "messages": msg_count, "projects": project_count}
         finally:
             cursor.close()
 
+
 def main():
-    parser = argparse.ArgumentParser(description='Custom Conversation Search System')
-    parser.add_argument('--init', action='store_true', help='Initialize database schema')
-    parser.add_argument('--index', metavar='DIRECTORY', help='Index conversation files from directory')
-    parser.add_argument('--search', metavar='QUERY', help='Search conversations')
-    parser.add_argument('--limit', type=int, default=10, help='Limit search results')
-    parser.add_argument('--stats', action='store_true', help='Show database statistics')
-    parser.add_argument('--batch-size', type=int, default=50, help='Batch size for processing (default: 50)')
-    parser.add_argument('--no-adaptive', action='store_true', help='Disable adaptive processing (process all files)')
-    parser.add_argument('--db', default='postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/mcp_tools',
-                       help='Database connection string')
+    parser = argparse.ArgumentParser(description="Custom Conversation Search System")
+    parser.add_argument("--init", action="store_true", help="Initialize database schema")
+    parser.add_argument(
+        "--index", metavar="DIRECTORY", help="Index conversation files from directory"
+    )
+    parser.add_argument("--search", metavar="QUERY", help="Search conversations")
+    parser.add_argument("--limit", type=int, default=10, help="Limit search results")
+    parser.add_argument("--stats", action="store_true", help="Show database statistics")
+    parser.add_argument(
+        "--batch-size", type=int, default=50, help="Batch size for processing (default: 50)"
+    )
+    parser.add_argument(
+        "--no-adaptive", action="store_true", help="Disable adaptive processing (process all files)"
+    )
+    parser.add_argument(
+        "--db",
+        default="postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/mcp_tools",
+        help="Database connection string",
+    )
 
     args = parser.parse_args()
 
@@ -425,10 +458,7 @@ def main():
 
             search_system.create_conversation_schema()
             indexed = search_system.index_conversation_directory(
-                args.index,
-                limit=None,
-                batch_size=args.batch_size,
-                adaptive=not args.no_adaptive
+                args.index, limit=None, batch_size=args.batch_size, adaptive=not args.no_adaptive
             )
             print(f"✅ Indexed {indexed} conversations")
 
@@ -451,7 +481,11 @@ def main():
                     print(f"   Similarity: {result.similarity:.3f}")
                     print(f"   Timestamp: {result.timestamp}")
                     # Show first 200 characters of content
-                    content_preview = result.content[:200] + "..." if len(result.content) > 200 else result.content
+                    content_preview = (
+                        result.content[:200] + "..."
+                        if len(result.content) > 200
+                        else result.content
+                    )
                     print(f"   Content: {content_preview}")
 
         elif args.stats:
@@ -467,6 +501,7 @@ def main():
 
     finally:
         search_system.close()
+
 
 if __name__ == "__main__":
     main()

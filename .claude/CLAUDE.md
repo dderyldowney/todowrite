@@ -1,124 +1,170 @@
 # CLAUDE.md
 
 **ToDoWrite PostgreSQL Backend System Configuration**
-**Last Updated: 2025-11-21**
-**Status: FULLY OPERATIONAL**
+**Last Updated: 2025-11-22**
+**Status: FULLY OPERATIONAL - STREAMLINED**
 
 ---
 
-## 🔄 **AUTOMATIC SESSION STATE MANAGEMENT**
+---
 
-### **Session Persistence & Restoration:**
-This system includes **automatic session state management** that saves and restores your work context across Claude sessions.
+## 🚀 **System Overview**
 
-#### **When CLAUDE.md is loaded, the system will:**
-1. **🔄 RESTORE** the latest session state automatically
-2. **💾 SAVE** current session state on exit
-3. **📋 DISPLAY** previous accomplishments and findings
+**Streamlined PostgreSQL-based Development System**
 
-#### **Session Management Commands:**
+This project provides a complete, production-ready PostgreSQL backend system with integrated episodic memory and LangChain-powered agent framework.
+
+### **Core Architecture**
+
+- ✅ **PostgreSQL Container**: `mcp-postgres` (auto-restart, port 5433)
+- ✅ **Episodic Memory**: PostgreSQL-based conversation search (6,686+ conversations indexed)
+- ✅ **LangChain Integration**: Industry-standard agent framework (brainstorming, planning, TDD, implementation, review)
+- ✅ **ToDoWrite Models**: Complete 12-layer hierarchy with association tables
+- ✅ **Standalone Deployment**: Docker-based solution for any project
+
+---
+
+## 🗄️ **POSTGRESQL DATABASE ARCHITECTURE**
+
+### **📊 Database Inventory (3 Total Databases)**
+**Container**: `mcp-postgres` (port 5433, auto-restart)
+
+#### **1. `todowrite` Database - Project Management**
+**Purpose**: ToDoWrite development system with 12-layer hierarchy
+**Connection**: `postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/todowrite`
+**Tables**: 43 total tables
+**Core Tables**: goals, concepts, contexts, constraints, requirements, acceptance_criteria, interface_contracts, phases, steps, tasks, subtasks, commands, labels
+**Association Tables**: goals_concepts, goals_tasks, concepts_tasks, phase_tasks, step_tasks, requirement_tasks, task_subtasks, subtask_commands, goal_phases, phase_steps
+**Data**: 4 goals, 16 concepts, 5 tasks (live project data)
+**Usage**: ✅ PRIMARY project management database
+
+#### **2. `mcp_episodic_memory` Database - Conversation Storage**
+**Purpose**: Episodic memory system - 6,686+ conversations indexed
+**Connection**: `postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/mcp_episodic_memory`
+**Tables**: 8 total tables
+**Core Tables**: conversations, messages, message_summaries, exchanges, vec_exchanges, tool_calls, queue_operations, schema_migrations
+**Features**: Full-text search, vector similarity, adaptive indexing
+**Data**: 6,686 conversations, 43,491+ messages
+**Usage**: ✅ CONVERSATION search and retrieval
+
+#### **3. `mcp_tools` Database - Legacy MCP**
+**Purpose**: Original MCP tools database (minimal usage)
+**Connection**: `postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/mcp_tools`
+**Tables**: 6 total tables (mostly schema/system tables)
+**Status**: ⚠️ LEGACY - limited active usage
+**Usage**: ⚠️ AVOID unless specifically needed for MCP compatibility
+
+### **🔒 DATABASE SEPARATION MANDATE**
+- **NEVER** mix data between databases
+- **NEVER** use `mcp_tools` for ToDoWrite data
+- **ALWAYS** use `todowrite` for project management
+- **ALWAYS** use `mcp_episodic_memory` for conversations
+- **NEVER** assume tables exist - verify with `\dt` commands
+
+### **🚨 NON-NEGOTIABLE TODOWRITE USAGE MANDATE**
+- **ALL DEVELOPMENT WORK** MUST start with ToDoWrite planning
+- **NO CODE IMPLEMENTATION** without goal/concept/task breakdown
+- **ZERO EXCEPTIONS** for "quick fixes" or "simple changes"
+- **ALL AGENTS** (Chat, CLI, VSCode) MUST enforce this requirement
+- **VERIFICATION REQUIRED**: Before ANY work, confirm active ToDoWrite items exist
+
+**Mandatory Pre-Work Verification:**
 ```bash
-# Get session summary
-source $PWD/.venv/bin/activate && python .claude/session_manager.py --summary
+# Verify active goals exist before starting work:
+docker exec mcp-postgres psql -U mcp_user -d todowrite -c "SELECT COUNT(*) FROM goals WHERE status = 'active';"
 
-# Save current session manually
-python .claude/session_manager.py --save --context '{"status": "working", "task": "implementation"}'
+# Check current session has ToDoWrite context:
+python .claude/session_manager.py --summary
 
-# Load latest session state
-python .claude/session_manager.py --load
+# Verify TDD compliance before ANY coding:
+pytest tests/ -v  # Tests must exist and fail first for new features
 ```
 
----
+### **🔬 MANDATORY TDD & RED-GREEN-REFACTOR ENFORCEMENT**
+- **ALL CODE** MUST start with failing test (RED phase)
+- **NO IMPLEMENTATION** before test failure confirmation
+- **GREEN PHASE**: Minimal code to pass test only
+- **REFACTOR PHASE**: Improve code while tests pass
+- **ZERO EXCEPTIONS** for any anti-TDD patterns
 
----
+**TDD Workflow Verification:**
+```bash
+# BEFORE implementing anything:
+pytest tests/ -v  # Confirm tests exist and fail
 
-## 🚀 **SYSTEM OVERVIEW**
+# AFTER implementation:
+pytest tests/ -v  # Confirm all tests pass
 
-This project uses a **complete PostgreSQL backend system** built on the existing MCP PostgreSQL container with comprehensive 12-layer hierarchy and cross-association tables.
+# NO DIRECT CODING ALLOWED WITHOUT FAILING TESTS FIRST
+```
 
-### **Current Architecture:**
-- ✅ **Container**: `mcp-postgres` (running 23+ hours, auto-restart enabled)
-- ✅ **Database**: `mcp_tools` with user `mcp_user`
-- ✅ **Port**: 5433 (mapped from container port 5432)
-- ✅ **Tables**: 23 total tables with complete associations
-- ✅ **Models API**: Existing lib_package Models (Goal → ... → Command)
-- ✅ **Data**: 10 goals, 14 concepts, 2 tasks, 1 session (27+ total records)
+## 🛠️ **Environment Setup**
 
----
-
-## 🛠️ **ENVIRONMENT SETUP**
-
-### **Required Environment Setup:**
+### **Quick Start**
 ```bash
 # 1. Activate virtual environment
-source $PWD/.venv/bin/activate
+source .venv/bin/activate
 
-# 2. Set Python path for existing Models API
+# 2. Set Python path for Models API
 export PYTHONPATH="lib_package/src:cli_package/src"
 
-# 3. Verify container is running
+# 3. Verify PostgreSQL container
 docker ps --filter "name=mcp-postgres"
 
-# 4. Test database connectivity
-python -c "
-import psycopg2
-conn = psycopg2.connect(
-    host='localhost', port=5433, database='mcp_tools',
-    user='mcp_user', password='mcp_secure_password_2024'
-)
-print('✅ Database connection: SUCCESS')
-conn.close()
-"
+# 4. Verify database connectivity
+docker exec mcp-postgres psql -U mcp_user -d todowrite -c "SELECT COUNT(*) FROM goals;"
+```
+
+### **Episodic Memory Commands**
+```bash
+# Search conversations
+source .venv/bin/activate && python .claude/episodic_memory.py --search "your query"
+
+# Index new conversations
+python .claude/episodic_memory.py --index
+
+# LangChain agent framework
+python .claude/langchain_launcher.py --help
+```
+
+### **LangChain Superpowers**
+```bash
+# Brainstorming
+python .claude/langchain_launcher.py brainstorm "your topic"
+
+# Project planning
+python .claude/langchain_launcher.py plan "your objective"
+
+# TDD workflow
+python .claude/langchain_launcher.py tdd "feature description"
+
+# Implementation guidance
+python .claude/langchain_launcher.py implement "task"
+
+# Code review
+python .claude/langchain_launcher.py review "code snippet"
 ```
 
 ---
 
-## 🗄️ **DATABASE CONFIGURATION**
+## 🗄️ **Database System**
 
-### **Connection Parameters (CORRECT):**
-```python
-db_config = {
-    'host': 'localhost',
-    'port': 5433,                    # ✅ CORRECT: mcp-postgres container
-    'database': 'mcp_tools',         # ✅ CORRECT: existing MCP database
-    'user': 'mcp_user',              # ✅ CORRECT: existing MCP user
-    'password': 'mcp_secure_password_2024'  # ✅ CORRECT: existing password
-}
+### **PostgreSQL Databases**
+- **`todowrite`**: ToDoWrite models and project data (23 tables, 31 FK constraints)
+- **`mcp_episodic_memory`**: Conversation search and memory (6,686+ conversations)
+- **`mcp_tools`**: General MCP tools and services
+
+### **ToDoWrite Database Manager**
+```bash
+# Interactive database management
+python .claude/todowrite_database_manager.py
 ```
-
-### **Table Structure (23 Tables):**
-**Core Hierarchy Tables:**
-- `todowrite_goals` - Top-level objectives
-- `todowrite_concepts` - Strategic concepts linked to goals
-- `todowrite_contexts` - Development contexts
-- `todowrite_constraints` - Project constraints
-- `todowrite_requirements` - Detailed requirements
-- `todowrite_acceptance_criteria` - Success criteria
-- `todowrite_interface_contracts` - API contracts
-- `todowrite_phases` - Project phases
-- `todowrite_steps` - Implementation steps
-- `todowrite_tasks` - Specific tasks
-- `todowrite_subtasks` - Detailed subtasks
-- `todowrite_commands` - Executable commands
-- `todowrite_sessions` - Cross-session tracking
-
-**Association Tables (10 additional):**
-- `todowrite_goal_concepts` - Goals ↔ Concepts (many-to-many)
-- `todowrite_goal_tasks` - Goals ↔ Tasks (direct mapping)
-- `todowrite_concept_tasks` - Concepts ↔ Tasks (mapping)
-- `todowrite_phase_tasks` - Phases ↔ Tasks (phase-to-task)
-- `todowrite_step_tasks` - Steps ↔ Tasks (step-to-task)
-- `todowrite_requirement_tasks` - Requirements ↔ Tasks
-- `todowrite_task_subtasks` - Tasks ↔ SubTasks (decomposition)
-- `todowrite_subtask_commands` - SubTasks ↔ Commands (execution)
-- `todowrite_goal_phases` - Goals ↔ Phases (planning)
-- `todowrite_phase_steps` - Phases ↔ Steps (process)
 
 ---
 
-## 📚 **MODELS API (EXISTING SYSTEM)**
+## 📚 **ToDoWrite Models API**
 
-### **Import and Usage:**
+### **Usage**
 ```python
 from todowrite.core.models import (
     Goal, Concept, Context, Constraints, Requirements,
