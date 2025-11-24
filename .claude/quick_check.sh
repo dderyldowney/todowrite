@@ -17,7 +17,7 @@ try:
     # Quick database check
     conn = psycopg2.connect(
         host='localhost', port=5433, database='mcp_tools',
-        user='mcp_user', password='mcp_secure_password_2024'
+        user='mcp_user', password='mcp_secure_password_2024'  # pragma: allowlist secret
     )
 
     with conn.cursor() as cursor:

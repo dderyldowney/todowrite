@@ -8,10 +8,9 @@ import json
 import os
 import subprocess
 import sys
-import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import psycopg2
 
@@ -44,17 +43,16 @@ class SessionManager:
 
         return session_id
 
-    def check_mcp_servers_health(self) -> Dict[str, Any]:
+    def check_mcp_servers_health(self) -> dict[str, Any]:
         """Check health of MCP servers and wait for them to be available"""
         mcp_servers = {
-            "context7": {"port": 3001, "container": "mcp-context7"},
-            "filesystem": {"port": 3002, "container": "mcp-filesystem"},
-            "git-server": {"port": 3003, "container": "mcp-git-server"},
-            "github-server": {"port": 3004, "container": "mcp-github-server"},
-            "playwright": {"port": 3005, "container": "mcp-playwright"},
-            "sqlite-server": {"port": 3006, "container": "mcp-sqlite-server"},
-            "rust-filesystem": {"port": 3007, "container": "mcp-rust-filesystem"},
-            "python-refactoring": {"port": 3008, "container": "mcp-python-refactoring"},
+            "context7": {"type": "http", "port": 3001, "container": "mcp-context7"},
+            "filesystem": {"type": "stdio", "container": "mcp-filesystem"},
+            "git": {"type": "stdio", "container": "mcp-git"},
+            "github": {"type": "stdio", "container": "mcp-github"},
+            "playwright": {"type": "stdio", "container": "mcp-playwright"},
+            "sqlite": {"type": "stdio", "container": "mcp-sqlite"},
+            "python-refactoring": {"type": "stdio", "container": "mcp-python-refactoring"},
         }
 
         health_results = {}
@@ -64,27 +62,49 @@ class SessionManager:
             try:
                 # Check if Docker container is running
                 result = subprocess.run(
-                    ["docker", "ps", "--filter", f"name={config['container']}", "--filter", "status=running", "--quiet"],
-                    capture_output=True, text=True, timeout=10
+                    [
+                        "docker",
+                        "ps",
+                        "--filter",
+                        f"name={config['container']}",
+                        "--filter",
+                        "status=running",
+                        "--quiet",
+                    ],
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
                 )
                 container_running = bool(result.stdout.strip())
 
-                # Check if port is accessible
-                port_accessible = self._check_port(config['port'])
-
-                if container_running and port_accessible:
-                    health_results[service_name] = {"status": "healthy", "message": "Container running and port accessible"}
-                    print(f"✅ {service_name}: Healthy")
-                else:
-                    health_results[service_name] = {
-                        "status": "unhealthy",
-                        "message": f"Container: {container_running}, Port: {port_accessible}"
-                    }
-                    print(f"❌ {service_name}: Unhealthy")
+                # Check service type specific health
+                if config["type"] == "http":
+                    # HTTP servers need port accessibility check
+                    port_accessible = self._check_port(config["port"])
+                    if container_running and port_accessible:
+                        health_results[service_name] = {"status": "healthy", "message": "HTTP server running and port accessible"}
+                        print(f"✅ {service_name}: HTTP Healthy")
+                    else:
+                        health_results[service_name] = {
+                            "status": "unhealthy",
+                            "message": f"HTTP Container: {container_running}, Port: {port_accessible}",
+                        }
+                        print(f"❌ {service_name}: HTTP Unhealthy")
+                elif config["type"] == "stdio":
+                    # stdio servers just need container running
+                    if container_running:
+                        health_results[service_name] = {"status": "healthy", "message": "stdio server running"}
+                        print(f"✅ {service_name}: stdio Healthy")
+                    else:
+                        health_results[service_name] = {
+                            "status": "unhealthy",
+                            "message": f"stdio Container: {container_running}",
+                        }
+                        print(f"❌ {service_name}: stdio Unhealthy")
 
             except Exception as e:
                 health_results[service_name] = {"status": "error", "message": str(e)}
-                print(f"❌ {service_name}: Error - {str(e)}")
+                print(f"❌ {service_name}: Error - {e!s}")
 
         healthy_count = sum(1 for r in health_results.values() if r["status"] == "healthy")
         total_count = len(mcp_servers)
@@ -97,12 +117,13 @@ class SessionManager:
         """Check if port is open and accessible"""
         try:
             import socket
+
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(3)
-            result = sock.connect_ex(('localhost', port))
+            result = sock.connect_ex(("localhost", port))
             sock.close()
             return result == 0
-        except (socket.error, OSError):
+        except OSError:
             return False
 
     def save_session_state(self, context: dict[str, Any]) -> bool:
