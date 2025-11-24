@@ -24,7 +24,7 @@ def setup_environment():
     env = os.environ.copy()
     env["PYTHONPATH"] = python_path
     env["EPISODIC_MEMORY_DB_PATH"] = (
-        "postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/mcp_tools"
+        "postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/mcp_episodic_memory"
     )
 
     return env

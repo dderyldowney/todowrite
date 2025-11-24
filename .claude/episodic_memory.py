@@ -26,7 +26,7 @@ class EpisodicMemory:
         else:
             self.db_connection = os.getenv(
                 "EPISODIC_MEMORY_DB_PATH",
-                "postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/mcp_tools",
+                "postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/mcp_episodic_memory",
             )
 
         self.search_system = ConversationSearchSystem(self.db_connection)

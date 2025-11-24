@@ -46,7 +46,7 @@ These commands automatically work when CLAUDE.md is loaded and provide:
 db_config = {
     'host': 'localhost',
     'port': 5433,                    # mcp-postgres container
-    'database': 'mcp_tools',         # existing MCP database
+    'database': 'todowrite',         # ToDoWrite project database
     'user': 'mcp_user',              # existing MCP user
     'password': 'mcp_secure_password_2024'
 }
@@ -54,14 +54,14 @@ db_config = {
 
 ### **Verification Test:**
 ```bash
-docker exec mcp-postgres psql -U mcp_user -d mcp_tools -c "SELECT version();"
+docker exec mcp-postgres psql -U mcp_user -d todowrite -c "SELECT version();"
 # Expected: PostgreSQL 16.10 on x86_64-pc-linux-musl...
 ```
 
 ### **System Status:**
 - ✅ PostgreSQL Backend: FULLY OPERATIONAL
 - ✅ Container: mcp-postgres (running 24+ hours)
-- ✅ Database: mcp_tools with 23 tables
+- ✅ Database: todowrite with project management tables
 - ✅ VS Code Extension: Works with manual CLAUDE.md loading
 
 ### **Note:**
