@@ -3,8 +3,8 @@
 ## 🚨 **IMPORTANT: CLAUDE.md MANUAL LOADING REQUIRED**
 
 ### **VS Code Extension Behavior:**
-- ❌ **Does NOT** automatically load `.claude/CLAUDE.md` on startup
-- ✅ **Requires** manual command: `load and apply .claude/CLAUDE.md`
+- ❌ **Does NOT** automatically load `CLAUDE.md` on startup
+- ✅ **Requires** manual command: `load and apply CLAUDE.md`
 - ✅ **Works correctly** once manually loaded
 
 ### **Required Steps for VS Code:**
@@ -16,7 +16,7 @@
 
 2. **Manually Load CLAUDE.md:**
    ```
-   load and apply .claude/CLAUDE.md
+   load and apply CLAUDE.md
    ```
 
 3. **Restore Previous Session (Automatic):**

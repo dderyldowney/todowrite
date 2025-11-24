@@ -129,7 +129,7 @@ git push origin feature/new-active-record-features
 
 ### Standards
 - [TODOWRITE_STANDARDS_NEEDED.md](../../TODOWRITE_STANDARDS_NEEDED.md) - Industry standards to implement
-- [CLAUDE.md](../../.claude/CLAUDE.md) - Project rules and policies
+- [CLAUDE.md](../../CLAUDE.md) - Project rules and policies
 
 ---
 

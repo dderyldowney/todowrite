@@ -34,7 +34,7 @@ ToDoWrite is a hierarchical task management system that allows you to:
 - **Type Safe**: Comprehensive type hints with Python 3.12+
 
 ### Development Standards
-**See**: `.claude/CLAUDE.md` for complete development rules and policies
+**See**: `CLAUDE.md` for complete development rules and policies
 - **TDD Methodology**: Strict Red-Green-Refactor development workflow
 - **Real Testing**: Component-organized tests with actual implementations
 - **No Mocking/Fake Code**: Real implementations only, no placeholders

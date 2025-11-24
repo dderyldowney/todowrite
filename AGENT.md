@@ -3,7 +3,7 @@
 **FOR ALL AI AGENTS EXCEPT CLAUDE**: Read the single source of truth:
 
 ```bash
-cat .claude/CLAUDE.md
+cat CLAUDE.md
 ```
 
 ---

@@ -617,7 +617,7 @@ The build system follows strict TDD methodology: **RED → GREEN → REFACTOR**
 
 ### Testing Implementation Requirements
 
-**All testing must follow project policies** - see `.claude/CLAUDE.md` for complete rules
+**All testing must follow project policies** - see `CLAUDE.md` for complete rules
 
 - **Component-Organized Tests**: `tests/lib/`, `tests/cli/`, `tests/web/`, `tests/shared/`
 - **Real Implementations Only**: No mocking, no fake code, actual system resources

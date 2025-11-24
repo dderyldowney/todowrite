@@ -203,7 +203,7 @@ EOF
 add_to_claude_md() {
     print_status "Adding episodic memory initialization to CLAUDE.md..."
 
-    CLAUDE_MD="$PROJECT_ROOT/.claude/CLAUDE.md"
+    CLAUDE_MD="$PROJECT_ROOT/CLAUDE.md"
 
     # Check if episodic memory init is already mentioned
     if grep -q "episodic-memory initialization" "$CLAUDE_MD"; then

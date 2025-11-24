@@ -1,6 +1,6 @@
 """Tests for Claude configuration validation.
 
-Tests that .claude/CLAUDE.md contains mandatory documentation loading requirements
+Tests that CLAUDE.md contains mandatory documentation loading requirements
 and follows the project's configuration standards.
 """
 
@@ -11,13 +11,13 @@ class TestClaudeConfigValidation:
     """Test suite for Claude configuration file validation."""
 
     def test_claude_md_exists(self) -> None:
-        """Test that .claude/CLAUDE.md file exists."""
-        config_path = Path(".claude/CLAUDE.md")
-        assert config_path.exists(), ".claude/CLAUDE.md must exist"
+        """Test that CLAUDE.md file exists."""
+        config_path = Path("CLAUDE.md")
+        assert config_path.exists(), "CLAUDE.md must exist"
 
     def test_test_organization_rule(self) -> None:
         """Test that Rule #8 emphasizes component and subsystem test organization."""
-        config_path = Path(".claude/CLAUDE.md")
+        config_path = Path("CLAUDE.md")
         content = config_path.read_text()
         lines = content.split("\n")
 
@@ -74,7 +74,7 @@ class TestClaudeConfigValidation:
 
     def test_claude_md_contains_documentation_loading_rule(self) -> None:
         """Test that CLAUDE.md contains mandatory documentation loading requirements."""
-        config_path = Path(".claude/CLAUDE.md")
+        config_path = Path("CLAUDE.md")
         content = config_path.read_text()
 
         # Check for rule that requires documentation loading
@@ -89,7 +89,7 @@ class TestClaudeConfigValidation:
 
     def test_documentation_loading_is_rule_2(self) -> None:
         """Test that documentation loading is specifically Rule #2."""
-        config_path = Path(".claude/CLAUDE.md")
+        config_path = Path("CLAUDE.md")
         content = config_path.read_text()
         lines = content.split("\n")
 
@@ -114,7 +114,7 @@ class TestClaudeConfigValidation:
 
     def test_claude_md_clear_quit_handling(self) -> None:
         """Test that CLAUDE.md handles /clear and /quit scenarios."""
-        config_path = Path(".claude/CLAUDE.md")
+        config_path = Path("CLAUDE.md")
         content = config_path.read_text()
 
         # Check for explicit /clear and /quit handling
@@ -123,7 +123,7 @@ class TestClaudeConfigValidation:
 
     def test_claude_md_no_bypass_clauses(self) -> None:
         """Test that CLAUDE.md contains no-bypassing clauses."""
-        config_path = Path(".claude/CLAUDE.md")
+        config_path = Path("CLAUDE.md")
         content = config_path.read_text()
 
         # Check for no-bypassing language
@@ -134,7 +134,7 @@ class TestClaudeConfigValidation:
 
     def test_claude_md_emergency_verification(self) -> None:
         """Test that CLAUDE.md contains emergency verification procedures."""
-        config_path = Path(".claude/CLAUDE.md")
+        config_path = Path("CLAUDE.md")
         content = config_path.read_text()
 
         # Check for emergency verification section
@@ -146,11 +146,11 @@ class TestClaudeConfigValidation:
         # Check main documentation files
         assert Path("docs/ToDoWrite.md").exists(), "docs/ToDoWrite.md must exist"
         assert Path("BUILD_SYSTEM.md").exists(), "BUILD_SYSTEM.md must exist"
-        assert Path(".claude/CLAUDE.md").exists(), ".claude/CLAUDE.md must exist"
+        assert Path("CLAUDE.md").exists(), "CLAUDE.md must exist"
 
     def test_authoritative_sources_rule(self) -> None:
         """Test that Rule #3 requires authoritative sources consultation."""
-        config_path = Path(".claude/CLAUDE.md")
+        config_path = Path("CLAUDE.md")
         content = config_path.read_text()
         lines = content.split("\n")
 
@@ -206,7 +206,7 @@ class TestClaudeConfigValidation:
 
     def test_never_fake_code_rule(self) -> None:
         """Test that Rule #4 prohibits fake code and mandates real implementations."""
-        config_path = Path(".claude/CLAUDE.md")
+        config_path = Path("CLAUDE.md")
         content = config_path.read_text()
         lines = content.split("\n")
 
@@ -239,7 +239,7 @@ class TestClaudeConfigValidation:
 
     def test_always_test_actual_implementation_rule(self) -> None:
         """Test that Rule #5 requires testing actual implementation."""
-        config_path = Path(".claude/CLAUDE.md")
+        config_path = Path("CLAUDE.md")
         content = config_path.read_text()
         lines = content.split("\n")
 
@@ -277,7 +277,7 @@ class TestClaudeConfigValidation:
 
     def test_simplicity_over_complexity_rule(self) -> None:
         """Test that Rule #11 emphasizes simplicity over complexity."""
-        config_path = Path(".claude/CLAUDE.md")
+        config_path = Path("CLAUDE.md")
         content = config_path.read_text()
         lines = content.split("\n")
 
@@ -317,7 +317,7 @@ class TestClaudeConfigValidation:
 
     def test_natural_language_code_rule(self) -> None:
         """Test that Rule #12 emphasizes natural language code."""
-        config_path = Path(".claude/CLAUDE.md")
+        config_path = Path("CLAUDE.md")
         content = config_path.read_text()
         lines = content.split("\n")
 
@@ -364,7 +364,7 @@ class TestClaudeConfigValidation:
 
     def test_local_command_line_tools_rule(self) -> None:
         """Test that Rule #10 enforces local command-line tools preference."""
-        config_path = Path(".claude/CLAUDE.md")
+        config_path = Path("CLAUDE.md")
         content = config_path.read_text()
         lines = content.split("\n")
 
@@ -409,7 +409,7 @@ class TestClaudeConfigValidation:
 
     def test_working_directory_boundary_rule(self) -> None:
         """Test that Rule #16 clarifies working directory boundary for each project."""
-        config_path = Path(".claude/CLAUDE.md")
+        config_path = Path("CLAUDE.md")
         content = config_path.read_text()
         lines = content.split("\n")
 
@@ -448,7 +448,7 @@ class TestClaudeConfigValidation:
 
     def test_tooling_and_environment_rules(self) -> None:
         """Test that Rule #18 properly emphasizes UV-first tooling with execution hierarchy."""
-        config_path = Path(".claude/CLAUDE.md")
+        config_path = Path("CLAUDE.md")
         content = config_path.read_text()
         lines = content.split("\n")
 
@@ -486,7 +486,7 @@ class TestClaudeConfigValidation:
 
     def test_rule_numbering_consistency(self) -> None:
         """Test that rule numbering is consistent without gaps."""
-        config_path = Path(".claude/CLAUDE.md")
+        config_path = Path("CLAUDE.md")
         content = config_path.read_text()
         lines = content.split("\n")
 
