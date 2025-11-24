@@ -1,10 +1,36 @@
 # CLAUDE.md
 
 **ToDoWrite PostgreSQL Backend System Configuration**
-**Last Updated: 2025-11-22**
-**Status: FULLY OPERATIONAL - STREAMLINED**
+**Last Updated: 2025-11-24**
+**Status: FULLY OPERATIONAL - MCP-FIRST WORKFLOW**
 
 ---
+
+## 🚨 **MANDATORY: MCP TOOLS USAGE REQUIREMENT**
+
+**ALL AGENTS MUST USE MCP TOOLS - NEVER BUILT-IN TOOLS**
+
+### ✅ **ACTIVE MCP SERVERS (81 tools total)**
+- **filesystem (11 tools)** - File operations - USE INSTEAD OF BUILT-IN TOOLS
+- **github-official (40 tools)** - GitHub integration
+- **git (12 tools)** - Version control
+- **SQLite (6 tools)** - Database operations
+- **context7 (2 tools)** - AI assistance
+- **docker** - Container management
+- **hugging-face (9 tools)** - AI/ML integration
+
+### 🚫 **FORBIDDEN BUILT-IN TOOLS**
+- `Read` → Use MCP `read_file`
+- `Write` → Use MCP `edit_file`
+- `Edit` → Use MCP `edit_file`
+- `Glob` → Use MCP `list_directory`
+- Direct bash git commands → Use MCP git tools
+
+**See DEVELOPMENT_MANDATES.md for complete requirements including:**
+- MCP Tools Usage (MCP-First Workflow)
+- TDD Red-Green-Refactor (Always write failing tests first)
+- Background Process Management (Always cleanup processes)
+- Environment Configuration (Always source environment variables)
 
 ---
 
@@ -47,18 +73,18 @@ This project provides a complete, production-ready PostgreSQL backend system wit
 **Data**: 6,686 conversations, 43,491+ messages
 **Usage**: ✅ CONVERSATION search and retrieval
 
-#### **3. `mcp_tools` Database - Legacy MCP**
-**Purpose**: Original MCP tools database (minimal usage)
-**Connection**: `postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/mcp_tools`
-**Tables**: 6 total tables (mostly schema/system tables)
-**Status**: ⚠️ LEGACY - limited active usage
-**Usage**: ⚠️ AVOID unless specifically needed for MCP compatibility
+#### **3. `mcp_sessions` Database - Session Management**
+**Purpose**: Cross-session conversation persistence and context
+**Connection**: `postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/mcp_sessions`
+**Tables**: sessions (session tracking and continuity)
+**Status**: ✅ ACTIVE - session state management
+**Usage**: ✅ CONVERSATION persistence and restoration
 
 ### **🔒 DATABASE SEPARATION MANDATE**
 - **NEVER** mix data between databases
-- **NEVER** use `mcp_tools` for ToDoWrite data
 - **ALWAYS** use `todowrite` for project management
 - **ALWAYS** use `mcp_episodic_memory` for conversations
+- **ALWAYS** use `mcp_sessions` for session persistence
 - **NEVER** assume tables exist - verify with `\dt` commands
 
 ### **🚨 NON-NEGOTIABLE TODOWRITE USAGE MANDATE**
@@ -152,7 +178,7 @@ python .claude/langchain_launcher.py review "code snippet"
 ### **PostgreSQL Databases**
 - **`todowrite`**: ToDoWrite models and project data (23 tables, 31 FK constraints)
 - **`mcp_episodic_memory`**: Conversation search and memory (6,686+ conversations)
-- **`mcp_tools`**: General MCP tools and services
+- **`mcp_sessions`**: Cross-session conversation persistence
 
 ### **ToDoWrite Database Manager**
 ```bash
@@ -197,7 +223,7 @@ python .claude/todowrite_database_manager.py
 ### **Direct Database Access (for verification):**
 ```bash
 # Check data counts
-docker exec mcp-postgres psql -U mcp_user -d mcp_tools -c "
+docker exec mcp-postgres psql -U mcp_user -d todowrite -c "
 SELECT 'Goals:', COUNT(*) FROM goals
 UNION ALL
 SELECT 'Concepts:', COUNT(*) FROM concepts
@@ -285,7 +311,7 @@ bash .claude/run_all_tests.sh
 
 ### **Database Management:**
 - ✅ Uses existing MCP PostgreSQL container (reused infrastructure)
-- ✅ mcp_tools database chosen to avoid conflicts
+- ✅ Dedicated todowrite database for project management
 - ✅ mcp_user credentials from existing container
 - ❌ Do NOT create separate PostgreSQL containers
 
