@@ -25,7 +25,7 @@ class EpisodicMemory:
             self.db_connection = db_path
         else:
             self.db_connection = os.getenv(
-                "EPISODIC_MEMORY_DB_PATH",
+                "EPISODIC_MEMORY_DB_URL",
                 "postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/mcp_episodic_memory",
             )
 

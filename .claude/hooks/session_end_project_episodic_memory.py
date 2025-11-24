@@ -15,7 +15,7 @@ def main():
     if script_path.exists():
         # Set environment variable for project-specific database
         episodic_db = project_root / ".claude" / "episodic_memory.db"
-        os.environ["EPISODIC_MEMORY_DB_PATH"] = str(episodic_db)
+        os.environ["EPISODIC_MEMORY_DB_URL"] = str(episodic_db)
 
         # Run project-specific indexing
         try:

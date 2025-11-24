@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pytest
 
-from .conftest import TestSuperpowersBase
+from tests.superpowers.conftest import TestSuperpowersBase
 
 
 class TestTestDrivenDevelopment(TestSuperpowersBase):

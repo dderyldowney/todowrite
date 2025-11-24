@@ -1,6 +1,11 @@
 #!/bin/bash
 # MCP Docker Servers Startup Script
 # Starts all configured MCP Docker services
+#
+# PURPOSE: Start MCP servers ONLY when they unexpectedly died
+# USAGE: Recovery tool for unexpected MCP infrastructure failures
+# EXPECTATION: MCP servers AND Docker MCP Gateway should already be running - use only for outages
+# IMPORTANT: ALL MCP infrastructure STAYS RUNNING - never stop at session end
 
 set -euo pipefail
 

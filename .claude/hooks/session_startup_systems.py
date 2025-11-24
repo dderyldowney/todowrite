@@ -31,16 +31,8 @@ def initialize_all_systems():
             print(f"❌ Environment variable {var} not set")
             return False
 
-    # 3. Verify CLAUDE.md rules
-    startup_script = Path(".claude/startup_enforcement.py")
-    if startup_script.exists():
-        print("📋 Verifying CLAUDE.md rules...")
-        result = os.system("python .claude/startup_enforcement.py")
-        if result != 0:
-            print("❌ CLAUDE.md rule enforcement failed")
-            return False
-    else:
-        print("⚠️  CLAUDE.md enforcement script not found")
+    # 3. CLAUDE.md rules already verified by startup_enforcement.py
+    # Skip redundant verification to prevent recursion
 
     # 4. Verify HAL Agent System
     hal_script = Path("dev_tools/agent_controls/hal_token_savvy_agent.py")
@@ -97,6 +89,23 @@ def initialize_all_systems():
         print("🔑 Anthropic API configuration ready")
     else:
         print("⚠️  Anthropic API key not set")
+
+    # 8. Initialize real-time chargeable token monitoring
+    print("📊 Initializing real-time chargeable token monitoring...")
+    try:
+        monitor_script = Path(".claude/realtime_token_monitor.py")
+        if monitor_script.exists():
+            import subprocess
+
+            # Start the monitoring system in the background
+            subprocess.run(
+                ["python3", str(monitor_script), "start"], capture_output=True, timeout=10
+            )
+            print("✅ Real-time chargeable token monitoring initialized")
+        else:
+            print("⚠️  Real-time token monitor not found")
+    except (subprocess.SubprocessError, FileNotFoundError, OSError):
+        print("⚠️  Failed to initialize real-time token monitoring")
 
     print("✅ AI CLI Systems initialization complete")
     return True

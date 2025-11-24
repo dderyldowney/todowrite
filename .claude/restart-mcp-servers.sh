@@ -1,6 +1,11 @@
 #!/bin/bash
-# MCP Docker Servers Stop Script
-# Stops all configured MCP Docker services
+# MCP Docker Servers Restart Script
+# Restarts configured MCP Docker services when needed
+#
+# PURPOSE: Restart MCP servers ONLY when they unexpectedly died or malfunctioning
+# USAGE: Emergency recovery tool for unexpected MCP infrastructure failures
+# EXPECTATION: MCP servers AND Docker MCP Gateway should already be running - use only for outages
+# IMPORTANT: ALL MCP infrastructure STAYS RUNNING - never stop at session end
 
 set -euo pipefail
 

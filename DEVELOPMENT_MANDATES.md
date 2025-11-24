@@ -102,7 +102,107 @@ ps aux | grep "mcp\|gateway" | grep -v grep  # Should show no processes
 
 ---
 
-## 4️⃣ ENVIRONMENT CONFIGURATION MANDATE
+## 4️⃣ VERIFICATION-BEFORE-CONTINUE MANDATE
+
+### 🔍 **MANDATORY PRE-WORK VERIFICATION - CANNOT BE SKIPPED OR BYPASSED**
+
+**⚠️ CRITICAL: BEFORE STARTING ANY WORK - NO EXCEPTIONS - ABSOLUTELY MANDATORY**
+
+#### **📋 MANDATORY SELF-VERIFICATION QUESTIONS** - Must answer before ANY action:
+   - "Is there an MCP tool that does this instead of built-in tools?"
+   - "Am I violating the MCP-first mandate?"
+   - "Have I written a failing test first (TDD Red-Green-Refactor)?"
+   - "Are there conflicting background processes running?"
+   - "Are environment variables properly sourced and verified?"
+   - "Is my work aligned with ALL development mandates?"
+
+#### **🧠 MANDATE UNDERSTANDING VERIFICATION** - Must confirm understanding of:
+   - Read and understood ALL mandates in this DEVELOPMENT_MANDATES.md file
+   - Read and understood MCP tools usage requirements completely
+   - Understand TDD Red-Green-Refactor process thoroughly
+   - Understand background process management requirements completely
+   - Understand environment configuration requirements completely
+
+#### **🔧 SYSTEM READINESS VERIFICATION** - Must verify all systems:
+   ```bash
+   # 1. PostgreSQL container running
+   docker ps --filter "name=mcp-postgres"
+
+   # 2. Database connectivity tested
+   docker exec mcp-postgres psql -U mcp_user -d todowrite -c "SELECT COUNT(*) FROM goals;"
+
+   # 3. Environment variables sourced and verified
+   echo "Project Dir: ${TODOWRITE_PROJECT_DIR}"
+   echo "Database URL: ${MCP_FILESYSTEM_DATABASE_URL}"
+
+   # 4. No conflicting processes running
+   ps aux | grep -E "(mcp|gateway)" | grep -v grep || echo "Clean process state verified"
+   ```
+
+#### **📝 WORK PREPARATION VERIFICATION** - Must confirm work is properly prepared:
+   - Active ToDoWrite items exist for the current task
+   - Session context is properly loaded and fully understood
+   - Task is properly broken down into manageable, clear steps
+   - Implementation approach fully aligns with all development mandates
+   - All required prerequisites are verified and ready
+
+### ✅ **MANDATORY VERIFICATION COMMANDS** - Must pass ALL before ANY work:
+```bash
+# 1. Verify PostgreSQL container is running and accessible
+docker ps --filter "name=mcp-postgres"
+
+# 2. Test database connectivity to todowrite database
+docker exec mcp-postgres psql -U mcp_user -d todowrite -c "SELECT COUNT(*) FROM goals;"
+
+# 3. Verify environment variables are properly sourced and accessible
+echo "Project Directory: ${TODOWRITE_PROJECT_DIR}"
+echo "ToDoWrite Database: ${TODOWRITE_DATABASE_URL}"
+
+# 4. Verify clean process state (no conflicting MCP processes)
+echo "Checking for conflicting processes..."
+if pgrep -f "docker mcp gateway" > /dev/null; then
+    echo "❌ ERROR: Conflicting MCP gateway processes found!"
+    echo "❌ Run: pkill -f 'docker mcp gateway' and try again"
+    exit 1
+else
+    echo "✅ Clean process state verified"
+fi
+
+# 5. Verify TDD readiness for code implementation tasks
+if [ -d "tests" ]; then
+    echo "🔴 TDD Readiness Check - Must see failing tests for NEW features:"
+    pytest tests/ -v || echo "⚠️ WARNING: No tests found - Create failing tests first!"
+fi
+
+# 6. Interactive verification prompts (cannot be automated)
+echo "📋 MANDATORY UNDERSTANDING CONFIRMATION:"
+echo "   ✅ Have you read and understood DEVELOPMENT_MANDATES.md? (MUST confirm)"
+echo "   ✅ Do you understand MCP-first workflow requirements? (MUST confirm)"
+echo "   ✅ Do you understand TDD Red-Green-Refactor process? (MUST confirm)"
+echo "   ✅ Do you understand background process management? (MUST confirm)"
+echo "   ✅ Do you understand all zero-tolerance policies? (MUST confirm)"
+```
+
+### 🚫 **ANTI-VERIFICATION PATTERNS - STRICTLY FORBIDDEN**
+- **NEVER** skip verification for "quick fixes" or "simple changes" - NO EXCEPTIONS
+- **NEVER** assume compliance without explicit, thorough verification
+- **NEVER** proceed without answering ALL verification questions completely
+- **NEVER** start work without confirming clean process state
+- **NEVER** implement without confirming TDD readiness (for code tasks)
+- **NEVER** bypass ANY verification step for convenience or speed
+- **NEVER** proceed until ALL verification steps pass successfully
+
+### ⚠️ **ABSOLUTE ZERO-TOLERANCE VERIFICATION POLICY**
+- **VERIFICATION FAILURE = IMMEDIATE WORKFLOW TERMINATION** - No exceptions
+- **NO SKIPPING** - All verification steps are absolutely mandatory for ALL work
+- **NO SHORTCUTS** - No exceptions for any reason whatsoever
+- **NO ASSUMPTIONS** - Must verify explicitly and thoroughly
+- **NO PROCEEDING** - Must pass ALL verification before ANY work begins
+- **RESTART REQUIRED** - If any verification fails, must fix issues and restart verification
+
+---
+
+## 5️⃣ ENVIRONMENT CONFIGURATION MANDATE
 
 ### 🔧 **ALWAYS SOURCE ENVIRONMENT**
 ```bash

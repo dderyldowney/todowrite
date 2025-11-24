@@ -23,7 +23,10 @@ class SessionManager:
         self.db_config = {
             "host": os.environ.get("MCP_DB_HOST", "localhost"),
             "port": int(os.environ.get("MCP_DB_PORT", "5433")),
-            "database": os.environ.get("MCP_DB_SESSIONS", "todowrite"),
+            "database": os.environ.get(
+                "MCP_SESSIONS_DB_URL",
+                "postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/mcp_sessions",
+            ).split("/")[-1],  # Extract database name from URL
             "user": os.environ.get("MCP_DB_USER", "mcp_user"),
             "password": os.environ.get("MCP_DB_PASSWORD", "mcp_secure_password_2024"),
         }
@@ -82,7 +85,10 @@ class SessionManager:
                     # HTTP servers need port accessibility check
                     port_accessible = self._check_port(config["port"])
                     if container_running and port_accessible:
-                        health_results[service_name] = {"status": "healthy", "message": "HTTP server running and port accessible"}
+                        health_results[service_name] = {
+                            "status": "healthy",
+                            "message": "HTTP server running and port accessible",
+                        }
                         print(f"✅ {service_name}: HTTP Healthy")
                     else:
                         health_results[service_name] = {
@@ -93,7 +99,10 @@ class SessionManager:
                 elif config["type"] == "stdio":
                     # stdio servers just need container running
                     if container_running:
-                        health_results[service_name] = {"status": "healthy", "message": "stdio server running"}
+                        health_results[service_name] = {
+                            "status": "healthy",
+                            "message": "stdio server running",
+                        }
                         print(f"✅ {service_name}: stdio Healthy")
                     else:
                         health_results[service_name] = {
@@ -143,22 +152,25 @@ class SessionManager:
                 cursor.execute(
                     """
                     INSERT INTO sessions (
-                        session_id, title, description, environment, context,
-                        created_at, updated_at, last_activity
-                    ) VALUES (%s, %s, %s, %s, %s, NOW(), NOW(), NOW())
+                        session_id, project_directory, environment_vars, context_summary, status
+                    ) VALUES (%s, %s, %s, %s, %s)
                     ON CONFLICT (session_id)
                     DO UPDATE SET
-                        context = %s,
-                        last_activity = NOW(),
-                        updated_at = NOW()
+                        environment_vars = %s,
+                        context_summary = %s,
+                        session_end = NULL,
+                        status = 'active'
                 """,
                     (
                         self.session_id,
-                        f"Session - {self.project_name}",
-                        session_data.get("session_type", "Development session"),
-                        json.dumps({"project": self.project_name, "environment": "claude_session"}),
-                        json.dumps(session_data),
-                        json.dumps(session_data),
+                        str(Path.cwd()),  # project_directory
+                        json.dumps(
+                            {"project": self.project_name, "environment": "claude_session"}
+                        ),  # environment_vars
+                        f"Session: {session_data.get('session_type', 'Development session')}",  # context_summary
+                        "active",  # status
+                        json.dumps(session_data),  # for UPDATE environment_vars
+                        f"Session: {session_data.get('session_type', 'Development session')}",  # for UPDATE context_summary
                     ),
                 )
 
@@ -180,26 +192,28 @@ class SessionManager:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
-                    SELECT context, created_at, last_activity
+                    SELECT environment_vars, context_summary, session_start, project_directory
                     FROM sessions
-                    WHERE context::text LIKE %s
-                    ORDER BY last_activity DESC
+                    WHERE project_directory LIKE %s OR environment_vars::text LIKE %s
+                    ORDER BY session_start DESC
                     LIMIT 1
                 """,
-                    (f'%"project": "{self.project_name}"%',),
+                    (f"%{self.project_name}%", f'%"project": "{self.project_name}"%'),
                 )
 
                 result = cursor.fetchone()
                 if result:
-                    context, created_at, last_activity = result
-                    print(f"✅ Loaded session state from {last_activity}")
-                    # Handle both string and dict context
-                    if isinstance(context, str):
-                        return json.loads(context)
-                    elif isinstance(context, dict):
-                        return context
+                    environment_vars, context_summary, session_start, project_directory = result
+                    print(f"✅ Loaded session state from {session_start}")
+                    print(f"📁 Project: {project_directory}")
+                    print(f"📝 Context: {context_summary}")
+                    # Handle both string and dict environment_vars
+                    if isinstance(environment_vars, str):
+                        return json.loads(environment_vars)
+                    elif isinstance(environment_vars, dict):
+                        return environment_vars
                     else:
-                        print(f"⚠️  Unexpected context type: {type(context)}")
+                        print(f"⚠️  Unexpected environment_vars type: {type(environment_vars)}")
                         return None
                 else:
                     print("No previous session state found")

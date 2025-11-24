@@ -675,7 +675,21 @@ class OpenAIProvider(LLMProvider):
             msg = f"OpenAI API returned no choices. Response: {resp}"
             raise RuntimeError(msg)
 
-        return resp.choices[0].message.content or ""
+        response_text = resp.choices[0].message.content or ""
+
+        # Track chargeable tokens for this API call
+        if hasattr(resp, "usage") and resp.usage:
+            # Use actual token counts if available
+            total_tokens = resp.usage.total_tokens or 0
+            update_chargeable_tokens(total_tokens, model, f"OpenAI API call - {model}")
+        else:
+            # Estimate tokens from response
+            estimated_tokens = estimate_tokens_from_response(response_text, model)
+            update_chargeable_tokens(
+                estimated_tokens, model, f"OpenAI API call - {model} (estimated)"
+            )
+
+        return response_text
 
 
 @dataclass
@@ -708,7 +722,21 @@ class AnthropicProvider(LLMProvider):
         for block in msg.content:
             if getattr(block, "type", None) == "text":
                 parts.append(block.text)
-        return "\n".join(parts).strip()
+        response_text = "\n".join(parts).strip()
+
+        # Track chargeable tokens for this API call
+        if hasattr(msg, "usage") and msg.usage:
+            # Use actual token counts if available
+            total_tokens = msg.usage.input_tokens + msg.usage.output_tokens
+            update_chargeable_tokens(total_tokens, model, f"Anthropic API call - {model}")
+        else:
+            # Estimate tokens from response
+            estimated_tokens = estimate_tokens_from_response(response_text, model)
+            update_chargeable_tokens(
+                estimated_tokens, model, f"Anthropic API call - {model} (estimated)"
+            )
+
+        return response_text
 
 
 # ---------- Prompts ---------------------------------------------------------
@@ -829,5 +857,175 @@ def main(argv: Sequence[str] | None = None) -> int:
     return 0
 
 
+def update_statusline_tokens(tokens_saved: int, context: str = "") -> None:
+    """Update the statusline token counter with real-time logging."""
+    if tokens_saved <= 0:
+        return
+
+    try:
+        # Use the real-time monitoring system for immediate updates
+        todowrite_dir = Path(__file__).resolve().parents[2]
+        monitor_script = todowrite_dir / ".claude" / "realtime_token_monitor.py"
+
+        # Try to use the real-time monitor first
+        import subprocess
+
+        result = subprocess.run(
+            [
+                "python3",
+                str(monitor_script),
+                "log",
+                str(tokens_saved),
+                "HAL_preprocessing",
+                context,
+            ],
+            check=False,
+            capture_output=True,
+            timeout=5,
+        )
+
+        # If the real-time monitor isn't available, fall back to statusline
+        if result.returncode != 0:
+            statusline_path = Path.home() / ".claude" / "statusline.py"
+            subprocess.run(
+                [
+                    "python3",
+                    str(statusline_path),
+                    "--log-realtime",
+                    str(tokens_saved),
+                    "HAL_preprocessing",
+                ],
+                check=False,
+                capture_output=True,
+                timeout=5,
+            )
+
+    except (subprocess.SubprocessError, FileNotFoundError, OSError):
+        pass
+
+
+def update_chargeable_tokens(tokens_used: int, model: str, context: str = "") -> None:
+    """Update the chargeable token counter with real-time logging."""
+    if tokens_used <= 0:
+        return
+
+    try:
+        # Use the real-time monitoring system for immediate updates
+        todowrite_dir = Path(__file__).resolve().parents[2]
+        monitor_script = todowrite_dir / ".claude" / "realtime_token_monitor.py"
+
+        import subprocess
+
+        result = subprocess.run(
+            [
+                "python3",
+                str(monitor_script),
+                "api-call",
+                str(tokens_used),
+                model,
+                "HAL_API_call",
+                context,
+            ],
+            check=False,
+            capture_output=True,
+            timeout=5,
+        )
+
+        # If the real-time monitor isn't available, fall back to statusline
+        if result.returncode != 0:
+            statusline_path = Path.home() / ".claude" / "statusline.py"
+            subprocess.run(
+                [
+                    "python3",
+                    str(statusline_path),
+                    "--log-chargeable",
+                    str(tokens_used),
+                    "HAL_API_call",
+                ],
+                check=False,
+                capture_output=True,
+                timeout=5,
+            )
+
+    except (subprocess.SubprocessError, FileNotFoundError, OSError):
+        pass
+
+
+def estimate_tokens_from_response(response_text: str, model: str) -> int:
+    """Estimate chargeable tokens based on response characteristics."""
+    # Basic estimation: approximately 1 token per 4 characters for most models
+    base_tokens = len(response_text) // 4
+
+    # Model-specific adjustments
+    if "claude-3" in model.lower():
+        # Claude 3 models have different tokenization
+        base_tokens = int(base_tokens * 1.1)  # Slightly higher token count
+    elif "gpt-4" in model.lower():
+        # GPT-4 models are more efficient
+        base_tokens = int(base_tokens * 0.9)
+
+    # Add input tokens estimation (typically similar to output for HAL)
+    input_tokens = base_tokens
+    total_tokens = input_tokens + base_tokens
+
+    return max(100, total_tokens)  # Minimum 100 tokens for any API call
+
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    # Parse arguments for better context tracking
+    import argparse
+
+    parser = argparse.ArgumentParser(description="HAL Agent - Token-Savvy Preprocessing")
+    parser.add_argument("--goal", help="Goal for preprocessing")
+    parser.add_argument("--pattern", help="Search pattern")
+    parser.add_argument("--provider", choices=["openai", "anthropic"], default="anthropic")
+    parser.add_argument("--model", help="Model to use")
+    parser.add_argument("--max-tokens", type=int, default=600, help="Max output tokens")
+
+    # Add other HAL arguments for context
+    parser.add_argument("--chars", type=int, default=3200, help="Max chars to process")
+    parser.add_argument("--max-files", type=int, default=20000)
+    parser.add_argument("--delta", action="store_true", help="Use delta mode")
+
+    args, remaining = parser.parse_known_args()
+
+    # Calculate estimated savings based on processing parameters
+    estimated_savings = 0
+    if args.goal and len(args.goal) > 10:
+        # Base savings for any HAL processing
+        estimated_savings = 100
+
+        # Additional savings based on processing parameters
+        if args.chars:
+            estimated_savings += min(
+                200, args.chars // 20
+            )  # More savings for more content processed
+        if args.max_files and args.max_files < 1000:
+            estimated_savings += 50  # Bonus for efficient file filtering
+        if args.delta:
+            estimated_savings += 75  # Bonus for delta mode efficiency
+
+        # Additional savings based on goal complexity
+        goal_complexity = len(args.goal.split())
+        if goal_complexity > 5:
+            estimated_savings += 100  # Complex goals benefit more from HAL
+
+    # Run the main HAL processing
+    result = main(remaining if remaining else None)
+
+    # If HAL processing was successful, update token counter with detailed context
+    if result == 0 and estimated_savings > 0:
+        context_parts = []
+        if args.goal:
+            context_parts.append(f"goal: {args.goal[:50]}")
+        if args.pattern:
+            context_parts.append(f"pattern: {args.pattern}")
+        if args.delta:
+            context_parts.append("delta_mode")
+        if args.chars:
+            context_parts.append(f"chars: {args.chars}")
+
+        context = ", ".join(context_parts)
+        update_statusline_tokens(estimated_savings, context)
+
+    raise SystemExit(result)
