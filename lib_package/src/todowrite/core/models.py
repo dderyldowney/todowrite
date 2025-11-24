@@ -34,7 +34,6 @@ Example:
 from __future__ import annotations
 
 import json
-from datetime import datetime
 from typing import Any, Literal
 
 from sqlalchemy import (
@@ -50,6 +49,12 @@ from sqlalchemy.orm import (
     Mapped,
     mapped_column,
     relationship,
+)
+
+from todowrite.core.timestamp_mixins import (
+    TimestampMixin,
+    format_timestamp_iso,
+    get_optimized_timestamp,
 )
 
 
@@ -306,7 +311,7 @@ StatusType = Literal[
 ]
 
 
-class Goal(Base):
+class Goal(Base, TimestampMixin):
     """ToDoWrite Goal model for hierarchical task management."""
 
     __tablename__ = "goals"
@@ -332,20 +337,6 @@ class Goal(Base):
 
     # JSON fields for complex data
     extra_data: Mapped[str | None] = mapped_column(Text)  # JSON string
-
-    # Timestamps: created_at readonly, updated_at updates on save
-    # created_at: Set once on creation, never changes (readonly)
-    created_at: Mapped[str] = mapped_column(
-        String, default=lambda: datetime.now().isoformat(), nullable=False
-    )
-
-    # updated_at: Updates on every save (writable)
-    updated_at: Mapped[str] = mapped_column(
-        String,
-        default=lambda: datetime.now().isoformat(),
-        nullable=False,
-        onupdate=lambda: datetime.now().isoformat(),
-    )
 
     # Relationships (bidirectional with back_populates)
     labels: Mapped[list[Label]] = relationship(
@@ -378,7 +369,7 @@ class Goal(Base):
     )
 
 
-class Concept(Base):
+class Concept(Base, TimestampMixin):
     """ToDoWrite Concept model for hierarchical task management."""
 
     __tablename__ = "concepts"
@@ -405,17 +396,6 @@ class Concept(Base):
     # JSON fields for complex data
     extra_data: Mapped[str | None] = mapped_column(Text)  # JSON string
 
-    # Timestamp conventions - created_at readonly, updated_at writable
-    created_at: Mapped[str] = mapped_column(
-        String, default=lambda: datetime.now().isoformat(), nullable=False
-    )
-    updated_at: Mapped[str] = mapped_column(
-        String,
-        default=lambda: datetime.now().isoformat(),
-        nullable=False,
-        onupdate=lambda: datetime.now().isoformat(),
-    )
-
     # Relationships
     labels: Mapped[list[Label]] = relationship(
         "Label", secondary=concepts_labels, back_populates="concepts"
@@ -439,7 +419,7 @@ class Concept(Base):
     )
 
 
-class Context(Base):
+class Context(Base, TimestampMixin):
     """ToDoWrite Context model for hierarchical task management."""
 
     __tablename__ = "contexts"
@@ -466,17 +446,6 @@ class Context(Base):
     # JSON fields for complex data
     extra_data: Mapped[str | None] = mapped_column(Text)
 
-    # Timestamp conventions
-    created_at: Mapped[str] = mapped_column(
-        String, default=lambda: datetime.now().isoformat(), nullable=False
-    )
-    updated_at: Mapped[str] = mapped_column(
-        String,
-        default=lambda: datetime.now().isoformat(),
-        nullable=False,
-        onupdate=lambda: datetime.now().isoformat(),
-    )
-
     # Relationships
     labels: Mapped[list[Label]] = relationship(
         "Label", secondary=contexts_labels, back_populates="contexts"
@@ -500,7 +469,7 @@ class Context(Base):
     )
 
 
-class Constraints(Base):
+class Constraints(Base, TimestampMixin):
     """ToDoWrite Constraints model for hierarchical task management."""
 
     __tablename__ = "constraints"
@@ -527,17 +496,6 @@ class Constraints(Base):
     # JSON fields for complex data
     extra_data: Mapped[str | None] = mapped_column(Text)
 
-    # Timestamp conventions
-    created_at: Mapped[str] = mapped_column(
-        String, default=lambda: datetime.now().isoformat(), nullable=False
-    )
-    updated_at: Mapped[str] = mapped_column(
-        String,
-        default=lambda: datetime.now().isoformat(),
-        nullable=False,
-        onupdate=lambda: datetime.now().isoformat(),
-    )
-
     # Relationships
     labels: Mapped[list[Label]] = relationship(
         "Label", secondary=constraints_labels, back_populates="constraints"
@@ -556,7 +514,7 @@ class Constraints(Base):
     )
 
 
-class Requirements(Base):
+class Requirements(Base, TimestampMixin):
     """ToDoWrite Requirements model for hierarchical task management."""
 
     __tablename__ = "requirements"
@@ -582,17 +540,6 @@ class Requirements(Base):
 
     # JSON fields for complex data
     extra_data: Mapped[str | None] = mapped_column(Text)
-
-    # Timestamp conventions
-    created_at: Mapped[str] = mapped_column(
-        String, default=lambda: datetime.now().isoformat(), nullable=False
-    )
-    updated_at: Mapped[str] = mapped_column(
-        String,
-        default=lambda: datetime.now().isoformat(),
-        nullable=False,
-        onupdate=lambda: datetime.now().isoformat(),
-    )
 
     # Relationships
     labels: Mapped[list[Label]] = relationship(
@@ -628,7 +575,7 @@ class Requirements(Base):
     )
 
 
-class AcceptanceCriteria(Base):
+class AcceptanceCriteria(Base, TimestampMixin):
     """ToDoWrite AcceptanceCriteria model for hierarchical task management."""
 
     __tablename__ = "acceptance_criteria"
@@ -655,17 +602,6 @@ class AcceptanceCriteria(Base):
     # JSON fields for complex data
     extra_data: Mapped[str | None] = mapped_column(Text)
 
-    # Timestamp conventions
-    created_at: Mapped[str] = mapped_column(
-        String, default=lambda: datetime.now().isoformat(), nullable=False
-    )
-    updated_at: Mapped[str] = mapped_column(
-        String,
-        default=lambda: datetime.now().isoformat(),
-        nullable=False,
-        onupdate=lambda: datetime.now().isoformat(),
-    )
-
     # Relationships
     labels: Mapped[list[Label]] = relationship(
         "Label",
@@ -688,7 +624,7 @@ class AcceptanceCriteria(Base):
     )
 
 
-class InterfaceContract(Base):
+class InterfaceContract(Base, TimestampMixin):
     """ToDoWrite InterfaceContract model for hierarchical task management."""
 
     __tablename__ = "interface_contracts"
@@ -715,17 +651,6 @@ class InterfaceContract(Base):
     # JSON fields for complex data
     extra_data: Mapped[str | None] = mapped_column(Text)
 
-    # Timestamp conventions
-    created_at: Mapped[str] = mapped_column(
-        String, default=lambda: datetime.now().isoformat(), nullable=False
-    )
-    updated_at: Mapped[str] = mapped_column(
-        String,
-        default=lambda: datetime.now().isoformat(),
-        nullable=False,
-        onupdate=lambda: datetime.now().isoformat(),
-    )
-
     # Relationships
     labels: Mapped[list[Label]] = relationship(
         "Label",
@@ -748,7 +673,7 @@ class InterfaceContract(Base):
     )
 
 
-class Phase(Base):
+class Phase(Base, TimestampMixin):
     """ToDoWrite Phase model for hierarchical task management."""
 
     __tablename__ = "phases"
@@ -775,17 +700,6 @@ class Phase(Base):
     # JSON fields for complex data
     extra_data: Mapped[str | None] = mapped_column(Text)
 
-    # Timestamp conventions
-    created_at: Mapped[str] = mapped_column(
-        String, default=lambda: datetime.now().isoformat(), nullable=False
-    )
-    updated_at: Mapped[str] = mapped_column(
-        String,
-        default=lambda: datetime.now().isoformat(),
-        nullable=False,
-        onupdate=lambda: datetime.now().isoformat(),
-    )
-
     # Relationships
     labels: Mapped[list[Label]] = relationship(
         "Label", secondary=phases_labels, back_populates="phases"
@@ -809,7 +723,7 @@ class Phase(Base):
     )
 
 
-class Step(Base):
+class Step(Base, TimestampMixin):
     """ToDoWrite Step model for hierarchical task management."""
 
     __tablename__ = "steps"
@@ -836,17 +750,6 @@ class Step(Base):
     # JSON fields for complex data
     extra_data: Mapped[str | None] = mapped_column(Text)
 
-    # Timestamp conventions
-    created_at: Mapped[str] = mapped_column(
-        String, default=lambda: datetime.now().isoformat(), nullable=False
-    )
-    updated_at: Mapped[str] = mapped_column(
-        String,
-        default=lambda: datetime.now().isoformat(),
-        nullable=False,
-        onupdate=lambda: datetime.now().isoformat(),
-    )
-
     # Relationships
     labels: Mapped[list[Label]] = relationship(
         "Label", secondary=steps_labels, back_populates="steps"
@@ -863,7 +766,7 @@ class Step(Base):
     )
 
 
-class Task(Base):
+class Task(Base, TimestampMixin):
     """ToDoWrite Task model for hierarchical task management."""
 
     __tablename__ = "tasks"
@@ -890,17 +793,6 @@ class Task(Base):
     # JSON fields for complex data
     extra_data: Mapped[str | None] = mapped_column(Text)
 
-    # Timestamp conventions
-    created_at: Mapped[str] = mapped_column(
-        String, default=lambda: datetime.now().isoformat(), nullable=False
-    )
-    updated_at: Mapped[str] = mapped_column(
-        String,
-        default=lambda: datetime.now().isoformat(),
-        nullable=False,
-        onupdate=lambda: datetime.now().isoformat(),
-    )
-
     # Relationships
     labels: Mapped[list[Label]] = relationship(
         "Label", secondary=tasks_labels, back_populates="tasks"
@@ -922,7 +814,7 @@ class Task(Base):
     )
 
 
-class SubTask(Base):
+class SubTask(Base, TimestampMixin):
     """ToDoWrite SubTask model for hierarchical task management."""
 
     __tablename__ = "sub_tasks"
@@ -949,17 +841,6 @@ class SubTask(Base):
     # JSON fields for complex data
     extra_data: Mapped[str | None] = mapped_column(Text)
 
-    # Timestamp conventions
-    created_at: Mapped[str] = mapped_column(
-        String, default=lambda: datetime.now().isoformat(), nullable=False
-    )
-    updated_at: Mapped[str] = mapped_column(
-        String,
-        default=lambda: datetime.now().isoformat(),
-        nullable=False,
-        onupdate=lambda: datetime.now().isoformat(),
-    )
-
     # Relationships
     labels: Mapped[list[Label]] = relationship(
         "Label", secondary=sub_tasks_labels, back_populates="sub_tasks"
@@ -976,7 +857,7 @@ class SubTask(Base):
     )
 
 
-class Label(Base):
+class Label(Base, TimestampMixin):
     """Represents a label that can be attached to goals and other models."""
 
     __tablename__ = "labels"
@@ -990,17 +871,6 @@ class Label(Base):
     name: Mapped[str] = mapped_column(
         String, nullable=False, unique=True
     )  # Uses 'name', not 'label'
-
-    # Timestamp conventions - created_at readonly, updated_at writable
-    created_at: Mapped[str] = mapped_column(
-        String, default=lambda: datetime.now().isoformat(), nullable=False
-    )
-    updated_at: Mapped[str] = mapped_column(
-        String,
-        default=lambda: datetime.now().isoformat(),
-        nullable=False,
-        onupdate=lambda: datetime.now().isoformat(),
-    )
 
     # Relationships (bidirectional with back_populates)
     goals: Mapped[list[Goal]] = relationship(
@@ -1045,7 +915,7 @@ class Label(Base):
     )
 
 
-class Command(Base):
+class Command(Base, TimestampMixin):
     """ToDoWrite Command model for hierarchical task management."""
 
     __tablename__ = "commands"
@@ -1087,17 +957,6 @@ class Command(Base):
         Text
     )  # JSON string with expected outputs (log files, generated files, etc.)
 
-    # Timestamp conventions
-    created_at: Mapped[str] = mapped_column(
-        String, default=lambda: datetime.now().isoformat(), nullable=False
-    )
-    updated_at: Mapped[str] = mapped_column(
-        String,
-        default=lambda: datetime.now().isoformat(),
-        nullable=False,
-        onupdate=lambda: datetime.now().isoformat(),
-    )
-
     # Relationships
     labels: Mapped[list[Label]] = relationship(
         "Label", secondary=commands_labels, back_populates="commands"
@@ -1127,6 +986,16 @@ class Command(Base):
     def artifacts_list(self, value: list[str]) -> None:
         """Set artifacts from list."""
         self.artifacts = json.dumps(value)
+
+    def mark_completed(self) -> None:
+        """Mark command as completed with current timestamp."""
+        self.status = "completed"
+        self.completion_date = format_timestamp_iso(get_optimized_timestamp())
+
+    def mark_started(self) -> None:
+        """Mark command as started with current timestamp."""
+        self.status = "in_progress"
+        self.started_date = format_timestamp_iso(get_optimized_timestamp())
 
 
 class Metadata:

@@ -26,7 +26,7 @@ classifiers = [
 ]
 keywords = ["todo", "task", "project", "management", "cli", "goals", "tasks", "concepts", "commands"]
 dependencies = [
-    "todowrite>=0.2.0",
+    "todowrite",
     "click>=8.0.0",
     "rich>=13.0.0",
 ]
