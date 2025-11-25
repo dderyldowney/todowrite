@@ -158,6 +158,9 @@ class ToDoWriteSchemaValidator:
             # Create all tables from SQLAlchemy models
             Base.metadata.create_all(engine)
 
+            # Apply CASCADE DELETE constraints for proper hierarchy cleanup
+            self._apply_cascade_constraints(engine)
+
             # Verify all expected tables exist
             self._verify_database_structure(engine)
 
@@ -165,6 +168,44 @@ class ToDoWriteSchemaValidator:
             raise DatabaseInitializationError(
                 f"Database initialization failed: {e}"
             )
+
+    def _apply_cascade_constraints(self, engine: Engine) -> None:
+        """Apply CASCADE DELETE constraints to ensure proper hierarchy cleanup.
+
+        This method applies CASCADE DELETE constraints after the tables are created,
+        ensuring that when Goal(id).delete() is called, all associated entities
+        are automatically deleted, preventing orphaned data.
+        """
+        try:
+            cascade_sql_path = (
+                Path(__file__).parent.parent / "database" / "cascade_constraints.sql"
+            )
+
+            if not cascade_sql_path.exists():
+                # Skip cascade constraints if SQL file doesn't exist
+                return
+
+            with open(cascade_sql_path, 'r') as f:
+                cascade_sql = f.read()
+
+            with engine.connect() as conn:
+                # Apply cascade constraints in a transaction
+                with conn.begin():
+                    # Split SQL into individual statements and execute them
+                    statements = [
+                        stmt.strip()
+                        for stmt in cascade_sql.split(';')
+                        if stmt.strip() and not stmt.strip().startswith('--')
+                    ]
+
+                    for statement in statements:
+                        if statement.strip():
+                            conn.execute(text(statement))
+
+        except Exception as e:
+            # Log warning but don't fail initialization if cascade constraints fail
+            print(f"Warning: Failed to apply CASCADE constraints: {e}")
+            print("Database tables created successfully but cascade constraints may need manual application.")
 
     def _verify_database_structure(self, engine: Engine) -> None:
         """Verify that all expected tables and columns exist in the database."""
