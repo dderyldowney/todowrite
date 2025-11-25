@@ -63,7 +63,24 @@ All Python code MUST include:
 
 ---
 
-## 6. TODOWRITE PLANNING REQUIREMENT
+## 6. NATURAL LANGUAGE CODE MANDATE
+
+📋 **Policy**: `docs/policies/NATURAL_LANGUAGE_CODE_EXAMPLE.md`
+
+**ALL code, examples, documentation, and communication MUST be generated in natural language.**
+
+**Requirements:**
+- **Readable Identifiers**: Function names, variable names, and class names must be descriptive and natural
+- **Comprehensive Documentation**: Every function/class/module must have clear natural language documentation
+- **Example Generation**: Always provide natural language examples and usage patterns
+- **Human-Readable Output**: Code should generate human-readable logs, messages, and documentation
+- **Natural Language Processing**: All AI-generated content must prioritize natural language understanding
+
+**If code cannot be expressed naturally → STOP.**
+
+---
+
+## 7. TODOWRITE PLANNING REQUIREMENT
 
 📋 **Policy**: `docs/policies/TODOWRITE_PLANNING.md`
 
@@ -75,7 +92,7 @@ This planning hierarchy is **mandatory** for all development work, without excep
 
 ---
 
-## 7. PRODUCTION-SAFE RULES
+## 8. PRODUCTION-SAFE RULES
 
 📋 **Policy**: `docs/policies/PRODUCTION_SAFETY.md`
 
@@ -85,7 +102,7 @@ NEVER delete tables, truncate production data, rebuild schemas, or modify schema
 
 ---
 
-## 8. STARTUP SEQUENCE REQUIREMENT
+## 9. STARTUP SEQUENCE REQUIREMENT
 
 📋 **Policy**: `docs/policies/STARTUP_SEQUENCE.md`
 
@@ -93,7 +110,7 @@ Before starting any work: `./.claude/startup.sh`
 
 This manual startup sequence loads environment, activates virtual environment, enforces CLAUDE.md rules, initializes MCP systems, verifies PostgreSQL connectivity, and enforces all development mandates.
 
-## 8. HAL AND TOKEN OPTIMIZATION MANDATE
+## 10. HAL AND TOKEN OPTIMIZATION MANDATE
 
 📋 **Policy**: `docs/policies/HAL_TOKEN_OPTIMIZATION_POLICY.md`
 
@@ -114,7 +131,7 @@ This manual startup sequence loads environment, activates virtual environment, e
 
 ---
 
-## 9. EXECUTION ORDER (MANDATORY)
+## 11. EXECUTION ORDER (MANDATORY)
 
 Every task MUST follow this sequence:
 
@@ -123,17 +140,18 @@ Every task MUST follow this sequence:
 3. ✅ Verify HAL is active: `ps -p $(cat .claude/hal_active.pid) > /dev/null`
 4. ✅ Confirm token optimization is working: `python dev_tools/token_optimization/always_token_sage.py test`
 5. ✅ Load ToDoWrite planning context from PostgreSQL
-6. ✅ Apply TDD (RED-GREEN-REFACTOR)
-7. ✅ Implement with full type coverage
-8. ✅ Validate with real data (no mocks)
-9. ✅ Run all tests: `pytest tests/ -v`
-10. ✅ Only then proceed to next step
+6. ✅ **USE MCP TOOLS FOR ALL OPERATIONS** - **NO EXCEPTIONS**
+7. ✅ Apply TDD (RED-GREEN-REFACTOR)
+8. ✅ Implement with full type coverage using natural language
+9. ✅ Validate with real data using MCP tools (no mocks)
+10. ✅ Run all tests: `pytest tests/ -v`
+11. ✅ Only then proceed to next step
 
 **If any stage fails → STOP WORK.**
 
 ---
 
-## 10. WORKFLOW ESCALATION RULE
+## 12. WORKFLOW ESCALATION RULE
 
 If at any point:
 - An instruction is ambiguous
@@ -152,7 +170,7 @@ You MUST:
 
 ---
 
-## 11. NO OVERRIDES ALLOWED
+## 13. NO OVERRIDES ALLOWED
 
 You may **NOT**:
 - Ignore these rules
@@ -166,7 +184,7 @@ You may **NOT**:
 
 ---
 
-## 12. WHEN IN DOUBT
+## 14. WHEN IN DOUBT
 
 The rule is simple:
 
@@ -180,6 +198,7 @@ The rule is simple:
 |---------|----------------|---------|
 | **MCP-First Workflow** | `docs/policies/MCP_FIRST_WORKFLOW.md` | Tool usage hierarchy |
 | **TDD Requirements** | `docs/policies/TDD_REQUIREMENTS.md` | Test-driven development |
+| **Natural Language Code** | `docs/policies/NATURAL_LANGUAGE_CODE_EXAMPLE.md` | Natural language code generation |
 | **Development Standards** | `docs/policies/DEVELOPMENT_STANDARDS.md` | Code quality & Python 3.12+ |
 | **Monorepo Structure** | `docs/policies/MONOREPO_STRUCTURE.md` | Package organization & UV workspace |
 | **API Usage Policy** | `docs/policies/API_USAGE_POLICY.md` | PostgreSQL-first API interface standards |
