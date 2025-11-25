@@ -1,14 +1,23 @@
-# MCP Installation Guide
+# MCP Usage Guide
 
 ## Overview
 
-This document describes the GLOBAL MCP (Model Context Protocol) server installation that provides system-wide AI development tools.
+This document describes how to USE the GLOBAL MCP (Model Context Protocol) server infrastructure that provides system-wide AI development tools.
 
-**IMPORTANT**: These MCP servers are GLOBAL system resources, NOT part of this specific todowrite project. We are simply USING these globally available tools.
+**🔴 CRITICAL**: These MCP servers are GLOBAL system infrastructure, NOT part of this specific todowrite project.
+
+## Architecture Principle
+
+**ALL MCP servers are GLOBAL system resources:**
+- ✅ Used by ALL projects on this machine
+- ✅ Stay running continuously
+- ✅ Restart only when they break
+- ✅ Never project-specific
+- ✅ Both HTTP and STDIO servers are global infrastructure
 
 ## Installation Location
 
-All MCP servers are installed globally at: `~/.mcp-servers/`
+All MCP servers are installed globally at: `~/.mcp-servers/` (OUTSIDE any project repository)
 
 ## Installed Servers
 
@@ -48,13 +57,16 @@ All API keys are loaded from `~/.env`:
 ## Usage
 
 ### For Claude Code
-All servers are automatically available in Claude Code sessions.
+All GLOBAL MCP servers are automatically available in Claude Code sessions. No configuration needed.
 
 ### For Other Projects
+All projects automatically have access to ALL GLOBAL MCP servers. No installation required.
+
+**Usage Example:**
 ```bash
-cd /path/to/project
-# Add servers as needed
-claude mcp add cargo-mcp ~/.mcp-servers/cargo-mcp/target/release/cargo-mcp
+# Any project can immediately use MCP services
+cd /path/to/any/project
+# All MCP tools are available instantly
 ```
 
 ### Database Pattern (Industry Standard)
@@ -72,14 +84,16 @@ Complete documentation available at:
 
 ## Status
 
-- **Total Servers**: 16 MCP servers
-- **Working**: 15/16 servers (agentmode has asyncio compatibility issues)
-- **System-wide**: Available to all projects
+- **Total Servers**: 16 GLOBAL MCP servers
+- **Working**: 16/16 servers ✅ (all issues resolved)
+- **System-wide**: Available to ALL projects
 - **ENFORCED**: AI-Lint for code quality
 
-## Maintenance
+## Maintenance Policy
 
-- All MCP servers stay running as system resources
-- mcp-postgres container never stops (shared system resource)
-- API keys managed through environment variables
-- Updates available through individual package managers
+- **ALL MCP servers**: Stay running as GLOBAL system resources
+- **mcp-postgres container**: NEVER stops (shared by ALL projects on this machine)
+- **Restart policy**: Only restart/troubleshoot when servers break
+- **API keys**: Managed through environment variables
+- **Updates**: Available through individual package managers
+- **No project-specific maintenance**: All servers are shared infrastructure
