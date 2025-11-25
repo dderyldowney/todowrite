@@ -60,11 +60,19 @@ class ToDoWriteDatabaseManager:
     """Manager for all ToDoWrite database operations using existing Models API"""
 
     def __init__(self):
-        # Use existing MCP PostgreSQL container
-        self.db_config = {
+        # Use existing MCP PostgreSQL container with proper database separation
+        self.todowrite_db_config = {
             "host": "localhost",
             "port": 5433,
             "database": "todowrite",
+            "user": "mcp_user",
+            "password": "mcp_secure_password_2024",
+        }
+        # mcp_sessions database for session tracking (CRITICAL SEPARATION)
+        self.session_db_config = {
+            "host": "localhost",
+            "port": 5433,
+            "database": "mcp_sessions",
             "user": "mcp_user",
             "password": "mcp_secure_password_2024",
         }
@@ -77,7 +85,7 @@ class ToDoWriteDatabaseManager:
 
         # Store in PostgreSQL (goals table) using NEW ToDoWrite Models API schema
         try:
-            conn = psycopg2.connect(**self.db_config)
+            conn = psycopg2.connect(**self.todowrite_db_config)
             with conn.cursor() as cursor:
                 # Use the correct schema for NEW ToDoWrite Models API (no session_id here!)
                 cursor.execute(
@@ -92,49 +100,21 @@ class ToDoWriteDatabaseManager:
                 result = cursor.fetchone()
                 goal_id = result[0] if result and len(result) > 0 else None
 
-                # Also update session tracking
-                actions_json = json.dumps(
-                    [
-                        {
-                            "type": "create_goal",
-                            "layer": "goal",
-                            "title": title,
-                            "goal_id": goal_id,
-                            "timestamp": datetime.now().isoformat(),
-                        }
-                    ]
-                )
-
-                context_json = json.dumps(
-                    {
-                        "goal_data": {
-                            "id": goal_id,
-                            "title": title,
-                            "description": description,
-                            "created_at": datetime.now().isoformat(),
-                            "session_id": self.session_id,
-                        }
-                    }
-                )
-
-                cursor.execute(
-                    """
-                    INSERT INTO sessions (session_id, title, description, actions, context)
-                    VALUES (%s, %s, %s, %s, %s)
-                    ON CONFLICT (session_id)
-                    DO UPDATE SET
-                        last_activity = NOW(),
-                        updated_at = NOW()
-                """,
-                    (
-                        self.session_id,
-                        f"Created Goal: {title}",
-                        description,
-                        actions_json,
-                        context_json,
-                    ),
-                )
                 conn.commit()
+
+            # Also update session tracking in proper mcp_sessions database
+            self._update_session_tracking(
+                f"Created Goal: {title}",
+                {
+                    "goal_data": {
+                        "id": goal_id,
+                        "title": title,
+                        "description": description,
+                        "created_at": datetime.now().isoformat(),
+                        "session_id": self.session_id,
+                    }
+                },
+            )
 
             conn.close()
             return {
@@ -225,7 +205,7 @@ class ToDoWriteDatabaseManager:
     ) -> dict[str, Any]:
         """Store layer item in database for cross-session persistence"""
         try:
-            conn = psycopg2.connect(**self.db_config)
+            conn = psycopg2.connect(**self.todowrite_db_config)
             with conn.cursor() as cursor:
                 if layer == "concept":
                     # Use correct schema for NEW ToDoWrite Models API (no session_id here!)
@@ -319,10 +299,41 @@ class ToDoWriteDatabaseManager:
                 "error": str(e),
             }
 
-    def get_session_items(self) -> list[dict[str, Any]]:
-        """Get all items created in current session"""
+    def _update_session_tracking(
+        self, action_description: str, context_data: dict[str, Any]
+    ) -> None:
+        """Update session tracking in proper mcp_sessions database"""
         try:
-            conn = psycopg2.connect(**self.db_config)
+            conn = psycopg2.connect(**self.session_db_config)
+            with conn.cursor() as cursor:
+                # Use proper mcp_sessions schema
+                cursor.execute(
+                    """
+                    INSERT INTO sessions (session_id, project_directory, environment_vars, context_summary, status)
+                    VALUES (%s, %s, %s, %s, %s)
+                    ON CONFLICT (session_id)
+                    DO UPDATE SET
+                        context_summary = EXCLUDED.context_summary || ', ' || %s,
+                        updated_at = NOW()
+                """,
+                    (
+                        self.session_id,
+                        str(Path.cwd()),
+                        json.dumps(dict(os.environ)),
+                        action_description,
+                        "active",
+                        action_description,
+                    ),
+                )
+                conn.commit()
+            conn.close()
+        except Exception as e:
+            print(f"❌ Failed to update session tracking: {e}")
+
+    def get_session_items(self) -> list[dict[str, Any]]:
+        """Get all items created in current session from proper mcp_sessions database"""
+        try:
+            conn = psycopg2.connect(**self.session_db_config)
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(
                     """
