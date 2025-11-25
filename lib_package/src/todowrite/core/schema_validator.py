@@ -216,13 +216,13 @@ class ToDoWriteSchemaValidator:
             ).items():
                 table_name = model_schema["table_name"]
 
-                # Check table exists
-                result = conn.execute(
-                    text(
-                        "SELECT name FROM sqlite_master WHERE type='table' AND name=:table_name"
-                    ),
-                    {"table_name": table_name},
-                )
+                # Check table exists - handle different database engines
+                if engine.dialect.name == "sqlite":
+                    table_query = "SELECT name FROM sqlite_master WHERE type='table' AND name=:table_name"
+                else:  # PostgreSQL and others
+                    table_query = "SELECT table_name FROM information_schema.tables WHERE table_name=:table_name AND table_schema='public'"
+
+                result = conn.execute(text(table_query), {"table_name": table_name})
 
                 if not result.fetchone():
                     raise DatabaseInitializationError(
@@ -236,10 +236,18 @@ class ToDoWriteSchemaValidator:
                     if column in ["id", "created_at", "updated_at"]:
                         continue
 
-                    result = conn.execute(
-                        text(f"PRAGMA table_info({table_name})")
-                    )
-                    table_columns = [row[1] for row in result.fetchall()]
+                    if engine.dialect.name == "sqlite":
+                        result = conn.execute(text(f"PRAGMA table_info({table_name})"))
+                        table_columns = [row[1] for row in result.fetchall()]
+                    else:  # PostgreSQL and others
+                        result = conn.execute(
+                            text("""
+                                SELECT column_name FROM information_schema.columns
+                                WHERE table_name = :table_name AND table_schema = 'public'
+                            """),
+                            {"table_name": table_name}
+                        )
+                        table_columns = [row[0] for row in result.fetchall()]
 
                     if column not in table_columns:
                         raise DatabaseInitializationError(
@@ -248,12 +256,12 @@ class ToDoWriteSchemaValidator:
 
             # Check association tables
             for table_name in self.schema.get("association_tables", {}):
-                result = conn.execute(
-                    text(
-                        "SELECT name FROM sqlite_master WHERE type='table' AND name=:table_name"
-                    ),
-                    {"table_name": table_name},
-                )
+                if engine.dialect.name == "sqlite":
+                    table_query = "SELECT name FROM sqlite_master WHERE type='table' AND name=:table_name"
+                else:  # PostgreSQL and others
+                    table_query = "SELECT table_name FROM information_schema.tables WHERE table_name=:table_name AND table_schema='public'"
+
+                result = conn.execute(text(table_query), {"table_name": table_name})
 
                 if not result.fetchone():
                     raise DatabaseInitializationError(
