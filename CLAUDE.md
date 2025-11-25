@@ -326,11 +326,14 @@ If any standard is not met, fix the issue before submitting the work.
 - Direct bash git commands → Use MCP git tools
 
 **🔴 MCP-FIRST WORKFLOW MANDATE:**
-- **ALWAYS** use MCP tools for file operations
-- **ALWAYS** use MCP tools for git operations
-- **ALWAYS** use MCP tools for database operations
-- **NEVER** use built-in Claude Code tools
+- **ALWAYS** use MCP tools for file operations BEFORE using Read/Edit/Write
+- **ALWAYS** use MCP git tools BEFORE using bash git commands
+- **ALWAYS** use MCP python_refactoring for code changes BEFORE manual editing
+- **ALWAYS** use MCP database tools before direct SQL commands
+- **NEVER** use built-in Claude Code tools when MCP equivalents exist
+- **MANDATORY**: Research capabilities BEFORE assuming limitations
 - **VERIFICATION REQUIRED**: Confirm MCP servers are healthy before starting work
+- **VIOLATION**: Any bypass of MCP tools requires explicit justification in reasoning
 
 **MCP Server Health Check:**
 ```bash
@@ -514,6 +517,19 @@ concept = Concept(title="My Concept", description="Concept description")
 - **NO CODE IMPLEMENTATION** without goal/concept/task breakdown
 - **ZERO EXCEPTIONS** for "quick fixes" or "simple changes"
 - **ALL AGENTS** (Chat, CLI, VSCode) MUST enforce this requirement
+
+**🚨 DATABASE DATA PROTECTION MANDATE:**
+- **NEVER DELETE without investigation**: Follow DATABASE_INVESTIGATION_PROTOCOL.md
+- **NEVER REBUILD without verification**: Check for existing data/tables first
+- **NEVER ASSUME "not found"**: Use proper investigation commands
+- **ZERO TOLERANCE** for data loss through negligence
+- **MANDATORY PROTOCOL**: Database → Tables → Data → THEN work
+
+**🚨 COST OPTIMIZATION MANDATE:**
+- **MCP-FIRST**: Use MCP tools before built-in tools
+- **RESEARCH-FIRST**: Never assume capabilities without investigation
+- **ZERO REWORK**: Investigate thoroughly, implement correctly once
+- **TOKEN MINIMIZATION**: Every mistake costs money and time
 
 **Pre-Work Verification:**
 ```bash

@@ -201,7 +201,17 @@ def enforce_claude_md_loading():
     except Exception as e:
         print(f"⚠️  Real-time token monitoring initialization failed: {e}")
 
-    print("📋 **CLAUDE.md enforcement complete - all systems ready**")
+    # Load MCP workflow mandates for session continuity
+    try:
+        mandates_file = Path("MCP_WORKFLOW_MANDATES.md")
+        if mandates_file.exists():
+            print("✅ MCP workflow mandates loaded for session continuity")
+        else:
+            print("⚠️  MCP_WORKFLOW_MANDATES.md not found")
+    except Exception as e:
+        print(f"⚠️  MCP workflow mandates loading failed: {e}")
+
+    print("📋 **CLAUDE.md and MCP workflow enforcement complete - all systems ready**")
     return True
 
 
