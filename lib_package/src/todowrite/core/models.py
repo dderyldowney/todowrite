@@ -47,6 +47,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
+    Session as SQLAlchemySession,
     mapped_column,
     relationship,
 )
@@ -367,6 +368,98 @@ class Goal(Base, TimestampMixin):
     contexts: Mapped[list[Context]] = relationship(
         "Context", secondary=goals_contexts, back_populates="goals"
     )
+
+    def delete(self, session: SQLAlchemySession) -> None:
+        """Delete this goal and all associated child entities with cascade deletion.
+
+        This method implements application-level cascade deletion to ensure that
+        when a Goal is deleted, all child entity data is also deleted:
+        - Direct associations (labels, concepts, contexts, constraints, tasks)
+        - Child entities through hierarchy (phases → steps → tasks → sub-tasks → commands)
+        - All junction table relationships (handled by database CASCADE constraints)
+
+        Args:
+            session: SQLAlchemy session for database operations
+
+        Raises:
+            ValueError: If no session is provided
+        """
+        if session is None:
+            raise ValueError("Session is required for delete operation")
+
+        # Delete in hierarchy order: bottom-up to avoid foreign key constraint violations
+
+        # 1. Get all phases and delete their hierarchies first
+        phases_to_delete = []
+        for phase in self.phases:
+            phases_to_delete.append(phase)
+
+            # Delete interface contracts for this phase
+            if hasattr(phase, "interface_contracts"):
+                for contract in phase.interface_contracts:
+                    session.delete(contract)
+
+            # Delete steps in this phase
+            steps_to_delete = []
+            for step in phase.steps:
+                steps_to_delete.append(step)
+
+                # Delete tasks in this step
+                tasks_to_delete = []
+                for task in step.tasks:
+                    tasks_to_delete.append(task)
+
+                    # Delete sub-tasks in this task
+                    sub_tasks_to_delete = []
+                    for sub_task in task.sub_tasks:
+                        sub_tasks_to_delete.append(sub_task)
+
+                        # Delete commands in this sub-task
+                        if hasattr(sub_task, "commands"):
+                            for command in sub_task.commands:
+                                session.delete(command)
+
+                    # Delete sub-tasks
+                    for sub_task in sub_tasks_to_delete:
+                        session.delete(sub_task)
+
+                # Delete tasks
+                for task in tasks_to_delete:
+                    session.delete(task)
+
+            # Delete steps
+            for step in steps_to_delete:
+                session.delete(step)
+
+        # 2. Delete direct tasks (those directly associated with goal, not through phases)
+        for task in self.tasks:
+            # Delete sub-tasks for direct tasks
+            sub_tasks_to_delete = []
+            for sub_task in task.sub_tasks:
+                sub_tasks_to_delete.append(sub_task)
+
+                # Delete commands in this sub-task
+                if hasattr(sub_task, "commands"):
+                    for command in sub_task.commands:
+                        session.delete(command)
+
+            # Delete sub-tasks
+            for sub_task in sub_tasks_to_delete:
+                session.delete(sub_task)
+
+            # Delete the task itself
+            session.delete(task)
+
+        # 3. Delete phases
+        for phase in phases_to_delete:
+            session.delete(phase)
+
+        # 4. Delete the goal itself (this will also clean up junction table relationships
+        #    due to CASCADE DELETE constraints in the database)
+        session.delete(self)
+
+        # Commit all deletions
+        session.commit()
 
 
 class Concept(Base, TimestampMixin):

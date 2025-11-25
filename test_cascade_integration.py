@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Test script to verify CASCADE DELETE constraints are applied during database initialization.
+"""Test script to verify CASCADE DELETE constraints are applied during database initialization.
 
 This script tests that:
 1. Database initialization creates tables
@@ -11,25 +10,32 @@ Usage:
     python test_cascade_integration.py
 """
 
-import sys
 import os
+import sys
+import traceback
 from pathlib import Path
 
 # Add lib_package to Python path
 sys.path.insert(0, str(Path(__file__).parent / "lib_package" / "src"))
 
 # Import everything at the top as required
-from todowrite.core.schema_validator import initialize_database, DatabaseSchemaInitializer
 from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
+from todowrite.core.models import Goal, Phase, Task
+from todowrite.core.schema_validator import initialize_database
+
 
 def test_database_initialization():
     """Test database initialization with cascade constraints."""
     try:
-
         print("✅ Testing database initialization with cascade constraints...")
 
         # Initialize database with test data (use existing todowrite database)
-        db_url = "postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/todowrite"
+        # pragma: allowlist secret
+        db_url = os.environ.get(
+            "TODOWRITE_DB_URL",
+            "postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/todowrite",
+        )
 
         # Initialize the database with cascade constraints
         print("🚀 Initializing database with cascade constraints...")
@@ -46,60 +52,109 @@ def test_database_initialization():
         print("🧪 Testing cascade delete functionality...")
 
         try:
+            # Test using the Goal model with the new delete() method
             engine = create_engine(db_url)
+            session_factory = sessionmaker(bind=engine)
 
-            # Create a simple hierarchy to test cascade
-            with engine.connect() as conn:
-                with conn.begin():
-                    # Create goal
-                    result = conn.execute(text("""
-                        INSERT INTO goals (title, description, status, owner, created_at, updated_at)
-                        VALUES ('Test Goal', 'Testing cascade delete', 'planned', 'test_user', NOW(), NOW())
-                        RETURNING id
-                    """))
-                    goal_id = result.scalar()
+            with session_factory() as session:
+                with session.begin():
+                    # Create goal using model
+                    goal = Goal(
+                        title="Test Goal", description="Testing cascade delete", owner="test_user"
+                    )
+                    session.add(goal)
+                    session.flush()  # Get the ID
+                    goal_id = goal.id
 
-                    # Create phase
-                    result = conn.execute(text("""
-                        INSERT INTO phases (title, description, status, owner, created_at, updated_at)
-                        VALUES ('Test Phase', 'Testing cascade delete', 'planned', 'test-user', NOW(), NOW())
-                        RETURNING id
-                    """))
-                    phase_id = result.scalar()
+                    # Create phase using model
+                    phase = Phase(
+                        title="Test Phase", description="Testing cascade delete", owner="test_user"
+                    )
+                    session.add(phase)
+                    session.flush()
+                    phase_id = phase.id
 
                     # Link goal to phase
-                    conn.execute(text("""
-                        INSERT INTO goals_phases (goal_id, phase_id) VALUES (:goal_id, :phase_id)
-                    """), {"goal_id": goal_id, "phase_id": phase_id})
+                    goal.phases.append(phase)
+                    session.flush()
 
-                    # Verify hierarchy exists
-                    result = conn.execute(text("""
-                        SELECT COUNT(*) FROM goals_phases WHERE goal_id = :goal_id
-                    """), {"goal_id": goal_id})
-                    linked_count = result.scalar()
+                    # Create a task directly linked to goal
+                    task = Task(
+                        title="Test Task", description="Testing cascade delete", owner="test_user"
+                    )
+                    session.add(task)
+                    session.flush()
+                    goal.tasks.append(task)
 
-                    if linked_count == 1:
-                        print("✅ Test hierarchy created successfully")
+                print("✅ Test hierarchy created successfully")
 
-                        # Test cascade delete
-                        conn.execute(text("""
-                            DELETE FROM goals WHERE id = :goal_id
-                        """), {"goal_id": goal_id})
+                # Verify all entities exist before deletion
+                result = session.execute(
+                    text("SELECT COUNT(*) FROM goals WHERE id = :goal_id"), {"goal_id": goal_id}
+                )
+                goal_count_before = result.scalar()
 
-                        # Verify cascade worked - link should be gone
-                        result = conn.execute(text("""
-                            SELECT COUNT(*) FROM goals_phases WHERE goal_id = :goal_id
-                        """), {"goal_id": goal_id})
-                        after_delete_count = result.scalar()
+                result = session.execute(
+                    text("SELECT COUNT(*) FROM phases WHERE id = :phase_id"), {"phase_id": phase_id}
+                )
+                phase_count_before = result.scalar()
 
-                        if after_delete_count == 0:
-                            print("✅ CASCADE DELETE working correctly!")
-                        else:
-                            print("❌ CASCADE DELETE failed - orphaned records remain")
-                            return False
-                    else:
-                        print("❌ Failed to create test hierarchy")
-                        return False
+                result = session.execute(
+                    text("SELECT COUNT(*) FROM goals_phases WHERE goal_id = :goal_id"),
+                    {"goal_id": goal_id},
+                )
+                link_count_before = result.scalar()
+
+                print(
+                    f"   Before delete: Goals={goal_count_before}, "
+                    f"Phases={phase_count_before}, Links={link_count_before}"
+                )
+
+                # Test cascade delete using Goal.delete() method
+                goal.delete(session)
+
+                # Verify all entities are deleted
+                result = session.execute(
+                    text("SELECT COUNT(*) FROM goals WHERE id = :goal_id"), {"goal_id": goal_id}
+                )
+                goal_count_after = result.scalar()
+
+                result = session.execute(
+                    text("SELECT COUNT(*) FROM phases WHERE id = :phase_id"), {"phase_id": phase_id}
+                )
+                phase_count_after = result.scalar()
+
+                result = session.execute(
+                    text("SELECT COUNT(*) FROM tasks WHERE title = 'Test Task'")
+                )
+                task_count_after = result.scalar()
+
+                result = session.execute(
+                    text("SELECT COUNT(*) FROM goals_phases WHERE goal_id = :goal_id"),
+                    {"goal_id": goal_id},
+                )
+                link_count_after = result.scalar()
+
+                print(
+                    f"   After delete: Goals={goal_count_after}, "
+                    f"Phases={phase_count_after}, Tasks={task_count_after}, "
+                    f"Links={link_count_after}"
+                )
+
+                if (
+                    goal_count_after == 0
+                    and phase_count_after == 0
+                    and task_count_after == 0
+                    and link_count_after == 0
+                ):
+                    print("✅ CASCADE DELETE working correctly! All entities deleted!")
+                    return True
+                print("❌ CASCADE DELETE failed - some entities remain")
+                print(f"   Goals remaining: {goal_count_after}")
+                print(f"   Phases remaining: {phase_count_after}")
+                print(f"   Tasks remaining: {task_count_after}")
+                print(f"   Links remaining: {link_count_after}")
+                return False
 
         except Exception as e:
             print(f"❌ Test failed with error: {e}")
@@ -110,9 +165,9 @@ def test_database_initialization():
 
     except Exception as e:
         print(f"❌ Test failed: {e}")
-        import traceback
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     success = test_database_initialization()

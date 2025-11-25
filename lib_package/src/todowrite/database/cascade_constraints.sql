@@ -52,6 +52,16 @@ ALTER TABLE interface_contracts_phases DROP CONSTRAINT IF EXISTS interface_contr
 ALTER TABLE interface_contracts_phases ADD CONSTRAINT interface_contracts_phases_phase_id_fkey
     FOREIGN KEY (phase_id) REFERENCES phases(id) ON DELETE CASCADE;
 
+-- Main Entity CASCADE DELETE Constraints
+-- These ensure that when Goal.delete() is called, all child entities are deleted
+
+-- Phases table should have NO direct cascade - phases can exist independently
+-- But we need a mechanism in the application layer to handle deletion
+
+-- Instead, we need to implement cascade deletion in the application layer
+-- The CASCADE constraints above only handle junction table cleanup
+-- The actual entity deletion needs to be handled programmatically
+
 -- Steps -> Junction Tables (CASCADE on delete from steps)
 ALTER TABLE phases_steps DROP CONSTRAINT IF EXISTS phases_steps_step_id_fkey;
 ALTER TABLE phases_steps ADD CONSTRAINT phases_steps_step_id_fkey
