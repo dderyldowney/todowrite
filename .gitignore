@@ -119,6 +119,8 @@ ipython_config.py
 
 # Environments
 .env
+.env.dev
+.env.backup
 .venv
 env/
 venv/

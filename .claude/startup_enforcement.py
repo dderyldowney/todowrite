@@ -33,33 +33,41 @@ def enforce_claude_md_loading():
         # Extract and apply critical mandates from CLAUDE.md
         mandates_applied = []
 
-        # Check for MCP-FIRST WORKFLOW MANDATE
-        if "MCP-FIRST WORKFLOW MANDATE" in claude_md_content:
-            mandates_applied.append("MCP-FIRST WORKFLOW MANDATE")
+        # Check for key mandates in the streamlined CLAUDE.md
+        if "MCP-FIRST MANDATE (NO EXCEPTIONS)" in claude_md_content:
+            mandates_applied.append("MCP-FIRST MANDATE")
             os.environ["MCP_FIRST_MANDATE"] = "true"
 
-        # Check for DATABASE DATA PROTECTION MANDATE
-        if "DATABASE DATA PROTECTION MANDATE" in claude_md_content:
-            mandates_applied.append("DATABASE DATA PROTECTION MANDATE")
-            os.environ["DATABASE_PROTECTION_MANDATE"] = "true"
-
-        # Check for COST OPTIMIZATION MANDATE
-        if "COST OPTIMIZATION MANDATE" in claude_md_content:
-            mandates_applied.append("COST OPTIMIZATION MANDATE")
-            os.environ["COST_OPTIMIZATION_MANDATE"] = "true"
-
-        # Check for TDD compliance requirement
-        if "TDD COMPLIANCE" in claude_md_content:
+        if "TDD MANDATE (NON-NEGOTIABLE)" in claude_md_content:
             mandates_applied.append("TDD COMPLIANCE ENFORCEMENT")
             os.environ["TDD_COMPLIANCE_MANDATORY"] = "true"
 
-        # Check for PostgreSQL-first architecture
-        if "PostgreSQL" in claude_md_content and "SINGLE SOURCE OF TRUTH" in claude_md_content:
+        if "POSTGRESQL-ONLY DATA STORAGE" in claude_md_content:
             mandates_applied.append("POSTGRESQL-FIRST ARCHITECTURE")
             os.environ["POSTGRESQL_FIRST_MANDATORY"] = "true"
 
+        if "DEVELOPMENT STANDARDS COMPLIANCE" in claude_md_content:
+            mandates_applied.append("DEVELOPMENT STANDARDS")
+            os.environ["DEVELOPMENT_STANDARDS_MANDATORY"] = "true"
+
+        if "TODOWRITE PLANNING REQUIREMENT" in claude_md_content:
+            mandates_applied.append("TODOWRITE PLANNING")
+            os.environ["TODOWRITE_PLANNING_MANDATORY"] = "true"
+
+        if "PRODUCTION-SAFE RULES" in claude_md_content:
+            mandates_applied.append("PRODUCTION SAFETY")
+            os.environ["PRODUCTION_SAFETY_MANDATORY"] = "true"
+
+        if "STARTUP SEQUENCE REQUIREMENT" in claude_md_content:
+            mandates_applied.append("STARTUP SEQUENCE")
+            os.environ["STARTUP_SEQUENCE_MANDATORY"] = "true"
+
+        if "HAL AND TOKEN OPTIMIZATION MANDATE" in claude_md_content:
+            mandates_applied.append("HAL TOKEN OPTIMIZATION")
+            os.environ["HAL_TOKEN_OPTIMIZATION_MANDATORY"] = "true"
+
         if mandates_applied:
-            print(f"✅ CLAUDE.md loaded and applied: {', '.join(mandates_applied)}")
+            print(f"✅ CLAUDE.md loaded and mandates enforced: {', '.join(mandates_applied)}")
         else:
             print("⚠️  CLAUDE.md loaded but no critical mandates detected")
 
@@ -84,7 +92,7 @@ def enforce_claude_md_loading():
 
     if missing_vars:
         print(f"❌ CRITICAL: Missing environment variables: {missing_vars}")
-        print("❌ Run: source .env")
+        print("❌ Run: source .env.dev")
         return False
 
     print("✅ All required environment variables set")
@@ -231,7 +239,48 @@ def enforce_claude_md_loading():
     except Exception as e:
         print(f"⚠️  Session state verification failed: {e}")
 
-    # 7. Initialize real-time token monitoring
+    # 7. Verify policy documents exist and are accessible
+    print("📋 **POLICY DOCUMENT VERIFICATION**")
+    policy_dir = Path("docs/policies")
+    required_policies = [
+        "MCP_FIRST_WORKFLOW.md",
+        "TDD_REQUIREMENTS.md",
+        "VALIDATION_TESTING.md",
+        "POSTGRESQL_ARCHITECTURE.md",
+        "DEVELOPMENT_STANDARDS.md",
+        "MONOREPO_STRUCTURE.md",
+        "API_USAGE_POLICY.md",
+        "TODOWRITE_PLANNING.md",
+        "PRODUCTION_SAFETY.md",
+        "STARTUP_SEQUENCE.md",
+        "HAL_TOKEN_OPTIMIZATION_POLICY.md",
+    ]
+
+    missing_policies = []
+    policies_found = 0
+
+    if not policy_dir.exists():
+        print("❌ CRITICAL: docs/policies directory not found!")
+        return False
+
+    for policy in required_policies:
+        policy_path = policy_dir / policy
+        if policy_path.exists():
+            policies_found += 1
+        else:
+            missing_policies.append(policy)
+
+    if missing_policies:
+        print(f"❌ CRITICAL: Missing policy documents: {missing_policies}")
+        return False
+
+    print(f"✅ All {policies_found} policy documents verified")
+
+    # Store policy directory path for agent access
+    os.environ["POLICY_DOCS_DIRECTORY"] = str(policy_dir.absolute())
+    print("✅ Policy directory path set for agent access")
+
+    # 8. Initialize real-time token monitoring
     try:
         monitor_script = Path(".claude/realtime_token_monitor.py")
         if monitor_script.exists():
@@ -257,25 +306,31 @@ def enforce_claude_md_loading():
     except Exception as e:
         print(f"⚠️  MCP workflow mandates loading failed: {e}")
 
-    # 8. Verify CLAUDE.md mandates are enforced
+    # 9. Verify CLAUDE.md mandates are enforced
     active_mandates = []
     if os.environ.get("MCP_FIRST_MANDATE") == "true":
         active_mandates.append("MCP-FIRST WORKFLOW")
-    if os.environ.get("DATABASE_PROTECTION_MANDATE") == "true":
-        active_mandates.append("DATABASE PROTECTION")
-    if os.environ.get("COST_OPTIMIZATION_MANDATE") == "true":
-        active_mandates.append("COST OPTIMIZATION")
+    if os.environ.get("DEVELOPMENT_STANDARDS_MANDATORY") == "true":
+        active_mandates.append("DEVELOPMENT STANDARDS")
     if os.environ.get("TDD_COMPLIANCE_MANDATORY") == "true":
         active_mandates.append("TDD COMPLIANCE")
     if os.environ.get("POSTGRESQL_FIRST_MANDATORY") == "true":
         active_mandates.append("POSTGRESQL-FIRST ARCHITECTURE")
+    if os.environ.get("TODOWRITE_PLANNING_MANDATORY") == "true":
+        active_mandates.append("TODOWRITE PLANNING")
+    if os.environ.get("PRODUCTION_SAFETY_MANDATORY") == "true":
+        active_mandates.append("PRODUCTION SAFETY")
+    if os.environ.get("STARTUP_SEQUENCE_MANDATORY") == "true":
+        active_mandates.append("STARTUP SEQUENCE")
+    if os.environ.get("HAL_TOKEN_OPTIMIZATION_MANDATORY") == "true":
+        active_mandates.append("HAL TOKEN OPTIMIZATION")
 
     if active_mandates:
         print(f"✅ CLAUDE.md mandates enforced: {', '.join(active_mandates)}")
     else:
         print("❌ WARNING: No CLAUDE.md mandates were applied!")
 
-    print("📋 **CLAUDE.md and MCP workflow enforcement complete - all systems ready**")
+    print("📋 **CLAUDE.md, policy documents, and all systems ready**")
     return True
 
 
@@ -285,10 +340,13 @@ def verify_mandates_enforced():
 
     critical_mandates = {
         "MCP_FIRST_MANDATE": "MCP-FIRST WORKFLOW MANDATE",
-        "DATABASE_PROTECTION_MANDATE": "DATABASE DATA PROTECTION MANDATE",
-        "COST_OPTIMIZATION_MANDATE": "COST OPTIMIZATION MANDATE",
+        "DEVELOPMENT_STANDARDS_MANDATORY": "DEVELOPMENT STANDARDS COMPLIANCE",
         "TDD_COMPLIANCE_MANDATORY": "TDD COMPLIANCE ENFORCEMENT",
         "POSTGRESQL_FIRST_MANDATORY": "POSTGRESQL-FIRST ARCHITECTURE",
+        "TODOWRITE_PLANNING_MANDATORY": "TODOWRITE PLANNING REQUIREMENT",
+        "PRODUCTION_SAFETY_MANDATORY": "PRODUCTION SAFETY RULES",
+        "STARTUP_SEQUENCE_MANDATORY": "STARTUP SEQUENCE REQUIREMENT",
+        "HAL_TOKEN_OPTIMIZATION_MANDATORY": "HAL TOKEN OPTIMIZATION MANDATE",
     }
 
     enforced_count = 0

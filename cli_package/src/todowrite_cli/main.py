@@ -83,7 +83,21 @@ LAYER_NAMES = {
 
 def get_session(database_url: str = "sqlite:///todowrite.db"):
     """Get SQLAlchemy session."""
+    from todowrite import initialize_database
+
     engine = create_engine(database_url)
+
+    # Initialize database if it doesn't have tables
+    try:
+        from sqlalchemy import inspect
+
+        inspector = inspect(engine)
+        if not inspector.get_table_names():
+            initialize_database(database_url)
+    except Exception:
+        # If inspection fails, try to initialize anyway
+        initialize_database(database_url)
+
     Session = sessionmaker(bind=engine)
     return Session(), engine
 

@@ -7,11 +7,11 @@ echo "=================================================="
 
 # 1. Source environment variables
 echo "📋 Loading environment variables..."
-if [ -f ".env" ]; then
-    source .env
-    echo "✅ Environment variables loaded"
+if [ -f ".env.dev" ]; then
+    source .env.dev
+    echo "✅ Development environment variables loaded"
 else
-    echo "❌ ERROR: .env file not found!"
+    echo "❌ ERROR: .env.dev file not found!"
     exit 1
 fi
 
@@ -30,10 +30,10 @@ echo "🛠️  Setting Python paths..."
 export PYTHONPATH="lib_package/src:cli_package/src"
 echo "✅ Python paths configured"
 
-# 4. Run startup enforcement (loads CLAUDE.md and verifies all systems)
-echo "📋 Running startup enforcement (CLAUDE.md loading)..."
+# 4. Run startup enforcement (loads CLAUDE.md and verifies policy documents)
+echo "📋 Running startup enforcement (CLAUDE.md + Policy Documents)..."
 if python .claude/startup_enforcement.py; then
-    echo "✅ CLAUDE.md and all configurations loaded"
+    echo "✅ CLAUDE.md and all policy documents loaded"
 else
     echo "❌ ERROR: Startup enforcement failed!"
     exit 1
@@ -107,6 +107,7 @@ echo "   🧠 Memory: $(vm_stat | grep "Pages free" | awk '{print $3}' | sed 's/
 echo ""
 echo "🎯 **SESSION STARTUP COMPLETE**"
 echo "✅ CLAUDE.md loaded and enforced"
+echo "✅ Policy documents verified and accessible"
 echo "✅ HAL Agent System ACTIVE and processing"
 echo "✅ Token Optimization System active"
 echo "✅ MCP Systems initialized"

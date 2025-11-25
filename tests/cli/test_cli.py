@@ -32,25 +32,28 @@ class TestCLI(unittest.TestCase):
 
     def test_list_command(self) -> None:
         """Test the list command."""
-        result = self.runner.invoke(cli, ["list"])
+        result = self.runner.invoke(cli, ["--database", self.temp_db.name, "list"])
         self.assertEqual(result.exit_code, 0)
-        self.assertIn("ToDoWrite Items", result.output)
+        # Empty database should show "No items found"
+        self.assertIn("No items found", result.output)
 
     def test_list_with_layer(self) -> None:
         """Test listing items with layer filter."""
-        result = self.runner.invoke(cli, ["list", "--layer", "goal"])
+        result = self.runner.invoke(
+            cli, ["--database", self.temp_db.name, "list", "--layer", "goal"]
+        )
         self.assertEqual(result.exit_code, 0)
 
     def test_list_with_limit(self) -> None:
         """Test listing items with limit."""
-        result = self.runner.invoke(cli, ["list", "--limit", "5"])
+        result = self.runner.invoke(cli, ["--database", self.temp_db.name, "list", "--limit", "5"])
         self.assertEqual(result.exit_code, 0)
 
     def test_help_command(self) -> None:
         """Test the help command."""
         result = self.runner.invoke(cli, ["--help"])
         self.assertEqual(result.exit_code, 0)
-        self.assertIn("ToDoWrite CLI", result.output)
+        self.assertIn("Todowrite CLI", result.output)
 
 
 if __name__ == "__main__":

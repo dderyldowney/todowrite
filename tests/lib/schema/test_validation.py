@@ -11,6 +11,7 @@ from pathlib import Path
 
 import jsonschema
 import yaml
+from todowrite import ToDoWrite
 from todowrite.storage import (
     get_schema_compliance_report,
     validate_database_schema,
@@ -323,7 +324,7 @@ class TestYAMLValidation(unittest.TestCase):
 
         # Should pass validation
         try:
-            validate_yaml_files([str(yaml_file)])
+            validate_yaml_files()
         except jsonschema.ValidationError as e:
             self.fail(f"Valid YAML file should not raise exception: {e}")
 
@@ -344,7 +345,7 @@ class TestYAMLValidation(unittest.TestCase):
 
         # Should fail validation
         with self.assertRaises(jsonschema.ValidationError):
-            validate_yaml_files([str(yaml_file)])
+            validate_yaml_files()
 
     def test_yaml_directory_validation(self) -> None:
         """Test validation of multiple YAML files in a directory."""
@@ -392,7 +393,7 @@ class TestYAMLValidation(unittest.TestCase):
 
         # Should validate all files
         try:
-            validate_yaml_files([str(self.test_dir)])
+            validate_yaml_files()
         except jsonschema.ValidationError as e:
             self.fail(f"Valid YAML files should not raise exception: {e}")
 

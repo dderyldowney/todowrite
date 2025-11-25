@@ -217,7 +217,7 @@ class TestUnifiedModelsAPI:
         assert goal.created_at is not None
         assert goal.updated_at is not None
         # Note: created_at and updated_at may differ by microseconds
-        assert goal.created_at[:19] == goal.updated_at[:19]  # Compare up to seconds
+        assert str(goal.created_at)[:19] == str(goal.updated_at)[:19]  # Compare up to seconds
 
         # Update and verify updated_at changes
         original_updated_at = goal.updated_at

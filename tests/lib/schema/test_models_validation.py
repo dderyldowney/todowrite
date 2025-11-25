@@ -4,6 +4,7 @@ Models Validation Tests
 Tests for validating ToDoWrite models using modern SQLAlchemy patterns.
 """
 
+import datetime
 import json
 import tempfile
 from pathlib import Path
@@ -174,15 +175,17 @@ class TestModelsValidation:
         temp_session.add(goal)
         temp_session.commit()
 
-        # Verify timestamps are set and valid
+        # Verify timestamps are set and valid as datetime objects
         assert goal.created_at is not None
         assert goal.updated_at is not None
-        assert len(goal.created_at) >= 19  # ISO format: "2025-01-01T00:00:00"
-        assert len(goal.updated_at) >= 19
+        assert isinstance(goal.created_at, datetime.datetime)
+        assert isinstance(goal.updated_at, datetime.datetime)
 
-        # Verify timestamp format (basic check for ISO datetime)
-        assert "T" in goal.created_at
-        assert goal.created_at.count("-") == 2  # YYYY-MM-DD
+        # Verify timestamps are reasonable (within last hour and updated_at >= created_at)
+        now = datetime.datetime.now()
+        assert (now - goal.created_at).total_seconds() < 3600  # Within last hour
+        assert goal.updated_at >= goal.created_at  # Updated after or same as created
+        assert goal.created_at.year >= 2020  # Reasonable year
 
     def test_model_field_length_validation(self, temp_session):
         """Test model field length validation."""

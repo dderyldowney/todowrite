@@ -7,6 +7,8 @@ it provides both a standalone CLI and a Python module for programmatic use.
 
 from __future__ import annotations
 
+from .api import ToDoWrite
+
 # Core version information
 from .version import get_version
 
@@ -61,6 +63,8 @@ __all__ = [
     "Context",
     "DatabaseInitializationError",
     "DatabaseSchemaInitializer",
+    # Main API
+    "ToDoWrite",
     # ToDoWrite Models (12 layers) - PRIMARY API
     "Goal",
     "InterfaceContract",

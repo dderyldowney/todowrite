@@ -1,12 +1,41 @@
-# ToDoWrite API Documentation
+# API Usage Policy
 
 **Version**: 0.6.1 - **MAJOR BREAKING CHANGE**
 **Status**: Production Ready
 **Testing**: Comprehensive test suite with real implementations
+**Policy**: All API usage MUST follow PostgreSQL-first architecture
 
 ## Overview
 
 ToDoWrite provides SQLAlchemy ORM interfaces for hierarchical task management with database persistence and schema validation. The system uses 12 hierarchical models with proper foreign key relationships.
+
+## 🚨 PostgreSQL-Only Mandate
+
+**All API usage MUST use PostgreSQL exclusively.** SQLite references in examples are legacy and violate current policy.
+
+**Exception: Testing** - Tests may use SQLite, PostgreSQL, or YAML fixtures as appropriate for test scenarios.
+
+**Correct PostgreSQL Usage:**
+```python
+from todowrite import (
+    Goal, Concept, Context, Constraints,
+    Requirements, AcceptanceCriteria, InterfaceContract,
+    Phase, Step, Task, SubTask, Command, Label,
+    create_engine, sessionmaker
+)
+
+# PostgreSQL connection (REQUIRED)
+DATABASE_URL = "postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/todowrite"
+engine = create_engine(DATABASE_URL)
+Session = sessionmaker(bind=engine)
+session = Session()
+```
+
+**Forbidden (Policy Violation):**
+```python
+# ❌ FORBIDDEN - SQLite usage
+engine = create_engine("sqlite:///project.db")
+```
 
 ## ⚠️ BREAKING CHANGES in v0.6.1
 
@@ -31,8 +60,9 @@ from todowrite import (
     create_engine, sessionmaker
 )
 
-# Initialize database session
-engine = create_engine("sqlite:///project.db")
+# Initialize database session (PostgreSQL required for production)
+DATABASE_URL = "postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/todowrite"
+engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
 session = Session()
 ```
@@ -69,7 +99,7 @@ command = Command(
     title="Run Authentication Tests",
     cmd="pytest",
     cmd_params="tests/auth/test_login.py -v",
-    runtime_env='{"PYTHONPATH": "./src", "TEST_DB": "sqlite:///:memory:"}',
+    runtime_env='{"PYTHONPATH": "./src", "TEST_DB": "sqlite:///:memory:"}',  # Tests may use SQLite or PostgreSQL
     acceptance_criteria_id=ac.id
 )
 session.add(command)

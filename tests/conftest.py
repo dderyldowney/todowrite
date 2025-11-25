@@ -21,9 +21,17 @@ from sqlalchemy.orm import Session, sessionmaker
 project_root = Path(__file__).resolve().parent
 sys.path.insert(0, str(project_root))
 
+# Add src directory for authentication and other modules
+src_path = project_root.parent / "src"
+sys.path.insert(0, str(src_path))
+
 # Add lib_package to path for proper imports
 lib_package_path = project_root.parent / "lib_package" / "src"
 sys.path.insert(0, str(lib_package_path))
+
+# Add cli_package to path for proper imports
+cli_package_path = project_root.parent / "cli_package" / "src"
+sys.path.insert(0, str(cli_package_path))
 
 # Import todowrite modules first
 from todowrite import create_engine, sessionmaker  # noqa: E402

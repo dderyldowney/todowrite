@@ -12,8 +12,6 @@ from pathlib import Path
 from unittest import TestCase
 
 from click.testing import CliRunner
-from sqlalchemy import create_engine
-from todowrite.core.models import Base
 from todowrite_cli.main import cli
 
 
@@ -29,10 +27,11 @@ class TestCLIAPICompatibility(TestCase):
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
             test_db_path = tmp.name
 
-        # Initialize database with all tables
-        engine = create_engine(f"sqlite:///{test_db_path}")
-        Base.metadata.create_all(engine)
-        engine.dispose()
+        # Initialize database with proper schema using todowrite's initialize_database
+        from todowrite import initialize_database
+
+        database_url = f"sqlite:///{test_db_path}"
+        engine = initialize_database(database_url, drop_existing=True)
 
         return test_db_path
 
