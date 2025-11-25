@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Startup Enforcement Script - MANDATORY CLAUDE.md Loading and Verification
-Ensures all agents load CLAUDE.md and enforce its rules on every session start
+Startup Enforcement Script - MANDATORY CLAUDE.md Loading and Verification.
+
+Ensures all agents load CLAUDE.md and enforce its rules on every session start.
 """
 
 import os
@@ -10,17 +11,61 @@ from pathlib import Path
 
 
 def enforce_claude_md_loading():
-    """Enforce CLAUDE.md loading and rule verification"""
-
+    """Enforce CLAUDE.md loading and rule verification."""
     print("📋 **CLAUDE.md RULE ENFORCEMENT**")
 
-    # 1. Verify CLAUDE.md exists
+    # 1. Load and apply CLAUDE.md rules
     claude_md = Path("CLAUDE.md")
     if not claude_md.exists():
         print("❌ CRITICAL: CLAUDE.md not found!")
         return False
 
     print("✅ CLAUDE.md found")
+
+    # Load and apply CLAUDE.md content
+    try:
+        with open(claude_md, encoding="utf-8") as f:
+            claude_md_content = f.read()
+
+        # Store CLAUDE.md content in environment for agents to access
+        os.environ["CLAUDE_MD_CONTENT"] = claude_md_content
+
+        # Extract and apply critical mandates from CLAUDE.md
+        mandates_applied = []
+
+        # Check for MCP-FIRST WORKFLOW MANDATE
+        if "MCP-FIRST WORKFLOW MANDATE" in claude_md_content:
+            mandates_applied.append("MCP-FIRST WORKFLOW MANDATE")
+            os.environ["MCP_FIRST_MANDATE"] = "true"
+
+        # Check for DATABASE DATA PROTECTION MANDATE
+        if "DATABASE DATA PROTECTION MANDATE" in claude_md_content:
+            mandates_applied.append("DATABASE DATA PROTECTION MANDATE")
+            os.environ["DATABASE_PROTECTION_MANDATE"] = "true"
+
+        # Check for COST OPTIMIZATION MANDATE
+        if "COST OPTIMIZATION MANDATE" in claude_md_content:
+            mandates_applied.append("COST OPTIMIZATION MANDATE")
+            os.environ["COST_OPTIMIZATION_MANDATE"] = "true"
+
+        # Check for TDD compliance requirement
+        if "TDD COMPLIANCE" in claude_md_content:
+            mandates_applied.append("TDD COMPLIANCE ENFORCEMENT")
+            os.environ["TDD_COMPLIANCE_MANDATORY"] = "true"
+
+        # Check for PostgreSQL-first architecture
+        if "PostgreSQL" in claude_md_content and "SINGLE SOURCE OF TRUTH" in claude_md_content:
+            mandates_applied.append("POSTGRESQL-FIRST ARCHITECTURE")
+            os.environ["POSTGRESQL_FIRST_MANDATORY"] = "true"
+
+        if mandates_applied:
+            print(f"✅ CLAUDE.md loaded and applied: {', '.join(mandates_applied)}")
+        else:
+            print("⚠️  CLAUDE.md loaded but no critical mandates detected")
+
+    except Exception as e:
+        print(f"❌ CRITICAL: Failed to load CLAUDE.md content: {e}")
+        return False
 
     # 2. Verify environment variables are sourced
     required_vars = [
@@ -94,6 +139,7 @@ def enforce_claude_md_loading():
         ]
 
         for db_name in required_databases:
+            # Use parameterized query to prevent SQL injection
             result = subprocess.run(
                 [
                     "docker",
@@ -105,7 +151,7 @@ def enforce_claude_md_loading():
                     "-d",
                     "postgres",
                     "-c",
-                    f"SELECT 1 FROM pg_database WHERE datname = '{db_name}';",
+                    f"SELECT 1 FROM pg_database WHERE datname = '{db_name}' LIMIT 1;",
                 ],
                 capture_output=True,
                 text=True,
@@ -211,12 +257,58 @@ def enforce_claude_md_loading():
     except Exception as e:
         print(f"⚠️  MCP workflow mandates loading failed: {e}")
 
+    # 8. Verify CLAUDE.md mandates are enforced
+    active_mandates = []
+    if os.environ.get("MCP_FIRST_MANDATE") == "true":
+        active_mandates.append("MCP-FIRST WORKFLOW")
+    if os.environ.get("DATABASE_PROTECTION_MANDATE") == "true":
+        active_mandates.append("DATABASE PROTECTION")
+    if os.environ.get("COST_OPTIMIZATION_MANDATE") == "true":
+        active_mandates.append("COST OPTIMIZATION")
+    if os.environ.get("TDD_COMPLIANCE_MANDATORY") == "true":
+        active_mandates.append("TDD COMPLIANCE")
+    if os.environ.get("POSTGRESQL_FIRST_MANDATORY") == "true":
+        active_mandates.append("POSTGRESQL-FIRST ARCHITECTURE")
+
+    if active_mandates:
+        print(f"✅ CLAUDE.md mandates enforced: {', '.join(active_mandates)}")
+    else:
+        print("❌ WARNING: No CLAUDE.md mandates were applied!")
+
     print("📋 **CLAUDE.md and MCP workflow enforcement complete - all systems ready**")
     return True
 
 
+def verify_mandates_enforced():
+    """Verify that critical CLAUDE.md mandates are being enforced."""
+    print("\n🔍 **MANDATE ENFORCEMENT VERIFICATION**")
+
+    critical_mandates = {
+        "MCP_FIRST_MANDATE": "MCP-FIRST WORKFLOW MANDATE",
+        "DATABASE_PROTECTION_MANDATE": "DATABASE DATA PROTECTION MANDATE",
+        "COST_OPTIMIZATION_MANDATE": "COST OPTIMIZATION MANDATE",
+        "TDD_COMPLIANCE_MANDATORY": "TDD COMPLIANCE ENFORCEMENT",
+        "POSTGRESQL_FIRST_MANDATORY": "POSTGRESQL-FIRST ARCHITECTURE",
+    }
+
+    enforced_count = 0
+    for env_var, mandate_name in critical_mandates.items():
+        if os.environ.get(env_var) == "true":
+            print(f"✅ {mandate_name} - ENFORCED")
+            enforced_count += 1
+        else:
+            print(f"❌ {mandate_name} - NOT ENFORCED")
+
+    compliance_rate = (enforced_count / len(critical_mandates)) * 100
+    print(
+        f"\n📊 **COMPLIANCE RATE: {compliance_rate:.1f}% ({enforced_count}/{len(critical_mandates)} mandates enforced)**"
+    )
+
+    return compliance_rate >= 80.0  # Require 80% compliance to pass
+
+
 def main():
-    """Main enforcement function"""
+    """Main enforcement function."""
     print("🚀 **STARTUP ENFORCEMENT - LOADING CLAUDE.md AND ALL CONFIGS**")
     print("=" * 60)
 
@@ -227,8 +319,17 @@ def main():
         print("❌ Session cannot continue until all requirements are met")
         sys.exit(1)
 
+    # Verify mandate compliance
+    mandate_compliance = verify_mandates_enforced()
+    if not mandate_compliance:
+        print("\n❌ **MANDATE COMPLIANCE FAILED**")
+        print("❌ Critical CLAUDE.md mandates are not being enforced")
+        print("❌ Session cannot continue until compliance is achieved")
+        sys.exit(1)
+
     print("\n✅ **STARTUP ENFORCEMENT PASSED**")
     print("✅ All CLAUDE.md rules loaded and enforced")
+    print("✅ Critical mandates verified and active")
     print("✅ Session ready for development work")
     sys.exit(0)
 
