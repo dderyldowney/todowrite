@@ -2,7 +2,9 @@
 
 ## Overview
 
-This document describes the MCP (Model Context Protocol) server installation that provides system-wide AI development tools.
+This document describes the GLOBAL MCP (Model Context Protocol) server installation that provides system-wide AI development tools.
+
+**IMPORTANT**: These MCP servers are GLOBAL system resources, NOT part of this specific todowrite project. We are simply USING these globally available tools.
 
 ## Installation Location
 
