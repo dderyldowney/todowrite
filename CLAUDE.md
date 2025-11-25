@@ -135,12 +135,13 @@ This manual startup sequence loads environment, activates virtual environment, e
 
 Every task MUST follow this sequence:
 
-1. ✅ Confirm MCP servers healthy: `python .claude/mcp_server_health_check.py`
-2. ✅ Confirm PostgreSQL accessible: `docker exec mcp-postgres psql -U mcp_user -d todowrite -c "SELECT 1;"`
-3. ✅ Verify HAL is active: `ps -p $(cat .claude/hal_active.pid) > /dev/null`
-4. ✅ Confirm token optimization is working: `python dev_tools/token_optimization/always_token_sage.py test`
-5. ✅ Load ToDoWrite planning context from PostgreSQL
-6. ✅ **USE MCP TOOLS FOR ALL OPERATIONS** - **NO EXCEPTIONS**
+1. ✅ **USE MCP TOOLS FOR ALL OPERATIONS** - **NO EXCEPTIONS**
+2. ✅ Confirm MCP servers healthy: `python .claude/mcp_server_health_check.py`
+3. ✅ Confirm PostgreSQL accessible: `docker exec mcp-postgres psql -U mcp_user -d todowrite -c "SELECT 1;"`
+4. ✅ Verify HAL is active: `ps -p $(cat .claude/hal_active.pid) > /dev/null`
+5. ✅ Confirm token optimization is working: `python dev_tools/token_optimization/always_token_sage.py test`
+6. ✅ Load ToDoWrite planning context from PostgreSQL
+
 7. ✅ Apply TDD (RED-GREEN-REFACTOR)
 8. ✅ Implement with full type coverage using natural language
 9. ✅ Validate with real data using MCP tools (no mocks)
