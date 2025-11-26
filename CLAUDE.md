@@ -53,10 +53,11 @@ All persistent data MUST use PostgreSQL.
 📋 **Policies**: `docs/policies/DEVELOPMENT_STANDARDS.md` | `docs/policies/MONOREPO_STRUCTURE.md` | `docs/policies/API_USAGE_POLICY.md`
 
 All Python code MUST include:
-- Full type hints (Python 3.12+ syntax)
+- Full type hints (Python 3.12+ syntax) - See `docs/PYTHON_3_12_TYPING_STANDARDS.md`
 - `from __future__ import annotations`
 - No use of `Any` types
 - Typed variables, returns, parameters
+- PEP 695 type parameter syntax (where applicable)
 - Maximum 500 lines per file
 
 **If a type hint is missing → STOP.**
