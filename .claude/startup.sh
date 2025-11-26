@@ -92,9 +92,9 @@ fi
 
 # Generate dynamic MCP tool inventory
 echo "🛠️ Generating dynamic MCP tool inventory..."
-if python .claude/mcp_tool_discovery.py > /dev/null 2>&1; then
+if python ~/.claude/mcp_tool_discovery.py > /dev/null 2>&1; then
     echo "✅ MCP tool inventory generated"
-    TOOL_COUNT=$(grep "Total Available Tools:" .claude/MCP_TOOLS_AVAILABLE.md | awk '{print $4}' || echo "0")
+    TOOL_COUNT=$(grep "Total Available Tools:" ~/mcp-servers/logs/MCP_TOOLS_AVAILABLE.md | awk '{print $4}' || echo "0")
     echo "📋 Available tools: $TOOL_COUNT"
 else
     echo "⚠️  MCP tool discovery failed - using minimal inventory"
@@ -149,19 +149,19 @@ echo "✅ PostgreSQL backend verified"
 echo "✅ Session state loaded"
 echo ""
 echo "🛠️ **CURRENT MCP TOOLS**:"
-if [ -f ".claude/MCP_TOOLS_AVAILABLE.md" ]; then
-    TOOL_COUNT=$(grep "Total Available Tools:" .claude/MCP_TOOLS_AVAILABLE.md | awk '{print $4}' || echo "0")
-    RUNNING_SERVERS=$(grep "Running Servers:" .claude/MCP_TOOLS_AVAILABLE.md | awk '{print $3}' || echo "0")
+if [ -f "~/mcp-servers/logs/MCP_TOOLS_AVAILABLE.md" ]; then
+    TOOL_COUNT=$(grep "Total Available Tools:" ~/mcp-servers/logs/MCP_TOOLS_AVAILABLE.md | awk '{print $4}' || echo "0")
+    RUNNING_SERVERS=$(grep "Running Servers:" ~/mcp-servers/logs/MCP_TOOLS_AVAILABLE.md | awk '{print $3}' || echo "0")
     echo "   • Available Tools: $TOOL_COUNT"
     echo "   • Running Servers: $RUNNING_SERVERS"
-    echo "   • Full Inventory: .claude/MCP_TOOLS_AVAILABLE.md"
+    echo "   • Full Inventory: ~/mcp-servers/logs/MCP_TOOLS_AVAILABLE.md"
 else
     echo "   • Tool inventory: Generating..."
 fi
 echo ""
 echo "🔍 **REAL-TIME MONITORING OPTIONS**:"
-echo "   • MCP Tools: cat .claude/MCP_TOOLS_AVAILABLE.md"
-echo "   • Refresh Tools: python .claude/mcp_tool_discovery.py --report"
+echo "   • MCP Tools: cat ~/mcp-servers/logs/MCP_TOOLS_AVAILABLE.md"
+echo "   • Refresh Tools: python ~/.claude/mcp_tool_discovery.py --report"
 echo "   • MCP Health: python ~/mcp-servers/bin/mcp_server_health_check.py --report"
 echo "   • Start monitor: ./.claude/system_monitor.sh"
 echo "   • Stop HAL: ./.claude/hal_shutdown.sh"
