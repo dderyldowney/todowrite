@@ -27,25 +27,23 @@ class TmpFileEnforcer:
             "enforcement_level": "strict",
             "enforcement_permanent": True,
             "survives_session_reset": True,
-
             # Forbidden hardcoded tmp patterns
             "forbidden_patterns": [
                 r"open\(['\"][^'\"]*tmp[^'\"]*['\"]",  # open with tmp in path
                 r"Path\(['\"][^'\"]*tmp[^'\"]*['\"]",  # Path with tmp
-                r"mkdir\(['\"][^'\"]*tmp[^'\"]*['\"]", # mkdir with tmp
-                r"rmdir\(['\"][^'\"]*tmp[^'\"]*['\"]", # rmdir with tmp
-                r"chdir\(['\"][^'\"]*tmp[^'\"]*['\"]", # chdir with tmp
-                r"exists\(['\"][^'\"]*tmp[^'\"]*['\"]", # exists with tmp
-                r"is_dir\(['\"][^'\"]*tmp[^'\"]*['\"]", # is_dir with tmp
-                r"mkdtemp\(['\"][^'\"]*tmp[^'\"]*['\"]", # mkdtemp with tmp (should use tempfile)
-                r"mkstemp\(['\"][^'\"]*tmp[^'\"]*['\"]", # mkstemp with tmp (should use tempfile)
-                r"with open\(['\"][^'\"]*tmp[^'\"]*['\"]", # with open with tmp
-                r"\.join\(['\"][^'\"]*tmp[^'\"]*['\"]", # os.path.join with tmp
-                r"\/tmp\/", # /tmp/ directory path
-                r"\/tmp[^a-zA-Z]", # /tmp followed by non-letter (e.g., /tmpfile)
-                r"[\"']\/tmp[\"']", # "/tmp"
+                r"mkdir\(['\"][^'\"]*tmp[^'\"]*['\"]",  # mkdir with tmp
+                r"rmdir\(['\"][^'\"]*tmp[^'\"]*['\"]",  # rmdir with tmp
+                r"chdir\(['\"][^'\"]*tmp[^'\"]*['\"]",  # chdir with tmp
+                r"exists\(['\"][^'\"]*tmp[^'\"]*['\"]",  # exists with tmp
+                r"is_dir\(['\"][^'\"]*tmp[^'\"]*['\"]",  # is_dir with tmp
+                r"mkdtemp\(['\"][^'\"]*tmp[^'\"]*['\"]",  # mkdtemp with tmp (should use tempfile)
+                r"mkstemp\(['\"][^'\"]*tmp[^'\"]*['\"]",  # mkstemp with tmp (should use tempfile)
+                r"with open\(['\"][^'\"]*tmp[^'\"]*['\"]",  # with open with tmp
+                r"\.join\(['\"][^'\"]*tmp[^'\"]*['\"]",  # os.path.join with tmp
+                r"\/tmp\/",  # /tmp/ directory path
+                r"\/tmp[^a-zA-Z]",  # /tmp followed by non-letter (e.g., /tmpfile)
+                r"[\"']\/tmp[\"']",  # "/tmp"
             ],
-
             # Allowed secure alternatives
             "allowed_functions": [
                 "tempfile.mkdtemp",
@@ -55,13 +53,11 @@ class TmpFileEnforcer:
                 "tempfile.gettempdir",
                 "pathlib.Path(tempfile.gettempdir())",
             ],
-
             # Required proper usage patterns
             "required_imports": [
                 "tempfile",
                 "pathlib.Path",
             ],
-
             # Files that should be ignored
             "ignored_files": [
                 ".venv/",
@@ -83,7 +79,6 @@ class TmpFileEnforcer:
                 "docker-compose*",
                 "tmp-file-enforcer.py",  # Ignore the enforcer itself
             ],
-
             # Directories that must be ignored globally
             "global_ignores": [
                 ".venv",
@@ -96,7 +91,7 @@ class TmpFileEnforcer:
                 "dist",
                 ".coverage",
                 "*.egg-info",
-            ]
+            ],
         }
 
         if self.config_file.exists():
@@ -128,18 +123,21 @@ class TmpFileEnforcer:
             # Check for forbidden patterns
             for line_num, line in enumerate(lines, 1):
                 # Skip lines that are clearly in help text, docstrings, or comments about the enforcer
-                skip_line = any(skip_indicator in line.lower() for skip_indicator in [
-                    "forbidden tmp patterns",
-                    "hardcoded tmp paths",
-                    "tempfile alternatives",
-                    "help: add return type annotation",
-                    "forbidden artifacts",
-                    "test_todowrite.db",
-                    "commit-msgs.txt",
-                    "examples:",
-                    "replace with",
-                    "secure alternatives"
-                ])
+                skip_line = any(
+                    skip_indicator in line.lower()
+                    for skip_indicator in [
+                        "forbidden tmp patterns",
+                        "hardcoded tmp paths",
+                        "tempfile alternatives",
+                        "help: add return type annotation",
+                        "forbidden artifacts",
+                        "test_todowrite.db",
+                        "commit-msgs.txt",
+                        "examples:",
+                        "replace with",
+                        "secure alternatives",
+                    ]
+                )
 
                 if skip_line:
                     continue
@@ -156,34 +154,30 @@ class TmpFileEnforcer:
                     for pattern in self.config["forbidden_patterns"]:
                         if re.search(pattern, line, re.IGNORECASE):
                             # Skip if it's in a comment (unless it's a todo/fixme about tmp)
-                            if "#" in line and not any(keyword in line.lower() for keyword in ["todo", "fixme", "note", "hack"]):
+                            if "#" in line and not any(
+                                keyword in line.lower()
+                                for keyword in ["todo", "fixme", "note", "hack"]
+                            ):
                                 comment_part = line.split("#")[1]
                                 if not re.search(pattern, comment_part, re.IGNORECASE):
                                     continue
 
-                            violations.append({
-                                "line_number": line_num,
-                                "line_content": line.strip(),
-                                "pattern_matched": pattern,
-                                "violation_type": "hardcoded_tmp_path"
-                            })
+                            violations.append(
+                                {
+                                    "line_number": line_num,
+                                    "line_content": line.strip(),
+                                    "pattern_matched": pattern,
+                                    "violation_type": "hardcoded_tmp_path",
+                                }
+                            )
 
             # AST analysis disabled due to false positives in docstrings and comments
             # The pattern-based approach is more accurate for hardcoded tmp detection
 
-            return {
-                "file_path": str(file_path),
-                "violations": violations,
-                "line_count": len(lines)
-            }
+            return {"file_path": str(file_path), "violations": violations, "line_count": len(lines)}
 
         except Exception as e:
-            return {
-                "file_path": str(file_path),
-                "violations": [],
-                "line_count": 0,
-                "error": str(e)
-            }
+            return {"file_path": str(file_path), "violations": [], "line_count": 0, "error": str(e)}
 
     def _analyze_ast_for_tmp(self, tree: ast.AST, lines: list[str]) -> list[dict]:
         """Analyze AST for hardcoded tmp usage."""
@@ -200,12 +194,14 @@ class TmpFileEnforcer:
                         if line_num <= len(lines):
                             line_content = lines[line_num - 1]
                             if not self._is_in_string_literal(node, line_content):
-                                violations.append({
-                                    "line_number": line_num,
-                                    "line_content": line_content.strip(),
-                                    "pattern_matched": f"String literal: '{node.value}'",
-                                    "violation_type": "hardcoded_tmp_string"
-                                })
+                                violations.append(
+                                    {
+                                        "line_number": line_num,
+                                        "line_content": line_content.strip(),
+                                        "pattern_matched": f"String literal: '{node.value}'",
+                                        "violation_type": "hardcoded_tmp_string",
+                                    }
+                                )
                 self.generic_visit(node)
 
             def visit_Constant(self, node):
@@ -216,12 +212,14 @@ class TmpFileEnforcer:
                         line_num = node.lineno
                         if line_num <= len(lines):
                             line_content = lines[line_num - 1]
-                            violations.append({
-                                "line_number": line_num,
-                                "line_content": line_content.strip(),
-                                "pattern_matched": f"String constant: '{node.value}'",
-                                "violation_type": "hardcoded_tmp_string"
-                            })
+                            violations.append(
+                                {
+                                    "line_number": line_num,
+                                    "line_content": line_content.strip(),
+                                    "pattern_matched": f"String constant: '{node.value}'",
+                                    "violation_type": "hardcoded_tmp_string",
+                                }
+                            )
                 self.generic_visit(node)
 
             def _is_in_string_literal(self, _node, _line_content):
@@ -257,28 +255,34 @@ class TmpFileEnforcer:
             return False
 
         # Skip enforcement files completely
-        if any(enforcement_file in file_path.name for enforcement_file in [
-            "tmp-file-enforcer.py",
-            "test-cleanup-enforcer.py",
-            "semantic-scope-validator.py",
-            "red-green-refactor-enforcer.py",
-            "token-optimizer.py",
-            "permanent_enforcement.py"
-        ]):
+        if any(
+            enforcement_file in file_path.name
+            for enforcement_file in [
+                "tmp-file-enforcer.py",
+                "test-cleanup-enforcer.py",
+                "semantic-scope-validator.py",
+                "red-green-refactor-enforcer.py",
+                "token-optimizer.py",
+                "permanent_enforcement.py",
+            ]
+        ):
             return False
 
         # Skip if file contains enforcement-related content
         try:
             with open(file_path, encoding="utf-8") as f:
                 first_lines = "".join(f.readlines()[:20])  # Check first 20 lines
-                if any(indicator in first_lines.lower() for indicator in [
-                    "tmp file enforcement",
-                    "forbidden tmp patterns",
-                    "hardcoded tmp violations",
-                    "test artifact cleanup",
-                    "semantic scoping",
-                    "red green refactor"
-                ]):
+                if any(
+                    indicator in first_lines.lower()
+                    for indicator in [
+                        "tmp file enforcement",
+                        "forbidden tmp patterns",
+                        "hardcoded tmp violations",
+                        "test artifact cleanup",
+                        "semantic scoping",
+                        "red green refactor",
+                    ]
+                ):
                     return False
         except (OSError, UnicodeDecodeError):
             # This is a safety check - we don't want to crash if file reading fails
@@ -320,7 +324,7 @@ class TmpFileEnforcer:
             "total_violations": len(all_violations),
             "violation_types": violation_types,
             "all_violations": all_violations,
-            "most_violated_files": self._get_most_violated_files(all_violations)
+            "most_violated_files": self._get_most_violated_files(all_violations),
         }
 
     def _get_most_violated_files(self, violations: list[dict]) -> list[dict]:
@@ -333,7 +337,7 @@ class TmpFileEnforcer:
         return sorted(
             [{"file": file, "count": count} for file, count in file_counts.items()],
             key=lambda x: x["count"],
-            reverse=True
+            reverse=True,
         )[:10]
 
     def suggest_secure_alternatives(self, violation: dict) -> list[str]:
@@ -343,7 +347,7 @@ class TmpFileEnforcer:
             "Use tempfile.NamedTemporaryFile() for temporary files",
             "Use tempfile.TemporaryDirectory() as context manager",
             "Use pathlib.Path(tempfile.gettempdir()) for temp directory path",
-            "Use tempfile.mkstemp() for secure temporary file creation"
+            "Use tempfile.mkstemp() for secure temporary file creation",
         ]
 
         # Add specific suggestions based on violation type
@@ -374,7 +378,9 @@ class TmpFileEnforcer:
 
         for line_content, file_violations in violations_by_file.items():
             suggestions.append(f"\n❌ Violation: {line_content}")
-            suggestions.append(f"   Line {file_violations[0]['line_number']}: {file_violations[0]['pattern_matched']}")
+            suggestions.append(
+                f"   Line {file_violations[0]['line_number']}: {file_violations[0]['pattern_matched']}"
+            )
 
             # Show alternatives
             alternatives = self.suggest_secure_alternatives(file_violations[0])
@@ -421,7 +427,7 @@ FORBIDDEN PATTERNS (Zero Tolerance):
 • Path("tmp") or Path("/tmp")
 • open("tmp") or open("/tmp")
 • mkdir("tmp") or mkdir("/tmp")
-• Any hardcoded temporary paths
+• object hardcoded temporary paths
 
 SECURE ALTERNATIVES (Required):
 • tempfile.mkdtemp() - Create temporary directory

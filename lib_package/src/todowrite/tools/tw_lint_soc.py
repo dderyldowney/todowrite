@@ -12,13 +12,29 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from typing import Any, ClassVar, cast
+from typing import TypedDict
 
 import yaml
 
+
+# Type definitions for YAML data structures
+class LayerSpec(TypedDict):
+    """Type for layer specification in YAML."""
+
+    title: str
+    description: str
+    status: str
+
+
+class PlanningData(TypedDict):
+    """Type for planning data structure."""
+
+    layers: dict[str, LayerSpec]
+
+
 # Type aliases for YAML data structures
 YAMLValue = str | int | float | bool | None
-YAMLObject = dict[str, Any]
+# YAMLObject will be defined with exact types
 YAMLData = YAMLValue | list[YAMLValue | YAMLObject] | YAMLObject
 
 
@@ -79,7 +95,7 @@ class SoCLinter:
 
         return sorted(yaml_files)
 
-    def _load_yaml_file(self, file_path: Path) -> tuple[dict[str, Any], bool]:
+    def _load_yaml_file(self, file_path: Path) -> tuple[PlanningData, bool]:
         """Load and parse YAML file, return (data, success)"""
         try:
             with open(file_path) as f:
@@ -93,7 +109,7 @@ class SoCLinter:
             return {}, False
 
     def _check_for_command_key(
-        self, data: dict[str, Any], _file_path: Path
+        self, data: PlanningData, _file_path: Path
     ) -> list[str]:
         """Check if non-executable layers contain 'command' key"""
         violations: list[str] = []
@@ -109,7 +125,7 @@ class SoCLinter:
         return violations
 
     def _check_for_executable_patterns(
-        self, data: dict[str, Any], _file_path: Path
+        self, data: PlanningData, _file_path: Path
     ) -> list[str]:
         """Check for executable patterns in string values"""
         violations: list[str] = []

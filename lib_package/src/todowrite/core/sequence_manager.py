@@ -22,7 +22,7 @@ from sqlalchemy import create_engine, text
 class SequenceManager:
     """Manages PostgreSQL sequences to prevent ID conflicts."""
 
-    def __init__(self, database_url: str | None = None):
+    def __init__(self, database_url: str | None = None) -> None:
         """Initialize the sequence manager."""
         self.database_url = database_url or os.getenv("TODOWRITE_DATABASE_URL")
         if not self.database_url:
@@ -58,7 +58,11 @@ class SequenceManager:
         url = self.database_url.lower()
         if url.startswith("postgresql://") or url.startswith("postgres://"):
             return "postgresql"
-        elif url.startswith("sqlite://") or url.endswith(".db") or url.endswith(".sqlite"):
+        elif (
+            url.startswith("sqlite://")
+            or url.endswith(".db")
+            or url.endswith(".sqlite")
+        ):
             return "sqlite3"
         else:
             # Default to PostgreSQL for safety
@@ -90,7 +94,9 @@ class SequenceManager:
                             # SQLite3: Check sqlite_sequence table
                             try:
                                 seq_result = conn.execute(
-                                    text(f"SELECT seq FROM sqlite_sequence WHERE name = '{table}'")
+                                    text(
+                                        f"SELECT seq FROM sqlite_sequence WHERE name = '{table}'"
+                                    )
                                 )
                                 seq_row = seq_result.fetchone()
                                 seq_value = seq_row[0] if seq_row else 0
@@ -141,11 +147,15 @@ class SequenceManager:
                         else:
                             # SQLite3: Update sqlite_sequence table
                             conn.execute(
-                                text(f"UPDATE sqlite_sequence SET seq = {new_seq_value} WHERE name = '{table}'")
+                                text(
+                                    f"UPDATE sqlite_sequence SET seq = {new_seq_value} WHERE name = '{table}'"
+                                )
                             )
                             # If no entry exists, insert one
                             conn.execute(
-                                text(f"INSERT OR IGNORE INTO sqlite_sequence (name, seq) VALUES ('{table}', {new_seq_value})")
+                                text(
+                                    f"INSERT OR IGNORE INTO sqlite_sequence (name, seq) VALUES ('{table}', {new_seq_value})"
+                                )
                             )
 
                         conn.commit()
@@ -215,7 +225,9 @@ class SequenceManager:
                     # SQLite3: Check sqlite_sequence table
                     try:
                         result = conn.execute(
-                            text(f"SELECT seq FROM sqlite_sequence WHERE name = '{table_name}'")
+                            text(
+                                f"SELECT seq FROM sqlite_sequence WHERE name = '{table_name}'"
+                            )
                         )
                         seq_row = result.fetchone()
                         seq_value = seq_row[0] if seq_row else 0
@@ -237,7 +249,10 @@ class SequenceManager:
         """Generate a comprehensive status report."""
         validation = self.validate_all_sequences()
 
-        report_lines = [f"Database Sequence Status Report ({self.db_type.upper()})", "=" * 50]
+        report_lines = [
+            f"Database Sequence Status Report ({self.db_type.upper()})",
+            "=" * 50,
+        ]
 
         needs_fix_count = 0
         for table, info in validation.items():
@@ -266,7 +281,7 @@ class SequenceManager:
         return "\n".join(report_lines)
 
 
-def ensure_sequences_before_init():
+def ensure_sequences_before_init() -> None:
     """Ensure all sequences are correct before database initialization."""
     try:
         manager = SequenceManager()

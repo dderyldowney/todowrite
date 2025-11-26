@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Core module for ToDoWrite Models API."""
 
 import logging

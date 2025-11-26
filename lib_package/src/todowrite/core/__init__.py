@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Core ToDoWrite functionality - Clean separation of models and types."""
 
 # SQLAlchemy Models - ONLY from todowrite.core.models

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 #!/usr/bin/env python3
 """
 ToDoWrite Trace Tool - Placeholder for testing
@@ -7,7 +9,7 @@ import argparse
 import sys
 
 
-def main():
+def main() -> int:
     """Main entry point for tw_trace tool - placeholder implementation"""
     parser = argparse.ArgumentParser(
         description="ToDoWrite Trace Tool - Placeholder", prog="tw_trace"

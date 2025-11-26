@@ -19,7 +19,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Any
 
 import numpy as np
 import psycopg2
@@ -60,8 +59,8 @@ class AgentTask:
     description: str = ""
     agent_role: AgentRole = AgentRole.DEVELOPER
     status: TaskStatus = TaskStatus.PENDING
-    input_data: dict[str, Any] = field(default_factory=dict)
-    output_data: dict[str, Any] = field(default_factory=dict)
+    input_data: dict[str, str | int | bool | None] = field(default_factory=dict)
+    output_data: dict[str, str | int | bool | None] = field(default_factory=dict)
     dependencies: list[str] = field(default_factory=list)
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     started_at: datetime | None = None
@@ -94,7 +93,9 @@ class BaseAgentSkill(ABC):
         self.description = description
 
     @abstractmethod
-    async def execute(self, task: AgentTask, context: dict[str, Any]) -> dict[str, Any]:
+    async def execute(
+        self, task: AgentTask, context: dict[str, str | int | bool | None]
+    ) -> dict[str, str | int | bool | None]:
         """Execute the skill with given task and context"""
 
     @abstractmethod
@@ -266,7 +267,7 @@ class ProductionAgentFramework:
         logger.info(f"✅ Created task: {task.name} ({task.id})")
         return task
 
-    async def execute_task(self, task_id: str) -> dict[str, Any]:
+    async def execute_task(self, task_id: str) -> dict[str, str | int | bool | None]:
         """Execute a task using appropriate agent skill"""
         # Get task from database
         with self.conn.cursor() as cur:
@@ -381,7 +382,11 @@ class ProductionAgentFramework:
             )
 
     def _store_memory(
-        self, task: AgentTask, result: dict[str, Any], success: bool, error: str | None = None
+        self,
+        task: AgentTask,
+        result: dict[str, str | int | bool | None],
+        success: bool,
+        error: str | None = None,
     ):
         """Store task execution in agent memory"""
         memory = AgentMemory(
@@ -495,7 +500,9 @@ class CodeReviewSkill(BaseAgentSkill):
     def __init__(self):
         super().__init__("code_review", "Review code for quality, security, and best practices")
 
-    async def execute(self, task: AgentTask, context: dict[str, Any]) -> dict[str, Any]:
+    async def execute(
+        self, task: AgentTask, context: dict[str, str | int | bool | None]
+    ) -> dict[str, str | int | bool | None]:
         """Execute code review"""
         # This would integrate with actual code review logic
         return {
@@ -518,7 +525,9 @@ class ResearchSkill(BaseAgentSkill):
     def __init__(self):
         super().__init__("research", "Conduct research on given topics")
 
-    async def execute(self, task: AgentTask, context: dict[str, Any]) -> dict[str, Any]:
+    async def execute(
+        self, task: AgentTask, context: dict[str, str | int | bool | None]
+    ) -> dict[str, str | int | bool | None]:
         """Execute research task"""
         # This would integrate with actual research tools
         return {

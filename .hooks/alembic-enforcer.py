@@ -13,7 +13,6 @@ import json
 import re
 import sys
 from pathlib import Path
-from typing import Any
 
 
 class AlembicEnforcer:
@@ -30,7 +29,6 @@ class AlembicEnforcer:
             "enforcement_level": "strict",
             "enforcement_permanent": True,
             "survives_session_reset": True,
-
             # Alembic directories and files to check
             "alembic_locations": [
                 "migrations/",
@@ -39,14 +37,12 @@ class AlembicEnforcer:
                 "cli_package/migrations/",
                 "web_package/migrations/",
             ],
-
             # Required alembic file patterns
             "required_files": [
                 "alembic.ini",
                 "env.py",
                 "script.py.mako",
             ],
-
             # Migration rules
             "migration_rules": {
                 "single_head_required": True,
@@ -57,14 +53,13 @@ class AlembicEnforcer:
                 "downgrade_migration_required": True,
                 "autogenerate_warning": True,
             },
-
             # Message conventions
             "message_conventions": {
                 "prefixes": ["create", "add", "remove", "alter", "drop", "rename"],
                 "descriptions": True,
                 "no_empty_descriptions": True,
                 "max_length": 100,
-            }
+            },
         }
 
         if self.config_file.exists():
@@ -92,7 +87,7 @@ class AlembicEnforcer:
 
         return alembic_dirs
 
-    def check_single_head(self, alembic_dir: Path) -> dict[str, Any]:
+    def check_single_head(self, alembic_dir: Path) -> dict[str, str | int | bool | None]:
         """Check that there's only one migration head."""
         versions_dir = alembic_dir / "versions"
         if not versions_dir.exists():
@@ -114,10 +109,10 @@ class AlembicEnforcer:
         return {
             "status": "multiple_heads" if len(heads) > 1 else "single_head",
             "heads": len(heads),
-            "head_files": heads
+            "head_files": heads,
         }
 
-    def check_duplicate_revision_ids(self, alembic_dir: Path) -> dict[str, Any]:
+    def check_duplicate_revision_ids(self, alembic_dir: Path) -> dict[str, str | int | bool | None]:
         """Check for duplicate revision IDs."""
         versions_dir = alembic_dir / "versions"
         if not versions_dir.exists():
@@ -134,10 +129,9 @@ class AlembicEnforcer:
                     # Find revision IDs
                     revision_match = re.search(r'revision\s*=\s*[\'"]([^\'"]+)[\'"]', content)
                     if revision_match:
-                        revision_ids.append({
-                            "revision": revision_match.group(1),
-                            "file": file_path.name
-                        })
+                        revision_ids.append(
+                            {"revision": revision_match.group(1), "file": file_path.name}
+                        )
             except:
                 continue
 
@@ -147,19 +141,18 @@ class AlembicEnforcer:
         for rev_info in revision_ids:
             rev = rev_info["revision"]
             if rev in seen_revisions:
-                duplicates.append({
-                    "revision": rev,
-                    "files": [seen_revisions[rev]["file"], rev_info["file"]]
-                })
+                duplicates.append(
+                    {"revision": rev, "files": [seen_revisions[rev]["file"], rev_info["file"]]}
+                )
             else:
                 seen_revisions[rev] = rev_info
 
         return {
             "status": "duplicates_found" if duplicates else "no_duplicates",
-            "duplicates": duplicates
+            "duplicates": duplicates,
         }
 
-    def check_migration_messages(self, alembic_dir: Path) -> dict[str, Any]:
+    def check_migration_messages(self, alembic_dir: Path) -> dict[str, str | int | bool | None]:
         """Check migration message conventions."""
         versions_dir = alembic_dir / "versions"
         if not versions_dir.exists():
@@ -175,79 +168,81 @@ class AlembicEnforcer:
                     content = f.read()
 
                 # Extract upgrade message
-                upgrade_match = re.search(r'def upgrade\(\):\s*\n\s*.*?###?\s*(.+)', content, re.DOTALL | re.MULTILINE)
+                upgrade_match = re.search(
+                    r"def upgrade\(\):\s*\n\s*.*?###?\s*(.+)", content, re.DOTALL | re.MULTILINE
+                )
                 if upgrade_match:
                     message = upgrade_match.group(1).strip()
 
                     # Check message conventions
                     if not message:
-                        issues.append({
-                            "file": file_path.name,
-                            "issue": "empty_migration_message",
-                            "message": "Empty migration message"
-                        })
+                        issues.append(
+                            {
+                                "file": file_path.name,
+                                "issue": "empty_migration_message",
+                                "message": "Empty migration message",
+                            }
+                        )
                     elif len(message) > self.config["message_conventions"]["max_length"]:
-                        issues.append({
-                            "file": file_path.name,
-                            "issue": "message_too_long",
-                            "message": f"Message too long ({len(message)} > {self.config['message_conventions']['max_length']})"
-                        })
+                        issues.append(
+                            {
+                                "file": file_path.name,
+                                "issue": "message_too_long",
+                                "message": f"Message too long ({len(message)} > {self.config['message_conventions']['max_length']})",
+                            }
+                        )
                     elif not re.match(self.config["migration_rules"]["message_format"], message):
-                        issues.append({
-                            "file": file_path.name,
-                            "issue": "invalid_message_format",
-                            "message": f"Invalid message format: {message}"
-                        })
+                        issues.append(
+                            {
+                                "file": file_path.name,
+                                "issue": "invalid_message_format",
+                                "message": f"Invalid message format: {message}",
+                            }
+                        )
 
             except:
                 continue
 
-        return {
-            "status": "issues_found" if issues else "no_issues",
-            "issues": issues
-        }
+        return {"status": "issues_found" if issues else "no_issues", "issues": issues}
 
-    def verify_alembic_requirements(self) -> dict[str, Any]:
+    def verify_alembic_requirements(self) -> dict[str, str | int | bool | None]:
         """Verify alembic installation and requirements."""
         try:
             import alembic
+
             # Get version using importlib.metadata (alembic.__version__ doesn't exist in newer versions)
             try:
                 import importlib.metadata
-                alembic_version = importlib.metadata.version('alembic')
+
+                alembic_version = importlib.metadata.version("alembic")
             except Exception:
                 # Fallback to pkg_resources if importlib.metadata fails
                 try:
                     import pkg_resources
-                    alembic_version = pkg_resources.get_distribution('alembic').version
+
+                    alembic_version = pkg_resources.get_distribution("alembic").version
                 except Exception:
                     alembic_version = "unknown"
         except ImportError:
-            return {
-                "status": "alembic_not_installed",
-                "error": "Alembic is not installed"
-            }
+            return {"status": "alembic_not_installed", "error": "Alembic is not installed"}
 
         # Check alembic configuration
         alembic_ini = self.project_root / "alembic.ini"
         if not alembic_ini.exists():
-            return {
-                "status": "no_alembic_ini",
-                "error": "alembic.ini not found"
-            }
+            return {"status": "no_alembic_ini", "error": "alembic.ini not found"}
 
         return {
             "status": "alembic_ready",
             "version": alembic_version,
-            "config_file": str(alembic_ini)
+            "config_file": str(alembic_ini),
         }
 
-    def run_alembic_check(self) -> dict[str, Any]:
+    def run_alembic_check(self) -> dict[str, str | int | bool | None]:
         """Run comprehensive alembic checks."""
         results = {
             "alembic_status": self.verify_alembic_requirements(),
             "directories_checked": [],
-            "issues": []
+            "issues": [],
         }
 
         alembic_dirs = self.find_alembic_directories()
@@ -260,7 +255,7 @@ class AlembicEnforcer:
                 "directory": str(alembic_dir),
                 "single_head": self.check_single_head(alembic_dir),
                 "duplicate_ids": self.check_duplicate_revision_ids(alembic_dir),
-                "messages": self.check_migration_messages(alembic_dir)
+                "messages": self.check_migration_messages(alembic_dir),
             }
             results["directories_checked"].append(dir_results)
 
@@ -272,10 +267,12 @@ class AlembicEnforcer:
                 results["issues"].append(f"Duplicate revision IDs in {alembic_dir}")
 
             if dir_results["messages"]["status"] == "issues_found":
-                results["issues"].extend([
-                    f"Message issue in {issue['file']}: {issue['message']}"
-                    for issue in dir_results["messages"]["issues"]
-                ])
+                results["issues"].extend(
+                    [
+                        f"Message issue in {issue['file']}: {issue['message']}"
+                        for issue in dir_results["messages"]["issues"]
+                    ]
+                )
 
         results["overall_status"] = "passed" if not results["issues"] else "failed"
         return results
@@ -286,7 +283,9 @@ class AlembicEnforcer:
         errors = []
 
         if results["alembic_status"]["status"] != "alembic_ready":
-            errors.append(f"Alembic issue: {results['alembic_status'].get('error', 'Unknown error')}")
+            errors.append(
+                f"Alembic issue: {results['alembic_status'].get('error', 'Unknown error')}"
+            )
 
         for issue in results["issues"]:
             errors.append(f"Alembic violation: {issue}")

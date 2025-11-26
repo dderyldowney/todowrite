@@ -9,7 +9,6 @@ Drop-in replacement for the old episodic-memory plugin with enhanced performance
 import argparse
 import json
 import os
-from typing import Any
 
 # Import our conversation search system
 from conversation_search import ConversationSearchSystem
@@ -39,7 +38,7 @@ class EpisodicMemory:
 
     def index_conversations(
         self, conversations_dir: str = None, force: bool = False
-    ) -> dict[str, Any]:
+    ) -> dict[str, str | int | bool | None]:
         """Index conversation files (equivalent to original plugin's indexing)"""
         if not conversations_dir:
             conversations_dir = os.path.expanduser("~/.claude/projects")
@@ -75,7 +74,7 @@ class EpisodicMemory:
 
     def search_conversations(
         self, query: str, limit: int = 10, message_type: str = None
-    ) -> list[dict[str, Any]]:
+    ) -> list[dict[str, str | int | bool | None]]:
         """Search conversations (equivalent to original plugin's search)"""
         try:
             results = self.search_system.keyword_search(query, limit=limit)
@@ -103,7 +102,7 @@ class EpisodicMemory:
         except Exception as e:
             return [{"error": str(e)}]
 
-    def get_stats(self) -> dict[str, Any]:
+    def get_stats(self) -> dict[str, str | int | bool | None]:
         """Get episodic memory statistics"""
         try:
             stats = self.search_system.get_stats()
@@ -117,7 +116,7 @@ class EpisodicMemory:
         except Exception as e:
             return {"error": str(e)}
 
-    def cleanup_old_sessions(self, days: int = 30) -> dict[str, Any]:
+    def cleanup_old_sessions(self, days: int = 30) -> dict[str, str | int | bool | None]:
         """Cleanup old sessions (placeholder for future implementation)"""
         return {
             "success": True,

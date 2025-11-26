@@ -8,9 +8,6 @@ to avoid code duplication and provide consistent behavior.
 from __future__ import annotations
 
 import uuid
-from typing import TypeVar, cast
-
-T = TypeVar("T")
 
 
 def generate_node_id(prefix: str = "") -> str:
@@ -27,9 +24,9 @@ def generate_node_id(prefix: str = "") -> str:
     return f"{prefix}-{uuid_part}" if prefix else uuid_part
 
 
-def safe_get_nested(
-    data: dict[str, object], *keys: str, default: object = None
-) -> object:
+def safe_get_nested[T](
+    data: dict[str, object], *keys: str, default: T | None = None
+) -> T | None:
     """
     Safely get a nested value from a dictionary using dot notation.
 
@@ -47,7 +44,7 @@ def safe_get_nested(
             current = current[key]
         else:
             return default
-    return cast("T", current)
+    return current  # type: ignore[return-value]
 
 
 def truncate_string(

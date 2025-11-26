@@ -11,7 +11,6 @@ import json
 import re
 import sys
 from pathlib import Path
-from typing import Any
 
 
 class TokenOptimizer:
@@ -71,7 +70,7 @@ class TokenOptimizer:
                 "max_docstring_length": 200,
                 "preserve_public_api_docs": True,
                 "preserve_private_api_docs": False,
-            }
+            },
         }
 
         if self.config_file.exists():
@@ -88,13 +87,13 @@ class TokenOptimizer:
             with open(self.config_file, "w") as f:
                 json.dump(self.config, f, indent=2)
 
-    def analyze_file_tokens(self, file_path: Path) -> dict[str, Any]:
+    def analyze_file_tokens(self, file_path: Path) -> dict[str, str | int | bool | None]:
         """Analyze token usage in a Python file."""
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
-            lines = content.split('\n')
+            lines = content.split("\n")
 
             # Basic token estimation (rough approximation)
             total_tokens = len(content.split()) + len(lines)  # words + newlines
@@ -104,11 +103,13 @@ class TokenOptimizer:
                 "total_lines": len(lines),
                 "total_tokens": total_tokens,
                 "empty_lines": len([l for l in lines if not l.strip()]),
-                "comment_lines": len([l for l in lines if l.strip().startswith('#')]),
+                "comment_lines": len([l for l in lines if l.strip().startswith("#")]),
                 "docstring_lines": self._count_docstring_lines(content),
-                "import_lines": len([l for l in lines if l.strip().startswith(('import ', 'from '))]),
-                "function_count": content.count('def '),
-                "class_count": content.count('class '),
+                "import_lines": len(
+                    [l for l in lines if l.strip().startswith(("import ", "from "))]
+                ),
+                "function_count": content.count("def "),
+                "class_count": content.count("class "),
                 "optimization_opportunities": [],
             }
 
@@ -116,25 +117,33 @@ class TokenOptimizer:
             if self.config["optimization_rules"]["remove_redundant_comments"]:
                 redundant_comments = self._find_redundant_comments(lines)
                 if redundant_comments:
-                    analysis["optimization_opportunities"].append(f"Remove {len(redundant_comments)} redundant comments")
+                    analysis["optimization_opportunities"].append(
+                        f"Remove {len(redundant_comments)} redundant comments"
+                    )
                     analysis["redundant_comments"] = redundant_comments
 
             if self.config["optimization_rules"]["simplify_docstrings"]:
                 long_docstrings = self._find_long_docstrings(content)
                 if long_docstrings:
-                    analysis["optimization_opportunities"].append(f"Simplify {len(long_docstrings)} verbose docstrings")
+                    analysis["optimization_opportunities"].append(
+                        f"Simplify {len(long_docstrings)} verbose docstrings"
+                    )
                     analysis["long_docstrings"] = long_docstrings
 
             if self.config["optimization_rules"]["remove_unused_imports"]:
                 unused_imports = self._find_unused_imports(file_path)
                 if unused_imports:
-                    analysis["optimization_opportunities"].append(f"Remove {len(unused_imports)} unused imports")
+                    analysis["optimization_opportunities"].append(
+                        f"Remove {len(unused_imports)} unused imports"
+                    )
                     analysis["unused_imports"] = unused_imports
 
             if self.config["optimization_rules"]["inline_simple_functions"]:
                 inline_candidates = self._find_inline_candidates(content)
                 if inline_candidates:
-                    analysis["optimization_opportunities"].append(f"Inline {len(inline_candidates)} simple functions")
+                    analysis["optimization_opportunities"].append(
+                        f"Inline {len(inline_candidates)} simple functions"
+                    )
                     analysis["inline_candidates"] = inline_candidates
 
             # Calculate potential savings
@@ -149,7 +158,7 @@ class TokenOptimizer:
                 "file_path": str(file_path),
                 "error": str(e),
                 "total_tokens": 0,
-                "optimization_opportunities": []
+                "optimization_opportunities": [],
             }
 
     def _count_docstring_lines(self, content: str) -> int:
@@ -161,7 +170,7 @@ class TokenOptimizer:
             for node in ast.walk(tree):
                 if isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.Module)):
                     if ast.get_docstring(node):
-                        docstring_lines += len(ast.get_docstring(node).split('\n'))
+                        docstring_lines += len(ast.get_docstring(node).split("\n"))
 
             return docstring_lines
         except:
@@ -174,22 +183,31 @@ class TokenOptimizer:
 
         for i, line in enumerate(lines):
             stripped = line.strip()
-            if not stripped.startswith('#'):
+            if not stripped.startswith("#"):
                 continue
 
             comment = stripped[1:].strip().lower()
 
             # Skip important comments
-            if any(pattern in comment for pattern in ['todo', 'fixme', 'note', 'hack', 'xxx', 'important', 'critical']):
+            if any(
+                pattern in comment
+                for pattern in ["todo", "fixme", "note", "hack", "xxx", "important", "critical"]
+            ):
                 continue
 
             # Check for obviously redundant comments
-            if comment in ['increment', 'decrement', 'return', 'break', 'continue'] or comment.startswith(('get ', 'set ', 'add ', 'remove ', 'create ', 'delete ')):
-                redundant.append(f"Line {i+1}: {line}")
+            if comment in [
+                "increment",
+                "decrement",
+                "return",
+                "break",
+                "continue",
+            ] or comment.startswith(("get ", "set ", "add ", "remove ", "create ", "delete ")):
+                redundant.append(f"Line {i + 1}: {line}")
 
         return redundant
 
-    def _find_long_docstrings(self, content: str) -> list[dict[str, Any]]:
+    def _find_long_docstrings(self, content: str) -> list[dict[str, str | int | bool | None]]:
         """Find docstrings that could be simplified."""
         try:
             tree = ast.parse(content)
@@ -198,19 +216,32 @@ class TokenOptimizer:
             for node in ast.walk(tree):
                 if isinstance(node, (ast.FunctionDef, ast.ClassDef)):
                     docstring = ast.get_docstring(node)
-                    if docstring and len(docstring) > self.config["documentation_threshold"]["max_docstring_length"]:
+                    if (
+                        docstring
+                        and len(docstring)
+                        > self.config["documentation_threshold"]["max_docstring_length"]
+                    ):
                         # Check if it's a public API that should preserve documentation
-                        is_public = not node.name.startswith('_')
-                        if is_public and self.config["documentation_threshold"]["preserve_public_api_docs"]:
+                        is_public = not node.name.startswith("_")
+                        if (
+                            is_public
+                            and self.config["documentation_threshold"]["preserve_public_api_docs"]
+                        ):
                             continue
 
-                        long_docstrings.append({
-                            "name": node.name,
-                            "type": "function" if isinstance(node, ast.FunctionDef) else "class",
-                            "line": node.lineno,
-                            "length": len(docstring),
-                            "docstring": docstring[:100] + "..." if len(docstring) > 100 else docstring
-                        })
+                        long_docstrings.append(
+                            {
+                                "name": node.name,
+                                "type": "function"
+                                if isinstance(node, ast.FunctionDef)
+                                else "class",
+                                "line": node.lineno,
+                                "length": len(docstring),
+                                "docstring": docstring[:100] + "..."
+                                if len(docstring) > 100
+                                else docstring,
+                            }
+                        )
 
             return long_docstrings
         except:
@@ -219,7 +250,7 @@ class TokenOptimizer:
     def _find_unused_imports(self, file_path: Path) -> list[str]:
         """Find potentially unused imports (basic analysis)."""
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             tree = ast.parse(content)
@@ -233,7 +264,7 @@ class TokenOptimizer:
                         imported_names.add(alias.asname or alias.name)
                 elif isinstance(node, ast.ImportFrom):
                     for alias in node.names:
-                        if alias.name != '*':
+                        if alias.name != "*":
                             imported_names.add(alias.asname or alias.name)
 
             # Collect used names (basic check)
@@ -250,7 +281,7 @@ class TokenOptimizer:
         except:
             return []
 
-    def _find_inline_candidates(self, content: str) -> list[dict[str, Any]]:
+    def _find_inline_candidates(self, content: str) -> list[dict[str, str | int | bool | None]]:
         """Find simple functions that could be inlined."""
         try:
             tree = ast.parse(content)
@@ -259,22 +290,27 @@ class TokenOptimizer:
             for node in ast.walk(tree):
                 if isinstance(node, ast.FunctionDef):
                     # Simple heuristics for inline candidates
-                    if (len(node.body) == 1 and
-                        isinstance(node.body[0], ast.Return) and
-                        len(node.args.args) <= 2 and
-                        not node.decorator_list):
-
-                        candidates.append({
-                            "name": node.name,
-                            "line": node.lineno,
-                            "args": [arg.arg for arg in node.args.args]
-                        })
+                    if (
+                        len(node.body) == 1
+                        and isinstance(node.body[0], ast.Return)
+                        and len(node.args.args) <= 2
+                        and not node.decorator_list
+                    ):
+                        candidates.append(
+                            {
+                                "name": node.name,
+                                "line": node.lineno,
+                                "args": [arg.arg for arg in node.args.args],
+                            }
+                        )
 
             return candidates
         except:
             return []
 
-    def _calculate_potential_savings(self, analysis: dict[str, Any]) -> dict[str, Any]:
+    def _calculate_potential_savings(
+        self, analysis: dict[str, str | int | bool | None]
+    ) -> dict[str, str | int | bool | None]:
         """Calculate potential token savings for a file."""
         potential_savings = 0
 
@@ -297,14 +333,15 @@ class TokenOptimizer:
             for _func in analysis["inline_candidates"]:
                 potential_savings += 20  # avg 20 tokens per function definition
 
-        percentage = (potential_savings / analysis["total_tokens"] * 100) if analysis["total_tokens"] > 0 else 0
+        percentage = (
+            (potential_savings / analysis["total_tokens"] * 100)
+            if analysis["total_tokens"] > 0
+            else 0
+        )
 
-        return {
-            "tokens": int(potential_savings),
-            "percentage": round(percentage, 2)
-        }
+        return {"tokens": int(potential_savings), "percentage": round(percentage, 2)}
 
-    def analyze_project(self, directory: Path | None = None) -> dict[str, Any]:
+    def analyze_project(self, directory: Path | None = None) -> dict[str, str | int | bool | None]:
         """Analyze entire project for token optimization opportunities."""
         if directory is None:
             directory = self.project_root
@@ -333,13 +370,15 @@ class TokenOptimizer:
             "total_files_analyzed": len(filtered_files),
             "total_tokens": total_tokens,
             "total_potential_savings": total_savings,
-            "project_reduction_percentage": round((total_savings / total_tokens * 100), 2) if total_tokens > 0 else 0,
+            "project_reduction_percentage": round((total_savings / total_tokens * 100), 2)
+            if total_tokens > 0
+            else 0,
             "files": analyses,
             "top_optimization_candidates": sorted(
                 [a for a in analyses if a.get("potential_percentage_reduction", 0) > 10],
                 key=lambda x: x.get("potential_percentage_reduction", 0),
-                reverse=True
-            )[:10]
+                reverse=True,
+            )[:10],
         }
 
     def _should_exclude_file(self, file_path: Path) -> bool:
@@ -349,7 +388,7 @@ class TokenOptimizer:
         # Check excluded files/directories
         return any(excluded in file_str for excluded in self.config["excluded_files"])
 
-    def generate_optimization_report(self, analysis: dict[str, Any]) -> str:
+    def generate_optimization_report(self, analysis: dict[str, str | int | bool | None]) -> str:
         """Generate a comprehensive optimization report."""
         report = []
         report.append("🔍 TOKEN OPTIMIZATION ANALYSIS REPORT")
@@ -366,8 +405,10 @@ class TokenOptimizer:
             for i, file_analysis in enumerate(analysis["top_optimization_candidates"], 1):
                 report.append(f"  {i}. {Path(file_analysis['file_path']).name}")
                 report.append(f"     💾 Current: {file_analysis['total_tokens']:,} tokens")
-                report.append(f"     ✂️  Can save: {file_analysis['potential_token_reduction']:,} tokens "
-                            f"({file_analysis['potential_percentage_reduction']:.1f}%)")
+                report.append(
+                    f"     ✂️  Can save: {file_analysis['potential_token_reduction']:,} tokens "
+                    f"({file_analysis['potential_percentage_reduction']:.1f}%)"
+                )
 
                 if file_analysis.get("optimization_opportunities"):
                     report.append("     🔧 Opportunities:")
@@ -388,7 +429,9 @@ class TokenOptimizer:
                 opp_type = opportunity.split(":")[0] if ":" in opportunity else opportunity
                 opportunity_counts[opp_type] = opportunity_counts.get(opp_type, 0) + 1
 
-            for opp_type, count in sorted(opportunity_counts.items(), key=lambda x: x[1], reverse=True):
+            for opp_type, count in sorted(
+                opportunity_counts.items(), key=lambda x: x[1], reverse=True
+            ):
                 report.append(f"  • {opp_type}: {count} files")
 
         report.append("")
@@ -427,13 +470,15 @@ def main():
         print("📊 Token Analysis Summary:")
         print(f"   Files analyzed: {analysis['total_files_analyzed']}")
         print(f"   Total tokens: {analysis['total_tokens']:,}")
-        print(f"   Potential savings: {analysis['total_potential_savings']:,} tokens ({analysis['project_reduction_percentage']:.1f}%)")
+        print(
+            f"   Potential savings: {analysis['total_potential_savings']:,} tokens ({analysis['project_reduction_percentage']:.1f}%)"
+        )
 
-        if analysis['top_optimization_candidates']:
+        if analysis["top_optimization_candidates"]:
             print("\n🎯 Top 5 files to optimize:")
-            for i, file_analysis in enumerate(analysis['top_optimization_candidates'][:5], 1):
-                filename = Path(file_analysis['file_path']).name
-                reduction = file_analysis['potential_percentage_reduction']
+            for i, file_analysis in enumerate(analysis["top_optimization_candidates"][:5], 1):
+                filename = Path(file_analysis["file_path"]).name
+                reduction = file_analysis["potential_percentage_reduction"]
                 print(f"   {i}. {filename} ({reduction:.1f}% reduction)")
 
     sys.exit(0)

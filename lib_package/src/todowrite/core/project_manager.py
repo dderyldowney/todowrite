@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 Project Manager for ToDoWrite Utilities
 
@@ -13,8 +15,8 @@ import logging
 import shutil
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, cast
 
+# Removed object and cast imports
 from typing_extensions import TypedDict
 
 
@@ -57,12 +59,12 @@ class ProjectManager:
         primary_path = Path("ToDoWrite/schemas/ToDoWrite.schema.json")
         deprecated_path = Path("configs/schemas/ToDoWrite.schema.json")
 
-        def get_schema_content(path: Path) -> dict[Any, Any]:
+        def get_schema_content(path: Path) -> dict[str, object]:
             """Load schema content from file."""
             try:
                 with open(path) as f:
                     data = json.load(f)
-                    return cast("dict[Any, Any]", data)
+                    return cast("dict[str, object]", data)
             except (FileNotFoundError, json.JSONDecodeError):
                 return {}
 
@@ -88,7 +90,9 @@ class ProjectManager:
             return False
 
         # Check that core schema structure matches
-        def get_core_properties(schema: dict[Any, Any]) -> dict[Any, Any]:
+        def get_core_properties(
+            schema: dict[str, object],
+        ) -> dict[str, object]:
             """Get core schema properties for comparison."""
             return {
                 "required": schema.get("required", []),
@@ -132,14 +136,14 @@ class ProjectManager:
             return False
 
         # Load both schemas
-        def load_schema(schema_path: Path) -> dict[str, Any]:
+        def load_schema(schema_path: Path) -> dict[str, object]:
             """Load schema from file."""
             try:
                 with open(schema_path) as f:
                     data = json.load(f)
-                    return cast("dict[str, Any]", data)
+                    return cast("dict[str, object]", data)
             except (FileNotFoundError, json.JSONDecodeError):
-                return cast("dict[str, Any]", {})
+                return cast("dict[str, object]", {})
 
         primary_data = load_schema(primary_schema)
         deprecated_data = load_schema(deprecated_schema)
@@ -291,7 +295,7 @@ class ProjectManager:
 
     def validate_project_setup(
         self, project_path: str | Path
-    ) -> dict[str, Any]:
+    ) -> dict[str, object]:
         """
         Validate that a project is properly set up for ToDoWrite.
 
@@ -299,7 +303,7 @@ class ProjectManager:
             Dictionary with validation results
         """
         project_path = Path(project_path)
-        result: dict[str, Any] = {
+        result: dict[str, object] = {
             "valid": True,
             "issues": [],
             "recommendations": [],
@@ -607,7 +611,9 @@ class _AIOptimizationManager:
         """Internal check for token-sage availability."""
         return self._ai_available
 
-    def _validate_optimization_input(self, text: str) -> dict[str, Any] | None:
+    def _validate_optimization_input(
+        self, text: str
+    ) -> dict[str, object] | None:
         """Validate input for token optimization."""
         if not text:
             return cast(
@@ -803,7 +809,7 @@ def create_project_structure(project_path: str) -> bool:
     return _project_manager.create_project_structure(project_path)
 
 
-def validate_project_setup(project_path: str) -> dict[str, Any]:
+def validate_project_setup(project_path: str) -> dict[str, object]:
     """Validate that a project is properly set up for ToDoWrite."""
     return _project_manager.validate_project_setup(project_path)
 

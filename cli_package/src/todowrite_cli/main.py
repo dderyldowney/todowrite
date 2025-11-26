@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Main CLI entry point for ToDoWrite."""
 
 import os

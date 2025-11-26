@@ -5,9 +5,11 @@ allowing the library to validate data, initialize databases from schemas,
 and ensure consistency between models and database structure.
 """
 
+from __future__ import annotations
+
 import json
 from pathlib import Path
-from typing import Any
+from typing import TypedDict
 
 from sqlalchemy import (
     Engine,
@@ -18,6 +20,45 @@ from sqlalchemy.orm import sessionmaker
 
 from .exceptions import ToDoWriteError
 from .models import Base
+
+
+# Type definitions for schema structure
+class FieldSchema(TypedDict):
+    """Schema definition for a model field."""
+
+    type: str
+    nullable: bool
+    default: str | int | float | bool | None
+    max_length: int | None
+    primary_key: bool
+    unique: bool
+
+
+class ModelSchema(TypedDict):
+    """Schema definition for a model."""
+
+    table_name: str
+    fields: dict[str, FieldSchema]
+    required_fields: list[str]
+    relationships: dict[str, object]  # Complex relationship structure
+
+
+class AssociationTableSchema(TypedDict):
+    """Schema definition for an association table."""
+
+    table_name: str
+    columns: dict[str, FieldSchema]
+    source_model: str
+    target_model: str
+
+
+class ToDoWriteCompleteSchema(TypedDict):
+    """Complete ToDoWrite schema structure."""
+
+    models: dict[str, ModelSchema]
+    association_tables: dict[str, AssociationTableSchema]
+    generated_at: str
+    description: str
 
 
 class SchemaValidationError(ToDoWriteError):
@@ -54,9 +95,9 @@ class ToDoWriteSchemaValidator:
             )
 
         self.schema_path = schema_path
-        self.schema: dict[str, Any] = self._load_schema()
+        self.schema: ToDoWriteCompleteSchema = self._load_schema()
 
-    def _load_schema(self) -> dict[str, Any]:
+    def _load_schema(self) -> ToDoWriteCompleteSchema:
         """Load the ToDoWrite model schema from JSON file."""
         try:
             with open(self.schema_path) as f:
@@ -68,7 +109,7 @@ class ToDoWriteSchemaValidator:
         except json.JSONDecodeError as e:
             raise SchemaValidationError(f"Invalid JSON in schema file: {e}")
 
-    def get_model_schema(self, model_name: str) -> dict[str, Any]:
+    def get_model_schema(self, model_name: str) -> ModelSchema:
         """Get the schema definition for a specific model."""
         if model_name not in self.schema.get("models", {}):
             available = list(self.schema.get("models", {}).keys())
@@ -78,7 +119,9 @@ class ToDoWriteSchemaValidator:
 
         return self.schema["models"][model_name]
 
-    def get_association_table_schema(self, table_name: str) -> dict[str, Any]:
+    def get_association_table_schema(
+        self, table_name: str
+    ) -> AssociationTableSchema:
         """Get the schema definition for an association table."""
         if table_name not in self.schema.get("association_tables", {}):
             available = list(self.schema.get("association_tables", {}).keys())
@@ -89,7 +132,7 @@ class ToDoWriteSchemaValidator:
         return self.schema["association_tables"][table_name]
 
     def validate_model_data(
-        self, model_name: str, data: dict[str, Any]
+        self, model_name: str, data: dict[str, object]
     ) -> bool:
         """Validate data against a specific model schema."""
         model_schema = self.get_model_schema(model_name)
@@ -178,14 +221,16 @@ class ToDoWriteSchemaValidator:
         """
         try:
             cascade_sql_path = (
-                Path(__file__).parent.parent / "database" / "cascade_constraints.sql"
+                Path(__file__).parent.parent
+                / "database"
+                / "cascade_constraints.sql"
             )
 
             if not cascade_sql_path.exists():
                 # Skip cascade constraints if SQL file doesn't exist
                 return
 
-            with open(cascade_sql_path, 'r') as f:
+            with open(cascade_sql_path) as f:
                 cascade_sql = f.read()
 
             with engine.connect() as conn:
@@ -194,8 +239,8 @@ class ToDoWriteSchemaValidator:
                     # Split SQL into individual statements and execute them
                     statements = [
                         stmt.strip()
-                        for stmt in cascade_sql.split(';')
-                        if stmt.strip() and not stmt.strip().startswith('--')
+                        for stmt in cascade_sql.split(";")
+                        if stmt.strip() and not stmt.strip().startswith("--")
                     ]
 
                     for statement in statements:
@@ -205,7 +250,9 @@ class ToDoWriteSchemaValidator:
         except Exception as e:
             # Log warning but don't fail initialization if cascade constraints fail
             print(f"Warning: Failed to apply CASCADE constraints: {e}")
-            print("Database tables created successfully but cascade constraints may need manual application.")
+            print(
+                "Database tables created successfully but cascade constraints may need manual application."
+            )
 
     def _verify_database_structure(self, engine: Engine) -> None:
         """Verify that all expected tables and columns exist in the database."""
@@ -222,7 +269,9 @@ class ToDoWriteSchemaValidator:
                 else:  # PostgreSQL and others
                     table_query = "SELECT table_name FROM information_schema.tables WHERE table_name=:table_name AND table_schema='public'"
 
-                result = conn.execute(text(table_query), {"table_name": table_name})
+                result = conn.execute(
+                    text(table_query), {"table_name": table_name}
+                )
 
                 if not result.fetchone():
                     raise DatabaseInitializationError(
@@ -237,7 +286,9 @@ class ToDoWriteSchemaValidator:
                         continue
 
                     if engine.dialect.name == "sqlite":
-                        result = conn.execute(text(f"PRAGMA table_info({table_name})"))
+                        result = conn.execute(
+                            text(f"PRAGMA table_info({table_name})")
+                        )
                         table_columns = [row[1] for row in result.fetchall()]
                     else:  # PostgreSQL and others
                         result = conn.execute(
@@ -245,7 +296,7 @@ class ToDoWriteSchemaValidator:
                                 SELECT column_name FROM information_schema.columns
                                 WHERE table_name = :table_name AND table_schema = 'public'
                             """),
-                            {"table_name": table_name}
+                            {"table_name": table_name},
                         )
                         table_columns = [row[0] for row in result.fetchall()]
 
@@ -261,22 +312,26 @@ class ToDoWriteSchemaValidator:
                 else:  # PostgreSQL and others
                     table_query = "SELECT table_name FROM information_schema.tables WHERE table_name=:table_name AND table_schema='public'"
 
-                result = conn.execute(text(table_query), {"table_name": table_name})
+                result = conn.execute(
+                    text(table_query), {"table_name": table_name}
+                )
 
                 if not result.fetchone():
                     raise DatabaseInitializationError(
                         f"Association table '{table_name}' not created"
                     )
 
-    def get_all_model_schemas(self) -> dict[str, dict[str, Any]]:
+    def get_all_model_schemas(self) -> dict[str, ModelSchema]:
         """Get all model schemas."""
         return self.schema.get("models", {})
 
-    def get_all_association_table_schemas(self) -> dict[str, dict[str, Any]]:
+    def get_all_association_table_schemas(
+        self,
+    ) -> dict[str, AssociationTableSchema]:
         """Get all association table schemas."""
         return self.schema.get("association_tables", {})
 
-    def get_model_relationships(self, model_name: str) -> dict[str, Any]:
+    def get_model_relationships(self, model_name: str) -> dict[str, object]:
         """Get relationship information for a model."""
         model_schema = self.get_model_schema(model_name)
         return model_schema.get("relationships", {})
@@ -290,7 +345,7 @@ class ToDoWriteSchemaValidator:
             if rel.get("target")
         ]
 
-    def get_schema_summary(self) -> dict[str, Any]:
+    def get_schema_summary(self) -> dict[str, object]:
         """Get a summary of the schema structure."""
         models = list(self.schema.get("models", {}).keys())
         association_tables = list(
@@ -365,7 +420,7 @@ class DatabaseSchemaInitializer:
         except DatabaseInitializationError:
             return False
 
-    def get_database_status(self, database_url: str) -> dict[str, Any]:
+    def get_database_status(self, database_url: str) -> dict[str, object]:
         """Get status information about the database."""
         engine = create_engine(database_url)
 
@@ -421,7 +476,7 @@ def get_schema_validator() -> ToDoWriteSchemaValidator:
     return _default_validator
 
 
-def validate_model_data(model_name: str, data: dict[str, Any]) -> bool:
+def validate_model_data(model_name: str, data: dict[str, object]) -> bool:
     """Validate data against model schema using default validator."""
     validator = get_schema_validator()
     return validator.validate_model_data(model_name, data)

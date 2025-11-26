@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Tools module for ToDoWrite."""
 
 # This module contains various tools and utilities for ToDoWrite

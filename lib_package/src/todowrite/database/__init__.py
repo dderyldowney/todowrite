@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Database module for ToDoWrite."""
 
 from ..core.models import (

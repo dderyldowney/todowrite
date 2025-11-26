@@ -12,6 +12,25 @@ from __future__ import annotations
 
 import os
 from enum import Enum
+from typing import TypedDict
+
+
+class DockerContainerInfo(TypedDict):
+    """Type for Docker container information from docker ps --format json."""
+
+    Id: str
+    Names: list[str] | str
+    Image: str
+    ImageID: str
+    Command: str
+    CreatedAt: int
+    State: str
+    Status: str
+    Ports: str
+    Labels: dict[str, str]
+    Size: str
+    Mounts: list[str] | str
+    Networks: list[str] | str
 
 
 class StorageType(Enum):
@@ -277,7 +296,7 @@ def get_docker_postgresql_candidates() -> list[str]:
     return candidates
 
 
-def _extract_port_from_container(container: dict[str, Any]) -> int:
+def _extract_port_from_container(container: DockerContainerInfo) -> int:
     """Extract PostgreSQL port from Docker container info."""
     ports = container.get("Ports", "")
 

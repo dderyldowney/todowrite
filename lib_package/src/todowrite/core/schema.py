@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """ToDoWrite schema module for external projects.
 
 This module provides access to the JSON schema for validating ToDoWrite nodes.

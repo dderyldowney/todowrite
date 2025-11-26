@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 #!/usr/bin/env python3
 """Token-Optimized Agent Integration.
 
@@ -8,7 +10,6 @@ This ensures zero wasted tokens through local-first processing.
 import json
 import sys
 from pathlib import Path
-from typing import Any
 
 
 class TokenOptimizedAgent:

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 #!/usr/bin/env python3
 """Ruff Helper - Proper parsing and analysis of ruff linting results
 Fixes the display/parsing issues with arrow formats and error detection.

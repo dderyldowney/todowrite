@@ -7,7 +7,7 @@ throughout the ToDoWrite codebase.
 
 from __future__ import annotations
 
-from typing import Any
+# Removed object import
 
 
 class ToDoWriteError(Exception):
@@ -35,7 +35,7 @@ class InvalidModelError(ModelError):
     """Raised when model data is invalid."""
 
     def __init__(
-        self, message: str, details: dict[str, Any] | None = None
+        self, message: str, details: dict[str, str | int | bool] | None = None
     ) -> None:
         self.details = details or {}
         super().__init__(message)

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Token Optimization Development Tools.
 
 This package contains development utilities for optimizing token usage

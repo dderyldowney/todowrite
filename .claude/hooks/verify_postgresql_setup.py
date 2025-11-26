@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import os
 import subprocess
-from typing import Any
 
 from todowrite.database.config import (
     check_postgresql_connection,
@@ -20,7 +19,7 @@ from todowrite.database.config import (
 )
 
 
-def verify_docker_status() -> dict[str, Any]:
+def verify_docker_status() -> dict[str, str | int | bool | None]:
     """Verify Docker and PostgreSQL container status."""
     status = {
         "docker_available": False,
@@ -74,7 +73,7 @@ def verify_docker_status() -> dict[str, Any]:
     return status
 
 
-def verify_database_status() -> dict[str, Any]:
+def verify_database_status() -> dict[str, str | int | bool | None]:
     """Verify database connection and schema status."""
     status = {
         "backend_type": None,
@@ -123,7 +122,7 @@ def verify_database_status() -> dict[str, Any]:
     return status
 
 
-def verify_environment() -> dict[str, Any]:
+def verify_environment() -> dict[str, str | int | bool | None]:
     """Verify environment variables and configuration."""
     status = {
         "virtual_env": os.environ.get("VIRTUAL_ENV") is not None,

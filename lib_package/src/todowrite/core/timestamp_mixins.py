@@ -35,7 +35,7 @@ from sqlalchemy import DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 
 if TYPE_CHECKING:
-    from typing import Any
+    from collections.abc import Callable
 
 
 # Optimized datetime factory for better performance
@@ -50,6 +50,7 @@ def utc_now_factory() -> Callable[[], datetime]:
     Returns:
         Callable[[], datetime]: Function that returns current UTC datetime
     """
+
     def _utc_now() -> datetime:
         return datetime.now(UTC)
 
@@ -81,7 +82,7 @@ class TimestampMixin:
         DateTime,
         default=utc_now_factory(),
         nullable=False,
-        comment="Timestamp when record was created (UTC)"
+        comment="Timestamp when record was created (UTC)",
     )
 
     updated_at: Mapped[datetime] = mapped_column(
@@ -89,7 +90,7 @@ class TimestampMixin:
         default=utc_now_factory(),
         onupdate=utc_now_factory(),
         nullable=False,
-        comment="Timestamp when record was last updated (UTC)"
+        comment="Timestamp when record was last updated (UTC)",
     )
 
 
@@ -117,7 +118,7 @@ class SoftDeleteMixin:
         DateTime,
         nullable=True,
         default=None,
-        comment="Timestamp when record was soft deleted (UTC)"
+        comment="Timestamp when record was soft deleted (UTC)",
     )
 
 
@@ -162,7 +163,7 @@ def create_timestamp_column(
             comment="Timestamp when record was archived"
         )
     """
-    column_kwargs: dict[str, Any] = {
+    column_kwargs: dict[str, str | int | bool] = {
         "nullable": nullable,
     }
 
@@ -210,10 +211,12 @@ class _TimestampCache:
         """
         current_time = datetime.now(UTC)
 
-        if (self._cached_timestamp is None or
-            self._cache_timestamp is None or
-            (current_time - self._cache_timestamp).total_seconds() * 1000
-            > self._cache_duration_ms):
+        if (
+            self._cached_timestamp is None
+            or self._cache_timestamp is None
+            or (current_time - self._cache_timestamp).total_seconds() * 1000
+            > self._cache_duration_ms
+        ):
             self._cached_timestamp = current_time
             self._cache_timestamp = current_time
             self._cache_misses += 1
@@ -223,21 +226,22 @@ class _TimestampCache:
         return self._cached_timestamp
 
     @property
-    def cache_stats(self) -> dict[str, Any]:
+    def cache_stats(self) -> dict[str, int | str | float]:
         """Get cache performance statistics.
 
         Returns:
             dict containing cache hit/miss statistics and hit ratio
         """
         total_requests = self._cache_hits + self._cache_misses
-        hit_ratio = (self._cache_hits / total_requests
-                    if total_requests > 0 else 0.0)
+        hit_ratio = (
+            self._cache_hits / total_requests if total_requests > 0 else 0.0
+        )
 
         return {
             "cache_hits": self._cache_hits,
             "cache_misses": self._cache_misses,
             "hit_ratio": hit_ratio,
-            "total_requests": total_requests
+            "total_requests": total_requests,
         }
 
 
@@ -358,13 +362,13 @@ def parse_timestamp_iso(timestamp_str: str) -> datetime:
 
 # Export commonly used items for easier importing
 __all__ = [
-    "TimestampMixin",
     "SoftDeleteMixin",
-    "utc_now_factory",
-    "create_timestamp_column",
-    "get_optimized_timestamp",
-    "validate_timezone_aware",
+    "TimestampMixin",
     "convert_to_utc",
+    "create_timestamp_column",
     "format_timestamp_iso",
+    "get_optimized_timestamp",
     "parse_timestamp_iso",
+    "utc_now_factory",
+    "validate_timezone_aware",
 ]

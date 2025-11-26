@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 Storage utilities for ToDoWrite Models.
 
@@ -45,22 +47,22 @@ except ImportError:
 
 
 # Schema validation utility functions for testing
-def get_schema_compliance_report():
+def get_schema_compliance_report() -> dict[str, str | list[str]]:
     """Get schema compliance report - placeholder for testing"""
     return {"compliance": "OK", "errors": []}
 
 
-def validate_database_schema():
+def validate_database_schema() -> tuple[bool, str]:
     """Validate database schema - placeholder for testing"""
     return True, "Schema valid"
 
 
-def validate_node_data():
+def validate_node_data() -> tuple[bool, str]:
     """Validate node data - placeholder for testing"""
     return True, "Node data valid"
 
 
-def validate_yaml_files():
+def validate_yaml_files() -> tuple[bool, str]:
     """Validate YAML files - placeholder for testing"""
     return True, "YAML files valid"
 

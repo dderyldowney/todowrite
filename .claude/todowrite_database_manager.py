@@ -24,7 +24,6 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -78,7 +77,9 @@ class ToDoWriteDatabaseManager:
         }
         self.session_id = os.environ.get("TODOWRITE_SESSION_ID", "default_session")
 
-    def create_goal(self, title: str, description: str, **kwargs) -> dict[str, Any]:
+    def create_goal(
+        self, title: str, description: str, **kwargs
+    ) -> dict[str, str | int | bool | None]:
         """Create a Goal using existing Models API and store in database"""
         # Create the model instance using existing API
         goal = Goal(title=title, description=description, **kwargs)
@@ -138,7 +139,7 @@ class ToDoWriteDatabaseManager:
 
     def create_layer_item(
         self, layer: str, title: str, description: str, **kwargs
-    ) -> dict[str, Any]:
+    ) -> dict[str, str | int | bool | None]:
         """Create any layer item using existing Models API"""
         valid_layers = [
             "goal",
@@ -201,8 +202,8 @@ class ToDoWriteDatabaseManager:
             }
 
     def _store_layer_item(
-        self, layer: str, title: str, description: str, data: dict[str, Any]
-    ) -> dict[str, Any]:
+        self, layer: str, title: str, description: str, data: dict[str, str | int | bool | None]
+    ) -> dict[str, str | int | bool | None]:
         """Store layer item in database for cross-session persistence"""
         try:
             conn = psycopg2.connect(**self.todowrite_db_config)
@@ -300,7 +301,7 @@ class ToDoWriteDatabaseManager:
             }
 
     def _update_session_tracking(
-        self, action_description: str, context_data: dict[str, Any]
+        self, action_description: str, context_data: dict[str, str | int | bool | None]
     ) -> None:
         """Update session tracking in proper mcp_sessions database"""
         try:
@@ -330,7 +331,7 @@ class ToDoWriteDatabaseManager:
         except Exception as e:
             print(f"❌ Failed to update session tracking: {e}")
 
-    def get_session_items(self) -> list[dict[str, Any]]:
+    def get_session_items(self) -> list[dict[str, str | int | bool | None]]:
         """Get all items created in current session from proper mcp_sessions database"""
         try:
             conn = psycopg2.connect(**self.session_db_config)
@@ -351,7 +352,7 @@ class ToDoWriteDatabaseManager:
             print(f"❌ Failed to get session items: {e}")
             return []
 
-    def create_project_structure(self) -> dict[str, Any]:
+    def create_project_structure(self) -> dict[str, str | int | bool | None]:
         """Create complete project structure using existing Models API"""
         structure = {
             "session_id": self.session_id,

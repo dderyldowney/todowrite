@@ -5,8 +5,36 @@
 ### Core Principles
 - **ALL Python files MUST use `from __future__ import annotations`**
 - **NO `Any` types allowed** - use specific types or `Protocol`
+- **NO `object` types allowed** - use *exact* types only
 - **Full type coverage** on all functions, variables, and returns
 - **Maximum 500 lines per file**
+
+### 🚫 PROHIBITED TYPE USAGE (MANDATORY)
+
+#### Forbidden Return Types
+- **NEVER return `Any`** - always define exact return types
+- **NEVER return `object`** - always define exact return types
+- **NEVER use `dict[str, Any]`** - define precise TypedDict types
+- **NEVER use `list[Any]`** - define precise element types
+- **NEVER use `tuple[..., Any]`** - define precise tuple types
+
+#### Required Exact Types
+```python
+# ❌ FORBIDDEN - Any/object types
+def process_data() -> dict[str, Any]: ...
+def get_items() -> list[Any]: ...
+def validate_schema() -> object: ...
+
+# ✅ REQUIRED - Exact types
+class UserSpec(TypedDict):
+    name: str
+    age: int
+    active: bool
+
+def process_data() -> dict[str, UserSpec]: ...
+def get_items() -> list[UserSpec]: ...
+def validate_schema() -> UserSpec: ...
+```
 
 ### 🚀 Python 3.12+ New Features (PEP 695)
 
@@ -96,8 +124,43 @@ For every Python file:
 4. ✅ Replace `Optional[str]` with `str | None`
 5. ✅ Replace `Dict[str, int]` with `dict[str, int]`
 6. ✅ Remove all `Any` types
-7. ✅ Use new `type` statements for aliases
-8. ✅ Use type parameter syntax for generics
+7. ✅ Remove all `object` return types
+8. ✅ Define exact TypedDict types for all structured data
+9. ✅ Use new `type` statements for aliases
+10. ✅ Use type parameter syntax for generics
+11. ✅ Replace `dict[str, Any]` with precise TypedDict types
+12. ✅ Replace `list[Any]` with precise element types
+13. ✅ Replace `tuple[..., Any]` with precise tuple types
+
+### 📝 Exact Type Definition Patterns
+
+#### Use TypedDict for Structured Data
+```python
+# ✅ CORRECT - Exact structured types
+class DatabaseConfig(TypedDict):
+    host: str
+    port: int
+    database: str
+    ssl: bool
+
+def get_config() -> DatabaseConfig: ...
+def process_records(records: list[DatabaseConfig]) -> dict[str, DatabaseConfig]: ...
+
+# ❌ FORBIDDEN - Any/object types
+def get_config() -> dict[str, Any]: ...
+def process_records(records: list[Any]) -> dict[str, object]: ...
+```
+
+#### Use Union Types for Specific Alternatives
+```python
+# ✅ CORRECT - Exact alternatives
+def get_status() -> "pending" | "running" | "completed" | "failed": ...
+def parse_value(value: str) -> int | float | str | bool: ...
+
+# ❌ FORBIDDEN - Any/object types
+def get_status() -> Any: ...
+def parse_value(value: str) -> object: ...
+```
 
 ### 📚 References
 - [Python 3.12 typing documentation](https://docs.python.org/3.12/library/typing.html)

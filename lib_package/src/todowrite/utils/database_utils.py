@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Utility functions for database naming and path management."""
 
 import os

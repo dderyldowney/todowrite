@@ -1,10 +1,11 @@
+from __future__ import annotations
+
 """
 PostgreSQL storage backend for ToDoWrite.
 
 PostgreSQL implementation using SQLAlchemy for Rails ActiveRecord compatibility.
 """
 
-from typing import Any
 
 from .backends import StorageBackend
 
@@ -37,7 +38,7 @@ class PostgreSQLBackend(StorageBackend):
         # Placeholder implementation for Rails ActiveRecord compatibility
         return record
 
-    def get_record(self, model_class: type, record_id: int) -> Any | None:
+    def get_record(self, model_class: type, record_id: int) -> object | None:
         """Get a record by ID from PostgreSQL."""
         # Placeholder implementation for Rails ActiveRecord compatibility
         return None

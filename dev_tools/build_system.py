@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Build System API for ToDoWrite monorepo.
 
 Clean architecture implementation following REFACTOR phase of TDD cycle.
@@ -9,7 +11,6 @@ import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 
 @dataclass
@@ -21,12 +22,12 @@ class ValidationResult:
     warnings: list[str]
 
     @classmethod
-    def success(cls, warnings: list[str] | None = None) -> "ValidationResult":
+    def success(cls, warnings: list[str] | None = None) -> ValidationResult:
         """Create a successful validation result."""
         return cls(is_valid=True, errors=[], warnings=warnings or [])
 
     @classmethod
-    def failure(cls, errors: list[str], warnings: list[str] | None = None) -> "ValidationResult":
+    def failure(cls, errors: list[str], warnings: list[str] | None = None) -> ValidationResult:
         """Create a failed validation result."""
         return cls(is_valid=False, errors=errors, warnings=warnings or [])
 
@@ -201,7 +202,6 @@ class BuildManager:
             timeout=300,  # 5 minute timeout
         )
 
-
     def get_workspace_packages(self) -> dict[str, PackageInfo]:
         """Get information about workspace packages.
 
@@ -262,12 +262,11 @@ class BuildManager:
             cwd=package_info.path,
         )
 
-
     def __str__(self) -> str:
         """String representation of BuildManager."""
         return f"BuildManager(project_root={self.project_root})"
 
-    def analyze_dependencies(self) -> dict[str, Any]:
+    def analyze_dependencies(self) -> dict[str, str | int | bool | None]:
         """Analyze dependencies across workspace packages.
 
         Returns:

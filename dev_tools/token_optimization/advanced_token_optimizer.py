@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 #!/usr/bin/env python3
 """Advanced Token Optimizer - 2025 Industry Standards.
 
@@ -19,7 +21,6 @@ import tokenize
 from collections import OrderedDict
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any
 
 
 @dataclass
@@ -64,7 +65,7 @@ class TokenCache:
         """Check if cache entry has expired."""
         return time.time() - timestamp > self.ttl_seconds
 
-    def get(self, key: str) -> Any | None:
+    def get(self, key: str) -> object | None:
         """Get cached value if not expired."""
         if key in self.cache:
             value, timestamp = self.cache[key]
@@ -224,7 +225,18 @@ class SemanticCodeAnalyzer:
             complexity = 1  # Base complexity
 
             for node in ast.walk(tree):
-                if isinstance(node, (ast.If, ast.While, ast.For, ast.AsyncFor, ast.ExceptHandler, ast.With, ast.AsyncWith)):
+                if isinstance(
+                    node,
+                    (
+                        ast.If,
+                        ast.While,
+                        ast.For,
+                        ast.AsyncFor,
+                        ast.ExceptHandler,
+                        ast.With,
+                        ast.AsyncWith,
+                    ),
+                ):
                     complexity += 1
                 elif isinstance(node, ast.BoolOp):
                     complexity += len(node.values) - 1
@@ -295,9 +307,7 @@ class TokenCompressor:
             stripped = line.strip()
 
             # Keep docstring markers and important comments
-            if (
-                stripped.startswith(('"""', "'''", "# TODO", "# FIXME", "# NOTE", "# WARNING"))
-            ):
+            if stripped.startswith(('"""', "'''", "# TODO", "# FIXME", "# NOTE", "# WARNING")):
                 filtered_lines.append(line)
             # Remove simple comments
             elif stripped.startswith("#") and len(stripped) < 20:
@@ -363,7 +373,6 @@ class TokenCompressor:
         return re.sub(
             r'("""[^"]*?"""|\'\'\'[^\']*?\'\'\')', compress_docstring, content, flags=re.DOTALL
         )
-
 
 
 class AdvancedTokenOptimizer:
@@ -601,7 +610,7 @@ class AdvancedTokenOptimizer:
         }
         return language_map.get(suffix, "text")
 
-    def get_analytics(self) -> dict[str, Any]:
+    def get_analytics(self) -> dict[str, str | int | bool | None]:
         """Get comprehensive analytics and performance metrics."""
         return {
             "metrics": asdict(self.metrics),

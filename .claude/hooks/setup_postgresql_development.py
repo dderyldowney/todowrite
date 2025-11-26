@@ -15,7 +15,6 @@ from __future__ import annotations
 import subprocess
 import time
 from pathlib import Path
-from typing import Any
 
 from sqlalchemy import create_engine, text
 from todowrite.core.models import Base
@@ -31,7 +30,7 @@ class PostgreSQLDevelopmentSetup:
     def __init__(self: PostgreSQLDevelopmentSetup) -> None:
         """Initialize PostgreSQL setup."""
         self.database_url: str | None = None
-        self.engine: Any = None
+        self.engine: object = None
 
     def ensure_docker_postgresql_running(self: PostgreSQLDevelopmentSetup) -> bool:
         """Ensure Docker PostgreSQL container is running."""

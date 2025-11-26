@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 #!/usr/bin/env python3
 """Automatic Token-Optimized Agent Pipeline.
 
@@ -6,10 +8,9 @@ Always uses token-sage + HAL agents for maximum token efficiency.
 
 import sys
 from pathlib import Path
-from typing import Any
 
 
-class FilterParamsDict(dict[str, Any]):
+class FilterParamsDict(dict[str, str | int | bool | None]):
     """Type definition for filter_repo_for_llm parameters."""
 
     def __init__(self, **kwargs: Any) -> None:

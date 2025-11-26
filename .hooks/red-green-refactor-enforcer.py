@@ -32,8 +32,8 @@ class RedGreenRefactorEnforcer:
                 "forbidden_actions": [
                     "Write production code before test",
                     "Skip watching test fail",
-                    "Write code that passes immediately"
-                ]
+                    "Write code that passes immediately",
+                ],
             },
             "green_phase": {
                 "required": True,
@@ -42,8 +42,8 @@ class RedGreenRefactorEnforcer:
                 "forbidden_actions": [
                     "Add features beyond test requirements",
                     "Over-engineering",
-                    "Write production code without failing test"
-                ]
+                    "Write production code without failing test",
+                ],
             },
             "refactor_phase": {
                 "required": True,
@@ -52,15 +52,15 @@ class RedGreenRefactorEnforcer:
                 "forbidden_actions": [
                     "Adding new behavior during refactoring",
                     "Changing test requirements",
-                    "Breaking existing functionality"
-                ]
+                    "Breaking existing functionality",
+                ],
             },
             "quality_gates": {
                 "require_test_for_new_code": True,
                 "zero_mocking_policy": True,
                 "real_implementations_only": True,
-                "test_coverage_threshold": 0.8
-            }
+                "test_coverage_threshold": 0.8,
+            },
         }
 
         if self.config_file.exists():
@@ -81,34 +81,34 @@ class RedGreenRefactorEnforcer:
                 ["git", "diff", "--cached", "--name-only"],
                 capture_output=True,
                 text=True,
-                check=True
+                check=True,
             )
-            staged_files = result.stdout.strip().split('\n') if result.stdout.strip() else []
+            staged_files = result.stdout.strip().split("\n") if result.stdout.strip() else []
 
             if not staged_files:
                 return False
 
             # Documentation file patterns
             doc_patterns = [
-                r'\.md$',  # Markdown files
-                r'\.rst$',  # reStructuredText files
-                r'docs/.*',  # Any files in docs directory
-                r'\.github/workflows/.*docs\.yml$',  # Documentation workflow
-                r'\.github/workflows/.*pages\.yml$',  # Pages workflow
-                r'README.*',  # README files
-                r'CHANGELOG.*',  # Changelog files
-                r'LICENSE.*',  # License files
-                r'\.github/ISSUE_TEMPLATE/.*',  # Issue templates
-                r'\.github/PULL_REQUEST_TEMPLATE\.md$',  # PR template
+                r"\.md$",  # Markdown files
+                r"\.rst$",  # reStructuredText files
+                r"docs/.*",  # object files in docs directory
+                r"\.github/workflows/.*docs\.yml$",  # Documentation workflow
+                r"\.github/workflows/.*pages\.yml$",  # Pages workflow
+                r"README.*",  # README files
+                r"CHANGELOG.*",  # Changelog files
+                r"LICENSE.*",  # License files
+                r"\.github/ISSUE_TEMPLATE/.*",  # Issue templates
+                r"\.github/PULL_REQUEST_TEMPLATE\.md$",  # PR template
             ]
 
             # Build system patterns that should NOT be excluded from TDD
             build_system_patterns_excluded = [
-                r'\.py$',  # Python files (build scripts should have tests)
-                r'setup\.py$',  # Setup scripts
-                r'pyproject\.toml$',  # Build configuration
-                r'Makefile$',  # Makefiles
-                r'\.sh$',  # Shell scripts
+                r"\.py$",  # Python files (build scripts should have tests)
+                r"setup\.py$",  # Setup scripts
+                r"pyproject\.toml$",  # Build configuration
+                r"Makefile$",  # Makefiles
+                r"\.sh$",  # Shell scripts
             ]
 
             for file_path in staged_files:
@@ -136,7 +136,9 @@ class RedGreenRefactorEnforcer:
         commit_lower = commit_message.lower()
 
         # Extract conventional commit info
-        conventional_match = re.match(r"^(?P<type>\w+)(?:\((?P<scope>[^)]+)\))?:\s+(?P<subject>.+)", commit_message.strip())
+        conventional_match = re.match(
+            r"^(?P<type>\w+)(?:\((?P<scope>[^)]+)\))?:\s+(?P<subject>.+)", commit_message.strip()
+        )
         if not conventional_match:
             return True, []  # Let other validators handle format
 
@@ -157,8 +159,10 @@ class RedGreenRefactorEnforcer:
 
         # Build system exclusions for documentation-related infrastructure
         build_doc_patterns = [
-            scope == "build" and any(word in commit_lower for word in ["docs", "sphinx", "github pages"]),
-            commit_type == "chore" and any(word in commit_lower for word in ["docs", "documentation", "readme"]),
+            scope == "build"
+            and any(word in commit_lower for word in ["docs", "sphinx", "github pages"]),
+            commit_type == "chore"
+            and any(word in commit_lower for word in ["docs", "documentation", "readme"]),
         ]
 
         # Check if this is documentation work that should be excluded from TDD requirements
@@ -172,7 +176,11 @@ class RedGreenRefactorEnforcer:
             return True, []  # Skip TDD enforcement for documentation work
 
         # Check for RGR methodology violations for non-documentation work
-        if commit_type in ["feat", "fix"] and "test" not in commit_lower and "refactor" not in commit_lower:
+        if (
+            commit_type in ["feat", "fix"]
+            and "test" not in commit_lower
+            and "refactor" not in commit_lower
+        ):
             errors.append(
                 "Feature/fix commits should include tests according to Red-Green-Refactor methodology:\n"
                 "1. RED: Write failing test first\n"

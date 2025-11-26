@@ -225,9 +225,9 @@ class TestCleanupEnforcer:
 FORBIDDEN ARTIFACTS (Must be removed):
 • tests_todowrite.db - Test database files
 • commit-msgs.txt - Commit message test files
-• test_*.db - Any test database files
+• test_*.db - object test database files
 • *_test.db - Database files ending with _test
-• commit-msgs*.txt - Any commit message test files
+• commit-msgs*.txt - object commit message test files
 • test_artifacts/ - Test artifact directories
 • test_results/ - Test result directories
 

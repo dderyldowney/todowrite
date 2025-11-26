@@ -10,10 +10,173 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any, cast
+from typing import TypedDict
 
 import yaml
 from jsonschema import Draft202012Validator, ValidationError, validate
+
+
+# Type definitions for ToDoWrite YAML data structure
+class RequirementSpec(TypedDict):
+    """Type for a requirement specification."""
+
+    title: str
+    description: str
+    priority: str
+    status: str
+
+
+class AcceptanceCriteriaSpec(TypedDict):
+    """Type for acceptance criteria specification."""
+
+    criteria: str
+    given: str
+    when: str
+    then: str
+
+
+class TaskSpec(TypedDict):
+    """Type for a task specification."""
+
+    title: str
+    description: str
+    status: str
+    priority: str
+
+
+class SubTaskSpec(TypedDict):
+    """Type for a subtask specification."""
+
+    title: str
+    description: str
+    status: str
+    parent_task: str
+
+
+class CommandSpec(TypedDict):
+    """Type for a command specification."""
+
+    command: str
+    description: str
+    parameters: dict[str, str]
+
+
+class PhaseSpec(TypedDict):
+    """Type for a phase specification."""
+
+    name: str
+    description: str
+    status: str
+    steps: list[str]
+
+
+class StepSpec(TypedDict):
+    """Type for a step specification."""
+
+    title: str
+    description: str
+    status: str
+    tasks: list[str]
+
+
+class ConceptSpec(TypedDict):
+    """Type for a concept specification."""
+
+    name: str
+    description: str
+    context: str
+
+
+class ContextSpec(TypedDict):
+    """Type for a context specification."""
+
+    name: str
+    description: str
+    constraints: list[str]
+
+
+class ConstraintSpec(TypedDict):
+    """Type for a constraint specification."""
+
+    name: str
+    description: str
+    type: str
+
+
+class InterfaceContractSpec(TypedDict):
+    """Type for an interface contract specification."""
+
+    name: str
+    interface_type: str
+    methods: dict[str, dict[str, str]]
+
+
+class LabelSpec(TypedDict):
+    """Type for a label specification."""
+
+    name: str
+    color: str
+    description: str
+
+
+class ToDoWriteYAMLData(TypedDict):
+    """Complete type for ToDoWrite YAML file data structure."""
+
+    # Core planning elements
+    title: str
+    description: str
+    status: str
+    priority: str
+
+    # Optional structured components
+    requirements: dict[str, RequirementSpec] | None
+    acceptance_criteria: dict[str, AcceptanceCriteriaSpec] | None
+    tasks: dict[str, TaskSpec] | None
+    subtasks: dict[str, SubTaskSpec] | None
+    commands: dict[str, CommandSpec] | None
+    phases: dict[str, PhaseSpec] | None
+    steps: dict[str, StepSpec] | None
+    concepts: dict[str, ConceptSpec] | None
+    contexts: dict[str, ContextSpec] | None
+    constraints: dict[str, ConstraintSpec] | None
+    interface_contracts: dict[str, InterfaceContractSpec] | None
+    labels: dict[str, LabelSpec] | None
+
+    # Metadata
+    created_at: str | None
+    updated_at: str | None
+    version: str | None
+    tags: list[str] | None
+
+
+# Type definitions for JSON schema structure
+class JSONSchema(TypedDict, total=False):
+    """Base type for JSON Schema definitions."""
+
+    type: str
+    properties: dict[str, JSONSchema]
+    required: list[str]
+    items: JSONSchema
+    additionalProperties: bool | JSONSchema
+    ref: str  # JSON Schema $ref field
+    description: str
+    enum: list[str | int | bool | None]
+    minimum: int | None
+    maximum: int | None
+    pattern: str | None
+
+
+class ToDoWriteJSONSchema(TypedDict):
+    """Type for the complete ToDoWrite JSON schema."""
+
+    schema: str  # JSON Schema $schema field
+    id: str  # JSON Schema $id field
+    title: str
+    description: str
+    type: str
+    properties: dict[str, JSONSchema]
+    required: list[str]
+    additionalProperties: bool
 
 
 class todowriteValidator:
@@ -27,7 +190,7 @@ class todowriteValidator:
             try:
                 from todowrite.core.schemas import todowrite_SCHEMA
 
-                self.schema = cast("dict[str, Any]", todowrite_SCHEMA)
+                self.schema: ToDoWriteJSONSchema = todowrite_SCHEMA
                 self.schema_path = (
                     "ToDoWrite.schema"  # Virtual path for display
                 )
@@ -40,11 +203,11 @@ class todowriteValidator:
         self.schema = self._load_schema()
         self.validator = Draft202012Validator(self.schema)
 
-    def _load_schema(self) -> dict[str, Any]:
+    def _load_schema(self) -> ToDoWriteJSONSchema:
         """Load JSON schema from file"""
         try:
             with open(self.schema_path) as f:
-                return cast("dict[str, Any]", json.load(f))
+                return json.load(f)
         except FileNotFoundError:
             print(f"ERROR: Schema file not found: {self.schema_path}")
             print("Run 'make tw-schema' to generate schema file")
@@ -72,7 +235,7 @@ class todowriteValidator:
 
     def _load_yaml_file(
         self: todowriteValidator, file_path: Path
-    ) -> tuple[dict[str, Any], bool]:
+    ) -> tuple[ToDoWriteYAMLData, bool]:
         """Load and parse YAML file, return (data, success)"""
         try:
             with open(file_path) as f:

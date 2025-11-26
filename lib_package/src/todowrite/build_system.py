@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 Build System API for ToDoWrite monorepo.
 
@@ -10,7 +12,6 @@ import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 
 @dataclass
@@ -22,14 +23,14 @@ class ValidationResult:
     warnings: list[str]
 
     @classmethod
-    def success(cls) -> "ValidationResult":
+    def success(cls) -> ValidationResult:
         """Create a successful validation result."""
         return cls(is_valid=True, errors=[], warnings=[])
 
     @classmethod
     def failure(
         cls, errors: list[str], warnings: list[str] | None = None
-    ) -> "ValidationResult":
+    ) -> ValidationResult:
         """Create a failed validation result."""
         return cls(is_valid=False, errors=errors, warnings=warnings or [])
 
@@ -290,7 +291,7 @@ class BuildManager:
         """String representation of BuildManager."""
         return f"BuildManager(project_root={self.project_root})"
 
-    def analyze_dependencies(self) -> dict[str, Any]:
+    def analyze_dependencies(self) -> dict[str, str | int | bool | None]:
         """
         Analyze dependencies across workspace packages.
 

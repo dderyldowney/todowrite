@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """Minimal implementation for authentication.
 
 This is the GREEN phase implementation created to make tests pass.
@@ -9,7 +11,6 @@ Task: Add user authentication
 
 import logging
 from dataclasses import dataclass
-from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -19,9 +20,9 @@ class FeatureResult:
     """Result object for feature operations."""
 
     success: bool
-    data: Any | None = None
+    data: object | None = None
     error: str | None = None
-    metadata: dict[str, Any] = None
+    metadata: dict[str, str | int | bool | None] = None
 
     def __post_init__(self):
         if self.metadata is None:
@@ -35,7 +36,7 @@ class FeatureImplementation:
     It follows the TDD GREEN phase principle of minimal implementation.
     """
 
-    def __init__(self, config: dict[str, Any] | None = None):
+    def __init__(self, config: dict[str, str | int | bool | None] | None = None):
         """Initialize authentication.
 
         Args:
@@ -122,7 +123,9 @@ class FeatureImplementation:
 
 
 # Factory function for easy instantiation
-def create_feature_implementation(config: dict[str, Any] | None = None) -> FeatureImplementation:
+def create_feature_implementation(
+    config: dict[str, str | int | bool | None] | None = None,
+) -> FeatureImplementation:
     """Factory function to create feature instance.
 
     Args:

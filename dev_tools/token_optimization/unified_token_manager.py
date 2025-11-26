@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 #!/usr/bin/env python3
 """Unified Token Manager - Industry-Standard Token Optimization System.
 
@@ -13,7 +15,6 @@ import time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any
 
 # Import our advanced components
 sys.path.insert(0, str(Path(__file__).parent))
@@ -36,7 +37,7 @@ class OptimizationSession:
     total_processing_time_ms: float
     total_savings_percentage: float
     recommendations: list[str]
-    cache_status: dict[str, Any]
+    cache_status: dict[str, str | int | bool | None]
 
 
 @dataclass
@@ -127,7 +128,7 @@ class TokenAnalytics:
         except:
             return []
 
-    def get_metrics(self, days: int = 7) -> dict[str, Any]:
+    def get_metrics(self, days: int = 7) -> dict[str, str | int | bool | None]:
         """Get analytics metrics for specified period."""
         sessions = self._load_sessions()
 
@@ -175,7 +176,9 @@ class TokenAnalytics:
             else 0,
         }
 
-    def get_top_goals(self, days: int = 7, limit: int = 10) -> list[dict[str, Any]]:
+    def get_top_goals(
+        self, days: int = 7, limit: int = 10
+    ) -> list[dict[str, str | int | bool | None]]:
         """Get most common goals and their performance."""
         sessions = self._load_sessions()
 
@@ -391,7 +394,7 @@ class UnifiedTokenManager:
 
         return session
 
-    def get_analytics(self, days: int = 7) -> dict[str, Any]:
+    def get_analytics(self, days: int = 7) -> dict[str, str | int | bool | None]:
         """Get comprehensive analytics."""
         metrics = self.analytics.get_metrics(days)
         top_goals = self.analytics.get_top_goals(days)

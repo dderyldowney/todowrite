@@ -3,11 +3,12 @@
 Rules cannot be overridden under any circumstances.
 """
 
+from __future__ import annotations
+
 import importlib.util
 import os
 import sys
 from pathlib import Path
-from typing import Any
 
 # Import optional dependencies when available
 if importlib.util.find_spec("click"):
@@ -308,8 +309,8 @@ class ClaudeRuleEnforcer:
 
 
 def enforce_claude_rules(
-    _ctx: click.Context, _param: click.Parameter, value: Any
-) -> Any:
+    _ctx: click.Context, _param: click.Parameter, value: bool
+) -> bool:
     """Click callback to enforce CLAUDE.md rules."""
     if value:  # Only enforce when --enforce-claude-rules is used
         enforcer = ClaudeRuleEnforcer()
@@ -329,8 +330,8 @@ def enforce_claude_rules(
 
 
 def verify_database_completeness(
-    _ctx: click.Context, _param: click.Parameter, value: Any
-) -> Any:
+    _ctx: click.Context, _param: click.Parameter, value: bool
+) -> bool:
     """Click callback to verify database completeness."""
     if value:
         enforcer = ClaudeRuleEnforcer()
@@ -354,8 +355,8 @@ def verify_database_completeness(
 
 
 def clear_context_enforcement(
-    _ctx: click.Context, _param: click.Parameter, value: Any
-) -> Any:
+    _ctx: click.Context, _param: click.Parameter, value: bool
+) -> bool:
     """Enforce rules when /clear command is used."""
     if value:
         # Re-enforce all rules before clearing context

@@ -9,9 +9,33 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
-from typing import Any
+from typing import TypedDict
 
 import yaml
+
+
+class AcceptanceCriteriaSpec(TypedDict):
+    """Type for acceptance criteria YAML structure."""
+
+    criteria: str
+    given: str
+    when: str
+    then: str
+    ac_ref: str
+    title: str
+    description: str | None
+    acceptance_criteria_id: str | None
+
+
+class CommandSpec(TypedDict):
+    """Type for command specification."""
+
+    command: str
+    ac_ref: str
+    title: str
+    description: str
+    shell_command: str
+    artifacts: list[str]
 
 
 class CommandStubGenerator:
@@ -55,7 +79,9 @@ class CommandStubGenerator:
 
         print(f"Found {len(self.existing_commands)} existing commands")
 
-    def _load_yaml_file(self, file_path: Path) -> tuple[dict[str, Any], bool]:
+    def _load_yaml_file(
+        self, file_path: Path
+    ) -> tuple[AcceptanceCriteriaSpec, bool]:
         """Load and parse YAML file, return (data, success)"""
         try:
             with open(file_path) as f:
@@ -63,10 +89,30 @@ class CommandStubGenerator:
             return data, True
         except yaml.YAMLError as e:
             print(f"ERROR: Invalid YAML in {file_path}: {e}")
-            return {}, False
+            empty_data: AcceptanceCriteriaSpec = {
+                "criteria": "",
+                "given": "",
+                "when": "",
+                "then": "",
+                "ac_ref": "",
+                "title": "",
+                "description": None,
+                "acceptance_criteria_id": None,
+            }
+            return empty_data, False
         except Exception as e:
             print(f"ERROR: Failed to read {file_path}: {e}")
-            return {}, False
+            empty_data: AcceptanceCriteriaSpec = {
+                "criteria": "",
+                "given": "",
+                "when": "",
+                "then": "",
+                "ac_ref": "",
+                "title": "",
+                "description": None,
+                "acceptance_criteria_id": None,
+            }
+            return empty_data, False
 
     def _generate_command_id(self, ac_id: str) -> str:
         """Generate Command ID from Acceptance Criteria ID"""
@@ -76,7 +122,7 @@ class CommandStubGenerator:
         else:
             return f"CMD-{ac_id}"
 
-    def _generate_shell_command(self, ac_data: dict[str, Any]) -> str:
+    def _generate_shell_command(self, ac_data: AcceptanceCriteriaSpec) -> str:
         """Generate appropriate shell command based on AC content"""
         title = ac_data.get("title", "").lower()
 
@@ -103,7 +149,9 @@ class CommandStubGenerator:
             title = ac_data.get("title", "Acceptance Criteria")
             return f"echo 'Manual verification required for: {title}'"
 
-    def _generate_artifacts_list(self, ac_data: dict[str, Any]) -> list[str]:
+    def _generate_artifacts_list(
+        self, ac_data: AcceptanceCriteriaSpec
+    ) -> list[str]:
         """Generate expected artifacts list"""
         title = ac_data.get("title", "").lower()
         cmd_id = self._generate_command_id(ac_data.get("id", ""))

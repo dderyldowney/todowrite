@@ -24,7 +24,7 @@ Example:
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Literal
 
 # Define the 12 hierarchical layers in the ToDoWrite system
 LayerType = Literal[
@@ -79,7 +79,7 @@ class Metadata:
         severity: str = "",
         work_type: str = "",
         assignee: str = "",
-        extra: dict[str, Any] | None = None,
+        extra: dict[str, str | int | bool] | None = None,
     ) -> None:
         self.owner = owner
         self.labels = labels or []
@@ -88,7 +88,7 @@ class Metadata:
         self.assignee = assignee
         self.extra = extra or {}
 
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, str | list[str] | int | bool]:
         """Convert metadata to dictionary."""
         return {
             "owner": self.owner,
@@ -103,10 +103,10 @@ class Metadata:
 class ToDoWriteCollection:
     """Base collection class for ToDoWrite models."""
 
-    def __init__(self, items: list[Any] | None = None) -> None:
+    def __init__(self, items: list[str] | None = None) -> None:
         self.items = items or []
 
-    def all(self) -> list[Any]:
+    def all(self) -> list[str]:
         """Get all items in the collection."""
         return self.items
 

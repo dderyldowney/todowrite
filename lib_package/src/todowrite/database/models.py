@@ -5,17 +5,21 @@ This module provides the Rails ActiveRecord-style models for the ToDoWrite syste
 These models use SQLAlchemy ORM for database operations.
 """
 
-from sqlalchemy import create_engine
+from __future__ import annotations
+
+from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import declarative_base
 
 # Base class for all Rails ActiveRecord models
 Base = declarative_base()
 
 # Database engine placeholder
-_engine = None
+_engine: Engine | None = None
 
 
-def get_database_engine(database_url: str = "sqlite:///todowrite.db"):
+def get_database_engine(
+    database_url: str = "sqlite:///todowrite.db",
+) -> Engine:
     """Get or create database engine."""
     global _engine
     if _engine is None:

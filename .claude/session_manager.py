@@ -10,7 +10,6 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 import psycopg2
 
@@ -46,7 +45,7 @@ class SessionManager:
 
         return session_id
 
-    def check_mcp_servers_health(self) -> dict[str, Any]:
+    def check_mcp_servers_health(self) -> dict[str, str | int | bool | None]:
         """Check health of MCP servers and wait for them to be available"""
         mcp_servers = {
             "context7": {"type": "http", "port": 3001, "container": "mcp-context7"},
@@ -135,7 +134,7 @@ class SessionManager:
         except OSError:
             return False
 
-    def save_session_state(self, context: dict[str, Any]) -> bool:
+    def save_session_state(self, context: dict[str, str | int | bool | None]) -> bool:
         """Save current session state to database"""
         try:
             conn = psycopg2.connect(**self.db_config)
@@ -185,7 +184,7 @@ class SessionManager:
             if "conn" in locals():
                 conn.close()
 
-    def load_latest_session_state(self) -> dict[str, Any] | None:
+    def load_latest_session_state(self) -> dict[str, str | int | bool | None] | None:
         """Load the most recent session state for this project"""
         try:
             conn = psycopg2.connect(**self.db_config)
@@ -260,7 +259,7 @@ Ready to continue development with full context restored!
         return f"""{summary}"""
 
 
-def save_current_session(context: dict[str, Any]) -> bool:
+def save_current_session(context: dict[str, str | int | bool | None]) -> bool:
     """Convenience function to save current session"""
     manager = SessionManager()
     return manager.save_session_state(context)

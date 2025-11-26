@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 #!/usr/bin/env python3
 """Database migration script for ToDoWrite.
 
@@ -7,7 +9,6 @@ to the new schema (without session_id column).
 
 import argparse
 import sys
-from typing import Any
 
 import sqlalchemy as sa
 from sqlalchemy import text

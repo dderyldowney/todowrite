@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 #!/usr/bin/env python3
 """Migrate episodic memory conversations from global database to project-specific database.
 
@@ -11,7 +13,6 @@ import shutil
 import sqlite3
 import sys
 from pathlib import Path
-from typing import Any
 
 
 def get_project_conversation_paths(project_root: Path) -> list[str]:
@@ -64,7 +65,7 @@ def find_global_conversations(project_conversation_paths: list[str]) -> list[str
 
 def extract_project_conversations_from_global_db(
     project_paths: list[str], project_db_path: Path
-) -> list[dict[str, Any]]:
+) -> list[dict[str, str | int | bool | None]]:
     """Extract project-specific conversations from global episodic memory database."""
     global_db_path = Path.home() / ".config" / "superpowers" / "conversation-index" / "db.sqlite"
 
