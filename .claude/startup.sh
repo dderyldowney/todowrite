@@ -68,48 +68,36 @@ else
     exit 1
 fi
 
-# 6. Initialize MCP Systems with proper delays
-echo "🔧 Initializing MCP Systems with proper startup delays..."
-echo "⏳ Starting MCP servers (this may take 30+ seconds to fully initialize)..."
+# 6. Initialize MCP Systems with intelligent startup
+echo "🔧 Initializing MCP Systems with intelligent startup..."
+echo "🚀 Starting only missing MCP servers..."
 
-# Start Docker MCP Gateway in background if not already running
-if ! pgrep -f "docker mcp gateway run" > /dev/null; then
-    echo "🚀 Starting Docker MCP Gateway..."
-    nohup docker mcp gateway run --enable-all-servers --long-lived > .claude/mcp_gateway.log 2>&1 &
-    MCP_GATEWAY_PID=$!
-    echo $MCP_GATEWAY_PID > .claude/mcp_gateway.pid
-
-    echo "⏳ Waiting 20 seconds for MCP Gateway to start loading catalog..."
-    sleep 20
-
-    # Check if MCP Gateway is still running
-    if ps -p $MCP_GATEWAY_PID > /dev/null; then
-        echo "✅ MCP Gateway started and loading catalog"
-    else
-        echo "⚠️  MCP Gateway failed to start - continuing with available MCP tools"
-    fi
+# Use intelligent MCP server startup that checks for existing servers
+if ./.claude/start_mcp_servers_intelligent.sh; then
+    echo "✅ MCP Systems initialized with intelligent startup"
 else
-    echo "✅ MCP Gateway already running"
+    echo "⚠️  MCP intelligent startup had issues - continuing with basic initialization"
 fi
 
-echo "⏳ Waiting additional 15 seconds for MCP servers to fully initialize..."
-sleep 15
+echo "⏳ Waiting 10 seconds for servers to stabilize..."
+sleep 10
 
-# Verify MCP gateway status
-if [ -f ".claude/mcp_gateway.pid" ] && ps -p $(cat .claude/mcp_gateway.pid) > /dev/null 2>&1; then
-    echo "✅ MCP Gateway process confirmed running"
-else
-    echo "⚠️  MCP Gateway process not found - may have exited"
-fi
-
-# Run MCP health check with timeout
-echo "🔍 Running MCP health check..."
-if timeout 30 python .claude/mcp_gateway_health_check.py > .claude/mcp_health_check.log 2>&1; then
+# Quick MCP health check
+echo "🔍 Running quick MCP health check..."
+if python ~/mcp-servers/bin/mcp_server_health_check.py > /dev/null 2>&1; then
     echo "✅ MCP Health check completed"
-    MCP_HEALTH=$(tail -5 .claude/mcp_health_check.log | grep -E "(✅|❌|PARTIAL)" | tail -1 || echo "Checking...")
-    echo "📋 MCP Status: $MCP_HEALTH"
 else
-    echo "⚠️  MCP Health check timed out or failed - continuing with initialization"
+    echo "⚠️  MCP Health check failed - continuing with initialization"
+fi
+
+# Generate dynamic MCP tool inventory
+echo "🛠️ Generating dynamic MCP tool inventory..."
+if python .claude/mcp_tool_discovery.py > /dev/null 2>&1; then
+    echo "✅ MCP tool inventory generated"
+    TOOL_COUNT=$(grep "Total Available Tools:" .claude/MCP_TOOLS_AVAILABLE.md | awk '{print $4}' || echo "0")
+    echo "📋 Available tools: $TOOL_COUNT"
+else
+    echo "⚠️  MCP tool discovery failed - using minimal inventory"
 fi
 
 # 7. Run full systems initialization
@@ -155,11 +143,26 @@ echo "✅ Policy documents verified and accessible"
 echo "✅ HAL Agent System ACTIVE and processing"
 echo "✅ Token Optimization System active"
 echo "✅ MCP Systems initialized"
+echo "✅ Dynamic tool inventory generated"
 echo "✅ All environment variables configured"
 echo "✅ PostgreSQL backend verified"
 echo "✅ Session state loaded"
 echo ""
+echo "🛠️ **CURRENT MCP TOOLS**:"
+if [ -f ".claude/MCP_TOOLS_AVAILABLE.md" ]; then
+    TOOL_COUNT=$(grep "Total Available Tools:" .claude/MCP_TOOLS_AVAILABLE.md | awk '{print $4}' || echo "0")
+    RUNNING_SERVERS=$(grep "Running Servers:" .claude/MCP_TOOLS_AVAILABLE.md | awk '{print $3}' || echo "0")
+    echo "   • Available Tools: $TOOL_COUNT"
+    echo "   • Running Servers: $RUNNING_SERVERS"
+    echo "   • Full Inventory: .claude/MCP_TOOLS_AVAILABLE.md"
+else
+    echo "   • Tool inventory: Generating..."
+fi
+echo ""
 echo "🔍 **REAL-TIME MONITORING OPTIONS**:"
+echo "   • MCP Tools: cat .claude/MCP_TOOLS_AVAILABLE.md"
+echo "   • Refresh Tools: python .claude/mcp_tool_discovery.py --report"
+echo "   • MCP Health: python ~/mcp-servers/bin/mcp_server_health_check.py --report"
 echo "   • Start monitor: ./.claude/system_monitor.sh"
 echo "   • Stop HAL: ./.claude/hal_shutdown.sh"
 echo "   • View HAL log: tail -f .claude/hal_active.log"

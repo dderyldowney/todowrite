@@ -136,7 +136,7 @@ This manual startup sequence loads environment, activates virtual environment, e
 Every task MUST follow this sequence:
 
 1. ✅ **USE MCP TOOLS FOR ALL OPERATIONS** - **NO EXCEPTIONS**
-2. ✅ Confirm MCP servers healthy: `python .claude/mcp_server_health_check.py`
+2. ✅ Confirm MCP servers healthy: `python ~/mcp-servers/bin/mcp_server_health_check.py`
 3. ✅ Confirm PostgreSQL accessible: `docker exec mcp-postgres psql -U mcp_user -d todowrite -c "SELECT 1;"`
 4. ✅ Verify HAL is active: `ps -p $(cat .claude/hal_active.pid) > /dev/null`
 5. ✅ Confirm token optimization is working: `python dev_tools/token_optimization/always_token_sage.py test`
@@ -219,7 +219,7 @@ The rule is simple:
 ./.claude/startup.sh
 
 # Health Checks
-python .claude/mcp_server_health_check.py
+python ~/mcp-servers/bin/mcp_server_health_check.py
 docker exec mcp-postgres psql -U mcp_user -d todowrite -c "SELECT COUNT(*) FROM goals;"
 ps -p $(cat .claude/hal_active.pid) > /dev/null && echo "✅ HAL running" || echo "❌ HAL not running"
 python dev_tools/token_optimization/always_token_sage.py --stats
@@ -231,6 +231,91 @@ PYTHONPATH="lib_package/src:cli_package/src" python -m todowrite_cli --validate-
 # Session State
 python .claude/session_manager.py --summary
 ```
+
+## 15. CENTRALIZED MCP SERVER MANAGEMENT
+
+📋 **Centralized Location**: `~/mcp-servers/`
+
+All MCP server infrastructure is centralized in `~/mcp-servers/` with organized structure:
+
+```
+~/mcp-servers/
+├── bin/                    # All MCP management scripts
+│   ├── mcp_service_manager.sh           # Persistent server management
+│   ├── mcp_server_health_check.py       # Health monitoring
+│   ├── start-mcp-servers.sh              # Docker server startup
+│   └── [other MCP tools...]
+├── servers/               # MCP server installations
+│   ├── agentic-control-framework/
+│   ├── kaggle-mcp/
+│   └── [all other servers...]
+├── logs/                  # Server logs (persistent)
+├── pids/                  # Process IDs (persistent)
+├── docs/                  # Documentation
+└── mcp-config.json       # Server configuration
+```
+
+### MCP Management Commands:
+```bash
+# Start all persistent MCP servers
+~/mcp-servers/bin/mcp_service_manager.sh start
+
+# Check server status
+~/mcp-servers/bin/mcp_service_manager.sh status
+
+# Start specific server
+~/mcp-servers/bin/mcp_service_manager.sh start cargo-mcp
+
+# View server logs
+~/mcp-servers/bin/mcp_service_manager.sh logs ailint
+
+# Health check (includes Docker + local servers)
+python ~/mcp-servers/bin/mcp_server_health_check.py --report
+```
+
+## 16. DYNAMIC MCP TOOL DISCOVERY
+
+📋 **Real-Time Tool Inventory**: `.claude/MCP_TOOLS_AVAILABLE.md`
+
+**MCP tool availability is determined DYNAMICALLY** - no static tool lists exist in CLAUDE.md.
+
+### Current Available Tools:
+See the automatically generated report: `.claude/MCP_TOOLS_AVAILABLE.md`
+
+### Refresh Tool Inventory:
+```bash
+# Generate fresh tool inventory
+python .claude/mcp_tool_discovery.py --report
+
+# Or run full startup (includes tool discovery)
+./.claude/startup.sh
+```
+
+### Tool Discovery Features:
+- ✅ **Real-time detection** of running MCP servers
+- ✅ **Automatic tool inventory** from active services only
+- ✅ **No ghost tools** - only shows actually available functions
+- ✅ **Dynamic updates** when servers start/stop
+- ✅ **Server health monitoring** with status reporting
+
+### Critical Rules:
+- **NO STATIC TOOL LISTS**: All tool documentation is dynamically generated
+- **USE DYNAMIC REPORT**: Check `.claude/MCP_TOOLS_AVAILABLE.md` for current tools
+- **REAL-TIME ONLY**: Only running servers contribute available tools
+- **REFRESH ON STARTUP**: Tool inventory updated each session start
+
+**If tools are missing from dynamic report → check server status, not documentation.**
+
+### MCP Server Management Rules:
+- **NO HIDDEN DIRECTORIES**: All MCP infrastructure is visible and organized
+- **PERSISTENT SERVICES**: Servers survive session clears via proper daemon management
+- **CENTRALIZED CONFIGURATION**: Single source of truth in `~/mcp-servers/mcp-config.json`
+- **ORGANIZED LOGGING**: All logs in `~/mcp-servers/logs/` with proper rotation
+- **DYNAMIC TOOLS**: Tool availability determined by running services, not documentation
+
+**If MCP server management is scattered outside ~/mcp-servers/ → STOP and centralize.**
+
+---
 
 **All policy documents contain detailed implementation requirements. This CLAUDE.md provides the enforcement framework.**
 
