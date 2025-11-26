@@ -123,8 +123,8 @@ This manual startup sequence loads environment, activates virtual environment, e
 
 **Critical Requirements:**
 - `HAL_PREPROCESSING_MANDATORY=true` environment variable
-- Minimum 20% token reduction compared to baseline
-- Maximum 5% token budget per operation
+- Minimum 50% token reduction compared to baseline
+- Maximum 15% token budget per operation
 - Zero tolerance for bypassing HAL preprocessing
 
 **If HAL is not active or token budget exceeded → STOP WORK.**

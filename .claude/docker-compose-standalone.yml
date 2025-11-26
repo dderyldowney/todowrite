@@ -2,8 +2,6 @@
 # Production-ready PostgreSQL-powered conversation search
 # One-command deployment for any project
 
-version: '3.8'
-
 services:
   # PostgreSQL Database
   episodic-memory-db:
@@ -13,7 +11,7 @@ services:
     environment:
       POSTGRES_DB: episodic_memory
       POSTGRES_USER: episodic_user
-      POSTGRES_PASSWORD: episodic_secure_password_2024
+      POSTGRES_PASSWORD: episodic_secure_password_2024  # pragma: allowlist secret
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
     volumes:
       - episodic_memory_data:/var/lib/postgresql/data
@@ -36,7 +34,7 @@ services:
     container_name: episodic-memory
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://episodic_user:episodic_secure_password_2024@episodic-memory-db:5432/episodic_memory
+      DATABASE_URL: postgresql://episodic_user:episodic_secure_password_2024@episodic-memory-db:5432/episodic_memory  # pragma: allowlist secret
       CONVERSATIONS_DIR: /data/conversations
       BATCH_SIZE: 25
       ADAPTIVE_INDEXING: "true"

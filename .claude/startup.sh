@@ -68,7 +68,51 @@ else
     exit 1
 fi
 
-# 6. Run full systems initialization
+# 6. Initialize MCP Systems with proper delays
+echo "🔧 Initializing MCP Systems with proper startup delays..."
+echo "⏳ Starting MCP servers (this may take 30+ seconds to fully initialize)..."
+
+# Start Docker MCP Gateway in background if not already running
+if ! pgrep -f "docker mcp gateway run" > /dev/null; then
+    echo "🚀 Starting Docker MCP Gateway..."
+    nohup docker mcp gateway run --enable-all-servers --long-lived > .claude/mcp_gateway.log 2>&1 &
+    MCP_GATEWAY_PID=$!
+    echo $MCP_GATEWAY_PID > .claude/mcp_gateway.pid
+
+    echo "⏳ Waiting 20 seconds for MCP Gateway to start loading catalog..."
+    sleep 20
+
+    # Check if MCP Gateway is still running
+    if ps -p $MCP_GATEWAY_PID > /dev/null; then
+        echo "✅ MCP Gateway started and loading catalog"
+    else
+        echo "⚠️  MCP Gateway failed to start - continuing with available MCP tools"
+    fi
+else
+    echo "✅ MCP Gateway already running"
+fi
+
+echo "⏳ Waiting additional 15 seconds for MCP servers to fully initialize..."
+sleep 15
+
+# Verify MCP gateway status
+if [ -f ".claude/mcp_gateway.pid" ] && ps -p $(cat .claude/mcp_gateway.pid) > /dev/null 2>&1; then
+    echo "✅ MCP Gateway process confirmed running"
+else
+    echo "⚠️  MCP Gateway process not found - may have exited"
+fi
+
+# Run MCP health check with timeout
+echo "🔍 Running MCP health check..."
+if timeout 30 python .claude/mcp_gateway_health_check.py > .claude/mcp_health_check.log 2>&1; then
+    echo "✅ MCP Health check completed"
+    MCP_HEALTH=$(tail -5 .claude/mcp_health_check.log | grep -E "(✅|❌|PARTIAL)" | tail -1 || echo "Checking...")
+    echo "📋 MCP Status: $MCP_HEALTH"
+else
+    echo "⚠️  MCP Health check timed out or failed - continuing with initialization"
+fi
+
+# 7. Run full systems initialization
 echo "🤖 Initializing all AI CLI systems..."
 if python .claude/hooks/session_startup_systems.py; then
     echo "✅ All systems initialized and ready"
@@ -77,7 +121,7 @@ else
     exit 1
 fi
 
-# 7. Display real-time system status
+# 8. Display real-time system status
 echo ""
 echo "📊 **INITIAL SYSTEM STATUS**"
 echo "=================================================="

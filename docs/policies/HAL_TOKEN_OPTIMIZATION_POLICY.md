@@ -102,8 +102,8 @@ ps -p $(cat .claude/hal_active.pid) > /dev/null
 ## 📊 PERFORMANCE REQUIREMENTS
 
 ### Token Reduction Targets
-- **Minimum 20% token reduction** compared to baseline
-- **Maximum 5% token budget** per operation
+- **Minimum 50% token reduction** compared to baseline
+- **Maximum 15% token budget** per operation
 - **Delta-aware processing** for repetitive tasks
 - **Adaptive optimization** based on context complexity
 
