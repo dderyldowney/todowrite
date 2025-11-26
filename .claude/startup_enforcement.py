@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Startup Enforcement Script - MANDATORY CLAUDE.md Loading and Verification.
+"""Startup Enforcement Script - MANDATORY CLAUDE.md Loading and Verification.
 
 Ensures all agents load CLAUDE.md and enforce its rules on every session start.
 """
@@ -64,7 +63,7 @@ def enforce_claude_md_loading():
 
         if "HAL AND TOKEN OPTIMIZATION MANDATE" in claude_md_content:
             mandates_applied.append("HAL TOKEN OPTIMIZATION")
-            os.environ["HAL_TOKEN_OPTIMIZATION_MANDATORY"] = "true"
+            os.environ["HAL_TOKEN_OPTIMIZATION_MANDATORY"] = "true"  # noqa: S105
 
         if mandates_applied:
             print(f"✅ CLAUDE.md loaded and mandates enforced: {', '.join(mandates_applied)}")
@@ -106,17 +105,42 @@ def enforce_claude_md_loading():
     print("✅ HAL preprocessing is mandatory")
 
     # 4. Verify PostgreSQL container
-    import subprocess
+    import subprocess  # noqa: S404
 
     try:
-        result = subprocess.run(
+        # First check if Docker daemon is responsive
+        docker_version = subprocess.run(
+            ["docker", "--version"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if docker_version.returncode != 0:
+            print("❌ CRITICAL: Docker daemon not responding!")
+            return False
+
+        # Check for mcp-postgres container with multiple methods
+        result_name = subprocess.run(
             ["docker", "ps", "--filter", "name=mcp-postgres", "--quiet"],
             capture_output=True,
             text=True,
             timeout=10,
         )
-        if not result.stdout.strip():
+
+        result_all = subprocess.run(
+            ["docker", "ps", "--format", "{{.Names}}"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+
+        # Check if container is running by either exact name match or in list
+        container_running = result_name.stdout.strip() or "mcp-postgres" in result_all.stdout
+
+        if not container_running:
             print("❌ CRITICAL: PostgreSQL container not running!")
+            print(f"🐛 Debug: Name filter result: '{result_name.stdout.strip()}'")
+            print(f"🐛 Debug: All containers: '{result_all.stdout.strip()}'")
             return False
         print("✅ PostgreSQL container running")
     except Exception as e:
@@ -147,7 +171,9 @@ def enforce_claude_md_loading():
         ]
 
         for db_name in required_databases:
-            # Use parameterized query to prevent SQL injection
+            # Use proper escaping to prevent SQL injection since we're using subprocess
+            # The db_name variable is from our trusted list above, not user input
+            escaped_db_name = db_name.replace("'", "''")
             result = subprocess.run(
                 [
                     "docker",
@@ -159,7 +185,7 @@ def enforce_claude_md_loading():
                     "-d",
                     "postgres",
                     "-c",
-                    f"SELECT 1 FROM pg_database WHERE datname = '{db_name}' LIMIT 1;",
+                    f"SELECT 1 FROM pg_database WHERE datname = '{escaped_db_name}' LIMIT 1;",  # noqa: S608
                 ],
                 capture_output=True,
                 text=True,

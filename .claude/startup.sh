@@ -73,7 +73,7 @@ echo "🔧 Initializing MCP Systems with intelligent startup..."
 echo "🚀 Starting only missing MCP servers..."
 
 # Use intelligent MCP server startup that checks for existing servers
-if ~/.claude/start_mcp_servers_intelligent.sh; then
+if ~/mcp-servers/bin/start_mcp_servers_intelligent.sh; then
     echo "✅ MCP Systems initialized with intelligent startup"
 else
     echo "⚠️  MCP intelligent startup had issues - continuing with basic initialization"
