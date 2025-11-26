@@ -275,17 +275,17 @@ python ~/mcp-servers/bin/mcp_server_health_check.py --report
 
 ## 16. DYNAMIC MCP TOOL DISCOVERY
 
-📋 **Real-Time Tool Inventory**: `.claude/MCP_TOOLS_AVAILABLE.md`
+📋 **Real-Time Tool Inventory**: `~/mcp-servers/logs/MCP_TOOLS_AVAILABLE.md`
 
 **MCP tool availability is determined DYNAMICALLY** - no static tool lists exist in CLAUDE.md.
 
 ### Current Available Tools:
-See the automatically generated report: `.claude/MCP_TOOLS_AVAILABLE.md`
+See the automatically generated report: `~/mcp-servers/logs/MCP_TOOLS_AVAILABLE.md`
 
 ### Refresh Tool Inventory:
 ```bash
 # Generate fresh tool inventory
-python .claude/mcp_tool_discovery.py --report
+python ~/.claude/mcp_tool_discovery.py --report
 
 # Or run full startup (includes tool discovery)
 ./.claude/startup.sh
@@ -300,7 +300,7 @@ python .claude/mcp_tool_discovery.py --report
 
 ### Critical Rules:
 - **NO STATIC TOOL LISTS**: All tool documentation is dynamically generated
-- **USE DYNAMIC REPORT**: Check `.claude/MCP_TOOLS_AVAILABLE.md` for current tools
+- **USE DYNAMIC REPORT**: Check `~/mcp-servers/logs/MCP_TOOLS_AVAILABLE.md` for current tools
 - **REAL-TIME ONLY**: Only running servers contribute available tools
 - **REFRESH ON STARTUP**: Tool inventory updated each session start
 
