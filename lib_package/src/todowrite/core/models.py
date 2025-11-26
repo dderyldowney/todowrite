@@ -47,9 +47,11 @@ from sqlalchemy import (
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
-    Session as SQLAlchemySession,
     mapped_column,
     relationship,
+)
+from sqlalchemy.orm import (
+    Session as SQLAlchemySession,
 )
 
 from todowrite.core.timestamp_mixins import (
@@ -458,7 +460,7 @@ class Goal(Base, TimestampMixin):
         #    due to CASCADE DELETE constraints in the database)
         session.delete(self)
 
-        # Commit all deletions
+        # Commit the deletion to make it persistent
         session.commit()
 
 
