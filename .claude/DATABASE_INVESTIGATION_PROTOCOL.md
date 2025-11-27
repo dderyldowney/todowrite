@@ -4,27 +4,27 @@
 
 ### **Step 1: Database Existence Check**
 ```bash
-docker exec mcp-postgres psql -U mcp_user -d postgres -c "\l" | grep todowrite
+docker exec todowrite-postgres psql -U todowrite_user -d postgres -c "\l" | grep todowrite
 ```
 
 ### **Step 2: Table Count Verification**
 ```bash
-docker exec mcp-postgres psql -U mcp_user -d todowrite -c "\dt" | wc -l
+docker exec todowrite-postgres psql -U todowrite_user -d todowrite -c "\dt" | wc -l
 ```
 
 ### **Step 3: Schema Verification**
 ```bash
-docker exec mcp-postgres psql -U mcp_user -d todowrite -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public'"
+docker exec todowrite-postgres psql -U todowrite_user -d todowrite -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='public'"
 ```
 
 ### **Step 4: Specific Table Check**
 ```bash
-docker exec mcp-postgres psql -U mcp_user -d todowrite -c "\d goals"
+docker exec todowrite-postgres psql -U todowrite_user -d todowrite -c "\d goals"
 ```
 
 ### **Step 5: Data Verification**
 ```bash
-docker exec mcp-postgres psql -U mcp_user -d todowrite -c "SELECT COUNT(*) FROM goals"
+docker exec todowrite-postgres psql -U todowrite_user -d todowrite -c "SELECT COUNT(*) FROM goals"
 ```
 
 ## **🚫 DELETION IS LAST RESORT**

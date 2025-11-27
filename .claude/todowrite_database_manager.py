@@ -322,7 +322,7 @@ class ToDoWriteDatabaseManager:
         try:
             conn = psycopg2.connect(**self.session_db_config)
             with conn.cursor() as cursor:
-                # Use proper mcp_sessions schema
+                # Use proper sessions schema
                 cursor.execute(
                     """
                     INSERT INTO sessions (session_id, project_directory, environment_vars, context_summary, status)
@@ -347,7 +347,7 @@ class ToDoWriteDatabaseManager:
             print(f"❌ Failed to update session tracking: {e}")
 
     def get_session_items(self) -> list[dict[str, str | int | bool | None]]:
-        """Get all items created in current session from proper mcp_sessions database"""
+        """Get all items created in current session from proper sessions database"""
         try:
             conn = psycopg2.connect(**self.session_db_config)
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -394,10 +394,6 @@ class ToDoWriteDatabaseManager:
             (
                 "Cross-Session Data Persistence",
                 "Implement comprehensive cross-session data persistence using existing Models API",
-            ),
-            (
-                "MCP Integration & Global Availability",
-                "Integrate comprehensive MCP servers with global auto-loading using existing configuration",
             ),
             (
                 "Advanced Token Optimization",

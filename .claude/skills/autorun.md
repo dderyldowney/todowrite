@@ -33,7 +33,7 @@ This skill integrates directly with Claude's native Skill system to provide auto
 
 - `.claude/startup.sh` - Mandatory startup sequence script
 - `.claude/hooks/session_initialization.py` - Session management system
-- PostgreSQL container `mcp-postgres` running on port 5433
+- PostgreSQL container `todowrite-postgres` running on port 5432
 - Virtual environment with required dependencies
 
 ## Integration Notes

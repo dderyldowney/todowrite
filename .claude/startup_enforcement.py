@@ -218,7 +218,7 @@ def enforce_claude_md_loading():
                 "-U",
                 "todowrite_user",
                 "-d",
-                "mcp_episodic_memory",
+                "todowrite",
                 "-c",
                 "SELECT 1;",
             ],

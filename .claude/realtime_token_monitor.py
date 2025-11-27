@@ -47,7 +47,6 @@ class RealtimeTokenMonitor:
         # Claude Code activity indicators
         self.claude_activity_indicators = [
             self.todowrite_dir / ".claude" / "session_state.json",
-            self.todowrite_dir / ".claude" / "mcp_server_health.log",
             self.todowrite_dir / ".claude" / "episodic_memory.db",
             Path.home() / ".claude" / "cache",
         ]
@@ -171,7 +170,7 @@ class RealtimeTokenMonitor:
                                 total_estimated_tokens += (
                                     150  # JSON files suggest moderate activity
                                 )
-                            elif file_path.name in ["session_state.json", "mcp_server_health.log"]:
+                            elif file_path.name == "session_state.json":
                                 total_estimated_tokens += (
                                     200  # Core files suggest significant activity
                                 )
@@ -198,9 +197,6 @@ class RealtimeTokenMonitor:
             if activity_file.name == "session_state.json":
                 # Session activity suggests moderate API usage
                 return 200
-            elif activity_file.name == "mcp_server_health.log":
-                # MCP activity suggests lower API usage
-                return 100
             elif activity_file.name == "episodic_memory.db":
                 # Memory activity suggests higher API usage
                 return 500

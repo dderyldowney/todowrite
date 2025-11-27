@@ -565,7 +565,7 @@ async def main():
     parser.add_argument("--stats", metavar="SESSION_ID", help="Show session statistics")
     parser.add_argument(
         "--db",
-        default="postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/todowrite",
+        default="postgresql://todowrite_user:todowrite_secure_password_2024@localhost:5432/todowrite",
         help="Database connection string",
     )
 

@@ -6,7 +6,6 @@ This hook runs automatically when the AI CLI starts and ensures:
 - CLAUDE.md rules are loaded and enforced
 - HAL Agent System is ready
 - Token Optimization System is active
-- MCP Systems are initialized
 - All environment variables are set
 """
 
@@ -71,18 +70,12 @@ def initialize_all_systems():
     else:
         print("⚠️  Token Optimization System not found")
 
-    # 6. Verify MCP Systems
-    # episodic_memory = Path(".claude/episodic_memory")  # DISABLED
-    # episodic_db = Path(".claude/episodic_memory.db")   # DISABLED
+    # 6. Verify Plugin Systems
     plugins_dir = Path(".claude/plugins")
-
-    # if episodic_memory.exists() or episodic_db.exists():
-    #     print("🧠 Episodic Memory MCP available")
-    print("🧠 Episodic Memory MCP: DISABLED")
 
     if plugins_dir.exists():
         plugin_count = len(list(plugins_dir.glob("*.py")))
-        print(f"🔌 Found {plugin_count} MCP plugins")
+        print(f"🔌 Found {plugin_count} plugins")
 
     # 7. Check Anthropic configuration
     if os.environ.get("ANTHROPIC_API_KEY"):

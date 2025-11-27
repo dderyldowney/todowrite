@@ -23,7 +23,7 @@ ON CONFLICT DO NOTHING;
 -- This represents the main project goal that all other items will branch from
 INSERT INTO todowrite_items (layer, title, description, priority, session_id, level)
 SELECT 'goal', 'Enhance ToDoWrite Planning Capabilities',
-       'Comprehensive development of the ToDoWrite system with PostgreSQL backend, MCP integration, and persistent cross-session data management',
+       'Comprehensive development of the ToDoWrite system with PostgreSQL backend and persistent cross-session data management',
        'critical', 'initial_setup', 1
 WHERE NOT EXISTS (
     SELECT 1 FROM todowrite_items WHERE layer = 'goal' AND title = 'Enhance ToDoWrite Planning Capabilities'
@@ -43,11 +43,6 @@ BEGIN
                 'Develop robust PostgreSQL database backend for ToDoWrite with full 12-layer hierarchy support',
                 'critical', 'initial_setup');
 
-        -- Create initial concept: MCP Integration
-        INSERT INTO todowrite_items (parent_id, layer, title, description, priority, session_id)
-        VALUES (root_goal_id, 'concept', 'MCP Integration & Global Availability',
-                'Integrate comprehensive MCP servers globally with auto-loading and session management',
-                'high', 'initial_setup');
 
         -- Create initial concept: Cross-Session Persistence
         INSERT INTO todowrite_items (parent_id, layer, title, description, priority, session_id)
@@ -76,13 +71,9 @@ SELECT 'interface_contract', 'ToDoWrite Project Configuration',
            "database": {
                "type": "postgresql",
                "host": "localhost",
-               "port": 5433,
+               "port": 5432,
                "database": "todowrite",
                "container": "todowrite-postgres"
-           },
-           "mcp_servers": {
-               "global": ["context7", "docker", "github-official", "git", "filesystem", "postgres", "SQLite", "hugging-face", "playwright"],
-               "total_tools": "91+"
            },
            "token_optimization": {
                "algorithms": ["semantic_deduplication", "context_compression", "progressive_windowing", "adaptive_selection"],
