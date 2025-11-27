@@ -5,14 +5,13 @@ Automatically runs HAL token optimization during development
 Integrates with session management and development workflow
 """
 
-import os
+import subprocess
 import sys
 import time
-import subprocess
 from pathlib import Path
 
 # Add project root to Python path
-PROJECT_ROOT =_PATH = Path(__file__).parent.parent
+PROJECT_ROOT = _PATH = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 
@@ -48,7 +47,7 @@ class HALEnforcementHook:
                 [sys.executable, str(self.hal_script), "--analyze"],
                 capture_output=True,
                 text=True,
-                cwd=PROJECT_ROOT
+                cwd=PROJECT_ROOT,
             )
 
             if result.returncode != 0:
@@ -87,7 +86,7 @@ class HALEnforcementHook:
         """Log violation for tracking"""
         try:
             log_file = PROJECT_ROOT / ".claude" / "hal_violations.log"
-            with open(log_file, 'a') as f:
+            with open(log_file, "a") as f:
                 f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - {level}\n")
                 f.write(f"{output}\n")
                 f.write("-" * 50 + "\n")
@@ -118,29 +117,25 @@ class HALEnforcementHook:
                 [sys.executable, str(self.hal_script), "--report"],
                 capture_output=True,
                 text=True,
-                cwd=PROJECT_ROOT
+                cwd=PROJECT_ROOT,
             )
 
             if result.returncode == 0:
                 return {
-                    'status': 'operational',
-                    'report': result.stdout,
-                    'violations': self.violation_count,
-                    'last_check': self.last_check
+                    "status": "operational",
+                    "report": result.stdout,
+                    "violations": self.violation_count,
+                    "last_check": self.last_check,
                 }
             else:
                 return {
-                    'status': 'error',
-                    'error': result.stderr,
-                    'violations': self.violation_count
+                    "status": "error",
+                    "error": result.stderr,
+                    "violations": self.violation_count,
                 }
 
         except Exception as e:
-            return {
-                'status': 'error',
-                'error': str(e),
-                'violations': self.violation_count
-            }
+            return {"status": "error", "error": str(e), "violations": self.violation_count}
 
 
 def main():
@@ -167,9 +162,9 @@ def main():
         print(f"  Status: {status['status'].upper()}")
         print(f"  Violations: {status['violations']}")
 
-        if 'report' in status:
+        if "report" in status:
             print(f"  Report:\n{status['report']}")
-        elif 'error' in status:
+        elif "error" in status:
             print(f"  Error: {status['error']}")
     else:
         # Default: run immediate check

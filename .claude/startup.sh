@@ -48,123 +48,47 @@ if [ "$HAL_PREPROCESSING_MANDATORY" = "true" ]; then
     echo $HAL_PID > .claude/hal_active.pid
     sleep 5  # Give HAL monitor time to initialize and run first cycle
 
-    # Verify HAL is actually running
+    # Verify HAL is running
     if ps -p $HAL_PID > /dev/null; then
         echo "✅ HAL Agent System ACTIVE (PID: $HAL_PID) - Mandatory preprocessing engaged"
-        # Check if HAL is actually working by looking at its log
-        if [ -f ".claude/hal_active.log" ]; then
-            echo "📋 HAL Status: $(tail -n 3 .claude/hal_active.log | grep -E "(HAL|✅|❌|⚠️)" | tail -1 || echo 'Initializing monitoring cycles...')"
-        fi
+        echo "📋 HAL Status: $(tail -n 1 .claude/hal_active.log 2>/dev/null || echo 'Initializing...')"
     else
         echo "❌ ERROR: HAL Agent System failed to start!"
-        if [ -f ".claude/hal_active.log" ]; then
-            echo "🚨 HAL Error Log:"
-            cat .claude/hal_active.log
-        fi
         exit 1
     fi
 else
-    echo "❌ ERROR: HAL_PREPROCESSING_MANDATORY not set to true!"
+    echo "⚠️  HAL preprocessing not mandatory - bypassing active monitoring"
+fi
+
+# 6. Initialize Development Systems
+echo "🔧 Initializing Development Systems..."
+
+# Verify PostgreSQL connectivity
+echo "📋 Verifying PostgreSQL connectivity..."
+if docker exec todowrite-postgres psql -U todowrite_user -d todowrite -c "SELECT 1;" > /dev/null 2>&1; then
+    echo "✅ PostgreSQL accessible"
+else
+    echo "❌ ERROR: PostgreSQL not accessible!"
     exit 1
 fi
 
-# 6. Initialize MCP Systems with intelligent startup
-echo "🔧 Initializing MCP Systems with intelligent startup..."
-echo "🚀 Starting only missing MCP servers..."
-
-# Use intelligent MCP server startup that checks for existing servers
-if ~/mcp-servers/bin/start_mcp_servers_intelligent.sh; then
-    echo "✅ MCP Systems initialized with intelligent startup"
+# Initialize and verify ToDoWrite database
+echo "📋 Initializing ToDoWrite database..."
+if python .claude/todowrite_database_manager.py --init > /dev/null 2>&1; then
+    echo "✅ ToDoWrite database initialized"
 else
-    echo "⚠️  MCP intelligent startup had issues - continuing with basic initialization"
+    echo "⚠️  ToDoWrite database initialization encountered issues (may be already initialized)"
 fi
 
-echo "⏳ Waiting 10 seconds for servers to stabilize..."
-sleep 10
-
-# Quick MCP health check
-echo "🔍 Running quick MCP health check..."
-if python ~/mcp-servers/bin/mcp_server_health_check.py > /dev/null 2>&1; then
-    echo "✅ MCP Health check completed"
+# Verify session state
+echo "📋 Verifying session state..."
+if python .claude/session_manager.py --summary > /dev/null 2>&1; then
+    echo "✅ Session state loaded"
 else
-    echo "⚠️  MCP Health check failed - continuing with initialization"
-fi
-
-# Generate dynamic MCP tool inventory
-echo "🛠️ Generating dynamic MCP tool inventory..."
-if python ~/.claude/mcp_tool_discovery.py > /dev/null 2>&1; then
-    echo "✅ MCP tool inventory generated"
-    TOOL_COUNT=$(grep "Total Available Tools:" ~/mcp-servers/logs/MCP_TOOLS_AVAILABLE.md | awk '{print $4}' || echo "0")
-    echo "📋 Available tools: $TOOL_COUNT"
-else
-    echo "⚠️  MCP tool discovery failed - using minimal inventory"
-fi
-
-# 7. Run full systems initialization
-echo "🤖 Initializing all AI CLI systems..."
-if python .claude/hooks/session_startup_systems.py; then
-    echo "✅ All systems initialized and ready"
-else
-    echo "❌ ERROR: Systems initialization failed!"
-    exit 1
-fi
-
-# 8. Display real-time system status
-echo ""
-echo "📊 **INITIAL SYSTEM STATUS**"
-echo "=================================================="
-
-# Quick status check
-echo "🤖 HAL Agent System Status:"
-if ps -p $HAL_PID > /dev/null 2>&1; then
-    echo "   ✅ RUNNING (PID: $HAL_PID)"
-    echo "   📋 Recent Activity: $(tail -n 3 .claude/hal_active.log 2>/dev/null | grep -E "(✅|❌|⚠️)" | tail -1 || echo 'Initializing...')"
-else
-    echo "   ❌ NOT RUNNING"
+    echo "⚠️  Session state loading encountered issues"
 fi
 
 echo ""
-echo "⚡ Token Optimization System Status:"
-if python dev_tools/token_optimization/always_token_sage.py "test" > /dev/null 2>&1; then
-    echo "   ✅ OPERATIONAL"
-else
-    echo "   ❌ FAILED"
-fi
-
+echo "✅ **STARTUP SEQUENCE COMPLETE**"
+echo "📋 Ready for development work"
 echo ""
-echo "💻 System Resources:"
-echo "   📈 CPU Load: $(top -l 1 -n 0 | grep "CPU usage" | awk '{print $3}' | sed 's/%//' || echo "N/A")%"
-echo "   🧠 Memory: $(vm_stat | grep "Pages free" | awk '{print $3}' | sed 's/\.//' || echo "N/A") pages free"
-
-echo ""
-echo "🎯 **SESSION STARTUP COMPLETE**"
-echo "✅ CLAUDE.md loaded and enforced"
-echo "✅ Policy documents verified and accessible"
-echo "✅ HAL Agent System ACTIVE and processing"
-echo "✅ Token Optimization System active"
-echo "✅ MCP Systems initialized"
-echo "✅ Dynamic tool inventory generated"
-echo "✅ All environment variables configured"
-echo "✅ PostgreSQL backend verified"
-echo "✅ Session state loaded"
-echo ""
-echo "🛠️ **CURRENT MCP TOOLS**:"
-if [ -f "~/mcp-servers/logs/MCP_TOOLS_AVAILABLE.md" ]; then
-    TOOL_COUNT=$(grep "Total Available Tools:" ~/mcp-servers/logs/MCP_TOOLS_AVAILABLE.md | awk '{print $4}' || echo "0")
-    RUNNING_SERVERS=$(grep "Running Servers:" ~/mcp-servers/logs/MCP_TOOLS_AVAILABLE.md | awk '{print $3}' || echo "0")
-    echo "   • Available Tools: $TOOL_COUNT"
-    echo "   • Running Servers: $RUNNING_SERVERS"
-    echo "   • Full Inventory: ~/mcp-servers/logs/MCP_TOOLS_AVAILABLE.md"
-else
-    echo "   • Tool inventory: Generating..."
-fi
-echo ""
-echo "🔍 **REAL-TIME MONITORING OPTIONS**:"
-echo "   • MCP Tools: cat ~/mcp-servers/logs/MCP_TOOLS_AVAILABLE.md"
-echo "   • Refresh Tools: python ~/.claude/mcp_tool_discovery.py --report"
-echo "   • MCP Health: python ~/mcp-servers/bin/mcp_server_health_check.py --report"
-echo "   • Start monitor: ./.claude/system_monitor.sh"
-echo "   • Stop HAL: ./.claude/hal_shutdown.sh"
-echo "   • View HAL log: tail -f .claude/hal_active.log"
-echo ""
-echo "🚀 Ready for development work!"

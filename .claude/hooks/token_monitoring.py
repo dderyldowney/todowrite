@@ -5,11 +5,10 @@ This hook automatically tracks token optimization activities and updates
 the statusline in real-time when tokens are saved.
 """
 
-import os
 import sys
-import time
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
 
 def track_tokens_saved(tokens_saved: int, source: str, context: str = "") -> None:
     """Track token savings and update statusline."""
@@ -22,10 +21,11 @@ def track_tokens_saved(tokens_saved: int, source: str, context: str = "") -> Non
 
         # Update statusline in real-time
         import subprocess
+
         subprocess.run(
             ["python3", str(statusline_path), "--log-realtime", str(tokens_saved), source],
             capture_output=True,
-            timeout=5
+            timeout=5,
         )
 
         # Log detailed information
@@ -35,11 +35,12 @@ def track_tokens_saved(tokens_saved: int, source: str, context: str = "") -> Non
         timestamp = datetime.now().isoformat()
         log_entry = f"{timestamp}:{tokens_saved}:{source}:{context}\n"
 
-        with open(detailed_log, 'a') as f:
+        with open(detailed_log, "a") as f:
             f.write(log_entry)
 
     except Exception:
         pass
+
 
 def monitor_current_session() -> None:
     """Monitor current session for token optimization activities."""
@@ -51,8 +52,9 @@ def monitor_current_session() -> None:
     track_tokens_saved(
         10,  # Small baseline for having monitoring active
         "monitoring_active",
-        "Token monitoring hook initialized"
+        "Token monitoring hook initialized",
     )
+
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
@@ -69,4 +71,6 @@ if __name__ == "__main__":
             else:
                 print("Usage: python token_monitoring.py --track <tokens> <source> [context]")
         else:
-            print("Usage: python token_monitoring.py --monitor | --track <tokens> <source> [context]")
+            print(
+                "Usage: python token_monitoring.py --monitor | --track <tokens> <source> [context]"
+            )

@@ -59,22 +59,37 @@ class ToDoWriteDatabaseManager:
     """Manager for all ToDoWrite database operations using existing Models API"""
 
     def __init__(self):
-        # Use existing MCP PostgreSQL container with proper database separation
+        # Use environment variables for database configuration
+        database_url = os.environ.get(
+            "TODOWRITE_DATABASE_URL",
+            "postgresql://todowrite_user:todowrite_secure_password_2024@localhost:5432/todowrite",
+        )
+
+        # Parse database URL to get connection details
+        import re
+
+        match = re.match(r"postgresql://([^:]+):([^@]+)@([^:]+):(\d+)/(.+)", database_url)
+        if match:
+            user, password, host, port, database = match.groups()
+        else:
+            # Fallback to default configuration
+            user, password, host, port, database = (
+                "todowrite_user",
+                "todowrite_secure_password_2024",
+                "localhost",
+                "5432",
+                "todowrite",
+            )
+
         self.todowrite_db_config = {
-            "host": "localhost",
-            "port": 5433,
-            "database": "todowrite",
-            "user": "mcp_user",
-            "password": "mcp_secure_password_2024",
+            "host": host,
+            "port": int(port),
+            "database": database,
+            "user": user,
+            "password": password,
         }
-        # mcp_sessions database for session tracking (CRITICAL SEPARATION)
-        self.session_db_config = {
-            "host": "localhost",
-            "port": 5433,
-            "database": "mcp_sessions",
-            "user": "mcp_user",
-            "password": "mcp_secure_password_2024",
-        }
+        # For now, use same config for sessions (since we only have todowrite database)
+        self.session_db_config = self.todowrite_db_config.copy()
         self.session_id = os.environ.get("TODOWRITE_SESSION_ID", "default_session")
 
     def create_goal(
@@ -103,7 +118,7 @@ class ToDoWriteDatabaseManager:
 
                 conn.commit()
 
-            # Also update session tracking in proper mcp_sessions database
+            # Also update session tracking in proper todowrite database
             self._update_session_tracking(
                 f"Created Goal: {title}",
                 {
@@ -303,7 +318,7 @@ class ToDoWriteDatabaseManager:
     def _update_session_tracking(
         self, action_description: str, context_data: dict[str, str | int | bool | None]
     ) -> None:
-        """Update session tracking in proper mcp_sessions database"""
+        """Update session tracking in proper todowrite database"""
         try:
             conn = psycopg2.connect(**self.session_db_config)
             with conn.cursor() as cursor:

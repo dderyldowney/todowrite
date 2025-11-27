@@ -145,8 +145,7 @@ def test_cli_to_database_flow():
 #### Pre-Work Validation
 1. **Environment Setup**: Verify all dependencies are installed
 2. **Database Connectivity**: Confirm database connections work
-3. **MCP Servers**: Verify required MCP tools are available
-4. **Import Validation**: Test all critical imports succeed
+3. **Import Validation**: Test all critical imports succeed
 
 #### Function Validation
 1. **Input Validation**: Test with various input types

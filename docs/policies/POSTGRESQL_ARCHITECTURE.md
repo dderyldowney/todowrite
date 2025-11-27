@@ -24,8 +24,8 @@
 If persistent data is encountered outside PostgreSQL → **STOP**.
 
 #### Container Information
-- **Container**: `mcp-postgres` (port 5433, auto-restart)
-- **IMPORTANT CLARIFICATION**: `mcp-postgres` is the Docker **container name** for the PostgreSQL database engine, NOT an MCP server
+- **Container**: `todowrite-postgres` (port 5433, auto-restart)
+- **IMPORTANT CLARIFICATION**: `todowrite-postgres` is the Docker **container name** for the PostgreSQL database engine, NOT an MCP server
 - **Purpose**: This container hosts multiple databases that serve MCP servers and the application
 
 ### Database Architecture
@@ -89,14 +89,14 @@ DROP DATABASE dev_test_database;      # OK - clearly marked as development
 
 ```bash
 # Verify ToDoWrite is using PostgreSQL (MUST PASS):
-docker exec mcp-postgres psql -U mcp_user -d todowrite -c "SELECT COUNT(*) FROM goals;"
+docker exec todowrite-postgres psql -U mcp_user -d todowrite -c "SELECT COUNT(*) FROM goals;"
 
 # Verify no SQLite files are being used:
 find . -name "*.db" -o -name "*.sqlite" 2>/dev/null | grep -v ".venv" && echo "❌ FORBIDDEN SQLITE FILES FOUND" || echo "✅ No forbidden SQLite files"
 
 # Verify database accessibility:
-docker exec mcp-postgres psql -U mcp_user -d mcp_sessions -c "SELECT COUNT(*) FROM sessions LIMIT 1;"
-docker exec mcp-postgres psql -U mcp_user -d mcp_episodic_memory -c "SELECT COUNT(*) FROM conversations LIMIT 1;"
+docker exec todowrite-postgres psql -U mcp_user -d mcp_sessions -c "SELECT COUNT(*) FROM sessions LIMIT 1;"
+docker exec todowrite-postgres psql -U mcp_user -d mcp_episodic_memory -c "SELECT COUNT(*) FROM conversations LIMIT 1;"
 ```
 
 ### Database Usage Patterns

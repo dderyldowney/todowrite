@@ -3,7 +3,9 @@ Database configuration and session management for ToDoWrite web application.
 """
 
 from sqlalchemy.orm import Session
+
 from todowrite_web.main import SessionLocal
+
 
 def get_db() -> Session:
     """

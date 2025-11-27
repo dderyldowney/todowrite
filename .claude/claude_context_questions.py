@@ -8,10 +8,10 @@ questions = [
     {
         "question": "Do you remember our work setting up the ToDoWrite PostgreSQL Backend System? What container and database configuration did we create?",
         "expected_keywords": [
-            "mcp-postgres",
-            "port 5433",
-            "mcp_tools",
-            "mcp_user",
+            "todowrite-postgres",
+            "port 5432",
+            "todowrite_tools",
+            "todowrite_user",
             "auto-restart",
             "unless-stopped",
         ],
@@ -68,8 +68,8 @@ def print_verification_guide():
 
     print("🎯 SUCCESS CRITERIA:")
     print("Claude should remember:")
-    print("✅ mcp-postgres container on port 5433")
-    print("✅ Database: todowrite with user mcp_user")
+    print("✅ todowrite-postgres container on port 5432")
+    print("✅ Database: todowrite with user todowrite_user")
     print("✅ 23 tables with complete hierarchy")
     print("✅ 31 foreign key constraints")
     print("✅ Auto-restart policy: unless-stopped")
@@ -84,8 +84,8 @@ def print_quick_test():
     print("Just ask: 'Summarize the ToDoWrite PostgreSQL Backend System we built'")
     print()
     print("✅ Expected comprehensive response should include:")
-    print("  - Container details (mcp-postgres, port 5433)")
-    print("  - Database configuration (todowrite, mcp_user)")
+    print("  - Container details (todowrite-postgres, port 5432)")
+    print("  - Database configuration (todowrite, todowrite_user)")
     print("  - Table structure (23 tables, complete hierarchy)")
     print("  - Data integrity (5 goals, 12 concepts)")
     print("  - Session continuity mechanisms")

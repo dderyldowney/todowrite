@@ -6,7 +6,13 @@ This module contains the Goal SQLAlchemy model.
 
 from __future__ import annotations
 
+from datetime import datetime
+
+# Import model types for type hints
+from typing import TYPE_CHECKING
+
 from sqlalchemy import (
+    TIMESTAMP,
     Integer,
     String,
     Text,
@@ -25,6 +31,18 @@ from todowrite.core.associations import (
     goals_phases,
     goals_tasks,
 )
+
+if TYPE_CHECKING:
+    from todowrite.core.models import (
+        Concept,
+        Constraint,
+        Context,
+        Label,
+        Phase,
+        Task,
+    )
+from sqlalchemy.orm import Session as SQLAlchemySession
+
 from todowrite.core.models.base import Base
 from todowrite.core.timestamp_mixins import (
     TimestampMixin,
@@ -43,17 +61,21 @@ class Goal(Base, TimestampMixin):
         Integer, primary_key=True, autoincrement=True, nullable=False
     )
 
-    # Model fields
-    title: Mapped[str] = mapped_column(String, nullable=False)
+    # Model fields with proper types
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
-    status: Mapped[str] = mapped_column(String, default="planned")
-    progress: Mapped[int | None] = mapped_column(Integer)
-    started_date: Mapped[str | None] = mapped_column(String)
-    completion_date: Mapped[str | None] = mapped_column(String)
-    owner: Mapped[str | None] = mapped_column(String)
+    status: Mapped[str] = mapped_column(
+        String, default="planned", nullable=False
+    )
+    progress: Mapped[int] = mapped_column(Integer, default=0)
+    started_on: Mapped[datetime | None] = mapped_column(
+        TIMESTAMP, nullable=True
+    )
+    ended_on: Mapped[datetime | None] = mapped_column(TIMESTAMP, nullable=True)
+    owner: Mapped[str | None] = mapped_column(String(255))
     severity: Mapped[str | None] = mapped_column(String)
     work_type: Mapped[str | None] = mapped_column(String)
-    assignee: Mapped[str | None] = mapped_column(String)
+    assignee: Mapped[str | None] = mapped_column(String(255))
     extra_data: Mapped[str | None] = mapped_column(Text)  # JSON string
 
     # Relationships
@@ -72,8 +94,8 @@ class Goal(Base, TimestampMixin):
     )
 
     # has_many :constraints (through constraints_goals)
-    constraints: Mapped[list[Constraints]] = relationship(
-        "Constraints", secondary=constraints_goals, back_populates="goals"
+    constraints: Mapped[list[Constraint]] = relationship(
+        "Constraint", secondary=constraints_goals, back_populates="goals"
     )
 
     # has_many :concepts (through goals_concepts)
@@ -121,12 +143,12 @@ class Goal(Base, TimestampMixin):
 
     # Instance methods for workflow management
     def start_work(self) -> None:
-        """Mark goal as started by setting started_date to current timestamp."""
-        self.started_date = format_timestamp_iso(get_optimized_timestamp())
+        """Mark goal as started by setting started_on to current timestamp."""
+        self.started_on = get_optimized_timestamp()
 
     def complete_work(self) -> None:
-        """Mark goal as completed by setting completion_date to current timestamp."""
-        self.completion_date = format_timestamp_iso(get_optimized_timestamp())
+        """Mark goal as completed by setting ended_on to current timestamp."""
+        self.ended_on = get_optimized_timestamp()
 
     def set_progress(self, progress: int) -> None:
         """Set progress percentage (0-100)."""
@@ -137,11 +159,11 @@ class Goal(Base, TimestampMixin):
 
     def is_completed(self) -> bool:
         """Check if goal is marked as completed."""
-        return self.completion_date is not None
+        return self.ended_on is not None
 
     def is_started(self) -> bool:
         """Check if goal is marked as started."""
-        return self.started_date is not None
+        return self.started_on is not None
 
     # Instance methods for relationship management
     def add_label(self, label: Label) -> None:
@@ -181,8 +203,12 @@ class Goal(Base, TimestampMixin):
             "title": self.title,
             "description": self.description,
             "progress": self.progress,
-            "started_date": self.started_date,
-            "completion_date": self.completion_date,
+            "started_on": format_timestamp_iso(self.started_on)
+            if self.started_on
+            else None,
+            "ended_on": format_timestamp_iso(self.ended_on)
+            if self.ended_on
+            else None,
             "owner": self.owner,
             "severity": self.severity,
             "work_type": self.work_type,
@@ -194,9 +220,6 @@ class Goal(Base, TimestampMixin):
             "updated_at": format_timestamp_iso(self.updated_at)
             if self.updated_at
             else None,
-            "deleted_at": format_timestamp_iso(self.deleted_at)
-            if self.deleted_at
-            else None,
         }
 
     @classmethod
@@ -206,8 +229,8 @@ class Goal(Base, TimestampMixin):
             title=data.get("title", ""),
             description=data.get("description", ""),
             progress=data.get("progress"),
-            started_date=data.get("started_date"),
-            completion_date=data.get("completion_date"),
+            started_on=data.get("started_on"),
+            ended_on=data.get("ended_on"),
             owner=data.get("owner", ""),
             severity=data.get("severity", ""),
             work_type=data.get("work_type", ""),
@@ -249,17 +272,17 @@ class Goal(Base, TimestampMixin):
     @classmethod
     def find_completed(cls, session: SQLAlchemySession) -> list[Goal]:
         """Get all completed goals."""
-        return session.query(cls).filter(cls.completion_date.isnot(None)).all()
+        return session.query(cls).filter(cls.ended_on.isnot(None)).all()
 
     @classmethod
     def find_active(cls, session: SQLAlchemySession) -> list[Goal]:
         """Get all active (not completed) goals."""
-        return session.query(cls).filter(cls.completion_date.is_(None)).all()
+        return session.query(cls).filter(cls.ended_on.is_(None)).all()
 
     # Utility methods
     def get_work_duration(self) -> str | None:
         """Get the duration between start and completion in ISO format."""
-        if self.started_date and self.completion_date:
+        if self.started_on and self.ended_on:
             start_ts = get_optimized_timestamp()
             completion_ts = get_optimized_timestamp()
             # Calculate duration (placeholder - would need actual timestamp parsing)

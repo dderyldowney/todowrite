@@ -3,6 +3,7 @@
 # Individual packages are built from their own pyproject.toml files in:
 # - lib_package/ (todowrite library)
 # - cli_package/ (todowrite_cli)
+# - web_package/ (todowrite_web)
 
 [build-system]
 requires = ["hatchling"]
@@ -61,6 +62,7 @@ dev = [
     "myst-parser>=4.0.1",
     "twine>=6.2.0",
     "psycopg2-binary>=2.9.11",
+    "docutils>=0.21.2",
 ]
 postgres = [
     "psycopg2-binary>=2.9.11",
@@ -102,24 +104,25 @@ exclude = [
 ]
 
 [tool.ruff.lint]
+
 # 2025 comprehensive rule selection for maximum code quality
 select = [
     # Core pycodestyle
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
 
     # Core flake8
-    "F",   # pyflakes
+    "F", # pyflakes
     "C90", # mccabe complexity
 
     # Import and module organization
-    "I",   # isort
+    "I", # isort
     "TID", # flake8-tidy-imports
     "ICN", # flake8-import-conventions
 
     # Code quality and complexity
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
+    "B", # flake8-bugbear
+    "C4", # flake8-comprehensions
     "SIM", # flake8-simplify
     "PIE", # flake8-pie
     "COM", # flake8-commas
@@ -127,16 +130,16 @@ select = [
     "ARG", # flake8-unused-arguments
 
     # Modern Python practices
-    "UP",  # pyupgrade
+    "UP", # pyupgrade
     "YTT", # flake8-2020
-    "FA",  # flake8-future-annotations
+    "FA", # flake8-future-annotations
 
     # Security and safety
-    "S",   # flake8-bandit
+    "S", # flake8-bandit
 
     # Type annotations and documentation
     "ANN", # flake8-annotations
-    "D",   # pydocstyle
+    "D", # pydocstyle
 
     # Error handling and edge cases
     "BLE", # flake8-blind-except
@@ -153,7 +156,7 @@ select = [
     "RUF", # Ruff-specific rules
 
     # Logging and output
-    "G",   # flake8-logging-format
+    "G", # flake8-logging-format
     "T20", # flake8-print (allowable with config)
 
     # Pathlib and file operations
@@ -166,16 +169,16 @@ select = [
     "EXE", # flake8-executable
 
     # Error message formatting
-    "EM",  # flake8-errmsg
+    "EM", # flake8-errmsg
 
     # String formatting and quotes
-    "Q",   # flake8-quotes
+    "Q", # flake8-quotes
 
     # Naming conventions
-    "N",   # pep8-naming
+    "N", # pep8-naming
 
     # Built-in function shadowing
-    "A",   # flake8-builtins
+    "A", # flake8-builtins
 
     # Import organization
     "TCH", # flake8-type-checking
@@ -188,13 +191,13 @@ select = [
     # Note: ASYNC rules will be added when available in future Ruff versions
 
     # Django/Flask security (if applicable)
-    "DJ",  # django security
-    "S",   # flake8-bandit (already included but emphasizing security)
+    "DJ", # django security
+    "S", # flake8-bandit (already included but emphasizing security)
 ]
 
 # 2025-specific additional rules for modern Python
 extend-select = [
-    "E402",   # module level import not at top of file
+    "E402", # module level import not at top of file
     "PLC0415", # import-outside-top-level
     "RUF100", # unused noqa comment
     "RUF101", # unused noqa directive
@@ -202,11 +205,11 @@ extend-select = [
 
 ignore = [
     # Security - acceptable risks for this project
-    "S101",  # assert used (acceptable in tests and contracts)
-    "T20",   # print statements (needed for CLI output)
-    "S602",  # subprocess with shell=True (needed for command execution)
-    "S603",  # subprocess call (needed for Docker integration - validated path)
-    "S607",  # subprocess with partial executable path (python is expected)
+    "S101", # assert used (acceptable in tests and contracts)
+    "T20", # print statements (needed for CLI output)
+    "S602", # subprocess with shell=True (needed for command execution)
+    "S603", # subprocess call (needed for Docker integration - validated path)
+    "S607", # subprocess with partial executable path (python is expected)
 
     # Compatibility - allow os module usage where pathlib isn't beneficial
     "PTH103", # os.makedirs (acceptable for compatibility)
@@ -214,16 +217,16 @@ ignore = [
     "PTH123", # open() (acceptable for compatibility)
 
     # False positives and tool conflicts
-    "F823",  # local variable referenced before assignment (false positive with TYPE_CHECKING)
+    "F823", # local variable referenced before assignment (false positive with TYPE_CHECKING)
     "COM812", # trailing comma missing (conflicts with formatter)
     "ISC001", # implicit string concatenation (conflicts with formatter)
-    "C901",  # too complex (acceptable in certain cases, use RUF max-complexity instead)
+    "C901", # too complex (acceptable in certain cases, use RUF max-complexity instead)
 
     # Documentation style flexibility
-    "D100",   # missing docstring in public module (not always required)
-    "D104",   # missing docstring in public package (not always required)
-    "D105",   # missing docstring in magic methods (often self-documenting)
-    "D107",   # missing docstring in __init__ (often self-documenting)
+    "D100", # missing docstring in public module (not always required)
+    "D104", # missing docstring in public package (not always required)
+    "D105", # missing docstring in magic methods (often self-documenting)
+    "D107", # missing docstring in __init__ (often self-documenting)
 
     # Type annotation flexibility for dynamic code
     "ANN001", # missing-type-function-argument (CLI args often complex)
@@ -264,22 +267,22 @@ max-complexity = 10  # Industry standard for maintainable code
 [tool.ruff.lint.per-file-ignores]
 # Test files - more lenient rules
 "tests/*" = [
-    "S101",    # assert used (acceptable in tests)
-    "ARG001",  # unused arguments in tests
-    "ARG002",  # unused arguments in tests
-    "S608",    # hardcoded SQL (acceptable in test fixtures)
-    "ANN001",  # missing-type-function-argument (test functions often self-documenting)
-    "ANN201",  # missing-return-type-public-function (test functions often return None)
-    "D",       # docstring requirements (test names are self-documenting)
+    "S101", # assert used (acceptable in tests)
+    "ARG001", # unused arguments in tests
+    "ARG002", # unused arguments in tests
+    "S608", # hardcoded SQL (acceptable in test fixtures)
+    "ANN001", # missing-type-function-argument (test functions often self-documenting)
+    "ANN201", # missing-return-type-public-function (test functions often return None)
+    "D", # docstring requirements (test names are self-documenting)
     "PLR2004", # magic value comparison (acceptable in tests)
-    "S311",    # suspicious non-cryptographic random usage (acceptable in tests)
+    "S311", # suspicious non-cryptographic random usage (acceptable in tests)
 ]
 
 # CLI code - practical allowances
 "cli_package/src/todowrite_cli/*" = [
-    "T20",   # print statements (needed for CLI output)
-    "S603",  # subprocess call (needed for tool integration)
-    "S607",  # subprocess with partial executable path
+    "T20", # print statements (needed for CLI output)
+    "S603", # subprocess call (needed for tool integration)
+    "S607", # subprocess with partial executable path
     "ANN001", # missing-type-function-argument (CLI args often complex)
     "ANN002", # missing-type-kwargs (click decorators handle this)
     "ANN003", # missing-type-args (click decorators handle this)
@@ -291,29 +294,29 @@ max-complexity = 10  # Industry standard for maintainable code
 # Build scripts and tools - maximum flexibility
 ".hooks/*" = [
     "ANN001", "ANN201", "ANN202", "ANN204", # type annotations (build scripts may be dynamic)
-    "S603", "S604", "S607",             # subprocess usage (needed for tool execution)
-    "E501", "E722", "BLE001",            # style (simpler in scripts)
-    "PLC0415", "PLW1510", "DTZ005",      # imports and subprocess (intentional)
-    "PLW2901", "RET505", "Q000", "W292",  # minor style issues
-    "D",                               # docstring requirements (scripts often self-documenting)
-    "PERF",                            # performance (not critical in scripts)
+    "S603", "S604", "S607", # subprocess usage (needed for tool execution)
+    "E501", "E722", "BLE001", # style (simpler in scripts)
+    "PLC0415", "PLW1510", "DTZ005", # imports and subprocess (intentional)
+    "PLW2901", "RET505", "Q000", "W292", # minor style issues
+    "D", # docstring requirements (scripts often self-documenting)
+    "PERF", # performance (not critical in scripts)
 ]
 
 # Claude configuration files
 ".claude/*" = [
     "ANN001", "ANN201", "ANN202", "ANN204", # type annotations (config scripts)
-    "S603", "S604", "S607",             # subprocess usage (needed for setup)
-    "E501", "E722", "BLE001",            # style (simpler in scripts)
-    "PLC0415", "PLW1510", "DTZ005",      # imports and subprocess (intentional)
-    "PLW2901", "RET505", "Q000", "W292",  # minor style issues
-    "D",                               # docstring requirements (config files)
-    "PERF",                            # performance (not critical in configs)
+    "S603", "S604", "S607", # subprocess usage (needed for setup)
+    "E501", "E722", "BLE001", # style (simpler in scripts)
+    "PLC0415", "PLW1510", "DTZ005", # imports and subprocess (intentional)
+    "PLW2901", "RET505", "Q000", "W292", # minor style issues
+    "D", # docstring requirements (config files)
+    "PERF", # performance (not critical in configs)
 ]
 
 # Build hooks and development tools
 "*_build_version_hook.py" = [
     "S404", "PLC0415", "ANN001", "ANN201", # build script allowances
-    "D",                                 # docstring requirements (build scripts)
+    "D", # docstring requirements (build scripts)
 ]
 
 
@@ -345,24 +348,24 @@ markers = [
 [tool.bandit]
 # Exclude directories that don't need security scanning
 exclude_dirs = [
-    "tests",        # Test files have acceptable security practices
+    "tests", # Test files have acceptable security practices
     "build", "dist", # Build artifacts
     ".venv", "venv", # Virtual environments
-    "htmlcov",      # Coverage reports
-    ".git",         # Git metadata
-    "__pycache__",  # Python cache
+    "htmlcov", # Coverage reports
+    ".git", # Git metadata
+    "__pycache__", # Python cache
     ".pytest_cache", # Pytest cache
     "coverage.xml", # Coverage artifacts
 ]
 
 # Skip tests and examples that use acceptable security practices
 tests = [
-    "B101",   # assert_used (acceptable in tests)
-    "B110",   # try_except_pass (acceptable in test cleanup)
-    "B404",   # import_subprocess (subprocess is needed and validated)
-    "B603",   # subprocess_without_shell_equals_false (needed for CLI tools)
-    "B607",   # start_process_with_partial_path (python is expected)
-    "B602",   # subprocess_popen_with_shell_equals_true (needed for command execution)
+    "B101", # assert_used (acceptable in tests)
+    "B110", # try_except_pass (acceptable in test cleanup)
+    "B404", # import_subprocess (subprocess is needed and validated)
+    "B603", # subprocess_without_shell_equals_false (needed for CLI tools)
+    "B607", # start_process_with_partial_path (python is expected)
+    "B602", # subprocess_popen_with_shell_equals_true (needed for command execution)
 ]
 
 # 2025-specific configuration for modern security

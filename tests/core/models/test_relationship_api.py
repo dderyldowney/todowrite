@@ -33,7 +33,7 @@ def test_desired_api_pattern():
         # pragma: allowlist secret
         db_url = os.environ.get(
             "TODOWRITE_DB_URL",
-            "postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/todowrite",
+            "postgresql://todowrite_user:mcp_secure_password_2024@localhost:5433/todowrite",
         )
 
         engine = create_engine(db_url)

@@ -6,7 +6,9 @@ This module contains the Requirements SQLAlchemy model.
 
 from __future__ import annotations
 
-from sqlalchemy import Integer, String, Text
+from datetime import datetime
+
+from sqlalchemy import TIMESTAMP, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from todowrite.core.associations import (
@@ -20,8 +22,8 @@ from todowrite.core.models.base import Base
 from todowrite.core.timestamp_mixins import TimestampMixin
 
 
-class Requirements(Base, TimestampMixin):
-    """ToDoWrite Requirements model for hierarchical task management."""
+class Requirement(Base, TimestampMixin):
+    """ToDoWrite Requirement model for hierarchical task management."""
 
     __tablename__ = "requirements"
 
@@ -35,8 +37,10 @@ class Requirements(Base, TimestampMixin):
     description: Mapped[str | None] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String, default="planned")
     progress: Mapped[int | None] = mapped_column(Integer)
-    started_date: Mapped[str | None] = mapped_column(String)
-    completion_date: Mapped[str | None] = mapped_column(String)
+    started_on: Mapped[datetime | None] = mapped_column(
+        TIMESTAMP, nullable=True
+    )
+    ended_on: Mapped[datetime | None] = mapped_column(TIMESTAMP, nullable=True)
 
     # Metadata fields
     owner: Mapped[str | None] = mapped_column(String)

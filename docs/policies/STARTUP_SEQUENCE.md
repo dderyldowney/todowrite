@@ -28,7 +28,7 @@ This manual startup sequence executes:
 
 ## Prerequisites
 
-- PostgreSQL container `mcp-postgres` must be running
+- PostgreSQL container `todowrite-postgres` must be running
 - All environment variables in `.env.dev` must be set
 - Virtual environment must be available
 - MCP servers should be running (system-wide resources)
@@ -49,7 +49,7 @@ python .claude/session_manager.py --summary
 ## Troubleshooting
 
 If startup fails:
-1. Check PostgreSQL container: `docker ps | grep mcp-postgres`
+1. Check PostgreSQL container: `docker ps | grep todowrite-postgres`
 2. Verify environment variables: `source .env.dev`
 3. Check MCP servers: `docker mcp server ls`
 4. Consult enforcement logs in startup output

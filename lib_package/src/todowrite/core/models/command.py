@@ -7,12 +7,19 @@ This module contains the Command SQLAlchemy model.
 from __future__ import annotations
 
 import json
+from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
+    TIMESTAMP,
     Integer,
     String,
     Text,
 )
+
+if TYPE_CHECKING:
+    from todowrite.core.models.label import Label
+    from todowrite.core.models.sub_task import SubTask
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
@@ -26,7 +33,6 @@ from todowrite.core.associations import (
 from todowrite.core.models.base import Base
 from todowrite.core.timestamp_mixins import (
     TimestampMixin,
-    format_timestamp_iso,
     get_optimized_timestamp,
 )
 
@@ -46,8 +52,10 @@ class Command(Base, TimestampMixin):
     description: Mapped[str | None] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String, default="planned")
     progress: Mapped[int | None] = mapped_column(Integer)
-    started_date: Mapped[str | None] = mapped_column(String)
-    completion_date: Mapped[str | None] = mapped_column(String)
+    started_on: Mapped[datetime | None] = mapped_column(
+        TIMESTAMP, nullable=True
+    )
+    ended_on: Mapped[datetime | None] = mapped_column(TIMESTAMP, nullable=True)
 
     # Metadata fields
     owner: Mapped[str | None] = mapped_column(String)
@@ -108,9 +116,9 @@ class Command(Base, TimestampMixin):
     def mark_completed(self) -> None:
         """Mark command as completed with current timestamp."""
         self.status = "completed"
-        self.completion_date = format_timestamp_iso(get_optimized_timestamp())
+        self.ended_on = get_optimized_timestamp()
 
     def mark_started(self) -> None:
         """Mark command as started with current timestamp."""
         self.status = "in_progress"
-        self.started_date = format_timestamp_iso(get_optimized_timestamp())
+        self.started_on = get_optimized_timestamp()

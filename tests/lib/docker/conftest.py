@@ -21,14 +21,13 @@ except ImportError:
     if str(parent_dir) not in sys.path:
         sys.path.insert(0, str(parent_dir))
 
-    from tests.lib.docker.docker_utils import docker_manager, skip_if_no_docker
+    from tests.lib.docker.docker_utils import docker_manager
 
 
 def pytest_configure(config: pytest.Config) -> None:
     """Configure pytest with custom markers."""
     config.addinivalue_line(
-        "markers",
-        "requires_docker: mark test as requiring Docker to be available"
+        "markers", "requires_docker: mark test as requiring Docker to be available"
     )
 
 

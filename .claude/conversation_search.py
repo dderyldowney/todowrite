@@ -435,7 +435,7 @@ def main():
     )
     parser.add_argument(
         "--db",
-        default="postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/mcp_tools",
+        default="postgresql://todowrite_user:todowrite_secure_password_2024@localhost:5432/todowrite",
         help="Database connection string",
     )
 

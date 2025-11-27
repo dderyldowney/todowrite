@@ -25,7 +25,7 @@ class EpisodicMemory:
         else:
             self.db_connection = os.getenv(
                 "EPISODIC_MEMORY_DB_URL",
-                "postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/mcp_episodic_memory",
+                "postgresql://todowrite_user:todowrite_secure_password_2024@localhost:5432/todowrite",
             )
 
         self.search_system = ConversationSearchSystem(self.db_connection)

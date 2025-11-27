@@ -6,7 +6,6 @@ Automatically saves and restores session state when CLAUDE.md is loaded
 
 import json
 import os
-import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -20,14 +19,14 @@ class SessionManager:
     def __init__(self):
         # Load configuration from environment variables
         self.db_config = {
-            "host": os.environ.get("MCP_DB_HOST", "localhost"),
-            "port": int(os.environ.get("MCP_DB_PORT", "5433")),
+            "host": os.environ.get("TODOWRITE_DB_HOST", "localhost"),
+            "port": int(os.environ.get("TODOWRITE_DB_PORT", "5432")),
             "database": os.environ.get(
-                "MCP_SESSIONS_DB_URL",
-                "postgresql://mcp_user:mcp_secure_password_2024@localhost:5433/mcp_sessions",
+                "TODOWRITE_DATABASE_URL",
+                "postgresql://todowrite_user:todowrite_secure_password_2024@localhost:5432/todowrite",
             ).split("/")[-1],  # Extract database name from URL
-            "user": os.environ.get("MCP_DB_USER", "mcp_user"),
-            "password": os.environ.get("MCP_DB_PASSWORD", "mcp_secure_password_2024"),
+            "user": os.environ.get("TODOWRITE_DB_USER", "todowrite_user"),
+            "password": os.environ.get("TODOWRITE_DB_PASSWORD", "todowrite_secure_password_2024"),
         }
         self.project_name = Path.cwd().name
         self.session_id = self._get_or_create_session_id()
@@ -44,82 +43,6 @@ class SessionManager:
             os.environ["TODOWRITE_SESSION_ID"] = session_id
 
         return session_id
-
-    def check_mcp_servers_health(self) -> dict[str, str | int | bool | None]:
-        """Check health of MCP servers and wait for them to be available"""
-        mcp_servers = {
-            "context7": {"type": "http", "port": 3001, "container": "mcp-context7"},
-            "filesystem": {"type": "stdio", "container": "mcp-filesystem"},
-            "git": {"type": "stdio", "container": "mcp-git"},
-            "github": {"type": "stdio", "container": "mcp-github"},
-            "playwright": {"type": "stdio", "container": "mcp-playwright"},
-            "sqlite": {"type": "stdio", "container": "mcp-sqlite"},
-            "python-refactoring": {"type": "stdio", "container": "mcp-python-refactoring"},
-        }
-
-        health_results = {}
-        print("🔍 Checking MCP server health...")
-
-        for service_name, config in mcp_servers.items():
-            try:
-                # Check if Docker container is running
-                result = subprocess.run(
-                    [
-                        "docker",
-                        "ps",
-                        "--filter",
-                        f"name={config['container']}",
-                        "--filter",
-                        "status=running",
-                        "--quiet",
-                    ],
-                    capture_output=True,
-                    text=True,
-                    timeout=10,
-                )
-                container_running = bool(result.stdout.strip())
-
-                # Check service type specific health
-                if config["type"] == "http":
-                    # HTTP servers need port accessibility check
-                    port_accessible = self._check_port(config["port"])
-                    if container_running and port_accessible:
-                        health_results[service_name] = {
-                            "status": "healthy",
-                            "message": "HTTP server running and port accessible",
-                        }
-                        print(f"✅ {service_name}: HTTP Healthy")
-                    else:
-                        health_results[service_name] = {
-                            "status": "unhealthy",
-                            "message": f"HTTP Container: {container_running}, Port: {port_accessible}",
-                        }
-                        print(f"❌ {service_name}: HTTP Unhealthy")
-                elif config["type"] == "stdio":
-                    # stdio servers just need container running
-                    if container_running:
-                        health_results[service_name] = {
-                            "status": "healthy",
-                            "message": "stdio server running",
-                        }
-                        print(f"✅ {service_name}: stdio Healthy")
-                    else:
-                        health_results[service_name] = {
-                            "status": "unhealthy",
-                            "message": f"stdio Container: {container_running}",
-                        }
-                        print(f"❌ {service_name}: stdio Unhealthy")
-
-            except Exception as e:
-                health_results[service_name] = {"status": "error", "message": str(e)}
-                print(f"❌ {service_name}: Error - {e!s}")
-
-        healthy_count = sum(1 for r in health_results.values() if r["status"] == "healthy")
-        total_count = len(mcp_servers)
-
-        print(f"\n📊 MCP Server Health Summary: {healthy_count}/{total_count} healthy")
-
-        return health_results
 
     def _check_port(self, port: int) -> bool:
         """Check if port is open and accessible"""
@@ -279,7 +202,6 @@ def main():
     parser.add_argument("--save", action="store_true", help="Save current session state")
     parser.add_argument("--load", action="store_true", help="Load and display latest session")
     parser.add_argument("--summary", action="store_true", help="Get session summary")
-    parser.add_argument("--mcp-health", action="store_true", help="Check MCP server health")
     parser.add_argument("--context", help="JSON context to save")
 
     args = parser.parse_args()
@@ -296,15 +218,6 @@ def main():
         sys.exit(0 if state else 1)
     elif args.summary:
         print(load_session_summary())
-    elif args.mcp_health:
-        manager = SessionManager()
-        health_results = manager.check_mcp_servers_health()
-        healthy_count = sum(1 for r in health_results.values() if r["status"] == "healthy")
-        total_count = len(health_results)
-        print(f"\nMCP Health Summary: {healthy_count}/{total_count} servers healthy")
-        if healthy_count < total_count:
-            print("⚠️  Some MCP servers are unhealthy - may affect development capabilities")
-        sys.exit(0 if healthy_count > 0 else 1)
     else:
         parser.print_help()
 

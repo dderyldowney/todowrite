@@ -20,7 +20,7 @@ For ToDoWrite planning:
 
 ```bash
 # Verify active goals exist:
-docker exec mcp-postgres psql -U mcp_user -d todowrite -c "SELECT COUNT(*) FROM goals WHERE status = 'active';"
+docker exec todowrite-postgres psql -U todowrite_user -d todowrite -c "SELECT COUNT(*) FROM goals WHERE status = 'active';"
 
 # Check session context:
 python .claude/session_manager.py --summary

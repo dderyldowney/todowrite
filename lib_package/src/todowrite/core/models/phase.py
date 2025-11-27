@@ -6,7 +6,17 @@ This module contains the Phase SQLAlchemy model.
 
 from __future__ import annotations
 
+from datetime import datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from todowrite.core.models.goal import Goal
+    from todowrite.core.models.interface_contract import InterfaceContract
+    from todowrite.core.models.label import Label
+    from todowrite.core.models.step import Step
+
 from sqlalchemy import (
+    TIMESTAMP,
     Integer,
     String,
     Text,
@@ -44,8 +54,10 @@ class Phase(Base, TimestampMixin):
     description: Mapped[str | None] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String, default="planned")
     progress: Mapped[int | None] = mapped_column(Integer)
-    started_date: Mapped[str | None] = mapped_column(String)
-    completion_date: Mapped[str | None] = mapped_column(String)
+    started_on: Mapped[datetime | None] = mapped_column(
+        TIMESTAMP, nullable=True
+    )
+    ended_on: Mapped[datetime | None] = mapped_column(TIMESTAMP, nullable=True)
 
     # Metadata fields
     owner: Mapped[str | None] = mapped_column(String)

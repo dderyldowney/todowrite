@@ -4,35 +4,39 @@ import os
 from contextlib import asynccontextmanager
 
 import uvicorn
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import Session, sessionmaker
 
 # Import ToDoWrite models using the modern API
 from todowrite import (
-    Goal,
-    Task,
-    Concept,
-    Context,
-    Constraints,
-    Requirements,
     AcceptanceCriteria,
+    Command,
+    Concept,
+    Constraints,
+    Context,
+    Goal,
     InterfaceContract,
+    Label,
     Phase,
+    Requirements,
     Step,
     SubTask,
-    Command,
-    Label,
+    Task,
 )
 
 # Database configuration - PostgreSQL required for web application
 DATABASE_URL = os.environ.get("TODOWRITE_DATABASE_URL")
 if not DATABASE_URL:
-    raise ValueError("TODOWRITE_DATABASE_URL environment variable must be set for PostgreSQL")
+    raise ValueError(
+        "TODOWRITE_DATABASE_URL environment variable must be set for PostgreSQL"
+    )
 
 if not DATABASE_URL.startswith("postgresql://"):
-    raise ValueError("Web application requires PostgreSQL database. Please set TODOWRITE_DATABASE_URL to a PostgreSQL connection string.")
+    raise ValueError(
+        "Web application requires PostgreSQL database. Please set TODOWRITE_DATABASE_URL to a PostgreSQL connection string."
+    )
 
 # Create PostgreSQL engine with optimized settings
 engine = create_engine(
@@ -85,8 +89,8 @@ def get_database_session() -> Session:
 
 
 # Pydantic models for API request/response
+
 from pydantic import BaseModel
-from typing import Optional, List
 
 # Import hierarchy API for drag-and-drop functionality
 # from todowrite_web.api.hierarchy import router as hierarchy_router
@@ -94,21 +98,24 @@ from typing import Optional, List
 
 class ItemBase(BaseModel):
     """Base model for all ToDoWrite items."""
+
     title: str
-    description: Optional[str] = None
-    owner: Optional[str] = None
-    severity: Optional[str] = None
+    description: str | None = None
+    owner: str | None = None
+    severity: str | None = None
     status: str = "planned"
     progress: int = 0
 
 
 class ItemCreate(ItemBase):
     """Model for creating new items."""
+
     layer: str
 
 
 class ItemResponse(ItemBase):
     """Model for item responses."""
+
     id: int
     layer: str
     created_at: str
@@ -133,12 +140,12 @@ async def health_check() -> dict[str, str]:
 
 @app.get("/api/items")
 async def list_items(
-    layer: Optional[str] = None,
-    owner: Optional[str] = None,
-    status: Optional[str] = None,
+    layer: str | None = None,
+    owner: str | None = None,
+    status: str | None = None,
     limit: int = 20,
     db: Session = Depends(get_database_session),
-) -> List[ItemResponse]:
+) -> list[ItemResponse]:
     """List ToDoWrite items with optional filtering."""
     model_map = {
         "goal": Goal,
@@ -160,7 +167,9 @@ async def list_items(
         raise HTTPException(status_code=400, detail=f"Unknown layer: {layer}")
 
     items = []
-    models_to_query = [model_map.get(layer.lower())] if layer else list(model_map.values())
+    models_to_query = (
+        [model_map.get(layer.lower())] if layer else list(model_map.values())
+    )
 
     for model_class in models_to_query:
         if not model_class:

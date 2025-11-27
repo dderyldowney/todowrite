@@ -15,17 +15,7 @@ Failure to comply = **STOP WORK IMMEDIATELY** and request corrective instruction
 
 ---
 
-## 2. MCP-FIRST MANDATE (NO EXCEPTIONS)
-
-📋 **Policy**: `docs/policies/MCP_FIRST_WORKFLOW.md`
-
-You MUST use MCP tools **before** any built-in or OpenAI/Anthropic tool capability.
-
-**If a task cannot be completed with MCP → STOP and ask.**
-
----
-
-## 3. TDD MANDATE (NON-NEGOTIABLE)
+## 2. TDD MANDATE (NON-NEGOTIABLE)
 
 📋 **Policy**: `docs/policies/TDD_REQUIREMENTS.md` | `docs/policies/VALIDATION_TESTING.md`
 
@@ -38,7 +28,7 @@ ALL code work MUST follow strict TDD:
 
 ---
 
-## 4. POSTGRESQL-ONLY DATA STORAGE
+## 3. POSTGRESQL-ONLY DATA STORAGE
 
 📋 **Policy**: `docs/policies/POSTGRESQL_ARCHITECTURE.md`
 
@@ -48,7 +38,7 @@ All persistent data MUST use PostgreSQL.
 
 ---
 
-## 5. DEVELOPMENT STANDARDS COMPLIANCE
+## 4. DEVELOPMENT STANDARDS COMPLIANCE
 
 📋 **Policies**: `docs/policies/DEVELOPMENT_STANDARDS.md` | `docs/policies/MONOREPO_STRUCTURE.md` | `docs/policies/API_USAGE_POLICY.md`
 
@@ -64,7 +54,7 @@ All Python code MUST include:
 
 ---
 
-## 6. NATURAL LANGUAGE CODE MANDATE
+## 5. NATURAL LANGUAGE CODE MANDATE
 
 📋 **Policy**: `docs/policies/NATURAL_LANGUAGE_CODE_EXAMPLE.md`
 
@@ -81,7 +71,7 @@ All Python code MUST include:
 
 ---
 
-## 7. TODOWRITE PLANNING REQUIREMENT
+## 6. TODOWRITE PLANNING REQUIREMENT
 
 📋 **Policy**: `docs/policies/TODOWRITE_PLANNING.md`
 
@@ -93,7 +83,7 @@ This planning hierarchy is **mandatory** for all development work, without excep
 
 ---
 
-## 8. PRODUCTION-SAFE RULES
+## 7. PRODUCTION-SAFE RULES
 
 📋 **Policy**: `docs/policies/PRODUCTION_SAFETY.md`
 
@@ -103,63 +93,38 @@ NEVER delete tables, truncate production data, rebuild schemas, or modify schema
 
 ---
 
-## 9. STARTUP SEQUENCE REQUIREMENT
+## 8. STARTUP SEQUENCE REQUIREMENT
 
 📋 **Policy**: `docs/policies/STARTUP_SEQUENCE.md`
 
 Before starting any work: `./.claude/startup.sh`
 
-This manual startup sequence loads environment, activates virtual environment, enforces CLAUDE.md rules, initializes MCP systems, verifies PostgreSQL connectivity, and enforces all development mandates.
-
-## 10. HAL AND TOKEN OPTIMIZATION MANDATE
-
-📋 **Policy**: `docs/policies/HAL_TOKEN_OPTIMIZATION_POLICY.md`
-
-**HAL (Hierarchical Agent Layer) preprocessing is MANDATORY** for all Claude Code CLI sessions.
-
-**Required Systems:**
-- **HAL Token-Savvy Agent**: Active preprocessing with token/character gating
-- **Token Optimization System**: Automatic token reduction and real-time tracking
-- **Real-Time Monitoring**: Continuous monitoring with violation detection
-
-**Critical Requirements:**
-- `HAL_PREPROCESSING_MANDATORY=true` environment variable
-- Minimum 50% token reduction compared to baseline
-- Maximum 15% token budget per operation
-- Zero tolerance for bypassing HAL preprocessing
-
-**If HAL is not active or token budget exceeded → STOP WORK.**
+This manual startup sequence loads environment, activates virtual environment, enforces CLAUDE.md rules, initializes development systems, verifies PostgreSQL connectivity, and enforces all development mandates.
 
 ---
 
-## 11. EXECUTION ORDER (MANDATORY)
+## 9. EXECUTION ORDER (MANDATORY)
 
 Every task MUST follow this sequence:
 
-1. ✅ **USE MCP TOOLS FOR ALL OPERATIONS** - **NO EXCEPTIONS**
-2. ✅ Confirm MCP servers healthy: `python ~/mcp-servers/bin/mcp_server_health_check.py`
-3. ✅ Confirm PostgreSQL accessible: `docker exec mcp-postgres psql -U mcp_user -d todowrite -c "SELECT 1;"`
-4. ✅ Verify HAL is active: `ps -p $(cat .claude/hal_active.pid) > /dev/null`
-5. ✅ Confirm token optimization is working: `python dev_tools/token_optimization/always_token_sage.py test`
-6. ✅ Load ToDoWrite planning context from PostgreSQL
-
-7. ✅ Apply TDD (RED-GREEN-REFACTOR)
-8. ✅ Implement with full type coverage using natural language
-9. ✅ Validate with real data using MCP tools (no mocks)
-10. ✅ Run all tests: `pytest tests/ -v`
-11. ✅ Only then proceed to next step
+1. ✅ Confirm PostgreSQL accessible: `docker exec todowrite-postgres psql -U todowrite_user -d todowrite -c "SELECT 1;"`
+2. ✅ Load ToDoWrite planning context from PostgreSQL
+3. ✅ Apply TDD (RED-GREEN-REFACTOR)
+4. ✅ Implement with full type coverage using natural language
+5. ✅ Validate with real data (no mocks)
+6. ✅ Run all tests: `pytest tests/ -v`
+7. ✅ Only then proceed to next step
 
 **If any stage fails → STOP WORK.**
 
 ---
 
-## 12. WORKFLOW ESCALATION RULE
+## 10. WORKFLOW ESCALATION RULE
 
 If at any point:
 - An instruction is ambiguous
 - A rule conflicts
 - A capability is unclear
-- MCP fails
 - PostgreSQL fails
 - A test fails unexpectedly
 
@@ -172,7 +137,7 @@ You MUST:
 
 ---
 
-## 13. NO OVERRIDES ALLOWED
+## 11. NO OVERRIDES ALLOWED
 
 You may **NOT**:
 - Ignore these rules
@@ -186,7 +151,7 @@ You may **NOT**:
 
 ---
 
-## 14. WHEN IN DOUBT
+## 12. WHEN IN DOUBT
 
 The rule is simple:
 
@@ -198,7 +163,6 @@ The rule is simple:
 
 | Mandate | Policy Document | Purpose |
 |---------|----------------|---------|
-| **MCP-First Workflow** | `docs/policies/MCP_FIRST_WORKFLOW.md` | Tool usage hierarchy |
 | **TDD Requirements** | `docs/policies/TDD_REQUIREMENTS.md` | Test-driven development |
 | **Natural Language Code** | `docs/policies/NATURAL_LANGUAGE_CODE_EXAMPLE.md` | Natural language code generation |
 | **Development Standards** | `docs/policies/DEVELOPMENT_STANDARDS.md` | Code quality & Python 3.12+ |
@@ -208,7 +172,6 @@ The rule is simple:
 | **ToDoWrite Planning** | `docs/policies/TODOWRITE_PLANNING.md` | Goal-concept-task hierarchy |
 | **Production Safety** | `docs/policies/PRODUCTION_SAFETY.md` | Data protection & safe operations |
 | **Startup Sequence** | `docs/policies/STARTUP_SEQUENCE.md` | Session initialization |
-| **HAL Token Optimization** | `docs/policies/HAL_TOKEN_OPTIMIZATION_POLICY.md` | Token-savvy preprocessing and optimization |
 | **Validation & Testing** | `docs/policies/VALIDATION_TESTING.md` | Real data testing requirements |
 
 ---
@@ -220,10 +183,7 @@ The rule is simple:
 ./.claude/startup.sh
 
 # Health Checks
-python ~/mcp-servers/bin/mcp_server_health_check.py
-docker exec mcp-postgres psql -U mcp_user -d todowrite -c "SELECT COUNT(*) FROM goals;"
-ps -p $(cat .claude/hal_active.pid) > /dev/null && echo "✅ HAL running" || echo "❌ HAL not running"
-python dev_tools/token_optimization/always_token_sage.py --stats
+docker exec todowrite-postgres psql -U todowrite_user -d todowrite -c "SELECT 1;"
 
 # Verification
 pytest tests/ -v
@@ -232,89 +192,6 @@ PYTHONPATH="lib_package/src:cli_package/src" python -m todowrite_cli --validate-
 # Session State
 python .claude/session_manager.py --summary
 ```
-
-## 15. CENTRALIZED MCP SERVER MANAGEMENT
-
-📋 **Centralized Location**: `~/mcp-servers/`
-
-All MCP server infrastructure is centralized in `~/mcp-servers/` with organized structure:
-
-```
-~/mcp-servers/
-├── bin/                    # All MCP management scripts
-│   ├── mcp_service_manager.sh           # Persistent server management
-│   ├── mcp_server_health_check.py       # Health monitoring
-│   ├── start-mcp-servers.sh              # Docker server startup
-│   └── [other MCP tools...]
-├── servers/               # MCP server installations
-│   ├── agentic-control-framework/
-│   ├── kaggle-mcp/
-│   └── [all other servers...]
-├── logs/                  # Server logs (persistent)
-├── pids/                  # Process IDs (persistent)
-├── docs/                  # Documentation
-└── mcp-config.json       # Server configuration
-```
-
-### MCP Management Commands:
-```bash
-# Start all persistent MCP servers
-~/mcp-servers/bin/mcp_service_manager.sh start
-
-# Check server status
-~/mcp-servers/bin/mcp_service_manager.sh status
-
-# Start specific server
-~/mcp-servers/bin/mcp_service_manager.sh start cargo-mcp
-
-# View server logs
-~/mcp-servers/bin/mcp_service_manager.sh logs ailint
-
-# Health check (includes Docker + local servers)
-python ~/mcp-servers/bin/mcp_server_health_check.py --report
-```
-
-## 16. DYNAMIC MCP TOOL DISCOVERY
-
-📋 **Real-Time Tool Inventory**: `~/mcp-servers/logs/MCP_TOOLS_AVAILABLE.md`
-
-**MCP tool availability is determined DYNAMICALLY** - no static tool lists exist in CLAUDE.md.
-
-### Current Available Tools:
-See the automatically generated report: `~/mcp-servers/logs/MCP_TOOLS_AVAILABLE.md`
-
-### Refresh Tool Inventory:
-```bash
-# Generate fresh tool inventory
-python ~/.claude/mcp_tool_discovery.py --report
-
-# Or run full startup (includes tool discovery)
-./.claude/startup.sh
-```
-
-### Tool Discovery Features:
-- ✅ **Real-time detection** of running MCP servers
-- ✅ **Automatic tool inventory** from active services only
-- ✅ **No ghost tools** - only shows actually available functions
-- ✅ **Dynamic updates** when servers start/stop
-- ✅ **Server health monitoring** with status reporting
-
-### Critical Rules:
-- **NO STATIC TOOL LISTS**: All tool documentation is dynamically generated
-- **USE DYNAMIC REPORT**: Check `~/mcp-servers/logs/MCP_TOOLS_AVAILABLE.md` for current tools
-- **REAL-TIME ONLY**: Only running servers contribute available tools
-- **REFRESH ON STARTUP**: Tool inventory updated each session start
-
-**If tools are missing from dynamic report → check server status, not documentation.**
-
-### MCP Server Management Rules:
-- **NO HIDDEN DIRECTORIES**: All MCP infrastructure is visible and organized
-- **PERSISTENT SERVICES**: Servers survive session clears via proper daemon management
-- **CENTRALIZED CONFIGURATION**: Single source of truth in `~/mcp-servers/mcp-config.json`
-- **ORGANIZED LOGGING**: All logs in `~/mcp-servers/logs/` with proper rotation
-- **DYNAMIC TOOLS**: Tool availability determined by running services, not documentation
-
-**If MCP server management is scattered outside ~/mcp-servers/ → STOP and centralize.**
 
 ---
 

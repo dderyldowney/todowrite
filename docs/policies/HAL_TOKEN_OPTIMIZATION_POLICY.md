@@ -114,7 +114,6 @@ ps -p $(cat .claude/hal_active.pid) > /dev/null
 - **Session continuity** with persistent state
 
 ### Integration Requirements
-- **MCP compatibility** - HAL must work with all MCP tools
 - **Database persistence** - All metrics stored in PostgreSQL
 - **Session management** - Cross-session continuity maintained
 - **Policy enforcement** - Integration with CLAUDE.md mandates
@@ -175,7 +174,6 @@ python .claude/startup_enforcement.py | grep "HAL"
 ## 📋 INTEGRATION WITH OTHER POLICIES
 
 ### Required Policy Interactions
-- **MCP-FIRST Workflow**: HAL must work with MCP tools
 - **TDD Requirements**: Token optimization must not affect test coverage
 - **PostgreSQL Architecture**: All metrics stored in PostgreSQL
 - **Development Standards**: HAL integration must follow type hints and coding standards

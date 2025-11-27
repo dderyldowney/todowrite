@@ -10,20 +10,16 @@ from __future__ import annotations
 import json
 import tempfile
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
-
 from todowrite.core.models import (
-    Goal,
-    Task,
-    Phase,
-    Step,
-    Label,
-    Command,
     Base,
+    Goal,
+    Label,
+    Task,
 )
 
 # Import Docker utilities
@@ -48,7 +44,6 @@ except ImportError:
         DockerManager,
         TestPostgreSQLConfig,
         docker_manager,
-        skip_if_no_docker,
     )
 
 
@@ -60,7 +55,7 @@ class TestPostgreSQLDocker:
     """Test PostgreSQL Docker setup and management."""
 
     @pytest.fixture(scope="class")
-    def postgresql_container(self: "TestPostgreSQLDocker") -> str:
+    def postgresql_container(self: TestPostgreSQLDocker) -> str:
         """Start PostgreSQL container for testing."""
         # Start the container
         if not docker_manager.start_postgresql_container():
@@ -72,7 +67,7 @@ class TestPostgreSQLDocker:
         docker_manager.stop_postgresql_container()
 
     @pytest.fixture
-    def postgresql_session(self: "TestPostgreSQLDocker", postgresql_container: str) -> Any:
+    def postgresql_session(self: TestPostgreSQLDocker, postgresql_container: str) -> Any:
         """Create database session for PostgreSQL testing."""
         engine = create_engine(postgresql_container)
         Base.metadata.create_all(engine)
@@ -84,7 +79,7 @@ class TestPostgreSQLDocker:
 
         session.close()
 
-    def test_docker_availability_detection(self: "TestPostgreSQLDocker") -> None:
+    def test_docker_availability_detection(self: TestPostgreSQLDocker) -> None:
         """Test Docker availability detection."""
         manager = DockerManager()
 
@@ -95,7 +90,7 @@ class TestPostgreSQLDocker:
         assert len(manager.compose_files) > 0
         assert any("docker-compose" in name for name in manager.compose_files.keys())
 
-    def test_postgresql_container_lifecycle(self: "TestPostgreSQLDocker") -> None:
+    def test_postgresql_container_lifecycle(self: TestPostgreSQLDocker) -> None:
         """Test PostgreSQL container start/stop lifecycle."""
         compose_file = "docker-compose"
 
@@ -115,7 +110,7 @@ class TestPostgreSQLDocker:
         # Stop container
         assert docker_manager.stop_postgresql_container(compose_file=compose_file)
 
-    def test_database_schema_creation(self: "TestPostgreSQLDocker", postgresql_session: Any) -> None:
+    def test_database_schema_creation(self: TestPostgreSQLDocker, postgresql_session: Any) -> None:
         """Test database schema creation in PostgreSQL."""
         # Test that all tables were created
         with postgresql_session.bind.connect() as conn:
@@ -131,19 +126,31 @@ class TestPostgreSQLDocker:
 
         # Should have all our model tables
         expected_tables = {
-            'goals', 'concepts', 'contexts', 'constraints',
-            'requirements', 'acceptance_criteria', 'interface_contracts',
-            'phases', 'steps', 'tasks', 'sub_tasks', 'commands', 'labels'
+            "goals",
+            "concepts",
+            "contexts",
+            "constraints",
+            "requirements",
+            "acceptance_criteria",
+            "interface_contracts",
+            "phases",
+            "steps",
+            "tasks",
+            "sub_tasks",
+            "commands",
+            "labels",
         }
 
         for table in expected_tables:
             assert table in tables, f"Table {table} should exist"
 
         # Should have association tables
-        association_tables = [t for t in tables if '_' in t and 'labels' in t]
+        association_tables = [t for t in tables if "_" in t and "labels" in t]
         assert len(association_tables) > 0, "Should have association tables"
 
-    def test_postgresql_model_operations(self: "TestPostgreSQLDocker", postgresql_session: Any) -> None:
+    def test_postgresql_model_operations(
+        self: TestPostgreSQLDocker, postgresql_session: Any
+    ) -> None:
         """Test SQLAlchemy model operations with PostgreSQL."""
         # Create test data
         goal = Goal(
@@ -153,7 +160,7 @@ class TestPostgreSQLDocker:
             severity="high",
             work_type="feature",
             assignee="developer",
-            extra_data='{"priority": 1, "environment": "postgresql"}'
+            extra_data='{"priority": 1, "environment": "postgresql"}',
         )
 
         task = Task(
@@ -162,7 +169,7 @@ class TestPostgreSQLDocker:
             owner="test-user",
             severity="medium",
             work_type="testing",
-            assignee="qa-engineer"
+            assignee="qa-engineer",
         )
 
         label = Label(name="postgresql-test")
@@ -171,21 +178,21 @@ class TestPostgreSQLDocker:
         postgresql_session.commit()
 
         # Verify data persistence
-        retrieved_goal = postgresql_session.query(Goal).filter(
-            Goal.title == "PostgreSQL Test Goal"
-        ).first()
+        retrieved_goal = (
+            postgresql_session.query(Goal).filter(Goal.title == "PostgreSQL Test Goal").first()
+        )
         assert retrieved_goal is not None
         assert retrieved_goal.severity == "high"
 
-        retrieved_task = postgresql_session.query(Task).filter(
-            Task.title == "PostgreSQL Test Task"
-        ).first()
+        retrieved_task = (
+            postgresql_session.query(Task).filter(Task.title == "PostgreSQL Test Task").first()
+        )
         assert retrieved_task is not None
         assert retrieved_task.work_type == "testing"
 
-        retrieved_label = postgresql_session.query(Label).filter(
-            Label.name == "postgresql-test"
-        ).first()
+        retrieved_label = (
+            postgresql_session.query(Label).filter(Label.name == "postgresql-test").first()
+        )
         assert retrieved_label is not None
 
         # Test extra_data JSON field
@@ -194,8 +201,7 @@ class TestPostgreSQLDocker:
         assert extra_data["priority"] == 1
 
     def test_postgresql_relationships_and_constraints(
-        self: "TestPostgreSQLDocker",
-        postgresql_session: Any
+        self: TestPostgreSQLDocker, postgresql_session: Any
     ) -> None:
         """Test PostgreSQL foreign key relationships and constraints."""
         # Create goal and labels
@@ -212,9 +218,9 @@ class TestPostgreSQLDocker:
         postgresql_session.commit()
 
         # Verify relationship
-        retrieved_goal = postgresql_session.query(Goal).filter(
-            Goal.title == "Relationship Test"
-        ).first()
+        retrieved_goal = (
+            postgresql_session.query(Goal).filter(Goal.title == "Relationship Test").first()
+        )
         assert len(retrieved_goal.labels) == 2
 
         label_names = [label.name for label in retrieved_goal.labels]
@@ -229,8 +235,7 @@ class TestPostgreSQLDocker:
             postgresql_session.commit()
 
     def test_postgresql_transaction_handling(
-        self: "TestPostgreSQLDocker",
-        postgresql_session: Any
+        self: TestPostgreSQLDocker, postgresql_session: Any
     ) -> None:
         """Test PostgreSQL transaction handling and rollback."""
         initial_count = postgresql_session.query(Goal).count()
@@ -272,8 +277,7 @@ class TestPostgreSQLDocker:
         assert final_count == initial_count + 2  # Only the successful ones
 
     def test_postgresql_performance_characteristics(
-        self: "TestPostgreSQLDocker",
-        postgresql_session: Any
+        self: TestPostgreSQLDocker, postgresql_session: Any
     ) -> None:
         """Test PostgreSQL performance characteristics."""
         import time
@@ -281,10 +285,7 @@ class TestPostgreSQLDocker:
         # Test bulk insert performance
         start_time = time.time()
 
-        goals = [
-            Goal(title=f"Performance Goal {i}", description=f"Test {i}")
-            for i in range(100)
-        ]
+        goals = [Goal(title=f"Performance Goal {i}", description=f"Test {i}") for i in range(100)]
 
         postgresql_session.add_all(goals)
         postgresql_session.commit()
@@ -297,9 +298,9 @@ class TestPostgreSQLDocker:
         # Test bulk query performance
         start_time = time.time()
 
-        all_goals = postgresql_session.query(Goal).filter(
-            Goal.title.like("Performance Goal%")
-        ).all()
+        all_goals = (
+            postgresql_session.query(Goal).filter(Goal.title.like("Performance Goal%")).all()
+        )
 
         query_time = time.time() - start_time
 
@@ -308,8 +309,7 @@ class TestPostgreSQLDocker:
         assert len(all_goals) == 100
 
     def test_postgresql_schema_export_import(
-        self: "TestPostgreSQLDocker",
-        postgresql_container: str
+        self: TestPostgreSQLDocker, postgresql_container: str
     ) -> None:
         """Test PostgreSQL schema export and import functionality."""
         # Create a temporary database for testing import/export
@@ -328,35 +328,41 @@ class TestPostgreSQLDocker:
                 title="Export Test Goal",
                 description="Testing export functionality",
                 owner="export-test",
-                severity="critical"
+                severity="critical",
             )
             session.add(goal)
             session.commit()
             session.close()
 
             # Export schema
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.sql', delete=False) as temp_file:
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".sql", delete=False) as temp_file:
                 temp_path = temp_file.name
 
             # Use pg_dump to export schema
             import subprocess
+
             config = TestPostgreSQLConfig.DEFAULT_CONFIG
 
             dump_cmd = [
                 "pg_dump",
-                "--host", config["host"],
-                "--port", str(config["port"]),
-                "--username", config["username"],
+                "--host",
+                config["host"],
+                "--port",
+                str(config["port"]),
+                "--username",
+                config["username"],
                 "--no-password",
                 "--schema-only",
                 "--no-owner",
                 "--no-privileges",
-                "--file", temp_path,
-                config["database"]
+                "--file",
+                temp_path,
+                config["database"],
             ]
 
             # Set PGPASSWORD environment variable for pg_dump
             import os
+
             env = os.environ.copy()
             env["PGPASSWORD"] = config["password"]
 
@@ -381,14 +387,13 @@ class TestPostgreSQLDocker:
         finally:
             # Clean up temp file
             Path(temp_path).unlink(missing_ok=True)
-            if 'engine' in locals():
+            if "engine" in locals():
                 engine.dispose()
-            if 'drop_engine' in locals():
+            if "drop_engine" in locals():
                 drop_engine.dispose()
 
     def test_postgresql_data_types_support(
-        self: "TestPostgreSQLDocker",
-        postgresql_session: Any
+        self: TestPostgreSQLDocker, postgresql_session: Any
     ) -> None:
         """Test PostgreSQL-specific data type support."""
         # Test JSON field with complex data
@@ -398,29 +403,26 @@ class TestPostgreSQLDocker:
                     "arrays": [1, 2, 3],
                     "objects": {"key": "value"},
                     "boolean": True,
-                    "null": None
+                    "null": None,
                 }
             },
             "tags": ["postgresql", "testing", "json"],
-            "config": {
-                "enabled": True,
-                "timeout": 30.5
-            }
+            "config": {"enabled": True, "timeout": 30.5},
         }
 
         goal = Goal(
             title="JSON Data Type Test",
             description="Testing PostgreSQL JSON field support",
-            extra_data=json.dumps(complex_data)
+            extra_data=json.dumps(complex_data),
         )
 
         postgresql_session.add(goal)
         postgresql_session.commit()
 
         # Retrieve and verify JSON data integrity
-        retrieved_goal = postgresql_session.query(Goal).filter(
-            Goal.title == "JSON Data Type Test"
-        ).first()
+        retrieved_goal = (
+            postgresql_session.query(Goal).filter(Goal.title == "JSON Data Type Test").first()
+        )
 
         assert retrieved_goal is not None
 
@@ -431,20 +433,13 @@ class TestPostgreSQLDocker:
         assert retrieved_data["config"]["enabled"] is True
 
     def test_postgresql_concurrent_access(
-        self: "TestPostgreSQLDocker",
-        postgresql_container: str
+        self: TestPostgreSQLDocker, postgresql_container: str
     ) -> None:
         """Test PostgreSQL concurrent access handling."""
         # Create multiple sessions to test concurrency
-        engines = [
-            create_engine(postgresql_container)
-            for _ in range(3)
-        ]
+        engines = [create_engine(postgresql_container) for _ in range(3)]
 
-        sessions = [
-            sessionmaker(bind=engine)()
-            for engine in engines
-        ]
+        sessions = [sessionmaker(bind=engine)() for engine in engines]
 
         try:
             # Create goals concurrently
@@ -460,9 +455,7 @@ class TestPostgreSQLDocker:
 
             # Verify all data was created correctly
             total_goals = sum(
-                session.query(Goal).filter(
-                    Goal.title.like("Concurrent Goal%")
-                ).count()
+                session.query(Goal).filter(Goal.title.like("Concurrent Goal%")).count()
                 for session in sessions
             )
 

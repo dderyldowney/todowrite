@@ -2,46 +2,14 @@ from __future__ import annotations
 
 """Core ToDoWrite functionality - Clean separation of models and types."""
 
-# SQLAlchemy Models - ONLY from todowrite.core.models
-from .models import (
-    AcceptanceCriteria,
-    Base,
-    Command,
-    Concept,
-    Constraints,
-    Context,
-    Goal,
-    InterfaceContract,
-    Label,
-    Phase,
-    Requirements,
-    Step,
-    SubTask,
-    Task,
-)
-
-# Type definitions - ONLY from todowrite.core.types
-from .types import (
-    LayerType,
-    StatusType,
-)
+# Re-export only what's needed for the core module interface
+# Models should be imported from todowrite.core.models, not from todowrite.core
+from .models import Base
+from .types import LayerType, StatusType
 
 __all__ = [
-    # SQLAlchemy Models (12 layers + Base)
-    "AcceptanceCriteria",
+    # Core essentials only - models imported from todowrite.core.models
     "Base",
-    "Command",
-    "Concept",
-    "Constraints",
-    "Context",
-    "Goal",
-    "InterfaceContract",
-    "Label",
-    "Phase",
-    "Requirements",
-    "Step",
-    "SubTask",
-    "Task",
     # Type definitions
     "LayerType",
     "StatusType",

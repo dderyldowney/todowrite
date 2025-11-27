@@ -55,7 +55,7 @@ TRUNCATE staging_import_data;         # Staging environment only
 #### Investigation Commands
 ```bash
 # Check if table contains production data
-docker exec mcp-postgres psql -U mcp_user -d todowrite -c "
+docker exec todowrite-postgres psql -U mcp_user -d todowrite -c "
 SELECT
     schemaname,
     tablename,
@@ -67,7 +67,7 @@ WHERE tablename = 'your_table_name';
 "
 
 # Check recent activity
-docker exec mcp-postgres psql -U mcp_user -d todowrite -c "
+docker exec todowrite-postgres psql -U mcp_user -d todowrite -c "
 SELECT schemaname, tablename, seq_scan, seq_tup_read
 FROM pg_stat_user_tables
 WHERE schemaname = 'public'
@@ -75,7 +75,7 @@ ORDER BY seq_tup_read DESC;
 "
 
 # Verify table structure and dependencies
-docker exec mcp-postgres psql -U mcp_user -d todowrite -c "
+docker exec todowrite-postgres psql -U mcp_user -d todowrite -c "
 SELECT
     tc.table_name,
     tc.constraint_name,
@@ -97,7 +97,7 @@ echo $DATABASE_URL | grep -i prod
 echo $APP_ENV | grep -i production
 
 # Check database connection details
-docker exec mcp-postgres psql -U mcp_user -d todowrite -c "SELECT current_database();"
+docker exec todowrite-postgres psql -U mcp_user -d todowrite -c "SELECT current_database();"
 
 # Check container naming
 docker ps | grep -i prod

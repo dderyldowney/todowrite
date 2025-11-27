@@ -56,7 +56,7 @@ The startup script (`./start-ai-cli.sh`) automatically enforces all CLAUDE.md ru
    - `EPISODIC_MEMORY_DB_PATH`: Project-specific episodic memory
 4. **Database Verification**: Checks that the development database exists
 5. **Rule Enforcement**: Runs `.claude/startup_enforcement.py` to verify all CLAUDE.md rules
-6. **Episodic Memory**: Initializes episodic memory system (MCP)
+6. **Episodic Memory**: Initializes episodic memory system
 7. **HAL Agent Dependencies**: Installs and verifies HAL Agent system
 8. **ToDoWrite Models API**: Initializes the Rails ActiveRecord API
 9. **HAL Agent System**: Verifies local preprocessing (0 API tokens)

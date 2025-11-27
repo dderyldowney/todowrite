@@ -33,9 +33,6 @@ def enforce_claude_md_loading():
         mandates_applied = []
 
         # Check for key mandates in the streamlined CLAUDE.md
-        if "MCP-FIRST MANDATE (NO EXCEPTIONS)" in claude_md_content:
-            mandates_applied.append("MCP-FIRST MANDATE")
-            os.environ["MCP_FIRST_MANDATE"] = "true"
 
         if "TDD MANDATE (NON-NEGOTIABLE)" in claude_md_content:
             mandates_applied.append("TDD COMPLIANCE ENFORCEMENT")
@@ -77,10 +74,6 @@ def enforce_claude_md_loading():
     # 2. Verify environment variables are sourced
     required_vars = [
         "TODOWRITE_DATABASE_URL",
-        "EPISODIC_MEMORY_DB_URL",
-        "MCP_SESSIONS_DB_URL",
-        "MCP_FILESYSTEM_DATABASE_URL",
-        "MCP_DATABASE_URL",
         "HAL_PREPROCESSING_MANDATORY",
     ]
 
@@ -105,7 +98,7 @@ def enforce_claude_md_loading():
     print("✅ HAL preprocessing is mandatory")
 
     # 4. Verify PostgreSQL container
-    import subprocess  # noqa: S404
+    import subprocess
 
     try:
         # First check if Docker daemon is responsive
@@ -119,9 +112,9 @@ def enforce_claude_md_loading():
             print("❌ CRITICAL: Docker daemon not responding!")
             return False
 
-        # Check for mcp-postgres container with multiple methods
+        # Check for todowrite-postgres container with multiple methods
         result_name = subprocess.run(
-            ["docker", "ps", "--filter", "name=mcp-postgres", "--quiet"],
+            ["docker", "ps", "--filter", "name=todowrite-postgres", "--quiet"],
             capture_output=True,
             text=True,
             timeout=10,
@@ -135,7 +128,7 @@ def enforce_claude_md_loading():
         )
 
         # Check if container is running by either exact name match or in list
-        container_running = result_name.stdout.strip() or "mcp-postgres" in result_all.stdout
+        container_running = result_name.stdout.strip() or "todowrite-postgres" in result_all.stdout
 
         if not container_running:
             print("❌ CRITICAL: PostgreSQL container not running!")
@@ -151,23 +144,19 @@ def enforce_claude_md_loading():
     try:
         # Check container is running
         result = subprocess.run(
-            ["docker", "ps", "--filter", "name=mcp-postgres", "--quiet"],
+            ["docker", "ps", "--filter", "name=todowrite-postgres", "--quiet"],
             capture_output=True,
             text=True,
             timeout=10,
         )
         if not result.stdout.strip():
-            print("❌ CRITICAL: PostgreSQL container mcp-postgres not running!")
+            print("❌ CRITICAL: PostgreSQL container todowrite-postgres not running!")
             return False
-        print("✅ PostgreSQL container mcp-postgres verified")
+        print("✅ PostgreSQL container todowrite-postgres verified")
 
         # Verify all required databases exist
         required_databases = [
             "todowrite",
-            "mcp_episodic_memory",
-            "mcp_sessions",
-            "mcp_filesystem",
-            "mcp_main",
         ]
 
         for db_name in required_databases:
@@ -178,10 +167,10 @@ def enforce_claude_md_loading():
                 [
                     "docker",
                     "exec",
-                    "mcp-postgres",
+                    "todowrite-postgres",
                     "psql",
                     "-U",
-                    "mcp_user",
+                    "todowrite_user",
                     "-d",
                     "postgres",
                     "-c",
@@ -201,10 +190,10 @@ def enforce_claude_md_loading():
             [
                 "docker",
                 "exec",
-                "mcp-postgres",
+                "todowrite-postgres",
                 "psql",
                 "-U",
-                "mcp_user",
+                "todowrite_user",
                 "-d",
                 "todowrite",
                 "-c",
@@ -224,10 +213,10 @@ def enforce_claude_md_loading():
             [
                 "docker",
                 "exec",
-                "mcp-postgres",
+                "todowrite-postgres",
                 "psql",
                 "-U",
-                "mcp_user",
+                "todowrite_user",
                 "-d",
                 "mcp_episodic_memory",
                 "-c",
@@ -269,7 +258,6 @@ def enforce_claude_md_loading():
     print("📋 **POLICY DOCUMENT VERIFICATION**")
     policy_dir = Path("docs/policies")
     required_policies = [
-        "MCP_FIRST_WORKFLOW.md",
         "TDD_REQUIREMENTS.md",
         "VALIDATION_TESTING.md",
         "POSTGRESQL_ARCHITECTURE.md",
@@ -322,20 +310,8 @@ def enforce_claude_md_loading():
     except Exception as e:
         print(f"⚠️  Real-time token monitoring initialization failed: {e}")
 
-    # Load MCP workflow mandates for session continuity
-    try:
-        mandates_file = Path("MCP_WORKFLOW_MANDATES.md")
-        if mandates_file.exists():
-            print("✅ MCP workflow mandates loaded for session continuity")
-        else:
-            print("⚠️  MCP_WORKFLOW_MANDATES.md not found")
-    except Exception as e:
-        print(f"⚠️  MCP workflow mandates loading failed: {e}")
-
     # 9. Verify CLAUDE.md mandates are enforced
     active_mandates = []
-    if os.environ.get("MCP_FIRST_MANDATE") == "true":
-        active_mandates.append("MCP-FIRST WORKFLOW")
     if os.environ.get("DEVELOPMENT_STANDARDS_MANDATORY") == "true":
         active_mandates.append("DEVELOPMENT STANDARDS")
     if os.environ.get("TDD_COMPLIANCE_MANDATORY") == "true":
@@ -365,7 +341,6 @@ def verify_mandates_enforced():
     print("\n🔍 **MANDATE ENFORCEMENT VERIFICATION**")
 
     critical_mandates = {
-        "MCP_FIRST_MANDATE": "MCP-FIRST WORKFLOW MANDATE",
         "DEVELOPMENT_STANDARDS_MANDATORY": "DEVELOPMENT STANDARDS COMPLIANCE",
         "TDD_COMPLIANCE_MANDATORY": "TDD COMPLIANCE ENFORCEMENT",
         "POSTGRESQL_FIRST_MANDATORY": "POSTGRESQL-FIRST ARCHITECTURE",

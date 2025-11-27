@@ -87,5 +87,20 @@
     "tests/web",
     "**/node_modules",
     "**/__pycache__"
+  ],
+  "python.analysis.extraPaths": [
+    "./lib_package/src"
+  ],
+  "sqltools.connections": [
+    {
+      "ssh": "Disabled",
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5432,
+      "driver": "PostgreSQL",
+      "name": "localhost",
+      "database": "todowrite",
+      "username": "todowrite_user"
+    }
   ]
 }

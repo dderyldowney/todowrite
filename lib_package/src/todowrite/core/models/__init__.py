@@ -8,17 +8,17 @@ You can import models in two ways:
 from todowrite.core.models import Goal, Task, Command
 
 # Or import specific models
-from todowrite.core.models.goal import Goal
-from todowrite.core.models.task import Task
-from todowrite.core.models.command import Command
+from todowrite.core.models import Goal
+from todowrite.core.models import Task
+from todowrite.core.models import Command
 
 Models Available:
 - Base: SQLAlchemy declarative base
 - Goal: High-level project objectives
 - Concept: Abstract ideas and requirements
 - Context: Background information and constraints
-- Constraints: Technical and business constraints
-- Requirements: Specific functional requirements
+- Constraint: Technical and business constraints
+- Requirement: Specific functional requirements
 - AcceptanceCriteria: Definition of done criteria
 - InterfaceContract: API and interface contracts
 - Phase: Project phases and milestones
@@ -38,14 +38,14 @@ from .acceptance_criteria import AcceptanceCriteria
 from .base import Base
 from .command import Command
 from .concept import Concept
-from .constraints import Constraints
+from .constraint import Constraint
 from .context import Context
 from .goal import Goal
 from .interface_contract import InterfaceContract
 from .label import Label
 from .metadata import Metadata
 from .phase import Phase
-from .requirements import Requirements
+from .requirement import Requirement
 from .step import Step
 from .sub_task import SubTask
 from .task import Task
@@ -56,14 +56,14 @@ __all__ = [
     "Base",
     "Command",
     "Concept",
-    "Constraints",
+    "Constraint",
     "Context",
     "Goal",
     "InterfaceContract",
     "Label",
     "Metadata",
     "Phase",
-    "Requirements",
+    "Requirement",
     "Step",
     "SubTask",
     "Task",

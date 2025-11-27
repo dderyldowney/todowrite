@@ -9,27 +9,22 @@ from __future__ import annotations
 
 import json
 import subprocess
-import tempfile
-from pathlib import Path
-from typing import Any, Dict, Optional
 import time
+from pathlib import Path
+from typing import Any
 
 import pytest
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
-
-from todowrite.core.models import Base, Goal, Task, Label, Command
 
 
 class DockerManager:
     """Manages Docker containers for testing purposes."""
 
-    def __init__(self: "DockerManager") -> None:
+    def __init__(self: DockerManager) -> None:
         """Initialize Docker manager."""
         self.is_available: bool = self._check_docker_availability()
-        self.compose_files: Dict[str, Path] = self._find_compose_files()
+        self.compose_files: dict[str, Path] = self._find_compose_files()
 
-    def _check_docker_availability(self: "DockerManager") -> bool:
+    def _check_docker_availability(self: DockerManager) -> bool:
         """Check if Docker and Docker Compose are available."""
         try:
             # Check Docker daemon
@@ -61,7 +56,7 @@ class DockerManager:
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError):
             return False
 
-    def _find_compose_files(self: "DockerManager") -> Dict[str, Path]:
+    def _find_compose_files(self: DockerManager) -> dict[str, Path]:
         """Find Docker Compose files in the project."""
         # Navigate from tests/lib/docker/ to tests/ directory
         current_dir = Path(__file__).parent
@@ -74,12 +69,12 @@ class DockerManager:
 
         return compose_files
 
-    def is_docker_available(self: "DockerManager") -> bool:
+    def is_docker_available(self: DockerManager) -> bool:
         """Check if Docker is available and running."""
         return self.is_available
 
     def start_postgresql_container(
-        self: "DockerManager",
+        self: DockerManager,
         compose_file: str = "docker-compose",
         timeout: int = 60,
     ) -> bool:
@@ -107,7 +102,7 @@ class DockerManager:
             return False
 
     def stop_postgresql_container(
-        self: "DockerManager",
+        self: DockerManager,
         compose_file: str = "docker-compose",
     ) -> bool:
         """Stop PostgreSQL container using Docker Compose."""
@@ -131,7 +126,7 @@ class DockerManager:
             return False
 
     def _wait_for_postgresql_ready(
-        self: "DockerManager",
+        self: DockerManager,
         compose_path: Path,
         timeout: int,
     ) -> bool:
@@ -171,20 +166,20 @@ class DockerManager:
         return False
 
     def get_postgresql_connection_url(
-        self: "DockerManager",
+        self: DockerManager,
         database: str = "todowrite",
         username: str = "todowrite",
         password: str = "todowrite_dev_password",
         host: str = "localhost",
         port: int = 5432,
-    ) -> Optional[str]:
+    ) -> str | None:
         """Get PostgreSQL connection URL for running container."""
         if not self.is_available:
             return None
 
         return f"postgresql://{username}:{password}@{host}:{port}/{database}"
 
-    def cleanup_test_containers(self: "DockerManager") -> None:
+    def cleanup_test_containers(self: DockerManager) -> None:
         """Clean up any test containers and volumes."""
         if not self.is_available:
             return
