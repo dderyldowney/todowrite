@@ -1,9 +1,9 @@
 # ToDoWrite: Hierarchical Task Management System
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![Version 0.5.0](https://img.shields.io/badge/version-0.5.0-green.svg)](https://github.com/dderyldowney/todowrite)
-[![PyPI](https://img.shields.io/badge/todowrite-0.5.0-blue.svg)](https://pypi.org/project/todowrite/)
-[![PyPI CLI](https://img.shields.io/badge/todowrite--cli-0.5.0-blue.svg)](https://pypi.org/project/todowrite-cli/)
+[![Version 0.6.1](https://img.shields.io/badge/version-0.6.1-green.svg)](https://github.com/dderyldowney/todowrite)
+[![PyPI](https://img.shields.io/badge/todowrite-0.6.1-blue.svg)](https://pypi.org/project/todowrite/)
+[![PyPI CLI](https://img.shields.io/badge/todowrite--cli-0.6.1-blue.svg)](https://pypi.org/project/todowrite-cli/)
 [![Tests Passing](https://img.shields.io/badge/tests-157%20passing-brightgreen.svg)](https://github.com/dderyldowney/todowrite)
 [![Real Implementations](https://img.shields.io/badge/tests-real%20implementations-blue.svg)](https://github.com/dderyldowney/todowrite)
 [![Web App Ready](https://img.shields.io/badge/web%20app-react%20%2B%20fastapi-blue.svg)](https://github.com/dderyldowney/todowrite)
